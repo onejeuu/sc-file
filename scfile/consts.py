@@ -22,10 +22,10 @@ class Normalization(NamedTuple):
 
 
 class DDSFormat(Enum):
-	DXT1 = b'DXT1'
-	DXT5 = b'DXT5'
-	RGBA = b'RGBA'
-	BIT8 = b'RGBA'
+    DXT1 = b'DXT1'
+    DXT5 = b'DXT5'
+    RGBA = b'RGBA'
+    BIT8 = b'RGBA'
 
 
 class DDS(NamedTuple):

@@ -52,8 +52,8 @@ class DDSFile(BaseOutputFile):
         self._write(DDS.G_BITMASK)
         self._write(DDS.A_BITMASK)
 
-    def _write(self, i: int):
+    def _write(self, i: int) -> None:
         self.buffer.write(struct.pack("<I", i))
 
-    def _space(self, i: int):
+    def _space(self, i: int) -> None:
         self.buffer.write(b'\x00' * i)

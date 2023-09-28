@@ -2,17 +2,20 @@ from abc import ABC, abstractmethod, abstractproperty
 from io import BufferedReader, BytesIO
 from pathlib import Path
 
-from scfile.exceptions import InvalidSignature
+from scfile import exceptions as exc
 from scfile.reader import BinaryFileReader
 
 
 class BaseInputFile(ABC):
     def __init__(self, buffer: BufferedReader, validate: bool = True):
-        self.validate = validate
-        self.filename = Path(buffer.name).stem
+        self._path = Path(buffer.name)
+
         self.reader = BinaryFileReader(buffer=buffer)
         self.buffer = BytesIO()
 
+        self.validate = validate
+
+        self.check_filesize()
         self.check_signature()
 
     @abstractproperty
@@ -27,6 +30,14 @@ class BaseInputFile(ABC):
     def output(self) -> bytes:
         return self.buffer.getvalue()
 
+    @property
+    def filename(self) -> str:
+        return self._path.stem
+
+    @property
+    def filesize(self) -> int:
+        return self._path.stat().st_size
+
     def validate_signature(self, signature: int) -> bool:
         return signature == self.signature
 
@@ -34,7 +45,11 @@ class BaseInputFile(ABC):
         signature = self.reader.udword()
 
         if self.validate and not self.validate_signature(signature):
-            raise InvalidSignature()
+            raise exc.InvalidSignature()
+
+    def check_filesize(self) -> None:
+        if self.filesize <= 0:
+            raise exc.FileIsEmpty()
 
 
 class BaseOutputFile(ABC):

@@ -22,13 +22,17 @@ class Texture:
 
 
 @dataclass
+class VertexBone:
+    ids: Dict[int, int] = field(default_factory=dict)
+    weights: Dict[int, float] = field(default_factory=dict)
+
+
+@dataclass
 class Vertex:
     position: Vector = field(default_factory=Vector)
     normals: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
-    bone_count: int = 0
-    bone_ids: List[int] = field(default_factory=lambda: [0] * 4)
-    bone_weights: List[float] = field(default_factory=lambda: [0.0] * 4)
+    bone: VertexBone = field(default_factory=VertexBone)
 
 
 @dataclass
@@ -40,10 +44,11 @@ class Polygon:
 
 @dataclass
 class Mesh:
+    name: str = "name"
+    material: str = "material"
+    link_count: int = 0
     vertices: List[Vertex] = field(default_factory=lambda: [Vertex()])
     polygons: List[Polygon] = field(default_factory=lambda: [Polygon()])
-    name: str = ""
-    material: str = ""
 
     def resize_vertices(self, count: int):
         self.vertices = [Vertex() for _ in range(count)]
@@ -54,7 +59,7 @@ class Mesh:
 
 @dataclass
 class Bone:
-    name: str = ""
+    name: str = "bone"
     parent_id: int = ROOT_BONE_ID
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)

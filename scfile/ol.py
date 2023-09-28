@@ -26,7 +26,7 @@ class OlFile(BaseInputFile):
 
         return self.output
 
-    def _convert(self):
+    def _convert(self) -> bytes:
         # reading header
         self.width = self.reader.udword()
         self.height = self.reader.udword()
@@ -56,7 +56,7 @@ class OlFile(BaseInputFile):
 
         return self.output
 
-    def identify_format(self, olformat: str):
+    def identify_format(self, olformat: str) -> DDSFormat:
         match olformat:
             case "#?3VGGGGGGGGGGGG": return DDSFormat.DXT1
             case "#?3RGGGGGGGGGGGG": return DDSFormat.DXT5

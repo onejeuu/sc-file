@@ -5,6 +5,9 @@ class ScFileException(Exception):
 class InvalidSignature(ScFileException):
     pass
 
+class FileIsEmpty(ScFileException):
+    pass
+
 
 class OlFileError(ScFileException):
     pass

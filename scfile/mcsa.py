@@ -1,19 +1,12 @@
-from typing import NamedTuple, Dict
+from enum import IntEnum, auto
+from typing import Dict
 
 from scfile import exceptions as exc
 from scfile.base import BaseInputFile
-from scfile.consts import Signature, Normalization, ROOT_BONE_ID
+from scfile.consts import ROOT_BONE_ID, Normalization, Signature
 from scfile.model import Bone, Mesh, Model, Vertex, scaled
 from scfile.obj import ObjFile
 from scfile.reader import ByteOrder
-
-
-class Flag(NamedTuple):
-    SKELETON = 0
-    UV = 1
-    FLAG_3 = 2
-    FLAG_4 = 3
-    FLAG_5 = 4
 
 
 class McsaFile(BaseInputFile):
@@ -44,11 +37,11 @@ class McsaFile(BaseInputFile):
         self._parse_header()
 
         # parsing meshes
-        for i in range(self.meshes_count):
-            self.model.meshes[i] = self._parse_mesh()
+        for index in range(self.meshes_count):
+            self.model.meshes[index] = self._parse_mesh()
 
         # parsing skeleton (if exists)
-        if self._SKELETON_PRESENT:
+        if self.flags[Flags.SKELETON]:
             self._parse_skeleton()
 
         return self.output
@@ -62,18 +55,18 @@ class McsaFile(BaseInputFile):
             case 7.0 | 8.0: flags_count = int(version - 3.0)
             case _: raise exc.UnknownVersion()
 
-        self.flags: Dict[int, int] = self._create_flags()
+        self.flags = McsaFlags()
 
-        for i in range(flags_count):
-            self.flags[i] = self.reader.byte()
+        for index in range(flags_count):
+            self.flags[index] = self.reader.byte()
 
-        if self._flags_unsupported:
+        if self.flags.unsupported:
             raise exc.UnsupportedFlags()
 
         self.xyz_scale = self.reader.float()
         self.uv_scale = 0.0
 
-        if self._UV_PRESENT:
+        if self.flags[Flags.UV]:
             self.uv_scale = self.reader.float()
 
         self.meshes_count = self.reader.udword()
@@ -92,20 +85,11 @@ class McsaFile(BaseInputFile):
                 "Cannot read string, maybe .mcsa file structure was updated"
             )
 
-        # parsing bone indexes
         self._parse_bone_indexes()
-
-        # fill mesh vertices list to empty vertices
-        vertices_count = self.reader.udword()
-        self.mesh.resize_vertices(vertices_count)
-
-        # fill mesh polygons list to empty polygons
-        polygons_count = self.reader.udword()
-        self.mesh.resize_polygons(polygons_count)
+        self._parse_counts()
 
         # ! unknown
-        if self.flags[Flag.FLAG_3] != 0:
-            self.reader.float()
+        self._skip_flag_3()
 
         # parsing model geometric vertices
         self._parse_xyz()
@@ -122,15 +106,30 @@ class McsaFile(BaseInputFile):
         return self.mesh
 
     def _parse_bone_indexes(self):
-        self.bones_link_count = 0
+        link_count = 0
         self.bones: Dict[int, int] = {}
 
-        if self._SKELETON_PRESENT:
-            self.bones_link_count = self.reader.byte()
+        if self.flags[Flags.SKELETON]:
+            link_count = self.reader.byte()
             total_bones = self.reader.byte()
 
             for index in range(total_bones):
                 self.bones[index] = self.reader.byte()
+
+        self.mesh.link_count = link_count
+
+    def _parse_counts(self):
+        # fill mesh vertices list to empty vertices
+        vertices_count = self.reader.udword()
+        self.mesh.resize_vertices(vertices_count)
+
+        # fill mesh polygons list to empty polygons
+        polygons_count = self.reader.udword()
+        self.mesh.resize_polygons(polygons_count)
+
+    def _skip_flag_3(self):
+        if self.flags[Flags.FLAG_3]:
+            self.reader.float()
 
     def _parse_xyz(self) -> None:
         for vertex in self.mesh.vertices:
@@ -140,7 +139,7 @@ class McsaFile(BaseInputFile):
             self.reader.uword() # delimiter
 
     def _parse_uv(self) -> None:
-        if self._UV_PRESENT:
+        if self.flags[Flags.UV]:
             for vertex in self.mesh.vertices:
                 vertex.texture.u = scaled(self.uv_scale, self.reader.sword())
                 vertex.texture.v = scaled(self.uv_scale, self.reader.sword())
@@ -151,27 +150,25 @@ class McsaFile(BaseInputFile):
             self.reader.sword()
 
     def _skip_unknown(self) -> None:
-        if self.flags[Flag.FLAG_3] != 0:
+        if self.flags[Flags.FLAG_3]:
             self._skip()
 
-        if self.flags[Flag.FLAG_4] != 0:
+        if self.flags[Flags.FLAG_4]:
             self._skip()
 
     def _parse_bones(self) -> None:
-        match self.bones_link_count:
+        match self.mesh.link_count:
             case 1 | 2: self._parse_bone_packed()
             case 3 | 4: self._parse_bone_plains()
             case _: raise exc.UnsupportedLinkCount()
 
     def _parse_bone_packed(self) -> None:
         for vertex in self.mesh.vertices:
-            vertex.bone_count = self.bones_link_count
             self._parse_bone_id(vertex, 2)
             self._parse_bone_weight(vertex, 2)
 
     def _parse_bone_plains(self) -> None:
         for vertex in self.mesh.vertices:
-            vertex.bone_count = self.bones_link_count
             self._parse_bone_id(vertex, 4)
 
         for vertex in self.mesh.vertices:
@@ -180,12 +177,12 @@ class McsaFile(BaseInputFile):
     def _parse_bone_id(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
             bone_id = self.reader.byte()
-            vertex.bone_ids[index] = self.bones.get(bone_id, ROOT_BONE_ID)
+            vertex.bone.ids[index] = self.bones.get(bone_id, ROOT_BONE_ID)
 
     def _parse_bone_weight(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
             bone_weight = self.reader.byte()
-            vertex.bone_weights[index] = bone_weight / Normalization.BONE_WEIGHT
+            vertex.bone.weights[index] = bone_weight / Normalization.BONE_WEIGHT
 
     def _parse_polygons(self) -> None:
         for polygon in self.mesh.polygons:
@@ -203,9 +200,9 @@ class McsaFile(BaseInputFile):
         bones_count = self.reader.byte()
 
         for index in range(bones_count):
-            self._parse_skeleton_bone(index)
+            self._parse_bone(index)
 
-    def _parse_skeleton_bone(self, index: int) -> None:
+    def _parse_bone(self, index: int) -> None:
         bone = Bone()
 
         try:
@@ -234,20 +231,30 @@ class McsaFile(BaseInputFile):
         bone.rotation.y = self.reader.float()
         bone.rotation.z = self.reader.float()
 
-    def _create_flags(self):
-        # bruh
-        return {i: 0 for i in range(6)}
+
+class Flags(IntEnum):
+    SKELETON = 0
+    UV = auto()
+    FLAG_3 = auto()
+    FLAG_4 = auto()
+    FLAG_5 = auto()
+
+
+class McsaFlags:
+    def __init__(self):
+        self._flags: Dict[int, bool] = {}
+
+    def __getitem__(self, index: int) -> bool:
+        return bool(self._flags.get(index, 0))
+
+    def __setitem__(self, index: int, value: int):
+        self._flags[index] = bool(value)
+
+    def __str__(self):
+        return str(dict(self._flags.items()))
 
     @property
-    def _SKELETON_PRESENT(self):
-        return self.flags[Flag.SKELETON] != 0
-
-    @property
-    def _UV_PRESENT(self):
-        return self.flags[Flag.UV] != 0
-
-    @property
-    def _flags_unsupported(self):
-        return  (self.flags[Flag.FLAG_5] == 1) or \
-                (self.flags[Flag.UV] == 0 and self.flags[Flag.FLAG_3] == 1) or \
-                (self.flags[Flag.UV] == 1 and self.flags[Flag.FLAG_3] == 0)
+    def unsupported(self):
+        return  (self[Flags.FLAG_5]) or \
+                (self[Flags.FLAG_3] and not self[Flags.UV]) or \
+                (self[Flags.UV] and not self[Flags.FLAG_3])

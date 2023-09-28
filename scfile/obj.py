@@ -11,8 +11,6 @@ class ObjFile(BaseOutputFile):
         self.model = model
 
     def create(self) -> bytes:
-        # TODO: add skeleton if possible
-
         self._add_header()
         self._add_geometric_vertices()
         self._add_texture_coordinates()
@@ -21,16 +19,17 @@ class ObjFile(BaseOutputFile):
 
         return self.output
 
-    def _add_header(self):
+    def _add_header(self) -> None:
         self._write(
             "# OBJ Model", "\n",
             "# scfile", "\n",
             "\n",
+            "mtllib", " ", self.filename, ".mtl", "\n",
             "o", " ", self.filename, "\n",
             "\n"
         )
 
-    def _add_geometric_vertices(self):
+    def _add_geometric_vertices(self) -> None:
         for vertex in self._vertices():
             self._write(
                 "v", " ",
@@ -41,7 +40,7 @@ class ObjFile(BaseOutputFile):
             )
         self._write("\n")
 
-    def _add_texture_coordinates(self):
+    def _add_texture_coordinates(self) -> None:
         for vertex in self._vertices():
             self._write(
                 "vt", " ",
@@ -51,7 +50,7 @@ class ObjFile(BaseOutputFile):
             )
         self._write("\n")
 
-    def _add_vertex_normals(self):
+    def _add_vertex_normals(self) -> None:
         for vertex in self._vertices():
             self._write(
                 "vn", " ",
@@ -66,7 +65,7 @@ class ObjFile(BaseOutputFile):
 
         self._write("\n")
 
-    def _add_polygonal_faces(self):
+    def _add_polygonal_faces(self) -> None:
         self._write("g <Root>", "\n")
 
         for index, mesh in self.model.meshes.items():
@@ -76,13 +75,13 @@ class ObjFile(BaseOutputFile):
                 # ? im really dont know why
                 self._write(
                     "f", " ",
-                    polygon.vertex1, "/", polygon.vertex1, "/", 1,
-                    polygon.vertex2, "/", polygon.vertex2, "/", 1,
+                    polygon.vertex1, "/", polygon.vertex1, "/", 1, " ",
+                    polygon.vertex2, "/", polygon.vertex2, "/", 1, " ",
                     polygon.vertex3, "/", polygon.vertex3, "/", 1,
                     "\n"
                 )
 
-    def _normals_is_empty(self, normals: Vector):
+    def _normals_is_empty(self, normals: Vector) -> bool:
         return all(_ == 0.0 for _ in (normals.x, normals.y, normals.z))
 
     def _write(self, *data: Any) -> None:
