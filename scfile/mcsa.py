@@ -1,4 +1,4 @@
-from typing import Dict, NamedTuple, TypeAlias
+from typing import NamedTuple, Dict
 
 from scfile import exceptions as exc
 from scfile.base import BaseInputFile
@@ -6,8 +6,6 @@ from scfile.consts import Signature, Normalization, ROOT_BONE_ID
 from scfile.model import Bone, Mesh, Model, Vertex, scaled
 from scfile.obj import ObjFile
 from scfile.reader import ByteOrder
-
-Flags: TypeAlias = Dict[int, int]
 
 
 class Flag(NamedTuple):
@@ -26,7 +24,11 @@ class McsaFile(BaseInputFile):
     def to_obj(self) -> bytes:
         self._convert()
 
-        ObjFile(self.model, self.buffer, self.filename).create()
+        ObjFile(
+            self.buffer,
+            self.model,
+            self.filename
+        ).create()
 
         return self.output
 
@@ -60,7 +62,7 @@ class McsaFile(BaseInputFile):
             case 7.0 | 8.0: flags_count = int(version - 3.0)
             case _: raise exc.UnknownVersion()
 
-        self.flags: Flags = self._create_flags()
+        self.flags: Dict[int, int] = self._create_flags()
 
         for i in range(flags_count):
             self.flags[i] = self.reader.byte()
@@ -86,7 +88,9 @@ class McsaFile(BaseInputFile):
             self.mesh.material = self.reader.mcsastring()
 
         except ValueError:
-            raise exc.ModelError("Cannot read string, maybe .mcsa file structure was updated")
+            raise exc.McsaFileError(
+                "Cannot read string, maybe .mcsa file structure was updated"
+            )
 
         # parsing bone indexes
         self._parse_bone_indexes()
@@ -119,7 +123,7 @@ class McsaFile(BaseInputFile):
 
     def _parse_bone_indexes(self):
         self.bones_link_count = 0
-        self.bones: dict[int, int] = {}
+        self.bones: Dict[int, int] = {}
 
         if self._SKELETON_PRESENT:
             self.bones_link_count = self.reader.byte()
@@ -208,22 +212,24 @@ class McsaFile(BaseInputFile):
             bone.name = self.reader.mcsastring()
 
         except ValueError:
-            raise exc.ModelError("Cannot read string, maybe .mcsa file structure was updated")
+            raise exc.McsaFileError(
+                "Cannot read string, maybe .mcsa file structure was updated"
+            )
 
         parent_id = self.reader.byte()
         bone.parent_id = parent_id if parent_id != index else ROOT_BONE_ID
 
-        self._parse_skeleton_bone_position(bone)
-        self._parse_skeleton_bone_rotation(bone)
+        self._parse_bone_position(bone)
+        self._parse_bone_rotation(bone)
 
         self.model.skeleton.bones[index] = bone
 
-    def _parse_skeleton_bone_position(self, bone: Bone):
+    def _parse_bone_position(self, bone: Bone):
         bone.position.x = self.reader.float()
         bone.position.y = self.reader.float()
         bone.position.z = self.reader.float()
 
-    def _parse_skeleton_bone_rotation(self, bone: Bone):
+    def _parse_bone_rotation(self, bone: Bone):
         bone.rotation.x = self.reader.float()
         bone.rotation.y = self.reader.float()
         bone.rotation.z = self.reader.float()

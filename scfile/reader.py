@@ -1,6 +1,6 @@
 import struct
 from enum import Enum
-from io import SEEK_CUR, BufferedReader
+from io import BufferedReader
 from typing import Any, Optional
 
 
@@ -21,9 +21,6 @@ class BinaryFileReader:
 
     def tell(self):
         return self._buffer.tell()
-
-    def seek(self, offset: int, whence: int = SEEK_CUR):
-        return self._buffer.seek(offset, whence)
 
     def byte(self, order: Optional[ByteOrder] = None) -> int:
         return self._unpack("b", 1, order)

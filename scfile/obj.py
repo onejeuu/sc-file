@@ -6,7 +6,7 @@ from scfile.model import Model, Vector, Vertex
 
 
 class ObjFile(BaseOutputFile):
-    def __init__(self, model: Model, buffer: BytesIO, filename: str = "model"):
+    def __init__(self, buffer: BytesIO, model: Model, filename: str = "model"):
         super().__init__(buffer, filename)
         self.model = model
 
@@ -22,11 +22,13 @@ class ObjFile(BaseOutputFile):
         return self.output
 
     def _add_header(self):
-        self._write("# OBJ Model", "\n")
-        self._write("# scfile", "\n")
-        self._write("\n")
-        self._write("o", " ", self.filename, "\n")
-        self._write("\n")
+        self._write(
+            "# OBJ Model", "\n",
+            "# scfile", "\n",
+            "\n",
+            "o", " ", self.filename, "\n",
+            "\n"
+        )
 
     def _add_geometric_vertices(self):
         for vertex in self._vertices():

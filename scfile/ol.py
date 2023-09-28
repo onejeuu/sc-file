@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import lz4.block # type: ignore
 
@@ -91,7 +91,7 @@ class OlFile(BaseInputFile):
 
         return bytes(unpacked)
 
-    def _unpack_square(self, color0: int, color1: int, indices: Any) -> list[list[int]]:
+    def _unpack_square(self, color0: int, color1: int, indices: Any) -> List[List[int]]:
         # no clue tf is going
 
         palette = [0] * 8
