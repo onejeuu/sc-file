@@ -13,20 +13,20 @@ class ObjFile(BaseOutputFile):
     def create(self) -> bytes:
         # TODO: add skeleton if possible
 
-        self.buffer.write("# OBJ Model\n".encode())
-        self.buffer.write("# scfile\n".encode())
-        self.buffer.write("\n".encode())
-
-        self.buffer.write(f"mtllib {self.filename}.mtl\n".encode())
-        self.buffer.write(f"o {self.filename}\n".encode())
-        self.buffer.write("\n".encode())
-
+        self._add_header()
         self._add_geometric_vertices()
         self._add_texture_coordinates()
         self._add_vertex_normals()
         self._add_polygonal_faces()
 
         return self.output
+
+    def _add_header(self):
+        self._write("# OBJ Model", "\n")
+        self._write("# scfile", "\n")
+        self._write("\n")
+        self._write("o", " ", self.filename, "\n")
+        self._write("\n")
 
     def _add_geometric_vertices(self):
         for vertex in self._vertices():
