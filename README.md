@@ -1,0 +1,1 @@
+# STALCRAFT files converting library
