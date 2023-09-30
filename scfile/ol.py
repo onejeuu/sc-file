@@ -1,6 +1,6 @@
 from typing import Any, List
 
-import lz4.block # type: ignore
+import lz4.block  # type: ignore
 
 from scfile import exceptions as exc
 from scfile.base import BaseInputFile

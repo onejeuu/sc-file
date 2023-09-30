@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from scfile.consts import Normalization, ROOT_BONE_ID
+from scfile.consts import ROOT_BONE_ID, Normalization
 
 
 def scaled(scale: float, i: float) -> float:

@@ -84,11 +84,11 @@ class ObjFile(BaseOutputFile):
     def _normals_is_empty(self, normals: Vector) -> bool:
         return all(_ == 0.0 for _ in (normals.x, normals.y, normals.z))
 
-    def _write(self, *data: Any) -> None:
-        string = "".join([str(d) for d in data])
-        self.buffer.write(string.encode())
-
     def _vertices(self) -> Generator[Vertex, Any, Any]:
         for mesh in self.model.meshes.values():
             for vertex in mesh.vertices:
                 yield vertex
+
+    def _write(self, *data: Any) -> None:
+        string = "".join([str(d) for d in data])
+        self.buffer.write(string.encode())

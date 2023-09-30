@@ -15,8 +15,8 @@ class BaseInputFile(ABC):
 
         self.validate = validate
 
-        self.check_filesize()
-        self.check_signature()
+        self._check_filesize()
+        self._check_signature()
 
     @abstractproperty
     def signature(self) -> int:
@@ -41,15 +41,18 @@ class BaseInputFile(ABC):
     def validate_signature(self, signature: int) -> bool:
         return signature == self.signature
 
-    def check_signature(self) -> None:
+    def _check_filesize(self) -> None:
+        if self.filesize <= 0:
+            raise exc.FileIsEmpty()
+
+    def _check_signature(self) -> None:
         signature = self.reader.udword()
 
         if self.validate and not self.validate_signature(signature):
             raise exc.InvalidSignature()
 
-    def check_filesize(self) -> None:
-        if self.filesize <= 0:
-            raise exc.FileIsEmpty()
+    def __str__(self):
+        return f"<{self.__class__.__name__}> path='{self._path.as_posix()}' pos={self.reader.tell()}"
 
 
 class BaseOutputFile(ABC):
@@ -64,3 +67,6 @@ class BaseOutputFile(ABC):
     @property
     def output(self) -> bytes:
         return self.buffer.getvalue()
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}> filename='{self.filename}'"
