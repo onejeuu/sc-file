@@ -1,11 +1,9 @@
 from pathlib import Path
 from typing import Optional
 
-from . import exceptions as exc
-from .base import BaseSourceFile
-from .mcsa import McsaFile
-from .mic import MicFile
-from .ol import OlFile
+from scfile import exceptions as exc
+from scfile.source import McsaFile, MicFile, OlFile
+from scfile.source.base import BaseSourceFile
 
 
 def mcsa_to_obj(source: str, output: Optional[str] = None):

@@ -3,7 +3,7 @@ from enum import Enum
 from io import BufferedReader
 from typing import Any, Optional
 
-from . import exceptions as exc
+from scfile import exceptions as exc
 
 
 class ByteOrder(Enum):

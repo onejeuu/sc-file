@@ -1,9 +1,12 @@
 import argparse
 
-from . import func
+from .utils import func
 
 
 def main():
+    # TODO: Add proper error handling
+    # TODO: File drop handling
+
     parser = argparse.ArgumentParser(prog="scfile")
 
     parser.add_argument("source", type=str, help="Path to game file.")
@@ -21,8 +24,6 @@ def main():
 
     source = args.source
     output = args.output
-
-    # TODO: Add proper error handling
 
     try:
         func.auto(source, output)

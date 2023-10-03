@@ -2,6 +2,7 @@ class ScFileException(Exception):
     pass
 
 
+# * basic
 class SourceFileNotFound(ScFileException):
     pass
 
@@ -15,6 +16,7 @@ class FileIsEmpty(ScFileException):
     pass
 
 
+# * .ol files
 class OlFileError(ScFileException):
     pass
 
@@ -25,6 +27,7 @@ class OlUnknownFormat(OlFileError):
     pass
 
 
+# * .mcsa files
 class McsaFileError(ScFileException):
     pass
 

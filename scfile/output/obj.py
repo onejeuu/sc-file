@@ -1,12 +1,18 @@
 from io import BytesIO
 from typing import Any, Generator
 
+from scfile.utils.model import Model, Vector, Vertex
+
 from .base import BaseOutputFile
-from .model import Model, Vector, Vertex
 
 
 class ObjFile(BaseOutputFile):
-    def __init__(self, buffer: BytesIO, model: Model, filename: str = "model"):
+    def __init__(
+        self,
+        buffer: BytesIO,
+        filename: str,
+        model: Model,
+    ):
         super().__init__(buffer, filename)
         self.model = model
 
@@ -17,7 +23,7 @@ class ObjFile(BaseOutputFile):
         self._add_vertex_normals()
         self._add_polygonal_faces()
 
-        return self.output
+        return self.result
 
     def _add_header(self) -> None:
         self._write(
@@ -90,5 +96,5 @@ class ObjFile(BaseOutputFile):
                 yield vertex
 
     def _write(self, *data: Any) -> None:
-        string = "".join([str(d) for d in data])
-        self.buffer.write(string.encode())
+        string = "".join([str(i) for i in data])
+        self._buffer.write(string.encode())

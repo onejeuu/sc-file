@@ -1,12 +1,13 @@
 from enum import IntEnum, auto
 from typing import Dict
 
-from . import exceptions as exc
+from scfile import exceptions as exc
+from scfile.consts import ROOT_BONE_ID, Normalization, Signature
+from scfile.output import ObjFile
+from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled
+from scfile.utils.reader import ByteOrder
+
 from .base import BaseSourceFile
-from .consts import ROOT_BONE_ID, Normalization, Signature
-from .model import Bone, Mesh, Model, Vertex, scaled
-from .obj import ObjFile
-from .reader import ByteOrder
 
 
 class McsaFile(BaseSourceFile):
@@ -20,15 +21,16 @@ class McsaFile(BaseSourceFile):
     def convert(self) -> bytes:
         self._parse()
 
+        # writing converted to obj file bytes into buffer
         ObjFile(
             self.buffer,
-            self.model,
-            self.filename
+            self.filename,
+            self.model
         ).create()
 
-        return self.output
+        return self.result
 
-    def _parse(self) -> bytes:
+    def _parse(self) -> None:
         # change default byte order
         # to avoid specifying it every time
         self.reader.order = ByteOrder.LITTLE
@@ -47,8 +49,6 @@ class McsaFile(BaseSourceFile):
         if self.flags[Flags.SKELETON]:
             self._parse_skeleton()
 
-        return self.output
-
     def _parse_header(self) -> None:
         version = self.reader.float()
 
@@ -56,7 +56,7 @@ class McsaFile(BaseSourceFile):
 
         match version:
             case 7.0 | 8.0: flags_count = int(version - 3.0)
-            case _: raise exc.McsaUnknownVersion()
+            case _: raise exc.McsaUnknownVersion(f"Unknown mcsa version: {version}")
 
         self.flags = McsaFlags()
 
@@ -64,10 +64,10 @@ class McsaFile(BaseSourceFile):
             self.flags[index] = self.reader.byte()
 
         if self.flags.unsupported:
-            raise exc.McsaUnsupportedFlags()
+            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")
 
         self.xyz_scale = self.reader.float()
-        self.uv_scale = 0.0
+        self.uv_scale = 1.0
 
         if self.flags[Flags.UV]:
             self.uv_scale = self.reader.float()
@@ -154,9 +154,10 @@ class McsaFile(BaseSourceFile):
 
     def _parse_bones(self) -> None:
         match self.mesh.link_count:
+            case 0: pass
             case 1 | 2: self._parse_bone_packed()
             case 3 | 4: self._parse_bone_plains()
-            case _: raise exc.McsaUnsupportedLinkCount()
+            case _: raise exc.McsaUnsupportedLinkCount(f"Unsupported mcsa link count: {self.mesh.link_count}")
 
     def _parse_bone_packed(self) -> None:
         for vertex in self.mesh.vertices:

@@ -2,10 +2,11 @@ from typing import Any, List
 
 import lz4.block  # type: ignore
 
-from . import exceptions as exc
+from scfile import exceptions as exc
+from scfile.consts import DDSFormat, Signature
+from scfile.output import DdsFile
+
 from .base import BaseSourceFile
-from .consts import DDSFormat, Signature
-from .dds import DDSFile
 
 
 class OlFile(BaseSourceFile):
@@ -19,23 +20,25 @@ class OlFile(BaseSourceFile):
     def convert(self) -> bytes:
         self._parse()
 
-        DDSFile(
+        # writing converted to dds file bytes into buffer
+        DdsFile(
             self.buffer,
+            self.filename,
             self.width,
             self.height,
-            self.decoded_streams,
+            self.image_data,
             self.ddsformat
         ).create()
 
-        return self.output
+        return self.result
 
-    def _parse(self) -> bytes:
+    def _parse(self) -> None:
         # reading header
         self.width = self.reader.udword()
         self.height = self.reader.udword()
         streams_count = self.reader.udword()
 
-        # compression format definition
+        # pixel format definition
         olformat = self.reader.zstring()
         self.ddsformat = self.identify_format(olformat)
 
@@ -48,16 +51,15 @@ class OlFile(BaseSourceFile):
         "".join(chr(self.reader.byte()) for _ in range(id_size))
 
         # reading uncompressed pixel data
-        self.decoded_streams: bytes = lz4.block.decompress( # type: ignore
+        self.image_data: bytes = lz4.block.decompress(
             self.reader.read(compressed_size),
             uncompressed_size
         )
 
         # unpacking 8bit
         if self.ddsformat == DDSFormat.BIT8:
-            self.decoded_streams = self._unpack_bit8()
-
-        return self.output
+            self.image_data = self._unpack_bit8()
+            self.ddsformat = DDSFormat.RGBA
 
     def identify_format(self, olformat: str) -> DDSFormat:
         match olformat:
@@ -70,7 +72,7 @@ class OlFile(BaseSourceFile):
     def _unpack_bit8(self) -> bytes:
         # TODO: refactor this someone pls idk how
 
-        if self.width * self.height != len(self.decoded_streams):
+        if self.width * self.height != len(self.image_data):
             raise exc.OlUnpackingError("Invalid buffer length")
 
         if self.width % 4 != 0 or self.height % 4 != 0:
@@ -81,16 +83,18 @@ class OlFile(BaseSourceFile):
 
         for y in range(self.height // 4):
             for x in range(self.width // 4):
-                square_g = self._unpack_square(*self.decoded_streams[position:position+8])
+                square_g = self._unpack_square(*self.image_data[position:position+8])
                 position += 8
 
-                square_r = self._unpack_square(*self.decoded_streams[position:position+8])
+                square_r = self._unpack_square(*self.image_data[position:position+8])
                 position += 8
 
                 for ky in range(4):
                     for kx in range(4):
                         pixel_index = ((y * 4 + ky) * self.width + (x * 4 + kx)) * 4
-                        unpacked[pixel_index:pixel_index + 4] = (0xFF, square_r[ky][kx], square_g[ky][kx], 0xFF)
+                        unpacked[pixel_index:pixel_index + 4] = (
+                            0xFF, square_r[ky][kx], square_g[ky][kx], 0xFF
+                        )
 
         return bytes(unpacked)
 
@@ -101,9 +105,13 @@ class OlFile(BaseSourceFile):
         palette[:2] = color0, color1
 
         if color0 > color1:
-            palette[2:] = [((8 - i) * color0 + (i - 1) * color1) // 7 for i in range(2, 8)]
+            palette[2:] = [
+                ((8 - i) * color0 + (i - 1) * color1) // 7 for i in range(2, 8)
+            ]
         else:
-            palette[2:6] = [((6 - i) * color0 + (i - 1) * color1) // 5 for i in range(2, 6)]
+            palette[2:6] = [
+                ((6 - i) * color0 + (i - 1) * color1) // 5 for i in range(2, 6)
+            ]
             palette[6:] = [0, 0xFF]
 
         indices = sum((indices[i] << (i * 8)) for i in range(6))

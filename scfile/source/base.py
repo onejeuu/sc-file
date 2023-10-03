@@ -2,12 +2,18 @@ from abc import ABC, abstractmethod, abstractproperty
 from io import BufferedReader, BytesIO
 from pathlib import Path
 
-from . import exceptions as exc
-from .reader import BinaryFileReader
+from scfile import exceptions as exc
+from scfile.utils.reader import BinaryFileReader
 
 
 class BaseSourceFile(ABC):
-    def __init__(self, buffer: BufferedReader, validate: bool = True):
+    DEFAULT_VALIDATE = True
+
+    def __init__(
+        self,
+        buffer: BufferedReader,
+        validate: bool = DEFAULT_VALIDATE
+    ):
         self._path = Path(buffer.name)
 
         self.reader = BinaryFileReader(buffer=buffer)
@@ -20,18 +26,22 @@ class BaseSourceFile(ABC):
 
     @abstractproperty
     def signature(self) -> int:
+        """First 4 bytes in file."""
         ...
 
     @abstractmethod
     def convert(self) -> bytes:
+        """Parsing and creating converted file bytes."""
         ...
 
     @abstractmethod
-    def _parse(self) -> bytes:
+    def _parse(self) -> None:
+        """Parsing encrypted file."""
         ...
 
     @property
-    def output(self) -> bytes:
+    def result(self) -> bytes:
+        """Returns buffer bytes."""
         return self.buffer.getvalue()
 
     @property
@@ -60,20 +70,3 @@ class BaseSourceFile(ABC):
             f"<{self.__class__.__name__}> "
             f"path='{self._path.as_posix()}' pos={self.reader.tell()}"
         )
-
-
-class BaseOutputFile(ABC):
-    def __init__(self, buffer: BytesIO, filename: str = "file"):
-        self.buffer = buffer
-        self.filename = filename
-
-    @abstractmethod
-    def create(self) -> bytes:
-        ...
-
-    @property
-    def output(self) -> bytes:
-        return self.buffer.getvalue()
-
-    def __str__(self):
-        return f"<{self.__class__.__name__}> filename='{self.filename}'"
