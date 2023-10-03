@@ -2,19 +2,22 @@ from typing import Any, List
 
 import lz4.block  # type: ignore
 
-from scfile import exceptions as exc
-from scfile.base import BaseInputFile
-from scfile.consts import DDSFormat, Signature
-from scfile.dds import DDSFile
+from . import exceptions as exc
+from .base import BaseSourceFile
+from .consts import DDSFormat, Signature
+from .dds import DDSFile
 
 
-class OlFile(BaseInputFile):
+class OlFile(BaseSourceFile):
     @property
     def signature(self) -> int:
         return Signature.OL
 
     def to_dds(self) -> bytes:
-        self._convert()
+        return self.convert()
+
+    def convert(self) -> bytes:
+        self._parse()
 
         DDSFile(
             self.buffer,
@@ -26,7 +29,7 @@ class OlFile(BaseInputFile):
 
         return self.output
 
-    def _convert(self) -> bytes:
+    def _parse(self) -> bytes:
         # reading header
         self.width = self.reader.udword()
         self.height = self.reader.udword()
@@ -62,16 +65,16 @@ class OlFile(BaseInputFile):
             case "#?3RGGGGGGGGGGGG": return DDSFormat.DXT5
             case "% 5&_GGGGGGGGGGG": return DDSFormat.RGBA
             case "#?)8?>GGGGGGGGGG": return DDSFormat.BIT8
-            case _: raise exc.UnknownFormat()
+            case _: raise exc.OlUnknownFormat()
 
     def _unpack_bit8(self) -> bytes:
         # TODO: refactor this someone pls idk how
 
         if self.width * self.height != len(self.decoded_streams):
-            raise exc.UnpackingError("Invalid buffer length")
+            raise exc.OlUnpackingError("Invalid buffer length")
 
         if self.width % 4 != 0 or self.height % 4 != 0:
-            raise exc.UnpackingError("Dimensions not multiple of 4")
+            raise exc.OlUnpackingError("Dimensions not multiple of 4")
 
         unpacked = bytearray(self.width * self.height * 4)
         position = 0

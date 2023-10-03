@@ -1,8 +1,8 @@
 from io import BytesIO
 from typing import Any, Generator
 
-from scfile.base import BaseOutputFile
-from scfile.model import Model, Vector, Vertex
+from .base import BaseOutputFile
+from .model import Model, Vector, Vertex
 
 
 class ObjFile(BaseOutputFile):

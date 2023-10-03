@@ -1,21 +1,24 @@
 from enum import IntEnum, auto
 from typing import Dict
 
-from scfile import exceptions as exc
-from scfile.base import BaseInputFile
-from scfile.consts import ROOT_BONE_ID, Normalization, Signature
-from scfile.model import Bone, Mesh, Model, Vertex, scaled
-from scfile.obj import ObjFile
-from scfile.reader import ByteOrder
+from . import exceptions as exc
+from .base import BaseSourceFile
+from .consts import ROOT_BONE_ID, Normalization, Signature
+from .model import Bone, Mesh, Model, Vertex, scaled
+from .obj import ObjFile
+from .reader import ByteOrder
 
 
-class McsaFile(BaseInputFile):
+class McsaFile(BaseSourceFile):
     @property
     def signature(self) -> int:
         return Signature.MCSA
 
     def to_obj(self) -> bytes:
-        self._convert()
+        return self.convert()
+
+    def convert(self) -> bytes:
+        self._parse()
 
         ObjFile(
             self.buffer,
@@ -25,7 +28,7 @@ class McsaFile(BaseInputFile):
 
         return self.output
 
-    def _convert(self) -> bytes:
+    def _parse(self) -> bytes:
         # change default byte order
         # to avoid specifying it every time
         self.reader.order = ByteOrder.LITTLE
@@ -53,7 +56,7 @@ class McsaFile(BaseInputFile):
 
         match version:
             case 7.0 | 8.0: flags_count = int(version - 3.0)
-            case _: raise exc.UnknownVersion()
+            case _: raise exc.McsaUnknownVersion()
 
         self.flags = McsaFlags()
 
@@ -61,7 +64,7 @@ class McsaFile(BaseInputFile):
             self.flags[index] = self.reader.byte()
 
         if self.flags.unsupported:
-            raise exc.UnsupportedFlags()
+            raise exc.McsaUnsupportedFlags()
 
         self.xyz_scale = self.reader.float()
         self.uv_scale = 0.0
@@ -75,15 +78,8 @@ class McsaFile(BaseInputFile):
         # creating mesh dataclass
         self.mesh = Mesh()
 
-        # ! refactor this
-        try:
-            self.mesh.name = self.reader.mcsastring()
-            self.mesh.material = self.reader.mcsastring()
-
-        except ValueError:
-            raise exc.McsaFileError(
-                "Cannot read string, maybe .mcsa file structure was updated"
-            )
+        self.mesh.name = self.reader.mcsastring()
+        self.mesh.material = self.reader.mcsastring()
 
         self._parse_bone_indexes()
         self._parse_counts()
@@ -160,7 +156,7 @@ class McsaFile(BaseInputFile):
         match self.mesh.link_count:
             case 1 | 2: self._parse_bone_packed()
             case 3 | 4: self._parse_bone_plains()
-            case _: raise exc.UnsupportedLinkCount()
+            case _: raise exc.McsaUnsupportedLinkCount()
 
     def _parse_bone_packed(self) -> None:
         for vertex in self.mesh.vertices:
@@ -205,14 +201,7 @@ class McsaFile(BaseInputFile):
     def _parse_bone(self, index: int) -> None:
         bone = Bone()
 
-        try:
-            bone.name = self.reader.mcsastring()
-
-        except ValueError:
-            raise exc.McsaFileError(
-                "Cannot read string, maybe .mcsa file structure was updated"
-            )
-
+        bone.name = self.reader.mcsastring()
         parent_id = self.reader.byte()
         bone.parent_id = parent_id if parent_id != index else ROOT_BONE_ID
 

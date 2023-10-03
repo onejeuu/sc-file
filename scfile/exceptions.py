@@ -2,6 +2,12 @@ class ScFileException(Exception):
     pass
 
 
+class SourceFileNotFound(ScFileException):
+    pass
+
+class UnsupportedFormat(ScFileException):
+    pass
+
 class InvalidSignature(ScFileException):
     pass
 
@@ -12,25 +18,24 @@ class FileIsEmpty(ScFileException):
 class OlFileError(ScFileException):
     pass
 
-class UnpackingError(OlFileError):
+class OlUnpackingError(OlFileError):
     pass
 
-class UnknownFormat(OlFileError):
+class OlUnknownFormat(OlFileError):
     pass
 
 
 class McsaFileError(ScFileException):
     pass
 
-class UnknownVersion(McsaFileError):
+class McsaStringError(McsaFileError):
     pass
 
-class UnsupportedFlags(McsaFileError):
+class McsaUnknownVersion(McsaFileError):
     pass
 
-class UnsupportedLinkCount(McsaFileError):
+class McsaUnsupportedFlags(McsaFileError):
     pass
 
-
-class ModelError(ScFileException):
+class McsaUnsupportedLinkCount(McsaFileError):
     pass

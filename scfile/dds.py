@@ -1,8 +1,8 @@
 import struct
 from io import BytesIO
 
-from scfile.base import BaseOutputFile
-from scfile.consts import DDS, DDSFormat, Magic
+from .base import BaseOutputFile
+from .consts import DDS, DDSFormat, Magic
 
 
 class DDSFile(BaseOutputFile):

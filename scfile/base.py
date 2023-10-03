@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod, abstractproperty
 from io import BufferedReader, BytesIO
 from pathlib import Path
 
-from scfile import exceptions as exc
-from scfile.reader import BinaryFileReader
+from . import exceptions as exc
+from .reader import BinaryFileReader
 
 
-class BaseInputFile(ABC):
+class BaseSourceFile(ABC):
     def __init__(self, buffer: BufferedReader, validate: bool = True):
         self._path = Path(buffer.name)
 
@@ -23,7 +23,11 @@ class BaseInputFile(ABC):
         ...
 
     @abstractmethod
-    def _convert(self) -> bytes:
+    def convert(self) -> bytes:
+        ...
+
+    @abstractmethod
+    def _parse(self) -> bytes:
         ...
 
     @property
@@ -52,7 +56,10 @@ class BaseInputFile(ABC):
             raise exc.InvalidSignature()
 
     def __str__(self):
-        return f"<{self.__class__.__name__}> path='{self._path.as_posix()}' pos={self.reader.tell()}"
+        return (
+            f"<{self.__class__.__name__}> "
+            f"path='{self._path.as_posix()}' pos={self.reader.tell()}"
+        )
 
 
 class BaseOutputFile(ABC):

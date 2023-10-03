@@ -3,6 +3,8 @@ from enum import Enum
 from io import BufferedReader
 from typing import Any, Optional
 
+from . import exceptions as exc
+
 
 class ByteOrder(Enum):
     BIG = ">"
@@ -63,10 +65,14 @@ class BinaryFileReader:
     def mcsastring(self):
         """mcsa file string"""
 
-        result = ""
-        length = self.uword(ByteOrder.LITTLE)
+        try:
+            result = ""
+            length = self.uword(ByteOrder.LITTLE)
 
-        for _ in range(length):
-            result += chr(self.byte())
+            for _ in range(length):
+                result += chr(self.byte())
+
+        except Exception as err:
+            raise exc.McsaStringError(err)
 
         return result
