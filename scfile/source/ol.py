@@ -83,7 +83,7 @@ class OlFile(BaseSourceFile):
 
     def _check_fourcc(self) -> None:
         if self.fourcc not in _SUPPORTED_FORMATS:
-            raise exc.OlUnknownFormat(f"Unsupported format: {self.fourcc}")
+            raise exc.OlUnsupportedFormat(f"Unsupported format: {self.fourcc}")
 
     def _unpack_dxn(self) -> bytes:
         # TODO: refactor this someone pls idk how

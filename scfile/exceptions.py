@@ -20,10 +20,10 @@ class FileIsEmpty(ScFileException):
 class OlFileError(ScFileException):
     pass
 
-class OlUnpackingError(OlFileError):
+class OlUnsupportedFormat(OlFileError):
     pass
 
-class OlUnknownFormat(OlFileError):
+class OlUnpackingError(OlFileError):
     pass
 
 
@@ -34,7 +34,7 @@ class McsaFileError(ScFileException):
 class McsaStringError(McsaFileError):
     pass
 
-class McsaUnknownVersion(McsaFileError):
+class McsaUnsupportedVersion(McsaFileError):
     pass
 
 class McsaUnsupportedFlags(McsaFileError):

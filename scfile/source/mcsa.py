@@ -11,6 +11,12 @@ from scfile.utils.reader import ByteOrder
 from .base import BaseSourceFile
 
 
+_SUPPORTED_VERSIONS = [
+    7.0,
+    8.0
+]
+
+
 class McsaFile(BaseSourceFile):
 
     signature = Signature.MCSA
@@ -36,43 +42,49 @@ class McsaFile(BaseSourceFile):
         # creating model dataclass
         self.model = Model()
 
-        # parsing mcsa header
+        # parsing file data
         self._parse_header()
-
-        # parsing meshes
-        for index in range(self.meshes_count):
-            self.model.meshes[index] = self._parse_mesh()
-
-        # parsing skeleton (if exists)
-        if self.flags[Flags.SKELETON]:
-            self._parse_skeleton()
+        self._parse_meshes()
+        self._parse_skeleton()
 
     def _parse_header(self) -> None:
-        version = self.reader.f32()
+        self._parse_version()
+        self._parse_flags()
+        self._parse_scales()
 
-        flags_count = 0
+    def _parse_version(self) -> None:
+        self.version = self.reader.f32()
 
-        match version:
-            case 7.0 | 8.0: flags_count = int(version - 3.0)
-            case _: raise exc.McsaUnknownVersion(f"Unknown mcsa version: {version}")
+        if self.version not in _SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
 
+    @property
+    def flags_count(self) -> int:
+        return int(self.version - 3.0)
+
+    def _parse_flags(self) -> None:
         self.flags = McsaFlags()
 
-        for index in range(flags_count):
+        for index in range(self.flags_count):
             self.flags[index] = self.reader.i8()
 
         if self.flags.unsupported:
             raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")
 
+    def _parse_scales(self) -> None:
         self.xyz_scale = self.reader.f32()
         self.uv_scale = 1.0
 
         if self.flags[Flags.UV]:
             self.uv_scale = self.reader.f32()
 
-        self.meshes_count = self.reader.u32()
+    def _parse_meshes(self) -> None:
+        meshes_count = self.reader.u32()
 
-    def _parse_mesh(self) -> Mesh:
+        for index in range(meshes_count):
+            self._parse_mesh(index)
+
+    def _parse_mesh(self, index: int) -> None:
         # creating mesh dataclass
         self.mesh = Mesh()
 
@@ -97,7 +109,7 @@ class McsaFile(BaseSourceFile):
         self._parse_bones()
         self._parse_polygons()
 
-        return self.mesh
+        self.model.meshes[index] = self.mesh
 
     def _parse_bone_indexes(self):
         link_count = 0
@@ -130,7 +142,7 @@ class McsaFile(BaseSourceFile):
             vertex.position.x = scaled(self.xyz_scale, self.reader.i16())
             vertex.position.y = scaled(self.xyz_scale, self.reader.i16())
             vertex.position.z = scaled(self.xyz_scale, self.reader.i16())
-            self.reader.u16() # delimiter
+            self.reader.i16() # delimiter
 
     def _parse_uv(self) -> None:
         if self.flags[Flags.UV]:
@@ -193,10 +205,11 @@ class McsaFile(BaseSourceFile):
         return self.reader.u16() + 1
 
     def _parse_skeleton(self) -> None:
-        bones_count = self.reader.i8()
+        if self.flags[Flags.SKELETON]:
+            bones_count = self.reader.i8()
 
-        for index in range(bones_count):
-            self._parse_bone(index)
+            for index in range(bones_count):
+                self._parse_bone(index)
 
     def _parse_bone(self, index: int) -> None:
         bone = Bone()
