@@ -30,17 +30,17 @@ class BinaryFileReader:
     def bigbyte(self, order: Optional[ByteOrder] = None) -> int:
         return self._unpack("B", 1, order)
 
-    def uword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("H", 2, order)
-
     def sword(self, order: Optional[ByteOrder] = None) -> int:
         return self._unpack("h", 2, order)
 
-    def udword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("I", 4, order)
+    def uword(self, order: Optional[ByteOrder] = None) -> int:
+        return self._unpack("H", 2, order)
 
     def sdword(self, order: Optional[ByteOrder] = None) -> int:
         return self._unpack("i", 4, order)
+
+    def udword(self, order: Optional[ByteOrder] = None) -> int:
+        return self._unpack("I", 4, order)
 
     def float(self, order: Optional[ByteOrder] = None) -> float:
         return self._unpack("f", 4, order)

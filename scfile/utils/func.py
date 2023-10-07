@@ -2,11 +2,14 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions as exc
+from scfile.consts import FileSuffix
 from scfile.source import McsaFile, MicFile, OlFile
 from scfile.source.base import BaseSourceFile
 
 
-def mcsa_to_obj(source: str, output: Optional[str] = None):
+StringOrPath = str | Path
+
+def mcsa_to_obj(source: StringOrPath, output: Optional[StringOrPath] = None):
     """
     Converting `.mcsa` file to `.obj`.
 
@@ -19,10 +22,10 @@ def mcsa_to_obj(source: str, output: Optional[str] = None):
         `mcsa_to_obj("C:/file.mcsa", "C:/file.obj")`
     """
 
-    _convert(source, output, McsaFile, ".obj")
+    _convert(source, output, McsaFile, FileSuffix.OBJ)
 
 
-def mic_to_png(source: str, output: Optional[str] = None):
+def mic_to_png(source: StringOrPath, output: Optional[StringOrPath] = None):
     """
     Converting `.mic` file to `.png`.
 
@@ -35,10 +38,10 @@ def mic_to_png(source: str, output: Optional[str] = None):
         `mic_to_png("C:/file.mic", "C:/file.png")`
     """
 
-    _convert(source, output, MicFile, ".png")
+    _convert(source, output, MicFile, FileSuffix.PNG)
 
 
-def ol_to_dds(source: str, output: Optional[str] = None):
+def ol_to_dds(source: StringOrPath, output: Optional[StringOrPath] = None):
     """
     Converting `.ol` file to `.dds`.
 
@@ -51,10 +54,10 @@ def ol_to_dds(source: str, output: Optional[str] = None):
         `ol_to_dds("C:/file.ol", "C:/file.dds")`
     """
 
-    _convert(source, output, OlFile, ".dds")
+    _convert(source, output, OlFile, FileSuffix.DDS)
 
 
-def auto(source: str, output: Optional[str] = None):
+def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
     """
     Automatically determines which format convert to.
 
@@ -73,13 +76,13 @@ def auto(source: str, output: Optional[str] = None):
     source_path = Path(source)
 
     match source_path.suffix:
-        case ".mic":
+        case FileSuffix.MIC:
             mic_to_png(source, output)
 
-        case ".ol":
+        case FileSuffix.OL:
             ol_to_dds(source, output)
 
-        case ".mcsa":
+        case FileSuffix.MCSA:
             mcsa_to_obj(source, output)
 
         case _:
@@ -87,8 +90,8 @@ def auto(source: str, output: Optional[str] = None):
 
 
 def _convert(
-    source: str,
-    output: Optional[str],
+    source: StringOrPath,
+    output: Optional[StringOrPath],
     converter: type[BaseSourceFile],
     suffix: str
 ):

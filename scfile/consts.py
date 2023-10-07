@@ -22,6 +22,15 @@ class Normalization(NamedTuple):
     SHORT = VERTEX_LIMIT = 0x8000
 
 
+class FileSuffix(NamedTuple):
+    MIC = ".mic"
+    OL = ".ol"
+    MCSA = ".mcsa"
+    PNG = ".png"
+    DDS = ".dds"
+    OBJ = ".obj"
+
+
 class PixelFormatType(IntEnum):
     COMPRESSED = auto()
     UNCOMPRESSED = auto()
