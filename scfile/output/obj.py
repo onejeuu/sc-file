@@ -75,7 +75,7 @@ class ObjFile(BaseOutputFile):
         self._write("g <Root>", "\n")
 
         for index, mesh in self.model.meshes.items():
-            self._write("usemtl", " ", f"{index}_{mesh.material}", "\n")
+            self._write("usemtl", " ", f"{index}_{mesh.material.decode()}", "\n")
 
             for index, polygon in enumerate(mesh.polygons):
                 # ? im really dont know why

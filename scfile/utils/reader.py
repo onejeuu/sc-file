@@ -1,78 +1,136 @@
+import io
 import struct
-from enum import Enum
-from io import BufferedReader
-from typing import Any, Optional
-
-from scfile import exceptions as exc
+from enum import StrEnum
+from typing import Any, Callable, Optional, NamedTuple
+from pathlib import Path
 
 
-class ByteOrder(Enum):
-    BIG = ">"
+class ByteOrder(NamedTuple):
+    NATIVE = "@"
+    STANDART = "="
     LITTLE = "<"
+    BIG = ">"
+    NETWORK = "!"
 
 
-class BinaryFileReader:
-    DEFAULT_ORDER = ByteOrder.BIG
+class Format(StrEnum):
+    I8 = "b"
+    I16 = "h"
+    I32 = "i"
+    I64 = "q"
 
-    def __init__(self, buffer: BufferedReader) -> None:
-        self._buffer = buffer
-        self.order = self.DEFAULT_ORDER
+    U8 = "B"
+    U16 = "H"
+    U32 = "I"
+    U64 = "Q"
 
-    def read(self, size: Optional[int] = None) -> bytes:
-        return self._buffer.read(size)
+    F16 = "e"
+    F32 = "f"
+    F64 = "d"
 
-    def tell(self):
-        return self._buffer.tell()
 
-    def byte(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("b", 1, order)
+class BinaryReader(io.FileIO):
+    BYTEORDER = ByteOrder.STANDART
+    OL_STR_XOR = 0x67
+    OL_STR_NULL = 0x47
+    OL_STR_SIZE = 16
 
-    def bigbyte(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("B", 1, order)
+    def __init__(self, path: str | Path):
+        self.path = Path(path)
+        super().__init__(path, mode="rb")
 
-    def sword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("h", 2, order)
+    @property
+    def order(self):
+        return self.BYTEORDER
 
-    def uword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("H", 2, order)
+    @order.setter
+    def order(self, order: str):
+        self.BYTEORDER = order
 
-    def sdword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("i", 4, order)
+    @staticmethod
+    def unpacker(fmt: Format):
+        def decorator(func: Callable):
+            def wrapper(self, order: Optional[str] = None):
+                return self._unpack(fmt.value, order)
+            return wrapper
+        return decorator
 
-    def udword(self, order: Optional[ByteOrder] = None) -> int:
-        return self._unpack("I", 4, order)
+    @unpacker(Format.I8)
+    def i8(self) -> int:
+        """`signed byte` `1 byte`"""
+        ...
 
-    def float(self, order: Optional[ByteOrder] = None) -> float:
-        return self._unpack("f", 4, order)
+    @unpacker(Format.I16)
+    def i16(self) -> int:
+        """`signed short` `word` `2 bytes`"""
+        ...
 
-    def _unpack(self, fmt: str, size: int, order: Optional[ByteOrder]) -> Any:
-        order = order or self.order
-        return struct.unpack(f"{order.value}{fmt}", self.read(size))[0]
+    @unpacker(Format.I32)
+    def i32(self) -> int:
+        """`signed integer` `double word` `4 bytes`"""
+        ...
 
-    def zstring(self) -> str:
-        """zero-end string"""
+    @unpacker(Format.I64)
+    def i64(self) -> int:
+        """`signed long` `quad word` `8 bytes`"""
+        ...
 
-        result = ""
+    @unpacker(Format.U8)
+    def u8(self) -> int:
+        """`unsigned byte` `1 byte`"""
+        ...
 
-        while True:
-            byte = self._buffer.read(1)
-            if byte == b"\x00":
-                break
-            result += byte.decode()
+    @unpacker(Format.U16)
+    def u16(self) -> int:
+        """`unsigned short` `word` `2 bytes`"""
+        ...
 
-        return result
+    @unpacker(Format.U32)
+    def u32(self) -> int:
+        """`unsigned integer` `double word` `4 bytes`"""
+        ...
 
-    def mcsastring(self):
+    @unpacker(Format.U64)
+    def u64(self) -> int:
+        """`unsigned long` `quad word` `8 bytes`"""
+        ...
+
+    @unpacker(Format.F16)
+    def f16(self) -> float:
+        """`float` `half-precision` `2 bytes`"""
+        ...
+
+    @unpacker(Format.F32)
+    def f32(self) -> float:
+        """`float` `single-precision` `4 bytes`"""
+        ...
+
+    @unpacker(Format.F64)
+    def f64(self) -> float:
+        """`float` `double-precision` `8 bytes`"""
+        ...
+
+    def olstring(self, size: int = OL_STR_SIZE) -> bytes:
+        """ol file string"""
+
+        return bytes(
+            x ^ self.OL_STR_XOR
+            for x in self.read(size)
+            if x != self.OL_STR_NULL
+        )
+
+    def mcsastring(self) -> bytes:
         """mcsa file string"""
 
-        try:
-            result = ""
-            length = self.uword(ByteOrder.LITTLE)
+        size = self.u16(ByteOrder.LITTLE)
+        return bytes(
+            self.i8()
+            for _ in range(size)
+        )
 
-            for _ in range(length):
-                result += chr(self.byte())
-
-        except Exception as err:
-            raise exc.McsaStringError(err)
-
-        return result
+    def _unpack(self, fmt: str, order: Optional[str] = None) -> Any:
+        order = order or self.order
+        size = struct.calcsize(fmt)
+        result = struct.unpack(f"{order}{fmt}", self.read(size))
+        unpacked = result[0]
+        return unpacked

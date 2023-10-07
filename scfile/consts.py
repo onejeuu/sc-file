@@ -1,15 +1,13 @@
-from enum import Enum, IntEnum, auto
 from typing import NamedTuple
-from dataclasses import dataclass
 
 
 ROOT_BONE_ID = -1
 
 
 class Signature(NamedTuple):
-    MIC = 0x894D4943
-    OL = 0x0A9523FD
-    MCSA = 0x4D435341
+    MIC = 0x43494D89
+    OL = 0xFD23950A
+    MCSA = 0x4153434D
 
 
 class Magic(NamedTuple):
@@ -29,24 +27,6 @@ class FileSuffix(NamedTuple):
     PNG = ".png"
     DDS = ".dds"
     OBJ = ".obj"
-
-
-class PixelFormatType(IntEnum):
-    COMPRESSED = auto()
-    UNCOMPRESSED = auto()
-
-
-@dataclass
-class PixelFormat:
-    name: bytes
-    type: PixelFormatType
-
-
-class DDSFormat(Enum):
-    DXT1 = PixelFormat(b"DXT1", PixelFormatType.COMPRESSED)
-    DXT5 = PixelFormat(b"DXT5", PixelFormatType.COMPRESSED)
-    RGBA = PixelFormat(b"RGBA", PixelFormatType.UNCOMPRESSED)
-    BIT8 = PixelFormat(b"BIT8", PixelFormatType.UNCOMPRESSED)
 
 
 class DDS(NamedTuple):

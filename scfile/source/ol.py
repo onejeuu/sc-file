@@ -3,16 +3,27 @@ from typing import Any, List
 import lz4.block  # type: ignore
 
 from scfile import exceptions as exc
-from scfile.consts import DDSFormat, Signature
+from scfile.consts import Signature
 from scfile.output import DdsFile
+from scfile.utils.reader import ByteOrder
 
 from .base import BaseSourceFile
 
 
+_SUPPORTED_FORMATS = [
+    b"DXT1",
+    b"DXT3",
+    b"DXT5",
+    b"RGBA8",
+    b"BGRA8",
+    b"RGBA32F",
+    b"DXN_XY"
+]
+
+
 class OlFile(BaseSourceFile):
-    @property
-    def signature(self) -> int:
-        return Signature.OL
+
+    signature = Signature.OL
 
     def to_dds(self) -> bytes:
         return self.convert()
@@ -27,28 +38,34 @@ class OlFile(BaseSourceFile):
             self.width,
             self.height,
             self.image_data,
-            self.ddsformat
+            self.fourcc,
+            self.compressed
         ).create()
 
         return self.result
 
     def _parse(self) -> None:
-        # reading header
-        self.width = self.reader.udword()
-        self.height = self.reader.udword()
-        streams_count = self.reader.udword()
+        self.reader.order = ByteOrder.BIG
 
-        # pixel format definition
-        olformat = self.reader.zstring()
-        self.ddsformat = self.identify_format(olformat)
+        # reading header
+        self.width = self.reader.u32()
+        self.height = self.reader.u32()
+        streams_count = self.reader.u32()
+
+        # dds pixel format
+        self.fourcc = self.reader.olstring()
+        self._check_fourcc()
+
+        # delimiter
+        self.reader.read(1)
 
         # reading data sizes, keep first one
-        uncompressed_size = [self.reader.udword() for _ in range(streams_count)][0]
-        compressed_size = [self.reader.udword() for _ in range(streams_count)][0]
+        uncompressed_size = [self.reader.u32() for _ in range(streams_count)][0]
+        compressed_size = [self.reader.u32() for _ in range(streams_count)][0]
 
         # skipping id string
-        id_size = self.reader.uword()
-        "".join(chr(self.reader.byte()) for _ in range(id_size))
+        id_size = self.reader.u16()
+        "".join(chr(self.reader.i8()) for _ in range(id_size))
 
         # reading uncompressed pixel data
         self.image_data: bytes = lz4.block.decompress(
@@ -56,20 +73,19 @@ class OlFile(BaseSourceFile):
             uncompressed_size
         )
 
-        # unpacking 8bit
-        if self.ddsformat == DDSFormat.BIT8:
-            self.image_data = self._unpack_bit8()
-            self.ddsformat = DDSFormat.RGBA
+        if self.fourcc == b"DXN_XY":
+            self.image_data = self._unpack_dxn()
+            self.fourcc = b"RGBA8"
 
-    def identify_format(self, olformat: str) -> DDSFormat:
-        match olformat:
-            case "#?3VGGGGGGGGGGGG": return DDSFormat.DXT1
-            case "#?3RGGGGGGGGGGGG": return DDSFormat.DXT5
-            case "% 5&_GGGGGGGGGGG": return DDSFormat.RGBA
-            case "#?)8?>GGGGGGGGGG": return DDSFormat.BIT8
-            case _: raise exc.OlUnknownFormat()
+    @property
+    def compressed(self) -> bool:
+        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5")
 
-    def _unpack_bit8(self) -> bytes:
+    def _check_fourcc(self) -> None:
+        if self.fourcc not in _SUPPORTED_FORMATS:
+            raise exc.OlUnknownFormat(f"Unsupported format: {self.fourcc}")
+
+    def _unpack_dxn(self) -> bytes:
         # TODO: refactor this someone pls idk how
 
         if self.width * self.height != len(self.image_data):

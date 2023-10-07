@@ -5,9 +5,8 @@ from .base import BaseSourceFile
 
 
 class MicFile(BaseSourceFile):
-    @property
-    def signature(self) -> int:
-        return Signature.MIC
+
+    signature = Signature.MIC
 
     def to_png(self) -> bytes:
         return self.convert()

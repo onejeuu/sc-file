@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod, abstractproperty
-from io import BufferedReader, BytesIO
+from abc import ABC, abstractmethod, abstractclassmethod
+from io import BytesIO
 from pathlib import Path
 
 from scfile import exceptions as exc
-from scfile.utils.reader import BinaryFileReader
+from scfile.utils.reader import BinaryReader
 
 
 class BaseSourceFile(ABC):
@@ -11,12 +11,10 @@ class BaseSourceFile(ABC):
 
     def __init__(
         self,
-        buffer: BufferedReader,
+        reader: BinaryReader,
         validate: bool = DEFAULT_VALIDATE
     ):
-        self._path = Path(buffer.name)
-
-        self.reader = BinaryFileReader(buffer=buffer)
+        self.reader = reader
         self.buffer = BytesIO()
 
         self.validate = validate
@@ -24,10 +22,8 @@ class BaseSourceFile(ABC):
         self._check_filesize()
         self._check_signature()
 
-    @abstractproperty
-    def signature(self) -> int:
-        """First 4 bytes in file."""
-        ...
+    signature: int
+    """First 4 bytes in file."""
 
     @abstractmethod
     def convert(self) -> bytes:
@@ -40,17 +36,21 @@ class BaseSourceFile(ABC):
         ...
 
     @property
+    def path(self) -> Path:
+        return self.reader.path
+
+    @property
     def result(self) -> bytes:
         """Returns buffer bytes."""
         return self.buffer.getvalue()
 
     @property
     def filename(self) -> str:
-        return self._path.stem
+        return self.path.stem
 
     @property
     def filesize(self) -> int:
-        return self._path.stat().st_size
+        return self.path.stat().st_size
 
     def validate_signature(self, signature: int) -> bool:
         return signature == self.signature
@@ -60,13 +60,20 @@ class BaseSourceFile(ABC):
             raise exc.FileIsEmpty()
 
     def _check_signature(self) -> None:
-        signature = self.reader.udword()
+        signature = self.reader.u32()
 
         if self.validate and not self.validate_signature(signature):
-            raise exc.InvalidSignature()
+            raise exc.InvalidSignature(
+                (
+                    f"File '{self.path.as_posix()}' has invalid signature "
+                    f"({hex(signature)} != {hex(self.signature)})"
+                )
+            )
 
     def __str__(self):
         return (
             f"<{self.__class__.__name__}> "
-            f"path='{self._path.as_posix()}' pos={self.reader.tell()}"
+            f"signature='{self.signature}'"
+            f"path='{self.path.as_posix()}' "
+            f"pos={self.reader.tell()}"
         )

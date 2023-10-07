@@ -1,7 +1,7 @@
 import struct
 from io import BytesIO
 
-from scfile.consts import DDS, DDSFormat, PixelFormatType, Magic
+from scfile.consts import DDS, Magic
 
 from .base import BaseOutputFile
 
@@ -14,13 +14,15 @@ class DdsFile(BaseOutputFile):
         width: int,
         height: int,
         image_data: bytes,
-        ddsformat: DDSFormat
+        fourcc: bytes,
+        compressed: bool
     ):
         super().__init__(buffer, filename)
         self.width = width
         self.height = height
         self.image_data = image_data
-        self.ddsformat = ddsformat
+        self.fourcc = fourcc
+        self.compressed = compressed
 
     def create(self) -> bytes:
         self._add_magic()
@@ -47,31 +49,23 @@ class DdsFile(BaseOutputFile):
 
     @property
     def flags(self) -> int:
-        match self.ddsformat.value.type:
-            case PixelFormatType.COMPRESSED:
-                return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.LINEARSIZE
-
-            case PixelFormatType.UNCOMPRESSED:
-                return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.PITCH
+        if self.compressed:
+            return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.LINEARSIZE
+        return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.PITCH
 
     @property
     def pitch_or_linear_size(self) -> int:
-        match self.ddsformat.value.type:
-            case PixelFormatType.COMPRESSED:
-                return len(self.image_data)
-
-            case PixelFormatType.UNCOMPRESSED:
-                return self.width * 4
+        if self.compressed:
+            return len(self.image_data)
+        return self.width * 4
 
     def _add_pixel_format(self) -> None:
         self._write(DDS.PF.SIZE)
 
-        match self.ddsformat.value.type:
-            case PixelFormatType.COMPRESSED:
-                self._add_compressed_format()
-
-            case PixelFormatType.UNCOMPRESSED:
-                self._add_uncompressed_format()
+        if self.compressed:
+            self._add_compressed_format()
+        else:
+            self._add_uncompressed_format()
 
     def _add_compressed_format(self) -> None:
         self._write(DDS.PF.FLAG.FOURCC)
@@ -91,7 +85,7 @@ class DdsFile(BaseOutputFile):
         self._buffer.write(self.image_data)
 
     def _add_fourcc(self) -> None:
-        self._buffer.write(self.ddsformat.value.name)
+        self._buffer.write(self.fourcc)
 
     def _write(self, i: int) -> None:
         self._buffer.write(struct.pack("<I", i))

@@ -44,8 +44,8 @@ class Polygon:
 
 @dataclass
 class Mesh:
-    name: str = "name"
-    material: str = "material"
+    name: bytes = b"name"
+    material: bytes = b"material"
     link_count: int = 0
     vertices: List[Vertex] = field(default_factory=lambda: [Vertex()])
     polygons: List[Polygon] = field(default_factory=lambda: [Polygon()])
@@ -59,7 +59,7 @@ class Mesh:
 
 @dataclass
 class Bone:
-    name: str = "bone"
+    name: bytes = b"bone"
     parent_id: int = ROOT_BONE_ID
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)
