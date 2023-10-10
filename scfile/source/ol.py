@@ -28,10 +28,7 @@ class OlFile(BaseSourceFile):
     def to_dds(self) -> bytes:
         return self.convert()
 
-    def convert(self) -> bytes:
-        self._parse()
-
-        # writing converted to dds file bytes into buffer
+    def _default_output(self) -> None:
         DdsFile(
             self.buffer,
             self.filename,
@@ -41,8 +38,6 @@ class OlFile(BaseSourceFile):
             self.fourcc,
             self.compressed
         ).create()
-
-        return self.result
 
     def _parse(self) -> None:
         self.reader.order = ByteOrder.BIG
@@ -83,7 +78,7 @@ class OlFile(BaseSourceFile):
 
     def _check_fourcc(self) -> None:
         if self.fourcc not in _SUPPORTED_FORMATS:
-            raise exc.OlUnsupportedFormat(f"Unsupported format: {self.fourcc}")
+            raise exc.OlUnsupportedFormat(f"Unsupported format: {self.fourcc.decode()}")
 
     def _unpack_dxn(self) -> bytes:
         # TODO: refactor this someone pls idk how

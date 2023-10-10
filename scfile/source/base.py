@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod, abstractclassmethod
+from abc import ABC, abstractmethod
 from io import BytesIO
 from pathlib import Path
 
@@ -25,9 +25,15 @@ class BaseSourceFile(ABC):
     signature: int
     """First 4 bytes in file."""
 
-    @abstractmethod
     def convert(self) -> bytes:
         """Parsing and creating converted file bytes."""
+        self._parse()
+        self._default_output()
+        return self.result
+
+    @abstractmethod
+    def _default_output(self) -> None:
+        """Writing default output file into buffer."""
         ...
 
     @abstractmethod

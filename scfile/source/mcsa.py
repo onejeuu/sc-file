@@ -1,6 +1,5 @@
 from enum import IntEnum, auto
 from typing import Dict
-from pathlib import Path
 
 from scfile import exceptions as exc
 from scfile.consts import ROOT_BONE_ID, Normalization, Signature
@@ -24,17 +23,12 @@ class McsaFile(BaseSourceFile):
     def to_obj(self) -> bytes:
         return self.convert()
 
-    def convert(self) -> bytes:
-        self._parse()
-
-        # writing converted to obj file bytes into buffer
+    def _default_output(self) -> None:
         ObjFile(
             self.buffer,
             self.filename,
             self.model
         ).create()
-
-        return self.result
 
     def _parse(self) -> None:
         self.reader.order = ByteOrder.LITTLE

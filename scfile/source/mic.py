@@ -11,15 +11,12 @@ class MicFile(BaseSourceFile):
     def to_png(self) -> bytes:
         return self.convert()
 
-    def convert(self) -> bytes:
-        # writing converted to png file bytes into buffer
+    def _default_output(self) -> None:
         PngFile(
             self.buffer,
             self.filename,
-            self.reader.read()
+            self.filedata
         ).create()
 
-        return self.result
-
     def _parse(self) -> None:
-        pass
+        self.filedata = self.reader.read()

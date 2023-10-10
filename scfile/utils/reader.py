@@ -1,8 +1,8 @@
 import io
 import struct
 from enum import StrEnum
-from typing import Any, Callable, Optional, NamedTuple
 from pathlib import Path
+from typing import Any, Callable, NamedTuple, Optional
 
 
 class ByteOrder(NamedTuple):
@@ -29,11 +29,14 @@ class Format(StrEnum):
     F64 = "d"
 
 
+class OlString(NamedTuple):
+    SIZE = 16
+    XOR = 0x67
+    NULL = 0x47
+
+
 class BinaryReader(io.FileIO):
     BYTEORDER = ByteOrder.STANDART
-    OL_STR_XOR = 0x67
-    OL_STR_NULL = 0x47
-    OL_STR_SIZE = 16
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -110,13 +113,13 @@ class BinaryReader(io.FileIO):
         """`float` `double-precision` `8 bytes`"""
         ...
 
-    def olstring(self, size: int = OL_STR_SIZE) -> bytes:
+    def olstring(self, size: int = OlString.SIZE) -> bytes:
         """ol file string"""
 
         return bytes(
-            x ^ self.OL_STR_XOR
-            for x in self.read(size)
-            if x != self.OL_STR_NULL
+            char ^ OlString.XOR
+            for char in self.read(size)
+            if char != OlString.NULL
         )
 
     def mcsastring(self) -> bytes:
