@@ -16,14 +16,12 @@ class ObjFile(BaseOutputFile):
         super().__init__(buffer, filename)
         self.model = model
 
-    def create(self) -> bytes:
+    def _create(self) -> None:
         self._add_header()
         self._add_geometric_vertices()
         self._add_texture_coordinates()
         self._add_vertex_normals()
         self._add_polygonal_faces()
-
-        return self.result
 
     def _add_header(self) -> None:
         self._write(
@@ -97,4 +95,4 @@ class ObjFile(BaseOutputFile):
 
     def _write(self, *data: Any) -> None:
         string = "".join([str(i) for i in data])
-        self._buffer.write(string.encode())
+        self.buffer.write(string.encode())

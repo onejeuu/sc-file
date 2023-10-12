@@ -1,11 +1,11 @@
-from enum import IntEnum, auto
 from typing import Dict
 
 from scfile import exceptions as exc
-from scfile.consts import ROOT_BONE_ID, Normalization, Signature
-from scfile.output import ObjFile
+from scfile.consts import ROOT_BONE_ID, FLAGS_COUNT_OFFSET, Normalization, Signature
+from scfile.files import ObjFile
 from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled
 from scfile.utils.reader import ByteOrder
+from scfile.utils.mcsa_flags import Flags, McsaFlags
 
 from .base import BaseSourceFile
 
@@ -19,20 +19,19 @@ _SUPPORTED_VERSIONS = [
 class McsaFile(BaseSourceFile):
 
     signature = Signature.MCSA
+    order = ByteOrder.LITTLE
 
     def to_obj(self) -> bytes:
         return self.convert()
 
-    def _default_output(self) -> None:
-        ObjFile(
+    def _output(self) -> ObjFile:
+        return ObjFile(
             self.buffer,
             self.filename,
             self.model
-        ).create()
+        )
 
     def _parse(self) -> None:
-        self.reader.order = ByteOrder.LITTLE
-
         # creating model dataclass
         self.model = Model()
 
@@ -48,22 +47,19 @@ class McsaFile(BaseSourceFile):
 
     def _parse_version(self) -> None:
         self.version = self.reader.f32()
-
-        if self.version not in _SUPPORTED_VERSIONS:
-            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
+        self._check_version()
 
     @property
-    def flags_count(self) -> int:
-        return int(self.version - 3.0)
+    def _flags_count(self) -> int:
+        return int(self.version - FLAGS_COUNT_OFFSET)
 
     def _parse_flags(self) -> None:
         self.flags = McsaFlags()
 
-        for index in range(self.flags_count):
+        for index in range(self._flags_count):
             self.flags[index] = self.reader.i8()
 
-        if self.flags.unsupported:
-            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")
+        self._check_flags()
 
     def _parse_scales(self) -> None:
         self.xyz_scale = self.reader.f32()
@@ -227,30 +223,10 @@ class McsaFile(BaseSourceFile):
         bone.rotation.y = self.reader.f32()
         bone.rotation.z = self.reader.f32()
 
+    def _check_version(self):
+        if self.version not in _SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
 
-class Flags(IntEnum):
-    SKELETON = 0
-    UV = auto()
-    FLAG_3 = auto()
-    FLAG_4 = auto()
-    FLAG_5 = auto()
-
-
-class McsaFlags:
-    def __init__(self):
-        self._flags: Dict[int, bool] = {}
-
-    def __getitem__(self, index: int) -> bool:
-        return bool(self._flags.get(index, 0))
-
-    def __setitem__(self, index: int, value: int):
-        self._flags[index] = bool(value)
-
-    def __str__(self):
-        return str(dict(self._flags.items()))
-
-    @property
-    def unsupported(self):
-        return  (self[Flags.FLAG_5]) or \
-                (self[Flags.FLAG_3] and not self[Flags.UV]) or \
-                (self[Flags.UV] and not self[Flags.FLAG_3])
+    def _check_flags(self):
+        if self.flags.unsupported:
+            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")

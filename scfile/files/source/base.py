@@ -3,7 +3,8 @@ from io import BytesIO
 from pathlib import Path
 
 from scfile import exceptions as exc
-from scfile.utils.reader import BinaryReader
+from scfile.files.output.base import BaseOutputFile
+from scfile.utils.reader import BinaryReader, ByteOrder
 
 
 class BaseSourceFile(ABC):
@@ -15,58 +16,77 @@ class BaseSourceFile(ABC):
         validate: bool = DEFAULT_VALIDATE
     ):
         self.reader = reader
-        self.buffer = BytesIO()
+        self.reader.order = self.order
 
         self.validate = validate
+
+        self.buffer = BytesIO()
 
         self._check_filesize()
         self._check_signature()
 
     signature: int
-    """First 4 bytes in file."""
+    """Signature of source file. For example: `0x38383431`."""
+
+    order: str = BinaryReader.DEFAULT_BYTEORDER
+    """Binary reader bytes order format."""
 
     def convert(self) -> bytes:
-        """Parsing and creating converted file bytes."""
+        """Convert source file. Return output file bytes."""
         self._parse()
-        self._default_output()
+        self._output().create()
         return self.result
 
     @abstractmethod
-    def _default_output(self) -> None:
-        """Writing default output file into buffer."""
+    def _output(self) -> BaseOutputFile:
+        """Return output file object."""
         ...
 
     @abstractmethod
     def _parse(self) -> None:
-        """Parsing encrypted file."""
+        """Parse source file."""
         ...
 
     @property
-    def path(self) -> Path:
-        return self.reader.path
-
-    @property
     def result(self) -> bytes:
-        """Returns buffer bytes."""
+        """Result bytes of conversion."""
         return self.buffer.getvalue()
 
     @property
+    def path(self) -> Path:
+        """Path of source file."""
+        return self.reader.path
+
+    @property
     def filename(self) -> str:
+        """Filename of source file."""
         return self.path.stem
 
     @property
     def filesize(self) -> int:
+        """Size of source file."""
         return self.path.stat().st_size
 
-    def validate_signature(self, signature: int) -> bool:
-        return signature == self.signature
-
     def _check_filesize(self) -> None:
+        """Check if file size is valid."""
         if self.filesize <= 0:
             raise exc.FileIsEmpty()
 
-    def _check_signature(self) -> None:
+    def validate_signature(self, signature: int) -> bool:
+        """Validate signature of source file."""
+        return signature == self.signature
+
+    def _read_signature(self) -> int:
+        """Read signature from source file."""
+        self.reader.order = ByteOrder.STANDART
         signature = self.reader.u32()
+        self.reader.order = self.order
+
+        return signature
+
+    def _check_signature(self) -> None:
+        """Check if signature of source file is valid."""
+        signature = self._read_signature()
 
         if self.validate and not self.validate_signature(signature):
             raise exc.InvalidSignature(

@@ -10,18 +10,23 @@ class BaseOutputFile(ABC):
         buffer: BytesIO,
         filename: str = DEFAULT_FILENAME
     ):
-        self._buffer = buffer
+        self.buffer = buffer
         self.filename = filename
 
-    @abstractmethod
     def create(self) -> bytes:
-        """Writes in buffer output file bytes."""
+        """Create output file. Return output file bytes."""
+        self._create()
+        return self.result
+
+    @abstractmethod
+    def _create(self) -> None:
+        """Create output file in buffer."""
         ...
 
     @property
     def result(self) -> bytes:
-        """Returns buffer bytes."""
-        return self._buffer.getvalue()
+        """Result bytes of conversion."""
+        return self.buffer.getvalue()
 
     def __str__(self):
         return f"<{self.__class__.__name__}> filename='{self.filename}'"

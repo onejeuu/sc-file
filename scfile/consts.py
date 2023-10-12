@@ -3,6 +3,8 @@ from typing import NamedTuple
 
 ROOT_BONE_ID = -1
 
+FLAGS_COUNT_OFFSET = 3
+
 
 class Signature(NamedTuple):
     MIC = 0x43494D89
@@ -43,7 +45,7 @@ class DDS(NamedTuple):
             LINEARSIZE = 0x80000
             DEPTH = 0x800000
 
-        FLAGS = FLAG.CAPS | FLAG.HEIGHT | FLAG.WIDTH | FLAG.PIXELFORMAT
+        FLAGS = FLAG.CAPS | FLAG.HEIGHT | FLAG.WIDTH | FLAG.PIXELFORMAT | FLAG.MIPMAPCOUNT
 
     class PIXELFORMAT(NamedTuple):
         SIZE = 32

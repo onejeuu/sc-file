@@ -1,5 +1,4 @@
 from io import BytesIO
-from typing import Any
 
 from scfile.consts import Magic
 
@@ -16,15 +15,7 @@ class PngFile(BaseOutputFile):
         super().__init__(buffer, filename)
         self.filedata = filedata
 
-    def create(self) -> bytes:
+    def _create(self) -> None:
         # it was pretty hard...
-        self._write(
-            Magic.PNG,
-            self.filedata
-        )
-
-        return self.result
-
-    def _write(self, *data: Any) -> None:
-        for d in data:
-            self._buffer.write(bytes(d))
+        self.buffer.write(bytes(Magic.PNG))
+        self.buffer.write(self.filedata)

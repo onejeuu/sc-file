@@ -36,19 +36,16 @@ class OlString(NamedTuple):
 
 
 class BinaryReader(io.FileIO):
-    BYTEORDER = ByteOrder.STANDART
+    DEFAULT_BYTEORDER = ByteOrder.STANDART
 
-    def __init__(self, path: str | Path):
-        self.path = Path(path)
+    def __init__(
+        self,
+        path: str | Path,
+        order: str = DEFAULT_BYTEORDER
+    ):
         super().__init__(path, mode="rb")
-
-    @property
-    def order(self):
-        return self.BYTEORDER
-
-    @order.setter
-    def order(self, order: str):
-        self.BYTEORDER = order
+        self.path = Path(path)
+        self.order = order
 
     @staticmethod
     def unpacker(fmt: Format):

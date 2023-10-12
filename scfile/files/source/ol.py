@@ -4,8 +4,10 @@ import lz4.block  # type: ignore
 
 from scfile import exceptions as exc
 from scfile.consts import Signature
-from scfile.output import DdsFile
+from scfile.files import DdsFile
 from scfile.utils.reader import ByteOrder
+
+from io import BytesIO
 
 from .base import BaseSourceFile
 
@@ -24,52 +26,68 @@ _SUPPORTED_FORMATS = [
 class OlFile(BaseSourceFile):
 
     signature = Signature.OL
+    order = ByteOrder.BIG
 
     def to_dds(self) -> bytes:
         return self.convert()
 
-    def _default_output(self) -> None:
-        DdsFile(
+    def _output(self) -> DdsFile:
+        return DdsFile(
             self.buffer,
             self.filename,
             self.width,
             self.height,
-            self.image_data,
+            self.imagedata,
             self.fourcc,
-            self.compressed
-        ).create()
+            self.compressed,
+            self.mipmap_count
+        )
 
     def _parse(self) -> None:
-        self.reader.order = ByteOrder.BIG
+        self._parse_header()
+        self._parse_imagedata()
+        self._parse_packed_dxn()
 
-        # reading header
+    def _parse_header(self) -> None:
+        self._parse_image_size()
+        self._parse_fourcc()
+        self._parse_sizes()
+        self._parse_id_string()
+
+    def _parse_image_size(self) -> None:
         self.width = self.reader.u32()
         self.height = self.reader.u32()
-        streams_count = self.reader.u32()
+        self.mipmap_count = self.reader.u32()
 
-        # dds pixel format
+    def _parse_fourcc(self) -> None:
         self.fourcc = self.reader.olstring()
         self._check_fourcc()
+        self.reader.read(1) # delimiter
 
-        # delimiter
-        self.reader.read(1)
+    def _parse_sizes(self) -> None:
+        self.uncompressed_sizes = [self.reader.u32() for _ in range(self.mipmap_count)]
+        self.compressed_sizes = [self.reader.u32() for _ in range(self.mipmap_count)]
 
-        # reading data sizes, keep first one
-        uncompressed_size = [self.reader.u32() for _ in range(streams_count)][0]
-        compressed_size = [self.reader.u32() for _ in range(streams_count)][0]
-
-        # skipping id string
+    def _parse_id_string(self) -> None:
         id_size = self.reader.u16()
         "".join(chr(self.reader.i8()) for _ in range(id_size))
 
-        # reading uncompressed pixel data
-        self.image_data: bytes = lz4.block.decompress(
-            self.reader.read(compressed_size),
-            uncompressed_size
-        )
+    def _parse_imagedata(self):
+        imagedata = BytesIO()
 
+        for index in range(self.mipmap_count):
+            imagedata.write(
+                lz4.block.decompress(
+                    self.reader.read(self.compressed_sizes[index]),
+                    self.uncompressed_sizes[index]
+                )
+            )
+
+        self.imagedata = imagedata.getvalue()
+
+    def _parse_packed_dxn(self):
         if self.fourcc == b"DXN_XY":
-            self.image_data = self._unpack_dxn()
+            self.imagedata = self._unpack_dxn()
             self.fourcc = b"RGBA8"
 
     @property
@@ -83,7 +101,7 @@ class OlFile(BaseSourceFile):
     def _unpack_dxn(self) -> bytes:
         # TODO: refactor this someone pls idk how
 
-        if self.width * self.height != len(self.image_data):
+        if self.width * self.height != len(self.imagedata):
             raise exc.OlUnpackingError("Invalid buffer length")
 
         if self.width % 4 != 0 or self.height % 4 != 0:
@@ -94,10 +112,10 @@ class OlFile(BaseSourceFile):
 
         for y in range(self.height // 4):
             for x in range(self.width // 4):
-                square_g = self._unpack_square(*self.image_data[position:position+8])
+                square_g = self._unpack_square(*self.imagedata[position:position+8])
                 position += 8
 
-                square_r = self._unpack_square(*self.image_data[position:position+8])
+                square_r = self._unpack_square(*self.imagedata[position:position+8])
                 position += 8
 
                 for ky in range(4):

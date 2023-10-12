@@ -3,8 +3,8 @@ from typing import Optional
 
 from scfile import exceptions as exc
 from scfile.consts import FileSuffix
-from scfile.source import McsaFile, MicFile, OlFile
-from scfile.source.base import BaseSourceFile
+from scfile.files import McsaFile, MicFile, OlFile
+from scfile.files.source.base import BaseSourceFile
 from scfile.utils.reader import BinaryReader
 
 

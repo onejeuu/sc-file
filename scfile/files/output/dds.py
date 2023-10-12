@@ -13,26 +13,23 @@ class DdsFile(BaseOutputFile):
         filename: str,
         width: int,
         height: int,
-        image_data: bytes,
+        imagedata: bytes,
         fourcc: bytes,
-        compressed: bool
+        compressed: bool,
+        mipmap_count: int
     ):
         super().__init__(buffer, filename)
         self.width = width
         self.height = height
-        self.image_data = image_data
+        self.imagedata = imagedata
         self.fourcc = fourcc
         self.compressed = compressed
+        self.mipmap_count = mipmap_count
 
-    def create(self) -> bytes:
+    def _create(self) -> None:
         self._add_magic()
         self._add_header()
-        self._add_image_data()
-
-        return self.result
-
-    def _add_magic(self) -> None:
-        self._buffer.write(bytes(Magic.DDS))
+        self._add_imagedata()
 
     def _add_header(self) -> None:
         self._write(DDS.HEADER.SIZE)
@@ -41,10 +38,10 @@ class DdsFile(BaseOutputFile):
         self._write(self.width)
         self._write(self.pitch_or_linear_size)
         self._space(1) # Depth
-        self._space(1) # MipMapCount
+        self._write(self.mipmap_count)
         self._space(11) # Reserved
         self._add_pixel_format()
-        self._write(DDS.TEXTURE)
+        self._write(DDS.TEXTURE | DDS.MIPMAP)
         self._fill()
 
     @property
@@ -56,7 +53,7 @@ class DdsFile(BaseOutputFile):
     @property
     def pitch_or_linear_size(self) -> int:
         if self.compressed:
-            return len(self.image_data)
+            return len(self.imagedata)
         return self.width * 4
 
     def _add_pixel_format(self) -> None:
@@ -81,20 +78,23 @@ class DdsFile(BaseOutputFile):
         self._write(DDS.PF.BITMASK.B)
         self._write(DDS.PF.BITMASK.A)
 
-    def _add_image_data(self) -> None:
-        self._buffer.write(self.image_data)
+    def _add_magic(self) -> None:
+        self.buffer.write(bytes(Magic.DDS))
 
     def _add_fourcc(self) -> None:
-        self._buffer.write(self.fourcc)
+        self.buffer.write(self.fourcc)
+
+    def _add_imagedata(self) -> None:
+        self.buffer.write(self.imagedata)
 
     def _write(self, i: int) -> None:
-        self._buffer.write(struct.pack("<I", i))
+        self.buffer.write(struct.pack("<I", i))
 
     def _space(self, i: int) -> None:
-        self._buffer.write(b'\x00' * i * 4)
+        self.buffer.write(b'\x00' * 4 * i)
 
     def _fill(self) -> None:
-        position = self._buffer.tell()
+        position = self.buffer.tell()
         header_size = DDS.HEADER.SIZE + len(Magic.DDS)
         count = header_size - position
-        self._buffer.write(b'\x00' * count)
+        self.buffer.write(b'\x00' * count)
