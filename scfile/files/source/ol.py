@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import List
 
 import lz4.block  # type: ignore
 
@@ -88,7 +88,7 @@ class OlFile(BaseSourceFile):
     def _parse_packed_dxn(self):
         if self.fourcc == b"DXN_XY":
             self.imagedata = self._unpack_dxn()
-            self.fourcc = b"RGBA8"
+            self.fourcc = b"BGRA8"
 
     @property
     def compressed(self) -> bool:
@@ -99,37 +99,50 @@ class OlFile(BaseSourceFile):
             raise exc.OlUnsupportedFormat(f"Unsupported format: {self.fourcc.decode()}")
 
     def _unpack_dxn(self) -> bytes:
-        # TODO: refactor this someone pls idk how
+        # its still awesome
 
-        if self.width * self.height != len(self.imagedata):
-            raise exc.OlUnpackingError("Invalid buffer length")
-
-        if self.width % 4 != 0 or self.height % 4 != 0:
-            raise exc.OlUnpackingError("Dimensions not multiple of 4")
+        self._validate_dimensions()
 
         unpacked = bytearray(self.width * self.height * 4)
         position = 0
 
         for y in range(self.height // 4):
             for x in range(self.width // 4):
-                square_g = self._unpack_square(*self.imagedata[position:position+8])
+                colors = list(self.imagedata[position:position + 8])
+                r = self._unpack_square(colors)
                 position += 8
 
-                square_r = self._unpack_square(*self.imagedata[position:position+8])
+                colors = list(self.imagedata[position:position + 8])
+                g = self._unpack_square(colors)
                 position += 8
 
-                for ky in range(4):
-                    for kx in range(4):
-                        pixel_index = ((y * 4 + ky) * self.width + (x * 4 + kx)) * 4
-                        unpacked[pixel_index:pixel_index + 4] = (
-                            0xFF, square_r[ky][kx], square_g[ky][kx], 0xFF
-                        )
+                self._copy_unpacked(unpacked, x, y, r, g)
 
         return bytes(unpacked)
 
-    def _unpack_square(self, color0: int, color1: int, indices: Any) -> List[List[int]]:
-        # no clue tf is going
+    def _validate_dimensions(self):
+        if self.width * self.height != self.uncompressed_sizes[0]:
+            raise exc.OlUnpackingError("Invalid buffer length")
 
+        if self.width % 4 != 0 or self.height % 4 != 0:
+            raise exc.OlUnpackingError("Dimensions not multiple of 4")
+
+    def _unpack_square(self, colors: List[int]):
+        color0, color1, indices = colors[0], colors[1], colors[2:]
+
+        palette = self._create_palette(color0, color1)
+        indices = self._calculate_indices(indices)
+
+        square = self._create_empty_square()
+
+        for i in range(4):
+            for j in range(4):
+                indices, k = divmod(indices, 8)
+                square[i][j] = palette[k]
+
+        return square
+
+    def _create_palette(self, color0, color1) -> List[int]:
         palette = [0] * 8
         palette[:2] = color0, color1
 
@@ -143,13 +156,18 @@ class OlFile(BaseSourceFile):
             ]
             palette[6:] = [0, 0xFF]
 
-        indices = sum((indices[i] << (i * 8)) for i in range(6))
+        return palette
 
-        unpacked_square = [[0] * 4 for _ in range(4)]
+    def _calculate_indices(self, indices) -> int:
+        return sum((indices[i] << (i * 8)) for i in range(6))
 
-        for i in range(4):
-            for j in range(4):
-                indices, k = divmod(indices, 8)
-                unpacked_square[i][j] = palette[k]
+    def _create_empty_square(self) -> List[List[int]]:
+        return [[0] * 4 for _ in range(4)]
 
-        return unpacked_square
+    def _copy_unpacked(self, unpacked_data, x, y, r, g):
+        for ky in range(4):
+            for kx in range(4):
+                pixel_index = ((y * 4 + ky) * self.width + (x * 4 + kx)) * 4
+                unpacked_data[pixel_index:pixel_index + 4] = (
+                    0xFF, r[ky][kx], g[ky][kx], 0xFF
+                )

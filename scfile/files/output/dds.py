@@ -2,6 +2,7 @@ import struct
 from io import BytesIO
 
 from scfile.consts import DDS, Magic
+from scfile.utils.reader import ByteOrder
 
 from .base import BaseOutputFile
 
@@ -25,6 +26,7 @@ class DdsFile(BaseOutputFile):
         self.fourcc = fourcc
         self.compressed = compressed
         self.mipmap_count = mipmap_count
+        self.bit_count = 4 * 8
 
     def _create(self) -> None:
         self._add_magic()
@@ -54,7 +56,7 @@ class DdsFile(BaseOutputFile):
     def pitch_or_linear_size(self) -> int:
         if self.compressed:
             return len(self.imagedata)
-        return self.width * 4
+        return (self.width * self.bit_count + 7) // 8
 
     def _add_pixel_format(self) -> None:
         self._write(DDS.PF.SIZE)
@@ -73,10 +75,27 @@ class DdsFile(BaseOutputFile):
         self._write(DDS.PF.FLAG.RGB | DDS.PF.FLAG.ALPHAPIXELS)
         self._space(1) # FourCC
         self._write(DDS.PF.BIT_COUNT)
-        self._write(DDS.PF.BITMASK.R)
-        self._write(DDS.PF.BITMASK.G)
-        self._write(DDS.PF.BITMASK.B)
-        self._write(DDS.PF.BITMASK.A)
+
+        for mask in self._bitmasks:
+            self._write(mask, ByteOrder.BIG)
+
+    @property
+    def _bitmasks(self):
+        match self.fourcc:
+            case b"BGRA8":
+                return (
+                    DDS.PF.BITMASK.A,
+                    DDS.PF.BITMASK.B,
+                    DDS.PF.BITMASK.G,
+                    DDS.PF.BITMASK.R,
+                )
+            case _:
+                return (
+                    DDS.PF.BITMASK.A,
+                    DDS.PF.BITMASK.R,
+                    DDS.PF.BITMASK.G,
+                    DDS.PF.BITMASK.B,
+                )
 
     def _add_magic(self) -> None:
         self.buffer.write(bytes(Magic.DDS))
@@ -87,8 +106,8 @@ class DdsFile(BaseOutputFile):
     def _add_imagedata(self) -> None:
         self.buffer.write(self.imagedata)
 
-    def _write(self, i: int) -> None:
-        self.buffer.write(struct.pack("<I", i))
+    def _write(self, i: int, order: str = ByteOrder.LITTLE) -> None:
+        self.buffer.write(struct.pack(f"{order}I", i))
 
     def _space(self, i: int) -> None:
         self.buffer.write(b'\x00' * 4 * i)

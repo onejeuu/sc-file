@@ -32,10 +32,8 @@ class McsaFile(BaseSourceFile):
         )
 
     def _parse(self) -> None:
-        # creating model dataclass
         self.model = Model()
 
-        # parsing file data
         self._parse_header()
         self._parse_meshes()
         self._parse_skeleton()
@@ -154,11 +152,16 @@ class McsaFile(BaseSourceFile):
 
     def _parse_bones(self) -> None:
         match self.mesh.link_count:
-            case 0: pass
-            case 1 | 2: self._parse_bone_packed()
-            case 3 | 4: self._parse_bone_plains()
+            case 0:
+                pass
+            case 1 | 2:
+                self._parse_bone_packed()
+            case 3 | 4:
+                self._parse_bone_plains()
             case _:
-                raise exc.McsaUnsupportedLinkCount(f"Unsupported mcsa link count: {self.mesh.link_count}")
+                raise exc.McsaUnsupportedLinkCount(
+                    f"Unsupported mcsa link count: {self.mesh.link_count}"
+                )
 
     def _parse_bone_packed(self) -> None:
         for vertex in self.mesh.vertices:
