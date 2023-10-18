@@ -51,10 +51,10 @@ from scfile import McsaFile, MicFile, OlFile
 from scfile import BinaryReader
 
 with BinaryReader("path/to/file.ol") as reader:
-    ol = OlFile(reader).to_dds()
+    dds = OlFile(reader).to_dds()
 
 with open("path/to/file.dds", "wb") as fp:
-    fp.write(ol)
+    fp.write(dds)
 ```
 
 ### CLI Utility
