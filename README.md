@@ -1,6 +1,7 @@
 # Converting STALCRAFT Files Library
 
-Library for converting encrypted stalcraft game files, such as models and textures into well-known formats. You can use compiled utility from [`Releases`](https://github.com/onejeuu/sc-file/releases) page.
+Library for converting encrypted stalcraft game files, such as models and textures into well-known formats. \
+You can use compiled utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
 
 ### Formats
@@ -11,9 +12,33 @@ Library for converting encrypted stalcraft game files, such as models and textur
 
 
 ## Install:
+
+### Pip
 ```console
 pip install scfile -U
 ```
+
+<details>
+<summary>Manual</summary>
+
+```console
+git clone git@github.com:onejeuu/sc-file.git
+```
+
+```console
+cd sc-file
+```
+
+```console
+poetry install
+```
+
+Or
+
+```console
+pip install -r requirements.txt
+```
+</details>
 
 ## Usage:
 
@@ -38,7 +63,7 @@ with open("path/to/file.dds", "wb") as fp:
     fp.write(ol)
 ```
 
-### CLI utility
+### CLI Utility
 
 ```console
 SCF.exe --source path/to/file.mcsa
