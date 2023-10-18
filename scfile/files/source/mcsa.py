@@ -45,7 +45,9 @@ class McsaFile(BaseSourceFile):
 
     def _parse_version(self) -> None:
         self.version = self.reader.f32()
-        self._check_version()
+
+        if self.version not in _SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
 
     @property
     def _flags_count(self) -> int:
@@ -57,7 +59,8 @@ class McsaFile(BaseSourceFile):
         for index in range(self._flags_count):
             self.flags[index] = self.reader.i8()
 
-        self._check_flags()
+        if self.flags.unsupported:
+            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")
 
     def _parse_scales(self) -> None:
         self.xyz_scale = self.reader.f32()
@@ -73,7 +76,6 @@ class McsaFile(BaseSourceFile):
             self._parse_mesh(index)
 
     def _parse_mesh(self, index: int) -> None:
-        # creating mesh dataclass
         self.mesh = Mesh()
 
         self.mesh.name = self.reader.mcsastring()
@@ -192,7 +194,6 @@ class McsaFile(BaseSourceFile):
             polygon.vertex3 = self._read_vertex_id()
 
     def _read_vertex_id(self) -> int:
-        # + 1 for .obj standart
         if len(self.mesh.vertices) >= Normalization.VERTEX_LIMIT:
             return self.reader.u32() + 1
         return self.reader.u16() + 1
@@ -208,6 +209,7 @@ class McsaFile(BaseSourceFile):
         bone = Bone()
 
         bone.name = self.reader.mcsastring()
+
         parent_id = self.reader.i8()
         bone.parent_id = parent_id if parent_id != index else ROOT_BONE_ID
 
@@ -225,11 +227,3 @@ class McsaFile(BaseSourceFile):
         bone.rotation.x = self.reader.f32()
         bone.rotation.y = self.reader.f32()
         bone.rotation.z = self.reader.f32()
-
-    def _check_version(self):
-        if self.version not in _SUPPORTED_VERSIONS:
-            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
-
-    def _check_flags(self):
-        if self.flags.unsupported:
-            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")

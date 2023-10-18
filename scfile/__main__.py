@@ -1,30 +1,38 @@
-import argparse
+from pathlib import Path
+from argparse import ArgumentParser
 
-from .utils import func
+from scfile.utils import func
 
 
-def main():
-    # TODO: Add proper error handling
-    # TODO: File drop handling
+def get_parser() -> ArgumentParser:
+    parser = ArgumentParser(
+        prog="scfile",
+        description="Converting encrypted sc game files."
+    )
 
-    parser = argparse.ArgumentParser(prog="scfile")
-
-    parser.add_argument("source", type=str, help="Path to game file.")
+    parser.add_argument(
+        "--source",
+        "-S",
+        type=Path,
+        metavar="FILE",
+        help="Path to encrypted game file."
+    )
 
     parser.add_argument(
         "--output",
-        type=str,
+        "-O",
+        type=Path,
+        metavar="FILE",
         help=(
             "Optional path to output (include new filename). "
             "Defaults to source path with new suffix."
         )
     )
 
-    args = parser.parse_args()
+    return parser
 
-    source = args.source
-    output = args.output
 
+def run(source: Path, output: Path):
     try:
         func.auto(source, output)
 
@@ -32,5 +40,27 @@ def main():
         print("Error:", err)
 
 
+def pause():
+    print()
+    input("Press Enter to exit...")
+
+
+def main():
+    # TODO: Proper error handling
+    # TODO: File drop handling
+
+    parser = get_parser()
+    args = parser.parse_args()
+
+    output = args.output
+
+    if source := args.source:
+        run(source, output)
+        return
+
+    parser.print_help()
+
+
 if __name__ == "__main__":
     main()
+    pause()
