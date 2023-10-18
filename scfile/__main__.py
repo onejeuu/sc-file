@@ -46,9 +46,6 @@ def pause():
 
 
 def main():
-    # TODO: Proper error handling
-    # TODO: File drop handling
-
     parser = get_parser()
     args = parser.parse_args()
 

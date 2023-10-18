@@ -56,6 +56,10 @@ class DdsFile(BaseOutputFile):
     def pitch_or_linear_size(self) -> int:
         if self.compressed:
             return len(self.imagedata)
+        return self.linear_size
+
+    @property
+    def linear_size(self) -> int:
         return (self.width * self.bit_count + 7) // 8
 
     def _add_pixel_format(self) -> None:
