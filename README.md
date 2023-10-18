@@ -11,11 +11,11 @@ You can use compiled utility from [Releases](https://github.com/onejeuu/sc-file/
 `.ol` `->` `.dds`
 
 
-## Install:
+## Install
 
 ### Pip
 ```console
-pip install scfile -U
+pip install sc-file -U
 ```
 
 <details>
@@ -32,15 +32,9 @@ cd sc-file
 ```console
 poetry install
 ```
-
-Or
-
-```console
-pip install -r requirements.txt
-```
 </details>
 
-## Usage:
+## Usage
 
 ### Simple
 ```python
@@ -74,7 +68,7 @@ SCF.exe --source path/to/file.ol --output path/to/file.dds
 ```
 
 
-## Build:
+## Build
 ```console
 poetry run build
 ```

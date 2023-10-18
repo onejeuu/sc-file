@@ -6,7 +6,7 @@ from scfile.utils import func
 
 def get_parser() -> ArgumentParser:
     parser = ArgumentParser(
-        prog="scfile",
+        prog="SCF",
         description="Converting encrypted sc game files."
     )
 
