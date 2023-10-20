@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "1.4.0"
+version = "1.4.1"
 description = ""
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"

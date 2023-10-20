@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).parent.absolute()
-ENTRYPOINT = str(ROOT / "scfile")
+ENTRYPOINT = str(ROOT / "scfile" / "__main__.py")
 ICON = str(ROOT / "assets" / "icon.ico")
 
 

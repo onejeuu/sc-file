@@ -18,7 +18,7 @@ SUPPORTED_FORMATS = [
     b"RGBA8",
     b"BGRA8",
     b"RGBA32F",
-    b"DXN_XY"
+    #b"DXN_XY"
 ]
 
 
@@ -44,7 +44,6 @@ class OlFile(BaseSourceFile):
     def _parse(self) -> None:
         self._parse_header()
         self._parse_imagedata()
-        self._unpack_dxn()
 
     def _parse_header(self) -> None:
         self._parse_image_size()
@@ -85,11 +84,3 @@ class OlFile(BaseSourceFile):
             )
 
         self.imagedata = imagedata.getvalue()
-
-    def _unpack_dxn(self):
-        if self.fourcc == b"DXN_XY":
-            self.fourcc = b"RGBA8"
-            self.imagedata = self._dxn_to_rgba()
-
-    def _dxn_to_rgba(self):
-        return self.imagedata
