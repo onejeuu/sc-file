@@ -4,7 +4,7 @@ from pathlib import Path
 
 from scfile import exceptions as exc
 from scfile.files.output.base import BaseOutputFile
-from scfile.utils.reader import BinaryReader, ByteOrder
+from scfile.reader import BinaryReader, ByteOrder
 
 
 class BaseSourceFile(ABC):
@@ -28,7 +28,7 @@ class BaseSourceFile(ABC):
     signature: int
     """Signature of source file. For example: `0x38383431`."""
 
-    order: str = BinaryReader.DEFAULT_BYTEORDER
+    order: ByteOrder = BinaryReader.DEFAULT_BYTEORDER
     """Binary reader bytes order format."""
 
     def convert(self) -> bytes:
@@ -39,7 +39,7 @@ class BaseSourceFile(ABC):
 
     @abstractmethod
     def _output(self) -> BaseOutputFile:
-        """Return output file object."""
+        """Return default output file object."""
         ...
 
     @abstractmethod
@@ -70,7 +70,7 @@ class BaseSourceFile(ABC):
     def _check_filesize(self) -> None:
         """Check if file size is valid."""
         if self.filesize <= 0:
-            raise exc.FileIsEmpty()
+            raise exc.FileIsEmpty(self.path)
 
     def validate_signature(self, signature: int) -> bool:
         """Validate signature of source file."""
@@ -89,7 +89,8 @@ class BaseSourceFile(ABC):
         signature = self._read_signature()
 
         if self.validate and not self.validate_signature(signature):
-            raise exc.InvalidSignature(
+            raise exc.InvalidSignature(self.path, hex(signature), hex(self.signature))
+            (
                 (
                     f"File '{self.path.as_posix()}' has invalid signature "
                     f"({hex(signature)} != {hex(self.signature)})"

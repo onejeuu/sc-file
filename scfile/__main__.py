@@ -1,7 +1,7 @@
 from pathlib import Path
 from argparse import ArgumentParser
 
-from scfile.utils import func
+from scfile.utils import convert
 
 
 def get_parser() -> ArgumentParser:
@@ -34,15 +34,10 @@ def get_parser() -> ArgumentParser:
 
 def run(source: Path, output: Path):
     try:
-        func.auto(source, output)
+        convert.auto(source, output)
 
     except Exception as err:
         print("Error:", err)
-
-
-def pause():
-    print()
-    input("Press Enter to exit...")
 
 
 def main():
@@ -60,4 +55,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    pause()

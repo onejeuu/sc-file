@@ -70,13 +70,12 @@ class ObjFile(BaseOutputFile):
         self._write("\n")
 
     def _add_polygonal_faces(self) -> None:
-        self._write("g <Root>", "\n")
+        self._write("g", " ", self.filename, "\n")
 
         for index, mesh in self.model.meshes.items():
             self._write("usemtl", " ", f"{index}_{mesh.material.decode()}", "\n")
 
             for index, polygon in enumerate(mesh.polygons):
-                # ? im really dont know why
                 self._write(
                     "f", " ",
                     polygon.vertex1, "/", polygon.vertex1, "/", 1, " ",

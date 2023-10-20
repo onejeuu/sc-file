@@ -1,8 +1,9 @@
 import struct
 from io import BytesIO
 
-from scfile.consts import DDS, Magic
-from scfile.utils.reader import ByteOrder
+from scfile.consts import Magic
+from scfile.reader import ByteOrder
+from scfile.utils.dds_structure import DDS
 
 from .base import BaseOutputFile
 
@@ -16,7 +17,6 @@ class DdsFile(BaseOutputFile):
         height: int,
         imagedata: bytes,
         fourcc: bytes,
-        compressed: bool,
         mipmap_count: int
     ):
         super().__init__(buffer, filename)
@@ -24,7 +24,6 @@ class DdsFile(BaseOutputFile):
         self.height = height
         self.imagedata = imagedata
         self.fourcc = fourcc
-        self.compressed = compressed
         self.mipmap_count = mipmap_count
         self.bit_count = 4 * 8
 
@@ -45,6 +44,10 @@ class DdsFile(BaseOutputFile):
         self._add_pixel_format()
         self._write(DDS.TEXTURE | DDS.MIPMAP)
         self._fill()
+
+    @property
+    def compressed(self) -> bool:
+        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5")
 
     @property
     def flags(self) -> int:
@@ -110,8 +113,8 @@ class DdsFile(BaseOutputFile):
     def _add_imagedata(self) -> None:
         self.buffer.write(self.imagedata)
 
-    def _write(self, i: int, order: str = ByteOrder.LITTLE) -> None:
-        self.buffer.write(struct.pack(f"{order}I", i))
+    def _write(self, i: int, order: ByteOrder = ByteOrder.LITTLE) -> None:
+        self.buffer.write(struct.pack(f"{order.value}I", i))
 
     def _space(self, i: int) -> None:
         self.buffer.write(b'\x00' * 4 * i)

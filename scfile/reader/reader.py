@@ -1,38 +1,13 @@
 import io
 import struct
-from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, NamedTuple, Optional
+from typing import Any, Callable, Optional, TypeVar
+
+from scfile.exceptions import ScFileException, McsaStringError, OlStringError
+from .enums import Format, ByteOrder, OlString
 
 
-class ByteOrder(NamedTuple):
-    NATIVE = "@"
-    STANDART = "="
-    LITTLE = "<"
-    BIG = ">"
-    NETWORK = "!"
-
-
-class Format(StrEnum):
-    I8 = "b"
-    I16 = "h"
-    I32 = "i"
-    I64 = "q"
-
-    U8 = "B"
-    U16 = "H"
-    U32 = "I"
-    U64 = "Q"
-
-    F16 = "e"
-    F32 = "f"
-    F64 = "d"
-
-
-class OlString(NamedTuple):
-    SIZE = 16
-    XOR = 0x67
-    NULL = 0x47
+T = TypeVar("T")
 
 
 class BinaryReader(io.FileIO):
@@ -41,17 +16,28 @@ class BinaryReader(io.FileIO):
     def __init__(
         self,
         path: str | Path,
-        order: str = DEFAULT_BYTEORDER
+        order: ByteOrder = DEFAULT_BYTEORDER
     ):
         super().__init__(path, mode="rb")
         self.path = Path(path)
         self.order = order
 
     @staticmethod
-    def unpacker(fmt: Format):
-        def decorator(func: Callable):
-            def wrapper(self, order: Optional[str] = None):
-                return self._unpack(fmt.value, order)
+    def unpacker(fmt: Format) -> Callable[[Callable[..., T]], Callable[..., T]]:
+        def decorator(_: Callable):
+            def wrapper(self: "BinaryReader", order: Optional[ByteOrder] = None):
+                return self._unpack(fmt, order)
+            return wrapper
+        return decorator
+
+    @staticmethod
+    def string(exc: type[ScFileException]):
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as err:
+                    raise exc(err)
             return wrapper
         return decorator
 
@@ -110,15 +96,7 @@ class BinaryReader(io.FileIO):
         """`float` `double-precision` `8 bytes`"""
         ...
 
-    def olstring(self, size: int = OlString.SIZE) -> bytes:
-        """ol file string"""
-
-        return bytes(
-            char ^ OlString.XOR
-            for char in self.read(size)
-            if char != OlString.NULL
-        )
-
+    @string(McsaStringError)
     def mcsastring(self) -> bytes:
         """mcsa file string"""
 
@@ -128,9 +106,19 @@ class BinaryReader(io.FileIO):
             for _ in range(size)
         )
 
-    def _unpack(self, fmt: str, order: Optional[str] = None) -> Any:
+    @string(OlStringError)
+    def olstring(self, size: int = OlString.SIZE) -> bytes:
+        """ol file string"""
+
+        return bytes(
+            char ^ OlString.XOR
+            for char in self.read(size)
+            if char != OlString.NULL
+        )
+
+    def _unpack(self, fmt: Format, order: Optional[ByteOrder] = None) -> Any:
         order = order or self.order
-        size = struct.calcsize(fmt)
-        result = struct.unpack(f"{order}{fmt}", self.read(size))
+        size = struct.calcsize(fmt.value)
+        result = struct.unpack(f"{order.value}{fmt.value}", self.read(size))
         unpacked = result[0]
         return unpacked

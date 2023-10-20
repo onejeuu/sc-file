@@ -1,7 +1,7 @@
 # Converting STALCRAFT Files Library
 
 Library for converting encrypted stalcraft game files, such as models and textures into well-known formats. \
-You can use compiled utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
+You can use compiled cli utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
 
 ### Formats

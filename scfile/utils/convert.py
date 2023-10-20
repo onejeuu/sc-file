@@ -5,7 +5,7 @@ from scfile import exceptions as exc
 from scfile.consts import FileSuffix
 from scfile.files import McsaFile, MicFile, OlFile
 from scfile.files.source.base import BaseSourceFile
-from scfile.utils.reader import BinaryReader
+from scfile.reader import BinaryReader
 
 
 StringOrPath = str | Path
@@ -88,7 +88,7 @@ def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
             mcsa_to_obj(source, output)
 
         case _:
-            raise exc.UnsupportedFormat(f"File '{source_path.as_posix()}' unsupported.")
+            raise exc.UnsupportedFormat(source_path)
 
 
 def _convert(
@@ -101,7 +101,7 @@ def _convert(
     dest = Path(output) if output else src.with_suffix(suffix)
 
     if not src.exists() or not src.is_file():
-        raise exc.SourceFileNotFound(f"File '{src.as_posix()}' not found.")
+        raise exc.SourceFileNotFound(src)
 
     with BinaryReader(src) as reader:
         converted = converter(reader).convert()

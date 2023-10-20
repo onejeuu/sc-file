@@ -1,19 +1,21 @@
 from typing import Dict
 
 from scfile import exceptions as exc
-from scfile.consts import ROOT_BONE_ID, FLAGS_COUNT_OFFSET, Normalization, Signature
+from scfile.consts import ROOT_BONE_ID, Normalization, Signature
 from scfile.files import ObjFile
+from scfile.reader import ByteOrder
+from scfile.utils.mcsa_flags import Flag, McsaFlags
 from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled
-from scfile.utils.reader import ByteOrder
-from scfile.utils.mcsa_flags import Flags, McsaFlags
 
 from .base import BaseSourceFile
 
 
-_SUPPORTED_VERSIONS = [
+SUPPORTED_VERSIONS = [
     7.0,
     8.0
 ]
+
+FLAGS_COUNT_OFFSET = 3
 
 
 class McsaFile(BaseSourceFile):
@@ -46,8 +48,8 @@ class McsaFile(BaseSourceFile):
     def _parse_version(self) -> None:
         self.version = self.reader.f32()
 
-        if self.version not in _SUPPORTED_VERSIONS:
-            raise exc.McsaUnsupportedVersion(f"Unsupported mcsa version: {self.version}")
+        if self.version not in SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(self.version)
 
     @property
     def _flags_count(self) -> int:
@@ -60,13 +62,13 @@ class McsaFile(BaseSourceFile):
             self.flags[index] = self.reader.i8()
 
         if self.flags.unsupported:
-            raise exc.McsaUnsupportedFlags(f"Unsupported mcsa flags: {self.flags}")
+            raise exc.McsaUnsupportedFlags(self.flags)
 
     def _parse_scales(self) -> None:
         self.xyz_scale = self.reader.f32()
         self.uv_scale = 1.0
 
-        if self.flags[Flags.UV]:
+        if self.flags[Flag.UV]:
             self.uv_scale = self.reader.f32()
 
     def _parse_meshes(self) -> None:
@@ -105,7 +107,7 @@ class McsaFile(BaseSourceFile):
         link_count = 0
         self.bones: Dict[int, int] = {}
 
-        if self.flags[Flags.SKELETON]:
+        if self.flags[Flag.SKELETON]:
             link_count = self.reader.i8()
             total_bones = self.reader.i8()
 
@@ -123,10 +125,6 @@ class McsaFile(BaseSourceFile):
         polygons_count = self.reader.u32()
         self.mesh.resize_polygons(polygons_count)
 
-    def _skip_flag_3(self):
-        if self.flags[Flags.FLAG_3]:
-            self.reader.f32()
-
     def _parse_xyz(self) -> None:
         for vertex in self.mesh.vertices:
             vertex.position.x = scaled(self.xyz_scale, self.reader.i16())
@@ -135,22 +133,29 @@ class McsaFile(BaseSourceFile):
             self.reader.i16() # delimiter
 
     def _parse_uv(self) -> None:
-        if self.flags[Flags.UV]:
+        if self.flags[Flag.UV]:
             for vertex in self.mesh.vertices:
                 vertex.texture.u = scaled(self.uv_scale, self.reader.i16())
                 vertex.texture.v = scaled(self.uv_scale, self.reader.i16())
 
-    def _skip(self) -> None:
+    def _skip(self):
+        self.reader.i16()
+        self.reader.i16()
+
+    def _skip_flag_3(self):
+        if self.flags[Flag.FLAG_3]:
+            self._skip()
+
+    def _skip_vertices(self) -> None:
         for _ in self.mesh.vertices:
-            self.reader.i16()
-            self.reader.i16()
+            self._skip()
 
     def _skip_unknown(self) -> None:
-        if self.flags[Flags.FLAG_3]:
-            self._skip()
+        if self.flags[Flag.FLAG_3]:
+            self._skip_vertices()
 
-        if self.flags[Flags.FLAG_4]:
-            self._skip()
+        if self.flags[Flag.FLAG_4]:
+            self._skip_vertices()
 
     def _parse_bones(self) -> None:
         match self.mesh.link_count:
@@ -161,9 +166,7 @@ class McsaFile(BaseSourceFile):
             case 3 | 4:
                 self._parse_bone_plains()
             case _:
-                raise exc.McsaUnsupportedLinkCount(
-                    f"Unsupported mcsa link count: {self.mesh.link_count}"
-                )
+                raise exc.McsaUnsupportedLinkCount(self.mesh.link_count)
 
     def _parse_bone_packed(self) -> None:
         for vertex in self.mesh.vertices:
@@ -199,7 +202,7 @@ class McsaFile(BaseSourceFile):
         return self.reader.u16() + 1
 
     def _parse_skeleton(self) -> None:
-        if self.flags[Flags.SKELETON]:
+        if self.flags[Flag.SKELETON]:
             bones_count = self.reader.i8()
 
             for index in range(bones_count):

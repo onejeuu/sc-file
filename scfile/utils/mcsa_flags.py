@@ -2,7 +2,9 @@ from enum import IntEnum, auto
 from typing import Dict
 
 
-class Flags(IntEnum):
+class Flag(IntEnum):
+    """Flag Index"""
+
     SKELETON = 0
     UV = auto()
     FLAG_3 = auto()
@@ -25,6 +27,6 @@ class McsaFlags:
 
     @property
     def unsupported(self):
-        return  (self[Flags.FLAG_5]) or \
-                (self[Flags.FLAG_3] and not self[Flags.UV]) or \
-                (self[Flags.UV] and not self[Flags.FLAG_3])
+        return  (self[Flag.FLAG_5]) or \
+                (self[Flag.FLAG_3] and not self[Flag.UV]) or \
+                (self[Flag.UV] and not self[Flag.FLAG_3])

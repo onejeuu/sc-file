@@ -1,44 +1,25 @@
-class ScFileException(Exception):
-    pass
-
+class ScFileException(Exception): ...
 
 # * basic
-class SourceFileNotFound(ScFileException):
-    pass
+class SourceFileNotFound(ScFileException): ...
+class UnsupportedFormat(ScFileException): ...
+class InvalidSignature(ScFileException): ...
+class FileIsEmpty(ScFileException): ...
 
-class UnsupportedFormat(ScFileException):
-    pass
-
-class InvalidSignature(ScFileException):
-    pass
-
-class FileIsEmpty(ScFileException):
-    pass
-
+# * reader
+class ReaderError(ScFileException): ...
+class McsaStringError(ReaderError): ...
+class OlStringError(ReaderError): ...
 
 # * .ol files
-class OlFileError(ScFileException):
-    pass
-
-class OlUnsupportedFormat(OlFileError):
-    pass
-
-class OlUnpackingError(OlFileError):
-    pass
-
+class OlFileError(ScFileException): ...
+class OlUnsupportedFormat(OlFileError): ...
+class OlDXNXYError(OlFileError): ...
+class OlDXNXYSize(OlDXNXYError): ...
+class OlDXNXYNotSquare(OlDXNXYError): ...
 
 # * .mcsa files
-class McsaFileError(ScFileException):
-    pass
-
-class McsaStringError(McsaFileError):
-    pass
-
-class McsaUnsupportedVersion(McsaFileError):
-    pass
-
-class McsaUnsupportedFlags(McsaFileError):
-    pass
-
-class McsaUnsupportedLinkCount(McsaFileError):
-    pass
+class McsaFileError(ScFileException): ...
+class McsaUnsupportedVersion(McsaFileError): ...
+class McsaUnsupportedFlags(McsaFileError): ...
+class McsaUnsupportedLinkCount(McsaFileError): ...
