@@ -4,7 +4,6 @@ from scfile import exceptions as exc
 from scfile.consts import Signature
 from scfile.files import DdsFile
 from scfile.reader import ByteOrder
-import struct
 
 from io import BytesIO
 

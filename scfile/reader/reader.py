@@ -3,7 +3,7 @@ import struct
 from pathlib import Path
 from typing import Any, Callable, Optional, TypeVar
 
-from scfile.exceptions import ScFileException, McsaStringError, OlStringError
+from scfile import exceptions as exc
 from .enums import Format, ByteOrder, OlString
 
 
@@ -31,7 +31,7 @@ class BinaryReader(io.FileIO):
         return decorator
 
     @staticmethod
-    def string(exc: type[ScFileException]):
+    def string(exc: type[exc.ScFileException]):
         def decorator(func):
             def wrapper(*args, **kwargs):
                 try:
@@ -96,7 +96,7 @@ class BinaryReader(io.FileIO):
         """`float` `double-precision` `8 bytes`"""
         ...
 
-    @string(McsaStringError)
+    @string(exc.ReadingMcsaStringError)
     def mcsastring(self) -> bytes:
         """mcsa file string"""
 
@@ -106,7 +106,7 @@ class BinaryReader(io.FileIO):
             for _ in range(size)
         )
 
-    @string(OlStringError)
+    @string(exc.ReadingOlStringError)
     def olstring(self, size: int = OlString.SIZE) -> bytes:
         """ol file string"""
 

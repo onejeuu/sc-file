@@ -89,13 +89,7 @@ class BaseSourceFile(ABC):
         signature = self._read_signature()
 
         if self.validate and not self.validate_signature(signature):
-            raise exc.InvalidSignature(self.path, hex(signature), hex(self.signature))
-            (
-                (
-                    f"File '{self.path.as_posix()}' has invalid signature "
-                    f"({hex(signature)} != {hex(self.signature)})"
-                )
-            )
+            raise exc.InvalidSignature(self.path, hex(signature), "!=", hex(self.signature))
 
     def __str__(self):
         return (

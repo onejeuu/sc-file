@@ -1,6 +1,7 @@
 from pathlib import Path
 from argparse import ArgumentParser
 
+from scfile import exceptions as exc
 from scfile.utils import convert
 
 
@@ -36,8 +37,50 @@ def run(source: Path, output: Path):
     try:
         convert.auto(source, output)
 
+    except exc.SourceFileNotFound as err:
+        print("File", err, "not found (not exists).")
+
+    except exc.UnsupportedFormat as err:
+        print("File", err, "is unsupported.")
+
+    except exc.InvalidSignature as err:
+        print(
+            "File", err, "has invalid signature."
+            "(file suffix does not match file type)"
+        )
+
+    except exc.FileIsEmpty as err:
+        print("Input file", err, "is empty.")
+
+    except exc.ReaderError as err:
+        print("Reading file error:", err)
+
+    except exc.OlUnsupportedFormat as err:
+        print("Texture has unsupported format:", err)
+
+    except exc.McsaUnsupportedVersion as err:
+        print("Model has unsupported version:", err)
+
+    except exc.McsaUnsupportedFlags as err:
+        print("Model has unsupported flags:", err)
+
+    except exc.McsaUnsupportedLinkCount as err:
+        print("Model has unsupported bones link count:", err)
+
+    except exc.McsaFileError | exc.OlFileError as err:
+        print("File converting error:", err)
+
+    except exc.ScFileException as err:
+        print("ScFile error:", err)
+
     except Exception as err:
-        print("Error:", err)
+        print("Unknown error:", err)
+
+
+def noargs(parser: ArgumentParser):
+    parser.print_help()
+    print()
+    input("Press Enter to exit...")
 
 
 def main():
@@ -50,7 +93,7 @@ def main():
         run(source, output)
         return
 
-    parser.print_help()
+    noargs(parser)
 
 
 if __name__ == "__main__":
