@@ -59,11 +59,11 @@ with open("path/to/file.dds", "wb") as fp:
 ### CLI Utility
 
 ```console
-SCF.exe path/to/file.mcsa
+scfile path/to/file.mcsa
 ```
 
 ```console
-SCF.exe path/to/file.ol --output path/to/file.dds
+scfile path/to/file.ol --output path/to/file.dds
 ```
 
 
