@@ -28,7 +28,6 @@ class McsaFlags:
 
     @property
     def unsupported(self):
-        return False
         return (
             self[Flag.FLAG_5] or \
             self[Flag.VERTEX_WEIGHT] and not self[Flag.UV] or \
