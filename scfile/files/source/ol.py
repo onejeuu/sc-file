@@ -5,8 +5,6 @@ from scfile.consts import Signature
 from scfile.files import DdsFile
 from scfile.reader import ByteOrder
 
-from io import BytesIO
-
 from .base import BaseSourceFile
 
 
@@ -35,51 +33,54 @@ class OlFile(BaseSourceFile):
             self.filename,
             self.width,
             self.height,
-            self.imagedata,
+            self.mipmap_count,
+            self.linear_size,
             self.fourcc,
-            self.mipmap_count
+            self.imagedata
         )
 
     def _parse(self) -> None:
-        self._parse_header()
-        self._parse_imagedata()
-
-    def _parse_header(self) -> None:
-        self._parse_image_size()
-        self._parse_fourcc()
-        self._parse_sizes()
-        self._parse_id_string()
-
-    def _parse_image_size(self) -> None:
+        # Read header
         self.width = self.reader.u32()
         self.height = self.reader.u32()
         self.mipmap_count = self.reader.u32()
 
-    def _parse_fourcc(self) -> None:
+        # Read encrypted FourCC (dds pixel format)
         self.fourcc = self.reader.olstring()
+        self.reader.read(1)
 
         if self.fourcc not in SUPPORTED_FORMATS:
-            raise exc.OlUnsupportedFormat(self.fourcc.decode())
+            raise exc.OlUnsupportedFormat(self.path, self.fourcc.decode())
 
-        self.reader.read(1) # delimiter
-
-    def _parse_sizes(self) -> None:
+        # Read lz4 uncompressed and compressed sizes
         self.uncompressed_sizes = [self.reader.u32() for _ in range(self.mipmap_count)]
         self.compressed_sizes = [self.reader.u32() for _ in range(self.mipmap_count)]
 
-    def _parse_id_string(self) -> None:
-        id_size = self.reader.u16()
-        "".join(chr(self.reader.i8()) for _ in range(id_size))
+        # TODO: cubemaps - 2 times range mipmap_count, 3 times u16
 
-    def _parse_imagedata(self) -> None:
-        imagedata = BytesIO()
+        # Total number of bytes in main image
+        self.linear_size = self.uncompressed_sizes[0]
+
+        # Read id string
+        self.id_size = self.reader.u16()
+        self.id_str = "".join(chr(self.reader.i8()) for _ in range(self.id_size))
+
+        # Decompress image data
+        imagedata = bytearray()
 
         for index in range(self.mipmap_count):
-            imagedata.write(
+            imagedata.extend(
                 lz4.block.decompress(
                     self.reader.read(self.compressed_sizes[index]),
                     self.uncompressed_sizes[index]
                 )
             )
 
-        self.imagedata = imagedata.getvalue()
+        self.imagedata = bytes(imagedata)
+
+    def __repr__(self):
+        return (
+            f"<OlFile> {self.width}x{self.height} [{self.mipmap_count}] {self.fourcc}\n"
+            f"📤 {self.uncompressed_sizes}\n"
+            f"📥 {self.compressed_sizes}"
+        )

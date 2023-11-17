@@ -13,8 +13,8 @@ class Magic(NamedTuple):
 
 
 class Normalization(NamedTuple):
-    BYTE = BONE_WEIGHT = 0xFF
-    SHORT = VERTEX_LIMIT = 0x8000
+    U8 = BONE_WEIGHT = 0xFF
+    I16 = SCALING_FACTOR = VERTEX_LIMIT = 0x8000
 
 
 class FileSuffix(NamedTuple):
@@ -26,5 +26,4 @@ class FileSuffix(NamedTuple):
     OBJ = ".obj"
 
 
-# Model bone
-ROOT_BONE_ID = -1
+MODEL_ROOT_BONE_ID = -1

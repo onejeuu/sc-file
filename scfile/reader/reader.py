@@ -1,17 +1,15 @@
-import io
 import struct
+from io import FileIO
 from pathlib import Path
 from typing import Any, Callable, Optional, TypeVar
 
-from scfile import exceptions as exc
-from .enums import Format, ByteOrder, OlString
-
+from .enums import ByteOrder, Format, OlString
 
 T = TypeVar("T")
 
 
-class BinaryReader(io.FileIO):
-    DEFAULT_BYTEORDER = ByteOrder.STANDART
+class BinaryReader(FileIO):
+    DEFAULT_BYTEORDER = ByteOrder.STANDARD
 
     def __init__(
         self,
@@ -26,18 +24,7 @@ class BinaryReader(io.FileIO):
     def unpacker(fmt: Format) -> Callable[[Callable[..., T]], Callable[..., T]]:
         def decorator(_: Callable):
             def wrapper(self: "BinaryReader", order: Optional[ByteOrder] = None):
-                return self._unpack(fmt, order)
-            return wrapper
-        return decorator
-
-    @staticmethod
-    def string(exc: type[exc.ScFileException]):
-        def decorator(func):
-            def wrapper(*args, **kwargs):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as err:
-                    raise exc(err)
+                return self.unpack(fmt, order)[0]
             return wrapper
         return decorator
 
@@ -96,7 +83,6 @@ class BinaryReader(io.FileIO):
         """`float` `double-precision` `8 bytes`"""
         ...
 
-    @string(exc.ReadingMcsaStringError)
     def mcsastring(self) -> bytes:
         """mcsa file string"""
 
@@ -106,7 +92,6 @@ class BinaryReader(io.FileIO):
             for _ in range(size)
         )
 
-    @string(exc.ReadingOlStringError)
     def olstring(self, size: int = OlString.SIZE) -> bytes:
         """ol file string"""
 
@@ -116,9 +101,8 @@ class BinaryReader(io.FileIO):
             if char != OlString.NULL
         )
 
-    def _unpack(self, fmt: Format, order: Optional[ByteOrder] = None) -> Any:
+    def unpack(self, fmt: Format, order: Optional[ByteOrder] = None) -> Any:
         order = order or self.order
-        size = struct.calcsize(fmt.value)
-        result = struct.unpack(f"{order.value}{fmt.value}", self.read(size))
-        unpacked = result[0]
-        return unpacked
+        size = struct.calcsize(str(fmt))
+        data = self.read(size)
+        return struct.unpack(f"{order}{fmt}", data)

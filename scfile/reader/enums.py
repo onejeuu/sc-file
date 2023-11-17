@@ -1,10 +1,10 @@
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import NamedTuple
 
 
-class ByteOrder(Enum):
+class ByteOrder(StrEnum):
     NATIVE = "@"
-    STANDART = "="
+    STANDARD = "="
     LITTLE = "<"
     BIG = ">"
     NETWORK = "!"

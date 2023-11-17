@@ -15,17 +15,18 @@ class DdsFile(BaseOutputFile):
         filename: str,
         width: int,
         height: int,
-        imagedata: bytes,
+        mipmap_count: int,
+        linear_size: int,
         fourcc: bytes,
-        mipmap_count: int
+        imagedata: bytes,
     ):
         super().__init__(buffer, filename)
         self.width = width
         self.height = height
-        self.imagedata = imagedata
-        self.fourcc = fourcc
         self.mipmap_count = mipmap_count
-        self.bit_count = 4 * 8
+        self.linear_size = linear_size
+        self.fourcc = fourcc
+        self.imagedata = imagedata
 
     def _create(self) -> None:
         self._add_magic()
@@ -42,12 +43,12 @@ class DdsFile(BaseOutputFile):
         self._write(self.mipmap_count)
         self._space(11) # Reserved
         self._add_pixel_format()
-        self._write(DDS.TEXTURE | DDS.MIPMAP)
+        self._write(DDS.TEXTURE | DDS.MIPMAP | DDS.COMPLEX)
         self._fill()
 
     @property
     def compressed(self) -> bool:
-        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5")
+        return b"DXT" in self.fourcc
 
     @property
     def flags(self) -> int:
@@ -56,14 +57,15 @@ class DdsFile(BaseOutputFile):
         return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.PITCH
 
     @property
-    def pitch_or_linear_size(self) -> int:
-        if self.compressed:
-            return len(self.imagedata)
-        return self.linear_size
+    def pitch(self):
+        aligned_width = (self.width + 3) & ~3
+        return aligned_width * DDS.PF.BIT_COUNT
 
     @property
-    def linear_size(self) -> int:
-        return (self.width * self.bit_count + 7) // 8
+    def pitch_or_linear_size(self) -> int:
+        if self.compressed:
+            return self.linear_size
+        return self.pitch
 
     def _add_pixel_format(self) -> None:
         self._write(DDS.PF.SIZE)
@@ -79,7 +81,7 @@ class DdsFile(BaseOutputFile):
         self._space(5) # Bitmasks
 
     def _add_uncompressed_format(self) -> None:
-        self._write(DDS.PF.FLAG.RGB | DDS.PF.FLAG.ALPHAPIXELS)
+        self._write(DDS.PF.RGB_FLAGS)
         self._space(1) # FourCC
         self._write(DDS.PF.BIT_COUNT)
 
@@ -114,7 +116,7 @@ class DdsFile(BaseOutputFile):
         self.buffer.write(self.imagedata)
 
     def _write(self, i: int, order: ByteOrder = ByteOrder.LITTLE) -> None:
-        self.buffer.write(struct.pack(f"{order.value}I", i))
+        self.buffer.write(struct.pack(f"{order}I", i))
 
     def _space(self, i: int) -> None:
         self.buffer.write(b'\x00' * 4 * i)

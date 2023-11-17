@@ -40,9 +40,9 @@ class PixelFormatBitmask:
 class PixelFormat:
     SIZE = 32
     BIT_COUNT = 32
-    FLAG = PixelFormatFlag
-    FLAGS = FLAG.ALPHAPIXELS | FLAG.ALPHA | FLAG.FOURCC | FLAG.RGB
     BITMASK = PixelFormatBitmask()
+    FLAG = PixelFormatFlag
+    RGB_FLAGS = FLAG.RGB | FLAG.ALPHAPIXELS
 
 
 class DDS:

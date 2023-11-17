@@ -25,9 +25,6 @@ class ObjFile(BaseOutputFile):
 
     def _add_header(self) -> None:
         self._write(
-            "# OBJ Model", "\n",
-            "# scfile", "\n",
-            "\n",
             "mtllib", " ", self.filename, ".mtl", "\n",
             "o", " ", self.filename, "\n",
             "\n"

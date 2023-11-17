@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from scfile.consts import ROOT_BONE_ID, Normalization
+from scfile.consts import MODEL_ROOT_BONE_ID, Normalization
 
 
 def scaled(scale: float, i: float) -> float:
-    return scale * i / Normalization.VERTEX_LIMIT
+    return scale * i / Normalization.SCALING_FACTOR
 
 
 @dataclass
@@ -33,6 +33,7 @@ class Vertex:
     normals: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     bone: VertexBone = field(default_factory=VertexBone)
+    weight: float = 0.0
 
 
 @dataclass
@@ -60,7 +61,7 @@ class Mesh:
 @dataclass
 class Bone:
     name: bytes = b"bone"
-    parent_id: int = ROOT_BONE_ID
+    parent_id: int = MODEL_ROOT_BONE_ID
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)
 

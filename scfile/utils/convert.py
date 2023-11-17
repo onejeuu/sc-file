@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 from typing import Optional
 
@@ -6,7 +7,6 @@ from scfile.consts import FileSuffix
 from scfile.files import McsaFile, MicFile, OlFile
 from scfile.files.source.base import BaseSourceFile
 from scfile.reader import BinaryReader
-
 
 StringOrPath = str | Path
 
@@ -69,15 +69,15 @@ def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
         Defaults to source path with new suffix.
 
     Raises:
-        UnsupportedFormat - if source suffix not in `.mic`, `.ol`, `.mcsa`.
+        UnsupportedSuffix - if source suffix not in `.mic`, `.ol`, `.mcsa`.
 
     Example:
         `auto("C:/file.mic", "C:/file.png")`
     """
 
-    source_path = Path(source)
+    path = Path(source)
 
-    match source_path.suffix:
+    match path.suffix:
         case FileSuffix.MIC:
             mic_to_png(source, output)
 
@@ -88,17 +88,17 @@ def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
             mcsa_to_obj(source, output)
 
         case _:
-            raise exc.UnsupportedFormat(source_path)
+            raise exc.UnsupportedSuffix(path)
 
 
 def _convert(
     source: StringOrPath,
     output: Optional[StringOrPath],
     converter: type[BaseSourceFile],
-    suffix: str
+    new_suffix: str
 ):
     src = Path(source)
-    dest = Path(output) if output else src.with_suffix(suffix)
+    dest = Path(output) if output else src.with_suffix(new_suffix)
 
     if not src.exists() or not src.is_file():
         raise exc.SourceFileNotFound(src)

@@ -11,7 +11,7 @@ def build():
     PyInstaller.__main__.run([
         ENTRYPOINT,
         "-i", ICON,
-        "--name", "SCF",
+        "--name", "scfile",
         "--specpath", "build",
         "--onefile"
     ])

@@ -78,7 +78,7 @@ class BaseSourceFile(ABC):
 
     def _read_signature(self) -> int:
         """Read signature from source file."""
-        self.reader.order = ByteOrder.STANDART
+        self.reader.order = ByteOrder.STANDARD
         signature = self.reader.u32()
         self.reader.order = self.order
 
@@ -89,7 +89,7 @@ class BaseSourceFile(ABC):
         signature = self._read_signature()
 
         if self.validate and not self.validate_signature(signature):
-            raise exc.InvalidSignature(self.path, hex(signature), "!=", hex(self.signature))
+            raise exc.InvalidSignature(self.path, signature, self.signature)
 
     def __str__(self):
         return (
