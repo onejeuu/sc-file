@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "sc-file"
-version = "1.5.0"
+version = "1.5.1"
 description = ""
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "scfile"}, {include = "build.py"}]
+packages = [{include = "scfile"}]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"

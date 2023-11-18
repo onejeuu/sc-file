@@ -130,17 +130,13 @@ class McsaFile(BaseSourceFile):
         if self.flags[Flag.FLAG_10]:
             self.reader.read(42)
 
-    def _skip_vertices(self) -> None:
-        # 4 bytes per vertex
-        self.reader.read(len(self.mesh.vertices) * 4)
+    def _skip_vertices(self, count: int = 4) -> None:
+        self.reader.read(len(self.mesh.vertices) * count)
 
     def _skip_unknown(self) -> None:
         if self.flags[Flag.NORMALS]:
-            for vertex in self.mesh.vertices:
-                vertex.normals.x = scaled(1.0, self.reader.i16())
-                vertex.normals.y = scaled(1.0, self.reader.i16())
-                vertex.normals.z = scaled(1.0, self.reader.i16())
-                self.reader.read(2)
+            self._skip_vertices()
+            self._skip_vertices()
 
         if self.flags[Flag.FLAG_5]:
             self._skip_vertices()
