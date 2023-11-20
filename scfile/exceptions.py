@@ -43,7 +43,7 @@ class InvalidSignature(ScFileBasicError):
         return (
             f"{super().__str__()} has invalid signature - "
             f"{hex(self.signature)} != {hex(self.valid_signature)}. "
-            "(file suffix does not match file type)."
+            "(File suffix does not match file type)."
         )
 
 

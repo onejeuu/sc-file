@@ -1,5 +1,3 @@
-from typing import Dict
-
 from scfile import exceptions as exc
 from scfile.consts import MODEL_ROOT_BONE_ID, Normalization, Signature
 from scfile.files import ObjFile
@@ -70,8 +68,8 @@ class McsaFile(BaseSourceFile):
     def _parse_mesh(self, index: int) -> None:
         self.mesh = Mesh()
 
-        self.mesh.name = self.reader.mcsastring()
-        self.mesh.material = self.reader.mcsastring()
+        self.mesh.name = self.reader.mcsa_string()
+        self.mesh.material = self.reader.mcsa_string()
 
         self._parse_bone_indexes()
 
@@ -96,7 +94,7 @@ class McsaFile(BaseSourceFile):
 
     def _parse_bone_indexes(self):
         link_count = 0
-        self.bones: Dict[int, int] = {}
+        self.bones: dict[int, int] = {}
 
         if self.flags[Flag.SKELETON]:
             link_count = self.reader.u8()
@@ -130,8 +128,9 @@ class McsaFile(BaseSourceFile):
         if self.flags[Flag.FLAG_10]:
             self.reader.read(42)
 
-    def _skip_vertices(self, count: int = 4) -> None:
-        self.reader.read(len(self.mesh.vertices) * count)
+    def _skip_vertices(self) -> None:
+        # 4 bytes per vertex
+        self.reader.read(len(self.mesh.vertices) * 4)
 
     def _skip_unknown(self) -> None:
         if self.flags[Flag.NORMALS]:
@@ -196,7 +195,7 @@ class McsaFile(BaseSourceFile):
     def _parse_bone(self, index: int) -> None:
         bone = Bone()
 
-        bone.name = self.reader.mcsastring()
+        bone.name = self.reader.mcsa_string()
 
         parent_id = self.reader.i8()
         bone.parent_id = parent_id if parent_id != index else MODEL_ROOT_BONE_ID

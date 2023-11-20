@@ -2,12 +2,20 @@ from typing import NamedTuple
 
 
 class Signature(NamedTuple):
+    """
+    Little-Endian Source File Signature.
+    Integer.
+    """
     MIC = 0x43494D89
     OL = 0xFD23950A
     MCSA = 0x4153434D
 
 
 class Magic(NamedTuple):
+    """
+    Little-Endian Output File Signature.
+    List[Integer].
+    """
     PNG = [0x89, 0x50, 0x4E, 0x47]
     DDS = [0x44, 0x44, 0x53, 0x20]
 

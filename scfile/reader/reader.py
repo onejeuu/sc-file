@@ -1,11 +1,9 @@
 import struct
 from io import FileIO
 from pathlib import Path
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Optional
 
 from .enums import ByteOrder, Format, OlString
-
-T = TypeVar("T")
 
 
 class BinaryReader(FileIO):
@@ -20,70 +18,51 @@ class BinaryReader(FileIO):
         self.path = Path(path)
         self.order = order
 
-    @staticmethod
-    def unpacker(fmt: Format) -> Callable[[Callable[..., T]], Callable[..., T]]:
-        def decorator(_: Callable):
-            def wrapper(self: "BinaryReader", order: Optional[ByteOrder] = None):
-                return self.unpack(fmt, order)[0]
-            return wrapper
-        return decorator
-
-    @unpacker(Format.I8)
-    def i8(self) -> int:
+    def i8(self, order: Optional[ByteOrder] = None) -> int:
         """`signed byte` `1 byte`"""
-        ...
+        return self.unpack(Format.I8, order)
 
-    @unpacker(Format.I16)
-    def i16(self) -> int:
+    def i16(self, order: Optional[ByteOrder] = None) -> int:
         """`signed short` `word` `2 bytes`"""
-        ...
+        return self.unpack(Format.I16, order)
 
-    @unpacker(Format.I32)
-    def i32(self) -> int:
+    def i32(self, order: Optional[ByteOrder] = None) -> int:
         """`signed integer` `double word` `4 bytes`"""
-        ...
+        return self.unpack(Format.I32, order)
 
-    @unpacker(Format.I64)
-    def i64(self) -> int:
+    def i64(self, order: Optional[ByteOrder] = None) -> int:
         """`signed long` `quad word` `8 bytes`"""
-        ...
+        return self.unpack(Format.I64, order)
 
-    @unpacker(Format.U8)
-    def u8(self) -> int:
+    def u8(self, order: Optional[ByteOrder] = None) -> int:
         """`unsigned byte` `1 byte`"""
-        ...
+        return self.unpack(Format.U8, order)
 
-    @unpacker(Format.U16)
-    def u16(self) -> int:
+    def u16(self, order: Optional[ByteOrder] = None) -> int:
         """`unsigned short` `word` `2 bytes`"""
-        ...
+        return self.unpack(Format.U16, order)
 
-    @unpacker(Format.U32)
-    def u32(self) -> int:
+    def u32(self, order: Optional[ByteOrder] = None) -> int:
         """`unsigned integer` `double word` `4 bytes`"""
-        ...
+        return self.unpack(Format.U32, order)
 
-    @unpacker(Format.U64)
-    def u64(self) -> int:
+    def u64(self, order: Optional[ByteOrder] = None) -> int:
         """`unsigned long` `quad word` `8 bytes`"""
-        ...
+        return self.unpack(Format.U64, order)
 
-    @unpacker(Format.F16)
-    def f16(self) -> float:
+    def f16(self, order: Optional[ByteOrder] = None) -> float:
         """`float` `half-precision` `2 bytes`"""
-        ...
+        return self.unpack(Format.F16, order)
 
-    @unpacker(Format.F32)
-    def f32(self) -> float:
+    def f32(self, order: Optional[ByteOrder] = None) -> float:
         """`float` `single-precision` `4 bytes`"""
-        ...
+        return self.unpack(Format.F32, order)
 
-    @unpacker(Format.F64)
-    def f64(self) -> float:
+    def f64(self, order: Optional[ByteOrder] = None) -> float:
         """`float` `double-precision` `8 bytes`"""
-        ...
+        return self.unpack(Format.F64, order)
 
-    def mcsastring(self) -> bytes:
+    def mcsa_string(self) -> bytes:
         """mcsa file string"""
 
         size = self.u16(ByteOrder.LITTLE)
@@ -92,8 +71,8 @@ class BinaryReader(FileIO):
             for _ in range(size)
         )
 
-    def olstring(self, size: int = OlString.SIZE) -> bytes:
-        """ol file string"""
+    def ol_fourcc_string(self, size: int = OlString.SIZE) -> bytes:
+        """ol file fourcc string"""
 
         return bytes(
             char ^ OlString.XOR
@@ -101,8 +80,19 @@ class BinaryReader(FileIO):
             if char != OlString.NULL
         )
 
-    def unpack(self, fmt: Format, order: Optional[ByteOrder] = None) -> Any:
+    def ol_id_string(self, id_size: int):
+        """ol file id string"""
+
+        return bytes(
+            self.i8()
+            for _ in range(id_size)
+        )
+
+    def raw_unpack(self, fmt: str, size: int) -> Any:
+        data = self.read(size)
+        return struct.unpack(fmt, data)
+
+    def unpack(self, fmt: Format | str, order: Optional[ByteOrder] = None) -> Any:
         order = order or self.order
         size = struct.calcsize(str(fmt))
-        data = self.read(size)
-        return struct.unpack(f"{order}{fmt}", data)
+        return self.raw_unpack(f"{order}{fmt}", size)[0]

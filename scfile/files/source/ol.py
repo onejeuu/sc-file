@@ -46,7 +46,7 @@ class OlFile(BaseSourceFile):
         self.mipmap_count = self.reader.u32()
 
         # Read encrypted FourCC (dds pixel format)
-        self.fourcc = self.reader.olstring()
+        self.fourcc = self.reader.ol_fourcc_string()
         self.reader.read(1)
 
         if self.fourcc not in SUPPORTED_FORMATS:
@@ -63,7 +63,7 @@ class OlFile(BaseSourceFile):
 
         # Read id string
         self.id_size = self.reader.u16()
-        self.id_str = "".join(chr(self.reader.i8()) for _ in range(self.id_size))
+        self.id_str = self.reader.ol_id_string(self.id_size)
 
         # Decompress image data
         imagedata = bytearray()
