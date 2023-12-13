@@ -18,6 +18,9 @@ def convert_file(src: Path, dest: Optional[Path] = None):
     except Exception as err:
         print(f"\n[b red]Unknown Error:[/] '{src}' - {err}")
 
+def convert_files(files: tuple[Path], dest: Optional[Path] = None):
+    for src in files:
+        convert_file(src, dest)
 
 @click.command(no_args_is_help=True)
 @click.argument(
@@ -33,12 +36,18 @@ def convert_file(src: Path, dest: Optional[Path] = None):
     nargs=1,
 )
 def main(files: tuple[Path], output: Optional[tuple[Path]] = None):
-    if output:
-        for src, dest in zip(files, output):
-            convert_file(src, dest)
-    else:
-        for src in files:
-            convert_file(src)
+    if not output:
+        convert_files(files)
+        return
+
+    first_output = output[0]
+    if first_output.is_dir():
+        convert_files(files, first_output)
+        return
+
+    for src, dest in zip(files, output):
+        convert_file(src, dest)
+
 
 if __name__ == "__main__":
     try:
