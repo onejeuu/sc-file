@@ -1,17 +1,14 @@
-import warnings
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Type
 
 from scfile import exceptions as exc
-from scfile.consts import FileSuffix
-from scfile.files import McsaFile, MicFile, OlFile
+from scfile.consts import PathLike
+from scfile.enums import FileSuffix
+from scfile.files import McsaFile, MicFile, OlCubemapFile, OlFile
 from scfile.files.source.base import BaseSourceFile
-from scfile.reader import BinaryReader
-
-StringOrPath = str | Path
 
 
-def mcsa_to_obj(source: StringOrPath, output: Optional[StringOrPath] = None):
+def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
     """
     Converting `.mcsa` file to `.obj`.
 
@@ -27,7 +24,7 @@ def mcsa_to_obj(source: StringOrPath, output: Optional[StringOrPath] = None):
     _convert(source, output, McsaFile, FileSuffix.OBJ)
 
 
-def mic_to_png(source: StringOrPath, output: Optional[StringOrPath] = None):
+def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
     """
     Converting `.mic` file to `.png`.
 
@@ -43,7 +40,7 @@ def mic_to_png(source: StringOrPath, output: Optional[StringOrPath] = None):
     _convert(source, output, MicFile, FileSuffix.PNG)
 
 
-def ol_to_dds(source: StringOrPath, output: Optional[StringOrPath] = None):
+def ol_to_dds(source: PathLike, output: Optional[PathLike] = None):
     """
     Converting `.ol` file to `.dds`.
 
@@ -56,10 +53,14 @@ def ol_to_dds(source: StringOrPath, output: Optional[StringOrPath] = None):
         `ol_to_dds("C:/file.ol", "C:/file.dds")`
     """
 
-    _convert(source, output, OlFile, FileSuffix.DDS)
+    try:
+        _convert(source, output, OlFile, FileSuffix.DDS)
+
+    except exc.OlInvalidFormat:
+        _convert(source, output, OlCubemapFile, FileSuffix.DDS)
 
 
-def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
+def auto(source: PathLike, output: Optional[PathLike] = None):
     """
     Automatically determines which format convert to.
 
@@ -77,7 +78,7 @@ def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
 
     path = Path(source)
 
-    match path.suffix:
+    match path.suffix.lstrip("."):
         case FileSuffix.MIC:
             mic_to_png(source, output)
 
@@ -92,19 +93,28 @@ def auto(source: StringOrPath, output: Optional[StringOrPath] = None):
 
 
 def _convert(
-    source: StringOrPath,
-    output: Optional[StringOrPath],
-    converter: type[BaseSourceFile],
+    source: PathLike,
+    output: Optional[PathLike],
+    converter: Type[BaseSourceFile],
     new_suffix: str
 ):
     src = Path(source)
-    dest = Path(output) if output else src.with_suffix(new_suffix)
+    new_src = src.with_suffix(f".{new_suffix}")
 
+    dest = Path(output) if output else new_src
+
+    # Check that file exists
     if not src.exists() or not src.is_file():
         raise exc.SourceFileNotFound(src)
 
-    with BinaryReader(src) as reader:
-        converted = converter(reader).convert()
+    # If destination is directory save file in this folder
+    if dest.is_dir():
+        dest = Path(dest, new_src.name)
 
-    with open(dest, "wb") as f:
-        f.write(converted)
+    # Get converted bytes using context manager
+    with converter(src) as encrypted:
+        converted = encrypted.convert()
+
+    # Save converted bytes in destination file
+    with open(dest, "wb") as fp:
+        fp.write(converted)

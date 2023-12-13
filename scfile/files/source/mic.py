@@ -1,22 +1,20 @@
 from scfile.consts import Signature
-from scfile.files import PngFile
+from scfile.files.output.png import PngFile, PngOutputData
 
 from .base import BaseSourceFile
 
 
 class MicFile(BaseSourceFile):
 
+    output = PngFile
     signature = Signature.MIC
 
     def to_png(self) -> bytes:
         return self.convert()
 
-    def _output(self) -> PngFile:
-        return PngFile(
-            self.buffer,
-            self.filename,
-            self.filedata
-        )
+    @property
+    def data(self) -> PngOutputData:
+        return PngOutputData(self.imagedata)
 
-    def _parse(self) -> None:
-        self.filedata = self.reader.read()
+    def parse(self) -> None:
+        self.imagedata = self.reader.read()

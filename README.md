@@ -38,7 +38,7 @@ poetry install
 
 ### Simple
 ```python
-from scfile.utils import convert
+from scfile import convert
 
 convert.mcsa_to_obj("path/to/file.mcsa", "path/to/file.obj")
 convert.mic_to_png("path/to/file.mic", "path/to/file.png")
@@ -47,10 +47,10 @@ convert.ol_to_dds("path/to/file.ol", "path/to/file.dds")
 
 ### Advanced
 ```python
-from scfile import OlFile, BinaryReader
+from scfile import OlFile
 
-with BinaryReader("path/to/file.ol") as reader:
-    dds = OlFile(reader).to_dds()
+with OlFile("path/to/file.ol") as ol:
+    dds = ol.to_dds()
 
 with open("path/to/file.dds", "wb") as fp:
     fp.write(dds)
@@ -62,8 +62,10 @@ with open("path/to/file.dds", "wb") as fp:
 scfile path/to/file.mcsa
 ```
 
+or
+
 ```console
-scfile path/to/file.ol --output path/to/file.dds
+scfile path/to/file.mcsa --output path/to/file.obj
 ```
 
 

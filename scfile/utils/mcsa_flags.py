@@ -7,14 +7,10 @@ class Flag(IntEnum):
 
     SKELETON = 0
     UV = auto()
-    VERTEX_WEIGHT = auto()
-    NORMALS = auto()
+    FLAG_3 = auto()
+    FLAG_4 = auto()
     FLAG_5 = auto()
     FLAG_6 = auto()
-    FLAG_7 = auto()
-    FLAG_8 = auto()
-    FLAG_9 = auto()
-    FLAG_10 = auto()
 
 
 class McsaFlags:
@@ -24,15 +20,18 @@ class McsaFlags:
 
     @property
     def count(self) -> int:
-        return int(self._version - 3.0)
+        return {
+            7.0: 4,
+            8.0: 5,
+            10.0: 6
+        }.get(self._version, 0)
 
     @property
-    def unsupported(self):
-        return (
-            self[Flag.FLAG_5] or \
-            self[Flag.VERTEX_WEIGHT] and not self[Flag.UV] or \
-            self[Flag.UV] and not self[Flag.VERTEX_WEIGHT]
-        )
+    def named_dict(self):
+        return {
+            Flag(key).name: value
+            for key, value in self._flags.items()
+        }
 
     def __getitem__(self, index: int) -> bool:
         return bool(self._flags.get(index, False))
@@ -41,4 +40,4 @@ class McsaFlags:
         self._flags[index] = bool(value)
 
     def __str__(self):
-        return str(dict(self._flags.items()))
+        return str(self.named_dict)

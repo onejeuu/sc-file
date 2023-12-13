@@ -1,49 +1,49 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from io import BytesIO
 from pathlib import Path
+from typing import Type
 
 from scfile import exceptions as exc
-from scfile.files.output.base import BaseOutputFile
+from scfile.consts import PathLike
+from scfile.files.output.base import BaseOutputFile, OutputData
 from scfile.reader import BinaryReader, ByteOrder
 
 
 class BaseSourceFile(ABC):
     DEFAULT_VALIDATE = True
 
-    def __init__(
-        self,
-        reader: BinaryReader,
-        validate: bool = DEFAULT_VALIDATE
-    ):
-        self.reader = reader
-        self.reader.order = self.order
+    def __init__(self, path: PathLike, validate_signature: bool = DEFAULT_VALIDATE):
+        self.path = Path(path)
+        self.validate = validate_signature
 
-        self.validate = validate
-
+        self.reader = BinaryReader(self.path, self.order)
         self.buffer = BytesIO()
 
-        self._check_filesize()
-        self._check_signature()
+        self.check_filesize()
+        self.check_signature()
+
+    output: Type[BaseOutputFile]
+    """Output file model."""
 
     signature: int
     """Signature of source file. For example: `0x38383431`."""
 
     order: ByteOrder = BinaryReader.DEFAULT_BYTEORDER
-    """Binary reader bytes order format."""
+    """Reader bytes order format."""
 
     def convert(self) -> bytes:
         """Convert source file. Return output file bytes."""
-        self._parse()
-        self._output().create()
+        self.parse()
+        self.output(self.path, self.data, self.buffer).create()
         return self.result
 
-    @abstractmethod
-    def _output(self) -> BaseOutputFile:
-        """Return default output file object."""
+    @abstractproperty
+    def data(self) -> OutputData:
+        """Return output data."""
         ...
 
     @abstractmethod
-    def _parse(self) -> None:
+    def parse(self) -> None:
         """Parse source file."""
         ...
 
@@ -51,11 +51,6 @@ class BaseSourceFile(ABC):
     def result(self) -> bytes:
         """Result bytes of conversion."""
         return self.buffer.getvalue()
-
-    @property
-    def path(self) -> Path:
-        """Path of source file."""
-        return self.reader.path
 
     @property
     def filename(self) -> str:
@@ -67,26 +62,31 @@ class BaseSourceFile(ABC):
         """Size of source file."""
         return self.path.stat().st_size
 
-    def _check_filesize(self) -> None:
+    def check_filesize(self) -> None:
         """Check if file size is valid."""
-        if self.filesize <= 0:
+        if self.filesize < len(str(self.signature)):
             raise exc.FileIsEmpty(self.path)
 
     def validate_signature(self, signature: int) -> bool:
         """Validate signature of source file."""
         return signature == self.signature
 
-    def _check_signature(self) -> None:
+    def check_signature(self) -> None:
         """Check if signature of source file is valid."""
         signature = self.reader.u32(ByteOrder.LITTLE)
 
         if self.validate and not self.validate_signature(signature):
             raise exc.InvalidSignature(self.path, signature, self.signature)
 
+    def close(self):
+        self.reader.close()
+        self.buffer.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def __str__(self):
-        return (
-            f"<{self.__class__.__name__}> "
-            f"signature='{self.signature}'"
-            f"path='{self.path.as_posix()}' "
-            f"pos={self.reader.tell()}"
-        )
+        return f"<{self.__class__.__name__}> path='{self.path.as_posix()}' "

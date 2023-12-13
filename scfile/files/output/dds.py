@@ -1,54 +1,59 @@
-import struct
-from io import BytesIO
+from dataclasses import dataclass
 
 from scfile.consts import Magic
-from scfile.reader import ByteOrder
-from scfile.utils.dds_structure import DDS
+from scfile.utils.dds_structure import DDS, BITMASKS
 
-from .base import BaseOutputFile
+from .base import BaseOutputFile, OutputData
 
 
-class DdsFile(BaseOutputFile):
-    def __init__(
-        self,
-        buffer: BytesIO,
-        filename: str,
-        width: int,
-        height: int,
-        mipmap_count: int,
-        linear_size: int,
-        fourcc: bytes,
-        imagedata: bytes,
-    ):
-        super().__init__(buffer, filename)
-        self.width = width
-        self.height = height
-        self.mipmap_count = mipmap_count
-        self.linear_size = linear_size
-        self.fourcc = fourcc
-        self.imagedata = imagedata
+@dataclass
+class DdsOutputData(OutputData):
+    width: int
+    height: int
+    mipmap_count: int
+    linear_size: int
+    fourcc: bytes
+    is_cubemap: bool
+    image: bytes
 
-    def _create(self) -> None:
-        self._add_magic()
-        self._add_header()
-        self._add_imagedata()
 
-    def _add_header(self) -> None:
+class DdsFile(BaseOutputFile[DdsOutputData]):
+
+    magic = Magic.DDS
+
+    def write(self) -> None:
         self._write(DDS.HEADER.SIZE)
         self._write(self.flags)
-        self._write(self.height)
-        self._write(self.width)
+        self._write(self.data.height)
+        self._write(self.data.width)
         self._write(self.pitch_or_linear_size)
-        self._space(1) # Depth
-        self._write(self.mipmap_count)
-        self._space(11) # Reserved
-        self._add_pixel_format()
-        self._write(DDS.TEXTURE | DDS.MIPMAP | DDS.COMPLEX)
-        self._fill()
+        self._write_null(1) # Depth
+        self._write(self.data.mipmap_count)
+        self._write_null(11) # Reserved
+
+        self._write(DDS.PF.SIZE)
+        if self.compressed:
+            self._write(DDS.PF.FLAG.FOURCC)
+            self._raw_write(self.data.fourcc) # FourCC
+            self._write_null(5)
+
+        else:
+            self._write(DDS.PF.RGB_FLAGS)
+            self._write_null(1) # FourCC
+            self._write(DDS.PF.BIT_COUNT)
+
+            for mask in BITMASKS(self.data.fourcc):
+                self._write(mask)
+
+        self._write(DDS.TEXTURE | DDS.MIPMAP | DDS.COMPLEX) # Caps1
+        self._write(self.cubemap) # Caps2
+        self._write_null(3) # Reserved
+
+        self._raw_write(self.data.image)
 
     @property
     def compressed(self) -> bool:
-        return b"DXT" in self.fourcc
+        return b"DXT" in self.data.fourcc
 
     @property
     def flags(self) -> int:
@@ -57,72 +62,19 @@ class DdsFile(BaseOutputFile):
         return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.PITCH
 
     @property
-    def pitch(self):
-        aligned_width = (self.width + 3) & ~3
-        return aligned_width * DDS.PF.BIT_COUNT
+    def pitch(self) -> int:
+        bytes_per_pixel = 4
+        aligned_width = (self.data.width * bytes_per_pixel + 3) & ~3
+        return aligned_width
 
     @property
     def pitch_or_linear_size(self) -> int:
         if self.compressed:
-            return self.linear_size
+            return self.data.linear_size
         return self.pitch
 
-    def _add_pixel_format(self) -> None:
-        self._write(DDS.PF.SIZE)
-
-        if self.compressed:
-            self._add_compressed_format()
-        else:
-            self._add_uncompressed_format()
-
-    def _add_compressed_format(self) -> None:
-        self._write(DDS.PF.FLAG.FOURCC)
-        self._add_fourcc()
-        self._space(5) # Bitmasks
-
-    def _add_uncompressed_format(self) -> None:
-        self._write(DDS.PF.RGB_FLAGS)
-        self._space(1) # FourCC
-        self._write(DDS.PF.BIT_COUNT)
-
-        for mask in self._bitmasks:
-            self._write(mask, ByteOrder.BIG)
-
     @property
-    def _bitmasks(self):
-        match self.fourcc:
-            case b"BGRA8":
-                return (
-                    DDS.PF.BITMASK.A,
-                    DDS.PF.BITMASK.B,
-                    DDS.PF.BITMASK.G,
-                    DDS.PF.BITMASK.R,
-                )
-            case _:
-                return (
-                    DDS.PF.BITMASK.A,
-                    DDS.PF.BITMASK.R,
-                    DDS.PF.BITMASK.G,
-                    DDS.PF.BITMASK.B,
-                )
-
-    def _add_magic(self) -> None:
-        self.buffer.write(bytes(Magic.DDS))
-
-    def _add_fourcc(self) -> None:
-        self.buffer.write(self.fourcc)
-
-    def _add_imagedata(self) -> None:
-        self.buffer.write(self.imagedata)
-
-    def _write(self, i: int, order: ByteOrder = ByteOrder.LITTLE) -> None:
-        self.buffer.write(struct.pack(f"{order}I", i))
-
-    def _space(self, i: int) -> None:
-        self.buffer.write(b'\x00' * 4 * i)
-
-    def _fill(self) -> None:
-        position = self.buffer.tell()
-        header_size = DDS.HEADER.SIZE + len(Magic.DDS)
-        count = header_size - position
-        self.buffer.write(b'\x00' * count)
+    def cubemap(self) -> int:
+        if self.data.is_cubemap:
+            return DDS.CUBEMAP
+        return 0

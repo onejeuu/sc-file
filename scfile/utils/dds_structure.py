@@ -1,5 +1,5 @@
-from enum import IntFlag
 from dataclasses import dataclass
+from enum import IntFlag
 
 
 class HeaderFlag(IntFlag):
@@ -29,25 +29,47 @@ class PixelFormatFlag(IntFlag):
 
 
 @dataclass
-class PixelFormatBitmask:
-    A = 0xFF000000
-    R = 0x00FF0000
-    G = 0x0000FF00
-    B = 0x000000FF
-
-
-@dataclass
 class PixelFormat:
     SIZE = 32
     BIT_COUNT = 32
-    BITMASK = PixelFormatBitmask()
     FLAG = PixelFormatFlag
     RGB_FLAGS = FLAG.RGB | FLAG.ALPHAPIXELS
+
+
+@dataclass
+class CubemapFlags(IntFlag):
+    POSITIVE_X = 0x400
+    NEGATIVE_X = 0x800
+    POSITIVE_Y = 0x1000
+    NEGATIVE_Y = 0x2000
+    POSITIVE_Z = 0x4000
+    NEGATIVE_Z = 0x8000
 
 
 class DDS:
     HEADER = Header()
     PF = PixelFormat()
+    CUBEMAP = 0x200
+    CM = CubemapFlags
     COMPLEX = 0x8
     TEXTURE = 0x1000
     MIPMAP = 0x400000
+
+
+class BITMASKS:
+    RGBA8 = [0xFF, 0xFF00, 0xFF0000, 0xFF]
+    BGRA8 = [0xFF, 0x00FF, 0x0000FF, 0x000000FF]
+
+    def __init__(self, fourcc: bytes):
+        self.fourcc = fourcc
+
+    def __iter__(self):
+        match self.fourcc:
+            case b"RGBA8":
+                return iter(BITMASKS.RGBA8)
+
+            case b"BGRA8":
+                return iter(BITMASKS.BGRA8)
+
+            case _:
+                return iter(BITMASKS.RGBA8)

@@ -1,21 +1,18 @@
-from io import BytesIO
+from dataclasses import dataclass
 
 from scfile.consts import Magic
 
-from .base import BaseOutputFile
+from .base import BaseOutputFile, OutputData
 
 
-class PngFile(BaseOutputFile):
-    def __init__(
-        self,
-        buffer: BytesIO,
-        filename: str,
-        filedata: bytes
-    ):
-        super().__init__(buffer, filename)
-        self.filedata = filedata
+@dataclass
+class PngOutputData(OutputData):
+    image: bytes
 
-    def _create(self) -> None:
-        # it was pretty hard...
-        self.buffer.write(bytes(Magic.PNG))
-        self.buffer.write(self.filedata)
+
+class PngFile(BaseOutputFile[PngOutputData]):
+
+    magic = Magic.PNG
+
+    def write(self) -> None:
+        self._raw_write(self.data.image)

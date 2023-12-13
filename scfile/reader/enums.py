@@ -1,5 +1,4 @@
 from enum import StrEnum
-from typing import NamedTuple
 
 
 class ByteOrder(StrEnum):
@@ -24,9 +23,3 @@ class Format(StrEnum):
     F16 = "e"
     F32 = "f"
     F64 = "d"
-
-
-class OlString(NamedTuple):
-    SIZE = 16
-    XOR = 0x67
-    NULL = 0x47
