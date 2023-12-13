@@ -16,13 +16,14 @@ You can use compiled cli utility from [Releases](https://github.com/onejeuu/sc-f
 `.ol` `->` `.dds`
 
 
-<br>
-
 
 # CLI Utility
 
 ## Usage
 
+You can drag and drop file or multiple files to `scfile.exe`.
+
+From bash:
 ```bash
 scfile [OPTIONS] [FILES]...
 ```
@@ -73,8 +74,6 @@ scfile [OPTIONS] [FILES]...
     In this case `-O` accepts only directory.
     With `-O` specified, folder structure is not duplicated.
 
-
-<br>
 
 
 # Library
