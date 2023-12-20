@@ -42,7 +42,7 @@ Copy files you need to another folder and work there.
 Usage
 ~~~~~
 
-You can drag and drop file or multiple files to ``scfile.exe``.
+You can drag and drop one or multiple files to ``scfile.exe``.
 
 From bash:
 
