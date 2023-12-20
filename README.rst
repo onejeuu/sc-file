@@ -13,8 +13,6 @@ You can use compiled cli utility from `Releases <https://github.com/onejeuu/sc-f
 
 You can get banned for any changes in game client.
 
-Copy files you need to another folder and work there.
-
 
 📁 Formats
 ----------
@@ -165,13 +163,27 @@ Advanced
     with open("path/to/file.obj", "wb") as fp:
         fp.write(obj)
 
-Build
-~~~~~
+🛠️ Build
+--------
+
+You will need poetry to do compilation. Install it `here <https://python-poetry.org>`_.
+
+Before proceeding, it's recommended to create virtual environment:
+
+.. code:: bash
+
+    poetry shell
+
+Then install dependencies:
 
 .. code:: bash
 
     poetry install
 
+And run script to compile:
+
 .. code:: bash
 
     poetry run build
+
+Executable file will be created in ``/dist`` directory within your project folder.
