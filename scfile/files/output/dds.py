@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from scfile.consts import Magic
-from scfile.utils.dds_structure import DDS, BITMASKS
+from scfile.utils.dds.structure import DDS, BITMASKS
 
 from .base import BaseOutputFile, OutputData
 
@@ -76,5 +76,5 @@ class DdsFile(BaseOutputFile[DdsOutputData]):
     @property
     def cubemap(self) -> int:
         if self.data.is_cubemap:
-            return DDS.CUBEMAP
+            return DDS.CUBEMAPS
         return 0

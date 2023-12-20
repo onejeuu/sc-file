@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any, Dict, Generator
 
 from scfile.utils.model import Model, Vertex
 
@@ -43,7 +43,7 @@ class ObjFile(BaseOutputFile[ObjOutputData]):
         self._write_str("\n")
 
     def _ensure_unique_names(self):
-        names: dict[bytes, int] = {}
+        names: Dict[bytes, int] = {}
 
         # Checking names for uniqueness
         for index, mesh in enumerate(self.data.model.meshes):

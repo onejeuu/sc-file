@@ -43,4 +43,9 @@ class McsaModel(NamedTuple):
     # So as not to overflow memory
     COUNT_LIMIT = 0x40000
 
+# Files suffixes that can be converted
 SUPPORTED_SUFFIXES = {FileSuffix.MIC, FileSuffix.OL, FileSuffix.MCSA}
+
+# Dds cubemap faces count
+# +x, -x, +y, -y, +z, -z
+CUBEMAP_FACES = 6

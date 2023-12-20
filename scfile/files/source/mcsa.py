@@ -1,8 +1,11 @@
+from typing import Dict
+
 from scfile import exceptions as exc
 from scfile.consts import McsaModel, Normalization, Signature
+from scfile.enums import ByteOrder
+from scfile.enums import StructFormat as Format
 from scfile.files.output.obj import ObjFile, ObjOutputData
-from scfile.reader import ByteOrder
-from scfile.utils.mcsa_flags import Flag, McsaFlags
+from scfile.utils.mcsa.flags import Flag, McsaFlags
 from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled_i16, scaled_u16
 
 from .base import BaseSourceFile
@@ -43,11 +46,7 @@ class McsaFile(BaseSourceFile):
         self._parse_scales()
 
     def _parse_version(self):
-        self.version = self.reader.f32()
-
-        #print()
-        #print("FILE:", self.filename)
-        #print("version:", self.version)
+        self.version = self.reader.readbin(Format.F32)
 
         if self.version not in SUPPORTED_VERSIONS:
             raise exc.McsaUnsupportedVersion(self.path, self.version)
@@ -56,29 +55,23 @@ class McsaFile(BaseSourceFile):
         self.flags = McsaFlags(self.version)
 
         for index in range(self.flags.count):
-            self.flags[index] = self.reader.i8()
-
-        #print("flags:", self.flags)
+            self.flags[index] = self.reader.readbin(Format.BOOL)
 
     def _parse_scales(self):
         self.xyz_scale = 1.0
         self.uv_scale = 1.0
 
-        self.xyz_scale = self.reader.f32()
+        self.xyz_scale = self.reader.readbin(Format.F32)
 
         if self.flags[Flag.UV]:
-            self.uv_scale = self.reader.f32()
+            self.uv_scale = self.reader.readbin(Format.F32)
 
         # ! unknown
         if self.flags[Flag.FLAG_3] and self.version == 10.0:
-            self.unknown_scale = self.reader.f32()
-            #print("unknown scale:", self.unknown_scale)
-
-        #print("xyz scale:", self.xyz_scale)
-        #print("uv scale:", self.uv_scale)
+            self.unknown_scale = self.reader.readbin(Format.F32)
 
     def _parse_meshes(self) -> None:
-        meshes_count = self.reader.u32()
+        meshes_count = self.reader.readbin(Format.U32)
 
         for index in range(meshes_count):
             self._parse_mesh()
@@ -86,77 +79,59 @@ class McsaFile(BaseSourceFile):
     def _parse_mesh(self) -> None:
         self.mesh = Mesh()
 
-        #print()
-        #print("mesh:", self.reader.tell())
-
         self._parse_name_and_material()
 
-        #print(self.mesh.name[:15])
-
-        #print("bone indexes:", self.reader.tell())
-        self.bones: dict[int, int] = {}
+        self.bones: Dict[int, int] = {}
 
         if self.flags[Flag.SKELETON]:
             self._parse_bone_indexes()
 
-        #print("counts:", self.reader.tell())
         self._parse_counts()
 
-        #print("weight_scale:", self.reader.tell())
         self._parse_weight_scale()
 
         # ! unknown
-        #print("unknown v10:", self.reader.tell())
         if self.version == 10.0:
-            # ??????
             for _ in range(6):
-                self.reader.f32()
+                self.reader.readbin(Format.F32)
 
-        #print("xyz:", self.reader.tell())
         self._parse_xyz()
 
-        #print("uv:", self.reader.tell())
         if self.flags[Flag.UV]:
             self._parse_uv()
 
         # ! unknown
-        #print("unknown:", self.reader.tell())
         self._skip_unknown()
 
-        #print("bones:", self.reader.tell())
         if self.flags[Flag.SKELETON]:
             self._parse_bones()
 
         self._skip_flag_6()
 
-        #print("polygons:", self.reader.tell())
         self._parse_polygons()
 
         self.model.meshes.append(self.mesh)
 
     def _parse_name_and_material(self):
-        # v7 = name, material
-        # v8 = name, material
+        # I'm still not sure?
         match self.version:
             case 7.0:
-                self.mesh.name = self.reader.string_mcsa()
-                self.mesh.material = self.reader.string_mcsa()
+                self.mesh.name = self.reader.readstring()
+                self.mesh.material = self.reader.readstring()
             case 8.0 | 10.0:
-                self.mesh.material = self.reader.string_mcsa()
-                self.mesh.name = self.reader.string_mcsa()
+                self.mesh.material = self.reader.readstring()
+                self.mesh.name = self.reader.readstring()
 
     def _parse_bone_indexes(self):
-        self.mesh.link_count = self.reader.u8()
-        total_bones = self.reader.u8()
+        self.mesh.link_count = self.reader.readbin(Format.U8)
+        total_bones = self.reader.readbin(Format.U8)
 
         for index in range(total_bones):
-            self.bones[index] = self.reader.i8()
+            self.bones[index] = self.reader.readbin(Format.I8)
 
     def _parse_counts(self):
         self.vertices_count = self.reader.mcsa_counts()
         self.polygons_count = self.reader.mcsa_counts()
-
-        #print(f"v {self.vertices_count}, p {self.polygons_count}")
 
         self.mesh.resize_vertices(self.vertices_count)
         self.mesh.resize_polygons(self.polygons_count)
@@ -166,7 +141,7 @@ class McsaFile(BaseSourceFile):
 
         # ! unknown
         if self.flags[Flag.UV]:
-            self.weight_scale = self.reader.f32()
+            self.weight_scale = self.reader.readbin(Format.F32)
 
     def _parse_xyz(self) -> None:
         vertices = self.reader.mcsa_xyz(self.vertices_count)
@@ -223,12 +198,12 @@ class McsaFile(BaseSourceFile):
 
     def _parse_bone_id(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
-            bone_id = self.reader.i8()
+            bone_id = self.reader.readbin(Format.I8)
             vertex.bone.ids[index] = self.bones.get(bone_id, McsaModel.ROOT_BONE_ID)
 
     def _parse_bone_weight(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
-            bone_weight = self.reader.i8()
+            bone_weight = self.reader.readbin(Format.I8)
             vertex.bone.weights[index] = bone_weight / Normalization.BONE_WEIGHT
 
     def _skip_flag_6(self):
@@ -249,7 +224,7 @@ class McsaFile(BaseSourceFile):
         # Still no export support yet
         return
 
-        bones_count = self.reader.i8()
+        bones_count = self.reader.readbin(Format.I8)
 
         for index in range(bones_count):
             self._parse_bone(index)
@@ -257,9 +232,9 @@ class McsaFile(BaseSourceFile):
     def _parse_bone(self, index: int) -> None:
         self.bone = Bone()
 
-        self.bone.name = self.reader.string_mcsa()
+        self.bone.name = self.reader.readstring()
 
-        parent_id = self.reader.i8()
+        parent_id = self.reader.readbin(Format.I8)
         self.bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
 
         self._parse_bone_position()
@@ -268,11 +243,11 @@ class McsaFile(BaseSourceFile):
         self.model.skeleton.bones.append(self.bone)
 
     def _parse_bone_position(self):
-        self.bone.position.x = self.reader.f32()
-        self.bone.position.y = self.reader.f32()
-        self.bone.position.z = self.reader.f32()
+        self.bone.position.x = self.reader.readbin(Format.F32)
+        self.bone.position.y = self.reader.readbin(Format.F32)
+        self.bone.position.z = self.reader.readbin(Format.F32)
 
     def _parse_bone_rotation(self):
-        self.bone.rotation.x = self.reader.f32()
-        self.bone.rotation.y = self.reader.f32()
-        self.bone.rotation.z = self.reader.f32()
+        self.bone.rotation.x = self.reader.readbin(Format.F32)
+        self.bone.rotation.y = self.reader.readbin(Format.F32)
+        self.bone.rotation.z = self.reader.readbin(Format.F32)

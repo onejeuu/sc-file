@@ -5,8 +5,10 @@ from typing import Type
 
 from scfile import exceptions as exc
 from scfile.consts import PathLike
+from scfile.enums import ByteOrder
+from scfile.enums import StructFormat as Format
 from scfile.files.output.base import BaseOutputFile, OutputData
-from scfile.reader import BinaryReader, ByteOrder
+from scfile.reader import BinaryReader
 
 
 class BaseSourceFile(ABC):
@@ -73,7 +75,7 @@ class BaseSourceFile(ABC):
 
     def check_signature(self) -> None:
         """Check if signature of source file is valid."""
-        signature = self.reader.u32(ByteOrder.LITTLE)
+        signature = self.reader.readbin(Format.U32, ByteOrder.LITTLE)
 
         if self.validate and not self.validate_signature(signature):
             raise exc.InvalidSignature(self.path, signature, self.signature)

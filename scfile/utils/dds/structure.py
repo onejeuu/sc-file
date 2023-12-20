@@ -38,19 +38,20 @@ class PixelFormat:
 
 @dataclass
 class CubemapFlags(IntFlag):
-    POSITIVE_X = 0x400
-    NEGATIVE_X = 0x800
-    POSITIVE_Y = 0x1000
-    NEGATIVE_Y = 0x2000
-    POSITIVE_Z = 0x4000
-    NEGATIVE_Z = 0x8000
+    POSITIVE_X = POSX = 0x400
+    NEGATIVE_X = NEGX = 0x800
+    POSITIVE_Y = POSY = 0x1000
+    NEGATIVE_Y = NEGY = 0x2000
+    POSITIVE_Z = POSZ = 0x4000
+    NEGATIVE_Z = NEGZ = 0x8000
 
 
 class DDS:
     HEADER = Header()
     PF = PixelFormat()
     CUBEMAP = 0x200
-    CM = CubemapFlags
+    CF = CubemapFlags
+    CUBEMAPS = CUBEMAP | CF.POSX | CF.NEGX | CF.POSY | CF.NEGY | CF.POSZ | CF.NEGZ
     COMPLEX = 0x8
     TEXTURE = 0x1000
     MIPMAP = 0x400000

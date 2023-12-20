@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from scfile.consts import PathLike
-from scfile.utils.mcsa_flags import McsaFlags
+from scfile.utils.mcsa.flags import McsaFlags
 
 from .convert import FileConvertingError, FileParsingError, FileUnsupportedError
 

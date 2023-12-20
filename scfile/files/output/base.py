@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Any, Generic, List, Optional, TypeVar
 
 from scfile.consts import PathLike
-from scfile.reader import ByteOrder, Format
+from scfile.enums import ByteOrder
+from scfile.enums import StructFormat as Format
 
 
 class OutputData(ABC):
