@@ -1,11 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from scfile.consts import McsaModel, Normalization
+from scfile.consts import McsaModel
 
-
-def scaled(i: float, scale: float = 1.0, factor: float = Normalization.I16) -> float:
-    return (i * scale) / factor
 
 @dataclass
 class Vector:
@@ -49,10 +46,16 @@ class Polygon:
     v3: int = 0
 
 @dataclass
+class Count:
+    links: int = 0
+    vertices: int = 0
+    polygons: int = 0
+
+@dataclass
 class Mesh:
     name: str = "name"
     material: str = "material"
-    link_count: int = 0
+    count: Count = field(default_factory=Count)
     vertices: List[Vertex] = field(default_factory=list)
     polygons: List[Polygon] = field(default_factory=list)
 

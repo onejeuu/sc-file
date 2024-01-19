@@ -69,6 +69,9 @@ class BaseOutputFile(ABC, Generic[T]):
         string = "".join([str(i) for i in data])
         self.buffer.write(string.encode())
 
+    def _write_list(self, data: list[Any]) -> None:
+        self._write_str(*data)
+
     def _write(
         self,
         v: Any,

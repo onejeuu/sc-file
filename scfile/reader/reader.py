@@ -46,37 +46,32 @@ class BinaryReader(io.FileIO):
             raise McsaCountsLimit(self.path, counts)
         return counts
 
-    def mcsa_xyz(self, vertices_count: int):
+    def mcsa_xyz(self, count: int):
         """Read MCSA vertices XYZ coordinates from stream."""
 
-        fmt = Format.I16 * 3 + Format.U16
+        fmt = Format.I16 * 4
+        return self._read_mcsa(fmt, count)
 
-        return self._read_mcsa(fmt, vertices_count)
-
-    def mcsa_uv(self, vertices_count: int):
+    def mcsa_uv(self, count: int):
         """Read MCSA vertices UV coordinates from stream."""
 
         fmt = Format.I16 * 2
+        return self._read_mcsa(fmt, count)
 
-        return self._read_mcsa(fmt, vertices_count)
-
-    def mcsa_nrm(self, vertices_count: int):
+    def mcsa_nrm(self, count: int):
         # TODO: docstring
 
         fmt = Format.I8 * 4
+        return self._read_mcsa(fmt, count)
 
-        return self._read_mcsa(fmt, vertices_count)
-
-    def mcsa_polygons(self, polygons_count: int):
+    def mcsa_polygons(self, count: int):
         """Read MCSA polygons from stream."""
 
         # If it works, dont touch it
-        u32 = polygons_count * 3 >= Normalization.U16
-
+        u32 = count * 3 >= Normalization.U16
         fmt = Format.U32 if u32 else Format.U16
         fmt *= 3
-
-        return self._read_mcsa(fmt, polygons_count)
+        return self._read_mcsa(fmt, count)
 
     def _read_mcsa(self, fmt: str, count: int):
         """Read MCSA data based on given format and count."""

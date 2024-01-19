@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Generator
+from typing import Dict, Callable
 
-from scfile.utils.model import Model, Vertex
+from scfile.utils.model import Model
 
 from .base import BaseOutputFile, OutputData
 
@@ -13,56 +13,61 @@ class ObjOutputData(OutputData):
 
 class ObjFile(BaseOutputFile[ObjOutputData]):
     def write(self) -> None:
-        #self._add_material()
-        self._add_geometric_vertices()
-        self._add_texture_vertices()
-        self._add_vertex_normals()
+        self.offset = 0
         self._ensure_unique_names()
-        self._add_polygonal_faces()
+
+        for mesh in self.meshes:
+            self.mesh = mesh
+
+            self._write_list(self._geometric_vertices())
+            self._write_list(self._texture_vertices())
+            self._write_list(self._vertex_normals())
+
+            self._write_str(f"g {mesh.name}\n")
+            self._write_list(self._polygonal_faces())
+
+    @property
+    def meshes(self):
+        return self.data.model.meshes
 
     def _add_material(self) -> None:
         self._write_str(f"mtllib {self.filename}.mtl", "\n\n")
 
-    def _add_geometric_vertices(self) -> None:
-        for vertex in self._vertices():
-            pos = vertex.position
-            self._write_str(f"v {pos.x} {pos.y} {pos.z}\n")
-        self._write_str("\n")
+    def _geometric_vertices(self) -> list[str]:
+        return self._pack_vertices(
+            lambda v: f"v {v.position.x} {v.position.y} {v.position.z}\n"
+        )
 
-    def _add_texture_vertices(self) -> None:
-        for vertex in self._vertices():
-            tex = vertex.texture
-            self._write_str(f"vt {tex.u} {1.0 - tex.v}\n")
-        self._write_str("\n")
+    def _texture_vertices(self) -> list[str]:
+        return self._pack_vertices(
+            lambda v: f"vt {v.texture.u} {1.0 - v.texture.v}\n"
+        )
 
-    def _add_vertex_normals(self) -> None:
-        for vertex in self._vertices():
-            nrm = vertex.normals
-            self._write_str(f"vn {nrm.i} {nrm.j} {nrm.k}\n")
+    def _vertex_normals(self) -> list[str]:
+        return self._pack_vertices(
+            lambda v: f"vn {v.normals.i} {v.normals.j} {v.normals.k}\n"
+        )
 
-        self._write_str("\n")
+    def _polygonal_faces(self) -> list[str]:
+        data: list[str] = []
 
-    def _add_polygonal_faces(self) -> None:
-        offset = 0
+        for polygon in self.mesh.polygons:
+            v1 = polygon.v1 + self.offset
+            v2 = polygon.v2 + self.offset
+            v3 = polygon.v3 + self.offset
+            data.append(f"f {v1}/{v1}/{v1} {v2}/{v2}/{v2} {v3}/{v3}/{v3}\n")
+        data.append("\n")
 
-        for mesh in self.data.model.meshes:
-            self._write_str(f"o {mesh.name}\ng {mesh.name}\n\n")
+        # Vertex id in mcsa are local to each mesh.
+        self.offset += len(self.mesh.vertices)
 
-            for polygon in mesh.polygons:
-                v1 = offset + polygon.v1
-                v2 = offset + polygon.v2
-                v3 = offset + polygon.v3
-                self._write_str(f"f {v1}/{v1}/{v1} {v2}/{v2}/{v2} {v3}/{v3}/{v3}\n")
-            self._write_str("\n")
-
-            # Vertex id in mcsa are local to each mesh.
-            offset += len(mesh.vertices)
+        return data
 
     def _ensure_unique_names(self):
         name_counts: Dict[str, int] = {}
 
         # Checking names for uniqueness
-        for index, mesh in enumerate(self.data.model.meshes):
+        for index, mesh in enumerate(self.meshes):
             name = mesh.name
 
             # Set default count for name if not present
@@ -80,7 +85,11 @@ class ObjFile(BaseOutputFile[ObjOutputData]):
             if not name:
                 mesh.name = f"noname_{index + 1}"
 
-    def _vertices(self) -> Generator[Vertex, Any, Any]:
-        for mesh in self.data.model.meshes:
-            for vertex in mesh.vertices:
-                yield vertex
+    def _pack_vertices(self, func: Callable) -> list[str]:
+        data: list[str] = []
+
+        for vertex in self.mesh.vertices:
+            data.append(func(vertex))
+
+        data.append("\n")
+        return data

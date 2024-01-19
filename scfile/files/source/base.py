@@ -33,6 +33,10 @@ class BaseSourceFile(ABC):
     order: ByteOrder = BinaryReader.DEFAULT_BYTEORDER
     """Reader bytes order format."""
 
+    @property
+    def r(self):
+        return self.reader
+
     def convert(self) -> bytes:
         """Convert source file. Return output file bytes."""
         self.parse()
