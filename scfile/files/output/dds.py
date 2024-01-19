@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
 from scfile.consts import Magic
-from scfile.utils.dds.structure import DDS, BITMASKS
+from scfile.utils.dds.bitmasks import BITMASKS
+from scfile.utils.dds.structure import DDS
 
 from .base import BaseOutputFile, OutputData
 

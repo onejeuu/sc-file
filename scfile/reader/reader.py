@@ -1,16 +1,15 @@
+import io
 import struct
-from io import FileIO
 from pathlib import Path
 from typing import Any, Optional
 
 from scfile.consts import McsaModel, Normalization, OlString, PathLike
-from scfile.exceptions import McsaCountsLimit
-
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as Format
+from scfile.exceptions import McsaCountsLimit
 
 
-class BinaryReader(FileIO):
+class BinaryReader(io.FileIO):
     DEFAULT_BYTEORDER = ByteOrder.STANDARD
 
     def __init__(self, path: PathLike, order: ByteOrder = DEFAULT_BYTEORDER):
@@ -24,16 +23,16 @@ class BinaryReader(FileIO):
         order = order or self.order
         return self.unpack(f"{order}{fmt}")[0]
 
-    def readstring(self, order: Optional[ByteOrder] = None) -> bytes:
+    def readstring(self, order: Optional[ByteOrder] = None) -> str:
         """Read an MCSA/OL file string from stream."""
 
         size = self.readbin(Format.U16, order)
-        return self.unpack(f"{size}s")[0]
+        return self.unpack(f"{size}s")[0].decode()
 
     def readfourcc(self) -> bytes:
         """Read an OL file FourCC string from stream."""
 
-        # read and skip last 0x00 byte
+        # read string and skip last 0x00 byte
         string = self.read(OlString.SIZE)[:-1]
 
         # xor byte if it's is not null
@@ -58,6 +57,13 @@ class BinaryReader(FileIO):
         """Read MCSA vertices UV coordinates from stream."""
 
         fmt = Format.I16 * 2
+
+        return self._read_mcsa(fmt, vertices_count)
+
+    def mcsa_nrm(self, vertices_count: int):
+        # TODO: docstring
+
+        fmt = Format.I8 * 4
 
         return self._read_mcsa(fmt, vertices_count)
 

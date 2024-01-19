@@ -6,7 +6,7 @@ from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as Format
 from scfile.files.output.obj import ObjFile, ObjOutputData
 from scfile.utils.mcsa.flags import Flag, McsaFlags
-from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled_i16, scaled_u16
+from scfile.utils.model import Bone, Mesh, Model, Vertex, scaled
 
 from .base import BaseSourceFile
 
@@ -58,17 +58,14 @@ class McsaFile(BaseSourceFile):
             self.flags[index] = self.reader.readbin(Format.BOOL)
 
     def _parse_scales(self):
-        self.xyz_scale = 1.0
-        self.uv_scale = 1.0
-
-        self.xyz_scale = self.reader.readbin(Format.F32)
+        self.model.scale.position = self.reader.readbin(Format.F32)
 
         if self.flags[Flag.UV]:
-            self.uv_scale = self.reader.readbin(Format.F32)
+            self.model.scale.texture = self.reader.readbin(Format.F32)
 
         # ! unknown
-        if self.flags[Flag.FLAG_3] and self.version == 10.0:
-            self.unknown_scale = self.reader.readbin(Format.F32)
+        if self.flags[Flag.NORMALS] and self.version == 10.0:
+            self.model.scale.normals = self.reader.readbin(Format.F32)
 
     def _parse_meshes(self) -> None:
         meshes_count = self.reader.readbin(Format.U32)
@@ -88,7 +85,9 @@ class McsaFile(BaseSourceFile):
 
         self._parse_counts()
 
-        self._parse_weight_scale()
+        # ! unknown
+        if self.flags[Flag.UV]:
+            self.model.scale.unknown = self.reader.readbin(Format.F32)
 
         # ! unknown
         if self.version == 10.0:
@@ -100,27 +99,25 @@ class McsaFile(BaseSourceFile):
         if self.flags[Flag.UV]:
             self._parse_uv()
 
+        if self.flags[Flag.NORMALS]:
+            self._parse_normals()
+
         # ! unknown
         self._skip_unknown()
 
         if self.flags[Flag.SKELETON]:
             self._parse_bones()
 
-        self._skip_flag_6()
+        if self.flags[Flag.FLAG_6]:
+            self._skip_vertices()
 
         self._parse_polygons()
 
         self.model.meshes.append(self.mesh)
 
     def _parse_name_and_material(self):
-        # I'm still not sure?
-        match self.version:
-            case 7.0:
-                self.mesh.name = self.reader.readstring()
-                self.mesh.material = self.reader.readstring()
-            case 8.0 | 10.0:
-                self.mesh.material = self.reader.readstring()
-                self.mesh.name = self.reader.readstring()
+        self.mesh.name = self.reader.readstring()
+        self.mesh.material = self.reader.readstring()
 
     def _parse_bone_indexes(self):
         self.mesh.link_count = self.reader.readbin(Format.U8)
@@ -136,37 +133,34 @@ class McsaFile(BaseSourceFile):
         self.mesh.resize_vertices(self.vertices_count)
         self.mesh.resize_polygons(self.polygons_count)
 
-    def _parse_weight_scale(self):
-        self.weight_scale = 1.0
-
-        # ! unknown
-        if self.flags[Flag.UV]:
-            self.weight_scale = self.reader.readbin(Format.F32)
-
     def _parse_xyz(self) -> None:
-        vertices = self.reader.mcsa_xyz(self.vertices_count)
+        xyz = self.reader.mcsa_xyz(self.vertices_count)
 
-        for vertex, (x, y, z, w) in zip(self.mesh.vertices, vertices):
-            vertex.position.x = scaled_i16(x, self.xyz_scale)
-            vertex.position.y = scaled_i16(y, self.xyz_scale)
-            vertex.position.z = scaled_i16(z, self.xyz_scale)
-            vertex.position.w = scaled_u16(w, self.weight_scale)
+        for vertex, (x, y, z, _) in zip(self.mesh.vertices, xyz):
+            vertex.position.x = scaled(x, self.model.scale.position)
+            vertex.position.y = scaled(y, self.model.scale.position)
+            vertex.position.z = scaled(z, self.model.scale.position)
 
     def _parse_uv(self) -> None:
-        vertices = self.reader.mcsa_uv(self.vertices_count)
+        uv = self.reader.mcsa_uv(self.vertices_count)
 
-        for vertex, (u, v) in zip(self.mesh.vertices, vertices):
-            vertex.texture.u = scaled_i16(u, self.uv_scale)
-            vertex.texture.v = scaled_i16(v, self.uv_scale)
+        for vertex, (u, v) in zip(self.mesh.vertices, uv):
+            vertex.texture.u = scaled(u, self.model.scale.texture)
+            vertex.texture.v = scaled(v, self.model.scale.texture)
+
+    def _parse_normals(self) -> None:
+        nrm = self.reader.mcsa_nrm(self.vertices_count)
+
+        for vertex, (i, j, k, _) in zip(self.mesh.vertices, nrm):
+            vertex.normals.i = scaled(i, self.model.scale.normals, factor=Normalization.I8)
+            vertex.normals.j = scaled(j, self.model.scale.normals, factor=Normalization.I8)
+            vertex.normals.k = scaled(k, self.model.scale.normals, factor=Normalization.I8)
 
     def _skip_vertices(self) -> None:
         # 4 bytes per vertex
         self.reader.read(self.vertices_count * 4)
 
     def _skip_unknown(self) -> None:
-        if self.flags[Flag.FLAG_3]:
-            self._skip_vertices()
-
         if self.flags[Flag.FLAG_4]:
             self._skip_vertices()
 
@@ -205,10 +199,6 @@ class McsaFile(BaseSourceFile):
         for index in range(size):
             bone_weight = self.reader.readbin(Format.I8)
             vertex.bone.weights[index] = bone_weight / Normalization.BONE_WEIGHT
-
-    def _skip_flag_6(self):
-        if self.flags[Flag.FLAG_6]:
-            self._skip_vertices()
 
     def _parse_polygons(self) -> None:
         polygons = self.reader.mcsa_polygons(self.polygons_count)

@@ -4,8 +4,10 @@ from typing import Optional, Type
 from scfile import exceptions as exc
 from scfile.consts import PathLike
 from scfile.enums import FileSuffix
-from scfile.files import McsaFile, MicFile, OlCubemapFile, OlFile
 from scfile.files.source.base import BaseSourceFile
+from scfile.files.source.mcsa import McsaFile
+from scfile.files.source.mic import MicFile
+from scfile.files.source.ol import OlCubemapFile, OlFile
 
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):

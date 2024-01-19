@@ -4,28 +4,17 @@ from typing import Dict, List
 from scfile.consts import McsaModel, Normalization
 
 
-def scaled_i16(i: float, scale: float) -> float:
-    return (i * scale) / Normalization.XYZ_FACTOR
-
-def scaled_u16(i: float, scale: float) -> float:
-    return (i * scale) / Normalization.WEIGHT_FACTOR
-
+def scaled(i: float, scale: float = 1.0, factor: float = Normalization.I16) -> float:
+    return (i * scale) / factor
 
 @dataclass
 class Vector:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    w: float = 1.0
 
 @dataclass
 class Texture:
-    u: float = 0.0
-    v: float = 0.0
-    w: float = 1.0
-
-@dataclass
-class Curve:
     u: float = 0.0
     v: float = 0.0
 
@@ -36,6 +25,11 @@ class Normals:
     k: float = 0.0
 
 @dataclass
+class Curve:
+    u: float = 0.0
+    v: float = 0.0
+
+@dataclass
 class VertexBone:
     ids: Dict[int, int] = field(default_factory=dict)
     weights: Dict[int, float] = field(default_factory=dict)
@@ -44,8 +38,8 @@ class VertexBone:
 class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
-    curve: Curve = field(default_factory=Curve)
     normals: Normals = field(default_factory=Normals)
+    curve: Curve = field(default_factory=Curve)
     bone: VertexBone = field(default_factory=VertexBone)
 
 @dataclass
@@ -56,8 +50,8 @@ class Polygon:
 
 @dataclass
 class Mesh:
-    name: bytes = b"name"
-    material: bytes = b"material"
+    name: str = "name"
+    material: str = "material"
     link_count: int = 0
     vertices: List[Vertex] = field(default_factory=list)
     polygons: List[Polygon] = field(default_factory=list)
@@ -70,7 +64,7 @@ class Mesh:
 
 @dataclass
 class Bone:
-    name: bytes = b"bone"
+    name: str = "bone"
     parent_id: int = McsaModel.ROOT_BONE_ID
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)
@@ -80,6 +74,14 @@ class Skeleton:
     bones: List[Bone] = field(default_factory=list)
 
 @dataclass
+class Scale:
+    position: float = 1.0
+    texture: float = 1.0
+    normals: float = 1.0
+    unknown: float = 1.0
+
+@dataclass
 class Model:
     meshes: List[Mesh] = field(default_factory=list)
     skeleton: Skeleton = field(default_factory=Skeleton)
+    scale: Scale = field(default_factory=Scale)

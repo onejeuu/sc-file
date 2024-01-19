@@ -1,7 +1,7 @@
 SC FILES
 ==========================
 
-Library and Utility for converting encrypted ``stalcraft`` game files, such as models and textures into well-known formats.
+Library and Utility for converting encrypted stalcraft game files, such as models and textures into well-known formats.
 
 You can use compiled cli utility from `Releases <https://github.com/onejeuu/sc-file/releases>`_ page.
 
@@ -150,6 +150,9 @@ Simple
     convert.mic_to_png("path/to/file.mic", "path/to/file.png")
     convert.ol_to_dds("path/to/file.ol", "path/to/file.dds")
 
+    # Or determinate it automatically
+    convert.auto("path/to/file.mcsa")
+
 Advanced
 ^^^^^^^^
 
@@ -157,10 +160,10 @@ Advanced
 
     from scfile import McsaFile
 
-    with McsaFile("path/to/file.mcsa") as mcsa:
+    with McsaFile("file.mcsa") as mcsa:
         obj: bytes = mcsa.to_obj()
 
-    with open("path/to/file.obj", "wb") as fp:
+    with open("file.obj", "wb") as fp:
         fp.write(obj)
 
 🛠️ Build
@@ -186,4 +189,4 @@ And run script to compile:
 
     poetry run build
 
-Executable file will be created in ``/dist`` directory within your project folder.
+Executable file will be created in ``/dist`` directory in your project folder.

@@ -7,7 +7,7 @@ class Flag(IntEnum):
 
     SKELETON = 0
     UV = auto()
-    FLAG_3 = auto()
+    NORMALS = auto()
     FLAG_4 = auto()
     FLAG_5 = auto()
     FLAG_6 = auto()
@@ -36,7 +36,7 @@ class McsaFlags:
     def __getitem__(self, index: int) -> bool:
         return bool(self._flags.get(index, False))
 
-    def __setitem__(self, index: int, value: int):
+    def __setitem__(self, index: int, value: bool):
         self._flags[index] = bool(value)
 
     def __str__(self):

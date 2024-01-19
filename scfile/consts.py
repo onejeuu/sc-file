@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
-from typing import NamedTuple, TypeAlias
+from typing import TypeAlias
 
 from .enums import FileSuffix
 
 
 PathLike: TypeAlias = str | os.PathLike[str] | Path
 
-class Signature(NamedTuple):
+class Signature:
     """
     Little-Endian Source File Signature.
     Integer.
@@ -16,7 +16,7 @@ class Signature(NamedTuple):
     OL = 0xFD23950A
     MCSA = 0x4153434D
 
-class Magic(NamedTuple):
+class Magic:
     """
     Little-Endian Output File Signature.
     List[Integer].
@@ -24,19 +24,19 @@ class Magic(NamedTuple):
     PNG = [0x89, 0x50, 0x4E, 0x47]
     DDS = [0x44, 0x44, 0x53, 0x20]
 
-class Normalization(NamedTuple):
+class Normalization:
     # int range + 1
-    I8 = VERTEX_WEIGHT = 0x80
+    I8 = 0x80
     U8 = BONE_WEIGHT = 0x100
-    I16 = XYZ_FACTOR = 0x8000
-    U16 = WEIGHT_FACTOR = 0x10000
+    I16 = 0x8000
+    U16 = 0x10000
 
-class OlString(NamedTuple):
+class OlString:
     SIZE = 17 # 16 bytes + last 0x00 byte
     XOR = ord("g")
     NULL = ord("G")
 
-class McsaModel(NamedTuple):
+class McsaModel:
     ROOT_BONE_ID = -1
     # I dont know specific limit
     # This is done for case when file was read incorrectly
