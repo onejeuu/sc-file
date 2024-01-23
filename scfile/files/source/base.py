@@ -34,7 +34,8 @@ class BaseSourceFile(ABC):
     """Reader bytes order format."""
 
     @property
-    def r(self):
+    def r(self) -> BinaryReader:
+        """Shortcut for file reader."""
         return self.reader
 
     def convert(self) -> bytes:

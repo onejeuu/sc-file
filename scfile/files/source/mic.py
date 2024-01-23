@@ -17,4 +17,4 @@ class MicFile(BaseSourceFile):
         return PngOutputData(self.imagedata)
 
     def parse(self) -> None:
-        self.imagedata = self.reader.read()
+        self.imagedata = self.r.read()

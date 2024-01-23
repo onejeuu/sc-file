@@ -1,16 +1,20 @@
 from typing import List
 
 import lz4.block
+from quicktex import RawTexture  # type: ignore
+from quicktex.s3tc.bc3 import BC3Encoder  # type: ignore
 
 from scfile import exceptions as exc
-from scfile.consts import Signature, CUBEMAP_FACES
-from scfile.files.output.dds import DdsFile, DdsOutputData
+from scfile.consts import CUBEMAP_FACES, Signature
 from scfile.enums import ByteOrder
-from scfile.enums import StructFormat as Format
-from scfile.utils.ol.dxn import DxnConverter
+from scfile.enums import StructFormat as F
+from scfile.exceptions import OlUnknownFourcc
+from scfile.files.output.dds import DdsFile, DdsOutputData
+from scfile.utils.ol.bgra8 import BGRA8Converter
+from scfile.utils.ol.dxnxy import DXNXYConverter
+from scfile.utils.ol.rgba32f import RGBA32FConverter
 
 from .base import BaseSourceFile
-
 
 SUPPORTED_FORMATS = [
     b"DXT1",
@@ -39,7 +43,6 @@ class OlFile(BaseSourceFile):
         return DdsOutputData(
             self.width,
             self.height,
-            self.mipmap_count,
             self.linear_size,
             self.fourcc,
             self.is_cubemap,
@@ -48,29 +51,48 @@ class OlFile(BaseSourceFile):
 
     def parse(self) -> None:
         # Read header
-        self.width = self.reader.readbin(Format.U32)
-        self.height = self.reader.readbin(Format.U32)
-        self.mipmap_count = self.reader.readbin(Format.U32)
+        # TODO: maybe Texture dataclass?
+        self.width = self.r.readbin(F.U32)
+        self.height = self.r.readbin(F.U32)
+        self.mipmap_count = self.r.readbin(F.U32)
 
         # Read encrypted FourCC (dds pixel format)
-        self.fourcc = self.reader.readfourcc()
+        self.fourcc = self.r.readfourcc()
 
         if self.fourcc not in SUPPORTED_FORMATS:
             raise exc.OlUnknownFourcc(self.path, self.fourcc.decode())
 
         # Read lz4 uncompressed and compressed sizes
+        # TODO: all mipmaps decoding
         self._parse_sizes()
 
         try:
-            self.texture_id = self.reader.readstring()
+            self.texture_id = self.r.readstring()
             self._decompress_imagedata()
 
         except Exception:
             raise exc.OlInvalidFormat(self.path)
 
-        if self.is_dxn:
-            self.fourcc = b"BGRA8"
-            self.imagedata = DxnConverter(self.data).to_rgba()
+        match self.fourcc:
+            case b"BGRA8":
+                self.fourcc = b"RGBA8"
+                self.imagedata = BGRA8Converter(self.data).to_rgba8()
+
+            case b"RGBA32F":
+                self.fourcc = b"RGBA8"
+                self.imagedata = RGBA32FConverter(self.data).to_rgba8()
+
+            case b"DXN_XY":
+                # ! temporarily
+                raise OlUnknownFourcc(self.path, self.fourcc.decode())
+
+                self.fourcc = b"RGBA8"
+                self.imagedata = DXNXYConverter(self.data).to_rgba8()
+
+        match self.fourcc:
+            case b"RGBA8":
+                self.fourcc = b"DXT5"
+                self.imagedata = BC3Encoder().encode(self.rawtexture)
 
     @property
     def linear_size(self) -> int:
@@ -78,29 +100,26 @@ class OlFile(BaseSourceFile):
 
     @property
     def is_rgba(self):
+        # TODO: useless
         return self.fourcc in (b"RGBA8", b"BGRA8", b"RGBA32F")
 
     @property
-    def is_dxn(self):
-        return self.fourcc in (b"DXN_XY")
+    def rawtexture(self):
+        # TODO: may raise exceptions
+        return RawTexture.frombytes(self.imagedata, self.width, self.height)
 
     def _read_sizes(self) -> List[int]:
-        return [self.reader.readbin(Format.U32) for _ in range(self.mipmap_count)]
+        return [self.r.readbin(F.U32) for _ in range(self.mipmap_count)]
 
     def _parse_sizes(self) -> None:
         self.uncompressed = self._read_sizes()
         self.compressed = self._read_sizes()
 
     def _decompress_imagedata(self) -> None:
-        imagedata = bytearray()
-
-        for mipmap in range(self.mipmap_count):
-            imagedata.extend(
-                lz4.block.decompress(
-                    self.reader.read(self.compressed[mipmap]),
-                    self.uncompressed[mipmap]
-                )
-            )
+        imagedata = lz4.block.decompress(
+            self.r.read(self.compressed[0]),
+            self.uncompressed[0]
+        )
 
         self.imagedata = bytes(imagedata)
 
@@ -115,7 +134,7 @@ class OlCubemapFile(OlFile):
 
     def _read_sizes(self) -> List[List[int]]:
         return [
-            [self.reader.readbin(Format.U32) for _ in range(CUBEMAP_FACES)]
+            [self.r.readbin(F.U32) for _ in range(CUBEMAP_FACES)]
             for _ in range(self.mipmap_count)
         ]
 
@@ -126,13 +145,12 @@ class OlCubemapFile(OlFile):
     def _decompress_imagedata(self) -> None:
         imagedata = bytearray()
 
-        for mipmap in range(self.mipmap_count):
-            for cubemap in range(CUBEMAP_FACES):
-                imagedata.extend(
-                    lz4.block.decompress(
-                        self.reader.read(self.compressed[mipmap][cubemap]),
-                        self.uncompressed[mipmap][cubemap]
-                    )
+        for cubemap in range(CUBEMAP_FACES):
+            imagedata.extend(
+                lz4.block.decompress(
+                    self.r.read(self.compressed[0][cubemap]),
+                    self.uncompressed[0][cubemap]
                 )
+            )
 
         self.imagedata = bytes(imagedata)

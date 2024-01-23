@@ -11,7 +11,6 @@ from .base import BaseOutputFile, OutputData
 class DdsOutputData(OutputData):
     width: int
     height: int
-    mipmap_count: int
     linear_size: int
     fourcc: bytes
     is_cubemap: bool
@@ -29,7 +28,7 @@ class DdsFile(BaseOutputFile[DdsOutputData]):
         self._write(self.data.width)
         self._write(self.pitch_or_linear_size)
         self._write_null(1) # Depth
-        self._write(self.data.mipmap_count)
+        self._write(1) # MipMapsCount
         self._write_null(11) # Reserved
 
         self._write(DDS.PF.SIZE)
@@ -46,7 +45,7 @@ class DdsFile(BaseOutputFile[DdsOutputData]):
             for mask in BITMASKS(self.data.fourcc):
                 self._write(mask)
 
-        self._write(DDS.TEXTURE | DDS.MIPMAP | DDS.COMPLEX) # Caps1
+        self._write(DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP) # Caps1
         self._write(self.cubemap) # Caps2
         self._write_null(3) # Reserved
 

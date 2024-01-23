@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 from scfile.consts import McsaModel, Normalization, OlString, PathLike
 from scfile.enums import ByteOrder
-from scfile.enums import StructFormat as Format
+from scfile.enums import StructFormat as F
 from scfile.exceptions import McsaCountsLimit
 
 
@@ -26,7 +26,7 @@ class BinaryReader(io.FileIO):
     def readstring(self, order: Optional[ByteOrder] = None) -> str:
         """Read an MCSA/OL file string from stream."""
 
-        size = self.readbin(Format.U16, order)
+        size = self.readbin(F.U16, order)
         return self.unpack(f"{size}s")[0].decode()
 
     def readfourcc(self) -> bytes:
@@ -41,7 +41,7 @@ class BinaryReader(io.FileIO):
     def mcsa_counts(self):
         """Read MCSA counts from stream and validate against COUNT_LIMIT."""
 
-        counts = self.readbin(Format.U32)
+        counts = self.readbin(F.U32)
         if counts > McsaModel.COUNT_LIMIT:
             raise McsaCountsLimit(self.path, counts)
         return counts
@@ -49,19 +49,19 @@ class BinaryReader(io.FileIO):
     def mcsa_xyz(self, count: int):
         """Read MCSA vertices XYZ coordinates from stream."""
 
-        fmt = Format.I16 * 4
+        fmt = F.I16 * 4
         return self._read_mcsa(fmt, count)
 
     def mcsa_uv(self, count: int):
         """Read MCSA vertices UV coordinates from stream."""
 
-        fmt = Format.I16 * 2
+        fmt = F.I16 * 2
         return self._read_mcsa(fmt, count)
 
     def mcsa_nrm(self, count: int):
         # TODO: docstring
 
-        fmt = Format.I8 * 4
+        fmt = F.I8 * 4
         return self._read_mcsa(fmt, count)
 
     def mcsa_polygons(self, count: int):
@@ -69,7 +69,7 @@ class BinaryReader(io.FileIO):
 
         # If it works, dont touch it
         u32 = count * 3 >= Normalization.U16
-        fmt = Format.U32 if u32 else Format.U16
+        fmt = F.U32 if u32 else F.U16
         fmt *= 3
         return self._read_mcsa(fmt, count)
 

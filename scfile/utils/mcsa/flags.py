@@ -8,8 +8,8 @@ class Flag(IntEnum):
     SKELETON = 0
     UV = auto()
     NORMALS = auto()
-    FLAG_4 = auto()
-    FLAG_5 = auto()
+    TANGENTS = auto()
+    BITANGENTS = auto()
     FLAG_6 = auto()
 
 

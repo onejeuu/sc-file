@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "2.1.0-dev.1"
+version = "2.1.0-dev.2"
 description = ""
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
@@ -11,6 +11,8 @@ packages = [{include = "scfile"}]
 python = ">=3.11,<3.13"
 lz4 = "^4.3.2"
 click = "^8.1.7"
+quicktex = "^0.2.0"
+numpy = "^1.26.3"
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.0.0"

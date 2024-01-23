@@ -59,6 +59,7 @@ class BaseOutputFile(ABC, Generic[T]):
         if self.magic:
             self._raw_write(bytes(self.magic))
 
+    # TODO: not in this class.
     def _raw_write(self, data: bytes) -> None:
         self.buffer.write(data)
 

@@ -22,11 +22,6 @@ class Normals:
     k: float = 0.0
 
 @dataclass
-class Curve:
-    u: float = 0.0
-    v: float = 0.0
-
-@dataclass
 class VertexBone:
     ids: Dict[int, int] = field(default_factory=dict)
     weights: Dict[int, float] = field(default_factory=dict)
@@ -36,7 +31,6 @@ class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Normals = field(default_factory=Normals)
-    curve: Curve = field(default_factory=Curve)
     bone: VertexBone = field(default_factory=VertexBone)
 
 @dataclass
@@ -48,6 +42,7 @@ class Polygon:
 @dataclass
 class Count:
     links: int = 0
+    bones: int = 0
     vertices: int = 0
     polygons: int = 0
 
@@ -58,7 +53,9 @@ class Mesh:
     count: Count = field(default_factory=Count)
     vertices: List[Vertex] = field(default_factory=list)
     polygons: List[Polygon] = field(default_factory=list)
+    bones: Dict[int, int] = field(default_factory=dict)
 
+    # TODO: Dict[int, int]
     def resize_vertices(self, count: int):
         self.vertices = [Vertex() for _ in range(count)]
 
@@ -81,7 +78,7 @@ class Scale:
     position: float = 1.0
     texture: float = 1.0
     normals: float = 1.0
-    unknown: float = 1.0
+    bones: float = 1.0
 
 @dataclass
 class Model:
