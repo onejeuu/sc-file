@@ -1,5 +1,5 @@
 from scfile import exceptions as exc
-from scfile.consts import McsaModel, Normalization, Signature
+from scfile.consts import McsaModel, Factor, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.files.output.obj import ObjFile, ObjOutputData
@@ -67,8 +67,8 @@ class McsaFile(BaseSourceFile):
         if self.flags[Flag.UV]:
             self.scale.texture = self.r.readbin(F.F32)
 
-        # ! unconfirmed
-        if self.flags[Flag.UV] and self.version == 10.0:
+        # ! unconfirmed (version)
+        if self.flags[Flag.NORMALS] and self.version == 10.0:
             self.scale.normals = self.r.readbin(F.F32)
 
     def _parse_meshes(self) -> None:
@@ -88,8 +88,8 @@ class McsaFile(BaseSourceFile):
         self._parse_counts()
 
         # ! unknown
-        # ! unconfirmed change (flag)
-        if self.flags[Flag.FLAG_6]:
+        # ! unconfirmed (flag)
+        if self.flags[Flag.UV]:
             self.scale.bones = self.r.readbin(F.F32)
 
         # ! unknown
@@ -98,10 +98,10 @@ class McsaFile(BaseSourceFile):
             for _ in range(6):
                 self.r.readbin(F.F32)
 
-        self._parse_xyz()
+        self._parse_position()
 
         if self.flags[Flag.UV]:
-            self._parse_uv()
+            self._parse_texture()
 
         if self.flags[Flag.NORMALS]:
             self._parse_normals()
@@ -143,41 +143,21 @@ class McsaFile(BaseSourceFile):
             self.mesh.bones[index] = self.r.readbin(F.I8)
 
     def _parse_counts(self):
-        # TODO: refactor. remove prefill.
         self.count.vertices = self.r.mcsa_counts()
         self.count.polygons = self.r.mcsa_counts()
+        self.mesh.resize()
 
-        self.mesh.resize_vertices(self.count.vertices)
-        self.mesh.resize_polygons(self.count.polygons)
-
-    def _parse_xyz(self) -> None:
-        # TODO: refactor. same logic. different values.
+    def _parse_position(self) -> None:
         xyz = self.r.mcsa_xyz(self.count.vertices)
-        scale = self.scale.position
+        self.mesh.load_position(xyz, self.scale.position)
 
-        for vertex, (x, y, z, _) in zip(self.vertices, xyz):
-            vertex.position.x = scaled(x, scale)
-            vertex.position.y = scaled(y, scale)
-            vertex.position.z = scaled(z, scale)
-
-    def _parse_uv(self) -> None:
-        # TODO: refactor. same logic. different values.
+    def _parse_texture(self) -> None:
         uv = self.r.mcsa_uv(self.count.vertices)
-        scale = self.scale.texture
-
-        for vertex, (u, v) in zip(self.vertices, uv):
-            vertex.texture.u = scaled(u, scale)
-            vertex.texture.v = scaled(v, scale)
+        self.mesh.load_texture(uv, self.scale.texture)
 
     def _parse_normals(self) -> None:
-        # TODO: refactor. same logic. different values.
         nrm = self.r.mcsa_nrm(self.count.vertices)
-        scale = self.scale.normals
-
-        for vertex, (i, j, k, _) in zip(self.vertices, nrm):
-            vertex.normals.i = scaled(i, scale, factor=Normalization.NORMALS)
-            vertex.normals.j = scaled(j, scale, factor=Normalization.NORMALS)
-            vertex.normals.k = scaled(k, scale, factor=Normalization.NORMALS)
+        self.mesh.load_normals(nrm, self.scale.normals)
 
     def _skip_vertices(self, size: int = 4) -> None:
         # size: bytes per vertex
@@ -231,17 +211,11 @@ class McsaFile(BaseSourceFile):
     def _parse_bone_weight(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
             bone_weight = self.r.readbin(F.I8)
-            vertex.bone.weights[index] = scaled(bone_weight, self.scale.bones, factor=Normalization.BONE_WEIGHT)
+            vertex.bone.weights[index] = scaled(bone_weight, self.scale.bones, factor=Factor.BONE_WEIGHT)
 
     def _parse_polygons(self) -> None:
         polygons = self.r.mcsa_polygons(self.count.polygons)
-
-        # In obj vertex indexes starts with 1, but in mcsa with 0.
-        # So we increase each one by one.
-        for polygon, (v1, v2, v3) in zip(self.mesh.polygons, polygons):
-            polygon.v1 = v1 + 1
-            polygon.v2 = v2 + 1
-            polygon.v3 = v3 + 1
+        self.mesh.load_polygons(polygons)
 
     def _parse_skeleton(self) -> None:
         # Still no export support yet

@@ -24,11 +24,11 @@ class Magic:
     PNG = [0x89, 0x50, 0x4E, 0x47]
     DDS = [0x44, 0x44, 0x53, 0x20]
 
-class Normalization:
+class Factor:
     # int range + 1
     I8 = NORMALS = 0x80
     U8 = BONE_WEIGHT = 0x100
-    I16 = 0x8000
+    I16 = XYZ = UV = 0x8000
     U16 = 0x10000
 
 class OlString:

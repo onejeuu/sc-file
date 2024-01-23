@@ -3,18 +3,18 @@ from typing import List
 import lz4.block
 from quicktex import RawTexture  # type: ignore
 from quicktex.s3tc.bc3 import BC3Encoder  # type: ignore
+from quicktex.s3tc.bc5 import BC5Decoder, BC5Texture  # type: ignore
 
 from scfile import exceptions as exc
 from scfile.consts import CUBEMAP_FACES, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
-from scfile.exceptions import OlUnknownFourcc
 from scfile.files.output.dds import DdsFile, DdsOutputData
 from scfile.utils.ol.bgra8 import BGRA8Converter
-from scfile.utils.ol.dxnxy import DXNXYConverter
 from scfile.utils.ol.rgba32f import RGBA32FConverter
 
 from .base import BaseSourceFile
+
 
 SUPPORTED_FORMATS = [
     b"DXT1",
@@ -28,6 +28,9 @@ SUPPORTED_FORMATS = [
 
 
 class OlFile(BaseSourceFile):
+
+    CONVERT_TO_RGBA8 = True
+    CONVERT_TO_DXT5 = True
 
     output = DdsFile
     signature = Signature.OL
@@ -73,6 +76,13 @@ class OlFile(BaseSourceFile):
         except Exception:
             raise exc.OlInvalidFormat(self.path)
 
+        if self.CONVERT_TO_RGBA8:
+            self._to_rgba8()
+
+        if self.CONVERT_TO_DXT5:
+            self._to_dxt5()
+
+    def _to_rgba8(self):
         match self.fourcc:
             case b"BGRA8":
                 self.fourcc = b"RGBA8"
@@ -83,12 +93,11 @@ class OlFile(BaseSourceFile):
                 self.imagedata = RGBA32FConverter(self.data).to_rgba8()
 
             case b"DXN_XY":
-                # ! temporarily
-                raise OlUnknownFourcc(self.path, self.fourcc.decode())
-
+                # TODO: correct colors
                 self.fourcc = b"RGBA8"
-                self.imagedata = DXNXYConverter(self.data).to_rgba8()
+                self.imagedata = BC5Decoder().decode(self.bc5texture)
 
+    def _to_dxt5(self):
         match self.fourcc:
             case b"RGBA8":
                 self.fourcc = b"DXT5"
@@ -99,13 +108,11 @@ class OlFile(BaseSourceFile):
         return self.uncompressed[0]
 
     @property
-    def is_rgba(self):
-        # TODO: useless
-        return self.fourcc in (b"RGBA8", b"BGRA8", b"RGBA32F")
+    def bc5texture(self):
+        return BC5Texture.from_bytes(self.imagedata, self.width, self.height)
 
     @property
     def rawtexture(self):
-        # TODO: may raise exceptions
         return RawTexture.frombytes(self.imagedata, self.width, self.height)
 
     def _read_sizes(self) -> List[int]:

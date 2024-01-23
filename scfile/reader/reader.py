@@ -3,7 +3,7 @@ import struct
 from pathlib import Path
 from typing import Any, Optional
 
-from scfile.consts import McsaModel, Normalization, OlString, PathLike
+from scfile.consts import McsaModel, Factor, OlString, PathLike
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.exceptions import McsaCountsLimit
@@ -27,7 +27,7 @@ class BinaryReader(io.FileIO):
         """Read an MCSA/OL file string from stream."""
 
         size = self.readbin(F.U16, order)
-        return self.unpack(f"{size}s")[0].decode()
+        return self.unpack(f"{size}s")[0].decode(errors="replace")
 
     def readfourcc(self) -> bytes:
         """Read an OL file FourCC string from stream."""
@@ -59,7 +59,7 @@ class BinaryReader(io.FileIO):
         return self._read_mcsa(fmt, count)
 
     def mcsa_nrm(self, count: int):
-        # TODO: docstring
+        """Read MCSA vertices Normals from stream."""
 
         fmt = F.I8 * 4
         return self._read_mcsa(fmt, count)
@@ -68,7 +68,7 @@ class BinaryReader(io.FileIO):
         """Read MCSA polygons from stream."""
 
         # If it works, dont touch it
-        u32 = count * 3 >= Normalization.U16
+        u32 = count * 3 >= Factor.U16
         fmt = F.U32 if u32 else F.U16
         fmt *= 3
         return self._read_mcsa(fmt, count)

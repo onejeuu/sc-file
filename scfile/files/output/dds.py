@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from scfile.consts import Magic
-from scfile.utils.dds.bitmasks import BITMASKS
+from scfile.utils.dds.bitmask import BITMASK
 from scfile.utils.dds.structure import DDS
 
 from .base import BaseOutputFile, OutputData
@@ -42,7 +42,7 @@ class DdsFile(BaseOutputFile[DdsOutputData]):
             self._write_null(1) # FourCC
             self._write(DDS.PF.BIT_COUNT)
 
-            for mask in BITMASKS(self.data.fourcc):
+            for mask in BITMASK(self.data.fourcc):
                 self._write(mask)
 
         self._write(DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP) # Caps1
