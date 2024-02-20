@@ -1,11 +1,5 @@
-import os
-from pathlib import Path
-from typing import TypeAlias
-
 from .enums import FileSuffix
 
-
-PathLike: TypeAlias = str | os.PathLike[str] | Path
 
 class Signature:
     """
@@ -42,6 +36,13 @@ class McsaModel:
     # This is done for case when file was read incorrectly
     # So as not to overflow memory
     COUNT_LIMIT = 0x40000
+
+class McsaSize:
+    # Number of elements in each structure
+    POSITION = 4
+    TEXTURE = 2
+    NORMALS = 4
+    POLYGONS = 3
 
 # Files suffixes that can be converted
 SUPPORTED_SUFFIXES = {FileSuffix.MIC, FileSuffix.OL, FileSuffix.MCSA}

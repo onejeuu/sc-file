@@ -1,49 +1,25 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Self
+from typing import Dict, List
 
-from scfile.consts import Factor, McsaModel
-from scfile.utils.mcsa.scale import rescale
-
-
-class VertexData(ABC):
-    @abstractmethod
-    def rescale(self, scale: float) -> Self:
-        ...
-
-    @classmethod
-    def load(cls, *args, scale: float) -> Self:
-        return cls(*args).rescale(scale)
+from scfile.consts import McsaModel
 
 
 @dataclass
-class Vector(VertexData):
+class Vector:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
 
-    def rescale(self, scale: float) -> Self:
-        self.x, self.y, self.z = rescale(self.x, self.y, self.z, scale=scale, factor=Factor.XYZ)
-        return self
-
 @dataclass
-class Texture(VertexData):
+class Texture:
     u: float = 0.0
     v: float = 0.0
 
-    def rescale(self, scale: float) -> Self:
-        self.u, self.v = rescale(self.u, self.v, scale=scale, factor=Factor.UV)
-        return self
-
 @dataclass
-class Normals(VertexData):
-    i: float = 0.0
-    j: float = 0.0
-    k: float = 0.0
-
-    def rescale(self, scale: float) -> Self:
-        self.i, self.j, self.k = rescale(self.i, self.j, self.k, scale=scale, factor=Factor.NORMALS)
-        return self
+class Normals:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
 
 @dataclass
 class VertexBone:
@@ -83,26 +59,6 @@ class Mesh:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]
 
-    def load_position(self, data: Any, scale: float):
-        for vertex, (x, y, z, _) in zip(self.vertices, data):
-            vertex.position = Vector.load(x, y, z, scale=scale)
-
-    def load_texture(self, data: Any, scale: float):
-        for vertex, (u, v) in zip(self.vertices, data):
-            vertex.texture = Texture.load(u, v, scale=scale)
-
-    def load_normals(self, data: Any, scale: float):
-        for vertex, (i, j, k, _) in zip(self.vertices, data):
-            vertex.normals = Normals.load(i, j, k, scale=scale)
-
-    def load_polygons(self, data: Any):
-        for polygon, (v1, v2, v3) in zip(self.polygons, data):
-            # In obj vertex indexes starts with 1, but in mcsa with 0.
-            # So we increase each one by one.
-            polygon.v1 = v1 + 1
-            polygon.v2 = v2 + 1
-            polygon.v3 = v3 + 1
-
 @dataclass
 class Bone:
     name: str = "bone"
@@ -119,7 +75,7 @@ class Scale:
     position: float = 1.0
     texture: float = 1.0
     normals: float = 1.0
-    bones: float = 1.0
+    weight: float = 1.0
 
 @dataclass
 class Model:

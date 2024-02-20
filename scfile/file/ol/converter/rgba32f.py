@@ -1,6 +1,6 @@
 import numpy as np
 
-from .converter import RGBA8Converter
+from .base import RGBA8Converter
 
 
 class RGBA32FConverter(RGBA8Converter):

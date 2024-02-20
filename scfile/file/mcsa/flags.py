@@ -1,12 +1,9 @@
 from enum import IntEnum, auto
-from typing import Dict
 
 
 class Flag(IntEnum):
-    """Flag Index"""
-
     SKELETON = 0
-    UV = auto()
+    TEXTURE = auto()
     NORMALS = auto()
     TANGENTS = auto()
     BITANGENTS = auto()
@@ -14,17 +11,8 @@ class Flag(IntEnum):
 
 
 class McsaFlags:
-    def __init__(self, version: float):
-        self._version = version
-        self._flags: Dict[int, bool] = {}
-
-    @property
-    def count(self) -> int:
-        return {
-            7.0: 4,
-            8.0: 5,
-            10.0: 6
-        }.get(self._version, 0)
+    def __init__(self):
+        self._flags: dict[int, bool] = {}
 
     @property
     def named_dict(self):

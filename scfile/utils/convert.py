@@ -1,13 +1,17 @@
 from pathlib import Path
-from typing import Optional, Type
+from typing import Optional
 
 from scfile import exceptions as exc
-from scfile.consts import PathLike
+from scfile.file.mcsa.decoder import McsaDecoder
+from scfile.file.obj.encoder import ObjEncoder
+from scfile.file.ol.decoder import OlDecoder
+from scfile.file.dds.encoder import DdsEncoder
+from scfile.file.mic.decoder import MicDecoder
+from scfile.file.png.encoder import PngEncoder
+from scfile.types import PathLike
 from scfile.enums import FileSuffix
-from scfile.files.source.base import BaseSourceFile
-from scfile.files.source.mcsa import McsaFile
-from scfile.files.source.mic import MicFile
-from scfile.files.source.ol import OlCubemapFile, OlFile
+from scfile.file.encoder import FileEncoder
+from scfile.file.decoder import FileDecoder
 
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
@@ -23,7 +27,7 @@ def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
         `mcsa_to_obj("C:/file.mcsa", "C:/file.obj")`
     """
 
-    _convert(source, output, McsaFile, FileSuffix.OBJ)
+    _convert(source, output, McsaDecoder, ObjEncoder, FileSuffix.OBJ)
 
 
 def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
@@ -39,7 +43,7 @@ def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
         `mic_to_png("C:/file.mic", "C:/file.png")`
     """
 
-    _convert(source, output, MicFile, FileSuffix.PNG)
+    _convert(source, output, MicDecoder, PngEncoder, FileSuffix.PNG)
 
 
 def ol_to_dds(source: PathLike, output: Optional[PathLike] = None):
@@ -55,12 +59,7 @@ def ol_to_dds(source: PathLike, output: Optional[PathLike] = None):
         `ol_to_dds("C:/file.ol", "C:/file.dds")`
     """
 
-    try:
-        _convert(source, output, OlFile, FileSuffix.DDS)
-
-    except exc.OlInvalidFormat:
-        _convert(source, output, OlCubemapFile, FileSuffix.DDS)
-
+    _convert(source, output, OlDecoder, DdsEncoder, FileSuffix.DDS)
 
 def auto(source: PathLike, output: Optional[PathLike] = None):
     """
@@ -93,11 +92,11 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
         case _:
             raise exc.UnsupportedSuffix(path)
 
-
 def _convert(
     source: PathLike,
     output: Optional[PathLike],
-    converter: Type[BaseSourceFile],
+    decoder: type[FileDecoder],
+    encoder: type[FileEncoder],
     new_suffix: str
 ):
     src = Path(source)
@@ -113,10 +112,6 @@ def _convert(
     if dest.is_dir():
         dest = Path(dest, new_src.name)
 
-    # Get converted bytes using context manager
-    with converter(src) as encrypted:
-        converted = encrypted.convert()
-
-    # Save converted bytes in destination file
-    with open(dest, "wb") as fp:
-        fp.write(converted)
+    # Convert and save file
+    with decoder(src) as dec:
+        dec.convert(encoder).save(dest)

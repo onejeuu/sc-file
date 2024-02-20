@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.consts import PathLike
+from scfile.types import PathLike
 
 from .convert import FileConvertingError, FileParsingError, FileUnsupportedError
 

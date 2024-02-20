@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import IntFlag
 
 
@@ -12,28 +11,24 @@ class HeaderFlag(IntFlag):
     LINEARSIZE = 0x80000
     DEPTH = 0x800000
 
-@dataclass
 class Header:
     SIZE = 124
     FLAG = HeaderFlag
     FLAGS = FLAG.CAPS | FLAG.HEIGHT | FLAG.WIDTH | FLAG.PIXELFORMAT | FLAG.MIPMAPCOUNT
 
-@dataclass
 class PixelFormatFlag(IntFlag):
     ALPHAPIXELS = 0x1
     ALPHA = 0x2
     FOURCC = 0x4
     RGB = 0x40
 
-@dataclass
 class PixelFormat:
     SIZE = 32
     BIT_COUNT = 32
     FLAG = PixelFormatFlag
     RGB_FLAGS = FLAG.RGB | FLAG.ALPHAPIXELS
 
-@dataclass
-class CubemapFlags(IntFlag):
+class CubemapFlag(IntFlag):
     POSITIVE_X = POSX = 0x400
     NEGATIVE_X = NEGX = 0x800
     POSITIVE_Y = POSY = 0x1000
@@ -42,10 +37,10 @@ class CubemapFlags(IntFlag):
     NEGATIVE_Z = NEGZ = 0x8000
 
 class DDS:
-    HEADER = Header()
-    PF = PixelFormat()
+    HEADER = Header
+    PF = PixelFormat
     CUBEMAP = 0x200
-    CF = CubemapFlags
+    CF = CubemapFlag
     CUBEMAPS = CUBEMAP | CF.POSX | CF.NEGX | CF.POSY | CF.NEGY | CF.POSZ | CF.NEGZ
     COMPLEX = 0x8
     TEXTURE = 0x1000

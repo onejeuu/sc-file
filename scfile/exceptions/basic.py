@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.consts import PathLike
+from scfile.types import PathLike
 
 from .base import ScFileException
 
@@ -39,14 +39,14 @@ class FileIsEmpty(ScFileBasicError):
 class InvalidSignature(ScFileBasicError):
     """Exception occurring when file signature does not match file type."""
 
-    def __init__(self, path: PathLike, signature: int, valid_signature: int):
+    def __init__(self, path: PathLike, readed: int, signature: int):
         self.path = Path(path)
+        self.readed = readed
         self.signature = signature
-        self.valid_signature = valid_signature
 
     def __str__(self):
         return (
             f"{super().__str__()} has invalid signature - "
-            f"{hex(self.signature)} != {hex(self.valid_signature)}. "
+            f"{hex(self.readed)} != {hex(self.signature)}. "
             "(File suffix does not match file type)."
         )

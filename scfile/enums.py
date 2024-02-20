@@ -9,6 +9,12 @@ class FileSuffix(StrEnum):
     DDS = auto()
     OBJ = auto()
 
+class FileMode(StrEnum):
+    RB = READ = auto()
+    WB = WRITE = auto()
+    AB = APPEND = auto()
+    PLUS = "+"
+
 class ByteOrder(StrEnum):
     NATIVE = "@"
     STANDARD = "="
@@ -40,4 +46,4 @@ class StructFormat(StrEnum):
     F16 = "e"
     """float: `half-precision` `2 bytes`"""
     F32 = "f"
-    """double: `half-precision` `4 bytes`"""
+    """double: `single-precision` `4 bytes`"""

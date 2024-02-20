@@ -1,4 +1,4 @@
-from .converter import RGBA8Converter
+from .base import RGBA8Converter
 
 
 class BGRA8Converter(RGBA8Converter):
