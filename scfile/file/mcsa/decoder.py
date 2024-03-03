@@ -1,4 +1,4 @@
-from more_itertools import chunked
+import numpy as np
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaSize, Signature
@@ -8,10 +8,9 @@ from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Mesh, Model
+from scfile.utils.model import Mesh, Model, Vector
 
 from .flags import Flag, McsaFlags
-from .scale import scaled
 from .versions import SUPPORTED_VERSIONS
 
 
@@ -32,13 +31,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         return Signature.MCSA
 
     def create_data(self):
-        # TODO: Fix normals with flag 4 & 5
-
-        return ModelData(
-            self.model,
-            self.flags[Flag.TEXTURE],
-            self.flags[Flag.NORMALS],
-        )
+        return ModelData(self.model)
 
     def parse(self):
         self.model = Model()
@@ -63,6 +56,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
         for index in range(self.version.flags):
             self.flags[index] = self.f.readb(F.BOOL)
+
+        self.m.flags.texture = self.flags[Flag.TEXTURE]
+        self.m.flags.normals = self.flags[Flag.NORMALS]
 
         # Scales
         self.m.scale.position = self.f.readb(F.F32)
@@ -104,8 +100,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # ! unknown
         # flag 4, 5 (xyz, xyz) ?
         if self.version == 10.0:
-            for _ in range(6):
-                self.f.readb(F.F32)
+            self._parse_flag4_flag5()
 
         # Geometric vertices
         self._parse_position()
@@ -127,7 +122,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
         # ! unknown
         # bone weights? or smth else with skeleton
-        if self.flags[Flag.FLAG_6]:
+        if self.flags[Flag.COLORS]:
             self._skip_vertices()
 
         # Polygon faces
@@ -139,13 +134,6 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def count(self):
         return self.mesh.count
 
-    def _parse_bone_indexes(self):
-        self.count.links = self.f.readb(F.U8)
-        self.count.bones = self.f.readb(F.U8)
-
-        for index in range(self.count.bones):
-            self.mesh.bones[index] = self.f.readb(F.I8)
-
     @property
     def vertices(self):
         return self.mesh.vertices
@@ -154,40 +142,64 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def scale(self):
         return self.model.scale
 
+    def _parse_bone_indexes(self):
+        self.count.links = self.f.readb(F.U8)
+        self.count.bones = self.f.readb(F.U8)
+
+        for index in range(self.count.bones):
+            self.mesh.bones[index] = self.f.readb(F.I8)
+
+    def _parse_flag4_flag5(self):
+        self.vector1 = Vector(
+            self.f.readb(F.F32),
+            self.f.readb(F.F32),
+            self.f.readb(F.F32),
+        )
+
+        self.vector2 = Vector(
+            self.f.readb(F.F32),
+            self.f.readb(F.F32),
+            self.f.readb(F.F32),
+        )
+
+    def _parse_vertex_data(self, fmt: str, factor: float, size: int, scale: float):
+        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.vertices)
+
+        scaled = np.array(data) * scale / factor
+        reshaped = scaled.reshape(-1, size)
+
+        return reshaped
+
     def _parse_position(self) -> None:
-        size = McsaSize.POSITION
-        xyz = self.f.readvalues(fmt=F.I16, size=size, count=self.count.vertices)
+        xyzw = self._parse_vertex_data(
+            F.I16, Factor.I16, McsaSize.POSITION, self.scale.position
+        )
 
-        scale = self.scale.position
-        factor = Factor.I16
-
-        for vertex, (x, y, z, _) in zip(self.vertices, chunked(xyz, size)):
-            vertex.position.x = scaled(x, scale, factor)
-            vertex.position.y = scaled(y, scale, factor)
-            vertex.position.z = scaled(z, scale, factor)
+        for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
+            vertex.position.x = x
+            vertex.position.y = y
+            vertex.position.z = z
 
     def _parse_texture(self) -> None:
-        size = McsaSize.TEXTURE
-        uv = self.f.readvalues(fmt=F.I16, size=size, count=self.count.vertices)
+        uv = self._parse_vertex_data(
+            F.I16, Factor.I16, McsaSize.TEXTURE, self.scale.texture
+        )
 
-        scale = self.scale.texture
-        factor = Factor.I16
-
-        for vertex, (u, v) in zip(self.vertices, chunked(uv, size)):
-            vertex.texture.u = scaled(u, scale, factor)
-            vertex.texture.u = scaled(v, scale, factor)
+        for vertex, (u, v) in zip(self.vertices, uv):
+            vertex.texture.u = u
+            vertex.texture.v = v
 
     def _parse_normals(self) -> None:
-        size = McsaSize.NORMALS
-        xyz = self.f.readvalues(fmt=F.I8, size=size, count=self.count.vertices)
+        # TODO: Fix normals in version 10.0
 
-        scale = self.scale.normals
-        factor = Factor.I8
+        xyzw = self._parse_vertex_data(
+            F.I8, Factor.I8, McsaSize.NORMALS, self.scale.normals
+        )
 
-        for vertex, (x, y, z, _) in zip(self.vertices, chunked(xyz, size)):
-            vertex.normals.x = scaled(x, scale, factor)
-            vertex.normals.y = scaled(y, scale, factor)
-            vertex.normals.z = scaled(z, scale, factor)
+        for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
+            vertex.normals.x = x
+            vertex.normals.y = y
+            vertex.normals.z = z
 
     def _skip_vertices(self, size: int = 4) -> None:
         self.f.read(self.count.vertices * size)
@@ -220,19 +232,26 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Still no export support yet
         self._skip_vertices(size=8)
 
-    def _parse_polygons(self) -> None:
-        count = self.count.polygons * McsaSize.POLYGONS
-        fmt = F.U16 if count < Factor.U16 else F.U32
+    def _parse_polygons_data(self):
         size = McsaSize.POLYGONS
+        count = self.count.polygons * size
+        fmt = F.U16 if count < Factor.U16 else F.U32
 
-        polygons = self.f.readvalues(fmt=fmt, size=size, count=self.count.polygons)
+        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.polygons)
 
-        for polygon, (v1, v2, v3) in zip(self.mesh.polygons, chunked(polygons, size)):
-            # In obj vertex indexes starts with 1, but in mcsa with 0.
-            # So we increase each one by one.
-            polygon.v1 = v1 + 1
-            polygon.v2 = v2 + 1
-            polygon.v3 = v3 + 1
+        # In mcsa vertex indexes 0-based
+        offset = np.array(data) + 1
+        reshaped = offset.reshape(-1, size)
+
+        return reshaped
+
+    def _parse_polygons(self) -> None:
+        polygons = self._parse_polygons_data()
+
+        for polygon, (v1, v2, v3) in zip(self.mesh.polygons, polygons):
+            polygon.v1 = v1
+            polygon.v2 = v2
+            polygon.v3 = v3
 
     def _parse_skeleton(self) -> None:
         # Still no export support yet

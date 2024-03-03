@@ -7,11 +7,11 @@ from scfile.utils.model import Model
 class FileData(ABC):
     pass
 
+
 @dataclass
 class ModelData(FileData):
     model: Model
-    texture: bool
-    normals: bool
+
 
 @dataclass
 class TextureData(FileData):
@@ -20,6 +20,7 @@ class TextureData(FileData):
     linear_size: int
     fourcc: bytes
     image: bytes
+
 
 @dataclass
 class ImageData(FileData):

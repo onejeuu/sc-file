@@ -5,8 +5,8 @@ from typing import Generic, Optional, TypeVar
 from scfile.enums import ByteOrder, FileMode
 from scfile.enums import StructFormat as F
 from scfile.exceptions import InvalidSignature
-from scfile.file.data import FileData
 from scfile.file.base import BaseFile
+from scfile.file.data import FileData
 from scfile.file.encoder import FileEncoder
 from scfile.io.binary import BinaryFileIO
 from scfile.types import PathLike
@@ -14,6 +14,7 @@ from scfile.types import PathLike
 
 OPENER = TypeVar("OPENER", bound=BinaryFileIO)
 DATA = TypeVar("DATA", bound=FileData)
+
 
 class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
     def __init__(self, path: PathLike):
@@ -68,10 +69,9 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         return self._data
 
     def convert(self, encoder: type[FileEncoder[DATA]]) -> FileEncoder[DATA]:
-        # TODO: uuh... thats just bad.
+        # TODO: Fix bad implementation
 
         data = self.decode()
-
         enc = encoder(data)
         enc.encode()
         return enc

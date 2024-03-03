@@ -10,6 +10,7 @@ from scfile.types import PathLike
 
 DATA = TypeVar("DATA", bound=FileData)
 
+
 class FileEncoder(BaseFile, Generic[DATA], ABC):
     def __init__(self, data: DATA):
         self._data = data
@@ -49,7 +50,7 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
             self.b.write(bytes(self.magic))
 
     def save(self, path: PathLike) -> None:
-        # TODO: fix this temporary implementation, maybe...
+        # TODO: Fix dubious implementation
 
         with open(path, FileMode.WRITE) as fp:
             fp.write(self.result)

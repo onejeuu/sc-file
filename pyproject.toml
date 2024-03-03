@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "sc-file"
-version = "3.0.0-dev.1"
+version = "3.0.0-dev.2"
 description = "Library & Utility for converting stalcraft files"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "scfile"}]
+packages = [{ include = "scfile" }]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
@@ -13,7 +13,6 @@ lz4 = "^4.3.2"
 click = "^8.1.7"
 quicktex = "^0.2.0"
 numpy = "^1.26.3"
-more-itertools = "^10.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.0.0"
@@ -25,6 +24,3 @@ build = "build:build"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.ruff]
-ignore = ["E501"]

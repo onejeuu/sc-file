@@ -13,7 +13,7 @@ class DdsEncoder(FileEncoder[TextureData]):
         return Magic.DDS
 
     def serialize(self):
-        # TODO: Temporary code, will be improved
+        # TODO: Improve old implementation (maybe)
 
         self.b.writeb(F.U32, DDS.HEADER.SIZE)
         self.b.writeb(F.U32, self.flags)
@@ -21,29 +21,29 @@ class DdsEncoder(FileEncoder[TextureData]):
         self.b.writeb(F.U32, self.data.width)
         self.b.writeb(F.U32, self.pitch_or_linear_size)
 
-        self.b.writen(1) # Depth
-        self.b.writeb(F.U32, 1) # MipMapsCount
-        self.b.writen(11) # Reserved
+        self.b.writen(1)  # Depth
+        self.b.writeb(F.U32, 1)  # MipMapsCount
+        self.b.writen(11)  # Reserved
 
         self.b.writeb(F.U32, DDS.PF.SIZE)
 
         if self.compressed:
             self.b.writeb(F.U32, DDS.PF.FLAG.FOURCC)
-            self.b.write(self.data.fourcc) # FourCC
-            self.b.writen(5) # BitCount & BitMasks
+            self.b.write(self.data.fourcc)  # FourCC
+            self.b.writen(5)  # BitCount & BitMasks
 
         else:
             self.b.writeb(F.U32, DDS.PF.RGB_FLAGS)
-            self.b.writen(1) # FourCC
-            self.b.writeb(F.U32, DDS.PF.BIT_COUNT) # BitCount
+            self.b.writen(1)  # FourCC
+            self.b.writeb(F.U32, DDS.PF.BIT_COUNT)  # BitCount
 
             # BitMasks
             for mask in BITMASK(self.data.fourcc):
                 self.b.writeb(F.U32, mask)
 
-        self.b.writeb(F.U32, DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP) # Caps1
-        self.b.writeb(F.U32, self.cubemap) # Caps2
-        self.b.writen(3) # Reserved
+        self.b.writeb(F.U32, DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP)  # Caps1
+        self.b.writeb(F.U32, self.cubemap)  # Caps2
+        self.b.writen(3)  # Reserved
 
         self.b.write(self.data.image)
 

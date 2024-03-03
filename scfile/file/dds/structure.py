@@ -11,10 +11,12 @@ class HeaderFlag(IntFlag):
     LINEARSIZE = 0x80000
     DEPTH = 0x800000
 
+
 class Header:
     SIZE = 124
     FLAG = HeaderFlag
     FLAGS = FLAG.CAPS | FLAG.HEIGHT | FLAG.WIDTH | FLAG.PIXELFORMAT | FLAG.MIPMAPCOUNT
+
 
 class PixelFormatFlag(IntFlag):
     ALPHAPIXELS = 0x1
@@ -22,11 +24,13 @@ class PixelFormatFlag(IntFlag):
     FOURCC = 0x4
     RGB = 0x40
 
+
 class PixelFormat:
     SIZE = 32
     BIT_COUNT = 32
     FLAG = PixelFormatFlag
     RGB_FLAGS = FLAG.RGB | FLAG.ALPHAPIXELS
+
 
 class CubemapFlag(IntFlag):
     POSITIVE_X = POSX = 0x400
@@ -35,6 +39,7 @@ class CubemapFlag(IntFlag):
     NEGATIVE_Y = NEGY = 0x2000
     POSITIVE_Z = POSZ = 0x4000
     NEGATIVE_Z = NEGZ = 0x8000
+
 
 class DDS:
     HEADER = Header

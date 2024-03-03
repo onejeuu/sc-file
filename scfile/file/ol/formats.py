@@ -5,5 +5,5 @@ SUPPORTED_FORMATS = [
     b"RGBA8",
     b"BGRA8",
     b"RGBA32F",
-    b"DXN_XY"
+    b"DXN_XY",
 ]

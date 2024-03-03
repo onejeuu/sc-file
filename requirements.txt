@@ -1,3 +1,7 @@
-lz4>=4.3.2
-pyinstaller==6.1.0
-rich==13.5.3
+python>=3.11,<3.13
+lz4==4.3.2
+click==8.1.7
+quicktex==0.2.0
+numpy==1.26.3
+pyinstaller==6.0.0
+rich==13.0.0

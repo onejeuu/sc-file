@@ -9,11 +9,13 @@ class FileSuffix(StrEnum):
     DDS = auto()
     OBJ = auto()
 
+
 class FileMode(StrEnum):
     RB = READ = auto()
     WB = WRITE = auto()
     AB = APPEND = auto()
     PLUS = "+"
+
 
 class ByteOrder(StrEnum):
     NATIVE = "@"
@@ -21,6 +23,7 @@ class ByteOrder(StrEnum):
     LITTLE = "<"
     BIG = ">"
     NETWORK = "!"
+
 
 class StructFormat(StrEnum):
     BOOL = "?"

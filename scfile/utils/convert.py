@@ -2,16 +2,16 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions as exc
+from scfile.enums import FileSuffix
+from scfile.file.dds.encoder import DdsEncoder
+from scfile.file.decoder import FileDecoder
+from scfile.file.encoder import FileEncoder
 from scfile.file.mcsa.decoder import McsaDecoder
+from scfile.file.mic.decoder import MicDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.file.ol.decoder import OlDecoder
-from scfile.file.dds.encoder import DdsEncoder
-from scfile.file.mic.decoder import MicDecoder
 from scfile.file.png.encoder import PngEncoder
 from scfile.types import PathLike
-from scfile.enums import FileSuffix
-from scfile.file.encoder import FileEncoder
-from scfile.file.decoder import FileDecoder
 
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
@@ -61,6 +61,7 @@ def ol_to_dds(source: PathLike, output: Optional[PathLike] = None):
 
     _convert(source, output, OlDecoder, DdsEncoder, FileSuffix.DDS)
 
+
 def auto(source: PathLike, output: Optional[PathLike] = None):
     """
     Automatically determines which format convert to.
@@ -92,12 +93,14 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
         case _:
             raise exc.UnsupportedSuffix(path)
 
+
+# TODO: Fix type hints
 def _convert(
     source: PathLike,
     output: Optional[PathLike],
     decoder: type[FileDecoder],
     encoder: type[FileEncoder],
-    new_suffix: str
+    new_suffix: str,
 ):
     src = Path(source)
     new_src = src.with_suffix(f".{new_suffix}")

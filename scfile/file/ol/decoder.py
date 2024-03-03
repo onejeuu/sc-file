@@ -1,7 +1,9 @@
+from typing import Any
+
 import lz4.block
-from quicktex import RawTexture  # type: ignore
-from quicktex.s3tc.bc3 import BC3Encoder  # type: ignore
-from quicktex.s3tc.bc5 import BC5Decoder, BC5Texture  # type: ignore
+from quicktex import RawTexture
+from quicktex.s3tc.bc3 import BC3Encoder
+from quicktex.s3tc.bc5 import BC5Decoder, BC5Texture
 
 from scfile import exceptions as exc
 from scfile.consts import Signature
@@ -19,7 +21,6 @@ from .formats import SUPPORTED_FORMATS
 
 
 class OlDecoder(FileDecoder[OlFileIO, TextureData]):
-
     CONVERT_TO_RGBA8 = True
     CONVERT_TO_DXT5 = True
 
@@ -40,11 +41,7 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
 
     def create_data(self):
         return TextureData(
-            self.width,
-            self.height,
-            self.linear_size,
-            self.fourcc,
-            self.image
+            self.width, self.height, self.linear_size, self.fourcc, self.image
         )
 
     def parse(self):
@@ -85,11 +82,13 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         return (self.image, self.width, self.height)
 
     @property
-    def bc5texture(self):
+    def bc5texture(self) -> Any:
+        # TODO: Add type hints
         return BC5Texture.from_bytes(*self.imagedata)
 
     @property
-    def rawtexture(self):
+    def rawtexture(self) -> Any:
+        # TODO: Add type hints
         return RawTexture.frombytes(*self.imagedata)
 
     def _to_rgba8(self):
@@ -101,7 +100,7 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
                 self.image = RGBA32FConverter(*self.imagedata).to_rgba8()
 
             case b"DXN_XY":
-                # TODO: validate this
+                # TODO: Validate this
                 self.image = bytes(BC5Decoder().decode(self.bc5texture))
                 self.image = RGBA8Converter(*self.imagedata).invert()
 
@@ -122,11 +121,10 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         self.compressed = self._read_sizes()
 
     def _decompress_imagedata(self) -> None:
-        # TODO: Decode all mipmaps
+        # TODO: Decompress all mipmaps
 
         imagedata = lz4.block.decompress(
-            self.f.read(self.compressed[0]),
-            self.uncompressed[0]
+            self.f.read(self.compressed[0]), self.uncompressed[0]
         )
 
         self.image = bytes(imagedata)

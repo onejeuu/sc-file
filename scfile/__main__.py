@@ -28,19 +28,17 @@ def convert_files(files: tuple[Path], dest: Optional[Path] = None):
 @click.argument(
     "files",
     type=click.Path(path_type=Path, exists=True, readable=True, dir_okay=False),
-    nargs=-1
+    nargs=-1,
 )
 @click.option(
-    "-O", "--output",
+    "-O",
+    "--output",
     help="Optional path to output. Defaults to source path with new suffix.",
     type=click.Path(path_type=Path, exists=False, writable=True, dir_okay=True),
     multiple=True,
     nargs=1,
 )
-def main(
-    files: tuple[Path],
-    output: Optional[tuple[Path]] = None
-):
+def main(files: tuple[Path], output: Optional[tuple[Path]] = None):
     if not output:
         convert_files(files)
         return

@@ -7,7 +7,7 @@ class Flag(IntEnum):
     NORMALS = auto()
     TANGENTS = auto()
     BITANGENTS = auto()
-    FLAG_6 = auto()
+    COLORS = auto()
 
 
 class McsaFlags:
@@ -16,10 +16,7 @@ class McsaFlags:
 
     @property
     def named_dict(self):
-        return {
-            Flag(key).name: value
-            for key, value in self._flags.items()
-        }
+        return {Flag(key).name: value for key, value in self._flags.items()}
 
     def __getitem__(self, index: int) -> bool:
         return bool(self._flags.get(index, False))

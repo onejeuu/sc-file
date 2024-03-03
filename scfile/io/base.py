@@ -15,6 +15,7 @@ class StructBufferedIOBase(io.BufferedIOBase):
     def pack(self, fmt: str, *v: Any) -> bytes:
         return struct.pack(str(fmt), *v)
 
+
 class BinaryIO(StructBufferedIOBase):
     order = ByteOrder.LITTLE
 
@@ -37,3 +38,6 @@ class BinaryIO(StructBufferedIOBase):
     def writes(self, *v: Any) -> None:
         string = "".join(tuple(map(str, v)))
         self.write(string.encode())
+
+    def writeascii(self, string: str) -> None:
+        self.write(string.encode("ascii"))
