@@ -8,12 +8,12 @@ class ObjEncoder(FileEncoder[ModelData]):
         # TODO: Improve old implementation (maybe)
 
         self.offset = 0
-        self._ensure_unique_names()
+        self.model.ensure_unique_names()
 
         # TODO: Fix bad implementation via references_count (v/vt/vn)
         self.references_count = 1 + int(self.flags.texture) + int(self.flags.normals)
 
-        for mesh in self.meshes:
+        for mesh in self.model.meshes:
             self._add_geometric_vertices(mesh)
 
             if self.flags.texture:
@@ -26,8 +26,8 @@ class ObjEncoder(FileEncoder[ModelData]):
             self._add_polygonal_faces(mesh)
 
     @property
-    def meshes(self):
-        return self.data.model.meshes
+    def model(self):
+        return self.data.model
 
     @property
     def flags(self):
@@ -68,22 +68,3 @@ class ObjEncoder(FileEncoder[ModelData]):
     def _write_vertex_data(self, data: list[str]) -> None:
         self.b.writeascii("\n".join(data))
         self.b.write(b"\n\n")
-
-    def _ensure_unique_names(self):
-        seen_names: set[str] = set()
-
-        for mesh in self.meshes:
-            name = mesh.name
-
-            if not name:
-                name = "noname"
-
-            base_name, count = name, 2
-            unique_name = f"{base_name}"
-
-            while unique_name in seen_names:
-                unique_name = f"{base_name}_{count}"
-                count += 1
-
-            mesh.name = unique_name
-            seen_names.add(unique_name)

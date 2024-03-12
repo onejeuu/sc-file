@@ -112,3 +112,22 @@ class Model:
     flags: Flags = field(default_factory=Flags)
     scale: Scale = field(default_factory=Scale)
     local: Local = field(default_factory=Local)
+
+    def ensure_unique_names(self):
+        seen_names: set[str] = set()
+
+        for mesh in self.meshes:
+            name = mesh.name
+
+            if not name:
+                name = "noname"
+
+            base_name, count = name, 2
+            unique_name = f"{base_name}"
+
+            while unique_name in seen_names:
+                unique_name = f"{base_name}_{count}"
+                count += 1
+
+            mesh.name = unique_name
+            seen_names.add(unique_name)
