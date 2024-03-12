@@ -76,9 +76,12 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         enc.encode()
         return enc
 
+    def read_signature(self) -> int:
+        return self.f.readb(F.U32, ByteOrder.LITTLE)
+
     def validate_signature(self) -> None:
         if self.signature:
-            readed = self.f.readb(F.U32, ByteOrder.LITTLE)
+            readed = self.read_signature()
 
             if readed != self.signature:
                 raise InvalidSignature(self.path, readed, self.signature)

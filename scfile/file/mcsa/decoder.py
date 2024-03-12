@@ -11,7 +11,7 @@ from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model import Mesh, Model, Vector
 
 from .flags import Flag, McsaFlags
-from .versions import SUPPORTED_VERSIONS
+from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
 class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
@@ -34,39 +34,49 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         return ModelData(self.model)
 
     def parse(self):
-        self.model = Model()
-
+        self._create_model()
         self._parse_header()
         self._parse_meshes()
+
+    def _create_model(self):
+        self.model = Model()
 
     @property
     def m(self):
         return self.model
 
     def _parse_header(self):
-        # Version
-        version = self.f.readb(F.F32)
-        self.version = SUPPORTED_VERSIONS.find(version)
+        self._parse_version()
+        self._parse_flags()
+        self._parse_scales()
 
-        if not self.version:
-            raise exc.McsaUnsupportedVersion(self.path, version)
+    def _parse_version(self):
+        self.version = self.f.readb(F.F32)
 
-        # Flags
+        if self.version not in SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(self.path, self.version)
+
+    def _parse_flags(self):
         self.flags = McsaFlags()
 
-        for index in range(self.version.flags):
+        flags_count = VERSION_FLAGS.get(self.version)
+
+        if not flags_count:
+            raise exc.McsaUnsupportedVersion(self.path, self.version)
+
+        for index in range(flags_count):
             self.flags[index] = self.f.readb(F.BOOL)
 
         self.m.flags.texture = self.flags[Flag.TEXTURE]
         self.m.flags.normals = self.flags[Flag.NORMALS]
 
-        # Scales
+    def _parse_scales(self):
         self.m.scale.position = self.f.readb(F.F32)
 
         if self.flags[Flag.TEXTURE]:
             self.m.scale.texture = self.f.readb(F.F32)
 
-        # ! unconfirmed (version)
+        # ! unconfirmed
         if self.flags[Flag.NORMALS] and self.version == 10.0:
             self.m.scale.normals = self.f.readb(F.F32)
 
@@ -92,15 +102,13 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.count.polygons = self.f.readcounts()
         self.mesh.resize()
 
-        # ! unknown
-        # ! unconfirmed (flag) ???
+        # ! unknown, unconfirmed
         if self.flags[Flag.TEXTURE]:
             self.m.scale.weight = self.f.readb(F.F32)
 
-        # ! unknown
-        # flag 4, 5 (xyz, xyz) ?
+        # ! unconfirmed
         if self.version == 10.0:
-            self._parse_flag4_flag5()
+            self._parse_locals()
 
         # Geometric vertices
         self._parse_position()
@@ -113,17 +121,21 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         if self.flags[Flag.NORMALS]:
             self._parse_normals()
 
-        # ! unknown
-        self._skip_unknown()
+        # ! unconfirmed
+        if self.flags[Flag.TANGENTS]:
+            self._parse_tangents()
+
+        # ! unconfirmed
+        if self.flags[Flag.BITANGENTS]:
+            self._parse_bitangents()
 
         # Skeleton bones
         if self.flags[Flag.SKELETON]:
             self._parse_bones()
 
-        # ! unknown
-        # bone weights? or smth else with skeleton
+        # Vertex colors
         if self.flags[Flag.COLORS]:
-            self._skip_vertices()
+            self._parse_colors()
 
         # Polygon faces
         self._parse_polygons()
@@ -149,20 +161,20 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         for index in range(self.count.bones):
             self.mesh.bones[index] = self.f.readb(F.I8)
 
-    def _parse_flag4_flag5(self):
-        self.vector1 = Vector(
+    def _parse_locals(self):
+        self.model.local.axis = Vector(
             self.f.readb(F.F32),
             self.f.readb(F.F32),
             self.f.readb(F.F32),
         )
 
-        self.vector2 = Vector(
+        self.model.local.center = Vector(
             self.f.readb(F.F32),
             self.f.readb(F.F32),
             self.f.readb(F.F32),
         )
 
-    def _parse_vertex_data(self, fmt: str, factor: float, size: int, scale: float):
+    def _parse_vertex_data(self, fmt: str, factor: float, size: int, scale: float = 1.0):
         data = self.f.readvalues(fmt=fmt, size=size, count=self.count.vertices)
 
         scaled = np.array(data) * scale / factor
@@ -171,9 +183,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         return reshaped
 
     def _parse_position(self) -> None:
-        xyzw = self._parse_vertex_data(
-            F.I16, Factor.I16, McsaSize.POSITION, self.scale.position
-        )
+        xyzw = self._parse_vertex_data(F.I16, Factor.I16, McsaSize.POSITION, self.scale.position)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.position.x = x
@@ -181,20 +191,17 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.position.z = z
 
     def _parse_texture(self) -> None:
-        uv = self._parse_vertex_data(
-            F.I16, Factor.I16, McsaSize.TEXTURE, self.scale.texture
-        )
+        uv = self._parse_vertex_data(F.I16, Factor.I16, McsaSize.TEXTURE, self.scale.texture)
 
         for vertex, (u, v) in zip(self.vertices, uv):
             vertex.texture.u = u
             vertex.texture.v = v
 
     def _parse_normals(self) -> None:
-        # TODO: Fix normals in version 10.0
+        fmt = F.U8 if self.version == 10.0 else F.I8
+        factor = Factor.U8 if self.version == 10.0 else Factor.I8
 
-        xyzw = self._parse_vertex_data(
-            F.I8, Factor.I8, McsaSize.NORMALS, self.scale.normals
-        )
+        xyzw = self._parse_vertex_data(fmt, factor, McsaSize.NORMALS)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.normals.x = x
@@ -204,14 +211,11 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def _skip_vertices(self, size: int = 4) -> None:
         self.f.read(self.count.vertices * size)
 
-    def _skip_unknown(self) -> None:
-        # ! unconfirmed change
-        if self.flags[Flag.TANGENTS]:
-            self._skip_vertices(size=4)
+    def _parse_tangents(self):
+        self._skip_vertices(size=4)
 
-        # ! unconfirmed change
-        if self.flags[Flag.BITANGENTS]:
-            self._skip_vertices(size=4)
+    def _parse_bitangents(self):
+        self._skip_vertices(size=4)
 
     def _parse_bones(self) -> None:
         match self.count.links:
@@ -232,6 +236,19 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Still no export support yet
         self._skip_vertices(size=8)
 
+    def _parse_colors(self):
+        # Quite useless
+        self._skip_vertices(size=8)
+        return
+
+        # Could be rgba, but not that important
+        argb = self._parse_vertex_data(F.U8, Factor.U8, McsaSize.COLOR)
+
+        for vertex, (_, r, g, b) in zip(self.vertices, argb):
+            vertex.color.r = r
+            vertex.color.g = g
+            vertex.color.b = b
+
     def _parse_polygons_data(self):
         size = McsaSize.POLYGONS
         count = self.count.polygons * size
@@ -246,12 +263,12 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         return reshaped
 
     def _parse_polygons(self) -> None:
-        polygons = self._parse_polygons_data()
+        abc = self._parse_polygons_data()
 
-        for polygon, (v1, v2, v3) in zip(self.mesh.polygons, polygons):
-            polygon.v1 = v1
-            polygon.v2 = v2
-            polygon.v3 = v3
+        for polygon, (a, b, c) in zip(self.mesh.polygons, abc):
+            polygon.a = a
+            polygon.b = b
+            polygon.c = c
 
     def _parse_skeleton(self) -> None:
         # Still no export support yet

@@ -111,7 +111,7 @@ def _convert(
     if not src.exists() or not src.is_file():
         raise exc.SourceFileNotFound(src)
 
-    # If destination is directory save file in this folder
+    # If destination is directory save file in this directory
     if dest.is_dir():
         dest = Path(dest, new_src.name)
 

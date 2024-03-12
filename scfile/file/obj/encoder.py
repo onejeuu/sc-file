@@ -10,6 +10,7 @@ class ObjEncoder(FileEncoder[ModelData]):
         self.offset = 0
         self._ensure_unique_names()
 
+        # TODO: Fix bad implementation via references_count (v/vt/vn)
         self.references_count = 1 + int(self.flags.texture) + int(self.flags.normals)
 
         for mesh in self.meshes:
@@ -38,9 +39,7 @@ class ObjEncoder(FileEncoder[ModelData]):
         )
 
     def _add_texture_coordinates(self, mesh: Mesh) -> None:
-        self._write_vertex_data(
-            [f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices]
-        )
+        self._write_vertex_data([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices])
 
     def _add_vertex_normals(self, mesh: Mesh) -> None:
         self._write_vertex_data(
@@ -50,7 +49,7 @@ class ObjEncoder(FileEncoder[ModelData]):
     def _add_polygonal_faces(self, mesh: Mesh) -> None:
         self._write_vertex_data(
             [
-                f"f {self._vertex_id(p.v1)} {self._vertex_id(p.v2)} {self._vertex_id(p.v3)}"
+                f"f {self._vertex_id(p.a)} {self._vertex_id(p.b)} {self._vertex_id(p.c)}"
                 for p in mesh.polygons
             ]
         )
@@ -61,8 +60,8 @@ class ObjEncoder(FileEncoder[ModelData]):
 
     def _vertex_id(self, v: int) -> str:
         # TODO: Reduce number of calls
-        # TODO: Fix bad implementation via references_count (v/vt/vn)
-        return "/".join([str(v + self.offset)] * self.references_count)
+        vertex_id = str(v + self.offset)
+        return "/".join([vertex_id] * self.references_count)
 
     def _write_vertex_data(self, data: list[str]) -> None:
         self.b.writeascii("\n".join(data))

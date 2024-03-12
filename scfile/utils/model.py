@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
+import math
 
 from scfile.consts import McsaModel
 
@@ -10,6 +11,13 @@ class Vector:
     y: float = 0.0
     z: float = 0.0
 
+    def normalize(self):
+        magnitude = math.sqrt(self.x**2 + self.y**2 + self.z**2)
+        if magnitude != 0:
+            self.x /= magnitude
+            self.y /= magnitude
+            self.z /= magnitude
+
 
 @dataclass
 class Texture:
@@ -19,9 +27,16 @@ class Texture:
 
 @dataclass
 class Polygon:
-    v1: int = 0
-    v2: int = 0
-    v3: int = 0
+    a: int = 0
+    b: int = 0
+    c: int = 0
+
+
+@dataclass
+class Color:
+    r: float = 1.0
+    g: float = 1.0
+    b: float = 1.0
 
 
 @dataclass
@@ -35,6 +50,7 @@ class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Vector = field(default_factory=Vector)
+    # color: Color = field(default_factory=Color)
     # bone: VertexBone = field(default_factory=VertexBone)
 
 
@@ -78,6 +94,12 @@ class Skeleton:
 
 
 @dataclass
+class Flags:
+    texture: bool = False
+    normals: bool = False
+
+
+@dataclass
 class Scale:
     position: float = 1.0
     texture: float = 1.0
@@ -86,14 +108,15 @@ class Scale:
 
 
 @dataclass
-class Flags:
-    texture: bool = False
-    normals: bool = False
+class Local:
+    axis: Vector = field(default_factory=Vector)
+    center: Vector = field(default_factory=Vector)
 
 
 @dataclass
 class Model:
     meshes: List[Mesh] = field(default_factory=list)
     # skeleton: Skeleton = field(default_factory=Skeleton)
-    scale: Scale = field(default_factory=Scale)
     flags: Flags = field(default_factory=Flags)
+    scale: Scale = field(default_factory=Scale)
+    local: Local = field(default_factory=Local)

@@ -7,10 +7,8 @@ Library and Utility for converting encrypted stalcraft game files, such as model
 
 You can use executable utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
-> [!WARNING]
-> **Do not use game assets folder directly.**
+> [!WARNING] > **Do not use game assets directly.**
 > You can get banned for any changes in game client.
-
 
 # 📁 Formats
 
@@ -19,7 +17,6 @@ You can use executable utility from [Releases](https://github.com/onejeuu/sc-fil
 | Model   | .mcsa         | .obj          |
 | Texture | .ol           | .dds          |
 | Image   | .mic          | .png          |
-
 
 # 💻 CLI Utility
 
@@ -44,43 +41,48 @@ scfile [OPTIONS] [FILES]...
 ## Examples
 
 1. Convert a single file:
-    ```bash
-    scfile file.mcsa
-    ```
 
-    _Will be saved in the same directory with a new suffix._
+   ```bash
+   scfile file.mcsa
+   ```
+
+   _Will be saved in the same directory with a new suffix._
 
 1. Convert a single file with a specified path or name:
-    ```bash
-    scfile file.mcsa --output path/to/file.obj
-    ```
+
+   ```bash
+   scfile file.mcsa --output path/to/file.obj
+   ```
 
 1. Convert multiple files to a specified directory:
-    ```bash
-    scfile file1.mcsa file2.mcsa --output path/to/folder
-    ```
+
+   ```bash
+   scfile file1.mcsa file2.mcsa --output path/to/dir
+   ```
 
 1. Convert multiple files with explicitly specified output files:
-    ```bash
-    scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
-    ```
 
-    _If the count of `FILES` and `-O` is different, as many files as possible will be converted._
+   ```bash
+   scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
+   ```
+
+   _If the count of `FILES` and `-O` is different, as many files as possible will be converted._
 
 1. Convert all `.mcsa` files in the current directory:
-    ```bash
-    scfile *.mcsa
-    ```
 
-    _In this case, `-O` accepts only a directory. Subfolders are not included._
+   ```bash
+   scfile *.mcsa
+   ```
 
-1. Convert all `.mcsa` files with subfolders to a specified directory:
-    ```bash
-    scfile **/*.mcsa -O path/to/folder
-    ```
+   _In this case, `-O` accepts only a directory. Subdirectories are not included._
 
-    _In this case, `-O` accepts only a directory. With `-O` specified, the folder structure is not duplicated._
+1. Convert all `.mcsa` files with subdirectories to a specified directory:
 
+   ```bash
+   scfile **/*.mcsa -O path/to/dir
+   ```
+
+   _In this case, `-O` accepts only a directory. With `-O` specified, directory structure is not duplicated._
 
 # 📚 Library
 
@@ -123,7 +125,6 @@ convert.ol_to_dds("path/to/file.ol", "path/to/file.dds")
 convert.auto("path/to/file.mcsa")
 ```
 
-
 # 🛠️ Build
 
 > [!IMPORTANT]
@@ -148,4 +149,4 @@ And run script to compile:
 poetry run build
 ```
 
-Executable file will be created in `/dist` directory in your project folder.
+Executable file will be created in `/dist` directory.

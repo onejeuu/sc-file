@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "3.0.0-dev.2"
+version = "3.0.0-dev.3"
 description = "Library & Utility for converting stalcraft files"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"

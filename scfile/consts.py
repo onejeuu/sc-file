@@ -50,6 +50,7 @@ class McsaSize:
     TEXTURE = 2
     NORMALS = 4
     POLYGONS = 3
+    COLOR = 4
 
 
 # Files suffixes that can be converted
