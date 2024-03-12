@@ -72,8 +72,10 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
     def _decompress_image(self) -> None:
         # TODO: Decompress all mipmaps
 
-        image = lz4.block.decompress(self.f.read(self.compressed[0]), self.uncompressed[0])  # type: ignore
-        self.image = bytes(image)  # type: ignore
+        compressed = self.f.read(self.compressed[0])
+        uncompressed_size = self.uncompressed[0]
+
+        self.image = bytes(lz4.block.decompress(compressed, uncompressed_size))  # type: ignore
 
     def _parse_image(self):
         try:
