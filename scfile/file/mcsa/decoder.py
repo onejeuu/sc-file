@@ -117,15 +117,16 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         if self.flags[Flag.TEXTURE]:
             self._parse_texture()
 
+        # ! unconfirmed
+        if self.flags[Flag.TANGENTS]:
+            self._skip_vertices(size=4)
+
         # Vertex normals
         if self.flags[Flag.NORMALS]:
-            if self.version >= 10.0:
-                self._skip_vertices(size=4)
-
             self._parse_normals()
 
         # ! unconfirmed
-        if self.flags[Flag.TANGENTS] and self.flags[Flag.BITANGENTS]:
+        if self.flags[Flag.BITANGENTS]:
             self._skip_vertices(size=4)
 
         # Skeleton bones
@@ -247,8 +248,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         data = self.f.readvalues(fmt=fmt, size=size, count=self.count.polygons)
 
         # In mcsa vertex indexes 0-based
-        offset = np.array(data) + 1
-        reshaped = offset.reshape(-1, size)
+        shifted = np.array(data) + 1
+        reshaped = shifted.reshape(-1, size)
 
         return reshaped
 

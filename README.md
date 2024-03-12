@@ -7,7 +7,8 @@ Library and Utility for converting encrypted stalcraft game files, such as model
 
 You can use executable utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
-> [!WARNING] > **Do not use game assets directly.**
+> [!WARNING]
+> Do not use game assets directly.
 > You can get banned for any changes in game client.
 
 # 📁 Formats
