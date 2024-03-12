@@ -3,18 +3,18 @@ from .enums import FileSuffix
 
 class Signature:
     """
-    Little-Endian Source File Signature.
+    Big-Endian Source File Signature.
     Integer.
     """
 
-    MIC = 0x43494D89
-    OL = 0xFD23950A
-    MCSA = 0x4153434D
+    MIC = 0x894D4943
+    OL = 0x0A9523FD
+    MCSA = 0x4D435341
 
 
 class Magic:
     """
-    Little-Endian Output File Signature.
+    Big-Endian Output File Signature.
     List[Integer].
     """
 
