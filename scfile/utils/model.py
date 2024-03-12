@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
-import math
 
 from scfile.consts import McsaModel
 
@@ -10,13 +9,6 @@ class Vector:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-
-    def normalize(self):
-        magnitude = math.sqrt(self.x**2 + self.y**2 + self.z**2)
-        if magnitude != 0:
-            self.x /= magnitude
-            self.y /= magnitude
-            self.z /= magnitude
 
 
 @dataclass

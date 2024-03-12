@@ -35,15 +35,17 @@ class ObjEncoder(FileEncoder[ModelData]):
 
     def _add_geometric_vertices(self, mesh: Mesh) -> None:
         self._write_vertex_data(
-            [f"v {v.position.x} {v.position.y} {v.position.z}" for v in mesh.vertices]
+            [f"v {v.position.x:.6f} {v.position.y:.6f} {v.position.z:.6f}" for v in mesh.vertices]
         )
 
     def _add_texture_coordinates(self, mesh: Mesh) -> None:
-        self._write_vertex_data([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices])
+        self._write_vertex_data(
+            [f"vt {v.texture.u:.6f} {1.0 - v.texture.v:.6f}" for v in mesh.vertices]
+        )
 
     def _add_vertex_normals(self, mesh: Mesh) -> None:
         self._write_vertex_data(
-            [f"vn {v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices]
+            [f"vn {v.normals.x:.6f} {v.normals.y:.6f} {v.normals.z:.6f}" for v in mesh.vertices]
         )
 
     def _add_polygonal_faces(self, mesh: Mesh) -> None:

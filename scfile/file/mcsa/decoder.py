@@ -77,7 +77,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             self.m.scale.texture = self.f.readb(F.F32)
 
         # ! unconfirmed
-        if self.flags[Flag.NORMALS] and self.version == 10.0:
+        if self.flags[Flag.NORMALS] and self.version >= 10.0:
             self.m.scale.normals = self.f.readb(F.F32)
 
     def _parse_meshes(self) -> None:
@@ -107,7 +107,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             self.m.scale.weight = self.f.readb(F.F32)
 
         # ! unconfirmed
-        if self.version == 10.0:
+        if self.version >= 10.0:
             self._parse_locals()
 
         # Geometric vertices
@@ -119,15 +119,14 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
         # Vertex normals
         if self.flags[Flag.NORMALS]:
+            if self.version >= 10.0:
+                self._skip_vertices(size=4)
+
             self._parse_normals()
 
         # ! unconfirmed
-        if self.flags[Flag.TANGENTS]:
-            self._parse_tangents()
-
-        # ! unconfirmed
-        if self.flags[Flag.BITANGENTS]:
-            self._parse_bitangents()
+        if self.flags[Flag.TANGENTS] and self.flags[Flag.BITANGENTS]:
+            self._skip_vertices(size=4)
 
         # Skeleton bones
         if self.flags[Flag.SKELETON]:
@@ -198,10 +197,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.texture.v = v
 
     def _parse_normals(self) -> None:
-        fmt = F.U8 if self.version == 10.0 else F.I8
-        factor = Factor.U8 if self.version == 10.0 else Factor.I8
-
-        xyzw = self._parse_vertex_data(fmt, factor, McsaSize.NORMALS)
+        xyzw = self._parse_vertex_data(F.I8, Factor.I8, McsaSize.NORMALS)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.normals.x = x
@@ -210,12 +206,6 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def _skip_vertices(self, size: int = 4) -> None:
         self.f.read(self.count.vertices * size)
-
-    def _parse_tangents(self):
-        self._skip_vertices(size=4)
-
-    def _parse_bitangents(self):
-        self._skip_vertices(size=4)
 
     def _parse_bones(self) -> None:
         match self.count.links:
