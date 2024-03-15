@@ -11,6 +11,7 @@ class ObjEncoder(FileEncoder[ModelData]):
         self.model.ensure_unique_names()
 
         # TODO: Fix bad implementation via references_count (v/vt/vn)
+        # ? As rule almost models have texture but not normals
         self.references_count = 1 + int(self.flags.texture) + int(self.flags.normals)
 
         for mesh in self.model.meshes:

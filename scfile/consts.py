@@ -41,7 +41,9 @@ class McsaModel:
     # I dont know specific limit
     # This is done for case when file was read incorrectly
     # So as not to overflow memory
-    COUNT_LIMIT = 0x40000
+    # ? New trees and new year toys
+    # ? Have hundreds of thousands of vertices...
+    COUNT_LIMIT = 0x100000
 
 
 class McsaSize:
