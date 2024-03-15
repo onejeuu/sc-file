@@ -41,10 +41,6 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def _create_model(self):
         self.model = Model()
 
-    @property
-    def m(self):
-        return self.model
-
     def _parse_header(self):
         self._parse_version()
         self._parse_flags()
@@ -67,18 +63,18 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         for index in range(flags_count):
             self.flags[index] = self.f.readb(F.BOOL)
 
-        self.m.flags.texture = self.flags[Flag.TEXTURE]
-        self.m.flags.normals = self.flags[Flag.NORMALS]
+        self.model.flags.texture = self.flags[Flag.TEXTURE]
+        self.model.flags.normals = self.flags[Flag.NORMALS]
 
     def _parse_scales(self):
-        self.m.scale.position = self.f.readb(F.F32)
+        self.model.scale.position = self.f.readb(F.F32)
 
         if self.flags[Flag.TEXTURE]:
-            self.m.scale.texture = self.f.readb(F.F32)
+            self.model.scale.texture = self.f.readb(F.F32)
 
         # ! unconfirmed
         if self.flags[Flag.NORMALS] and self.version >= 10.0:
-            self.m.scale.normals = self.f.readb(F.F32)
+            self.model.scale.normals = self.f.readb(F.F32)
 
     def _parse_meshes(self) -> None:
         meshes_count = self.f.readb(F.U32)
@@ -104,7 +100,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
         # ! unknown, unconfirmed
         if self.flags[Flag.TEXTURE]:
-            self.m.scale.weight = self.f.readb(F.F32)
+            self.model.scale.weight = self.f.readb(F.F32)
 
         # ! unconfirmed
         if self.version >= 10.0:
@@ -154,14 +150,14 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def scale(self):
         return self.model.scale
 
-    def _parse_bone_indexes(self):
+    def _parse_bone_indexes(self) -> None:
         self.count.links = self.f.readb(F.U8)
         self.count.bones = self.f.readb(F.U8)
 
         for index in range(self.count.bones):
             self.mesh.bones[index] = self.f.readb(F.I8)
 
-    def _parse_locals(self):
+    def _parse_locals(self) -> None:
         self.model.local.axis = Vector(
             self.f.readb(F.F32),
             self.f.readb(F.F32),
@@ -227,7 +223,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Still no export support yet
         self._skip_vertices(size=8)
 
-    def _parse_colors(self):
+    def _parse_colors(self) -> None:
         # Quite useless
         self._skip_vertices(size=4)
         return
