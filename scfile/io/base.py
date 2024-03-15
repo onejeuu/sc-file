@@ -35,9 +35,5 @@ class BinaryIO(StructBufferedIOBase):
     def writen(self, count: int = 1, size: int = 4) -> None:
         self.write(bytes(size) * count)
 
-    def writes(self, *v: Any) -> None:
-        string = "".join(tuple(map(str, v)))
-        self.write(string.encode())
-
-    def writeascii(self, string: str) -> None:
-        self.write(string.encode("ascii"))
+    def writes(self, string: str) -> None:
+        self.write(string.encode("utf-8", errors="replace"))

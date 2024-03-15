@@ -23,7 +23,7 @@ class ObjEncoder(FileEncoder[ModelData]):
             if self.flags.normals:
                 self._add_vertex_normals(mesh)
 
-            self.b.writeascii(f"g {mesh.name}\n")
+            self.b.writes(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh)
 
     @property
@@ -67,5 +67,5 @@ class ObjEncoder(FileEncoder[ModelData]):
         return "/".join([vertex_id] * self.references_count)
 
     def _write_vertex_data(self, data: list[str]) -> None:
-        self.b.writeascii("\n".join(data))
+        self.b.writes("\n".join(data))
         self.b.write(b"\n\n")
