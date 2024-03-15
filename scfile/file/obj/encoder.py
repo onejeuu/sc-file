@@ -5,8 +5,6 @@ from scfile.utils.model import Mesh, Polygon
 
 class ObjEncoder(FileEncoder[ModelData]):
     def serialize(self):
-        # TODO: Improve old implementation (maybe)
-
         self.model = self.data.model
         self.flags = self.data.model.flags
 

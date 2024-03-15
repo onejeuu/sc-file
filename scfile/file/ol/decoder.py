@@ -21,10 +21,8 @@ from .formats import SUPPORTED_FORMATS
 
 
 class OlDecoder(FileDecoder[OlFileIO, TextureData]):
-    # TODO: Fix type hints
-
     CONVERT_TO_RGBA8 = True
-    CONVERT_TO_DXT5 = True
+    CONVERT_TO_DXT5 = False
 
     def to_dds(self):
         return self.convert(DdsEncoder)
@@ -70,8 +68,6 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         self.compressed = self._read_sizes()
 
     def _decompress_image(self) -> None:
-        # TODO: Decompress all mipmaps
-
         compressed = self.f.read(self.compressed[0])
         uncompressed_size = self.uncompressed[0]
 

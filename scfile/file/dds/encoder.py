@@ -3,8 +3,10 @@ from scfile.enums import StructFormat as F
 from scfile.file.data import TextureData
 from scfile.file.encoder import FileEncoder
 
-from .bitmask import BITMASK
 from .structure import DDS
+
+
+RGBA8 = [0xFF, 0xFF00, 0xFF0000, 0xFF]
 
 
 class DdsEncoder(FileEncoder[TextureData]):
@@ -13,8 +15,6 @@ class DdsEncoder(FileEncoder[TextureData]):
         return Magic.DDS
 
     def serialize(self):
-        # TODO: Improve old implementation (maybe)
-
         self.b.writeb(F.U32, DDS.HEADER.SIZE)
         self.b.writeb(F.U32, self.flags)
         self.b.writeb(F.U32, self.data.height)
@@ -38,7 +38,7 @@ class DdsEncoder(FileEncoder[TextureData]):
             self.b.writeb(F.U32, DDS.PF.BIT_COUNT)  # BitCount
 
             # BitMasks
-            for mask in BITMASK(self.data.fourcc):
+            for mask in RGBA8:
                 self.b.writeb(F.U32, mask)
 
         self.b.writeb(F.U32, DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP)  # Caps1

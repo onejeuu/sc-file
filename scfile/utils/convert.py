@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from scfile import exceptions as exc
 from scfile.enums import FileSuffix
@@ -94,12 +94,11 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
             raise exc.UnsupportedSuffix(path)
 
 
-# TODO: Fix type hints
 def _convert(
     source: PathLike,
     output: Optional[PathLike],
-    decoder: type[FileDecoder],
-    encoder: type[FileEncoder],
+    decoder: type[FileDecoder[Any, Any]],
+    encoder: type[FileEncoder[Any]],
     new_suffix: str,
 ):
     src = Path(source)
