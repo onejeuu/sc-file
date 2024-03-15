@@ -24,9 +24,9 @@ class Magic:
 
 class Factor:
     # int range + 1
-    I8 = NORMALS = 0x80
-    U8 = BONE_WEIGHT = 0x100
-    I16 = XYZ = UV = 0x8000
+    I8 = 0x80
+    U8 = 0x100
+    I16 = 0x8000
     U16 = 0x10000
 
 

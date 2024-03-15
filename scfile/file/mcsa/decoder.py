@@ -118,7 +118,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             self._parse_texture()
 
         # ! unconfirmed
-        if self.flags[Flag.TANGENTS]:
+        if self.flags[Flag.BITANGENTS]:
             self._skip_vertices(size=4)
 
         # Vertex normals
@@ -126,7 +126,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             self._parse_normals()
 
         # ! unconfirmed
-        if self.flags[Flag.BITANGENTS]:
+        if self.flags[Flag.TANGENTS]:
             self._skip_vertices(size=4)
 
         # Skeleton bones
@@ -229,7 +229,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def _parse_colors(self):
         # Quite useless
-        self._skip_vertices(size=8)
+        self._skip_vertices(size=4)
         return
 
         # Could be rgba, but not that important

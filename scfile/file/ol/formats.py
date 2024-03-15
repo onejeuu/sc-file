@@ -1,4 +1,4 @@
-SUPPORTED_FORMATS = [
+SUPPORTED_FORMATS: list[bytes] = [
     b"DXT1",
     b"DXT3",
     b"DXT5",
