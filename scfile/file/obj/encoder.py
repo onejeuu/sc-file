@@ -1,18 +1,17 @@
 from scfile.file.data import ModelData
 from scfile.file.encoder import FileEncoder
-from scfile.utils.model import Mesh
+from scfile.utils.model import Mesh, Polygon
 
 
 class ObjEncoder(FileEncoder[ModelData]):
     def serialize(self):
         # TODO: Improve old implementation (maybe)
 
+        self.model = self.data.model
+        self.flags = self.data.model.flags
+
         self.offset = 0
         self.model.ensure_unique_names()
-
-        # TODO: Fix bad implementation via references_count (v/vt/vn)
-        # ? As rule almost models have texture but not normals
-        self.references_count = 1 + int(self.flags.texture) + int(self.flags.normals)
 
         for mesh in self.model.meshes:
             self._add_geometric_vertices(mesh)
@@ -25,14 +24,6 @@ class ObjEncoder(FileEncoder[ModelData]):
 
             self.b.writes(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh)
-
-    @property
-    def model(self):
-        return self.data.model
-
-    @property
-    def flags(self):
-        return self.data.model.flags
 
     def _add_geometric_vertices(self, mesh: Mesh) -> None:
         self._write_vertex_data(
@@ -50,22 +41,26 @@ class ObjEncoder(FileEncoder[ModelData]):
         )
 
     def _add_polygonal_faces(self, mesh: Mesh) -> None:
-        self._write_vertex_data(
-            [
-                f"f {self._vertex_id(p.a)} {self._vertex_id(p.b)} {self._vertex_id(p.c)}"
-                for p in mesh.polygons
-            ]
-        )
+        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.polygons])
 
         # TODO: Move this to parsing with backwards compatibility
         # Vertex id in mcsa are local to each mesh.
         self.offset += mesh.offset
 
-    def _vertex_id(self, v: int) -> str:
-        # TODO: Reduce number of calls
-        vertex_id = str(v + self.offset)
-        return "/".join([vertex_id] * self.references_count)
-
     def _write_vertex_data(self, data: list[str]) -> None:
         self.b.writes("\n".join(data))
         self.b.write(b"\n\n")
+
+    def _polygon_to_faces(self, polygon: Polygon):
+        a, b, c = polygon.a + self.offset, polygon.b + self.offset, polygon.c + self.offset
+
+        if self.flags.texture and self.flags.normals:
+            return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
+
+        if self.flags.texture:
+            return f"{a}/{a} {b}/{b} {c}/{c}"
+
+        if self.flags.normals:
+            return f"{a}//{a} {b}//{b} {c}//{c}"
+
+        return f"{a} {b} {c}"
