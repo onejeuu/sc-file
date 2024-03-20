@@ -116,4 +116,4 @@ def _convert(
 
     # Convert and save file
     with decoder(src) as dec:
-        dec.convert(encoder).save(dest)
+        dec.convert_to(encoder).save(dest)
