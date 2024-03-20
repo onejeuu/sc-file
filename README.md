@@ -140,14 +140,14 @@ obj = ObjEncoder(data)
 obj.encode().save("model.obj") # ? Encoder closes after saving
 ```
 
-Use encoding result bytes
+Use encoding content bytes
 
 ```python
 obj = ObjEncoder(data)
 obj.encode()
 
 with open("model.obj", "wb") as fp:
-    fp.write(obj.result)
+    fp.write(obj.content)
 
 obj.close() # ? Necessary to close
 ```

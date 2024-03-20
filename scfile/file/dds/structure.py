@@ -42,6 +42,8 @@ class CubemapFlag(IntFlag):
 
 
 class DDS:
+    """DDS Header Structure."""
+
     HEADER = Header
     PF = PixelFormat
     CUBEMAP = 0x200

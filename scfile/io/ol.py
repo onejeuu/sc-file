@@ -4,6 +4,7 @@ from scfile.io.binary import BinaryFileIO
 
 class OlFileIO(BinaryFileIO):
     def readfourcc(self):
+        """Read xor encoded FourCC."""
         # Read string and skip last 0x00 byte
         string = self.read(OlString.SIZE)[:-1]
 
