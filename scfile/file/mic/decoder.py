@@ -7,7 +7,7 @@ from scfile.io.binary import BinaryFileIO
 
 class MicDecoder(FileDecoder[BinaryFileIO, ImageData]):
     def to_png(self):
-        return self.convert(PngEncoder)
+        return self.convert_to(PngEncoder)
 
     @property
     def opener(self):

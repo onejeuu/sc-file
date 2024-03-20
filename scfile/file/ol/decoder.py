@@ -25,7 +25,7 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
     CONVERT_TO_DXT5 = False
 
     def to_dds(self):
-        return self.convert(DdsEncoder)
+        return self.convert_to(DdsEncoder)
 
     @property
     def opener(self):

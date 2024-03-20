@@ -8,7 +8,6 @@ class BinaryBytesIO(io.BytesIO, BinaryIO):
     pass
 
 
-# TODO: Fix type hints (if possible)
 class BinaryFileIO(io.FileIO, BinaryIO):
     @property
     def path(self) -> Path:

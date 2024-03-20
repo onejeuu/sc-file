@@ -1,7 +1,4 @@
-# SC FILE (3.0-dev) [WIP]
-
-> [!CAUTION]
-> This readme is outdated
+# SC FILE
 
 Library and Utility for converting encrypted stalcraft game files, such as models and textures into well-known formats.
 
@@ -124,6 +121,66 @@ convert.ol_to_dds("path/to/file.ol", "path/to/file.dds")
 
 # Or determinate it automatically
 convert.auto("path/to/file.mcsa")
+```
+
+### Advanced
+
+Default
+
+```python
+from scfile.file.data import ModelData
+from scfile.file.mcsa.decoder import McsaDecoder
+from scfile.file.obj.encoder import ObjEncoder
+
+mcsa = McsaDecoder("model.mcsa")
+data: ModelData = mcsa.decode()
+mcsa.close() # ? Necessary to close
+
+obj = ObjEncoder(data)
+obj.encode().save("model.obj") # ? Encoder closes after saving
+```
+
+Use encoding result bytes
+
+```python
+obj = ObjEncoder(data)
+obj.encode()
+
+with open("model.obj", "wb") as fp:
+    fp.write(obj.result)
+
+obj.close() # ? Necessary to close
+```
+
+Use convert methods
+
+```python
+mcsa = McsaDecoder("model.mcsa")
+mcsa.convert_to(ObjEncoder).save("model.obj")
+mcsa.close()
+```
+
+```python
+mcsa = McsaDecoder("model.mcsa")
+mcsa.to_obj().save("model.obj")
+mcsa.close() # ? Necessary to close
+```
+
+Use context manager (no need to manual close)
+
+```python
+with McsaDecoder("model.mcsa") as mcsa:
+    data: ModelData = mcsa.decode()
+
+with ObjEncoder(data) as obj:
+    obj.encode().save("model.obj")
+```
+
+Use context manager + convert methods
+
+```python
+with McsaDecoder("model.mcsa") as mcsa:
+    mcsa.to_obj().save("model.obj")
 ```
 
 # 🛠️ Build

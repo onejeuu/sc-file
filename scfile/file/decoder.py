@@ -68,13 +68,17 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         self._data = self.create_data()
         return self._data
 
-    def convert(self, encoder: type[FileEncoder[DATA]]) -> FileEncoder[DATA]:
-        # TODO: Fix bad implementation
-
+    def convert_to(self, encoder: type[FileEncoder[DATA]]) -> FileEncoder[DATA]:
         data = self.decode()
         enc = encoder(data)
         enc.encode()
         return enc
+
+    def convert(self, encoder: type[FileEncoder[DATA]]) -> bytes:
+        enc = self.convert_to(encoder)
+        result = enc.result
+        enc.close()
+        return result
 
     def read_signature(self) -> int:
         return self.f.readb(F.U32, ByteOrder.BIG)

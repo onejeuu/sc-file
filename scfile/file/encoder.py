@@ -49,10 +49,10 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
         if self.magic:
             self.b.write(bytes(self.magic))
 
-    def save(self, path: PathLike) -> None:
-        # TODO: Fix dubious implementation
-
+    def save_as(self, path: PathLike) -> None:
         with open(path, FileMode.WRITE) as fp:
             fp.write(self.result)
 
+    def save(self, path: PathLike) -> None:
+        self.save_as(path)
         self.close()

@@ -41,7 +41,6 @@ class ObjEncoder(FileEncoder[ModelData]):
     def _add_polygonal_faces(self, mesh: Mesh) -> None:
         self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.polygons])
 
-        # TODO: Move this to parsing with backwards compatibility
         # Vertex id in mcsa are local to each mesh.
         self.offset += mesh.offset
 

@@ -16,7 +16,7 @@ from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def to_obj(self):
-        return self.convert(ObjEncoder)
+        return self.convert_to(ObjEncoder)
 
     @property
     def opener(self):
