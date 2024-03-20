@@ -157,7 +157,7 @@ Use convert methods
 ```python
 mcsa = McsaDecoder("model.mcsa")
 mcsa.convert_to(ObjEncoder).save("model.obj")
-mcsa.close()
+mcsa.close() # ? Necessary to close
 ```
 
 ```python
