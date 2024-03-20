@@ -1,8 +1,8 @@
 # SC FILE
 
-Library and Utility for converting encrypted stalcraft game files, such as models and textures into well-known formats.
+Utility and Library for decoding and converting stalcraft assets files, such as models and textures into well-known formats.
 
-You can use executable utility from [Releases](https://github.com/onejeuu/sc-file/releases) page.
+You can use executable from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
 > [!WARNING]
 > Do not use game assets directly.
@@ -15,6 +15,12 @@ You can use executable utility from [Releases](https://github.com/onejeuu/sc-fil
 | Model   | .mcsa         | .obj          |
 | Texture | .ol           | .dds          |
 | Image   | .mic          | .png          |
+
+Model versions supported: 7.0, 8.0, 10.0
+
+Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, RGBA32F, DXN_XY
+
+Texture formats unsupported: Cubemaps (hdri, sky)
 
 # 💻 CLI Utility
 

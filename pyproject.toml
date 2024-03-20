@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "sc-file"
-version = "3.0.0-dev.19"
-description = "Library & Utility for converting stalcraft files"
+version = "3.0.0"
+description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
 license = "MIT"
 readme = "README.md"
