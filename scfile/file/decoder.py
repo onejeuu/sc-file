@@ -4,7 +4,7 @@ from typing import Generic, Optional, TypeVar
 
 from scfile.enums import ByteOrder, FileMode
 from scfile.enums import StructFormat as F
-from scfile.exceptions import InvalidSignature
+from scfile.exceptions import FileSignatureInvalid
 from scfile.file.base import BaseFile
 from scfile.file.data import FileData
 from scfile.file.encoder import FileEncoder
@@ -100,4 +100,4 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
             readed = self.read_signature()
 
             if readed != self.signature:
-                raise InvalidSignature(self.path, readed, self.signature)
+                raise FileSignatureInvalid(self.path, readed, self.signature)

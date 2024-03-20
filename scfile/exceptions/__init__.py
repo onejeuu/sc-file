@@ -2,8 +2,8 @@ from .base import ScFileException
 from .basic import (
     FileBasicError,
     FileNotFound,
-    FileTypeUnsupported,
-    InvalidSignature,
+    FileSuffixUnsupported,
+    FileSignatureInvalid,
 )
 from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
 from .mcsa import (

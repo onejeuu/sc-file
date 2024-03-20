@@ -26,14 +26,14 @@ class FileNotFound(FileBasicError):
         return f"{super().__str__()} not found (not exists)."
 
 
-class FileTypeUnsupported(FileBasicError):
+class FileSuffixUnsupported(FileBasicError):
     """Exception occurring when file cannot be decoded or encoded."""
 
     def __str__(self):
         return f"{super().__str__()} with suffix '{self.path.suffix}' is unsupported."
 
 
-class InvalidSignature(FileBasicError):
+class FileSignatureInvalid(FileBasicError):
     """Exception occurring when file signature does not match file type."""
 
     def __init__(self, path: PathLike, readed: int, signature: int):
