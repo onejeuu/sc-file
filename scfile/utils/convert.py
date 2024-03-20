@@ -72,7 +72,7 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
         Defaults to source path with new suffix.
 
     Raises:
-        UnsupportedSuffix - if source suffix not in `.mic`, `.ol`, `.mcsa`.
+        FileTypeUnsupported - if source suffix not in `.mic`, `.ol`, `.mcsa`.
 
     Example:
         `auto("C:/file.mic", "C:/file.png")`
@@ -91,7 +91,7 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
             mcsa_to_obj(source, output)
 
         case _:
-            raise exc.UnsupportedSuffix(path)
+            raise exc.FileTypeUnsupported(path)
 
 
 def _convert(
@@ -108,7 +108,7 @@ def _convert(
 
     # Check that file exists
     if not src.exists() or not src.is_file():
-        raise exc.SourceFileNotFound(src)
+        raise exc.FileNotFound(src)
 
     # If destination is directory save file in this directory
     if dest.is_dir():

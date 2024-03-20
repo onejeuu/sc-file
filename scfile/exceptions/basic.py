@@ -5,7 +5,7 @@ from scfile.types import PathLike
 from .base import ScFileException
 
 
-class ScFileBasicError(ScFileException):
+class FileBasicError(ScFileException):
     """Basic files exception. Occurring when file processing."""
 
     def __init__(self, path: PathLike):
@@ -18,25 +18,22 @@ class ScFileBasicError(ScFileException):
     def __str__(self):
         return f"File '{self.posix_path}'"
 
-class SourceFileNotFound(ScFileBasicError):
-    """Exception occurring when source (encrypted) file not found or does not exists."""
+
+class FileNotFound(FileBasicError):
+    """Exception occurring when file not found or does not exists."""
 
     def __str__(self):
         return f"{super().__str__()} not found (not exists)."
 
-class UnsupportedSuffix(ScFileBasicError):
-    """Exception occurring when file have unknown suffix."""
+
+class FileTypeUnsupported(FileBasicError):
+    """Exception occurring when file cannot be decoded or encoded."""
 
     def __str__(self):
         return f"{super().__str__()} with suffix '{self.path.suffix}' is unsupported."
 
-class FileIsEmpty(ScFileBasicError):
-    """Exception occurring when file is empty."""
 
-    def __str__(self):
-        return f"{super().__str__()} is empty."
-
-class InvalidSignature(ScFileBasicError):
+class InvalidSignature(FileBasicError):
     """Exception occurring when file signature does not match file type."""
 
     def __init__(self, path: PathLike, readed: int, signature: int):

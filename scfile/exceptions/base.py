@@ -1,3 +1,4 @@
 class ScFileException(Exception):
-    """Base exception."""
+    """Base exception of scfile."""
+
     pass

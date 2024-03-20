@@ -1,19 +1,19 @@
 from pathlib import Path
 
 from scfile.types import PathLike
-from scfile.file.mcsa.flags import McsaFlags
 
-from .convert import FileConvertingError, FileParsingError, FileUnsupportedError
+from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
 
 
-class McsaFileError(FileConvertingError):
+class McsaDecodingError(FileDecodingError):
     """Base mcsa model file exception."""
 
     def __str__(self):
         return f"Model '{self.posix_path}'"
 
-class McsaCountsLimit(McsaFileError, FileParsingError):
-    """Exception occurring when vertices or polygons count is not read correctly."""
+
+class McsaCountsLimit(McsaDecodingError, FileParsingError):
+    """Exception occurring when model counts is not read correctly."""
 
     def __init__(self, path: PathLike, counts: int):
         self.path = Path(path)
@@ -22,7 +22,8 @@ class McsaCountsLimit(McsaFileError, FileParsingError):
     def __str__(self):
         return f"{super().__str__()} has invalid format."
 
-class McsaUnknownLinkCount(McsaFileError, FileParsingError):
+
+class McsaUnknownLinkCount(McsaDecodingError, FileParsingError):
     """Exception occurring when model skeleton bones have unknown link count."""
 
     def __init__(self, path: PathLike, link_count: int):
@@ -32,7 +33,8 @@ class McsaUnknownLinkCount(McsaFileError, FileParsingError):
     def __str__(self):
         return f"{super().__str__()} has unknown bones link count: {self.link_count}"
 
-class McsaUnsupportedVersion(McsaFileError, FileUnsupportedError):
+
+class McsaUnsupportedVersion(McsaDecodingError, FileUnsupportedError):
     """Exception occurring when model version unsupported."""
 
     def __init__(self, path: PathLike, version: float):
@@ -41,13 +43,3 @@ class McsaUnsupportedVersion(McsaFileError, FileUnsupportedError):
 
     def __str__(self):
         return f"{super().__str__()} has unsupported version: {self.version}"
-
-class McsaUnsupportedFlags(McsaFileError, FileUnsupportedError):
-    """Exception occurring when model flags unsupported."""
-
-    def __init__(self, path: PathLike, flags: McsaFlags):
-        self.path = Path(path)
-        self.flags = flags
-
-    def __str__(self):
-        return f"{super().__str__()} has unsupported flags: {self.flags}"
