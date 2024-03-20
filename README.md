@@ -115,12 +115,12 @@ from scfile import convert
 
 # Output path is optional.
 # Defaults to source path with new suffix.
-convert.mcsa_to_obj("path/to/file.mcsa", "path/to/file.obj")
-convert.mic_to_png("path/to/file.mic", "path/to/file.png")
-convert.ol_to_dds("path/to/file.ol", "path/to/file.dds")
+convert.mcsa_to_obj("path/to/model.mcsa", "path/to/model.obj")
+convert.ol_to_dds("path/to/texture.ol", "path/to/texture.dds")
+convert.mic_to_png("path/to/image.mic", "path/to/image.png")
 
 # Or determinate it automatically
-convert.auto("path/to/file.mcsa")
+convert.auto("path/to/model.mcsa")
 ```
 
 ### Advanced
