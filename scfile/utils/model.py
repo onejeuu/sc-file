@@ -114,13 +114,11 @@ class Model:
     local: Local = field(default_factory=Local)
 
     def ensure_unique_names(self):
+        """Updates meshes names, excluding repetitions."""
         seen_names: set[str] = set()
 
         for mesh in self.meshes:
-            name = mesh.name
-
-            if not name:
-                name = "noname"
+            name = mesh.name or "noname"
 
             base_name, count = name, 2
             unique_name = f"{base_name}"

@@ -172,7 +172,18 @@ mcsa.to_obj().save("model.obj")
 mcsa.close() # ? Necessary to close
 ```
 
-Use context manager (no need to manual close)
+Save multiple copies
+
+```python
+mcsa = McsaDecoder(".test/extractor.mcsa")
+obj = mcsa.to_obj()
+obj.save_as("model_1.obj")
+obj.save_as("model_2.obj")
+mcsa.close() # ? Necessary to close
+obj.close() # ? Necessary to close
+```
+
+Use context manager
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
@@ -192,7 +203,7 @@ with McsaDecoder("model.mcsa") as mcsa:
 # 🛠️ Build
 
 > [!IMPORTANT]
-> You will need poetry to do compilation. Install it [here](https://python-poetry.org).
+> You will need [poetry](https://python-poetry.org) to do compilation.
 
 > [!TIP]
 > Before proceeding, it's recommended to create virtual environment

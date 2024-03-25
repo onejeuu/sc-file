@@ -20,7 +20,7 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
     def __init__(self, path: PathLike):
         self._path = path
 
-        self._file = self.opener(self.path, FileMode.READ)
+        self._file = self.opener(self.path, self.mode)
         self._file.order = self.order
 
         self._data: Optional[DATA] = None
@@ -52,6 +52,11 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
     def signature(self) -> Optional[int]:
         """Optional file signature (4 bytes)."""
         return None
+
+    @property
+    def mode(self) -> str:
+        """File opener mode."""
+        return FileMode.READ
 
     @property
     @abstractmethod
