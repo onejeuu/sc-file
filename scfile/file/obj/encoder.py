@@ -12,6 +12,8 @@ class ObjEncoder(FileEncoder[ModelData]):
         self.model.ensure_unique_names()
 
         for mesh in self.model.meshes:
+            self.b.writes(f"o {mesh.name}\n")
+
             self._add_geometric_vertices(mesh)
 
             if self.flags.texture:
