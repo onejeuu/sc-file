@@ -60,14 +60,14 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         if self.fourcc not in SUPPORTED_FORMATS:
             raise exc.OlUnknownFourcc(self.path, self.fourcc.decode())
 
-    def _read_sizes(self) -> list[int]:
+    def _read_sizes(self):
         return [self.f.readb(F.U32) for _ in range(self.mipmap_count)]
 
-    def _parse_sizes(self) -> None:
+    def _parse_sizes(self):
         self.uncompressed = self._read_sizes()
         self.compressed = self._read_sizes()
 
-    def _decompress_image(self) -> None:
+    def _decompress_image(self):
         compressed = self.f.read(self.compressed[0])
         uncompressed_size = self.uncompressed[0]
 

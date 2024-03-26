@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
+import pathlib
 from typing import TypeAlias
 
 
-PathLike: TypeAlias = str | os.PathLike[str] | Path
+PathLike: TypeAlias = str | os.PathLike[str] | pathlib.Path

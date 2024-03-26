@@ -27,31 +27,31 @@ class ObjEncoder(FileEncoder[ModelData]):
             self.b.writes(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh)
 
-    def _add_geometric_vertices(self, mesh: Mesh) -> None:
+    def _add_geometric_vertices(self, mesh: Mesh):
         f = self.FLOAT_FORMAT
         self._write_vertex_data(
             [f"v {v.position.x:{f}} {v.position.y:{f}} {v.position.z:{f}}" for v in mesh.vertices]
         )
 
-    def _add_texture_coordinates(self, mesh: Mesh) -> None:
+    def _add_texture_coordinates(self, mesh: Mesh):
         f = self.FLOAT_FORMAT
         self._write_vertex_data(
             [f"vt {v.texture.u:{f}} {1.0 - v.texture.v:{f}}" for v in mesh.vertices]
         )
 
-    def _add_vertex_normals(self, mesh: Mesh) -> None:
+    def _add_vertex_normals(self, mesh: Mesh):
         f = self.FLOAT_FORMAT
         self._write_vertex_data(
             [f"vn {v.normals.x:{f}} {v.normals.y:{f}} {v.normals.z:{f}}" for v in mesh.vertices]
         )
 
-    def _add_polygonal_faces(self, mesh: Mesh) -> None:
+    def _add_polygonal_faces(self, mesh: Mesh):
         self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.polygons])
 
         # Vertex id in mcsa are local to each mesh.
         self.offset += mesh.offset
 
-    def _write_vertex_data(self, data: list[str]) -> None:
+    def _write_vertex_data(self, data: list[str]):
         self.b.writes("\n".join(data))
         self.b.write(b"\n\n")
 

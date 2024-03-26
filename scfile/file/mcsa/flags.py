@@ -15,7 +15,7 @@ class McsaFlags:
         self._flags: dict[int, bool] = {}
 
     @property
-    def named_dict(self):
+    def named_dict(self) -> dict[str, bool]:
         return {Flag(key).name: value for key, value in self._flags.items()}
 
     def __getitem__(self, index: int) -> bool:

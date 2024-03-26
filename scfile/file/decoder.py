@@ -70,7 +70,7 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         pass
 
     @abstractmethod
-    def parse(self):
+    def parse(self) -> None:
         """Reading file and entering values into data."""
         pass
 

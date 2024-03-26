@@ -42,7 +42,7 @@ class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Vector = field(default_factory=Vector)
-    # color: Color = field(default_factory=Color)
+    color: Color = field(default_factory=Color)
     # bone: VertexBone = field(default_factory=VertexBone)
 
 
@@ -111,7 +111,7 @@ class Model:
     # skeleton: Skeleton = field(default_factory=Skeleton)
     flags: Flags = field(default_factory=Flags)
     scale: Scale = field(default_factory=Scale)
-    local: Local = field(default_factory=Local)
+    # local: Local = field(default_factory=Local)
 
     def ensure_unique_names(self):
         """Updates meshes names, excluding repetitions."""

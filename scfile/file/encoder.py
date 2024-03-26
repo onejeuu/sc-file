@@ -35,7 +35,7 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
         return None
 
     @property
-    def content(self):
+    def content(self) -> bytes:
         """Buffer content bytes."""
         return self.b.getvalue()
 

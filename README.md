@@ -70,7 +70,7 @@ scfile [OPTIONS] [FILES]...
    scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
    ```
 
-   _If the count of `FILES` and `-O` is different, as many files as possible will be converted._
+   _If the count of `FILES` and `--output` is different, as many files as possible will be converted._
 
 1. Convert all `.mcsa` files in the current directory:
 
@@ -78,7 +78,7 @@ scfile [OPTIONS] [FILES]...
    scfile *.mcsa
    ```
 
-   _In this case, `-O` accepts only a directory. Subdirectories are not included._
+   _In this case, `--output` accepts only a directory. Subdirectories are not included._
 
 1. Convert all `.mcsa` files with subdirectories to a specified directory:
 
@@ -86,7 +86,7 @@ scfile [OPTIONS] [FILES]...
    scfile **/*.mcsa -O path/to/dir
    ```
 
-   _In this case, `-O` accepts only a directory. With `-O` specified, directory structure is not duplicated._
+   _In this case, `--output` accepts only a directory. With `--output` specified, directory structure is not duplicated._
 
 # 📚 Library
 
@@ -172,17 +172,6 @@ mcsa.to_obj().save("model.obj")
 mcsa.close() # ? Necessary to close
 ```
 
-Save multiple copies
-
-```python
-mcsa = McsaDecoder(".test/extractor.mcsa")
-obj = mcsa.to_obj()
-obj.save_as("model_1.obj")
-obj.save_as("model_2.obj")
-mcsa.close() # ? Necessary to close
-obj.close() # ? Necessary to close
-```
-
 Use context manager
 
 ```python
@@ -198,6 +187,15 @@ Use context manager + convert methods
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
     mcsa.to_obj().save("model.obj")
+```
+
+Save multiple copies
+
+```python
+with McsaDecoder("model.mcsa") as mcsa:
+    with mcsa.to_obj() as obj:
+        obj.save_as("model_1.obj")
+        obj.save_as("model_2.obj")
 ```
 
 # 🛠️ Build
