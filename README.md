@@ -151,7 +151,7 @@ obj = ObjEncoder(data)
 obj.encode().save("model.obj") # ? Encoder closes after saving
 ```
 
-Use encoding content bytes
+Use encoded content bytes
 
 ```python
 obj = ObjEncoder(data)
