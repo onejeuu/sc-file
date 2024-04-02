@@ -77,9 +77,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             self.model.scale.normals = self.f.readb(F.F32)
 
     def _parse_meshes(self):
-        meshes_count = self.f.readb(F.U32)
+        self.meshes_count = self.f.readb(F.U32)
 
-        for _ in range(meshes_count):
+        for _ in range(self.meshes_count):
             self._parse_mesh()
 
     def _parse_mesh(self):

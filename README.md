@@ -4,9 +4,13 @@ Utility and Library for decoding and converting stalcraft assets files, such as 
 
 You can use executable from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
+> [!IMPORTANT]
+> This utility is designed for artworks and etc \
+> There is not and will not be any encoding back into game formats
+
 > [!WARNING]
-> Do not use game assets directly.
-> You can get banned for any changes in game client.
+> Do not use game assets directly \
+> You can get banned for any changes in game client
 
 # 📁 Formats
 
@@ -26,13 +30,14 @@ Texture formats unsupported: Cubemaps (hdri, sky)
 
 ## Usage
 
-You can drag and drop one or multiple files to `scfile.exe`.
-
 From bash:
 
 ```bash
-scfile [OPTIONS] [FILES]...
+scfile [FILES]... [OPTIONS]
 ```
+
+> [!TIP]
+> You can just drag and drop one or multiple files onto `scfile.exe`
 
 ## Arguments
 
@@ -201,7 +206,7 @@ with McsaDecoder("model.mcsa") as mcsa:
 # 🛠️ Build
 
 > [!IMPORTANT]
-> You will need [poetry](https://python-poetry.org) to do compilation.
+> You will need [poetry](https://python-poetry.org) to do compilation
 
 > [!TIP]
 > Before proceeding, it's recommended to create virtual environment
