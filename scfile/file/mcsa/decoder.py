@@ -54,13 +54,12 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def _parse_flags(self):
         self.flags = McsaFlags()
+        self.flags_count = VERSION_FLAGS.get(self.version)
 
-        flags_count = VERSION_FLAGS.get(self.version)
-
-        if not flags_count:
+        if not self.flags_count:
             raise exc.McsaUnsupportedVersion(self.path, self.version)
 
-        for index in range(flags_count):
+        for index in range(self.flags_count):
             self.flags[index] = self.f.readb(F.BOOL)
 
         self.model.flags.texture = self.flags[Flag.TEXTURE]
