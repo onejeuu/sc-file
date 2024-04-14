@@ -2,12 +2,13 @@ from enum import StrEnum, auto
 
 
 class FileSuffix(StrEnum):
-    MIC = auto()
-    OL = auto()
-    MCSA = auto()
-    PNG = auto()
     DDS = auto()
+    MCSA = auto()
+    MCVD = auto()
+    MIC = auto()
     OBJ = auto()
+    OL = auto()
+    PNG = auto()
 
 
 class FileMode(StrEnum):

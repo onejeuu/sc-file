@@ -30,6 +30,22 @@ def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
     _convert(source, output, McsaDecoder, ObjEncoder, FileSuffix.OBJ)
 
 
+def mcvd_to_obj(source: PathLike, output: Optional[PathLike] = None):
+    """
+    Converting `.mcvd` file to `.obj`.
+
+    Args:
+        source: Full path to `.mcvd` file.
+        output (optional): Full path to output `.obj` file.
+        Defaults to source path with new suffix.
+
+    Example:
+        `mcvd_to_obj("C:/file.mcvd", "C:/file.obj")`
+    """
+
+    _convert(source, output, McsaDecoder, ObjEncoder, FileSuffix.OBJ)
+
+
 def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
     """
     Converting `.mic` file to `.png`.
@@ -72,7 +88,7 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
         Defaults to source path with new suffix.
 
     Raises:
-        FileSuffixUnsupported - if source suffix not in `.mic`, `.ol`, `.mcsa`.
+        FileSuffixUnsupported - if source suffix not in consts.SUPPORTED_SUFFIXES.
 
     Example:
         `auto("C:/file.mic", "C:/file.png")`
@@ -81,14 +97,17 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
     path = Path(source)
 
     match path.suffix.lstrip("."):
+        case FileSuffix.MCSA:
+            mcsa_to_obj(source, output)
+
+        case FileSuffix.MCVD:
+            mcvd_to_obj(source, output)
+
         case FileSuffix.MIC:
             mic_to_png(source, output)
 
         case FileSuffix.OL:
             ol_to_dds(source, output)
-
-        case FileSuffix.MCSA:
-            mcsa_to_obj(source, output)
 
         case _:
             raise exc.FileSuffixUnsupported(path)

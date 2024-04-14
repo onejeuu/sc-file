@@ -55,7 +55,7 @@ class McsaSize:
 
 
 # Files suffixes that can be converted
-SUPPORTED_SUFFIXES = {FileSuffix.MIC, FileSuffix.OL, FileSuffix.MCSA}
+SUPPORTED_SUFFIXES = {FileSuffix.MIC, FileSuffix.OL, FileSuffix.MCSA, FileSuffix.MCVD}
 
 # Dds cubemap faces count
 # +x, -x, +y, -y, +z, -z

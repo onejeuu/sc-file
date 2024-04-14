@@ -18,6 +18,7 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 | Type    | Source format | Output format |
 | ------- | ------------- | ------------- |
 | Model   | .mcsa         | .obj          |
+| Model   | .mcvd         | .obj          |
 | Texture | .ol           | .dds          |
 | Image   | .mic          | .png          |
 
