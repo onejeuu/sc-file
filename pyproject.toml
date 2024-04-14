@@ -3,8 +3,14 @@ name = "sc-file"
 version = "3.0.7"
 description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <bloodtrail@beber1k.ru>"]
+
 license = "MIT"
 readme = "README.md"
+
+homepage = "https://github.com/onejeuu/sc-file"
+repository = "https://github.com/onejeuu/sc-file"
+documentation = "https://github.com/onejeuu/sc-file/?tab=readme-ov-file#usage-1"
+
 packages = [{ include = "scfile" }]
 
 [tool.poetry.dependencies]
