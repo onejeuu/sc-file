@@ -2,15 +2,16 @@
 
 Utility and Library for decoding and converting stalcraft assets files, such as models and textures into well-known formats.
 
-You can use executable from [Releases](https://github.com/onejeuu/sc-file/releases) page.
+Designed for artworks creation and the like.
 
-> [!IMPORTANT]
-> This utility is designed for artworks and etc \
-> There is not and will not be any encoding back into game formats
+> [!NOTE]
+> There is not and will not be encoding back into game formats.
 
 > [!WARNING]
-> Do not use game assets directly \
-> You can get banned for any changes in game client
+> Do not use game assets directly. \
+> Any changes in game client can be detected.
+
+You can use executable program from [Releases](https://github.com/onejeuu/sc-file/releases) page.
 
 # 📁 Formats
 
@@ -37,7 +38,7 @@ scfile [FILES]... [OPTIONS]
 ```
 
 > [!TIP]
-> You can just drag and drop one or multiple files onto `scfile.exe`
+> You can just drag and drop one or multiple files onto `scfile.exe`.
 
 ## Arguments
 
@@ -45,7 +46,7 @@ scfile [FILES]... [OPTIONS]
 
 ## Options
 
-- `-O`, `--output`: **One path to output file or directory**. Can be specified multiple times for different output files or directories. If not specified, file will be saved in the same directory with a new suffix. You can specify multiple `FILES` and a single `--output` directory.
+- `-O`, `--output`: **One path to output file or directory**. Can be specified multiple times for different output files or directories. If not specified, file will be saved in same directory with a new suffix. You can specify multiple `FILES` and a single `--output` directory.
 
 ## Examples
 
@@ -55,29 +56,29 @@ scfile [FILES]... [OPTIONS]
    scfile file.mcsa
    ```
 
-   _Will be saved in the same directory with a new suffix._
+   _Will be saved in same directory with a new suffix._
 
-1. Convert a single file with a specified path or name:
+2. Convert a single file with a specified path or name:
 
    ```bash
    scfile file.mcsa --output path/to/file.obj
    ```
 
-1. Convert multiple files to a specified directory:
+3. Convert multiple files to a specified directory:
 
    ```bash
    scfile file1.mcsa file2.mcsa --output path/to/dir
    ```
 
-1. Convert multiple files with explicitly specified output files:
+4. Convert multiple files with explicitly specified output files:
 
    ```bash
    scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
    ```
 
-   _If the count of `FILES` and `--output` is different, as many files as possible will be converted._
+   _If count of `FILES` and `--output` is different, as many files as possible will be converted._
 
-1. Convert all `.mcsa` files in the current directory:
+5. Convert all `.mcsa` files in current directory:
 
    ```bash
    scfile *.mcsa
@@ -85,7 +86,7 @@ scfile [FILES]... [OPTIONS]
 
    _In this case, `--output` accepts only a directory. Subdirectories are not included._
 
-1. Convert all `.mcsa` files with subdirectories to a specified directory:
+6. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
    scfile **/*.mcsa -O path/to/dir
@@ -206,10 +207,10 @@ with McsaDecoder("model.mcsa") as mcsa:
 # 🛠️ Build
 
 > [!IMPORTANT]
-> You will need [poetry](https://python-poetry.org) to do compilation
+> You will need [poetry](https://python-poetry.org) to do compilation.
 
 > [!TIP]
-> Before proceeding, it's recommended to create virtual environment
+> Recommended to create virtual environment.
 >
 > ```bash
 > poetry shell
