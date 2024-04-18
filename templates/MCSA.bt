@@ -104,6 +104,9 @@ struct Header {
             Flags8 flags <name="Flags", bgcolor=CYAN>; break;
         case 10.0:
             Flags10 flags <name="Flags", bgcolor=CYAN>; break;
+        default:
+            Printf( "ERROR: Mcsa file version '%g' is unsupported.\n", version);
+            Exit(0);
     }
 
     float scale_positions <name="Positions scale", bgcolor=BLACK>;
