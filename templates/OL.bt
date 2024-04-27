@@ -1,0 +1,47 @@
+//------------------------------------------------
+// File: OL.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse OL texture files.
+// Category: STALCRAFT
+// File Mask: *.ol
+// ID Bytes: 0A 95 23 FD
+//------------------------------------------------
+
+
+// Colors
+
+enum BG {
+    WHITE = 0xEEEEEEE,
+    BLACK = 0x707070,
+    GRAY = 0xDDDDDD,
+    YELLOW = 0x70FFFF,
+    PINK = 0xFF70FF,
+    CYAN = 0xFFEE70,
+    GREEN = 0x70EE70,
+    RED = 0x7070EE,
+};
+
+
+// Texture
+
+BigEndian();
+
+char signature[4] <name="Signature", bgcolor=GRAY>;
+
+struct Header {
+    uint width <name="Width", bgcolor=CYAN>;
+    uint height <name="Height", bgcolor=CYAN>;
+    uint mipmaps <name="Mipmaps Count", bgcolor=PINK>;
+    char fourcc[17] <name="FourCC", comment="Xor Encoded", bgcolor=YELLOW>;
+} header <name="Header">;
+
+struct Sizes {
+    uint uncompressed[header.mipmaps] <name="Uncompressed", bgcolor=GREEN>;
+    uint compressed[header.mipmaps] <name="Compressed", bgcolor=RED>;
+} sizes <name="LZ4 Sizes">;
+
+
+// Packed image (lz4 blocks)
+
+byte imagedata[FileSize() - FTell()] <name="Image", bgcolor=WHITE>;

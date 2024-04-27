@@ -1,9 +1,9 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 1.0
+// Version: 1.1
 // Purpose: Parse MCSA model files.
-// Category: 3D Graphic
+// Category: STALCRAFT
 // File Mask: *.mcsa,*.mcvd
 // ID Bytes: 4D 43 53 41 // MCSA
 //------------------------------------------------
@@ -27,8 +27,7 @@ enum BG {
 
 struct String {
     ushort size <bgcolor=BLACK>;
-    if ( size > 0 )
-        char str[size] <bgcolor=YELLOW>;
+    char str[size] <bgcolor=YELLOW, optimize=false>;
 };
 
 struct Vec2 {
@@ -89,12 +88,9 @@ struct Flags10 {
 
 // Model Header
 
-struct Signature {
-    char signature[4];
-};
+char signature[4] <name="Signature", bgcolor=GRAY>;
 
 struct Header {
-    Signature signature <name="Signature", bgcolor=GRAY>;
     float version <name="Version", bgcolor=PINK>;
 
     switch( version ) {
@@ -114,8 +110,9 @@ struct Header {
     if ( flags.TEXTURE )
         float scale_texture <name="Texture scale", bgcolor=BLACK>;
 
-    if ( version >= 10.0 & flags.NORMALS )
-        float scale_normals <name="Normals scale", bgcolor=BLACK>;
+    if ( version == 10.0 )
+        if ( flags.NORMALS )
+            float scale_normals <name="Normals scale", bgcolor=BLACK>;
 } header <name="Header">;
 
 
@@ -150,7 +147,7 @@ struct Mesh {
     if ( header.flags.TEXTURE )
         float scale_unknown <name="Unknown scale", bgcolor=BLACK>;
 
-    if ( header.version >= 10.0 )
+    if ( header.version == 10.0 )
         Locals locals <name="Locals", bgcolor=BLACK>;
 
     Vec4 positions[counts.vertices] <name="Positions", bgcolor=GREEN>;
@@ -181,7 +178,6 @@ struct Mesh {
             case 3:
             case 4:
                 byte _bones[counts.vertices*8] <bgcolor=BLACK, hidden=true>; break;
-            default : break;
         }
 
     if ( header.version == 10.0 )
@@ -230,16 +226,12 @@ struct Frame {
     BoneNode bone[skeleton.count] <name="Bone", comment="Unconfirmed">;
 };
 
-struct Frames {
+struct Anim {
+    String name <name=Str("Name: '%s'", this.str)>;
     uint count <name="Count", bgcolor=PINK>;
     float tickrate <name="Tickrate", bgcolor=CYAN>;
     if ( count > 0 )
         Frame frame[count] <name="Frame", optimize=false>;
-};
-
-struct Anim {
-    String name <name=Str("Name: '%s'", this.str)>;
-    Frames frames <name="Frames">;
 };
 
 // Not sure where exactly marked that file contains animations.
