@@ -17,7 +17,7 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 | Type    | Source format | Output format |
 | ------- | ------------- | ------------- |
-| Model   | .mcsa         | .obj          |
+| Model   | .mcsa         | .obj, .txt    |
 | Model   | .mcvd         | .obj          |
 | Texture | .ol           | .dds          |
 | Image   | .mic          | .png          |
@@ -131,6 +131,9 @@ from scfile import convert
 convert.mcsa_to_obj("path/to/model.mcsa", "path/to/model.obj")
 convert.ol_to_dds("path/to/texture.ol", "path/to/texture.dds")
 convert.mic_to_png("path/to/image.mic", "path/to/image.png")
+
+# Skeleton supports via MilkShape3D
+convert.mcsa_to_ms3d_ascii("path/to/model.mcsa", "path/to/model.txt")
 
 # Or determinate it automatically
 convert.auto("path/to/model.mcsa")
