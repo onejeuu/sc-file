@@ -114,6 +114,7 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
     match path.suffix.lstrip("."):
         case FileSuffix.MCSA:
             mcsa_to_obj(source, output)
+            mcsa_to_ms3d_ascii(source, output)
 
         case FileSuffix.MCVD:
             mcvd_to_obj(source, output)
