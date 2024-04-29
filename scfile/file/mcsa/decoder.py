@@ -220,6 +220,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             v.bone = VertexBone()
             for i in range(4):
                 v.bone.ids[i] = self.mesh.bones[self.f.readb(F.U8)]
+                
+        for v in self.mesh.vertices:
             for i in range(4):
                 v.bone.weights[i] = self.f.readb(F.U8) / 255
 
