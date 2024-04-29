@@ -10,6 +10,10 @@ class Vector:
     y: float = 0.0
     z: float = 0.0
 
+    def sub(self, vec):
+        self.x -= vec.x
+        self.y -= vec.y
+        self.z -= vec.z
 
 @dataclass
 class Texture:
@@ -42,8 +46,8 @@ class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Vector = field(default_factory=Vector)
+    bone: VertexBone = field(default_factory=VertexBone)
     # color: Color = field(default_factory=Color)
-    # bone: VertexBone = field(default_factory=VertexBone)
 
 
 @dataclass
@@ -108,7 +112,7 @@ class Local:
 @dataclass
 class Model:
     meshes: List[Mesh] = field(default_factory=list)
-    # skeleton: Skeleton = field(default_factory=Skeleton)
+    skeleton: Skeleton = field(default_factory=Skeleton)
     flags: Flags = field(default_factory=Flags)
     scale: Scale = field(default_factory=Scale)
     # local: Local = field(default_factory=Local)

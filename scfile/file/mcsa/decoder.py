@@ -8,7 +8,7 @@ from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Mesh, Model
+from scfile.utils.model import Bone, Mesh, Model, Vector, VertexBone
 
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -37,6 +37,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self._create_model()
         self._parse_header()
         self._parse_meshes()
+        self._parse_skeleton()
 
     def _create_model(self):
         self.model = Model()
@@ -207,12 +208,20 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
                 raise exc.McsaUnknownLinkCount(self.path, self.count.links)
 
     def _parse_bone_packed(self):
-        # Still no export support yet
-        self._skip_vertices(size=4)
+        for v in self.mesh.vertices:
+            v.bone = VertexBone()
+            for i in range(2):
+                v.bone.ids[i] = self.mesh.bones[self.f.readb(F.U8)]
+            for i in range(2):
+                v.bone.weights[i] = self.f.readb(F.U8) / 255
 
     def _parse_bone_plains(self):
-        # Still no export support yet
-        self._skip_vertices(size=8)
+        for v in self.mesh.vertices:
+            v.bone = VertexBone()
+            for i in range(4):
+                v.bone.ids[i] = self.mesh.bones[self.f.readb(F.U8)]
+            for i in range(4):
+                v.bone.weights[i] = self.f.readb(F.U8) / 255
 
     def _parse_colors(self):
         # Quite useless
@@ -249,5 +258,33 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             polygon.c = c
 
     def _parse_skeleton(self):
-        # Still no export support yet
-        return
+        self.model.skeleton.bones = [Bone() for _ in range(self.f.readb(F.U8))]
+
+        for bone in self.model.skeleton.bones:
+            i = self.model.skeleton.bones.index(bone)
+            bone.name = self.f.reads().decode()
+            bone.parent_id = self.f.readb(F.U8)
+            if bone.parent_id == self.model.skeleton.bones.index(bone):
+                bone.parent_id = -1
+            bone.position = Vector()
+            bone.position.x = self.f.readb(F.F32)
+            bone.position.y = self.f.readb(F.F32)
+            bone.position.z = self.f.readb(F.F32)
+            bone.rotation.x = self.f.readb(F.F32)
+            bone.rotation.y = self.f.readb(F.F32)
+            bone.rotation.z = self.f.readb(F.F32)
+            self.model.skeleton.bones[i] = bone
+
+        self._convert_skeleton_to_local()
+
+    def _convert_skeleton_to_local(self):
+        parent_id = 0
+        bones = self.model.skeleton.bones
+        for b in bones:
+            b.rotation = Vector()
+            parent_id = b.parent_id
+            while parent_id >= 0:
+                b.position.sub(bones[parent_id].position)
+                parent_id = self.model.skeleton.bones[parent_id].parent_id
+
+            

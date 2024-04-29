@@ -7,6 +7,7 @@ class FileSuffix(StrEnum):
     MCVD = auto()
     MIC = auto()
     OBJ = auto()
+    TXT = auto()
     OL = auto()
     PNG = auto()
 
