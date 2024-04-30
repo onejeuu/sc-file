@@ -223,12 +223,12 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def _parse_bone_id(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
-            bone_id = self.f.readb(F.I8)
+            bone_id = self.f.readb(F.U8)
             vertex.bone.ids[index] = self.mesh.bones.get(bone_id, McsaModel.ROOT_BONE_ID)
 
     def _parse_bone_weight(self, vertex: Vertex, size: int) -> None:
         for index in range(size):
-            bone_weight = self.f.readb(F.I8)
+            bone_weight = self.f.readb(F.U8)
             vertex.bone.weights[index] = bone_weight / Factor.U8
 
     def _parse_colors(self):
@@ -265,7 +265,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
         self.bone.name = self.f.readstring()
 
-        parent_id = self.f.readb(F.I8)
+        parent_id = self.f.readb(F.U8)
         self.bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
 
         self._parse_bone_position()
