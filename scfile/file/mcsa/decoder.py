@@ -1,12 +1,12 @@
 from scfile import exceptions as exc
-from scfile.consts import Factor, McsaSize, Signature
+from scfile.consts import Factor, McsaModel, McsaSize, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Bone, Mesh, Model, Vector, VertexBone
+from scfile.utils.model import Bone, Mesh, Model, Vector, VertexBone, Vertex
 
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -202,23 +202,27 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             case _:
                 raise exc.McsaUnknownLinkCount(self.path, self.count.links)
 
-    def _parse_bone_packed(self):
-        for v in self.mesh.vertices:
-            v.bone = VertexBone()
-            for i in range(2):
-                v.bone.ids[i] = self.mesh.bones[self.f.readb(F.U8)]
-            for i in range(2):
-                v.bone.weights[i] = self.f.readb(F.U8) / 255
+    def _parse_bone_packed(self) -> None:
+        for vertex in self.mesh.vertices:
+            self._parse_bone_id(vertex, 2)
+            self._parse_bone_weight(vertex, 2)
 
-    def _parse_bone_plains(self):
-        for v in self.mesh.vertices:
-            v.bone = VertexBone()
-            for i in range(4):
-                v.bone.ids[i] = self.mesh.bones[self.f.readb(F.U8)]
-                
-        for v in self.mesh.vertices:
-            for i in range(4):
-                v.bone.weights[i] = self.f.readb(F.U8) / 255
+    def _parse_bone_plains(self) -> None:
+        for vertex in self.mesh.vertices:
+            self._parse_bone_id(vertex, 4)
+
+        for vertex in self.mesh.vertices:
+            self._parse_bone_weight(vertex, 4)
+
+    def _parse_bone_id(self, vertex: Vertex, size: int) -> None:
+        for index in range(size):
+            bone_id = self.f.readb(F.I8)
+            vertex.bone.ids[index] = self.mesh.bones.get(bone_id, McsaModel.ROOT_BONE_ID)
+
+    def _parse_bone_weight(self, vertex: Vertex, size: int) -> None:
+        for index in range(size):
+            bone_weight = self.f.readb(F.I8)
+            vertex.bone.weights[index] = bone_weight / Factor.U8
 
     def _parse_colors(self):
         # Quite useless
@@ -270,5 +274,3 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             while parent_id >= 0:
                 b.position.sub(bones[parent_id].position)
                 parent_id = self.model.skeleton.bones[parent_id].parent_id
-
-            
