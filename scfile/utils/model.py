@@ -65,9 +65,11 @@ class Mesh:
 
     @property
     def offset(self) -> int:
-        return len(self.vertices)
+        """Count of vertices. To shift vertex indexes of polygons."""
+        return self.count.vertices
 
     def resize(self) -> None:
+        """Fills vertices & polygons by their counts."""
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]
 

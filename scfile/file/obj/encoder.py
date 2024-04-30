@@ -10,8 +10,10 @@ class ObjEncoder(FileEncoder[ModelData]):
         self.model = self.data.model
         self.flags = self.data.model.flags
 
-        self.offset = 0
         self.model.ensure_unique_names()
+
+        # In obj vertex indexes 1-based
+        self.offset = 1
 
         for mesh in self.model.meshes:
             self.b.writes(f"o {mesh.name}\n")

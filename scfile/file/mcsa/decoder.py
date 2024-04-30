@@ -1,5 +1,3 @@
-import numpy as np
-
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaSize, Signature
 from scfile.enums import ByteOrder
@@ -85,8 +83,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.mesh = Mesh()
 
         # Name & Material
-        self.mesh.name = self.f.reads().decode()
-        self.mesh.material = self.f.reads().decode()
+        self.mesh.name = self.f.readstring()
+        self.mesh.material = self.f.readstring()
 
         # Skeleton bone indexes
         if self.flags[Flag.SKELETON]:
@@ -161,16 +159,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Quite useless
         self.f.read(6 * 4)
 
-    def _read_vertex_data(self, fmt: str, factor: float, size: int, scale: float = 1.0):
-        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.vertices)
-
-        scaled = np.array(data) * scale / factor
-        reshaped = scaled.reshape(-1, size)
-
-        return reshaped
-
     def _parse_position(self):
-        xyzw = self._read_vertex_data(F.I16, Factor.I16, McsaSize.POSITION, self.scale.position)
+        count = self.count.vertices
+        scale = self.scale.position
+        xyzw = self.f.readvertex(F.I16, Factor.I16, McsaSize.POSITION, count, scale)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.position.x = x
@@ -178,14 +170,17 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.position.z = z
 
     def _parse_texture(self):
-        uv = self._read_vertex_data(F.I16, Factor.I16, McsaSize.TEXTURE, self.scale.texture)
+        count = self.count.vertices
+        scale = self.scale.texture
+        uv = self.f.readvertex(F.I16, Factor.I16, McsaSize.TEXTURE, count, scale)
 
         for vertex, (u, v) in zip(self.vertices, uv):
             vertex.texture.u = u
             vertex.texture.v = v
 
     def _parse_normals(self):
-        xyzw = self._read_vertex_data(F.I8, Factor.I8, McsaSize.NORMALS)
+        count = self.count.vertices
+        xyzw = self.f.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.normals.x = x
@@ -227,21 +222,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.color.g = g
             vertex.color.b = b
 
-    def _read_polygons_data(self):
-        size = McsaSize.POLYGONS
-        count = self.count.polygons * size
-        fmt = F.U16 if count < Factor.U16 else F.U32
-
-        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.polygons)
-
-        # In mcsa vertex indexes 0-based
-        shifted = np.array(data) + 1
-        reshaped = shifted.reshape(-1, size)
-
-        return reshaped
-
     def _parse_polygons(self):
-        abc = self._read_polygons_data()
+        abc = self.f.readpolygons(self.count.polygons)
 
         for polygon, (a, b, c) in zip(self.mesh.polygons, abc):
             polygon.a = a

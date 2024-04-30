@@ -39,7 +39,7 @@ class BinaryIO(StructBufferedIOBase):
         self.write(data)
 
     def writen(self, count: int = 1, size: int = 4) -> None:
-        """Fill buffer with 4 bytes zeros."""
+        """Fill buffer with zeros by size (4 bytes)."""
         self.write(bytes(size * count))
 
     def writes(self, string: str) -> None:
