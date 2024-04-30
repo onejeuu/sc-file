@@ -6,7 +6,7 @@ from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Bone, Mesh, Model, Vector, Vertex
+from scfile.utils.model import Bone, Mesh, Model, Vertex
 
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -253,7 +253,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         for index in range(bones_count):
             self._parse_bone(index)
 
-        self._convert_skeleton_to_local()
+        self.model.skeleton.convert_to_local()
 
     def _parse_bone(self, index: int) -> None:
         self.bone = Bone()
@@ -277,13 +277,3 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.bone.rotation.x = self.f.readb(F.F32)
         self.bone.rotation.y = self.f.readb(F.F32)
         self.bone.rotation.z = self.f.readb(F.F32)
-
-    def _convert_skeleton_to_local(self):
-        parent_id = 0
-        bones = self.model.skeleton.bones
-        for b in bones:
-            b.rotation = Vector()
-            parent_id = b.parent_id
-            while parent_id >= 0:
-                b.position.sub(bones[parent_id].position)
-                parent_id = self.model.skeleton.bones[parent_id].parent_id

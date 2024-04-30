@@ -10,10 +10,11 @@ class Vector:
     y: float = 0.0
     z: float = 0.0
 
-    def sub(self, vec: Self):
+    def __sub__(self, vec: Self):
         self.x -= vec.x
         self.y -= vec.y
         self.z -= vec.z
+        return self
 
 
 @dataclass
@@ -90,6 +91,17 @@ class Bone:
 @dataclass
 class Skeleton:
     bones: List[Bone] = field(default_factory=list)
+
+    def convert_to_local(self):
+        parent_id = 0
+        bones = self.bones
+        for bone in bones:
+            bone.rotation = Vector()
+            parent_id = bone.parent_id
+
+            while parent_id >= 0:
+                bone.position -= bones[parent_id].position
+                parent_id = bones[parent_id].parent_id
 
 
 @dataclass
