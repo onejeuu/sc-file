@@ -1,80 +1,127 @@
+from scfile.consts import McsaModel
 from scfile.file.data import ModelData
 from scfile.file.encoder import FileEncoder
+from scfile.utils.model import Mesh, Vertex
 
 
 class Ms3dAsciiEncoder(FileEncoder[ModelData]):
     FLOAT_FORMAT = ".11f"
+    SEPARATOR = "\x0d\x0a"
 
     def serialize(self):
-        f = self.FLOAT_FORMAT
         self.model = self.data.model
+        self.meshes = self.data.model.meshes
         self.flags = self.data.model.flags
 
         self.offset = 0
         self.model.ensure_unique_names()
 
-        self.b.writes("// MilkShape 3D ASCII\x0d\x0a\x0d\x0a")
-        self.b.writes("Frames: 30\x0d\x0a")
-        self.b.writes("Frame: 1\x0d\x0a\x0d\x0a")
-        self.b.writes(f"Meshes: {len(self.model.meshes)}\x0d\x0a")
+        self._add_header()
+        self._add_meshes()
+        self._add_materials()
+        self._add_skeleton()
+        self._add_stats()
 
-        for m in self.model.meshes:
-            i = self.model.meshes.index(m)
-            self.b.writes(f'"{i}_{m.name}" 0 {i}\x0d\x0a')
-            self.b.writes(f"{len(m.vertices)}\x0d\x0a")
+    def _add_header(self):
+        s = self.SEPARATOR
+        self.b.writes(f"// MilkShape 3D ASCII{s}{s}")
+        self.b.writes(f"Frames: 30{s}")
+        self.b.writes(f"Frame: 1{s}{s}")
+        self.b.writes(f"Meshes: {len(self.meshes)}{s}")
 
-            for v in m.vertices:
-                id = -1
-                weight = 0
-                for key, value in v.bone.ids.items():
-                    if v.bone.weights[key] > weight:
-                        id = value
-                        weight = v.bone.weights[key]
+    def _add_meshes(self):
+        s = self.SEPARATOR
 
-                self.b.writes(
-                    f"0 {v.position.x:{f}} {v.position.y:{f}} {v.position.z:{f}} {v.texture.u:{f}} {v.texture.v:{f}} {id}\x0d\x0a"
-                )
+        for index, mesh in enumerate(self.meshes):
+            self.b.writes(f'"{index}_{mesh.name}" 0 {index}{s}')
 
-            self.b.writes(f"{len(m.vertices)}\x0d\x0a")
-            for v in m.vertices:
-                self.b.writes(f"{v.normals.x:{f}} {v.normals.y:{f}} {v.normals.z:{f}}\x0d\x0a")
+            self._add_vertices(mesh)
+            self._add_normals(mesh)
+            self._add_polygons(mesh)
 
-            self.b.writes(f"{len(m.polygons)}\x0d\x0a")
-            for p in m.polygons:
-                self.b.writes(f"0 {p.a-1} {p.b-1} {p.c-1} {p.a-1} {p.b-1} {p.c-1} 1\x0d\x0a")
+    def _get_bone_id(self, v: Vertex) -> int:
+        bone_id = McsaModel.ROOT_BONE_ID
+        weight = 0
+        for key, value in v.bone.ids.items():
+            if v.bone.weights[key] > weight:
+                bone_id = value
+                weight = v.bone.weights[key]
+        return bone_id
 
-        self.b.writes(f"\x0d\x0aMaterials: {len(self.model.meshes)}\x0d\x0a")
-        for m in self.model.meshes:
-            i = self.model.meshes.index(m)
-            self.b.writes(f'"{i}_{m.material}"\x0d\x0a')
-            self.b.writes("0.200000 0.200000 0.200000 1.000000\x0d\x0a")
-            self.b.writes("0.800000 0.800000 0.800000 1.000000\x0d\x0a")
-            self.b.writes("0.000000 0.000000 0.000000 1.000000\x0d\x0a")
-            self.b.writes("0.000000 0.000000 0.000000 1.000000\x0d\x0a")
-            self.b.writes("0.000000\x0d\x0a")
-            self.b.writes("1.000000\x0d\x0a")
-            self.b.writes('""\x0d\x0a')
-            self.b.writes('""\x0d\x0a')
+    def _add_vertices(self, mesh: Mesh):
+        f = self.FLOAT_FORMAT
+        s = self.SEPARATOR
 
-        self.b.writes("\x0d\x0a")
+        self.b.writes(f"{len(mesh.vertices)}{s}")
 
-        if not self.model.skeleton:
-            self.b.writes("Bones: 0\x0d\x0a")
-        else:
-            self.b.writes("Bones: {len(self.model.skeleton.bones)}\x0d\x0a")
-            for b in self.model.skeleton.bones:
-                self.b.writes(f'"{b.name}"\x0d\x0a')
-                if b.parent_id < 0:
-                    self.b.writes('""\x0d\x0a')
-                else:
-                    self.b.writes(f'"{self.model.skeleton.bones[b.parent_id].name}"\x0d\x0a')
-                self.b.writes(
-                    f"0 {b.position.x} {b.position.y} {b.position.z} {b.rotation.x} {b.rotation.y} {b.rotation.z}\x0d\x0a"
-                )
-                self.b.writes("0\x0d\x0a")
-                self.b.writes("0\x0d\x0a")
+        for v in mesh.vertices:
+            bone_id = self._get_bone_id(v)
 
-        self.b.writes("GroupComments: 0\x0d\x0a")
-        self.b.writes("MaterialComments: 0\x0d\x0a")
-        self.b.writes("BoneComments: 0\x0d\x0a")
-        self.b.writes("ModelComment: 0\x0d\x0a")
+            self.b.writes(
+                f"0 {v.position.x:{f}} {v.position.y:{f}} {v.position.z:{f}} {v.texture.u:{f}} {v.texture.v:{f}} {bone_id}{s}"
+            )
+
+    def _add_normals(self, mesh: Mesh):
+        f = self.FLOAT_FORMAT
+        s = self.SEPARATOR
+
+        self.b.writes(f"{len(mesh.vertices)}{s}")
+
+        for v in mesh.vertices:
+            self.b.writes(f"{v.normals.x:{f}} {v.normals.y:{f}} {v.normals.z:{f}}{s}")
+
+    def _add_polygons(self, mesh: Mesh):
+        s = self.SEPARATOR
+
+        self.b.writes(f"{len(mesh.polygons)}{s}")
+
+        for p in mesh.polygons:
+            self.b.writes(f"0 {p.a} {p.b} {p.c} {p.a} {p.b} {p.c} 1{s}")
+
+    def _add_materials(self):
+        s = self.SEPARATOR
+
+        self.b.writes(f"{s}Materials: {len(self.model.meshes)}{s}")
+
+        for index, mesh in enumerate(self.model.meshes):
+            self.b.writes(f'"{index}_{mesh.material}"{s}')
+            self.b.writes(f"0.200000 0.200000 0.200000 1.000000{s}")
+            self.b.writes(f"0.800000 0.800000 0.800000 1.000000{s}")
+            self.b.writes(f"0.000000 0.000000 0.000000 1.000000{s}")
+            self.b.writes(f"0.000000 0.000000 0.000000 1.000000{s}")
+            self.b.writes(f"0.000000{s}")
+            self.b.writes(f"1.000000{s}")
+            self.b.writes(f'""{s}')
+            self.b.writes(f'""{s}')
+            self.b.writes(s)
+
+    def _add_skeleton(self):
+        s = self.SEPARATOR
+
+        if not self.flags.skeleton:
+            self.b.writes(f"Bones: 0{s}")
+            return
+
+        self.b.writes(f"Bones: {len(self.model.skeleton.bones)}{s}")
+
+        for b in self.model.skeleton.bones:
+            self.b.writes(f'"{b.name}"{s}')
+
+            if b.parent_id < 0:
+                self.b.writes(f'""{s}')
+            else:
+                parent_name = self.model.skeleton.bones[b.parent_id].name
+                self.b.writes(f'"{parent_name}"{s}')
+
+            self.b.writes(
+                f"0 {b.position.x} {b.position.y} {b.position.z} {b.rotation.x} {b.rotation.y} {b.rotation.z}{s}"
+            )
+            self.b.writes(f"0{s}")
+            self.b.writes(f"0{s}")
+
+    def _add_stats(self):
+        s = self.SEPARATOR
+        self.b.writes(f"GroupComments: 0{s}")
+        self.b.writes(f"MaterialComments: 0{s}")
+        self.b.writes(f"BoneComments: 0{s}")
+        self.b.writes(f"ModelComment: 0{s}")

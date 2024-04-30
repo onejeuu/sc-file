@@ -67,6 +67,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         for index in range(self.flags_count):
             self.flags[index] = self.f.readb(F.BOOL)
 
+        self.model.flags.skeleton = self.flags[Flag.SKELETON]
         self.model.flags.texture = self.flags[Flag.TEXTURE]
         self.model.flags.normals = self.flags[Flag.NORMALS]
 

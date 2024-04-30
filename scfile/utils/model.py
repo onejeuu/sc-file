@@ -106,6 +106,7 @@ class Skeleton:
 
 @dataclass
 class Flags:
+    skeleton: bool = False
     texture: bool = False
     normals: bool = False
 
