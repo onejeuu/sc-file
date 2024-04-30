@@ -11,6 +11,7 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes
+        self.skeleton = self.model.skeleton
         self.flags = self.data.model.flags
 
         self.offset = 0
@@ -34,10 +35,10 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
 
         for index, mesh in enumerate(self.meshes):
             self.b.writes(f'"{index}_{mesh.name}" 0 {index}{s}')
-
             self._add_vertices(mesh)
             self._add_normals(mesh)
             self._add_polygons(mesh)
+        self.b.writes(s)
 
     def _get_bone_id(self, v: Vertex) -> int:
         bone_id = McsaModel.ROOT_BONE_ID
@@ -81,7 +82,7 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
     def _add_materials(self):
         s = self.SEPARATOR
 
-        self.b.writes(f"{s}Materials: {len(self.model.meshes)}{s}")
+        self.b.writes(f"Materials: {len(self.model.meshes)}{s}")
 
         for index, mesh in enumerate(self.model.meshes):
             self.b.writes(f'"{index}_{mesh.material}"{s}')
@@ -93,28 +94,29 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
             self.b.writes(f"1.000000{s}")
             self.b.writes(f'""{s}')
             self.b.writes(f'""{s}')
-            self.b.writes(s)
+        self.b.writes(s)
 
     def _add_skeleton(self):
+        f = self.FLOAT_FORMAT
         s = self.SEPARATOR
 
         if not self.flags.skeleton:
             self.b.writes(f"Bones: 0{s}")
             return
 
-        self.b.writes(f"Bones: {len(self.model.skeleton.bones)}{s}")
+        self.b.writes(f"Bones: {len(self.skeleton.bones)}{s}")
 
-        for b in self.model.skeleton.bones:
+        for b in self.skeleton.bones:
             self.b.writes(f'"{b.name}"{s}')
 
             if b.parent_id < 0:
                 self.b.writes(f'""{s}')
             else:
-                parent_name = self.model.skeleton.bones[b.parent_id].name
+                parent_name = self.skeleton.bones[b.parent_id].name
                 self.b.writes(f'"{parent_name}"{s}')
 
             self.b.writes(
-                f"0 {b.position.x} {b.position.y} {b.position.z} {b.rotation.x} {b.rotation.y} {b.rotation.z}{s}"
+                f"0 {b.position.x:{f}} {b.position.y:{f}} {b.position.z:{f}} {b.rotation.x:{f}} {b.rotation.y:{f}} {b.rotation.z:{f}}{s}"
             )
             self.b.writes(f"0{s}")
             self.b.writes(f"0{s}")

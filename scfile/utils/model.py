@@ -86,7 +86,15 @@ class Bone:
 
 
 @dataclass
+class Local:
+    scale: float = 1.0
+    position: Vector = field(default_factory=Vector)
+    rotation: Vector = field(default_factory=Vector)
+
+
+@dataclass
 class Skeleton:
+    # local: Local = field(default_factory=Local)
     bones: List[Bone] = field(default_factory=list)
 
     def convert_to_local(self):
@@ -118,18 +126,11 @@ class Scale:
 
 
 @dataclass
-class Local:
-    axis: Vector = field(default_factory=Vector)
-    center: Vector = field(default_factory=Vector)
-
-
-@dataclass
 class Model:
     meshes: List[Mesh] = field(default_factory=list)
     skeleton: Skeleton = field(default_factory=Skeleton)
     flags: Flags = field(default_factory=Flags)
     scale: Scale = field(default_factory=Scale)
-    # local: Local = field(default_factory=Local)
 
     def ensure_unique_names(self):
         """Updates meshes names, excluding repetitions."""
