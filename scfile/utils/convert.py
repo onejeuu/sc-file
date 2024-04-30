@@ -9,10 +9,11 @@ from scfile.file.encoder import FileEncoder
 from scfile.file.mcsa.decoder import McsaDecoder
 from scfile.file.mic.decoder import MicDecoder
 from scfile.file.obj.encoder import ObjEncoder
-from scfile.file.ms3d_ascii.encoder import Ms3dAsciiEncoder
+from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
 from scfile.file.ol.decoder import OlDecoder
 from scfile.file.png.encoder import PngEncoder
 from scfile.types import PathLike
+
 
 def mcsa_to_ms3d_ascii(source: PathLike, output: Optional[PathLike] = None):
     """
@@ -28,6 +29,7 @@ def mcsa_to_ms3d_ascii(source: PathLike, output: Optional[PathLike] = None):
     """
 
     _convert(source, output, McsaDecoder, Ms3dAsciiEncoder, FileSuffix.TXT)
+
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
     """

@@ -5,6 +5,7 @@ from scfile.enums import StructFormat as F
 from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
+from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model import Bone, Mesh, Model, Vertex
 
@@ -15,6 +16,9 @@ from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def to_obj(self):
         return self.convert_to(ObjEncoder)
+
+    def to_ms3d_ascii(self):
+        return self.convert_to(Ms3dAsciiEncoder)
 
     @property
     def opener(self):
@@ -248,7 +252,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             polygon.c = c
 
     def _parse_skeleton(self):
-        bones_count = self.f.readb(F.I8)
+        bones_count = self.f.readb(F.U8)
 
         for index in range(bones_count):
             self._parse_bone(index)
