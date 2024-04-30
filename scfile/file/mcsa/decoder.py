@@ -6,7 +6,7 @@ from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Bone, Mesh, Model, Vector, VertexBone, Vertex
+from scfile.utils.model import Bone, Mesh, Model, Vector, Vertex
 
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -35,7 +35,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self._create_model()
         self._parse_header()
         self._parse_meshes()
-        self._parse_skeleton()
+
+        if self.flags[Flag.SKELETON]:
+            self._parse_skeleton()
 
     def _create_model(self):
         self.model = Model()
@@ -246,24 +248,35 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             polygon.c = c
 
     def _parse_skeleton(self):
-        self.model.skeleton.bones = [Bone() for _ in range(self.f.readb(F.U8))]
+        bones_count = self.f.readb(F.I8)
 
-        for bone in self.model.skeleton.bones:
-            i = self.model.skeleton.bones.index(bone)
-            bone.name = self.f.reads().decode()
-            bone.parent_id = self.f.readb(F.U8)
-            if bone.parent_id == self.model.skeleton.bones.index(bone):
-                bone.parent_id = -1
-            bone.position = Vector()
-            bone.position.x = self.f.readb(F.F32)
-            bone.position.y = self.f.readb(F.F32)
-            bone.position.z = self.f.readb(F.F32)
-            bone.rotation.x = self.f.readb(F.F32)
-            bone.rotation.y = self.f.readb(F.F32)
-            bone.rotation.z = self.f.readb(F.F32)
-            self.model.skeleton.bones[i] = bone
+        for index in range(bones_count):
+            self._parse_bone(index)
 
         self._convert_skeleton_to_local()
+
+    def _parse_bone(self, index: int) -> None:
+        self.bone = Bone()
+
+        self.bone.name = self.f.readstring()
+
+        parent_id = self.f.readb(F.I8)
+        self.bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
+
+        self._parse_bone_position()
+        self._parse_bone_rotation()
+
+        self.model.skeleton.bones.append(self.bone)
+
+    def _parse_bone_position(self):
+        self.bone.position.x = self.f.readb(F.F32)
+        self.bone.position.y = self.f.readb(F.F32)
+        self.bone.position.z = self.f.readb(F.F32)
+
+    def _parse_bone_rotation(self):
+        self.bone.rotation.x = self.f.readb(F.F32)
+        self.bone.rotation.y = self.f.readb(F.F32)
+        self.bone.rotation.z = self.f.readb(F.F32)
 
     def _convert_skeleton_to_local(self):
         parent_id = 0
