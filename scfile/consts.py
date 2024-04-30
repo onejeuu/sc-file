@@ -24,13 +24,13 @@ class Magic:
 
 class Factor:
     """
-    Integer range + 1.
+    Integer range.
     """
 
-    I8 = 0x80
-    U8 = 0x100
-    I16 = 0x8000
-    U16 = 0x10000
+    I8 = 0x7F
+    U8 = 0xFF
+    I16 = 0x7FFF
+    U16 = 0xFFFF
 
 
 class OlString:
@@ -49,10 +49,9 @@ class McsaModel:
     """
 
     ROOT_BONE_ID = -1
-    # I dont know specific limit
-    # This is done for case when file was read incorrectly
+    # There is no known limit
+    # This for case when file was read incorrectly
     # So as not to overflow memory
-    # ? Trees and new year toys have hundreds of thousands of vertices...
     COUNT_LIMIT = 0x100000
 
 

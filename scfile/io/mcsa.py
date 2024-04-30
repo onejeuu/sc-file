@@ -32,12 +32,12 @@ class McsaFileIO(BinaryFileIO):
         data = self.readarray(fmt=fmt, size=size, count=count)
 
         # Scale values to floats
-        data = data * scale / factor
+        data = data * scale / (factor + 1)
 
         return self._reshape(data, size)
 
     def readpolygons(self, count: int):
-        """Read vertex indexes and shift it to +1."""
+        """Read vertex indexes."""
         size = McsaSize.POLYGONS
 
         # Validate that indexes fits into U16 range. Otherwise use U32.
