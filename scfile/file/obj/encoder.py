@@ -11,9 +11,7 @@ class ObjEncoder(FileEncoder[ModelData]):
         self.flags = self.data.model.flags
 
         self.model.ensure_unique_names()
-
-        # In obj vertex indexes 1-based
-        self.offset = 1
+        self.model.convert_polygons_to_global(start=1)
 
         for mesh in self.model.meshes:
             self.b.writes(f"o {mesh.name}\n")
@@ -48,17 +46,14 @@ class ObjEncoder(FileEncoder[ModelData]):
         )
 
     def _add_polygonal_faces(self, mesh: Mesh):
-        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.polygons])
-
-        # Vertex id in mcsa are local to each mesh.
-        self.offset += mesh.offset
+        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.global_polygons])
 
     def _write_vertex_data(self, data: list[str]):
         self.b.writes("\n".join(data))
         self.b.write(b"\n\n")
 
     def _polygon_to_faces(self, polygon: Polygon):
-        a, b, c = polygon.a + self.offset, polygon.b + self.offset, polygon.c + self.offset
+        a, b, c = polygon.a, polygon.b, polygon.c
 
         if self.flags.texture and self.flags.normals:
             return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"

@@ -26,6 +26,12 @@ class Polygon:
     b: int = 0
     c: int = 0
 
+    def __lshift__(self, offset: int):
+        return Polygon(self.a - offset, self.b - offset, self.c - offset)
+
+    def __rshift__(self, offset: int):
+        return Polygon(self.a + offset, self.b + offset, self.c + offset)
+
 
 @dataclass
 class Color:
@@ -66,10 +72,8 @@ class Mesh:
     polygons: List[Polygon] = field(default_factory=list)
     bones: Dict[int, int] = field(default_factory=dict)
 
-    @property
-    def offset(self) -> int:
-        """Count of vertices. To shift vertex indexes of polygons."""
-        return self.count.vertices
+    global_polygons: List[Polygon] = field(default_factory=list)
+    """Empty before `convert_polygons_to_global` is called for model."""
 
     def resize(self) -> None:
         """Fills vertices & polygons by their counts."""
@@ -148,3 +152,12 @@ class Model:
 
             mesh.name = unique_name
             seen_names.add(unique_name)
+
+    def convert_polygons_to_global(self, start: int = 0):
+        """Updates meshes global_polygons indexes."""
+        offset = start
+
+        for mesh in self.meshes:
+            for index, polygon in enumerate(mesh.polygons):
+                mesh.global_polygons.insert(index, polygon >> offset)
+            offset += mesh.count.vertices

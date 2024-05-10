@@ -15,6 +15,19 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
     MAX_MATERIALS = Factor.I8
     MAX_JOINTS = Factor.I8
 
+    def serialize(self):
+        self.model = self.data.model
+        self.meshes = self.data.model.meshes
+        self.flags = self.data.model.flags
+
+        self.model.ensure_unique_names()
+        self.model.convert_polygons_to_global()
+
+        self._add_header()
+        self._add_vertices()
+        self._add_triangles()
+        self._add_groups()
+
     def _add_header(self):
         self.b.writes("MS3D000000")  # 10 bytes signature
         self.b.writeb(F.I32, 0x4)  # version
@@ -37,10 +50,10 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self.b.writeb(F.U16, total_polygons)
 
         for index, mesh in enumerate(self.meshes):
-            for p in mesh.polygons:
+            for p, gp in zip(mesh.polygons, mesh.global_polygons):
                 self.b.writeb(F.U16, 0)  # flags
 
-                self._add_indices(p)
+                self._add_indices(gp)
 
                 v1 = mesh.vertices[p.a]
                 v2 = mesh.vertices[p.b]
@@ -54,12 +67,10 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
                 self.b.writeb(F.I8, 1)  # smoothing group
                 self.b.writeb(F.I8, index)  # group index
 
-            self.p_offset += mesh.offset
-
     def _add_indices(self, p: Polygon):
-        self.b.writeb(F.U16, p.a + self.p_offset)
-        self.b.writeb(F.U16, p.b + self.p_offset)
-        self.b.writeb(F.U16, p.c + self.p_offset)
+        self.b.writeb(F.U16, p.a)
+        self.b.writeb(F.U16, p.b)
+        self.b.writeb(F.U16, p.c)
 
     def _add_normals(self, v: Vertex):
         self.b.writeb(F.F32, v.normals.x)
@@ -78,30 +89,19 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
     def _add_groups(self):
         self.b.writeb(F.U16, len(self.meshes))  # groups count
 
+        offset = 0
+
         for mesh in self.meshes:
             self.b.writeb(F.U8, 0)  # flags
             self.b.write(mesh.name.encode("utf-8").ljust(32, b"\x00"))  # padded name
 
             self.b.writeb(F.U16, mesh.count.polygons)  # triangles count
+
             for index in range(len(mesh.polygons)):
-                self.b.writeb(F.U16, index + self.g_offset)
+                self.b.writeb(F.U16, index + offset)  # triangles indexes
 
             self.b.writeb(F.I8, -1)  # no material
 
-            self.g_offset += len(mesh.polygons)
+            offset += len(mesh.polygons)
 
         self.b.writeb(F.U16, 0)  # materials count
-
-    def serialize(self):
-        self.model = self.data.model
-        self.meshes = self.data.model.meshes
-        self.flags = self.data.model.flags
-
-        self.p_offset = 0  # triangles offset
-        self.g_offset = 0  # groups offset
-        self.model.ensure_unique_names()
-
-        self._add_header()
-        self._add_vertices()
-        self._add_triangles()
-        self._add_groups()
