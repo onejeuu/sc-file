@@ -14,7 +14,6 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         self.skeleton = self.model.skeleton
         self.flags = self.data.model.flags
 
-        self.offset = 0
         self.model.ensure_unique_names()
 
         self._add_header()

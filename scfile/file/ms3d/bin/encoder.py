@@ -1,20 +1,11 @@
 from scfile.file.data import ModelData
 from scfile.file.encoder import FileEncoder
 
-from scfile.consts import Factor
 from scfile.enums import StructFormat as F
 from scfile.utils.model import Polygon, Vertex
 
-# ! IN PROGRESS
-
 
 class Ms3dBinEncoder(FileEncoder[ModelData]):
-    MAX_VERTICES = Factor.U16
-    MAX_TRIANGLES = Factor.U16
-    MAX_GROUPS = Factor.U8
-    MAX_MATERIALS = Factor.I8
-    MAX_JOINTS = Factor.I8
-
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes
