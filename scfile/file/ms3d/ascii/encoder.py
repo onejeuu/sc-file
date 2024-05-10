@@ -33,7 +33,7 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         s = self.SEPARATOR
 
         for index, mesh in enumerate(self.meshes):
-            self.b.writes(f'"{index}_{mesh.name}" 0 {index}{s}')
+            self.b.writes(f'"{mesh.name}" 0 {index}{s}')
             self._add_vertices(mesh)
             self._add_normals(mesh)
             self._add_polygons(mesh)
@@ -83,8 +83,8 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
 
         self.b.writes(f"Materials: {len(self.model.meshes)}{s}")
 
-        for index, mesh in enumerate(self.model.meshes):
-            self.b.writes(f'"{index}_{mesh.material}"{s}')
+        for mesh in self.model.meshes:
+            self.b.writes(f'"{mesh.material}"{s}')
             self.b.writes(f"0.200000 0.200000 0.200000 1.000000{s}")
             self.b.writes(f"0.800000 0.800000 0.800000 1.000000{s}")
             self.b.writes(f"0.000000 0.000000 0.000000 1.000000{s}")

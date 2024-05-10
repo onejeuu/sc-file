@@ -18,6 +18,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self._add_vertices()
         self._add_triangles()
         self._add_groups()
+        self._add_materials()
 
     def _add_header(self):
         self.b.writes("MS3D000000")  # 10 bytes signature
@@ -77,22 +78,38 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self.b.writeb(F.F32, v2.texture.v)
         self.b.writeb(F.F32, v3.texture.v)
 
+    def _fixedlen(self, name: str) -> bytes:
+        return name.encode("utf-8").ljust(32, b"\x00")
+
     def _add_groups(self):
         self.b.writeb(F.U16, len(self.meshes))  # groups count
 
         offset = 0
 
-        for mesh in self.meshes:
+        for index, mesh in enumerate(self.meshes):
             self.b.writeb(F.U8, 0)  # flags
-            self.b.write(mesh.name.encode("utf-8").ljust(32, b"\x00"))  # padded name
+            self.b.write(self._fixedlen(mesh.name))  # group name
 
             self.b.writeb(F.U16, mesh.count.polygons)  # triangles count
 
-            for index in range(len(mesh.polygons)):
-                self.b.writeb(F.U16, index + offset)  # triangles indexes
+            for p in range(len(mesh.polygons)):
+                self.b.writeb(F.U16, p + offset)  # triangles indexes
 
-            self.b.writeb(F.I8, -1)  # no material
+            self.b.writeb(F.I8, index)  # material index
 
             offset += len(mesh.polygons)
 
-        self.b.writeb(F.U16, 0)  # materials count
+    def _add_materials(self):
+        self.b.writeb(F.U16, len(self.meshes))  # materials count
+
+        for mesh in self.meshes:
+            self.b.write(self._fixedlen(mesh.material))  # material name
+            self.b.writeb(F.F32 * 4, 0.2, 0.2, 0.2, 1.0)  # ambient rgba
+            self.b.writeb(F.F32 * 4, 0.8, 0.8, 0.8, 1.0)  # diffuse rgba
+            self.b.writeb(F.F32 * 4, 0.0, 0.0, 0.0, 1.0)  # specular rgba
+            self.b.writeb(F.F32 * 4, 0.0, 0.0, 0.0, 1.0)  # emissive rgba
+            self.b.writeb(F.F32, 0.0)  # shininess
+            self.b.writeb(F.F32, 1.0)  # transparency
+            self.b.writeb(F.I8, 1)  # mode
+            self.b.writen(count=128, size=1)  # texture
+            self.b.writen(count=128, size=1)  # alphamap
