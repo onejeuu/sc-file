@@ -31,7 +31,7 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
 
     @property
     def magic(self) -> Optional[list[int]]:
-        """Optional file magic value (4 bytes)."""
+        """Optional file magic value."""
         return None
 
     @property

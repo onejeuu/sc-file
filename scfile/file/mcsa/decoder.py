@@ -4,8 +4,9 @@ from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
-from scfile.file.obj.encoder import ObjEncoder
 from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
+from scfile.file.ms3d.bin.encoder import Ms3dBinEncoder
+from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model import Bone, Mesh, Model, Vertex
 
@@ -19,6 +20,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def to_ms3d_ascii(self):
         return self.convert_to(Ms3dAsciiEncoder)
+
+    def to_ms3d(self):
+        return self.convert_to(Ms3dBinEncoder)
 
     @property
     def opener(self):
