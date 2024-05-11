@@ -6,10 +6,11 @@ class FileSuffix(StrEnum):
     MCSA = auto()
     MCVD = auto()
     MIC = auto()
+    MS3D = auto()
     OBJ = auto()
-    TXT = auto()
     OL = auto()
     PNG = auto()
+    TXT = auto()
 
 
 class FileMode(StrEnum):

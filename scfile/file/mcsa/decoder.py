@@ -214,11 +214,19 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
                 raise exc.McsaUnknownLinkCount(self.path, self.count.links)
 
     def _parse_bone_packed(self) -> None:
+        # Unused
+        self._skip_vertices(size=4)
+        return
+
         for vertex in self.mesh.vertices:
             self._parse_bone_id(vertex, 2)
             self._parse_bone_weight(vertex, 2)
 
     def _parse_bone_plains(self) -> None:
+        # Unused
+        self._skip_vertices(size=8)
+        return
+
         for vertex in self.mesh.vertices:
             self._parse_bone_id(vertex, 4)
 
