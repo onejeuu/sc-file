@@ -1,3 +1,4 @@
+from scfile.consts import McsaModel
 from scfile.file.data import ModelData
 from scfile.file.encoder import FileEncoder
 
@@ -19,6 +20,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self._add_triangles()
         self._add_groups()
         self._add_materials()
+        self._add_joints()
 
     def _add_header(self):
         self.b.writes("MS3D000000")  # 10 bytes signature
@@ -30,10 +32,10 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
 
         for mesh in self.meshes:
             for v in mesh.vertices:
+                pos = v.position
+
                 self.b.writeb(F.I8, 0)  # flags
-                self.b.writeb(F.F32, v.position.x)
-                self.b.writeb(F.F32, v.position.y)
-                self.b.writeb(F.F32, v.position.z)
+                self.b.writeb(F.F32 * 3, pos.x, pos.y, pos.z)
                 self.b.writeb(F.I8, -1)  # bone id
                 self.b.writeb(F.U8, 0xFF)  # reference count (?)
 
@@ -60,23 +62,14 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
                 self.b.writeb(F.I8, index)  # group index
 
     def _add_indices(self, p: Polygon):
-        self.b.writeb(F.U16, p.a)
-        self.b.writeb(F.U16, p.b)
-        self.b.writeb(F.U16, p.c)
+        self.b.writeb(F.U16 * 3, p.a, p.b, p.c)
 
     def _add_normals(self, v: Vertex):
-        self.b.writeb(F.F32, v.normals.x)
-        self.b.writeb(F.F32, v.normals.y)
-        self.b.writeb(F.F32, v.normals.z)
+        self.b.writeb(F.F32 * 3, v.normals.x, v.normals.y, v.normals.z)
 
     def _add_textures(self, v1: Vertex, v2: Vertex, v3: Vertex):
-        self.b.writeb(F.F32, v1.texture.u)
-        self.b.writeb(F.F32, v2.texture.u)
-        self.b.writeb(F.F32, v3.texture.u)
-
-        self.b.writeb(F.F32, v1.texture.v)
-        self.b.writeb(F.F32, v2.texture.v)
-        self.b.writeb(F.F32, v3.texture.v)
+        self.b.writeb(F.F32 * 3, v1.texture.u, v2.texture.u, v3.texture.u)
+        self.b.writeb(F.F32 * 3, v1.texture.v, v2.texture.v, v3.texture.v)
 
     def _fixedlen(self, name: str) -> bytes:
         return name.encode("utf-8").ljust(32, b"\x00")
@@ -113,3 +106,29 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
             self.b.writeb(F.I8, 1)  # mode
             self.b.writen(count=128, size=1)  # texture
             self.b.writen(count=128, size=1)  # alphamap
+
+    def _add_joints(self):
+        self.b.writeb(F.F32, 24)  # fps
+        self.b.writeb(F.F32, 1)  # current frame
+        self.b.writeb(F.F32, 30)  # total frames
+
+        skeleton = self.model.skeleton
+
+        self.b.writeb(F.U16, len(skeleton.bones))
+
+        for bone in skeleton.bones:
+            self.b.writeb(F.U8, 0)  # flags
+            self.b.write(self._fixedlen(bone.name))  # bone name
+
+            parent = skeleton.bones[bone.parent_id].name
+            parent_name = parent if bone.parent_id != McsaModel.ROOT_BONE_ID else ""
+
+            self.b.write(self._fixedlen(parent_name))  # parent name
+
+            rot = bone.rotation
+            pos = bone.position
+            self.b.writeb(F.F32 * 3, rot.x, rot.y, rot.z)  # rotation
+            self.b.writeb(F.F32 * 3, pos.x, pos.y, pos.z)  # position
+
+            self.b.writeb(F.U16, 0)  # count keyframes rotation
+            self.b.writeb(F.U16, 0)  # count keyframes transition
