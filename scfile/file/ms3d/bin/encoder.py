@@ -6,6 +6,9 @@ from scfile.enums import StructFormat as F
 from scfile.utils.model import Polygon, Vertex
 
 
+# TODO: Optimize
+
+
 class Ms3dBinEncoder(FileEncoder[ModelData]):
     def serialize(self):
         self.model = self.data.model
