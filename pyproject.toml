@@ -2,7 +2,7 @@
 name = "sc-file"
 version = "3.3.0-dev"
 description = "Utility & Library for decoding stalcraft assets"
-authors = ["onejeuu <bloodtrail@beber1k.ru>"]
+authors = ["onejeuu <mail@66rk.ru>"]
 
 license = "MIT"
 readme = "README.md"
@@ -26,7 +26,7 @@ rich = "^13.0.0"
 pytest = "^8.1.1"
 
 [tool.poetry.scripts]
-build = "build:build"
+build = "scripts.build:build"
 
 [build-system]
 requires = ["poetry-core"]

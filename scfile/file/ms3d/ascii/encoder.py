@@ -86,11 +86,12 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
     def _add_materials(self):
         self.b.writes(f"Materials: {len(self.model.meshes)}\n")
 
-        for mesh in self.model.meshes:
+        for index, mesh in enumerate(self.model.meshes):
+            blank_name = f"material_{index}"
             self.b.writes(
                 "\n".join(
                     [
-                        f'"{mesh.material}"',
+                        f'"{mesh.material or blank_name}"',
                         "0.200000 0.200000 0.200000 1.000000",
                         "0.800000 0.800000 0.800000 1.000000",
                         "0.000000 0.000000 0.000000 1.000000",

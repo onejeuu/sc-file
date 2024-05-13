@@ -15,14 +15,15 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 # 📁 Formats
 
-| Type    | Source format | Output format |
-| ------- | ------------- | ------------- |
-| Model   | .mcsa         | .obj, .txt    |
-| Model   | .mcvd         | .obj          |
-| Texture | .ol           | .dds          |
-| Image   | .mic          | .png          |
+| Type    | Source        | Output           |
+| ------- | ------------- | ---------------- |
+| Model   | .mcsa / .mcvd | .obj, .txt, ms3d |
+| Texture | .ol           | .dds             |
+| Image   | .mic          | .png             |
 
 Model versions supported: 7.0, 8.0, 10.0
+
+Model animations (`.mcvd`) currently supports only meshes
 
 Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, RGBA32F, DXN_XY
 
@@ -132,7 +133,8 @@ convert.mcsa_to_obj("path/to/model.mcsa", "path/to/model.obj")
 convert.ol_to_dds("path/to/texture.ol", "path/to/texture.dds")
 convert.mic_to_png("path/to/image.mic", "path/to/image.png")
 
-# Skeleton supports via MilkShape3D
+# Skeleton support via MilkShape3D
+convert.mcsa_to_ms3d("path/to/model.mcsa", "path/to/model.ms3d")
 convert.mcsa_to_ms3d_ascii("path/to/model.mcsa", "path/to/model.txt")
 
 # Or determinate it automatically

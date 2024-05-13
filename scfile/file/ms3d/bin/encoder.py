@@ -3,10 +3,6 @@ from scfile.file.data import ModelData
 from scfile.file.encoder import FileEncoder
 
 from scfile.enums import StructFormat as F
-from scfile.utils.model import Polygon, Vertex
-
-
-# TODO: Optimize
 
 
 class Ms3dBinEncoder(FileEncoder[ModelData]):
@@ -36,11 +32,8 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         for mesh in self.meshes:
             for v in mesh.vertices:
                 pos = v.position
-
-                self.b.writeb(F.I8, 0)  # flags
-                self.b.writeb(F.F32 * 3, pos.x, pos.y, pos.z)  # position
-                self.b.writeb(F.I8, -1)  # bone id
-                self.b.writeb(F.U8, 0xFF)  # reference count (?)
+                # i8 flags, f32 pos[3], i8 bone id, u8 reference count
+                self.b.writeb(F.I8 + (F.F32 * 3) + F.I8 + F.U8, 0, pos.x, pos.y, pos.z, -1, 0xFF)
 
     def _add_triangles(self):
         total_polygons = sum(mesh.count.polygons for mesh in self.model.meshes)
@@ -48,31 +41,46 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
 
         for index, mesh in enumerate(self.meshes):
             for p, gp in zip(mesh.polygons, mesh.global_polygons):
-                self.b.writeb(F.U16, 0)  # flags
-
-                self._add_indices(gp)
-
                 v1 = mesh.vertices[p.a]
                 v2 = mesh.vertices[p.b]
                 v3 = mesh.vertices[p.c]
 
-                self._add_normals(v1)
-                self._add_normals(v2)
-                self._add_normals(v3)
-                self._add_textures(v1, v2, v3)
-
-                self.b.writeb(F.U8, 1)  # smoothing group
-                self.b.writeb(F.U8, index)  # group index
-
-    def _add_indices(self, p: Polygon):
-        self.b.writeb(F.U16 * 3, p.a, p.b, p.c)
-
-    def _add_normals(self, v: Vertex):
-        self.b.writeb(F.F32 * 3, v.normals.x, v.normals.y, v.normals.z)
-
-    def _add_textures(self, v1: Vertex, v2: Vertex, v3: Vertex):
-        self.b.writeb(F.F32 * 3, v1.texture.u, v2.texture.u, v3.texture.u)
-        self.b.writeb(F.F32 * 3, v1.texture.v, v2.texture.v, v3.texture.v)
+                # ! its awful but faster
+                # u16 flags, u16 indices[3]
+                # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
+                # u8 smoothing group, u8 group index
+                self.b.writeb(
+                    F.U16
+                    + (F.U16 * 3)
+                    + (F.F32 * 3)
+                    + (F.F32 * 3)
+                    + (F.F32 * 3)
+                    + (F.F32 * 3)
+                    + (F.F32 * 3)
+                    + F.U8
+                    + F.U8,
+                    0,
+                    gp.a,
+                    gp.b,
+                    gp.c,
+                    v1.normals.x,
+                    v1.normals.y,
+                    v1.normals.z,
+                    v2.normals.x,
+                    v2.normals.y,
+                    v2.normals.z,
+                    v3.normals.x,
+                    v3.normals.y,
+                    v3.normals.z,
+                    v1.texture.u,
+                    v2.texture.u,
+                    v3.texture.u,
+                    v1.texture.v,
+                    v2.texture.v,
+                    v3.texture.v,
+                    1,
+                    index,
+                )
 
     def _add_groups(self):
         self.b.writeb(F.U16, len(self.meshes))  # groups count
