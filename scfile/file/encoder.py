@@ -5,7 +5,7 @@ from scfile.enums import FileMode
 from scfile.file.base import BaseFile
 from scfile.file.data import FileData
 from scfile.io.binary import BinaryBytesIO
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
 
 
 DATA = TypeVar("DATA", bound=FileData)

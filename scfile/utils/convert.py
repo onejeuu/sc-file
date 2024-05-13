@@ -13,7 +13,7 @@ from scfile.file.ms3d.bin.encoder import Ms3dBinEncoder
 from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
 from scfile.file.ol.decoder import OlDecoder
 from scfile.file.png.encoder import PngEncoder
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
 
 
 def mcsa_to_ms3d(source: PathLike, output: Optional[PathLike] = None):

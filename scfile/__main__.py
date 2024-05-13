@@ -1,4 +1,4 @@
-from cli import default
+from scfile.cli import default
 
 
 if __name__ == "__main__":
