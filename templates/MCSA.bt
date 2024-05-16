@@ -1,0 +1,240 @@
+//------------------------------------------------
+// File: MCSA.bt
+// Authors: onejeuu
+// Version: 1.2
+// Purpose: Parse 3D object model files.
+// Category: STALCRAFT
+// File Mask: *.mcsa,*.mcvd
+// ID Bytes: 4D 43 53 41 // MCSA
+//------------------------------------------------
+
+
+// Define byte order
+
+LittleEndian();
+
+
+// Data Types
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 )
+        char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=ReadSTRING>;
+
+string ReadSTRING( String &str ) {
+    return exists(str.data) ? str.data : "";
+}
+
+struct Vec2 {
+    short u, v;
+};
+
+struct Vec3 {
+    short x, y, z;
+};
+
+struct Vec3f {
+    float x, y, z;
+};
+
+struct Vec4 {
+    short x, y, z, w;
+};
+
+struct Vec4b {
+    byte x, y, z, w;
+};
+
+struct Polygons_short {
+    ushort a, b, c;
+};
+
+struct Polygons_int {
+    uint a, b, c;
+};
+
+
+// Header Flags
+
+struct Flags7 {
+    ubyte SKELETON;
+    ubyte TEXTURE;
+    ubyte NORMALS;
+    ubyte BITANGENTS;
+};
+
+struct Flags8 {
+    ubyte SKELETON;
+    ubyte TEXTURE;
+    ubyte NORMALS;
+    ubyte TANGENTS;
+    ubyte BITANGENTS;
+};
+
+struct Flags10 {
+    ubyte SKELETON;
+    ubyte TEXTURE;
+    ubyte NORMALS;
+    ubyte TANGENTS;
+    ubyte BITANGENTS;
+    ubyte COLORS;
+};
+
+
+// Model Header
+
+char signature[4] <name="Signature">;
+
+struct Header {
+    float version <name="Version", bgcolor=cRed>;
+
+    switch( version ) {
+        case 7.0:
+            Flags7 flags <name="Flags", fgcolor=cAqua>; break;
+        case 8.0:
+            Flags8 flags <name="Flags", fgcolor=cAqua>; break;
+        case 10.0:
+            Flags10 flags <name="Flags", fgcolor=cAqua>; break;
+        default:
+            Warning( "ERROR: File version '%g' is unsupported.\n", version );
+            return -1;
+    }
+
+    float scale_positions <name="Positions scale">;
+
+    if ( flags.TEXTURE )
+        float scale_texture <name="Texture scale">;
+
+    if ( version == 10.0 )
+        if ( flags.NORMALS )
+            float scale_normals <name="Normals scale">;
+} header <name="Header">;
+
+
+// Model Meshes
+
+struct BonesIndexes {
+    ubyte links <name="Links">;
+    ubyte count <name="Count">;
+    if ( count > 0 )
+        byte bones[count] <name="Index">;
+};
+
+struct Counts {
+    uint vertices <name="Vertices", bgcolor=cLtGreen>;
+    uint polygons <name="Polygons", bgcolor=cLtBlue>;
+};
+
+struct Locals {
+    Vec3f position <name="Position">;
+    Vec3f rotation <name="Rotation">;
+};
+
+struct LinksPacked {
+    ubyte id[2];
+    ubyte weight[2];
+};
+
+struct LinksPlains {
+    ubyte id[counts.vertices * 4];
+    ubyte weight[counts.vertices * 4];
+};
+
+struct Mesh {
+    String name <name="Name">;
+    String material <name="Material">;
+
+    if ( header.flags.SKELETON )
+        BonesIndexes bones <name="Bones">;
+
+    Counts counts <name="Counts">;
+
+    if ( header.flags.TEXTURE )
+        float scale_unknown <name="Unknown scale">;
+
+    if ( header.version == 10.0 )
+        Locals locals <name="Locals">;
+
+    Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
+
+    if ( header.flags.TEXTURE )
+        Vec2 textures[counts.vertices] <name="Textures", bgcolor=cRed>;
+
+    if ( header.flags.BITANGENTS )
+        Vec4b _bitangents[counts.vertices] <name="Bitangents", bgcolor=cDkPurple>;
+
+    if ( header.flags.NORMALS )
+        Vec4b normals[counts.vertices] <name="Normals", bgcolor=cPurple>;
+
+    if ( header.version >= 8.0 )
+        if ( header.flags.TANGENTS )
+            Vec4b _tangents[counts.vertices] <name="Tangents", bgcolor=cDkPurple>;
+
+    if ( header.flags.SKELETON )
+        switch( bones.links ) {
+            case 1:
+            case 2:
+                LinksPacked links[counts.vertices] <name="Links", bgcolor=cWhite>; break;
+            case 3:
+            case 4:
+                LinksPlains links <name="Links", bgcolor=cWhite>; break;
+        }
+
+    if ( header.version == 10.0 )
+        if ( header.flags.COLORS )
+            byte _colors[counts.vertices*4] <hidden=true>;
+
+    if ( counts.polygons * 3 < 0x10000 )
+        Polygons_short polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
+    else
+        Polygons_int polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
+};
+
+struct Meshes {
+    uint count <name="Count", bgcolor=cAqua>;
+    if ( count > 0 )
+        Mesh meshes[count] <name="Mesh", optimize=false>;
+} meshes <name="Meshes">;
+
+
+// Model Skeleton
+
+struct Bone {
+    String name <name="Name">;
+    byte parent_id <name="Parent ID", fgcolor=cAqua>;
+    Vec3f position <name="Position", bgcolor=cWhite>;
+    Vec3f rotation <name="Rotation", bgcolor=cGray>;
+};
+
+if ( header.flags.SKELETON )
+    struct Skeleton {
+        ubyte count <name="Count", bgcolor=cPurple>;
+        if ( count > 0 )
+            Bone bones[count] <name="Bone", optimize=false>;
+    } skeleton <name="Skeleton">;
+
+
+// Model Animations
+
+struct Joint {
+    byte data[skeleton.count * 14] <bgcolor=cGray>;
+};
+
+struct Anim {
+    String name <name="Name">;
+    uint count <name="Frames", bgcolor=cGreen>;
+    float time <name="Time", bgcolor=cPurple>;
+    if ( count > 0 )
+        Joint joint[count] <optimize=false>;
+};
+
+// Not sure where exactly marked that file contains animations.
+// Perhaps its indicated from outside.
+if ( !FEof() )
+    if ( header.flags.SKELETON )
+        struct Animations {
+            uint count <name="Count", bgcolor=cBlue>;
+            if ( count > 0 )
+                Anim anims[count] <name="Animation", optimize=false>;
+        } animations <name="Animations">;

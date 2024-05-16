@@ -18,6 +18,6 @@ def convert_file(src: Path, dest: Optional[Path] = None):
         print(f"\n[b red]Unknown Error:[/] '{src}' - {err}")
 
 
-def convert_files(files: tuple[Path], dest: Optional[Path] = None):
+def convert_multiple_files(files: tuple[Path], dest: Optional[Path] = None):
     for src in files:
         convert_file(src, dest)

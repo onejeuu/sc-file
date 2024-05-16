@@ -1,0 +1,37 @@
+//------------------------------------------------
+// File: DIRMAP.bt
+// Authors: onejeuu
+// Version: 1.1
+// Purpose: Parse map file of game directory files.
+// Category: STALCRAFT
+// File Mask: *.map
+//------------------------------------------------
+
+
+// Define byte order
+
+BigEndian();
+
+
+// Data Types
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 )
+        char data[size] <bgcolor=cYellow, optimize=false>;
+} Path <read=ReadPATH>;
+
+string ReadPATH( Path &path ) {
+    return exists(path.data) ? path.data : "";
+}
+
+
+// File
+
+struct Item {
+    Path path <name="Path">;
+    char sha1[20] <name="Hash", fgcolor=cGreen, bgcolor=cDkGreen>;
+};
+
+uint count <name="Items Count", bgcolor=cPurple>;
+Item item[count] <name="Item", optimize=false>;

@@ -1,0 +1,70 @@
+//------------------------------------------------
+// File: OL.bt
+// Authors: onejeuu
+// Version: 1.1
+// Purpose: Parse texture files.
+// Category: STALCRAFT
+// File Mask: *.ol
+// ID Bytes: 0A 95 23 FD
+//------------------------------------------------
+
+
+// Define byte order
+
+BigEndian();
+
+
+// Data Types
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 )
+        char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=ReadSTRING>;
+
+string ReadSTRING( String &str ) {
+    return exists(str.data) ? str.data : "";
+}
+
+struct FourCC {
+    char encoded[17];
+};
+
+string ReadFOURCC( FourCC &fourcc ) {
+    local ubyte i = 0;
+    local string result = "";
+    for ( i = 0; i < 16; i++ ) {
+        result += (fourcc.encoded[i] != 'G') ? (fourcc.encoded[i] ^ 'g') : "";
+    }
+    return result;
+}
+
+
+// Header
+
+char signature[4] <name="Signature">;
+
+struct Header {
+    uint width <name="Width", bgcolor=cWhite>;
+    uint height <name="Height", bgcolor=cWhite>;
+    uint mipmaps <name="Mipmaps", bgcolor=cAqua>;
+    FourCC fourcc <name="FourCC", read=ReadFOURCC, bgcolor=cDkYellow>;
+} header <name="Header">;
+
+
+// LZ4 Sizes
+
+struct Sizes {
+    uint uncompressed[header.mipmaps] <name="Uncompressed", bgcolor=cGreen>;
+    uint compressed[header.mipmaps] <name="Compressed", bgcolor=cDkGreen>;
+} sizes <name="LZ4 Sizes">;
+
+
+// Texture ID
+
+String texture_id <name="Texture ID">;
+
+
+// Packed in lz4 blocks images
+
+byte imagedata[FileSize() - FTell()] <name="Image", bgcolor=cLtBlue>;

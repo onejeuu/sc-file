@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
 
 from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
 

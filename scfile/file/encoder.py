@@ -5,7 +5,7 @@ from scfile.enums import FileMode
 from scfile.file.base import BaseFile
 from scfile.file.data import FileData
 from scfile.io.binary import BinaryBytesIO
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
 
 
 DATA = TypeVar("DATA", bound=FileData)
@@ -31,7 +31,7 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
 
     @property
     def magic(self) -> Optional[list[int]]:
-        """Optional file magic value (4 bytes)."""
+        """Optional file magic value."""
         return None
 
     @property

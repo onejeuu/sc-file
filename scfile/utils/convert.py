@@ -9,9 +9,43 @@ from scfile.file.encoder import FileEncoder
 from scfile.file.mcsa.decoder import McsaDecoder
 from scfile.file.mic.decoder import MicDecoder
 from scfile.file.obj.encoder import ObjEncoder
+from scfile.file.ms3d.bin.encoder import Ms3dBinEncoder
+from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
 from scfile.file.ol.decoder import OlDecoder
 from scfile.file.png.encoder import PngEncoder
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
+
+
+def mcsa_to_ms3d(source: PathLike, output: Optional[PathLike] = None):
+    """
+    Converting `.mcsa` file to `.ms3d`.
+
+    Args:
+        source: Full path to `.mcsa` file.
+        output (optional): Full path to output `.ms3d` file.
+        Defaults to source path with new suffix.
+
+    Example:
+        `mcsa_to_ms3d("C:/file.mcsa", "C:/file.ms3d")`
+    """
+
+    _convert(source, output, McsaDecoder, Ms3dBinEncoder, FileSuffix.MS3D)
+
+
+def mcsa_to_ms3d_ascii(source: PathLike, output: Optional[PathLike] = None):
+    """
+    Converting `.mcsa` file to `.txt`.
+
+    Args:
+        source: Full path to `.mcsa` file.
+        output (optional): Full path to output `.txt` file.
+        Defaults to source path with new suffix.
+
+    Example:
+        `mcsa_to_ms3d_ascii("C:/file.mcsa", "C:/file.txt")`
+    """
+
+    _convert(source, output, McsaDecoder, Ms3dAsciiEncoder, FileSuffix.TXT)
 
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
@@ -72,7 +106,7 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
         Defaults to source path with new suffix.
 
     Raises:
-        FileSuffixUnsupported - if source suffix not in `.mic`, `.ol`, `.mcsa`.
+        FileSuffixUnsupported - if source suffix not in consts.SUPPORTED_SUFFIXES.
 
     Example:
         `auto("C:/file.mic", "C:/file.png")`
@@ -81,14 +115,19 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
     path = Path(source)
 
     match path.suffix.lstrip("."):
+        case FileSuffix.MCSA:
+            mcsa_to_obj(source, output)
+            mcsa_to_ms3d_ascii(source, output)
+
+        case FileSuffix.MCVD:
+            mcsa_to_obj(source, output)
+            mcsa_to_ms3d_ascii(source, output)
+
         case FileSuffix.MIC:
             mic_to_png(source, output)
 
         case FileSuffix.OL:
             ol_to_dds(source, output)
-
-        case FileSuffix.MCSA:
-            mcsa_to_obj(source, output)
 
         case _:
             raise exc.FileSuffixUnsupported(path)

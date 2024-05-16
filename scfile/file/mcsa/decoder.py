@@ -1,14 +1,14 @@
-import numpy as np
-
 from scfile import exceptions as exc
-from scfile.consts import Factor, McsaSize, Signature
+from scfile.consts import Factor, McsaModel, McsaSize, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
+from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
+from scfile.file.ms3d.bin.encoder import Ms3dBinEncoder
 from scfile.file.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
-from scfile.utils.model import Mesh, Model
+from scfile.utils.model import Bone, Mesh, Model
 
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -17,6 +17,12 @@ from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
     def to_obj(self):
         return self.convert_to(ObjEncoder)
+
+    def to_ms3d_ascii(self):
+        return self.convert_to(Ms3dAsciiEncoder)
+
+    def to_ms3d(self):
+        return self.convert_to(Ms3dBinEncoder)
 
     @property
     def opener(self):
@@ -38,6 +44,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self._parse_header()
         self._parse_meshes()
 
+        if self.flags[Flag.SKELETON]:
+            self._parse_skeleton()
+
     def _create_model(self):
         self.model = Model()
 
@@ -54,15 +63,15 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
 
     def _parse_flags(self):
         self.flags = McsaFlags()
+        self.flags_count = VERSION_FLAGS.get(self.version)
 
-        flags_count = VERSION_FLAGS.get(self.version)
-
-        if not flags_count:
+        if not self.flags_count:
             raise exc.McsaUnsupportedVersion(self.path, self.version)
 
-        for index in range(flags_count):
+        for index in range(self.flags_count):
             self.flags[index] = self.f.readb(F.BOOL)
 
+        self.model.flags.skeleton = self.flags[Flag.SKELETON]
         self.model.flags.texture = self.flags[Flag.TEXTURE]
         self.model.flags.normals = self.flags[Flag.NORMALS]
 
@@ -86,8 +95,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.mesh = Mesh()
 
         # Name & Material
-        self.mesh.name = self.f.reads().decode()
-        self.mesh.material = self.f.reads().decode()
+        self.mesh.name = self.f.readstring()
+        self.mesh.material = self.f.readstring()
 
         # Skeleton bone indexes
         if self.flags[Flag.SKELETON]:
@@ -162,16 +171,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Quite useless
         self.f.read(6 * 4)
 
-    def _read_vertex_data(self, fmt: str, factor: float, size: int, scale: float = 1.0):
-        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.vertices)
-
-        scaled = np.array(data) * scale / factor
-        reshaped = scaled.reshape(-1, size)
-
-        return reshaped
-
     def _parse_position(self):
-        xyzw = self._read_vertex_data(F.I16, Factor.I16, McsaSize.POSITION, self.scale.position)
+        count = self.count.vertices
+        scale = self.scale.position
+        xyzw = self.f.readvertex(F.I16, Factor.I16, McsaSize.POSITION, count, scale)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.position.x = x
@@ -179,14 +182,17 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.position.z = z
 
     def _parse_texture(self):
-        uv = self._read_vertex_data(F.I16, Factor.I16, McsaSize.TEXTURE, self.scale.texture)
+        count = self.count.vertices
+        scale = self.scale.texture
+        uv = self.f.readvertex(F.I16, Factor.I16, McsaSize.TEXTURE, count, scale)
 
         for vertex, (u, v) in zip(self.vertices, uv):
             vertex.texture.u = u
             vertex.texture.v = v
 
     def _parse_normals(self):
-        xyzw = self._read_vertex_data(F.I8, Factor.I8, McsaSize.NORMALS)
+        count = self.count.vertices
+        xyzw = self.f.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
 
         for vertex, (x, y, z, _) in zip(self.vertices, xyzw):
             vertex.normals.x = x
@@ -207,42 +213,18 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             case _:
                 raise exc.McsaUnknownLinkCount(self.path, self.count.links)
 
-    def _parse_bone_packed(self):
-        # Still no export support yet
+    def _parse_bone_packed(self) -> None:
         self._skip_vertices(size=4)
 
-    def _parse_bone_plains(self):
-        # Still no export support yet
+    def _parse_bone_plains(self) -> None:
         self._skip_vertices(size=8)
 
     def _parse_colors(self):
         # Quite useless
         self._skip_vertices(size=4)
-        return
-
-        # Could be rgba, but not that important
-        argb = self._read_vertex_data(F.U8, Factor.U8, McsaSize.COLOR)
-
-        for vertex, (_, r, g, b) in zip(self.vertices, argb):
-            vertex.color.r = r
-            vertex.color.g = g
-            vertex.color.b = b
-
-    def _read_polygons_data(self):
-        size = McsaSize.POLYGONS
-        count = self.count.polygons * size
-        fmt = F.U16 if count < Factor.U16 else F.U32
-
-        data = self.f.readvalues(fmt=fmt, size=size, count=self.count.polygons)
-
-        # In mcsa vertex indexes 0-based
-        shifted = np.array(data) + 1
-        reshaped = shifted.reshape(-1, size)
-
-        return reshaped
 
     def _parse_polygons(self):
-        abc = self._read_polygons_data()
+        abc = self.f.readpolygons(self.count.polygons)
 
         for polygon, (a, b, c) in zip(self.mesh.polygons, abc):
             polygon.a = a
@@ -250,5 +232,32 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             polygon.c = c
 
     def _parse_skeleton(self):
-        # Still no export support yet
-        return
+        bones_count = self.f.readb(F.U8)
+
+        for index in range(bones_count):
+            self._parse_bone(index)
+
+        self.model.skeleton.convert_to_local()
+
+    def _parse_bone(self, index: int) -> None:
+        self.bone = Bone()
+
+        self.bone.name = self.f.readstring()
+
+        parent_id = self.f.readb(F.U8)
+        self.bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
+
+        self._parse_bone_position()
+        self._parse_bone_rotation()
+
+        self.model.skeleton.bones.append(self.bone)
+
+    def _parse_bone_position(self):
+        self.bone.position.x = self.f.readb(F.F32)
+        self.bone.position.y = self.f.readb(F.F32)
+        self.bone.position.z = self.f.readb(F.F32)
+
+    def _parse_bone_rotation(self):
+        self.bone.rotation.x = self.f.readb(F.F32)
+        self.bone.rotation.y = self.f.readb(F.F32)
+        self.bone.rotation.z = self.f.readb(F.F32)

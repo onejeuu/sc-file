@@ -9,7 +9,7 @@ from scfile.file.base import BaseFile
 from scfile.file.data import FileData
 from scfile.file.encoder import FileEncoder
 from scfile.io.binary import BinaryFileIO
-from scfile.types import PathLike
+from scfile.utils.types import PathLike
 
 
 OPENER = TypeVar("OPENER", bound=BinaryFileIO)
