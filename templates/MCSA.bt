@@ -16,11 +16,11 @@ LittleEndian();
 
 // Data Types
 
-struct String {
+typedef struct {
     ushort size <bgcolor=cDkYellow>;
     if ( size > 0 )
         char data[size] <bgcolor=cYellow, optimize=false>;
-};
+} String <read=ReadSTRING>;
 
 string ReadSTRING( String &str ) {
     return exists(str.data) ? str.data : "";
@@ -142,8 +142,8 @@ struct LinksPlains {
 };
 
 struct Mesh {
-    String name <name="Name", read=ReadSTRING>;
-    String material <name="Material", read=ReadSTRING>;
+    String name <name="Name">;
+    String material <name="Material">;
 
     if ( header.flags.SKELETON )
         BonesIndexes bones <name="Bones">;
@@ -201,7 +201,7 @@ struct Meshes {
 // Model Skeleton
 
 struct Bone {
-    String name <name="Name", read=ReadSTRING>;
+    String name <name="Name">;
     byte parent_id <name="Parent ID", fgcolor=cAqua>;
     Vec3f position <name="Position", bgcolor=cWhite>;
     Vec3f rotation <name="Rotation", bgcolor=cGray>;
@@ -222,7 +222,7 @@ struct Joint {
 };
 
 struct Anim {
-    String name <name="Name", read=ReadSTRING>;
+    String name <name="Name">;
     uint count <name="Frames", bgcolor=cGreen>;
     float time <name="Time", bgcolor=cPurple>;
     if ( count > 0 )
