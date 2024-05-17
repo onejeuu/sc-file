@@ -3,14 +3,13 @@ from typing import Any, Optional
 
 from scfile import exceptions as exc
 from scfile.enums import FileSuffix
+from scfile.file._base import FileDecoder, FileEncoder
 from scfile.file.dds import DdsEncoder
-from scfile.file.decoder import FileDecoder
-from scfile.file.encoder import FileEncoder
 from scfile.file.mcsa import McsaDecoder
 from scfile.file.mic import MicDecoder
-from scfile.file.obj import ObjEncoder
 from scfile.file.ms3d import Ms3dBinEncoder
 from scfile.file.ms3d_ascii import Ms3dAsciiEncoder
+from scfile.file.obj import ObjEncoder
 from scfile.file.ol import OlDecoder
 from scfile.file.png import PngEncoder
 from scfile.utils.types import PathLike

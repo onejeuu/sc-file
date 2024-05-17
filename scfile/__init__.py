@@ -1,6 +1,3 @@
-from .utils import convert
-from .utils import model
-from .utils.convert import mcsa_to_ms3d, mcsa_to_ms3d_ascii, mcsa_to_obj, mic_to_png, ol_to_dds
 from .file import (
     DdsEncoder,
     McsaDecoder,
@@ -11,6 +8,15 @@ from .file import (
     OlDecoder,
     PngEncoder,
 )
+from .utils import convert, model
+from .utils.convert import (
+    mcsa_to_ms3d,
+    mcsa_to_ms3d_ascii,
+    mcsa_to_obj,
+    mic_to_png,
+    ol_to_dds,
+)
+
 
 __all__ = (
     "convert",

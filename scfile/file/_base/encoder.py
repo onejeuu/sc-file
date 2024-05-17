@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from typing import Generic, Optional, Self, TypeVar
 
 from scfile.enums import FileMode
-from scfile.file.base import BaseFile
-from scfile.file.data import FileData
 from scfile.io.binary import BinaryBytesIO
 from scfile.utils.types import PathLike
+
+from .._data import FileData
+from .file import BaseFile
 
 
 DATA = TypeVar("DATA", bound=FileData)

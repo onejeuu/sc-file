@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-
-from scfile.utils.model.datatypes import Vector, Texture, Polygon
+from scfile.utils.model.datatypes import Polygon, Texture, Vector
 
 
 @dataclass

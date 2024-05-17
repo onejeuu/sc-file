@@ -1,6 +1,6 @@
 from scfile.consts import Magic
-from scfile.file.data import ImageData
-from scfile.file.encoder import FileEncoder
+from scfile.file._base import FileEncoder
+from scfile.file._data import ImageData
 
 
 class PngEncoder(FileEncoder[ImageData]):

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from io import IOBase
 from typing import Any, Optional, Type
 
-from scfile.file.data import FileData
+from .._data import FileData
 
 
 class BaseFile(ABC):
