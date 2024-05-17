@@ -2,6 +2,7 @@ from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
+from scfile.file.dae import DaeEncoder
 from scfile.file.data import ModelData
 from scfile.file.ms3d import Ms3dBinEncoder
 from scfile.file.ms3d_ascii import Ms3dAsciiEncoder
@@ -15,14 +16,17 @@ from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
 class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
+    def to_dae(self):
+        return self.convert_to(DaeEncoder)
+
     def to_obj(self):
         return self.convert_to(ObjEncoder)
 
-    def to_ms3d_ascii(self):
-        return self.convert_to(Ms3dAsciiEncoder)
-
     def to_ms3d(self):
         return self.convert_to(Ms3dBinEncoder)
+
+    def to_ms3d_ascii(self):
+        return self.convert_to(Ms3dAsciiEncoder)
 
     @property
     def opener(self):

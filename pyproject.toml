@@ -19,6 +19,7 @@ lz4 = "^4.3.2"
 click = "^8.1.7"
 quicktex = "^0.2.0"
 numpy = "^1.26.3"
+pycollada = "^0.8"
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.0.0"

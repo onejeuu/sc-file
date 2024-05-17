@@ -1,3 +1,4 @@
+from .dae import DaeEncoder
 from .dds import DdsEncoder
 from .mcsa import McsaDecoder
 from .mic import MicDecoder
@@ -9,6 +10,7 @@ from .png import PngEncoder
 
 
 __all__ = (
+    "DaeEncoder",
     "DdsEncoder",
     "McsaDecoder",
     "MicDecoder",

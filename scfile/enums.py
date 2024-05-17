@@ -2,6 +2,7 @@ from enum import StrEnum, auto
 
 
 class FileSuffix(StrEnum):
+    DAE = auto()
     DDS = auto()
     MCSA = auto()
     MCVD = auto()

@@ -4,6 +4,7 @@ from typing import Any, Optional
 from scfile import exceptions as exc
 from scfile.enums import FileSuffix
 from scfile.file._base import FileDecoder, FileEncoder
+from scfile.file.dae import DaeEncoder
 from scfile.file.dds import DdsEncoder
 from scfile.file.mcsa import McsaDecoder
 from scfile.file.mic import MicDecoder
@@ -15,17 +16,33 @@ from scfile.file.png import PngEncoder
 from scfile.utils.types import PathLike
 
 
-def mcsa_to_ms3d(source: PathLike, output: Optional[PathLike] = None):
+def mcsa_to_dae(source: PathLike, output: Optional[PathLike] = None):
     """
-    Converting `.mcsa` file to `.ms3d`.
+    Converting model `.mcsa` file to `.dae`.
 
     Args:
-        source: Full path to `.mcsa` file.
-        output (optional): Full path to output `.ms3d` file.
+        source: Path to `.mcsa` file.
+        output (optional): Path to output `.dae` file.
         Defaults to source path with new suffix.
 
     Example:
-        `mcsa_to_ms3d("C:/file.mcsa", "C:/file.ms3d")`
+        `mcsa_to_dae("model.mcsa", "model.dae")`
+    """
+
+    _convert(source, output, McsaDecoder, DaeEncoder, FileSuffix.DAE)
+
+
+def mcsa_to_ms3d(source: PathLike, output: Optional[PathLike] = None):
+    """
+    Converting model `.mcsa` file to `.ms3d`.
+
+    Args:
+        source: Path to `.mcsa` file.
+        output (optional): Path to output `.ms3d` file.
+        Defaults to source path with new suffix.
+
+    Example:
+        `mcsa_to_ms3d("model.mcsa", "model.ms3d")`
     """
 
     _convert(source, output, McsaDecoder, Ms3dBinEncoder, FileSuffix.MS3D)
@@ -33,15 +50,15 @@ def mcsa_to_ms3d(source: PathLike, output: Optional[PathLike] = None):
 
 def mcsa_to_ms3d_ascii(source: PathLike, output: Optional[PathLike] = None):
     """
-    Converting `.mcsa` file to `.txt`.
+    Converting model `.mcsa` file to `.txt`.
 
     Args:
-        source: Full path to `.mcsa` file.
-        output (optional): Full path to output `.txt` file.
+        source: Path to `.mcsa` file.
+        output (optional): Path to output `.txt` file.
         Defaults to source path with new suffix.
 
     Example:
-        `mcsa_to_ms3d_ascii("C:/file.mcsa", "C:/file.txt")`
+        `mcsa_to_ms3d_ascii("model.mcsa", "model.txt")`
     """
 
     _convert(source, output, McsaDecoder, Ms3dAsciiEncoder, FileSuffix.TXT)
@@ -49,15 +66,15 @@ def mcsa_to_ms3d_ascii(source: PathLike, output: Optional[PathLike] = None):
 
 def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
     """
-    Converting `.mcsa` file to `.obj`.
+    Converting model `.mcsa` file to `.obj`.
 
     Args:
-        source: Full path to `.mcsa` file.
-        output (optional): Full path to output `.obj` file.
+        source: Path to `.mcsa` file.
+        output (optional): Path to output `.obj` file.
         Defaults to source path with new suffix.
 
     Example:
-        `mcsa_to_obj("C:/file.mcsa", "C:/file.obj")`
+        `mcsa_to_obj("model.mcsa", "model.obj")`
     """
 
     _convert(source, output, McsaDecoder, ObjEncoder, FileSuffix.OBJ)
@@ -65,15 +82,15 @@ def mcsa_to_obj(source: PathLike, output: Optional[PathLike] = None):
 
 def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
     """
-    Converting `.mic` file to `.png`.
+    Converting image `.mic` file to `.png`.
 
     Args:
-        source: Full path to `.mic` file.
-        output (optional): Full path to output `.png` file.
+        source: Path to `.mic` file.
+        output (optional): Path to output `.png` file.
         Defaults to source path with new suffix.
 
     Example:
-        `mic_to_png("C:/file.mic", "C:/file.png")`
+        `mic_to_png("image.mic", "image.png")`
     """
 
     _convert(source, output, MicDecoder, PngEncoder, FileSuffix.PNG)
@@ -81,15 +98,15 @@ def mic_to_png(source: PathLike, output: Optional[PathLike] = None):
 
 def ol_to_dds(source: PathLike, output: Optional[PathLike] = None):
     """
-    Converting `.ol` file to `.dds`.
+    Converting texture `.ol` file to `.dds`.
 
     Args:
-        source: Full path to `.ol` file.
-        output (optional): Full path to output `.dds` file.
+        source: Path to `.ol` file.
+        output (optional): Path to output `.dds` file.
         Defaults to source path with new suffix.
 
     Example:
-        `ol_to_dds("C:/file.ol", "C:/file.dds")`
+        `ol_to_dds("texture.ol", "texture.dds")`
     """
 
     _convert(source, output, OlDecoder, DdsEncoder, FileSuffix.DDS)
@@ -100,15 +117,15 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
     Automatically determines which format convert to.
 
     Args:
-        source: Full path to encrypted file.
-        output (optional): Full path to output decrypted file.
+        source: Path to encrypted file.
+        output (optional): Path to output decrypted file.
         Defaults to source path with new suffix.
 
     Raises:
         FileSuffixUnsupported - if source suffix not in consts.SUPPORTED_SUFFIXES.
 
     Example:
-        `auto("C:/file.mic", "C:/file.png")`
+        `auto("file.mic", "file.png")`
     """
 
     path = Path(source)

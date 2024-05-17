@@ -15,15 +15,17 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 # 📁 Formats
 
-| Type    | Source        | Output           |
-| ------- | ------------- | ---------------- |
-| Model   | .mcsa / .mcvd | .obj, .txt, ms3d |
-| Texture | .ol           | .dds             |
-| Image   | .mic          | .png             |
+| Type    | Source        | Output                 |
+| ------- | ------------- | ---------------------- |
+| Model   | .mcsa / .mcvd | .obj, .dae, ms3d, .txt |
+| Texture | .ol           | .dds                   |
+| Image   | .mic          | .png                   |
 
 Model versions supported: 7.0, 8.0, 10.0
 
-Model animations (`.mcvd`) currently supports only meshes
+Model animations `.mcvd` currently supports only meshes
+
+Collada model `.dae` skeleton currently unsupported
 
 Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, RGBA32F, DXN_XY
 
