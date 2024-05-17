@@ -5,11 +5,13 @@ from scfile.file.encoder import FileEncoder
 from scfile.enums import StructFormat as F
 
 
+# TODO: Optimize
+
+
 class Ms3dBinEncoder(FileEncoder[ModelData]):
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes
-        self.flags = self.data.model.flags
 
         self.model.ensure_unique_names()
         self.model.convert_polygons_to_global()
@@ -33,6 +35,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
             for v in mesh.vertices:
                 pos = v.position
                 # i8 flags, f32 pos[3], i8 bone id, u8 reference count
+                # TODO: reference count
                 self.b.writeb(F.I8 + (F.F32 * 3) + F.I8 + F.U8, 0, pos.x, pos.y, pos.z, -1, 0xFF)
 
     def _add_triangles(self):
@@ -45,6 +48,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
                 v2 = mesh.vertices[p.b]
                 v3 = mesh.vertices[p.c]
 
+                # TODO: make it readable
                 # ! its awful but faster
                 # u16 flags, u16 indices[3]
                 # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
@@ -103,6 +107,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
     def _add_materials(self):
         self.b.writeb(F.U16, len(self.meshes))  # materials count
 
+        # TODO: (maybe) default material values as const ?
         for mesh in self.meshes:
             self.b.write(self._fixedlen(mesh.material))  # material name
             self.b.writeb(F.F32 * 4, 0.2, 0.2, 0.2, 1.0)  # ambient rgba
