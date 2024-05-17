@@ -9,11 +9,11 @@ from scfile import exceptions as exc
 from scfile.consts import Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
-from scfile.file._base import FileDecoder
-from scfile.file._data import TextureData
-from scfile.file.dds.encoder import DdsEncoder
-from scfile.io.ol import OlFileIO
+from scfile.file.data import TextureData
+from scfile.file.dds import DdsEncoder
+from scfile.io import OlFileIO
 
+from .._base import FileDecoder
 from .converter.base import RGBA8Converter
 from .converter.bgra8 import BGRA8Converter
 from .converter.rgba32f import RGBA32FConverter

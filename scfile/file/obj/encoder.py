@@ -1,6 +1,7 @@
-from scfile.file._base import FileEncoder
-from scfile.file._data import ModelData
+from scfile.file.data import ModelData
 from scfile.utils.model import Mesh, Polygon
+
+from .._base import FileEncoder
 
 
 class ObjEncoder(FileEncoder[ModelData]):

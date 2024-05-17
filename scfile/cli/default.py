@@ -4,8 +4,8 @@ from typing import Optional
 import click
 from rich import print
 
-from scfile.cli.consts import Types
-from scfile.cli.convert import convert_file, convert_multiple_files
+from .consts import Types
+from .convert import convert_file, convert_multiple_files
 
 
 @click.command(no_args_is_help=True)

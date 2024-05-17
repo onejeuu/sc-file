@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Generic, Optional, Self, TypeVar
 
 from scfile.enums import FileMode
-from scfile.io.binary import BinaryBytesIO
+from scfile.file.data import FileData
+from scfile.io import BinaryBytesIO
 from scfile.utils.types import PathLike
 
-from .._data import FileData
 from .file import BaseFile
 
 

@@ -2,14 +2,14 @@ from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
-from scfile.file._base import FileDecoder
-from scfile.file._data import ModelData
-from scfile.file.ms3d.encoder import Ms3dBinEncoder
-from scfile.file.ms3d_ascii.encoder import Ms3dAsciiEncoder
-from scfile.file.obj.encoder import ObjEncoder
-from scfile.io.mcsa import McsaFileIO
+from scfile.file.data import ModelData
+from scfile.file.ms3d import Ms3dBinEncoder
+from scfile.file.ms3d_ascii import Ms3dAsciiEncoder
+from scfile.file.obj import ObjEncoder
+from scfile.io import McsaFileIO
 from scfile.utils.model import Bone, Mesh, Model
 
+from .._base import FileDecoder
 from .flags import Flag, McsaFlags
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 

@@ -1,8 +1,9 @@
 from scfile.consts import Signature
-from scfile.file._base import FileDecoder
-from scfile.file._data import ImageData
-from scfile.file.png.encoder import PngEncoder
-from scfile.io.binary import BinaryFileIO
+from scfile.file.data import ImageData
+from scfile.file.png import PngEncoder
+from scfile.io import BinaryFileIO
+
+from .._base import FileDecoder
 
 
 class MicDecoder(FileDecoder[BinaryFileIO, ImageData]):

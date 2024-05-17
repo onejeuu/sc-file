@@ -5,10 +5,10 @@ from typing import Generic, Optional, TypeVar
 from scfile.enums import ByteOrder, FileMode
 from scfile.enums import StructFormat as F
 from scfile.exceptions import FileSignatureInvalid
-from scfile.io.binary import BinaryFileIO
+from scfile.file.data import FileData
+from scfile.io import BinaryFileIO
 from scfile.utils.types import PathLike
 
-from .._data import FileData
 from .encoder import FileEncoder
 from .file import BaseFile
 

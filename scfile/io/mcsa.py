@@ -6,7 +6,8 @@ from numpy.typing import NDArray
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.enums import StructFormat as F
 from scfile.exceptions.mcsa import McsaCountsLimit
-from scfile.io.binary import BinaryFileIO
+
+from .binary import BinaryFileIO
 
 
 class McsaFileIO(BinaryFileIO):

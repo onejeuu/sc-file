@@ -1,8 +1,8 @@
 from scfile.consts import Magic
 from scfile.enums import StructFormat as F
-from scfile.file._base import FileEncoder
-from scfile.file._data import TextureData
+from scfile.file.data import TextureData
 
+from .._base import FileEncoder
 from .structure import DDS
 
 

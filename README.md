@@ -143,12 +143,11 @@ convert.auto("path/to/model.mcsa")
 
 ### Advanced
 
-Default
+- Default
 
 ```python
 from scfile.file.data import ModelData
-from scfile.file.mcsa.decoder import McsaDecoder
-from scfile.file.obj.encoder import ObjEncoder
+from scfile.file import McsaDecoder, ObjEncoder
 
 mcsa = McsaDecoder("model.mcsa")
 data: ModelData = mcsa.decode()
@@ -158,7 +157,7 @@ obj = ObjEncoder(data)
 obj.encode().save("model.obj") # ? Encoder closes after saving
 ```
 
-Use encoded content bytes
+- Use encoded content bytes
 
 ```python
 obj = ObjEncoder(data)
@@ -170,7 +169,7 @@ with open("model.obj", "wb") as fp:
 obj.close() # ? Necessary to close
 ```
 
-Use convert methods
+- Use convert methods
 
 ```python
 mcsa = McsaDecoder("model.mcsa")
@@ -184,7 +183,7 @@ mcsa.to_obj().save("model.obj")
 mcsa.close() # ? Necessary to close
 ```
 
-Use context manager
+- Use context manager
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
@@ -194,14 +193,24 @@ with ObjEncoder(data) as obj:
     obj.encode().save("model.obj")
 ```
 
-Use context manager + convert methods
+- Use context manager + convert methods
+
+```python
+with McsaDecoder("model.mcsa") as mcsa:
+    obj = mcsa.convert_to(ObjEncoder)
+    obj.close()
+```
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
     mcsa.to_obj().save("model.obj")
 ```
 
-Save multiple copies
+> [!IMPORTANT]
+> When using `convert_to` buffer remains open. \
+> `close()` or `save()` or another context (`with`) is necessary.
+
+- Save multiple copies
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
@@ -235,3 +244,7 @@ poetry run build
 ```
 
 Executable file will be created in `/dist` directory.
+
+```
+
+```

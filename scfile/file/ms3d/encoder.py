@@ -1,7 +1,8 @@
 from scfile.consts import McsaModel
 from scfile.enums import StructFormat as F
-from scfile.file._base import FileEncoder
-from scfile.file._data import ModelData
+from scfile.file.data import ModelData
+
+from .._base import FileEncoder
 
 
 # TODO: Optimize

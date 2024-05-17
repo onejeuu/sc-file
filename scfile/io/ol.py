@@ -1,5 +1,6 @@
 from scfile.consts import OlString
-from scfile.io.binary import BinaryFileIO
+
+from .binary import BinaryFileIO
 
 
 class OlFileIO(BinaryFileIO):
