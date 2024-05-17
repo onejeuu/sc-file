@@ -4,9 +4,9 @@ from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.file.data import ModelData
 from scfile.file.decoder import FileDecoder
-from scfile.file.ms3d.ascii.encoder import Ms3dAsciiEncoder
-from scfile.file.ms3d.bin.encoder import Ms3dBinEncoder
 from scfile.file.obj.encoder import ObjEncoder
+from scfile.file.ms3d_ascii.encoder import Ms3dAsciiEncoder
+from scfile.file.ms3d.encoder import Ms3dBinEncoder
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model import Bone, Mesh, Model
 

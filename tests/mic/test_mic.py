@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.file.mic.decoder import MicDecoder
+from scfile import MicDecoder
 
 
 def test_to_png(assets: Path):

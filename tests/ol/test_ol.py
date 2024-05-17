@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.file.ol.decoder import OlDecoder
+from scfile import OlDecoder
 
 
 def test_to_dds_dxt5(assets: Path):
