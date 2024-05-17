@@ -15,7 +15,7 @@ class Results(NamedTuple):
     expected: bytes
 
 
-def validate_codec(
+def extract(
     decoder: type[FileDecoder[OPENER, DATA]],
     encoder: type[FileEncoder[DATA]],
     assets: Path,
