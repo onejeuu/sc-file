@@ -4,20 +4,17 @@ from typing import Optional
 import click
 from rich import print
 
-from .convert import convert_file, convert_multiple_files
+from scfile.cli.convert import convert_file, convert_multiple_files
+from scfile.cli.consts import Types
 
 
 @click.command(no_args_is_help=True)
-@click.argument(
-    "files",
-    type=click.Path(path_type=Path, exists=True, readable=True, dir_okay=False),
-    nargs=-1,
-)
+@click.argument("files", type=Types.FILES, nargs=-1)
 @click.option(
     "-O",
     "--output",
     help="Optional path to output. Defaults to source path with new suffix.",
-    type=click.Path(path_type=Path, exists=False, writable=True, dir_okay=True),
+    type=Types.OUTPUT,
     multiple=True,
     nargs=1,
 )
