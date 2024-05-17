@@ -45,3 +45,6 @@ class Color:
     r: float = 0.8
     g: float = 0.8
     b: float = 0.8
+
+    def __iter__(self):
+        return iter((self.r, self.g, self.b))

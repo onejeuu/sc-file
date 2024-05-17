@@ -6,8 +6,6 @@ from .._base import FileEncoder
 
 
 class Ms3dAsciiEncoder(FileEncoder[ModelData]):
-    FLOAT_FORMAT = ".6f"
-
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes
@@ -45,13 +43,11 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         self.b.writes("\n")
 
     def _add_vertices(self, mesh: Mesh):
-        f = self.FLOAT_FORMAT
-
         self.b.writes(f"{len(mesh.vertices)}\n")
         self.b.writes(
             "\n".join(
                 [
-                    f"0 {v.position.x:{f}} {v.position.y:{f}} {v.position.z:{f}} {v.texture.u:{f}} {v.texture.v:{f}} {McsaModel.ROOT_BONE_ID}"
+                    f"0 {v.position.x} {v.position.y} {v.position.z} {v.texture.u} {v.texture.v} {McsaModel.ROOT_BONE_ID}"
                     for v in mesh.vertices
                 ]
             )
@@ -59,13 +55,9 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         self.b.writes("\n")
 
     def _add_normals(self, mesh: Mesh):
-        f = self.FLOAT_FORMAT
-
         self.b.writes(f"{len(mesh.vertices)}\n")
         self.b.writes(
-            "\n".join(
-                [f"{v.normals.x:{f}} {v.normals.y:{f}} {v.normals.z:{f}}" for v in mesh.vertices]
-            )
+            "\n".join([f"{v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices])
         )
         self.b.writes("\n")
 
@@ -99,8 +91,6 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         self.b.writes("\n")
 
     def _add_skeleton(self):
-        f = self.FLOAT_FORMAT
-
         if not self.flags.skeleton:
             self.b.writes("Bones: 0\n")
             return
@@ -117,7 +107,7 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
                 self.b.writes(f'"{parent_name}"\n')
 
             self.b.writes(
-                f"0 {b.position.x:{f}} {b.position.y:{f}} {b.position.z:{f}} {b.rotation.x:{f}} {b.rotation.y:{f}} {b.rotation.z:{f}}\n"
+                f"0 {b.position.x} {b.position.y} {b.position.z} {b.rotation.x} {b.rotation.y} {b.rotation.z}\n"
             )
             self.b.writes("0\n")
             self.b.writes("0\n")

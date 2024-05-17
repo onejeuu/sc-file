@@ -11,6 +11,8 @@ from .binary import BinaryFileIO
 
 
 class McsaFileIO(BinaryFileIO):
+    FLOATS_ROUND = 6
+
     def readstring(self) -> str:
         """Read length-prefixed utf-8 string."""
         return self.reads().decode("utf-8", errors="replace")
@@ -34,6 +36,9 @@ class McsaFileIO(BinaryFileIO):
 
         # Scale values to floats
         data = data * scale / (factor + 1)
+
+        # Round digits
+        data = data.round(self.FLOATS_ROUND)
 
         return self._reshape(data, size)
 

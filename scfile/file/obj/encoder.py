@@ -5,8 +5,6 @@ from .._base import FileEncoder
 
 
 class ObjEncoder(FileEncoder[ModelData]):
-    FLOAT_FORMAT = ".6f"
-
     def serialize(self):
         self.model = self.data.model
         self.flags = self.data.model.flags
@@ -29,21 +27,16 @@ class ObjEncoder(FileEncoder[ModelData]):
             self._add_polygonal_faces(mesh)
 
     def _add_geometric_vertices(self, mesh: Mesh):
-        f = self.FLOAT_FORMAT
         self._write_vertex_data(
-            [f"v {v.position.x:{f}} {v.position.y:{f}} {v.position.z:{f}}" for v in mesh.vertices]
+            [f"v {v.position.x} {v.position.y} {v.position.z}" for v in mesh.vertices]
         )
 
     def _add_texture_coordinates(self, mesh: Mesh):
-        f = self.FLOAT_FORMAT
-        self._write_vertex_data(
-            [f"vt {v.texture.u:{f}} {1.0 - v.texture.v:{f}}" for v in mesh.vertices]
-        )
+        self._write_vertex_data([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices])
 
     def _add_vertex_normals(self, mesh: Mesh):
-        f = self.FLOAT_FORMAT
         self._write_vertex_data(
-            [f"vn {v.normals.x:{f}} {v.normals.y:{f}} {v.normals.z:{f}}" for v in mesh.vertices]
+            [f"vn {v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices]
         )
 
     def _add_polygonal_faces(self, mesh: Mesh):

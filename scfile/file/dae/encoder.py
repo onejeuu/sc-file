@@ -1,9 +1,14 @@
+import xml.etree.ElementTree as etree
+from typing import Any, TypeAlias
+
 import numpy as np
-from collada import Collada, geometry, scene, source  # type: ignore
 
 from scfile.file.data import ModelData
 
 from .._base import FileEncoder
+
+
+NpArray: TypeAlias = np.ndarray[Any, np.dtype[Any]]
 
 
 class DaeEncoder(FileEncoder[ModelData]):
@@ -12,58 +17,129 @@ class DaeEncoder(FileEncoder[ModelData]):
         self.flags = self.data.model.flags
 
         self.model.ensure_unique_names()
-        self.model.convert_polygons_to_global()
 
-        self.collada = Collada()
-        self.nodes: set[scene.Node] = set()
+        self._create_root()
+        self._add_asset()
+        self._add_geometries()
+        self._add_scenes()
+        self._render_xml()
 
-        # ? pycollada doesnt have skeleton support...
+    def _create_root(self):
+        xmlns = "http://www.collada.org/2008/03/COLLADASchema"
+        self.root = etree.Element("COLLADA", xmlns=xmlns, version="1.5.0")
 
-        for index, mesh in enumerate(self.model.meshes):
-            # adding vertex positions source
-            verts_id = f"{mesh.name}-verts-array"
-            verts_data = np.array(
-                [(v.position.x, v.position.y, v.position.z) for v in mesh.vertices]
+    def _add_asset(self):
+        asset = etree.SubElement(self.root, "asset")
+        etree.SubElement(asset, "unit", name="meter", meter="1")
+        etree.SubElement(asset, "up_axis").text = "Y_UP"
+
+    def _add_geometries(self):
+        library = etree.SubElement(self.root, "library_geometries")
+
+        for mesh in self.model.meshes:
+            geom = etree.SubElement(library, "geometry", id=f"{mesh.name}-mesh", name=mesh.name)
+            self.node = etree.SubElement(geom, "mesh")
+
+            self.mesh = mesh
+
+            self._add_positions()
+            self._add_normals()
+            self._add_texture()
+            self._add_vertices()
+            self._add_triangles()
+
+    def _add_positions(self):
+        data = np.array([(v.position.x, v.position.y, v.position.z) for v in self.mesh.vertices])
+        self._add_source("positions", data, ["X", "Y", "Z"])
+
+    def _add_normals(self):
+        data = np.array([(v.normals.x, v.normals.y, v.normals.z) for v in self.mesh.vertices])
+        self._add_source("normals", data, ["X", "Y", "Z"])
+
+    def _add_texture(self):
+        data = np.array([(v.texture.u, -v.texture.v) for v in self.mesh.vertices])
+        self._add_source("texture", data, ["S", "T"])
+
+    def _add_source(self, name: str, data: NpArray, components: list[str]):
+        self.source = etree.SubElement(self.node, "source", id=f"{self.mesh.name}-{name}")
+
+        array = etree.SubElement(
+            self.source,
+            "float_array",
+            id=f"{self.mesh.name}-{name}-array",
+            count=str(self.mesh.count.vertices),
+        )
+
+        array.text = " ".join(map(str, data.flatten()))
+
+        self._add_source_common(name, components)
+
+    def _add_source_common(self, name: str, components: list[str]):
+        common = etree.SubElement(
+            self.source,
+            "technique_common",
+        )
+        accessor = etree.SubElement(
+            common,
+            "accessor",
+            source=f"#{self.mesh.name}-{name}-array",
+            count=str(self.mesh.count.vertices),
+            stride=str(len(components)),
+        )
+
+        for name in components:
+            accessor.append(etree.Element("param", name=name, type="float"))
+
+    def _add_vertices(self):
+        vertices = etree.SubElement(self.node, "vertices", id=f"{self.mesh.name}-vertices")
+        etree.SubElement(
+            vertices, "input", semantic="POSITION", source=f"#{self.mesh.name}-positions"
+        )
+
+    def _add_triangles(self):
+        self.triangles = etree.SubElement(
+            self.node, "triangles", count=str(self.mesh.count.polygons)
+        )
+        self._add_inputs()
+        self._add_polygons()
+
+    def _add_input(self, semantic: str, name: str):
+        etree.SubElement(
+            self.triangles,
+            "input",
+            semantic=semantic,
+            source=f"#{self.mesh.name}-{name}",
+            offset="0",
+        )
+
+    def _add_inputs(self):
+        self._add_input("VERTEX", "vertices")
+
+        if self.flags.normals:
+            self._add_input("NORMAL", "normals")
+
+        if self.flags.texture:
+            self._add_input("TEXCOORD", "texture")
+
+    def _add_polygons(self):
+        indices = np.array([vertex_id for polygon in self.mesh.polygons for vertex_id in polygon])
+
+        p = etree.SubElement(self.triangles, "p")
+        p.text = " ".join(map(str, indices))
+
+    def _add_scenes(self):
+        library = etree.SubElement(self.root, "library_visual_scenes")
+        visual_scene = etree.SubElement(library, "visual_scene", id="scene")
+
+        for mesh in self.model.meshes:
+            node = etree.SubElement(
+                visual_scene, "node", id=f"{mesh.name}-node", name=mesh.name, type="NODE"
             )
-            verts = source.FloatSource(verts_id, verts_data, ("X", "Y", "Z"))
+            etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}-mesh", name=mesh.name)
 
-            # adding texture coodinates source
-            texture_id = f"{mesh.name}-texture-array"
-            texture_data = np.array(
-                [(vertex.texture.u, -vertex.texture.v) for vertex in mesh.vertices]
-            )
-            texture = source.FloatSource(texture_id, texture_data, ("X", "Y"))
+        scene = etree.SubElement(self.root, "scene")
+        etree.SubElement(scene, "instance_visual_scene", url="#scene")
 
-            # adding vertex normals source
-            normals_id = f"{mesh.name}-normals-array"
-            normals_data = np.array(
-                [(v.normals.x, v.normals.y, v.normals.z) for v in mesh.vertices]
-            )
-            normals = source.FloatSource(normals_id, normals_data, ("X", "Y", "Z"))
-
-            # adding geometry with sources
-            geom = geometry.Geometry(
-                self.collada, f"geometry-{index}", mesh.name, [verts, normals, texture]
-            )
-
-            input_list = source.InputList()
-            input_list.addInput(0, "VERTEX", f"#{verts_id}")  # type: ignore
-            input_list.addInput(0, "NORMAL", f"#{normals_id}")  # type: ignore
-            input_list.addInput(0, "TEXCOORD", f"#{texture_id}")  # type: ignore
-
-            # adding polygons
-            indices = np.array([vertex_id for polygon in mesh.polygons for vertex_id in polygon])
-            triset = geom.createTriangleSet(indices, input_list)  # type: ignore
-            geom.primitives.append(triset)  # type: ignore
-            self.collada.geometries.append(geom)
-
-            # adding node
-            geomnode = scene.GeometryNode(geom)
-            node = scene.Node(mesh.name, children=[geomnode])
-            self.nodes.add(node)
-
-        # creating scene with nodes
-        myscene = scene.Scene("scene", list(self.nodes))
-        self.collada.scenes.append(myscene)
-        self.collada.scene = myscene
-        self.collada.write(self.buffer)  # type: ignore
+    def _render_xml(self):
+        etree.indent(self.root)
+        self.buffer.write(etree.tostring(self.root))
