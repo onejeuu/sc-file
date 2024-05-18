@@ -35,7 +35,7 @@ class McsaFileIO(BinaryFileIO):
         data = self.readarray(fmt=fmt, size=size, count=count)
 
         # Scale values to floats
-        data = data * scale / (factor + 1)
+        data = data * scale / (factor)
 
         # Round digits
         data = data.round(self.FLOATS_ROUND)

@@ -1,7 +1,7 @@
 import io
 from pathlib import Path
 
-from ._base import BinaryIO
+from .base import BinaryIO
 
 
 class BinaryBytesIO(io.BytesIO, BinaryIO):

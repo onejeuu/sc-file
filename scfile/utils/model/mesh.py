@@ -15,8 +15,8 @@ class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Vector = field(default_factory=Vector)
+    bone: VertexBone = field(default_factory=VertexBone)
     # color: Color = field(default_factory=Color)
-    # bone: VertexBone = field(default_factory=VertexBone)
 
 
 @dataclass

@@ -33,9 +33,6 @@ class StructFormat(StrEnum):
     BOOL = "?"
     """boolean: `1 byte` [False, True]"""
 
-    CHAR = "c"
-    """character: `1 byte` [0, 255]"""
-
     I8 = "b"
     """signed char: `BYTE` `1 byte` [-128, 127]"""
     I16 = "h"

@@ -20,7 +20,6 @@ class Magic:
 
     DDS = [0x44, 0x44, 0x53, 0x20]
     PNG = [0x89, 0x50, 0x4E, 0x47]
-    MS3D = [0x4D, 0x53, 0x33, 0x44]
 
 
 class Factor:
@@ -68,9 +67,9 @@ class McsaSize:
     COLOR = 4
 
 
-# Files suffixes that can be converted
 SUPPORTED_SUFFIXES = {FileSuffix.MCSA, FileSuffix.MCVD, FileSuffix.MIC, FileSuffix.OL}
+"""Files suffixes that can be converted"""
 
-# Dds cubemap faces count
-# +x, -x, +y, -y, +z, -z
+
 CUBEMAP_FACES = 6
+"""Dds cubemap faces count. (+x, -x, +y, -y, +z, -z)"""

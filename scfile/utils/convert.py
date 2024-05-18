@@ -3,16 +3,16 @@ from typing import Any, Optional
 
 from scfile import exceptions as exc
 from scfile.enums import FileSuffix
-from scfile.file._base import FileDecoder, FileEncoder
-from scfile.file.dae import DaeEncoder
-from scfile.file.dds import DdsEncoder
-from scfile.file.mcsa import McsaDecoder
-from scfile.file.mic import MicDecoder
-from scfile.file.ms3d import Ms3dBinEncoder
-from scfile.file.ms3d_ascii import Ms3dAsciiEncoder
-from scfile.file.obj import ObjEncoder
-from scfile.file.ol import OlDecoder
-from scfile.file.png import PngEncoder
+from scfile.file.base import FileDecoder, FileEncoder
+from scfile.file.formats.dae import DaeEncoder
+from scfile.file.formats.dds import DdsEncoder
+from scfile.file.formats.mcsa import McsaDecoder
+from scfile.file.formats.mic import MicDecoder
+from scfile.file.formats.ms3d import Ms3dBinEncoder
+from scfile.file.formats.ms3d_ascii import Ms3dAsciiEncoder
+from scfile.file.formats.obj import ObjEncoder
+from scfile.file.formats.ol import OlDecoder
+from scfile.file.formats.png import PngEncoder
 from scfile.utils.types import PathLike
 
 

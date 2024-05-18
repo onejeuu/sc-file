@@ -49,6 +49,5 @@ class Model:
         offset = start
 
         for mesh in self.meshes:
-            for index, polygon in enumerate(mesh.polygons):
-                mesh.global_polygons.insert(index, polygon >> offset)
+            mesh.global_polygons = [polygon >> offset for polygon in mesh.polygons]
             offset += mesh.count.vertices
