@@ -56,3 +56,10 @@ def test_context_manager_convert_to(assets: Path, temp_file: str):
 def test_context_manager_to_xxx(assets: Path, temp_file: str):
     with McsaDecoder(assets / "model.mcsa") as mcsa:
         mcsa.to_obj().save(temp_file)
+
+
+def test_context_multiple_copies(assets: Path, temp_file: str):
+    with McsaDecoder(assets / "model.mcsa") as mcsa:
+        with mcsa.to_obj() as obj:
+            obj.save_as(temp_file)
+            obj.save_as(temp_file)
