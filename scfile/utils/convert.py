@@ -1,9 +1,10 @@
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional, TypeVar
 
 from scfile import exceptions as exc
 from scfile.enums import FileSuffix
 from scfile.file.base import FileDecoder, FileEncoder
+from scfile.file.data.base import FileData
 from scfile.file.formats.dae import DaeEncoder
 from scfile.file.formats.dds import DdsEncoder
 from scfile.file.formats.mcsa import McsaDecoder
@@ -13,7 +14,12 @@ from scfile.file.formats.ms3d_ascii import Ms3dAsciiEncoder
 from scfile.file.formats.obj import ObjEncoder
 from scfile.file.formats.ol import OlDecoder
 from scfile.file.formats.png import PngEncoder
+from scfile.io.binary import BinaryFileIO
 from scfile.utils.types import PathLike
+
+
+OPENER = TypeVar("OPENER", bound=BinaryFileIO)
+DATA = TypeVar("DATA", bound=FileData)
 
 
 def mcsa_to_dae(source: PathLike, output: Optional[PathLike] = None):
@@ -152,8 +158,8 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
 def _convert(
     source: PathLike,
     output: Optional[PathLike],
-    decoder: type[FileDecoder[Any, Any]],
-    encoder: type[FileEncoder[Any]],
+    decoder: type[FileDecoder[OPENER, DATA]],
+    encoder: type[FileEncoder[DATA]],
     new_suffix: str,
 ):
     src = Path(source)
