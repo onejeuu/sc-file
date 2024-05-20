@@ -20,13 +20,14 @@ def extract(
     encoder: type[FileEncoder[DATA]],
     assets: Path,
     subdir: Optional[Path] = None,
+    output_filename: str = "output",
 ) -> Results:
     subdir = subdir or Path()
 
-    input_path = assets / subdir / "input"
-    output_path = assets / subdir / "output"
+    source_path = assets / subdir / "input"
+    output_path = assets / subdir / output_filename
 
-    with decoder(input_path) as dec:
+    with decoder(source_path) as dec:
         with dec.convert_to(encoder) as enc:
             converted = enc.content
 
