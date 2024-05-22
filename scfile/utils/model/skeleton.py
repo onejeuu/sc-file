@@ -24,13 +24,16 @@ class Local:
 class Skeleton:
     bones: List[Bone] = field(default_factory=list)
 
+    # TODO: fix this
     def convert_to_local(self):
         """Update bones positions by their parent bone."""
 
-        bones = self.bones
         parent_id = 0
+        bones = self.bones
 
         for bone in bones:
+            bone.rotation = Vector()
+
             parent_id = bone.parent_id
 
             while parent_id > McsaModel.ROOT_BONE_ID:

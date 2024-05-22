@@ -217,7 +217,7 @@ if ( header.flags.SKELETON )
 
 // Model Animations
 
-struct Joint {
+struct Frame {
     byte data[skeleton.count * 14] <bgcolor=cGray>;
 };
 
@@ -226,7 +226,7 @@ struct Anim {
     uint count <name="Frames", bgcolor=cGreen>;
     float time <name="Time", bgcolor=cPurple>;
     if ( count > 0 )
-        Joint joint[count] <optimize=false>;
+        Frame frames[count] <optimize=false>;
 };
 
 // Not sure where exactly marked that file contains animations.

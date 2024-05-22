@@ -45,13 +45,6 @@ class DaeEncoder(FileEncoder[ModelData]):
             self._add_vertices()
             self._add_triangles()
 
-    def _add_controllers(self):
-        library = etree.SubElement(self.root, "library_controllers")
-
-        for mesh in self.model.meshes:
-            ctrl = etree.SubElement(library, "controller", id=f"{mesh.name}-skin", name=mesh.name)
-            etree.SubElement(ctrl, "skin", source=f"#{mesh.name}-mesh")
-
     def _add_positions(self):
         data = np.array([(v.position.x, v.position.y, v.position.z) for v in self.mesh.vertices])
         self._add_source("positions", data, ["X", "Y", "Z"])
@@ -140,6 +133,20 @@ class DaeEncoder(FileEncoder[ModelData]):
                 visual_scene, "node", id=f"{mesh.name}-node", name=mesh.name, type="NODE"
             )
             etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}-mesh", name=mesh.name)
+
+        # ! WIP
+        if self.flags.skeleton:
+            skeleton_node = etree.SubElement(
+                visual_scene, "node", id="skeleton-node", name="skeleton", type="NODE"
+            )
+
+            for bone in self.model.skeleton.bones:
+                node = etree.SubElement(
+                    skeleton_node, "node", id=f"{bone.name}-bone", name=bone.name, type="JOINT"
+                )
+                pos = bone.position
+                matrix = f"1 0 0 0  0 1 0 0  0 0 1 0  {pos.x} {pos.y} {pos.z} 1"
+                etree.SubElement(node, "matrix").text = matrix
 
         scene = etree.SubElement(self.root, "scene")
         etree.SubElement(scene, "instance_visual_scene", url="#scene")
