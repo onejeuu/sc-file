@@ -5,23 +5,18 @@ from scfile.utils.model.datatypes import Polygon, Texture, Vector
 
 
 @dataclass
-class VertexBone:
-    ids: Dict[int, int] = field(default_factory=dict)
-    weights: Dict[int, float] = field(default_factory=dict)
-
-
-@dataclass
 class Vertex:
     position: Vector = field(default_factory=Vector)
     texture: Texture = field(default_factory=Texture)
     normals: Vector = field(default_factory=Vector)
-    bone: VertexBone = field(default_factory=VertexBone)
+    link: Dict[int, float] = field(default_factory=dict)
+    """key: bone id, value: weight"""
     # color: Color = field(default_factory=Color)
 
 
 @dataclass
 class Count:
-    links: int = 0
+    max_links: int = 0
     bones: int = 0
     vertices: int = 0
     polygons: int = 0
@@ -35,6 +30,7 @@ class Mesh:
     vertices: List[Vertex] = field(default_factory=list)
     polygons: List[Polygon] = field(default_factory=list)
     bones: Dict[int, int] = field(default_factory=dict)
+    """key: link id, value: bone id"""
 
     global_polygons: List[Polygon] = field(default_factory=list)
     """Empty before `convert_polygons_to_global` is called for model."""

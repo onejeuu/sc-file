@@ -146,7 +146,7 @@ struct Mesh {
     String material <name="Material">;
 
     if ( header.flags.SKELETON )
-        BonesIndexes bones <name="Bones">;
+        BonesIndexes bones <name="Bones", bgcolor=cWhite>;
 
     Counts counts <name="Counts">;
 

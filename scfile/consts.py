@@ -38,7 +38,8 @@ class OlString:
     Xor encoded zero-end string.
     """
 
-    SIZE = 17  # 16 bytes + last 0x00 byte
+    SIZE = 17
+    """16 encoded bytes and last 0x00 byte."""
     XOR = ord("g")
     NULL = ord("G")
 
@@ -49,10 +50,8 @@ class McsaModel:
     """
 
     ROOT_BONE_ID = -1
-    # There is no known limit
-    # This for case when file was read incorrectly
-    # So as not to overflow memory
     COUNT_LIMIT = 0x100000
+    """There is no known limit. This for case when file was read incorrectly, so as not to overflow memory."""
 
 
 class McsaSize:
@@ -68,8 +67,8 @@ class McsaSize:
 
 
 SUPPORTED_SUFFIXES = {FileSuffix.MCSA, FileSuffix.MCVD, FileSuffix.MIC, FileSuffix.OL}
-"""Files suffixes that can be converted"""
+"""Files suffixes that can be converted."""
 
 
 CUBEMAP_FACES = 6
-"""Dds cubemap faces count. (+x, -x, +y, -y, +z, -z)"""
+"""Dds cubemap faces count. (+x, -x, +y, -y, +z, -z)."""

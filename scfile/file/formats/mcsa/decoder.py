@@ -146,9 +146,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         if self.flags[Flag.TANGENTS]:
             self._skip_vertices(size=4)
 
-        # Skeleton bones
+        # Vertex links
         if self.flags[Flag.SKELETON]:
-            self._parse_bones()
+            self._parse_links()
 
         # Vertex colors
         if self.flags[Flag.COLORS]:
@@ -168,11 +168,11 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         return self.mesh.vertices
 
     def _parse_bone_indexes(self):
-        self.count.links = self.f.readb(F.U8)
+        self.count.max_links = self.f.readb(F.U8)
         self.count.bones = self.f.readb(F.U8)
 
         for index in range(self.count.bones):
-            self.mesh.bones[index] = self.f.readb(F.I8)
+            self.mesh.bones[index] = self.f.readb(F.U8)
 
     def _parse_locals(self):
         # Possibly local axis and center (6 floats)
@@ -207,25 +207,24 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             vertex.normals.y = y
             vertex.normals.z = z
 
-    def _skip_vertices(self, size: int = 4):
-        self.f.read(self.count.vertices * size)
-
-    def _parse_bones(self):
-        match self.count.links:
+    def _parse_links(self):
+        match self.count.max_links:
             case 0:
                 pass
             case 1 | 2:
-                self._parse_bone_packed()
+                links = self.f.readlinkspacked(self.count.vertices, self.mesh.bones)
+                self._load_links(links)
             case 3 | 4:
-                self._parse_bone_plains()
+                links = self.f.readlinksplains(self.count.vertices, self.mesh.bones)
+                self._load_links(links)
             case _:
-                raise exc.McsaUnknownLinkCount(self.path, self.count.links)
+                raise exc.McsaUnknownLinkCount(self.path, self.count.max_links)
 
-    def _parse_bone_packed(self) -> None:
-        self._skip_vertices(size=4)
+    def _load_links(self, links: tuple[list[list[int]], list[list[float]]]):
+        linkids, linkweights = links
 
-    def _parse_bone_plains(self) -> None:
-        self._skip_vertices(size=8)
+        for vertex, ids, weights in zip(self.vertices, linkids, linkweights):
+            vertex.link = dict(zip(ids, weights))
 
     def _parse_colors(self):
         # Quite useless
@@ -269,3 +268,6 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.bone.rotation.x = self.f.readb(F.F32)
         self.bone.rotation.y = self.f.readb(F.F32)
         self.bone.rotation.z = self.f.readb(F.F32)
+
+    def _skip_vertices(self, size: int = 4):
+        self.f.read(self.count.vertices * size)
