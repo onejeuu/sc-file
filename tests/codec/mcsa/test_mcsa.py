@@ -12,3 +12,8 @@ def test_to_obj_v7(assets: Path):
 def test_to_obj_v8(assets: Path):
     converted, expected = extract(McsaDecoder, ObjEncoder, assets, Path("v8"), "output_obj")
     assert converted == expected
+
+
+def test_to_obj_v10(assets: Path):
+    converted, expected = extract(McsaDecoder, ObjEncoder, assets, Path("v10"), "output_obj")
+    assert converted == expected
