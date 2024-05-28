@@ -6,11 +6,7 @@ from numpy.typing import NDArray
 
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
-from scfile.utils.model.datatypes import Vector
 from scfile.utils.model.skeleton import Bone
-
-
-DEFAULT_MATRIX = "1 0 0 0  0 1 0 0  0 0 1 0 0 0 0 1"
 
 
 class DaeEncoder(FileEncoder[ModelData]):
@@ -26,7 +22,6 @@ class DaeEncoder(FileEncoder[ModelData]):
         self._create_root()
         self._add_asset()
         self._add_geometries()
-        # self._add_controllers()
         self._add_scenes()
         self._render_xml()
 
@@ -132,78 +127,6 @@ class DaeEncoder(FileEncoder[ModelData]):
 
         p = etree.SubElement(self.triangles, "p")
         p.text = " ".join(map(str, indices))
-
-    def _add_controllers(self):
-        library = etree.SubElement(self.root, "library_controllers")
-        ctrl = etree.SubElement(library, "controller", id="skeleton-controller")
-
-        self.skin = etree.SubElement(ctrl, "skin")
-        etree.SubElement(self.skin, "bind_shape_matrix").text = DEFAULT_MATRIX
-
-        self._add_joints_source()
-        self._add_poses_source()
-
-        joints = etree.SubElement(self.skin, "joints")
-        etree.SubElement(joints, "input", semantic="JOINT", source="#skeleton-joints")
-        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source="#skeleton-bindposes")
-
-        weights = etree.SubElement(
-            self.skin, "vertex_weights", count=str(self.model.total_vertices)
-        )
-        etree.SubElement(weights, "input", semantic="JOINT", source="#skeleton-joints")
-        etree.SubElement(weights, "input", semantic="WEIGHT", source="#skeleton-bindposes")
-
-    def _add_joints_source(self):
-        count = str(len(self.skeleton.bones))
-
-        joints_source = etree.SubElement(self.skin, "source", id="skeleton-joints")
-        array = etree.SubElement(
-            joints_source,
-            "Name_array",
-            id="skeleton-joints-array",
-            count=count,
-        )
-        array.text = " ".join([bone.name for bone in self.skeleton.bones])
-
-        common = etree.SubElement(
-            joints_source,
-            "technique_common",
-        )
-        accessor = etree.SubElement(
-            common,
-            "accessor",
-            source="#skeleton-joints-array",
-            count=count,
-            stride="1",
-        )
-
-        etree.SubElement(accessor, "param", name="JOINT", type="Name")
-
-    def _add_poses_source(self):
-        count = str(len(self.skeleton.bones) * 16)
-
-        poses_source = etree.SubElement(self.skin, "source", id="skeleton-bindposes")
-        array = etree.SubElement(
-            poses_source,
-            "float_array",
-            id="skeleton-bindposes-array",
-            count=count,
-        )
-        array.text = " ".join([DEFAULT_MATRIX for _ in self.skeleton.bones])
-
-        common = etree.SubElement(
-            poses_source,
-            "technique_common",
-        )
-        accessor = etree.SubElement(
-            common,
-            "accessor",
-            source="#skeleton-bindposes-array",
-            count=count,
-            stride="16",
-        )
-
-        etree.SubElement(accessor, "param", name="TRANSFORM", type="float4x4")
 
     def _add_scenes(self):
         library = etree.SubElement(self.root, "library_visual_scenes")
