@@ -81,6 +81,15 @@ struct Flags10 {
     ubyte COLORS;
 };
 
+struct Flags11 {
+    ubyte SKELETON;
+    ubyte TEXTURE;
+    ubyte NORMALS;
+    ubyte TANGENTS;
+    ubyte BITANGENTS;
+    ubyte COLORS;
+};
+
 
 // Model Header
 
@@ -96,9 +105,11 @@ struct Header {
             Flags8 flags <name="Flags", fgcolor=cAqua>; break;
         case 10.0:
             Flags10 flags <name="Flags", fgcolor=cAqua>; break;
+        case 11.0:
+            Flags11 flags <name="Flags", fgcolor=cAqua>; break;
         default:
             Warning( "ERROR: File version '%g' is unsupported.\n", version );
-            return -1;
+            Exit(-1);
     }
 
     float scale_positions <name="Positions scale">;
@@ -106,7 +117,7 @@ struct Header {
     if ( flags.TEXTURE )
         float scale_texture <name="Texture scale">;
 
-    if ( version == 10.0 )
+    if ( version >= 10.0 )
         if ( flags.NORMALS )
             float scale_normals <name="Normals scale">;
 } header <name="Header">;
@@ -153,8 +164,11 @@ struct Mesh {
     if ( header.flags.TEXTURE )
         float scale_unknown <name="Unknown scale">;
 
-    if ( header.version == 10.0 )
-        Locals locals <name="Locals">;
+    if ( header.version >= 10.0 )
+        Locals locals <name="Locals", hidden=true>;
+    
+    if ( header.version >= 11.0 )
+        float locals2 <name="Locals", hidden=true>;
 
     Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
 
@@ -181,7 +195,7 @@ struct Mesh {
                 LinksPlains links <name="Links", bgcolor=cWhite>; break;
         }
 
-    if ( header.version == 10.0 )
+    if ( header.version >= 10.0 )
         if ( header.flags.COLORS )
             byte _colors[counts.vertices*4] <hidden=true>;
 
@@ -200,41 +214,43 @@ struct Meshes {
 
 // Model Skeleton
 
-struct Bone {
-    String name <name="Name">;
-    byte parent_id <name="Parent ID", fgcolor=cAqua>;
-    Vec3f position <name="Position", bgcolor=cWhite>;
-    Vec3f rotation <name="Rotation", bgcolor=cGray>;
-};
+if ( header.version <= 10.0 ) {
+    struct Bone {
+        String name <name="Name">;
+        byte parent_id <name="Parent ID", fgcolor=cAqua>;
+        Vec3f position <name="Position", bgcolor=cWhite>;
+        Vec3f rotation <name="Rotation", bgcolor=cGray>;
+    };
 
-if ( header.flags.SKELETON )
-    struct Skeleton {
-        ubyte count <name="Count", bgcolor=cPurple>;
-        if ( count > 0 )
-            Bone bones[count] <name="Bone", optimize=false>;
-    } skeleton <name="Skeleton">;
-
-
-// Model Animations
-
-struct Frame {
-    byte data[skeleton.count * 14] <bgcolor=cGray>;
-};
-
-struct Anim {
-    String name <name="Name">;
-    uint count <name="Frames", bgcolor=cGreen>;
-    float time <name="Time", bgcolor=cPurple>;
-    if ( count > 0 )
-        Frame frames[count] <optimize=false>;
-};
-
-// Not sure where exactly marked that file contains animations.
-// Perhaps its indicated from outside.
-if ( !FEof() )
     if ( header.flags.SKELETON )
-        struct Animations {
-            uint count <name="Count", bgcolor=cBlue>;
+        struct Skeleton {
+            ubyte count <name="Count", bgcolor=cPurple>;
             if ( count > 0 )
-                Anim anims[count] <name="Animation", optimize=false>;
-        } animations <name="Animations">;
+                Bone bones[count] <name="Bone", optimize=false>;
+        } skeleton <name="Skeleton">;
+
+
+    // Model Animations
+
+    struct Frame {
+        byte data[skeleton.count * 14] <bgcolor=cGray>;
+    };
+
+    struct Anim {
+        String name <name="Name">;
+        uint count <name="Frames", bgcolor=cGreen>;
+        float time <name="Time", bgcolor=cPurple>;
+        if ( count > 0 )
+            Frame frames[count] <optimize=false>;
+    };
+
+    // Not sure where exactly marked that file contains animations.
+    // Perhaps its indicated from outside.
+    if ( !FEof() )
+        if ( header.flags.SKELETON )
+            struct Animations {
+                uint count <name="Count", bgcolor=cBlue>;
+                if ( count > 0 )
+                    Anim anims[count] <name="Animation", optimize=false>;
+            } animations <name="Animations">;
+}

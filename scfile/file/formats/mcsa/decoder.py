@@ -48,7 +48,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self._parse_header()
         self._parse_meshes()
 
-        if self.flags[Flag.SKELETON]:
+        # TODO: v11 skeleton support
+        if self.flags[Flag.SKELETON] and self.version <= 10.0:
             self._parse_skeleton()
 
     def _create_model(self):
@@ -86,6 +87,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         self.model.flags.skeleton = self.flags[Flag.SKELETON]
         self.model.flags.texture = self.flags[Flag.TEXTURE]
         self.model.flags.normals = self.flags[Flag.NORMALS]
+
+        # TODO: v11 skeleton support
+        if self.version == 11.0:
+            self.model.flags.skeleton = False
 
     def _parse_scales(self):
         self.model.scale.position = self.f.readb(F.F32)
@@ -178,6 +183,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Possibly local axis and center (6 floats)
         # Quite useless
         self.f.read(6 * 4)
+
+        if self.version >= 11.0:
+            self.f.read(4)
 
     def _parse_position(self):
         count = self.count.vertices
