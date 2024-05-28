@@ -17,11 +17,11 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 | Type    | Source        | Output                 |
 | ------- | ------------- | ---------------------- |
-| Model   | .mcsa / .mcvd | .obj, .dae, ms3d, .txt |
+| Model   | .mcsa / .mcvd | .dae, .obj, ms3d, .txt |
 | Texture | .ol           | .dds                   |
 | Image   | .mic          | .png                   |
 
-Model versions supported: 7.0, 8.0, 10.0
+Model versions supported: 7.0, 8.0, 10.0, 11.0\* (partially)
 
 Model animations `.mcvd` currently supports only meshes
 
@@ -246,7 +246,3 @@ poetry run build
 ```
 
 Executable file will be created in `/dist` directory.
-
-```
-
-```
