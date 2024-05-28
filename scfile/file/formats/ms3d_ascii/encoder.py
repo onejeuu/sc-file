@@ -12,6 +12,7 @@ class Ms3dAsciiEncoder(FileEncoder[ModelData]):
         self.flags = self.data.model.flags
 
         self.model.ensure_unique_names()
+        self.skeleton.convert_to_local()
 
         self._add_header()
         self._add_meshes()

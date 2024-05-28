@@ -80,6 +80,7 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         self.validate_signature()
         self.parse()
         self._data = self.create_data()
+        self.seek_to_start()
         return self._data
 
     def convert_to(self, encoder: type[FileEncoder[DATA]]) -> FileEncoder[DATA]:
@@ -107,3 +108,7 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
 
             if readed != self.signature:
                 raise FileSignatureInvalid(self.path, readed, self.signature)
+
+    def seek_to_start(self) -> None:
+        """Sets buffer position to start."""
+        self.f.seek(0)

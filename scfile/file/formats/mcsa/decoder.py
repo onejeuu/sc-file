@@ -244,11 +244,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         for index in range(bones_count):
             self._parse_bone(index)
 
-        self.skeleton.convert_to_local()
-
     def _parse_bone(self, index: int) -> None:
         self.bone = Bone()
 
+        self.bone.id = index
         self.bone.name = self.f.readstring()
 
         parent_id = self.f.readb(F.U8)

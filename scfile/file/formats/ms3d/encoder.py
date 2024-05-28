@@ -4,16 +4,15 @@ from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
 
 
-# TODO: Optimize
-
-
 class Ms3dBinEncoder(FileEncoder[ModelData]):
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes
+        self.skeleton = self.data.model.skeleton
 
         self.model.ensure_unique_names()
         self.model.convert_polygons_to_global()
+        self.skeleton.convert_to_local()
 
         self._add_header()
         self._add_vertices()
@@ -27,8 +26,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self.b.writeb(F.I32, 0x4)  # version
 
     def _add_vertices(self):
-        total_vertices = sum(mesh.count.vertices for mesh in self.model.meshes)
-        self.b.writeb(F.U16, total_vertices)
+        self.b.writeb(F.U16, self.model.total_vertices)
 
         for mesh in self.meshes:
             for v in mesh.vertices:
@@ -38,8 +36,7 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
                 self.b.writeb(F.I8 + (F.F32 * 3) + F.I8 + F.U8, 0, pos.x, pos.y, pos.z, -1, 0xFF)
 
     def _add_triangles(self):
-        total_polygons = sum(mesh.count.polygons for mesh in self.model.meshes)
-        self.b.writeb(F.U16, total_polygons)
+        self.b.writeb(F.U16, self.model.total_polygons)
 
         for index, mesh in enumerate(self.meshes):
             for p, gp in zip(mesh.polygons, mesh.global_polygons):
@@ -47,7 +44,6 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
                 v2 = mesh.vertices[p.b]
                 v3 = mesh.vertices[p.c]
 
-                # TODO: make it readable
                 # ! its awful but faster
                 # u16 flags, u16 indices[3]
                 # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
@@ -106,7 +102,6 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
     def _add_materials(self):
         self.b.writeb(F.U16, len(self.meshes))  # materials count
 
-        # TODO: (maybe) default material values as const ?
         for mesh in self.meshes:
             self.b.write(self._fixedlen(mesh.material))  # material name
             self.b.writeb(F.F32 * 4, 0.2, 0.2, 0.2, 1.0)  # ambient rgba
@@ -124,15 +119,13 @@ class Ms3dBinEncoder(FileEncoder[ModelData]):
         self.b.writeb(F.F32, 1)  # current frame
         self.b.writeb(F.F32, 30)  # total frames
 
-        skeleton = self.model.skeleton
+        self.b.writeb(F.U16, len(self.skeleton.bones))
 
-        self.b.writeb(F.U16, len(skeleton.bones))
-
-        for bone in skeleton.bones:
+        for bone in self.skeleton.bones:
             self.b.writeb(F.U8, 0)  # flags
             self.b.write(self._fixedlen(bone.name))  # bone name
 
-            parent = skeleton.bones[bone.parent_id].name
+            parent = self.skeleton.bones[bone.parent_id].name
             parent_name = parent if bone.parent_id != McsaModel.ROOT_BONE_ID else ""
 
             self.b.write(self._fixedlen(parent_name))  # parent name
