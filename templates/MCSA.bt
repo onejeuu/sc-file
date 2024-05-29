@@ -232,9 +232,13 @@ if ( header.flags.SKELETON )
 
 // Model Animations
 
+struct Joint {
+    Vec3 position <name="Position", bgcolor=cWhite>;
+    Vec4 rotation <name="Rotation", bgcolor=cGray>;
+};
 
 struct Frame {
-    byte data[skeleton.count * 14] <bgcolor=cGray>;
+    Joint joint[skeleton.count];
 };
 
 struct Anim {
