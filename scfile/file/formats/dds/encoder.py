@@ -22,7 +22,7 @@ class DdsEncoder(FileEncoder[TextureData]):
         self.b.writeb(F.U32, self.pitch_or_linear_size)
 
         self.b.writen(1)  # Depth
-        self.b.writeb(F.U32, 1)  # MipMapsCount
+        self.b.writeb(F.U32, self.data.mipmap_count)  # MipMapsCount
         self.b.writen(11)  # Reserved
 
         self.b.writeb(F.U32, DDS.PF.SIZE)

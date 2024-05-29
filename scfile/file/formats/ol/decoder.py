@@ -1,6 +1,6 @@
 from typing import Any
 
-import lz4.block  # type: ignore
+import lz4.block
 from quicktex import RawTexture  # type: ignore
 from quicktex.s3tc.bc3 import BC3Encoder  # type: ignore
 from quicktex.s3tc.bc5 import BC5Decoder, BC5Texture  # type: ignore
@@ -40,7 +40,9 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         return Signature.OL
 
     def create_data(self):
-        return TextureData(self.width, self.height, self.linear_size, self.fourcc, self.image)
+        return TextureData(
+            self.width, self.height, self.mipmap_count, self.linear_size, self.fourcc, self.image
+        )
 
     def parse(self):
         self._parse_header()
@@ -67,16 +69,22 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         self.uncompressed = self._read_sizes()
         self.compressed = self._read_sizes()
 
-    def _decompress_image(self):
-        compressed = self.f.read(self.compressed[0])
-        uncompressed_size = self.uncompressed[0]
+    def _decompress_mipmaps(self):
+        image = bytearray()
 
-        self.image = bytes(lz4.block.decompress(compressed, uncompressed_size))  # type: ignore
+        for mipmap in range(self.mipmap_count):
+            image.extend(
+                lz4.block.decompress(
+                    self.f.read(self.compressed[mipmap]), self.uncompressed[mipmap]
+                )
+            )
+
+        self.image = bytes(image)
 
     def _parse_image(self):
         try:
             self.texture_id = self.f.reads()
-            self._decompress_image()
+            self._decompress_mipmaps()
 
         except Exception:
             raise exc.OlInvalidFormat(self.path)
