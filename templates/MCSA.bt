@@ -166,7 +166,7 @@ struct Mesh {
 
     if ( header.version >= 10.0 )
         Locals locals <name="Locals", hidden=true>;
-    
+
     if ( header.version >= 11.0 )
         float locals2 <name="Locals", hidden=true>;
 
@@ -214,43 +214,43 @@ struct Meshes {
 
 // Model Skeleton
 
-if ( header.version <= 10.0 ) {
-    struct Bone {
-        String name <name="Name">;
-        byte parent_id <name="Parent ID", fgcolor=cAqua>;
-        Vec3f position <name="Position", bgcolor=cWhite>;
-        Vec3f rotation <name="Rotation", bgcolor=cGray>;
-    };
 
-    if ( header.flags.SKELETON )
-        struct Skeleton {
-            ubyte count <name="Count", bgcolor=cPurple>;
-            if ( count > 0 )
-                Bone bones[count] <name="Bone", optimize=false>;
-        } skeleton <name="Skeleton">;
+struct Bone {
+    String name <name="Name">;
+    byte parent_id <name="Parent ID", fgcolor=cAqua>;
+    Vec3f position <name="Position", bgcolor=cWhite>;
+    Vec3f rotation <name="Rotation", bgcolor=cGray>;
+};
 
-
-    // Model Animations
-
-    struct Frame {
-        byte data[skeleton.count * 14] <bgcolor=cGray>;
-    };
-
-    struct Anim {
-        String name <name="Name">;
-        uint count <name="Frames", bgcolor=cGreen>;
-        float time <name="Time", bgcolor=cPurple>;
+if ( header.flags.SKELETON )
+    struct Skeleton {
+        ubyte count <name="Count", bgcolor=cPurple>;
         if ( count > 0 )
-            Frame frames[count] <optimize=false>;
-    };
+            Bone bones[count] <name="Bone", optimize=false>;
+    } skeleton <name="Skeleton">;
 
-    // Not sure where exactly marked that file contains animations.
-    // Perhaps its indicated from outside.
-    if ( !FEof() )
-        if ( header.flags.SKELETON )
-            struct Animations {
-                uint count <name="Count", bgcolor=cBlue>;
-                if ( count > 0 )
-                    Anim anims[count] <name="Animation", optimize=false>;
-            } animations <name="Animations">;
-}
+
+// Model Animations
+
+
+struct Frame {
+    byte data[skeleton.count * 14] <bgcolor=cGray>;
+};
+
+struct Anim {
+    String name <name="Name">;
+    uint count <name="Frames", bgcolor=cGreen>;
+    float time <name="Time", bgcolor=cPurple>;
+    if ( count > 0 )
+        Frame frames[count] <optimize=false>;
+};
+
+// Not sure where exactly marked that file contains animations.
+// Perhaps its indicated from outside.
+if ( !FEof() )
+    if ( header.flags.SKELETON )
+        struct Animations {
+            uint count <name="Count", bgcolor=cBlue>;
+            if ( count > 0 )
+                Anim anims[count] <name="Animation", optimize=false>;
+        } animations <name="Animations">;
