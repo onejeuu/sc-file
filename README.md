@@ -246,7 +246,3 @@ poetry run build
 ```
 
 Executable file will be created in `/dist` directory.
-
-```
-
-```
