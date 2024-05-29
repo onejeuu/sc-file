@@ -220,16 +220,20 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             case 0:
                 pass
             case 1 | 2:
-                links = self.f.readlinkspacked(self.count.vertices, self.mesh.bones)
-                self._load_links(links)
+                self._skip_vertices(size=4)
             case 3 | 4:
-                links = self.f.readlinksplains(self.count.vertices, self.mesh.bones)
-                self._load_links(links)
+                self._skip_vertices(size=8)
             case _:
                 raise exc.McsaUnknownLinkCount(self.path, self.count.max_links)
 
-    def _load_links(self, links: tuple[list[list[int]], list[list[float]]]):
-        linkids, linkweights = links
+    def _parse_packed_links(self):
+        linkids, linkweights = self.f.readlinkspacked(self.count.vertices, self.mesh.bones)
+
+        for vertex, ids, weights in zip(self.vertices, linkids, linkweights):
+            vertex.link = dict(zip(ids, weights))
+
+    def _parse_plains_links(self):
+        linkids, linkweights = self.f.readlinksplains(self.count.vertices, self.mesh.bones)
 
         for vertex, ids, weights in zip(self.vertices, linkids, linkweights):
             vertex.link = dict(zip(ids, weights))
