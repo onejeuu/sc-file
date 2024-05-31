@@ -12,7 +12,7 @@ from .mcsa import (
     McsaUnknownLinkCount,
     McsaUnsupportedVersion,
 )
-from .ol import OlDecodingError, OlInvalidFormat, OlUnknownFourcc
+from .ol import OlDecodingError, OlUnknownFourcc
 
 
 __all__ = (
@@ -29,6 +29,5 @@ __all__ = (
     "McsaUnknownLinkCount",
     "McsaUnsupportedVersion",
     "OlDecodingError",
-    "OlInvalidFormat",
     "OlUnknownFourcc",
 )

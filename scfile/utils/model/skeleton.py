@@ -45,6 +45,8 @@ class Skeleton:
                 parent_id = parent.parent_id
 
     def build_hierarchy(self):
+        """Fills bones children list."""
+
         # Create a dictionary to map bone id to bones
         bone_dict: Dict[int, Bone] = {bone.id: bone for bone in self.bones}
 

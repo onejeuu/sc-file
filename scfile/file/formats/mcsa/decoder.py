@@ -179,6 +179,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
         # Quite useless
         self.f.read(6 * 4)
 
+        # Another unknown float
         if self.version >= 11.0:
             self.f.read(4)
 

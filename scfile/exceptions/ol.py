@@ -2,7 +2,7 @@ from pathlib import Path
 
 from scfile.utils.types import PathLike
 
-from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
+from .decode import FileDecodingError, FileUnsupportedError
 
 
 class OlDecodingError(FileDecodingError):
@@ -10,13 +10,6 @@ class OlDecodingError(FileDecodingError):
 
     def __str__(self):
         return f"Texture '{self.posix_path}'"
-
-
-class OlInvalidFormat(OlDecodingError, FileParsingError):
-    """Exception occurring when cannot decompress image."""
-
-    def __str__(self):
-        return f"{super().__str__()} has invalid format."
 
 
 class OlUnknownFourcc(OlDecodingError, FileUnsupportedError):

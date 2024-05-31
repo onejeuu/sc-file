@@ -1,8 +1,6 @@
 import xml.etree.ElementTree as etree
-from typing import Any
 
 import numpy as np
-from numpy.typing import NDArray
 
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
@@ -60,7 +58,7 @@ class DaeEncoder(FileEncoder[ModelData]):
         data = np.array([(v.texture.u, -v.texture.v) for v in self.mesh.vertices])
         self._add_source("texture", data, ["S", "T"])
 
-    def _add_source(self, name: str, data: NDArray[Any], components: list[str]):
+    def _add_source(self, name: str, data: np.ndarray, components: list[str]):
         self.source = etree.SubElement(self.node, "source", id=f"{self.mesh.name}-{name}")
 
         array = etree.SubElement(
