@@ -23,9 +23,7 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 Model versions supported: 7.0, 8.0, 10.0, 11.0
 
-Model animations `.mcvd` currently supports only meshes
-
-Collada model `.dae` skeleton currently unsupported
+Skeleton and Animations currently unsupported
 
 Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
 
@@ -65,7 +63,7 @@ scfile [FILES]... [OPTIONS]
 2. Convert a single file with a specified path or name:
 
    ```bash
-   scfile file.mcsa --output path/to/file.obj
+   scfile file.mcsa --output path/to/file.dae
    ```
 
 3. Convert multiple files to a specified directory:
@@ -77,7 +75,7 @@ scfile [FILES]... [OPTIONS]
 4. Convert multiple files with explicitly specified output files:
 
    ```bash
-   scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
+   scfile file1.mcsa file2.mcsa -O 1.dae -O 2.dae
    ```
 
    _If count of `FILES` and `--output` is different, as many files as possible will be converted._
