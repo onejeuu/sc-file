@@ -21,13 +21,15 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 | Texture | .ol           | .dds                   |
 | Image   | .mic          | .png                   |
 
-Model versions supported: 7.0, 8.0, 10.0, 11.0
+### Models
 
-Skeleton and Animations currently unsupported
+- Versions supported: 7.0, 8.0, 10.0, 11.0
+- Skeleton and Animations currently unsupported
 
-Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
+### Textures
 
-Texture formats unsupported: RGBA32F, Cubemaps
+- Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
+- Formats unsupported: RGBA32F, Cubemaps
 
 # 💻 CLI Utility
 
