@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "3.4.1"
+version = "3.5.0"
 description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <mail@66rk.ru>"]
 
@@ -17,7 +17,6 @@ packages = [{ include = "scfile" }]
 python = ">=3.11,<3.13"
 lz4 = "^4.3.2"
 click = "^8.1.7"
-quicktex = "^0.2.0"
 numpy = "^1.26.3"
 
 [tool.poetry.group.dev.dependencies]

@@ -17,19 +17,19 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 | Type    | Source        | Output                 |
 | ------- | ------------- | ---------------------- |
-| Model   | .mcsa / .mcvd | .obj, .dae, ms3d, .txt |
+| Model   | .mcsa / .mcvd | .dae, .obj, ms3d, .txt |
 | Texture | .ol           | .dds                   |
 | Image   | .mic          | .png                   |
 
-Model versions supported: 7.0, 8.0, 10.0
+### Models
 
-Model animations `.mcvd` currently supports only meshes
+- Versions supported: 7.0, 8.0, 10.0, 11.0
+- Skeleton and Animations currently unsupported
 
-Collada model `.dae` skeleton currently unsupported
+### Textures
 
-Texture formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, RGBA32F, DXN_XY
-
-Texture formats unsupported: Cubemaps (hdri, sky)
+- Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
+- Formats unsupported: RGBA32F, Cubemaps
 
 # 💻 CLI Utility
 
@@ -50,7 +50,7 @@ scfile [FILES]... [OPTIONS]
 
 ## Options
 
-- `-O`, `--output`: **One path to output file or directory**. Can be specified multiple times for different output files or directories. If not specified, file will be saved in same directory with a new suffix. You can specify multiple `FILES` and a single `--output` directory.
+- `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
 
 ## Examples
 
@@ -62,41 +62,27 @@ scfile [FILES]... [OPTIONS]
 
    _Will be saved in same directory with a new suffix._
 
-2. Convert a single file with a specified path or name:
-
-   ```bash
-   scfile file.mcsa --output path/to/file.obj
-   ```
-
-3. Convert multiple files to a specified directory:
+2. Convert multiple files to a specified directory:
 
    ```bash
    scfile file1.mcsa file2.mcsa --output path/to/dir
    ```
 
-4. Convert multiple files with explicitly specified output files:
-
-   ```bash
-   scfile file1.mcsa file2.mcsa -O 1.obj -O 2.obj
-   ```
-
-   _If count of `FILES` and `--output` is different, as many files as possible will be converted._
-
-5. Convert all `.mcsa` files in current directory:
+3. Convert all `.mcsa` files in current directory:
 
    ```bash
    scfile *.mcsa
    ```
 
-   _In this case, `--output` accepts only a directory. Subdirectories are not included._
+   _Subdirectories are not included._
 
-6. Convert all `.mcsa` files with subdirectories to a specified directory:
+4. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
    scfile **/*.mcsa -O path/to/dir
    ```
 
-   _In this case, `--output` accepts only a directory. With `--output` specified, directory structure is not duplicated._
+   _With `--output` specified, directory structure is not duplicated._
 
 # 📚 Library
 

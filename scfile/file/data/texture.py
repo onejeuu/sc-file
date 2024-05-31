@@ -7,6 +7,7 @@ from .base import FileData
 class TextureData(FileData):
     width: int
     height: int
+    mipmap_count: int
     linear_size: int
     fourcc: bytes
     image: bytes
