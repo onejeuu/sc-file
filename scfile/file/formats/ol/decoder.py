@@ -67,16 +67,11 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
             )
 
     def _parse_image(self):
-        try:
-            self.texture_id = self.f.reads()
-            self._decompress_mipmaps()
+        self.texture_id = self.f.reads()
 
-        except Exception:
-            raise exc.OlInvalidFormat(self.path)
+        self._decompress_mipmaps()
 
-    @property
-    def image(self):
-        return b"".join(self.mipmaps)
+        self.image = b"".join(self.mipmaps)
 
     @property
     def linear_size(self) -> int:
