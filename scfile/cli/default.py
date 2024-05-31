@@ -5,7 +5,7 @@ import click
 from rich import print
 
 from .consts import Types
-from .convert import convert_file, convert_multiple_files
+from .convert import convert_multiple_files
 
 
 @click.command(no_args_is_help=True)
@@ -13,23 +13,13 @@ from .convert import convert_file, convert_multiple_files
 @click.option(
     "-O",
     "--output",
-    help="Optional path to output. Defaults to source path with new suffix.",
+    help="Optional path to output directory.",
     type=Types.OUTPUT,
-    multiple=True,
+    multiple=False,
     nargs=1,
 )
-def default(files: tuple[Path], output: Optional[tuple[Path]] = None):
-    if not output:
-        convert_multiple_files(files)
-        return
-
-    first_output = output[0]
-    if first_output.is_dir():
-        convert_multiple_files(files, first_output)
-        return
-
-    for src, dest in zip(files, output):
-        convert_file(src, dest)
+def default(files: tuple[Path], output: Optional[Path] = None):
+    convert_multiple_files(files, output)
 
 
 def main():

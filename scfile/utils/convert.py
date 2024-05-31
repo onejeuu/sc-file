@@ -138,7 +138,8 @@ def auto(source: PathLike, output: Optional[PathLike] = None):
 
     match path.suffix.lstrip("."):
         case FileSuffix.MCSA | FileSuffix.MCVD:
-            mcsa_to_dae(source, output)
+            mcsa_to_obj(source, output)
+            mcsa_to_ms3d(source, output)
 
         case FileSuffix.MIC:
             mic_to_png(source, output)

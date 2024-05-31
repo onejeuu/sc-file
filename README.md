@@ -50,7 +50,7 @@ scfile [FILES]... [OPTIONS]
 
 ## Options
 
-- `-O`, `--output`: **One path to output file or directory**. Can be specified multiple times for different output files or directories. If not specified, file will be saved in same directory with a new suffix. You can specify multiple `FILES` and a single `--output` directory.
+- `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
 
 ## Examples
 
@@ -74,29 +74,21 @@ scfile [FILES]... [OPTIONS]
    scfile file1.mcsa file2.mcsa --output path/to/dir
    ```
 
-4. Convert multiple files with explicitly specified output files:
-
-   ```bash
-   scfile file1.mcsa file2.mcsa -O 1.dae -O 2.dae
-   ```
-
-   _If count of `FILES` and `--output` is different, as many files as possible will be converted._
-
-5. Convert all `.mcsa` files in current directory:
+4. Convert all `.mcsa` files in current directory:
 
    ```bash
    scfile *.mcsa
    ```
 
-   _In this case, `--output` accepts only a directory. Subdirectories are not included._
+   _Subdirectories are not included._
 
-6. Convert all `.mcsa` files with subdirectories to a specified directory:
+5. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
    scfile **/*.mcsa -O path/to/dir
    ```
 
-   _In this case, `--output` accepts only a directory. With `--output` specified, directory structure is not duplicated._
+   _With `--output` specified, directory structure is not duplicated._
 
 # 📚 Library
 
