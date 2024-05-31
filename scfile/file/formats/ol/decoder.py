@@ -1,9 +1,4 @@
-from typing import Any
-
 import lz4.block
-from quicktex import RawTexture  # type: ignore
-from quicktex.s3tc.bc3 import BC3Encoder  # type: ignore
-from quicktex.s3tc.bc5 import BC5Decoder, BC5Texture  # type: ignore
 
 from scfile import exceptions as exc
 from scfile.consts import Signature
@@ -14,16 +9,10 @@ from scfile.file.data import TextureData
 from scfile.file.formats.dds import DdsEncoder
 from scfile.io import OlFileIO
 
-from .converter.base import RGBA8Converter
-from .converter.bgra8 import BGRA8Converter
-from .converter.rgba32f import RGBA32FConverter
 from .formats import SUPPORTED_FORMATS
 
 
 class OlDecoder(FileDecoder[OlFileIO, TextureData]):
-    CONVERT_TO_RGBA8 = True
-    CONVERT_TO_DXT5 = False
-
     def to_dds(self):
         return self.convert_to(DdsEncoder)
 
@@ -49,7 +38,6 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         self._parse_fourcc()
         self._parse_sizes()
         self._parse_image()
-        self._convert()
 
     def _parse_header(self):
         self.width = self.f.readb(F.U32)
@@ -62,24 +50,21 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         if self.fourcc not in SUPPORTED_FORMATS:
             raise exc.OlUnknownFourcc(self.path, self.fourcc.decode())
 
-    def _read_sizes(self):
-        return [self.f.readb(F.U32) for _ in range(self.mipmap_count)]
+        self.fourcc = b"ATI2" if self.fourcc == b"DXN_XY" else self.fourcc
 
     def _parse_sizes(self):
-        self.uncompressed = self._read_sizes()
-        self.compressed = self._read_sizes()
+        self.uncompressed = self.f.readsizes(self.mipmap_count)
+        self.compressed = self.f.readsizes(self.mipmap_count)
 
     def _decompress_mipmaps(self):
-        image = bytearray()
+        self.mipmaps: list[bytes] = []
 
         for mipmap in range(self.mipmap_count):
-            image.extend(
+            self.mipmaps.append(
                 lz4.block.decompress(
                     self.f.read(self.compressed[mipmap]), self.uncompressed[mipmap]
                 )
             )
-
-        self.image = bytes(image)
 
     def _parse_image(self):
         try:
@@ -89,49 +74,10 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         except Exception:
             raise exc.OlInvalidFormat(self.path)
 
-    def _convert(self):
-        if self.CONVERT_TO_RGBA8:
-            self._to_rgba8()
-
-        if self.CONVERT_TO_DXT5:
-            self._to_dxt5()
+    @property
+    def image(self):
+        return b"".join(self.mipmaps)
 
     @property
     def linear_size(self) -> int:
         return self.uncompressed[0]
-
-    @property
-    def is_compressed(self) -> bool:
-        return b"DXT" in self.fourcc
-
-    @property
-    def imagedata(self) -> tuple[bytes, int, int]:
-        return (self.image, self.width, self.height)
-
-    @property
-    def bc5texture(self) -> Any:
-        return BC5Texture.from_bytes(*self.imagedata)  # type: ignore
-
-    @property
-    def rawtexture(self) -> Any:
-        return RawTexture.frombytes(*self.imagedata)  # type: ignore
-
-    def _to_rgba8(self):
-        match self.fourcc:
-            case b"BGRA8":
-                self.image = BGRA8Converter(*self.imagedata).to_rgba8()
-
-            case b"RGBA32F":
-                self.image = RGBA32FConverter(*self.imagedata).to_rgba8()
-
-            case b"DXN_XY":
-                self.image = bytes(BC5Decoder().decode(self.bc5texture))  # type: ignore
-                self.image = RGBA8Converter(*self.imagedata).invert()
-
-            case _:
-                pass
-
-    def _to_dxt5(self):
-        if not self.is_compressed:
-            self.fourcc = b"DXT5"
-            self.image = bytes(BC3Encoder(level=9).encode(self.rawtexture))  # type: ignore

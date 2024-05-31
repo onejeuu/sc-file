@@ -6,7 +6,6 @@ from numpy.typing import NDArray
 
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
-from scfile.utils.model.skeleton import Bone
 
 
 class DaeEncoder(FileEncoder[ModelData]):
@@ -16,8 +15,8 @@ class DaeEncoder(FileEncoder[ModelData]):
         self.skeleton = self.data.model.skeleton
 
         self.model.ensure_unique_names()
-        self.skeleton.convert_to_local()
-        self.skeleton.build_hierarchy()
+        # self.skeleton.convert_to_local()
+        # self.skeleton.build_hierarchy()
 
         self._create_root()
         self._add_asset()
@@ -137,24 +136,6 @@ class DaeEncoder(FileEncoder[ModelData]):
                 visual_scene, "node", id=f"{mesh.name}-node", name=mesh.name, type="NODE"
             )
             etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}-mesh", name=mesh.name)
-
-        if self.flags.skeleton:
-            skeleton_node = etree.SubElement(
-                visual_scene, "node", id="skeleton-node", name="skeleton", type="NODE"
-            )
-
-            def add_bone(bone: Bone, parent_node: etree.Element):
-                node = etree.SubElement(
-                    parent_node, "node", id=f"{bone.name}-bone", name=bone.name, type="JOINT"
-                )
-                etree.SubElement(node, "translate").text = " ".join(map(str, bone.position))
-
-                for child in bone.children:
-                    add_bone(child, node)
-
-            root = self.skeleton.bones[0]
-            for child in root.children:
-                add_bone(child, skeleton_node)
 
         scene = etree.SubElement(self.root, "scene")
         etree.SubElement(scene, "instance_visual_scene", url="#scene")
