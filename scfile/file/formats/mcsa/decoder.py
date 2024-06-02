@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize, Signature
 from scfile.enums import ByteOrder
@@ -11,7 +13,7 @@ from scfile.file.formats.obj import ObjEncoder
 from scfile.io import McsaFileIO
 from scfile.utils.model import Bone, Mesh, Model
 
-from .flags import Flag, McsaFlags
+from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
@@ -74,7 +76,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelData]):
             raise exc.McsaUnsupportedVersion(self.path, self.version)
 
     def _parse_flags(self):
-        self.flags = McsaFlags()
+        self.flags: defaultdict[int, bool] = defaultdict(bool)
         self.flags_count = VERSION_FLAGS.get(self.version)
 
         if not self.flags_count:
