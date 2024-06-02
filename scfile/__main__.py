@@ -1,5 +1,9 @@
 from scfile.cli import default
 
 
-if __name__ == "__main__":
+def main():
     default.main()
+
+
+if __name__ == "__main__":
+    main()

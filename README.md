@@ -228,7 +228,7 @@ poetry install
 And run script to compile:
 
 ```bash
-poetry run build
+python scripts/build.py
 ```
 
 Executable file will be created in `/dist` directory.

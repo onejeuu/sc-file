@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "3.5.1"
+version = "3.5.2"
 description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <mail@66rk.ru>"]
 
@@ -25,7 +25,7 @@ pyinstaller = "^6.0.0"
 pytest = "^8.1.1"
 
 [tool.poetry.scripts]
-build = "scripts.build:build"
+scfile = "scfile.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]
