@@ -12,6 +12,7 @@ from .file import (
 from .file.data import FileData, ImageData, ModelData, TextureData
 from .utils import convert, model
 from .utils.convert import (
+    mcsa_to_dae,
     mcsa_to_ms3d,
     mcsa_to_ms3d_ascii,
     mcsa_to_obj,
@@ -36,6 +37,7 @@ __all__ = (
     "TextureData",
     "convert",
     "model",
+    "mcsa_to_dae",
     "mcsa_to_ms3d",
     "mcsa_to_ms3d_ascii",
     "mcsa_to_obj",
