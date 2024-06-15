@@ -13,6 +13,7 @@ class ObjEncoder(FileEncoder[ModelData]):
 
         for mesh in self.model.meshes:
             self.b.writes(f"o {mesh.name}\n")
+            self.b.writes(f"usemtl {mesh.material}\n")
 
             self._add_geometric_vertices(mesh)
 
