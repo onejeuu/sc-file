@@ -30,6 +30,7 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 - Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
 - Formats unsupported: RGBA32F, Cubemaps
+- Some normal map (DXN_XY) textures can be inverted
 
 # 💻 CLI Utility
 
