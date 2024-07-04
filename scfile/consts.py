@@ -72,3 +72,18 @@ SUPPORTED_SUFFIXES = {FileSuffix.MCSA, FileSuffix.MCVD, FileSuffix.MIC, FileSuff
 
 CUBEMAP_FACES = 6
 """Dds cubemap faces count. (+x, -x, +y, -y, +z, -z)."""
+
+
+class CLI:
+    """Command Line Interface."""
+
+    EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
+    VERSION = "3.6.0-dev"
+
+
+class OutputFormats:
+    """Supported output formats for game files types."""
+
+    MODELS = {FileSuffix.DAE, FileSuffix.MS3D, FileSuffix.MS3D_ASCII, FileSuffix.OBJ}
+    TEXTURES = {FileSuffix.DDS}
+    IMAGES = {FileSuffix.PNG}

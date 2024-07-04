@@ -1,10 +1,15 @@
 from scfile.consts import McsaModel
+from scfile.enums import FileSuffix
 from scfile.enums import StructFormat as F
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
 
 
 class Ms3dBinEncoder(FileEncoder[ModelData]):
+    @classmethod
+    def suffix(cls):
+        return FileSuffix.MS3D
+
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes

@@ -1,6 +1,7 @@
 from .base import ScFileException
 from .basic import (
     FileBasicError,
+    FileIsEmpty,
     FileNotFound,
     FileSignatureInvalid,
     FileSuffixUnsupported,
@@ -19,6 +20,7 @@ __all__ = (
     "ScFileException",
     "FileBasicError",
     "FileNotFound",
+    "FileIsEmpty",
     "FileSuffixUnsupported",
     "FileSignatureInvalid",
     "FileDecodingError",

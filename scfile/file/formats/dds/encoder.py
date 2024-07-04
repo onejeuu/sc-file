@@ -1,4 +1,5 @@
 from scfile.consts import Magic
+from scfile.enums import FileSuffix
 from scfile.enums import StructFormat as F
 from scfile.file.base import FileEncoder
 from scfile.file.data import TextureData
@@ -11,6 +12,10 @@ class DdsEncoder(FileEncoder[TextureData]):
     @property
     def magic(self):
         return Magic.DDS
+
+    @classmethod
+    def suffix(cls):
+        return FileSuffix.DDS
 
     def serialize(self):
         self.b.writeb(F.U32, DDS.HEADER.SIZE)

@@ -13,6 +13,8 @@ DATA = TypeVar("DATA", bound=FileData)
 
 
 class FileEncoder(BaseFile, Generic[DATA], ABC):
+    OUTPUT_FILE_MODE = FileMode.WRITE
+
     def __init__(self, data: DATA):
         self._buffer = BinaryBytesIO()
         self._data = data
@@ -40,6 +42,12 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
         """Buffer content bytes."""
         return self.b.getvalue()
 
+    @classmethod
+    @abstractmethod
+    def suffix(cls) -> str:
+        """Output file suffix."""
+        pass
+
     @abstractmethod
     def serialize(self) -> None:
         """Writing values from parsed data to buffer."""
@@ -56,12 +64,12 @@ class FileEncoder(BaseFile, Generic[DATA], ABC):
         if self.magic:
             self.b.write(bytes(self.magic))
 
-    def save_as(self, path: PathLike) -> None:
+    def save_as(self, path: PathLike, mode: str = OUTPUT_FILE_MODE) -> None:
         """Saves content bytes to file at specified path. Buffer remains open."""
-        with open(path, FileMode.WRITE) as fp:
+        with open(path, mode) as fp:
             fp.write(self.content)
 
-    def save(self, path: PathLike) -> None:
+    def save(self, path: PathLike, mode: str = OUTPUT_FILE_MODE) -> None:
         """Saves content bytes to file at specified path. Buffer closes."""
-        self.save_as(path)
+        self.save_as(path, mode)
         self.close()

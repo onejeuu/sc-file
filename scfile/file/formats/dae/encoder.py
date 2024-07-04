@@ -2,11 +2,16 @@ import xml.etree.ElementTree as etree
 
 import numpy as np
 
+from scfile.enums import FileSuffix
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
 
 
 class DaeEncoder(FileEncoder[ModelData]):
+    @classmethod
+    def suffix(cls):
+        return FileSuffix.DAE
+
     def serialize(self):
         self.model = self.data.model
         self.flags = self.data.model.flags

@@ -4,7 +4,7 @@ from typing import Generic, Optional, TypeVar
 
 from scfile.enums import ByteOrder, FileMode
 from scfile.enums import StructFormat as F
-from scfile.exceptions import FileSignatureInvalid
+from scfile.exceptions import FileIsEmpty, FileSignatureInvalid
 from scfile.file.data import FileData
 from scfile.io import BinaryFileIO
 from scfile.utils.types import PathLike
@@ -45,6 +45,11 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         return Path(self._path)
 
     @property
+    def filesize(self) -> int:
+        """File size."""
+        return self.path.stat().st_size
+
+    @property
     def order(self) -> ByteOrder:
         """File reading default byte order."""
         return ByteOrder.LITTLE
@@ -77,7 +82,7 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
 
     def decode(self) -> DATA:
         """File decoding. Signature validation, parsing and data creation."""
-        self.validate_signature()
+        self.validate()
         self.parse()
         self._data = self.create_data()
         self.seek_to_start()
@@ -101,8 +106,11 @@ class FileDecoder(BaseFile, Generic[OPENER, DATA], ABC):
         """Reading big-endian u32 (4 bytes) value."""
         return self.f.readb(F.U32, ByteOrder.BIG)
 
-    def validate_signature(self) -> None:
-        """Validates 4 bytes signature and throwing error in case of mismatch."""
+    def validate(self) -> None:
+        """Validates filesize and 4 bytes signature, throwing error in case of mismatch."""
+        if self.filesize < 4:
+            raise FileIsEmpty(self.path)
+
         if self.signature:
             readed = self.read_signature()
 

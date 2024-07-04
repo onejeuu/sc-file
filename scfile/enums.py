@@ -11,7 +11,7 @@ class FileSuffix(StrEnum):
     OBJ = auto()
     OL = auto()
     PNG = auto()
-    TXT = auto()
+    TXT = MS3D_ASCII = auto()
 
 
 class FileMode(StrEnum):
@@ -51,3 +51,10 @@ class StructFormat(StrEnum):
     """float: `half-precision` `2 bytes`"""
     F32 = "f"
     """double: `single-precision` `4 bytes`"""
+
+
+class EchoPrefix(StrEnum):
+    INFO = "[b blue]INFO:[/]"
+    WARN = "[b yellow]WARN:[/]"
+    ERROR = "[b red]ERROR:[/]"
+    EXCEPTION = "[b red]UNKNOWN ERROR:[/]"

@@ -1,10 +1,15 @@
 from scfile.consts import McsaModel
+from scfile.enums import FileSuffix
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
 from scfile.utils.model import Mesh
 
 
 class Ms3dAsciiEncoder(FileEncoder[ModelData]):
+    @classmethod
+    def suffix(cls):
+        return FileSuffix.MS3D_ASCII
+
     def serialize(self):
         self.model = self.data.model
         self.meshes = self.data.model.meshes

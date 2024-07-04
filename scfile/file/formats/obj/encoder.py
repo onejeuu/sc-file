@@ -1,9 +1,14 @@
+from scfile.enums import FileSuffix
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
 from scfile.utils.model import Mesh, Polygon
 
 
 class ObjEncoder(FileEncoder[ModelData]):
+    @classmethod
+    def suffix(cls):
+        return FileSuffix.OBJ
+
     def serialize(self):
         self.model = self.data.model
         self.flags = self.data.model.flags

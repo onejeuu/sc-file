@@ -4,6 +4,8 @@ Utility and Library for decoding and converting stalcraft assets files, such as 
 
 Designed for artworks creation and the like.
 
+You can use executable program from [Releases](https://github.com/onejeuu/sc-file/releases) page.
+
 > [!NOTE]
 > There is not and will not be encoding back into game formats.
 
@@ -11,13 +13,11 @@ Designed for artworks creation and the like.
 > Do not use game assets directly. \
 > Any changes in game client can be detected.
 
-You can use executable program from [Releases](https://github.com/onejeuu/sc-file/releases) page.
-
-# 📁 Formats
+## 📁 Formats
 
 | Type    | Source        | Output                 |
 | ------- | ------------- | ---------------------- |
-| Model   | .mcsa / .mcvd | .dae, .obj, ms3d, .txt |
+| Model   | .mcsa / .mcvd | .obj, .dae, ms3d, .txt |
 | Texture | .ol           | .dds                   |
 | Image   | .mic          | .png                   |
 
@@ -30,11 +30,9 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 
 - Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
 - Formats unsupported: RGBA32F, Cubemaps
-- Some normal map (DXN_XY) textures can be inverted
+- Some normal map textures can be inverted
 
-# 💻 CLI Utility
-
-## Usage
+## 💻 CLI Utility
 
 From bash:
 
@@ -45,15 +43,15 @@ scfile [FILES]... [OPTIONS]
 > [!TIP]
 > You can just drag and drop one or multiple files onto `scfile.exe`.
 
-## Arguments
+### Arguments
 
 - `FILES`: **List of file paths to be converted**. Multiple files should be separated by **spaces**. Accepts both full and relative paths. **Does not accept directory**.
 
-## Options
+### Options
 
 - `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
 
-## Examples
+### Examples
 
 1. Convert a single file:
 
@@ -85,17 +83,17 @@ scfile [FILES]... [OPTIONS]
 
    _With `--output` specified, directory structure is not duplicated._
 
-# 📚 Library
+## 📚 Library
 
-## Install
+### Install
 
-### Pip
+#### Pip
 
 ```bash
 pip install sc-file -U
 ```
 
-### Manual
+#### Manual
 
 ```bash
 git clone git@github.com:onejeuu/sc-file.git
@@ -109,9 +107,9 @@ cd sc-file
 poetry install
 ```
 
-## Usage
+### Usage
 
-### Simple
+#### Simple Method
 
 ```python
 from scfile import convert
@@ -130,9 +128,9 @@ convert.mcsa_to_ms3d_ascii("path/to/model.mcsa", "path/to/model.txt")
 convert.auto("path/to/model.mcsa")
 ```
 
-### Advanced
+#### Advanced Examples
 
-- Default
+- Default usage
 
 ```python
 from scfile.file.data import ModelData
@@ -140,39 +138,43 @@ from scfile.file import McsaDecoder, ObjEncoder
 
 mcsa = McsaDecoder("model.mcsa")
 data: ModelData = mcsa.decode()
-mcsa.close() # ? Necessary to close
+mcsa.close() # ? Necessary to close decoder
 
 obj = ObjEncoder(data)
-obj.encode().save("model.obj") # ? Encoder closes after saving
+obj.encode().save("model.obj") # ? Buffer closes after save
 ```
 
 - Use encoded content bytes
 
 ```python
-obj = ObjEncoder(data)
-obj.encode()
+obj = ObjEncoder(data) # ? data - ModelData from McsaDecoder
+obj.encode() # ? Write bytes into buffer
 
 with open("model.obj", "wb") as fp:
-    fp.write(obj.content)
+    fp.write(obj.content) # ? obj.content - Encoder buffer bytes
 
-obj.close() # ? Necessary to close
+obj.close() # ? Necessary to close encoder
 ```
 
 - Use convert methods
 
+> [!IMPORTANT]
+> When using `convert_to` or `to_xxx`, encoder buffer remains open. \
+> `close()` or `save()` or another context (`with`) is necessary.
+
 ```python
 mcsa = McsaDecoder("model.mcsa")
-mcsa.convert_to(ObjEncoder).save("model.obj")
-mcsa.close() # ? Necessary to close
+mcsa.convert_to(ObjEncoder).save("model.obj") # ? Encoder buffer closes after save
+mcsa.close() # ? Necessary to close decoder
 ```
 
 ```python
 mcsa = McsaDecoder("model.mcsa")
-mcsa.to_obj().save("model.obj")
-mcsa.close() # ? Necessary to close
+mcsa.to_obj().save("model.obj") # ? Encoder buffer closes after save
+mcsa.close() # ? Necessary to close decoder
 ```
 
-- Use context manager
+- Use context manager (`with`)
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
@@ -187,28 +189,27 @@ with ObjEncoder(data) as obj:
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
     obj = mcsa.convert_to(ObjEncoder)
-    obj.close()
+    obj.close() # ? Necessary to close encoder
 ```
+
+or
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
-    mcsa.to_obj().save("model.obj")
+    mcsa.to_obj().save("model.obj") # ? Encoder buffer closes after save
 ```
-
-> [!IMPORTANT]
-> When using `convert_to` buffer remains open. \
-> `close()` or `save()` or another context (`with`) is necessary.
 
 - Save multiple copies
 
 ```python
 with McsaDecoder("model.mcsa") as mcsa:
     with mcsa.to_obj() as obj:
-        obj.save_as("model_1.obj")
+        obj.save_as("model_1.obj") # ? Encoder buffer remains open after save_as
         obj.save_as("model_2.obj")
+    # ? Encoder buffer closes after end of context (with)
 ```
 
-# 🛠️ Build
+## 🛠️ Build
 
 > [!IMPORTANT]
 > You will need [poetry](https://python-poetry.org) to do compilation.

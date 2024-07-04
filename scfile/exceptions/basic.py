@@ -26,6 +26,13 @@ class FileNotFound(FileBasicError):
         return f"{super().__str__()} not found (not exists)."
 
 
+class FileIsEmpty(FileBasicError):
+    """Exception occurring when file is empty."""
+
+    def __str__(self):
+        return f"{super().__str__()} is empty."
+
+
 class FileSuffixUnsupported(FileBasicError):
     """Exception occurring when file cannot be decoded or encoded."""
 
