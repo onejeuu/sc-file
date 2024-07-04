@@ -4,7 +4,7 @@ from typing import Optional, Sequence
 import click
 from rich import print
 
-from scfile.consts import CLI, OutputFormats
+from scfile.consts import CLI
 from scfile.enums import EchoPrefix as PREFIX
 from scfile.enums import FileSuffix
 from scfile.exceptions import ScFileException
@@ -15,19 +15,8 @@ from . import types
 
 @click.command(no_args_is_help=True, epilog=CLI.EPILOG)
 @click.argument("FILES", type=types.FILES, nargs=-1, required=True)
-@click.option(
-    "-F",
-    "--formats",
-    help="Preferred format for models.",
-    multiple=True,
-    type=click.Choice(list(OutputFormats.MODELS)),
-)
-@click.option(
-    "-O",
-    "--output",
-    type=types.OUTPUT,
-    help="Output results directory.",
-)
+@click.option("-F", "--formats", help="Preferred format for models.", multiple=True, type=types.FORMATS)
+@click.option("-O", "--output", type=types.OUTPUT, help="Output results directory.")
 @click.option("-R", "--recursive", is_flag=True, help="Recreate input subdirectories in output directory.")
 @click.option("--no-overwrite", is_flag=True, help="Do not overwrite file if already exists.")
 @click.option("--silent", is_flag=True, help="Suppress all console echoes.")

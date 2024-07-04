@@ -49,22 +49,30 @@ scfile [FILES]... [OPTIONS]
 
 ### Options
 
+- `-F`, `--formats`: Preferred format for models. To specify multiple formats, option must be used multiple times.
+
 - `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
+- `-R`, `--recursive`: Recreate input subdirectories in output directory.
+
+### Flags
+
+- `--no-overwrite`: Do not overwrite output file if already exists.
+- `--silent`: Suppress all console prints.
 
 ### Examples
 
-1. Convert a single file:
+1. Convert model with specified format
 
    ```bash
-   scfile file.mcsa
+   scfile model.mcsa -F dae
    ```
 
-   _Will be saved in same directory with a new suffix._
+   _Will be saved in same location with a new suffix._
 
 2. Convert multiple files to a specified directory:
 
    ```bash
-   scfile file1.mcsa file2.mcsa --output path/to/dir
+   scfile model1.mcsa model2.mcsa -O path/to/output
    ```
 
 3. Convert all `.mcsa` files in current directory:
@@ -73,15 +81,13 @@ scfile [FILES]... [OPTIONS]
    scfile *.mcsa
    ```
 
-   _Subdirectories are not included._
+   _Will be saved in same location. Subdirectories are not included._
 
 4. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
-   scfile **/*.mcsa -O path/to/dir
+   scfile path/to/assets/**/*.mcsa -O path/to/output -R
    ```
-
-   _With `--output` specified, directory structure is not duplicated._
 
 ## 📚 Library
 

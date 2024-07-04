@@ -9,7 +9,7 @@ readme = "README.md"
 
 homepage = "https://github.com/onejeuu/sc-file"
 repository = "https://github.com/onejeuu/sc-file"
-documentation = "https://github.com/onejeuu/sc-file/?tab=readme-ov-file#usage-1"
+documentation = "https://github.com/onejeuu/sc-file/?tab=readme-ov-file#usage"
 
 packages = [{ include = "scfile" }]
 
