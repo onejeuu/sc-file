@@ -254,7 +254,7 @@ struct Anim {
 if ( !FEof() )
     if ( header.flags.SKELETON )
         struct Animations {
-            uint count <name="Count", bgcolor=cBlue>;
+            int count <name="Count", bgcolor=cBlue>;
             if ( count > 0 )
                 Anim anims[count] <name="Animation", optimize=false>;
         } animations <name="Animations">;
