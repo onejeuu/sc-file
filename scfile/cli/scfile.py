@@ -18,6 +18,7 @@ from . import types
 @click.option("-F", "--formats", help="Preferred format for models.", multiple=True, type=types.FORMATS)
 @click.option("-O", "--output", type=types.OUTPUT, help="Output results directory.")
 @click.option("-R", "--recursive", is_flag=True, help="Recreate input subdirectories in output directory.")
+@click.option("--hdri", is_flag=True, help="All ol textures in input files is hdri (skies).")
 @click.option("--no-overwrite", is_flag=True, help="Do not overwrite file if already exists.")
 @click.option("--silent", is_flag=True, help="Suppress all console echoes.")
 def scfile(
@@ -25,6 +26,7 @@ def scfile(
     formats: Sequence[FileSuffix],
     output: Optional[Path] = None,
     recursive: bool = False,
+    hdri: bool = False,
     no_overwrite: bool = False,
     silent: bool = False,
 ):
@@ -67,7 +69,7 @@ def scfile(
 
         # Convert source file
         try:
-            convert.auto(source, destination, formats, overwrite)
+            convert.auto(source, destination, formats, overwrite, hdri)
             echo(PREFIX.INFO, f"File '{source.name}' converted to '{destination or source.parent}'.")
 
         except ScFileException as err:

@@ -60,7 +60,7 @@ class DdsEncoder(FileEncoder[TextureData]):
         self.b.writeb(F.U32 * 4, *mask)
 
     def _add_caps(self):
-        self.b.writeb(F.U32, DDS.TEXTURE | DDS.COMPLEX | DDS.MIPMAP)  # Caps1
+        self.b.writeb(F.U32, self.caps)  # Caps1
         self.b.writeb(F.U32, self.cubemap)  # Caps2
         self.b.writen(count=3)  # Reserved
 
@@ -87,5 +87,13 @@ class DdsEncoder(FileEncoder[TextureData]):
         return self.pitch
 
     @property
+    def caps(self):
+        if self.data.is_hdri:
+            return DDS.CAPS | DDS.CUBEMAP
+        return DDS.CAPS
+
+    @property
     def cubemap(self) -> int:
+        if self.data.is_hdri:
+            return DDS.CUBEMAPS
         return 0

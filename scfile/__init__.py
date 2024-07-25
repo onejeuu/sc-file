@@ -7,6 +7,7 @@ from .file import (
     Ms3dBinEncoder,
     ObjEncoder,
     OlDecoder,
+    OlHdriDecoder,
     PngEncoder,
 )
 from .file.data import FileData, ImageData, ModelData, TextureData
@@ -30,6 +31,7 @@ __all__ = (
     "Ms3dBinEncoder",
     "ObjEncoder",
     "OlDecoder",
+    "OlHdriDecoder",
     "PngEncoder",
     "FileData",
     "ImageData",

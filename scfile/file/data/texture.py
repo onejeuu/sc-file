@@ -11,3 +11,4 @@ class TextureData(FileData):
     linear_size: int
     fourcc: bytes
     image: bytes
+    is_hdri: bool

@@ -1,7 +1,7 @@
 import lz4.block
 
 from scfile import exceptions as exc
-from scfile.consts import Signature
+from scfile.consts import CUBEMAP_FACES, Signature
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.file.base import FileDecoder
@@ -28,9 +28,17 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
     def signature(self):
         return Signature.OL
 
+    @property
+    def is_hdri(self) -> bool:
+        return False
+
+    @property
+    def linear_size(self) -> int:
+        return self.uncompressed[0]
+
     def create_data(self):
         return TextureData(
-            self.width, self.height, self.mipmap_count, self.linear_size, self.fourcc, self.image
+            self.width, self.height, self.mipmap_count, self.linear_size, self.fourcc, self.image, is_hdri=self.is_hdri
         )
 
     def parse(self):
@@ -62,7 +70,8 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         for mipmap in range(self.mipmap_count):
             self.mipmaps.append(
                 lz4.block.decompress(
-                    self.f.read(self.compressed[mipmap]), self.uncompressed[mipmap]
+                    self.f.read(self.compressed[mipmap]),
+                    self.uncompressed[mipmap],
                 )
             )
 
@@ -73,6 +82,28 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
 
         self.image = b"".join(self.mipmaps)
 
+
+class OlHdriDecoder(OlDecoder):
+    @property
+    def is_hdri(self) -> bool:
+        return True
+
     @property
     def linear_size(self) -> int:
-        return self.uncompressed[0]
+        return 0
+
+    def _parse_sizes(self):
+        self.uncompressed = self.f.readhdrisizes(self.mipmap_count)
+        self.compressed = self.f.readhdrisizes(self.mipmap_count)
+
+    def _decompress_mipmaps(self):
+        self.mipmaps: list[bytes] = []
+
+        for face in range(CUBEMAP_FACES):
+            for mipmap in range(self.mipmap_count):
+                self.mipmaps.append(
+                    lz4.block.decompress(
+                        self.f.read(self.compressed[face][mipmap]),
+                        self.uncompressed[face][mipmap],
+                    )
+                )

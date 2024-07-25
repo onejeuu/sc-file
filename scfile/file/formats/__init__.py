@@ -5,7 +5,7 @@ from .mic import MicDecoder
 from .ms3d import Ms3dBinEncoder
 from .ms3d_ascii import Ms3dAsciiEncoder
 from .obj import ObjEncoder
-from .ol import OlDecoder
+from .ol import OlDecoder, OlHdriDecoder
 from .png import PngEncoder
 
 
@@ -18,5 +18,6 @@ __all__ = (
     "Ms3dBinEncoder",
     "ObjEncoder",
     "OlDecoder",
+    "OlHdriDecoder",
     "PngEncoder",
 )

@@ -8,6 +8,7 @@ from .formats import (
     Ms3dBinEncoder,
     ObjEncoder,
     OlDecoder,
+    OlHdriDecoder,
     PngEncoder,
 )
 
@@ -25,5 +26,6 @@ __all__ = (
     "Ms3dBinEncoder",
     "ObjEncoder",
     "OlDecoder",
+    "OlHdriDecoder",
     "PngEncoder",
 )

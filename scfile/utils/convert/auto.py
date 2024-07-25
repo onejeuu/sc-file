@@ -23,6 +23,7 @@ def auto(
     output: Optional[PathLike] = None,
     formats: Optional[Sequence[FileSuffix]] = None,
     overwrite: bool = True,
+    hdri: bool = False,
 ):
     """
     Automatically determines which format convert to.
@@ -32,6 +33,7 @@ def auto(
         output (optional): Path to output directory. Defaults to source path with new suffix.
         formats (optional): Sequence of FileSuffix for preferred output models formats.
         overwrite (optional): Whether to overwrite output file if already exists. Defaults to True.
+        hdri (optional): Convert ol texture as hdri sky. Defaults to False.
 
     Raises:
         FileSuffixUnsupported - if source suffix not in consts.SUPPORTED_SUFFIXES.
@@ -46,17 +48,23 @@ def auto(
     path = Path(source)
     suffix = path.suffix.lstrip(".")
 
+    args = (source, output, overwrite)
+
     match suffix:
         case FileSuffix.MCSA | FileSuffix.MCVD:
             for fmt in formats:
                 if converter := MODEL_CONVERTER_MAP.get(fmt):
-                    converter(source, output, overwrite)
+                    converter(*args)
 
         case FileSuffix.MIC:
-            convert.mic_to_png(source, output, overwrite)
+            convert.mic_to_png(*args)
 
         case FileSuffix.OL:
-            convert.ol_to_dds(source, output, overwrite)
+            if hdri:
+                convert.ol_hdri_to_dds(*args)
+                return
+
+            convert.ol_to_dds(*args)
 
         case _:
             raise exc.FileSuffixUnsupported(path)

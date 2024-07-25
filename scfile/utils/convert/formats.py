@@ -10,6 +10,7 @@ from scfile.file.formats.ms3d import Ms3dBinEncoder
 from scfile.file.formats.ms3d_ascii import Ms3dAsciiEncoder
 from scfile.file.formats.obj import ObjEncoder
 from scfile.file.formats.ol import OlDecoder
+from scfile.file.formats.ol.decoder import OlHdriDecoder
 from scfile.file.formats.png import PngEncoder
 from scfile.utils.types import PathLike
 
@@ -97,7 +98,7 @@ def mic_to_png(*args, **kwargs):
         overwrite (optional): Whether to overwrite output file if already exists. Defaults to True.
 
     Example:
-        `mic_to_png("model.mic", "path/to/output")`
+        `mic_to_png("image.mic", "path/to/output")`
     """
 
 
@@ -112,5 +113,20 @@ def ol_to_dds(*args, **kwargs):
         overwrite (optional): Whether to overwrite output file if already exists. Defaults to True.
 
     Example:
-        `ol_to_dds("model.ol", "path/to/output")`
+        `ol_to_dds("texture.ol", "path/to/output")`
+    """
+
+
+@converter(OlHdriDecoder, DdsEncoder)
+def ol_hdri_to_dds(*args, **kwargs):
+    """
+    Converting hdri (sky) texture `.ol` file to `.dds`.
+
+    Args:
+        source: Path to `.ol` file.
+        output (optional): Path to output directory. Defaults to source path with new suffix.
+        overwrite (optional): Whether to overwrite output file if already exists. Defaults to True.
+
+    Example:
+        `ol_to_dds("texture.ol", "path/to/output")`
     """
