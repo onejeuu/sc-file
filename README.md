@@ -4,10 +4,9 @@ Utility and Library for decoding and converting stalcraft assets files, such as 
 
 Designed for artworks creation and the like.
 
-You can use executable program from [Releases](https://github.com/onejeuu/sc-file/releases) page.
+You can use executable program from [Releases page](https://github.com/onejeuu/sc-file/releases).
 
-> [!NOTE]
-> There is not and will not be encoding back into game formats.
+You can check your question among frequently asked questions in [FAQ section](https://github.com/onejeuu/sc-file/blob/master/FAQ.md), maybe you will find an answer to it.
 
 > [!WARNING]
 > Do not use game assets directly. \
@@ -29,7 +28,8 @@ You can use executable program from [Releases](https://github.com/onejeuu/sc-fil
 ### Textures
 
 - Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
-- Formats unsupported: RGBA32F, Cubemaps
+- Formats supported partially: Cubemaps (HDRI)
+- Formats unsupported: RGBA32F
 - Some normal map textures can be inverted
 
 ## 💻 CLI Utility
@@ -45,11 +45,11 @@ scfile [FILES]... [OPTIONS]
 
 ### Arguments
 
-- `FILES`: **List of file paths to be converted**. Multiple files should be separated by **spaces**. Accepts both full and relative paths. **Does not accept directory**.
+- `FILES`: **List of file paths to be converted**. Multiple files should be separated by **spaces**. Accepts both full and relative paths. Accepts path glob (patterns). Only one directory can be specified.
 
 ### Options
 
-- `-F`, `--formats`: Preferred format for models. To specify multiple formats, option must be used multiple times.
+- `-F`, `--formats`: **Preferred format for models**. To specify multiple formats, option must be used multiple times.
 
 - `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
 - `-R`, `--recursive`: Recreate input subdirectories in output directory.
@@ -86,7 +86,7 @@ scfile [FILES]... [OPTIONS]
 4. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
-   scfile path/to/assets/**/*.mcsa -O path/to/output -R
+   scfile path/to/files/**/*.mcsa -O path/to/output -R
    ```
 
 ## 📚 Library
@@ -164,9 +164,9 @@ obj.close() # ? Necessary to close encoder
 
 - Use convert methods
 
-> [!IMPORTANT]
-> When using `convert_to` or `to_xxx`, encoder buffer remains open. \
-> `close()` or `save()` or another context (`with`) is necessary.
+> [!IMPORTANT] Unclosed buffer can cause memory leaks
+> When using `convert_to` or `to_xxx` methods, encoder buffer remains open. \
+> `close()` or `save()` or another context (`with`) **is necessary**.
 
 ```python
 mcsa = McsaDecoder("model.mcsa")
@@ -236,7 +236,7 @@ poetry install
 And run script to compile:
 
 ```bash
-python scripts/build.py
+python ./scripts/build.py
 ```
 
 Executable file will be created in `/dist` directory.
