@@ -30,6 +30,7 @@ def scfile(
     no_overwrite: bool = False,
     silent: bool = False,
 ):
+    # TODO: pretty click error handler and echo
     def echo(*args, **kwargs):
         if not silent:
             print(*args, **kwargs)
@@ -46,9 +47,19 @@ def scfile(
         echo(PREFIX.WARN, "[b]--recursive[/] flag cannot be used without specifying [b]--output[/] option.")
         echo()
 
-    # Get root if files is masked from dir
+    # Get root path for --recursive output
     first_path = files[0]
     root = first_path if first_path.is_dir() else None
+
+    # Create glob from directory input
+    if first_path.is_dir():
+        # haven't figured out how to implement
+        # multiple directories with --output and --recusive support
+        if len(files) != 1:
+            echo(PREFIX.ERROR, "Only one directory suported at once.")
+            return
+
+        files = tuple(first_path.rglob("**/*"))
 
     # Exclude directories and unsupported files
     files = tuple(filter(lambda path: path.is_file() and convert.is_supported(path), files))
