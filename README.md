@@ -163,7 +163,8 @@ obj.close() # ? Necessary to close encoder
 
 - Use convert methods
 
-> [!IMPORTANT] Unclosed buffer can cause memory leaks
+> [!IMPORTANT]
+> Unclosed buffer can cause memory leaks. \
 > When using `convert_to` or `to_xxx` methods, encoder buffer remains open. \
 > `close()` or `save()` or another context (`with`) **is necessary**.
 
@@ -216,8 +217,7 @@ with McsaDecoder("model.mcsa") as mcsa:
 
 ## 🛠️ Build
 
-> [!IMPORTANT]
-> You will need [poetry](https://python-poetry.org) to do compilation.
+You will need [poetry](https://python-poetry.org) to do compilation.
 
 > [!TIP]
 > Recommended to create virtual environment.
