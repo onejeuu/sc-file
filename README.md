@@ -6,7 +6,7 @@ Designed for artworks creation and the like.
 
 You can use executable program from [Releases page](https://github.com/onejeuu/sc-file/releases).
 
-You can check your question among frequently asked questions in [FAQ section](https://github.com/onejeuu/sc-file/blob/master/FAQ.md), maybe you will find an answer to it.
+You can check your question among frequently asked questions in [FAQ section](https://github.com/onejeuu/sc-file/blob/dev/FAQ.md), maybe you will find an answer to it.
 
 > [!WARNING]
 > Do not use game assets directly. \
