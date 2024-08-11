@@ -17,7 +17,7 @@ from . import types
 @click.argument("FILES", type=types.FILES, nargs=-1, required=True)
 @click.option("-F", "--formats", help="Preferred format for models.", multiple=True, type=types.FORMATS)
 @click.option("-O", "--output", type=types.OUTPUT, help="Output results directory.")
-@click.option("-R", "--recursive", is_flag=True, help="Recreate input subdirectories in output directory.")
+@click.option("--subdir", is_flag=True, help="Recreate input subdirectories to output.")
 @click.option("--hdri", is_flag=True, help="All ol textures in input files is hdri (skies).")
 @click.option("--no-overwrite", is_flag=True, help="Do not overwrite file if already exists.")
 @click.option("--silent", is_flag=True, help="Suppress all console echoes.")
@@ -25,7 +25,7 @@ def scfile(
     files: Sequence[Path],
     formats: Sequence[FileSuffix],
     output: Optional[Path] = None,
-    recursive: bool = False,
+    subdir: bool = False,
     hdri: bool = False,
     no_overwrite: bool = False,
     silent: bool = False,
@@ -43,11 +43,11 @@ def scfile(
     echo()
 
     # Warn invalid flags
-    if recursive and not output:
-        echo(PREFIX.WARN, "[b]--recursive[/] flag cannot be used without specifying [b]--output[/] option.")
+    if subdir and not output:
+        echo(PREFIX.WARN, "[b]--subdir[/] flag cannot be used without specifying [b]--output[/] option.")
         echo()
 
-    # Get root path for --recursive output
+    # Get root path for --subdir output
     first_path = files[0]
     root = first_path if first_path.is_dir() else None
 
@@ -74,7 +74,7 @@ def scfile(
         destination = output
 
         # Get relative destination path
-        if output and recursive and root:
+        if output and subdir and root:
             relative = source.parent.relative_to(root)
             destination = Path(output or "") / relative
 

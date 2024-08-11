@@ -49,22 +49,21 @@ scfile [FILES]... [OPTIONS]
 
 ### Options
 
-- `-F`, `--formats`: **Preferred format for models**. To specify multiple formats, option must be used multiple times.
-
+- `-F`, `--formats`: **Preferred format for models**. To specify multiple formats, **option** must be used multiple times.
 - `-O`, `--output`: **One path to output directory**. If not specified, file will be saved in same directory with a new suffix.
-- `-R`, `--recursive`: Recreate input subdirectories in output directory.
 
 ### Flags
 
+- `--subdir`: Recreates input subdirectories to output directory.
 - `--no-overwrite`: Do not overwrite output file if already exists.
 - `--silent`: Suppress all console prints.
 
 ### Examples
 
-1. Convert model with specified format
+1. Convert model with specified formats
 
    ```bash
-   scfile model.mcsa -F dae
+   scfile model.mcsa -F obj -F dae
    ```
 
    _Will be saved in same location with a new suffix._
