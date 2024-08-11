@@ -45,7 +45,7 @@ scfile [FILES]... [OPTIONS]
 
 ### Arguments
 
-- `FILES`: **List of file paths to be converted**. Multiple files should be separated by **spaces**. Accepts both full and relative paths. Accepts path glob (patterns). Only one directory can be specified.
+- `FILES`: **List of file paths to be converted**. Multiple files should be separated by **spaces**. Accepts both full and relative paths. Only one directory can be specified.
 
 ### Options
 
@@ -85,7 +85,7 @@ scfile [FILES]... [OPTIONS]
 4. Convert all `.mcsa` files with subdirectories to a specified directory:
 
    ```bash
-   scfile path/to/files/**/*.mcsa -O path/to/output -R
+   scfile path/to/files/**/*.mcsa -O path/to/output --subdir
    ```
 
 ## 📚 Library
