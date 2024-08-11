@@ -1,57 +1,54 @@
 # Frequently Asked Questions (FAQ)
 
-1. **How to encode files back into game formats?**
+## Q: **How to encode files back into game formats?**
 
-   Encoding back is not supported. If you are interested in game files replacement, you can create your own fork.
+**Answer:** Encoding back is not supported. If you are interested in game files replacement, you can create your own fork. Such functionality only incites TOS violations and is of no practical benefit.
 
-   Such functionality only incites TOS violations and is of no practical benefit.
+## Q: **File is no longer decoded after game update.**
 
-1. **File is no longer decoded after game update.**
+**Answer:** Maybe file structure has changed, just wait for program update. In case of large changes it may take some time.
 
-   Maybe file structure has changed, just wait for program update. In case of large changes it may take some time.
+## Q: **Is support for model skeletons and animations present?**
 
-1. **Is support for model skeletons and animations present?**
+**Answer:** Currently, only skeleton, only for MilkShape3D supported.
 
-   Currently, only skeleton, only for MilkShape3D supported.
+Pull Requests is welcome. At this point I don't know enough about how it works. An approximate structure is described in [this template](https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt#L215).
 
-   Pull Requests is welcome. At this point I don't know enough about how it works. An approximate structure is described in [this template](https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt#L215).
+## Q: **Why model have weird/cursed/black textures?**
 
-1. **Why model have weird/cursed/black textures?**
+**Answer:** Some models _(mostly new weapons)_ seem to have mixed up suffixes in filename. Try swapping `_diff` and `_spek` textures in texture shading.
 
-   Some models _(mostly new weapons)_ seem to have mixed up suffixes in filename. Try swapping diff and spek textures in texture shading.
+## Q: **What programs can I use to view dds textures and their thumbnails?**
 
-1. **What programs can I use to view dds textures and their thumbnails?**
+**Answer:** Any programs with full support for all formats.
 
-   Any programs with full support for all formats.
+For Windows I can recommend [WTV](https://www.moddb.com/downloads/windows-texture-viewer-v089b), but I do not vouch for its safety and perfect compatibility. \
+Also [XnView](https://www.xnview.com/), but it has problems with rendering of normal textures thumbnails.
 
-   For Windows I can recommend [WTV](https://www.moddb.com/downloads/windows-texture-viewer-v089b), but I do not vouch for its safety and perfect compatibility.
+## Q: **Is it possible to convert dds textures to png?**
 
-   Also [XnView](https://www.xnview.com/), but it has problems with rendering of normal textures thumbnails.
+**Answer:** Yes, but not planned to add native support due code simplicity.
 
-1. **Is it possible to convert dds textures to png?**
+If necessary, just convert original dds to png via [ImageMagick](https://imagemagick.org). \
+ Command example: `magick mogrify -format png *.dds`
 
-   Yes, but not planned to add native support due code simplicity.
+## Q: **Is it possible to get game map as model?**
 
-   If necessary, just convert original dds to png via [ImageMagick](https://imagemagick.org). \
-   Command example: `magick mogrify -format png *.dds`
+**Answer:** Theoretically yes, but currently not supported.
 
-1. **Is it possible to get game map as model?**
+If anyone wants to implement map cache decoder, welcome to PR.
 
-   Theoretically yes, but currently not supported.
+## Q: **How to open other game file types? (xeon, t, mcws, ...)**
 
-   If anyone wants to implement map cache decoder, welcome to PR.
+**Answer:** Unfortunately, these files encrypted using AES. It's impossible to read them without knowing key.
 
-1. **How to open other game file types? (xeon, t, mcws, ...)**
+If anyone has information about decrypting them, it would be nice to know details in DM.
 
-   Unfortunately, these files encrypted using AES. It's impossible to read them without knowing key.
+## Q: **How safe is it in terms of game ban to use this program?**
 
-   If anyone has information about decrypting them, it would be nice to know details in DM.
+**Answer:** Use only at your own risk.
 
-1. **How safe is it in terms of game ban to use this program?**
+Some basic recommendations:
 
-   Use only at your own risk.
-
-   Some basic recommendations:
-
-   - **DO NOT** leave anything in game directory. Any changes can and will be tracked, there are tools for this.
-   - Copy required files to separate directory and **ONLY THEN** perform manipulations.
+- **DO NOT** leave anything in game directory. Any changes can and will be tracked, there are tools for this.
+- Copy required files to separate directory and **ONLY THEN** perform manipulations.
