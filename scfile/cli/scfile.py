@@ -1,9 +1,11 @@
+import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
 import click
 from rich import print
 
+from scfile.cli.excepthook import excepthook
 from scfile.consts import CLI
 from scfile.enums import EchoPrefix as PREFIX
 from scfile.enums import FileSuffix
@@ -11,6 +13,9 @@ from scfile.exceptions import ScFileException
 from scfile.utils import convert
 
 from . import types
+
+
+sys.excepthook = excepthook
 
 
 @click.command(no_args_is_help=True, epilog=CLI.EPILOG)

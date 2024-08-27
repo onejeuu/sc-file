@@ -58,3 +58,4 @@ class EchoPrefix(StrEnum):
     WARN = "[b yellow]WARN:[/]"
     ERROR = "[b red]ERROR:[/]"
     EXCEPTION = "[b red]UNKNOWN ERROR:[/]"
+    CLICK = "[b red]CLI ERROR:[/]"
