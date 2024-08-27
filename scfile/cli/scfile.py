@@ -67,6 +67,7 @@ def scfile(
     # Check that files not empty
     if not files:
         echo(PREFIX.ERROR, "No supported files found in provided arguments.")
+        echo(PREFIX.INFO, CLI.FORMATS)
         return
 
     # Convert all files
@@ -84,7 +85,7 @@ def scfile(
             echo(PREFIX.INFO, f"File '{source.name}' converted to '{destination or source.parent}'.")
 
         except ScFileException as err:
-            echo(PREFIX.ERROR, err)
+            echo(PREFIX.ERROR, str(err))
 
         except Exception as err:
             echo(PREFIX.EXCEPTION, f"'{source}' - {err}")

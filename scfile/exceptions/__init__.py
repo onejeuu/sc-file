@@ -4,6 +4,7 @@ from .basic import (
     FileIsEmpty,
     FileNotFound,
     FileSignatureInvalid,
+    FileStructureInvalid,
     FileSuffixUnsupported,
 )
 from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
@@ -13,16 +14,17 @@ from .mcsa import (
     McsaUnknownLinkCount,
     McsaUnsupportedVersion,
 )
-from .ol import OlDecodingError, OlUnknownFourcc
+from .ol import OlDecodingError, OlUnsupportedFourcc
 
 
 __all__ = (
     "ScFileException",
     "FileBasicError",
-    "FileNotFound",
     "FileIsEmpty",
-    "FileSuffixUnsupported",
+    "FileNotFound",
     "FileSignatureInvalid",
+    "FileStructureInvalid",
+    "FileSuffixUnsupported",
     "FileDecodingError",
     "FileParsingError",
     "FileUnsupportedError",
@@ -31,5 +33,5 @@ __all__ = (
     "McsaUnknownLinkCount",
     "McsaUnsupportedVersion",
     "OlDecodingError",
-    "OlUnknownFourcc",
+    "OlUnsupportedFourcc",
 )

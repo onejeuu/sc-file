@@ -56,7 +56,7 @@ class OlDecoder(FileDecoder[OlFileIO, TextureData]):
         self.fourcc = self.f.readfourcc()
 
         if self.fourcc not in SUPPORTED_FORMATS:
-            raise exc.OlUnknownFourcc(self.path, self.fourcc.decode())
+            raise exc.OlUnsupportedFourcc(self.path, self.fourcc.decode())
 
         self.fourcc = b"ATI2" if self.fourcc == b"DXN_XY" else self.fourcc
 

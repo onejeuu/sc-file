@@ -77,7 +77,7 @@ CUBEMAP_FACES = 6
 class CLI:
     """Command Line Interface."""
 
-    EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
+    EPILOG = FORMATS = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
     VERSION = "3.6.0-dev"
 
 

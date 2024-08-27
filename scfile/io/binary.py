@@ -1,7 +1,7 @@
 import io
 import pathlib
 
-from scfile.exceptions.basic import FileStructureInvalid
+from scfile.exceptions import FileStructureInvalid
 
 from .base import BinaryIO
 

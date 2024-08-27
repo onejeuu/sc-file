@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from scfile.utils.types import PathLike
@@ -5,20 +6,25 @@ from scfile.utils.types import PathLike
 from .base import ScFileException
 
 
+@dataclass
 class FileBasicError(ScFileException):
-    """Basic files exception. Occurring when file processing."""
+    """Basic files exception. Occurring with file processing."""
 
-    def __init__(self, path: PathLike):
-        self.path = Path(path)
+    file: PathLike
 
     @property
-    def posix_path(self) -> str:
-        return self.path.as_posix()
+    def path(self):
+        return Path(self.file)
+
+    @property
+    def prefix(self) -> str:
+        return "File"
 
     def __str__(self):
-        return f"File '{self.posix_path}'"
+        return f'{self.prefix} "{self.path.as_posix()}"'
 
 
+@dataclass
 class FileNotFound(FileBasicError):
     """Exception occurring when file not found or does not exists."""
 
@@ -26,6 +32,7 @@ class FileNotFound(FileBasicError):
         return f"{super().__str__()} not found (not exists)."
 
 
+@dataclass
 class FileIsEmpty(FileBasicError):
     """Exception occurring when file is empty."""
 
@@ -33,6 +40,7 @@ class FileIsEmpty(FileBasicError):
         return f"{super().__str__()} is empty."
 
 
+@dataclass
 class FileSuffixUnsupported(FileBasicError):
     """Exception occurring when file cannot be decoded or encoded."""
 
@@ -40,13 +48,12 @@ class FileSuffixUnsupported(FileBasicError):
         return f"{super().__str__()} with suffix '{self.path.suffix}' is unsupported."
 
 
+@dataclass
 class FileSignatureInvalid(FileBasicError):
     """Exception occurring when file signature does not match file type."""
 
-    def __init__(self, path: PathLike, readed: int, signature: int):
-        self.path = Path(path)
-        self.readed = readed
-        self.signature = signature
+    readed: int
+    signature: int
 
     def __str__(self):
         return (
@@ -56,12 +63,11 @@ class FileSignatureInvalid(FileBasicError):
         )
 
 
+@dataclass
 class FileStructureInvalid(FileBasicError):
     """Exception occurring when file does not hold expected number of bytes."""
 
-    def __init__(self, path: PathLike, pos: int):
-        self.path = path
-        self.pos = pos
+    pos: int
 
     def __str__(self):
         return f"{super().__str__()} has invalid structure. Current position: {self.pos}."

@@ -1,28 +1,20 @@
-from pathlib import Path
-
-from scfile.utils.types import PathLike
-
 from .base import ScFileException
+from .basic import FileBasicError
 
 
-class FileDecodingError(ScFileException):
-    """Exception occurring when file decoding."""
+class FileDecodingError(FileBasicError):
+    """Base exception occurring while file decoding."""
 
-    def __init__(self, path: PathLike):
-        self.path = Path(path)
-
-    @property
-    def posix_path(self) -> str:
-        return self.path.as_posix()
+    pass
 
 
 class FileParsingError(ScFileException):
-    """Exception occurring due incorrect file parsing. (Or file incorrect itself)."""
+    """Base exception occurring due to unexpected file structure."""
 
     pass
 
 
 class FileUnsupportedError(ScFileException):
-    """Exception occurring intentionally due incorrect file parsing."""
+    """Base exception occurring intentionally for unsupported formats."""
 
     pass
