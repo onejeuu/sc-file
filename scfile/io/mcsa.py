@@ -48,7 +48,7 @@ class McsaFileIO(BinaryFileIO):
 
         # Validate that indexes fits into U16 range. Otherwise use U32.
         indexes = count * size
-        fmt = F.U16 if indexes < Factor.U16 else F.U32
+        fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
         data = self.readarray(fmt=fmt, size=size, count=count)
