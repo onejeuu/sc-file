@@ -92,24 +92,8 @@ scfile [FILES]... [OPTIONS]
 
 ### Install
 
-#### Pip
-
 ```bash
 pip install sc-file -U
-```
-
-#### Manual
-
-```bash
-git clone git@github.com:onejeuu/sc-file.git
-```
-
-```bash
-cd sc-file
-```
-
-```bash
-poetry install
 ```
 
 ### Usage
@@ -217,25 +201,44 @@ with McsaDecoder("model.mcsa") as mcsa:
 
 ## 🛠️ Build
 
-You will need [poetry](https://python-poetry.org) to do compilation.
+1. Download project
 
-> [!TIP]
-> Recommended to create virtual environment.
->
-> ```bash
-> poetry shell
-> ```
+   ```bash
+   git clone https://github.com/onejeuu/sc-file.git
+   ```
 
-Then install dependencies:
+   ```bash
+   cd sc-file
+   ```
 
-```bash
-poetry install
-```
+2. Recommended to create virtual environment
 
-And run script to compile:
+   ```bash
+   python -m venv .venv
+   ```
 
-```bash
-python ./scripts/build.py
-```
+   ```bash
+   .venv\Scripts\activate
+   ```
 
-Executable file will be created in `/dist` directory.
+3. Install dependencies
+
+   via poetry
+
+   ```bash
+   poetry install
+   ```
+
+   or via pip
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run script to compile
+
+   ```bash
+   python scripts/build.py
+   ```
+
+   Executable file `scfile.exe` will be created in `/dist` directory.
