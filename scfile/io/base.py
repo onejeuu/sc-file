@@ -7,10 +7,19 @@ from scfile.enums import StructFormat as F
 
 
 class StructBufferedIOBase(io.BufferedIOBase):
+    # abstract method without abstraction
+    # definitely (maybe) cant do that (throw methods upwards) but who cares?
+    def validate_buffer_size(self, size: int):
+        """Validate that file buffer contains enough bytes to read specified size."""
+        pass
+
     def unpack(self, fmt: str) -> Any:
         """Unpack binary data from buffer."""
         size = struct.calcsize(str(fmt))
+        self.validate_buffer_size(size)
+
         data = self.read(size)
+
         return struct.unpack(fmt, data)
 
     def pack(self, fmt: str, *v: Any) -> bytes:

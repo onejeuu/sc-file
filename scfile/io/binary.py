@@ -1,5 +1,7 @@
 import io
-from pathlib import Path
+import pathlib
+
+from scfile.exceptions.basic import FileStructureInvalid
 
 from .base import BinaryIO
 
@@ -10,5 +12,18 @@ class BinaryBytesIO(io.BytesIO, BinaryIO):
 
 class BinaryFileIO(io.FileIO, BinaryIO):  # type: ignore
     @property
-    def path(self) -> Path:
-        return Path(str(self.name))
+    def path(self) -> pathlib.Path:
+        return pathlib.Path(str(self.name))
+
+    def validate_buffer_size(self, size: int):
+        current_pos = self.tell()
+        self.seek(0, io.SEEK_END)
+        file_size = self.tell()
+
+        # return pointer
+        self.seek(current_pos)
+
+        remaining = file_size - current_pos
+
+        if remaining < size:
+            raise FileStructureInvalid(self.path, current_pos)

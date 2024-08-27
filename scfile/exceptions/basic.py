@@ -54,3 +54,14 @@ class FileSignatureInvalid(FileBasicError):
             f"{hex(self.readed)} != {hex(self.signature)}. "
             "(File suffix does not match file type)."
         )
+
+
+class FileStructureInvalid(FileBasicError):
+    """Exception occurring when file does not hold expected number of bytes."""
+
+    def __init__(self, path: PathLike, pos: int):
+        self.path = path
+        self.pos = pos
+
+    def __str__(self):
+        return f"{super().__str__()} has invalid structure. Current position: {self.pos}."
