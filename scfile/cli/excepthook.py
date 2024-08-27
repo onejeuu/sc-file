@@ -13,20 +13,11 @@ def excepthook(
     exc_value: BaseException,
     exc_traceback: Any,
 ):
-    try:
-        if isinstance(exc_value, click.ClickException):
-            print(PREFIX.CLICK, exc_value)
-        else:
-            traceback.print_exception(exc_type, exc_value, exc_traceback)
-            print()
-            print(PREFIX.EXCEPTION, f"{exc_type.__name__} - {exc_value}.")
-
+    if isinstance(exc_value, click.ClickException):
+        print(PREFIX.CLICK, exc_value)
+    else:
+        traceback.print_exception(exc_type, exc_value, exc_traceback)
         print()
-        print("[b yellow]Press Enter to exit...[/]")
-        input()
+        print(PREFIX.EXCEPTION, f"{exc_type.__name__} - {exc_value}.")
 
-    except KeyboardInterrupt:
-        pass
-
-    finally:
-        sys.exit(1)
+    sys.exit(1)
