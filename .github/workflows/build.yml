@@ -1,5 +1,5 @@
 name: Build
-on: workflow_dispatch
+on: [push, pull_request]
 jobs:
   build:
     strategy:
@@ -13,9 +13,12 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - run: pip install -r requirements.txt
-    - run: pytest
-    - run: python scripts/build.py
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    - name: Run tests
+      run: pytest
+    - name: Build
+      run: python scripts/build.py
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}
