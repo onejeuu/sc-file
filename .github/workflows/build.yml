@@ -1,8 +1,9 @@
-name: build
+name: Build
 on: workflow_dispatch
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
     name: Build for ${{ matrix.os }}
@@ -12,7 +13,7 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - run: poetry install
+    - run: pip install -r requirements.txt
     - run: pytest
     - run: python scripts/build.py
     - uses: actions/upload-artifact@v4
