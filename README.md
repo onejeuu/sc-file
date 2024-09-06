@@ -1,12 +1,14 @@
 # SC FILE
 
-Utility and Library for decoding and converting stalcraft assets files, such as models and textures into well-known formats.
+Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 
-Designed for artworks creation and the like.
+Designed for artworks creation.
 
-You can use executable program from [Releases page](https://github.com/onejeuu/sc-file/releases).
+For answers to common questions, please refer to [FAQ section](FAQ.md).
 
-You can check your question among frequently asked questions in [FAQ section](https://github.com/onejeuu/sc-file/blob/dev/FAQ.md), maybe you will find an answer to it.
+You can download executable from [Releases page](https://github.com/onejeuu/sc-file/releases).
+
+![Build](https://github.com/onejeuu/sc-file/actions/workflows/build.yml/badge.svg)
 
 > [!WARNING]
 > Do not use game assets directly. \
