@@ -27,9 +27,10 @@ class Local:
 
 @dataclass
 class Skeleton:
+    roots: List[Bone] = field(default_factory=list)
     bones: List[Bone] = field(default_factory=list)
 
-    def convert_to_local(self):
+    def convert_to_local(self) -> None:
         """Update bones positions by their parent bone."""
 
         parent_id = 0
@@ -44,8 +45,8 @@ class Skeleton:
                 bone.position -= parent.position
                 parent_id = parent.parent_id
 
-    def build_hierarchy(self):
-        """Fills bones children list."""
+    def build_hierarchy(self) -> list[Bone]:
+        """Fills bones children list. Return list of root bones."""
 
         # Create a dictionary to map bone id to bones
         bone_dict: Dict[int, Bone] = {bone.id: bone for bone in self.bones}
@@ -63,4 +64,5 @@ class Skeleton:
             if parent_bone:
                 parent_bone.children.append(bone)
 
+        self.roots = root_bones
         return root_bones

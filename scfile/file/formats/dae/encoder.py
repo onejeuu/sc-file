@@ -5,6 +5,7 @@ import numpy as np
 from scfile.enums import FileSuffix
 from scfile.file.base import FileEncoder
 from scfile.file.data import ModelData
+from scfile.utils.model.skeleton import Bone
 
 
 class DaeEncoder(FileEncoder[ModelData]):
@@ -13,14 +14,17 @@ class DaeEncoder(FileEncoder[ModelData]):
         return FileSuffix.DAE
 
     def serialize(self):
+        # Aliases
         self.model = self.data.model
         self.flags = self.data.model.flags
         self.skeleton = self.data.model.skeleton
 
+        # Prepare model
         self.model.ensure_unique_names()
-        # self.skeleton.convert_to_local()
-        # self.skeleton.build_hierarchy()
+        self.skeleton.convert_to_local()
+        self.skeleton.build_hierarchy()
 
+        # Build file
         self._create_root()
         self._add_asset()
         self._add_geometries()
@@ -95,14 +99,10 @@ class DaeEncoder(FileEncoder[ModelData]):
 
     def _add_vertices(self):
         vertices = etree.SubElement(self.node, "vertices", id=f"{self.mesh.name}-vertices")
-        etree.SubElement(
-            vertices, "input", semantic="POSITION", source=f"#{self.mesh.name}-positions"
-        )
+        etree.SubElement(vertices, "input", semantic="POSITION", source=f"#{self.mesh.name}-positions")
 
     def _add_triangles(self):
-        self.triangles = etree.SubElement(
-            self.node, "triangles", count=str(self.mesh.count.polygons)
-        )
+        self.triangles = etree.SubElement(self.node, "triangles", count=str(self.mesh.count.polygons))
         self._add_inputs()
         self._add_polygons()
 
@@ -130,15 +130,44 @@ class DaeEncoder(FileEncoder[ModelData]):
         p = etree.SubElement(self.triangles, "p")
         p.text = " ".join(map(str, indices))
 
+    def _add_controllers(self):
+        library = etree.SubElement(self.root, "library_controllers")
+
+        name = "body"
+        controller = etree.SubElement(library, "controller", id=f"{name}-controller")
+        etree.SubElement(controller, "skin", source=f"#{name}-mesh")
+
+        vertex_weights = etree.SubElement(controller, "vertex_weights")
+        etree.SubElement(vertex_weights, "input", semantic="JOINT", source=f"#{name}-skin-joints")
+        etree.SubElement(vertex_weights, "input", semantic="WEIGHT", source=f"#{name}-skin-weights")
+
+    def _add_meshes(self):
+        for mesh in self.model.meshes:
+            node = etree.SubElement(self.scene, "node", id=f"{mesh.name}-node", name=mesh.name, type="NODE")
+            etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}-mesh", name=mesh.name)
+
+    def _add_bone(self, element: etree.Element, bone: Bone):
+        node = etree.SubElement(element, "node", id=f"{bone.id}-bone", name=bone.name, type="JOINT")
+
+        etree.SubElement(node, "translate").text = " ".join(map(str, bone.position))
+        etree.SubElement(node, "rotate").text = " ".join(map(str, bone.rotation))
+
+        for child in bone.children:
+            self._add_bone(node, child)
+
+    def _add_skeleton(self):
+        for bone in self.skeleton.roots:
+            self._add_bone(self.scene, bone)
+
     def _add_scenes(self):
         library = etree.SubElement(self.root, "library_visual_scenes")
-        visual_scene = etree.SubElement(library, "visual_scene", id="scene")
+        self.scene = etree.SubElement(library, "visual_scene", id="scene")
 
-        for mesh in self.model.meshes:
-            node = etree.SubElement(
-                visual_scene, "node", id=f"{mesh.name}-node", name=mesh.name, type="NODE"
-            )
-            etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}-mesh", name=mesh.name)
+        self._add_meshes()
+        self._add_controllers()
+
+        if self.flags.skeleton:
+            self._add_skeleton()
 
         scene = etree.SubElement(self.root, "scene")
         etree.SubElement(scene, "instance_visual_scene", url="#scene")
