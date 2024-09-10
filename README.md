@@ -4,6 +4,11 @@
 > This version is deprecated and no longer maintained. \
 > Check out the latest version: [sc-file 4.0](https://github.com/onejeuu/sc-file/tree/4.0-dev)
 
+[![Pypi](https://img.shields.io/pypi/v/sc-file.svg)](https://pypi.org/project/sc-file)
+[![License](https://img.shields.io/github/license/onejeuu/sc-file)](https://opensource.org/licenses/MIT)
+[![Build](https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml)](https://github.com/onejeuu/sc-file/actions/workflows/build.yml)
+[![Issues](https://img.shields.io/github/issues/onejeuu/sc-file)](https://github.com/onejeuu/sc-file/issues)
+
 Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 
 Designed for artworks creation.
@@ -12,11 +17,8 @@ For answers to common questions, please refer to [FAQ section](FAQ.md).
 
 You can download executable from [Releases page](https://github.com/onejeuu/sc-file/releases).
 
-![Build](https://github.com/onejeuu/sc-file/actions/workflows/build.yml/badge.svg)
-
 > [!WARNING]
-> Do not use game assets directly. \
-> Any changes in game client can be detected.
+> Any changes in game client files can be detected.
 
 ## 📁 Formats
 
