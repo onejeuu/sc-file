@@ -11,11 +11,11 @@ class Vector:
     def __iter__(self):
         return iter((self.x, self.y, self.z))
 
-    def __add__(self, vec: Self):
-        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z)
-
     def __sub__(self, vec: Self):
         return Vector(self.x - vec.x, self.y - vec.y, self.z - vec.z)
+
+    def __add__(self, vec: Self):
+        return Vector(self.x + vec.x, self.y + vec.y, self.z + vec.z)
 
 
 @dataclass

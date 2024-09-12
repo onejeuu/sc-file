@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 import click
+import lz4.block
 from rich import print
 
 from scfile.cli.excepthook import excepthook
@@ -85,12 +86,26 @@ def scfile(
             destination = Path(output or "") / relative
 
         # Convert source file
-        try:
-            convert.auto(source, destination, formats, overwrite, hdri)
-            echo(PREFIX.INFO, f"File '{source.name}' converted to '{destination or source.parent}'.")
+        convert_source_file(source, destination, formats, overwrite, hdri, echo)
 
-        except ScFileException as err:
-            echo(PREFIX.ERROR, str(err))
 
-        except Exception as err:
-            echo(PREFIX.EXCEPTION, f"'{source}' - {err}")
+def convert_source_file(
+    source: Path,
+    destination: Optional[Path] = None,
+    formats: Optional[Sequence[FileSuffix]] = None,
+    overwrite: bool = True,
+    hdri: bool = False,
+    echo=print,
+):
+    try:
+        convert.auto(source, destination, formats, overwrite, hdri)
+        echo(PREFIX.INFO, f"File '{source.name}' converted to '{destination or source.parent}'.")
+
+    except ScFileException as err:
+        echo(PREFIX.ERROR, str(err))
+
+    except lz4.block.LZ4BlockError:
+        echo(PREFIX.ERROR, f"'{source}' - most likely is hdri texture")
+
+    except Exception as err:
+        echo(PREFIX.EXCEPTION, f"'{source}' - {err}")

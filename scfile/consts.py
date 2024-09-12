@@ -2,10 +2,7 @@ from .enums import FileSuffix
 
 
 class Signature:
-    """
-    Big-Endian Source File Signature.
-    Integer.
-    """
+    """Big-Endian Source File Signature. Integer."""
 
     MCSA = 0x4D435341
     MIC = 0x894D4943
@@ -13,19 +10,14 @@ class Signature:
 
 
 class Magic:
-    """
-    Big-Endian Output File Signature.
-    List[Integer].
-    """
+    """Big-Endian Output File Signature. List[Integer]."""
 
     DDS = [0x44, 0x44, 0x53, 0x20]
     PNG = [0x89, 0x50, 0x4E, 0x47]
 
 
 class Factor:
-    """
-    Integer range.
-    """
+    """Integer Range."""
 
     I8 = 0x7F
     U8 = 0xFF
@@ -34,9 +26,7 @@ class Factor:
 
 
 class OlString:
-    """
-    Xor encoded zero-end string.
-    """
+    """Xor Encoded Zero-End String."""
 
     SIZE = 17
     """16 encoded bytes and last 0x00 byte."""
@@ -45,9 +35,7 @@ class OlString:
 
 
 class McsaModel:
-    """
-    Mcsa model constants.
-    """
+    """Mcsa Model Constants."""
 
     ROOT_BONE_ID = -1
     COUNT_LIMIT = 0x100000
@@ -55,9 +43,7 @@ class McsaModel:
 
 
 class McsaSize:
-    """
-    Count of elements in each mcsa data structure.
-    """
+    """Mcsa Data Structures Elements Count."""
 
     POSITION = 4
     TEXTURE = 2
@@ -77,12 +63,12 @@ CUBEMAP_FACES = 6
 class CLI:
     """Command Line Interface."""
 
-    EPILOG = FORMATS = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
+    FORMATS = EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
     VERSION = "3.7.0-dev"
 
 
 class OutputFormats:
-    """Supported output formats for game files types."""
+    """Supported Output Formats."""
 
     MODELS = {FileSuffix.DAE, FileSuffix.MS3D, FileSuffix.MS3D_ASCII, FileSuffix.OBJ}
     TEXTURES = {FileSuffix.DDS}
