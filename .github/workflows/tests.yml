@@ -3,13 +3,13 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-  build:
+  tests:
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
 
-    name: Build for ${{ matrix.os }}
+    name: Tests for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     steps:
