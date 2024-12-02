@@ -1,9 +1,13 @@
 from enum import StrEnum, auto
 
 
-class FileSuffix(StrEnum):
+class FileFormat(StrEnum):
+    """File suffix (without dot)."""
+
     DAE = auto()
     DDS = auto()
+    FBX = auto()
+    GLB = auto()
     MCSA = auto()
     MCVD = auto()
     MIC = auto()
@@ -15,6 +19,8 @@ class FileSuffix(StrEnum):
 
 
 class FileMode(StrEnum):
+    """File open mode."""
+
     RB = READ = auto()
     WB = WRITE = auto()
     AB = APPEND = auto()
@@ -22,6 +28,8 @@ class FileMode(StrEnum):
 
 
 class ByteOrder(StrEnum):
+    """File content bytes order."""
+
     NATIVE = "@"
     STANDARD = "="
     LITTLE = "<"
@@ -51,11 +59,3 @@ class StructFormat(StrEnum):
     """float: `half-precision` `2 bytes`"""
     F32 = "f"
     """double: `single-precision` `4 bytes`"""
-
-
-class EchoPrefix(StrEnum):
-    INFO = "[b blue]INFO:[/]"
-    WARN = "[b yellow]WARN:[/]"
-    ERROR = "[b red]ERROR:[/]"
-    EXCEPTION = "[b red]UNKNOWN ERROR:[/]"
-    CLICK = "[b red]CLI ERROR:[/]"

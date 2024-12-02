@@ -1,23 +1,25 @@
-from .enums import FileSuffix
+from .enums import FileFormat
 
 
-class Signature:
-    """Big-Endian Source File Signature. Integer."""
-
-    MCSA = 0x4D435341
-    MIC = 0x894D4943
-    OL = 0x0A9523FD
+SUPPORTED_FORMATS = {FileFormat.MCSA, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
+"""Files formats (suffixes without dot) that can be converted."""
 
 
-class Magic:
-    """Big-Endian Output File Signature. List[Integer]."""
+class FileSignature:
+    """File signature for formats (big-endian)."""
 
-    DDS = [0x44, 0x44, 0x53, 0x20]
-    PNG = [0x89, 0x50, 0x4E, 0x47]
+    MCSA = b"MCSA"
+    MIC = b"\x89MIC"
+    OL = b"\x0a\x95\x23\xfd"
+
+    DDS = b"DDS "
+    PNG = b"\x89PNG"
+    FBX = b"Kaydara FBX Binary\x20\x20\x00\x1a\x00"
+    GLTF = b"glTF"
 
 
 class Factor:
-    """Integer Range."""
+    """Integer max range for integer type."""
 
     I8 = 0x7F
     U8 = 0xFF
@@ -26,7 +28,7 @@ class Factor:
 
 
 class OlString:
-    """Xor Encoded Zero-End String."""
+    """Xor encoded zero-end string."""
 
     SIZE = 17
     """16 encoded bytes and last 0x00 byte."""
@@ -34,42 +36,43 @@ class OlString:
     NULL = ord("G")
 
 
-class McsaModel:
-    """Mcsa Model Constants."""
+class CubemapFaces:
+    """Dds cubemap faces."""
 
+    FACES = {"+x", "-x", "+y", "-y", "+z", "-z"}
+    COUNT = len(FACES)
+
+
+class McsaModel:
+    """Mcsa model constants."""
+
+    ROUND_DIGITS = 6
     ROOT_BONE_ID = -1
     COUNT_LIMIT = 0x100000
     """There is no known limit. This for case when file was read incorrectly, so as not to overflow memory."""
 
 
 class McsaSize:
-    """Mcsa Data Structures Elements Count."""
+    """Mcsa data structures elements count."""
 
     POSITION = 4
     TEXTURE = 2
     NORMALS = 4
     POLYGONS = 3
     COLOR = 4
-
-
-SUPPORTED_SUFFIXES = {FileSuffix.MCSA, FileSuffix.MCVD, FileSuffix.MIC, FileSuffix.OL}
-"""Files suffixes that can be converted."""
-
-
-CUBEMAP_FACES = 6
-"""Dds cubemap faces count. (+x, -x, +y, -y, +z, -z)."""
+    BONE = 3
 
 
 class CLI:
-    """Command Line Interface."""
+    """Command line interface constants."""
 
-    FORMATS = EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_SUFFIXES)).upper()}."
-    VERSION = "3.7.0-dev"
+    FORMATS = EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_FORMATS)).upper()}."
+    VERSION = "4.0.0-dev"
 
 
 class OutputFormats:
-    """Supported Output Formats."""
+    """Supported output formats for file data types."""
 
-    MODELS = {FileSuffix.DAE, FileSuffix.MS3D, FileSuffix.MS3D_ASCII, FileSuffix.OBJ}
-    TEXTURES = {FileSuffix.DDS}
-    IMAGES = {FileSuffix.PNG}
+    MODELS = {FileFormat.DAE, FileFormat.MS3D, FileFormat.MS3D_ASCII, FileFormat.OBJ}
+    TEXTURES = {FileFormat.DDS}
+    IMAGES = {FileFormat.PNG}
