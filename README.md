@@ -1,4 +1,4 @@
-# SC FILE
+# SC FILE 4.0 [WIP]
 
 [![Pypi](https://img.shields.io/pypi/v/sc-file.svg)](https://pypi.org/project/sc-file)
 [![License](https://img.shields.io/github/license/onejeuu/sc-file)](https://opensource.org/licenses/MIT)
@@ -7,14 +7,12 @@
 
 Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 
-Designed for artworks creation.
-
 For answers to common questions, please refer to [FAQ section](FAQ.md).
 
 You can download executable from [Releases page](https://github.com/onejeuu/sc-file/releases).
 
 > [!WARNING]
-> Any changes in game client files can be detected.
+> Any changes in game client files can be detected. Use at your own risk.
 
 ## 📁 Formats
 

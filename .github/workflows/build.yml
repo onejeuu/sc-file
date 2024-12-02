@@ -1,25 +1,34 @@
 name: Build
-on: [push, pull_request]
+
+on:
+  push:
+    tags:
+      - "v*"
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
+
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Run tests
-      run: pytest
-    - name: Build
-      run: python scripts/build.py
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.os }}
-        path: dist/
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build
+        run: python scripts/build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: dist/
