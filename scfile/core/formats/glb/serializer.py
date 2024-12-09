@@ -66,41 +66,41 @@ class GlbSerializer(FileSerializer[ModelData]):
     # that too bad
     def create_vertex_array(self, vertices: list[Vertex], attribute: Callable[[Vertex], Vector | Texture], count: int):
         fmt = ByteOrder.LITTLE + F.F32 * len(vertices) * count
-        return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)]), struct.calcsize(fmt)
+        return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
 
     def create_polygon_array(self, polygons: list[Polygon]):
         fmt = ByteOrder.LITTLE + F.U32 * len(polygons) * 3  # not sure
-        return struct.pack(fmt, *[value for polygon in polygons for value in polygon]), struct.calcsize(fmt)
+        return struct.pack(fmt, *[value for polygon in polygons for value in polygon])
 
     def add_binary_chunk(self):
-        binary_start = self.buffer.tell()
+        # Size of BIN chunk placeholder
+        chunk_start = self.buffer.tell()
         self.buffer.write(struct.pack("<I", 0))
         self.buffer.write(b"BIN\0")
 
-        binary_size = 0
+        start = self.buffer.tell()
 
-        # so ugly
         for mesh in self.model.meshes:
-            array, size = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
+            array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
             self.buffer.write(array)
-            binary_size += size
 
             if self.flags[Flag.TEXTURE]:
-                array, size = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
+                array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
                 self.buffer.write(array)
-                binary_size += size
 
             if self.flags[Flag.NORMALS]:
-                array, size = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
+                array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
                 self.buffer.write(array)
-                binary_size += size
 
-            array, size = self.create_polygon_array(mesh.polygons)
+            array = self.create_polygon_array(mesh.polygons)
             self.buffer.write(array)
-            binary_size += size
 
-        self.buffer.seek(binary_start)
-        self.buffer.write(struct.pack("<I", binary_size))
+        end = self.buffer.tell()
+        size = end - start
+
+        # Write size of BIN chunk
+        self.buffer.seek(chunk_start)
+        self.buffer.write(struct.pack("<I", size))
 
     def add_json_chunk(self):
         self.create_gltf()
