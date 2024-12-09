@@ -166,7 +166,7 @@ class GlbSerializer(FileSerializer[ModelData]):
             primitive["indices"] = len(self.gltf["accessors"])
             self.create_indices(mesh.polygons)
 
-            # Meshes and nodes
+            # Add mesh to scene
             self.gltf["meshes"].append({"name": mesh.name, "primitives": [primitive]})
             self.gltf["nodes"].append({"mesh": mesh_idx, "name": mesh.name})
             self.gltf["scenes"][0]["nodes"].append(mesh_idx)

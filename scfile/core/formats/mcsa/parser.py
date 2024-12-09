@@ -162,7 +162,8 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
                 links = self.f.readlinkspacked(mesh.count.vertices, mesh.bones)
                 self.load_links(mesh, links)
             case 3 | 4:
-                self.skip_vertices(mesh, size=8)
+                links = self.f.readlinksplains(mesh.count.vertices, mesh.bones)
+                self.load_links(mesh, links)
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
 
