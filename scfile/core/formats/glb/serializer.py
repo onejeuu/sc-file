@@ -2,7 +2,7 @@ import json
 import struct
 from copy import deepcopy
 from enum import IntEnum
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, TypeAlias, TypedDict
 
 from scfile.consts import FileSignature
 from scfile.core.base.serializer import FileSerializer
@@ -12,6 +12,9 @@ from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.utils.model.data import Polygon, Texture, Vector
 from scfile.utils.model.vertex import Vertex
+
+
+VertexAttribute: TypeAlias = Callable[[Vertex], Vector | Texture]
 
 
 VERSION = 2
@@ -39,6 +42,19 @@ class BufferTarget(IntEnum):
     ELEMENT_ARRAY_BUFFER = 34963
 
 
+class PrimitiveMode(IntEnum):
+    TRIANGLES = 4
+
+
+class Accessor(TypedDict):
+    bufferView: int
+    componentType: ComponentType
+    type: str
+    count: int
+    min: Optional[list[float]]
+    max: Optional[list[float]]
+
+
 class GlbSerializer(FileSerializer[ModelData]):
     @property
     def model(self):
@@ -57,19 +73,18 @@ class GlbSerializer(FileSerializer[ModelData]):
     def add_header(self):
         self.buffer.write(FileSignature.GLTF)
         self.buffer.write(struct.pack("<I", VERSION))
-        self.buffer.write(struct.pack("<I", 0))  # total size
+        self.buffer.write(struct.pack("<I", 0))  # Total size placeholder
 
     def update_total_size(self):
         self.buffer.seek(8)
         self.buffer.write(struct.pack("<I", len(self.buffer.getvalue())))
 
-    # that too bad
-    def create_vertex_array(self, vertices: list[Vertex], attribute: Callable[[Vertex], Vector | Texture], count: int):
+    def create_vertex_array(self, vertices: list[Vertex], attribute: VertexAttribute, count: int):
         fmt = ByteOrder.LITTLE + F.F32 * len(vertices) * count
         return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
 
     def create_polygon_array(self, polygons: list[Polygon]):
-        fmt = ByteOrder.LITTLE + F.U32 * len(polygons) * 3  # not sure
+        fmt = ByteOrder.LITTLE + F.U32 * len(polygons) * 3
         return struct.pack(fmt, *[value for polygon in polygons for value in polygon])
 
     def add_binary_chunk(self):
@@ -78,27 +93,32 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.write(struct.pack("<I", 0))
         self.buffer.write(b"BIN\0")
 
+        # Mesh data arrays
         start = self.buffer.tell()
 
         for mesh in self.model.meshes:
+            # XYZ Position
             array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
             self.buffer.write(array)
 
+            # UV Texture
             if self.flags[Flag.TEXTURE]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
                 self.buffer.write(array)
 
+            # XYZ Normals
             if self.flags[Flag.NORMALS]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
                 self.buffer.write(array)
 
+            # ABC Polygons
             array = self.create_polygon_array(mesh.polygons)
             self.buffer.write(array)
 
+        # Write size of BIN chunk
         end = self.buffer.tell()
         size = end - start
 
-        # Write size of BIN chunk
         self.buffer.seek(chunk_start)
         self.buffer.write(struct.pack("<I", size))
 
@@ -111,113 +131,109 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.write(b"JSON")
         self.buffer.write(gltf)
 
-    # ! impossible to read
     def create_gltf(self):
+        # Copy template
         self.gltf = deepcopy(DEFAULT_GLTF)
 
-        # why offset flipping back and forth like a whore
-        offset = 0
+        # Add attributes to gltf json
+        self.attribute_offset = 0
 
         for mesh_idx, mesh in enumerate(self.model.meshes):
             primitive = {
                 "attributes": {},
-                "mode": 4,  # TRIANGLES # ! MAGIC VALUE
+                "mode": PrimitiveMode.TRIANGLES,
             }
 
-            position_accessor_idx, _, offset = self.create_attribute(
-                mesh.vertices, lambda v: list(v.position), "VEC3", 3, offset
-            )
-            primitive["attributes"]["POSITION"] = position_accessor_idx
+            # XYZ Position
+            primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
+            self.create_attribute(mesh.vertices, lambda v: v.position, "VEC3", 3)
 
+            # UV Texture
             if self.flags[Flag.TEXTURE]:
-                texcoord_accessor_idx, _, offset = self.create_attribute(
-                    mesh.vertices, lambda v: list(v.texture), "VEC2", 2, offset
-                )
-                primitive["attributes"]["TEXCOORD_0"] = texcoord_accessor_idx
+                primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
+                self.create_attribute(mesh.vertices, lambda v: v.texture, "VEC2", 2)
 
+            # XYZ Normals
             if self.flags[Flag.NORMALS]:
-                normal_accessor_idx, _, offset = self.create_attribute(
-                    mesh.vertices, lambda v: list(v.normals), "VEC3", 3, offset
-                )
-                primitive["attributes"]["NORMAL"] = normal_accessor_idx
+                primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
+                self.create_attribute(mesh.vertices, lambda v: v.normals, "VEC3", 3)
 
+            # TODO
             if self.flags[Flag.SKELETON]:
                 pass
 
-            indices_accessor_idx, offset = self.create_indices(mesh.polygons, offset)
-            primitive["indices"] = indices_accessor_idx
+            # ABC Polygons
+            primitive["indices"] = len(self.gltf["accessors"])
+            self.create_indices(mesh.polygons)
 
+            # Meshes and nodes
             self.gltf["meshes"].append({"name": mesh.name, "primitives": [primitive]})
             self.gltf["nodes"].append({"mesh": mesh_idx, "name": mesh.name})
             self.gltf["scenes"][0]["nodes"].append(mesh_idx)
 
-        self.gltf["buffers"][0]["byteLength"] = offset
+        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
 
-    def create_accessor(
-        self,
-        buffer_view_index: int,
-        component_type: ComponentType,
-        accessor_type: str,
-        count: int,
-        min_values: Optional[list[float]] = None,
-        max_values: Optional[list[float]] = None,
-    ) -> dict:
-        accessor = {
-            "bufferView": buffer_view_index,
-            "componentType": component_type,
-            "count": count,
-            "type": accessor_type,
-        }
+    def create_attribute(self, vertices: list[Any], attribute: VertexAttribute, accessor_type: str, count: int):
+        # Prepare vertex data
+        data = [list(attribute(v)) for v in vertices]
 
-        if min_values is not None:
-            accessor["min"] = min_values
-        if max_values is not None:
-            accessor["max"] = max_values
-
-        return accessor
-
-    # ! its awful
-    def create_attribute(
-        self,
-        vertices: list[Any],
-        attribute_data_func,
-        accessor_type: str,
-        component_count: int,
-        offset: int,
-    ) -> tuple[int, int, int]:
-        data = [attribute_data_func(v) for v in vertices]
-        byte_length = len(data) * component_count * 4  # ! MAGIC VALUE
-
+        # Add buffer view
+        byte_length = len(data) * count * 4  # uint32
         buffer_view_idx = len(self.gltf["bufferViews"])
-        accessor_idx = len(self.gltf["accessors"])
 
         self.gltf["bufferViews"].append(
-            {"buffer": 0, "byteOffset": offset, "byteLength": byte_length, "target": BufferTarget.ARRAY_BUFFER}
+            {
+                "buffer": 0,
+                "byteOffset": self.attribute_offset,
+                "byteLength": byte_length,
+                "target": BufferTarget.ARRAY_BUFFER,
+            }
         )
 
-        min_values = [min(p[i] for p in data) for i in range(component_count)]
-        max_values = [max(p[i] for p in data) for i in range(component_count)]
+        # Move offset
+        self.attribute_offset += byte_length
 
+        # Attribute boundaries
+        min_values = list(map(min, zip(*data)))
+        max_values = list(map(max, zip(*data)))
+
+        # Add accessor
         self.gltf["accessors"].append(
-            self.create_accessor(buffer_view_idx, ComponentType.FLOAT, accessor_type, len(data), min_values, max_values)
+            Accessor(
+                bufferView=buffer_view_idx,
+                componentType=ComponentType.FLOAT,
+                type=accessor_type,
+                count=len(data),
+                min=min_values,
+                max=max_values,
+            )
         )
 
-        return accessor_idx, buffer_view_idx, offset + byte_length
-
-    def create_indices(self, polygons: list[Polygon], offset: int) -> tuple[int, int]:
+    def create_indices(self, polygons: list[Polygon]):
+        # Prepare polygon data
         indices = [i for polygon in polygons for i in polygon]
-        byte_length = len(indices) * 4  # uint32 # ! MAGIC VALUE
 
+        # Add buffer view
+        byte_length = len(indices) * 4  # uint32
         buffer_view_idx = len(self.gltf["bufferViews"])
-        accessor_idx = len(self.gltf["accessors"])
 
         self.gltf["bufferViews"].append(
-            {"buffer": 0, "byteOffset": offset, "byteLength": byte_length, "target": BufferTarget.ELEMENT_ARRAY_BUFFER}
+            {
+                "buffer": 0,
+                "byteOffset": self.attribute_offset,
+                "byteLength": byte_length,
+                "target": BufferTarget.ELEMENT_ARRAY_BUFFER,
+            }
         )
 
-        # not always uint32 dumbass
+        # Add accessor
         self.gltf["accessors"].append(
-            self.create_accessor(buffer_view_idx, ComponentType.UINT32, "SCALAR", len(indices))
+            Accessor(
+                bufferView=buffer_view_idx,
+                componentType=ComponentType.UINT32,
+                type="SCALAR",
+                count=len(indices),
+                min=None,
+                max=None,
+            )
         )
-
-        return accessor_idx, offset + byte_length
