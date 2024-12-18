@@ -5,6 +5,7 @@ from scfile.enums import StructFormat as F
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model.mesh import ModelMesh
 from scfile.utils.model.skeleton import SkeletonBone
+from scfile.utils.model.vertex import Joint
 
 from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -171,7 +172,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
         link_ids, link_weights = links
 
         for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):
-            vertex.link = dict(zip(ids, weights))
+            vertex.joints = [Joint(bone_id=id, weight=weight) for id, weight in zip(ids, weights)]
 
     def skip_colors(self, mesh: ModelMesh):
         self.skip_vertices(mesh, size=4)
