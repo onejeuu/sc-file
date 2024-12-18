@@ -2,7 +2,7 @@ import json
 import struct
 from copy import deepcopy
 from enum import IntEnum
-from typing import Any, Callable, Optional, TypeAlias, TypedDict
+from typing import Callable, Optional, Sized, TypeAlias, TypedDict
 
 from scfile.consts import FileSignature
 from scfile.core.base.serializer import FileSerializer
@@ -22,13 +22,17 @@ VERSION = 2
 DEFAULT_GLTF = {
     "asset": {"version": "2.0", "generator": "onejeuu@scfile"},
     "scene": 0,
-    "scenes": [{"nodes": []}],
+    "scenes": [],
     "nodes": [],
     "meshes": [],
+    "skins": [],
     "accessors": [],
     "bufferViews": [],
     "buffers": [{"byteLength": 0}],
 }
+
+DEFAULT_SCENE = {"nodes": []}
+DEFAULT_BUFFER = {"byteLength": 0}
 
 
 class ComponentType(IntEnum):
@@ -138,7 +142,11 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Add attributes to gltf json
         self.attribute_offset = 0
 
-        for mesh_idx, mesh in enumerate(self.model.meshes):
+        # Create scene nodes
+        self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
+
+        # Add meshes
+        for index, mesh in enumerate(self.model.meshes):
             primitive = {
                 "attributes": {},
                 "mode": PrimitiveMode.TRIANGLES,
@@ -146,39 +154,79 @@ class GlbSerializer(FileSerializer[ModelData]):
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
-            self.create_attribute(mesh.vertices, lambda v: v.position, "VEC3", 3)
+            self.create_attribute([list(v.position) for v in mesh.vertices], "VEC3", count=3)
 
             # UV Texture
             if self.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
-                self.create_attribute(mesh.vertices, lambda v: v.texture, "VEC2", 2)
+                self.create_attribute([list(v.texture) for v in mesh.vertices], "VEC2", count=2)
 
             # XYZ Normals
             if self.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
-                self.create_attribute(mesh.vertices, lambda v: v.normals, "VEC3", 3)
+                self.create_attribute([list(v.normals) for v in mesh.vertices], "VEC3", count=3)
 
             # TODO
             if self.flags[Flag.SKELETON]:
                 pass
+                # Joint Indices
+                # primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
+                # joint_indices = self.create_joint_indices(mesh.vertices)
+
+                # Joint Weights
+                # primitive["attributes"]["WEIGHTS_0"] = len(self.gltf["accessors"])
+                # joint_weights = self.create_joint_weights(mesh.vertices)
 
             # ABC Polygons
             primitive["indices"] = len(self.gltf["accessors"])
             self.create_indices(mesh.polygons)
 
             # Add mesh to scene
-            self.gltf["meshes"].append({"name": mesh.name, "primitives": [primitive]})
-            self.gltf["nodes"].append({"mesh": mesh_idx, "name": mesh.name})
-            self.gltf["scenes"][0]["nodes"].append(mesh_idx)
+            node = {"mesh": index, "name": mesh.name}
+            if self.flags[Flag.SKELETON]:
+                node["skin"] = 0
 
-        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
+            mesh = {"name": mesh.name, "primitives": [primitive]}
 
-    def create_attribute(self, vertices: list[Any], attribute: VertexAttribute, accessor_type: str, count: int):
-        # Prepare vertex data
-        data = [list(attribute(v)) for v in vertices]
+            # Add to GLTF
+            self.gltf["nodes"].append(node)
+            self.gltf["meshes"].append(mesh)
+            self.gltf["scenes"][0]["nodes"].append(index)  # TODO: fix unknown index
 
+        # Add skeleton
+        if self.flags[Flag.SKELETON]:
+            from scipy.spatial.transform import Rotation as R
+
+            offset = len(self.gltf["scenes"][0]["nodes"])
+
+            for index, bone in enumerate(self.model.skeleton.bones, start=offset):
+                rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
+
+                node = {
+                    "name": bone.name,
+                    "rotation": rotation.as_quat().tolist(),
+                    "translation": list(bone.position),
+                }
+
+                # Add to GLTF
+                self.gltf["nodes"].append(node)
+                self.gltf["scenes"][0]["nodes"].append(index)  # TODO: fix unknown index
+
+            # Create skin
+            self.gltf["skins"] = [
+                {
+                    "joints": list(range(len(self.model.skeleton.bones))),
+                    "skeleton": offset,
+                }
+            ]
+
+        # Write length in buffers
+        self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
+        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset  # TODO: fix unknown index
+
+    def create_attribute(self, data: Sized, accessor_type: str, count: int):
         # Add buffer view
-        byte_length = len(data) * count * 4  # uint32
+        byte_length = len(data) * count * 4  # float
         buffer_view_idx = len(self.gltf["bufferViews"])
 
         self.gltf["bufferViews"].append(

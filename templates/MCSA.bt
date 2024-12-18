@@ -165,10 +165,10 @@ struct Mesh {
         float scale_unknown <name="Unknown scale">;
 
     if ( header.version >= 10.0 )
-        Locals locals <name="Locals", hidden=true>;
+        Locals locals <name="Locals", hidden=false>;
 
     if ( header.version >= 11.0 )
-        float locals2 <name="Locals", hidden=true>;
+        float locals2 <name="Locals", hidden=false>;
 
     Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
 
