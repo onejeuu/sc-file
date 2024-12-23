@@ -19,7 +19,7 @@ class SkeletonBone:
     parent_id: int = ROOT
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)
-    children: List[Self] = field(default_factory=list)
+    children: List[Self] = field(default_factory=list)  # TODO: maybe save only ids
 
 
 @dataclass
@@ -64,6 +64,9 @@ class ModelSkeleton:
 
         self.roots = roots
         return roots
+
+
+# TODO: delete unused
 
 
 def create_translation_matrix(position: Vector) -> np.ndarray:
