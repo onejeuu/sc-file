@@ -1,3 +1,5 @@
+from typing import Any
+
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.core.base.parser import FileParser
 from scfile.core.data.model import ModelData
@@ -168,7 +170,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
 
-    def load_links(self, mesh: ModelMesh, links: tuple[list[list[int]], list[list[float]]]):
+    def load_links(self, mesh: ModelMesh, links: Any):
         link_ids, link_weights = links
 
         for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):

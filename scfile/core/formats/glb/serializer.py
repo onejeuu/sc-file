@@ -4,7 +4,7 @@ from copy import deepcopy
 from enum import IntEnum
 from typing import Callable, Optional, Sized, TypeAlias, TypedDict
 
-from scfile.consts import FileSignature
+from scfile.consts import FileSignature, McsaModel
 from scfile.core.base.serializer import FileSerializer
 from scfile.core.data.model import ModelData
 from scfile.core.formats.mcsa.flags import Flag
@@ -145,6 +145,34 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Create scene nodes
         self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
 
+        # Add skeleton
+        if self.flags[Flag.SKELETON]:
+            from scipy.spatial.transform import Rotation as R
+
+            for index, bone in enumerate(self.model.skeleton.bones):
+                rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
+
+                node = {
+                    "name": bone.name,
+                    "rotation": rotation.as_quat().tolist(),
+                    "translation": list(bone.position),
+                }
+
+                if bone.id != McsaModel.ROOT_BONE_ID and bone.children:
+                    node["children"] = [child.id for child in bone.children]
+
+                # Add to GLTF
+                self.gltf["nodes"].append(node)
+                self.gltf["scenes"][0]["nodes"].append(index)
+
+            # Create skin
+            self.gltf["skins"] = [
+                {
+                    "joints": list(range(len(self.model.skeleton.bones))),
+                    "skeleton": len(self.gltf["scenes"][0]["nodes"]),  # TODO: handle no meshes case
+                }
+            ]
+
         # Add meshes
         for index, mesh in enumerate(self.model.meshes):
             primitive = {
@@ -191,38 +219,11 @@ class GlbSerializer(FileSerializer[ModelData]):
             # Add to GLTF
             self.gltf["nodes"].append(node)
             self.gltf["meshes"].append(mesh)
-            self.gltf["scenes"][0]["nodes"].append(index)  # TODO: fix unknown index
-
-        # Add skeleton
-        if self.flags[Flag.SKELETON]:
-            from scipy.spatial.transform import Rotation as R
-
-            offset = len(self.gltf["scenes"][0]["nodes"])
-
-            for index, bone in enumerate(self.model.skeleton.bones, start=offset):
-                rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
-
-                node = {
-                    "name": bone.name,
-                    "rotation": rotation.as_quat().tolist(),
-                    "translation": list(bone.position),
-                }
-
-                # Add to GLTF
-                self.gltf["nodes"].append(node)
-                self.gltf["scenes"][0]["nodes"].append(index)  # TODO: fix unknown index
-
-            # Create skin
-            self.gltf["skins"] = [
-                {
-                    "joints": list(range(len(self.model.skeleton.bones))),
-                    "skeleton": offset,
-                }
-            ]
+            self.gltf["scenes"][0]["nodes"].append(index)
 
         # Write length in buffers
         self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
-        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset  # TODO: fix unknown index
+        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
 
     def create_attribute(self, data: Sized, accessor_type: str, count: int):
         # Add buffer view
