@@ -7,7 +7,6 @@ from .vertex import Vertex
 @dataclass
 class MeshCounts:
     max_links: int = 0
-    links: int = 0
     bones: int = 0
     vertices: int = 0
     polygons: int = 0

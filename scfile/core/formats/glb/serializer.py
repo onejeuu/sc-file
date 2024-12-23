@@ -2,6 +2,7 @@ import json
 import struct
 from copy import deepcopy
 from enum import IntEnum
+from itertools import chain, islice, repeat
 from typing import Callable, Sized, TypeAlias
 
 from scfile.consts import CLI, FileSignature, McsaModel
@@ -28,7 +29,7 @@ DEFAULT_GLTF = {
     "skins": [],
     "accessors": [],
     "bufferViews": [],
-    "buffers": [{"byteLength": 0}],
+    "buffers": [],
 }
 
 DEFAULT_SCENE = {"name": "Scene", "nodes": []}
@@ -145,40 +146,46 @@ class GlbSerializer(FileSerializer[ModelData]):
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
-            self.create_attribute([list(v.position) for v in mesh.vertices], "VEC3", count=3)
+            self.create_attribute(mesh.count.vertices, "VEC3", bytes_per_item=3 * 4)
 
             # UV Texture
             if self.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
-                self.create_attribute([list(v.texture) for v in mesh.vertices], "VEC2", count=2)
+                self.create_attribute(mesh.count.vertices, "VEC2", bytes_per_item=2 * 4)
 
             # XYZ Normals
             if self.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
-                self.create_attribute([list(v.normals) for v in mesh.vertices], "VEC3", count=3)
+                self.create_attribute(mesh.count.vertices, "VEC3", bytes_per_item=3 * 4)
 
             # TODO
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
-
                 self.create_attribute(
-                    [list(v.joints.keys()) for v in mesh.vertices],
-                    f"VEC{mesh.count.links}",
-                    count=mesh.count.links,
+                    mesh.count.vertices,
+                    "VEC4",
                     component_type=ComponentType.UBYTE,
-                    element_bytes=1,
+                    bytes_per_item=4,
+                )
+
+                # Joint Weights
+                primitive["attributes"]["WEIGHTS_0"] = len(self.gltf["accessors"])
+                self.create_attribute(
+                    mesh.count.vertices,
+                    "VEC4",
+                    component_type=ComponentType.FLOAT,
+                    bytes_per_item=4 * 4,
                 )
 
             # ABC Polygons
             primitive["indices"] = len(self.gltf["accessors"])
             self.create_attribute(
-                [value for polygon in mesh.polygons for value in polygon],
+                mesh.count.polygons * 3,
                 "SCALAR",
-                count=1,
                 component_type=ComponentType.UINT32,
                 target=BufferTarget.ELEMENT_ARRAY_BUFFER,
-                element_bytes=4,
+                bytes_per_item=4,
             )
 
             # Add mesh to scene
@@ -197,58 +204,39 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
         self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
 
-    # TODO: rewrite this pls
     def create_attribute(
         self,
-        data: Sized,
-        accessor_type: str,
         count: int,
+        accessor_type: str,
         component_type: ComponentType = ComponentType.FLOAT,
         target: BufferTarget = BufferTarget.ARRAY_BUFFER,
-        element_bytes: int = 4,
+        bytes_per_item: int = 4,
     ):
         # Add buffer view
-        byte_length = len(data) * count * element_bytes
+        byte_length = count * bytes_per_item
         buffer_view_idx = len(self.gltf["bufferViews"])
 
         self.gltf["bufferViews"].append(
             {
                 "buffer": 0,
-                "byteOffset": self.attribute_offset,
                 "byteLength": byte_length,
+                "byteOffset": self.attribute_offset,
                 "target": target,
             }
         )
 
+        # Move offset
+        self.attribute_offset += byte_length
+
         # Add accessor
-        if "VEC" not in accessor_type:
-            self.gltf["accessors"].append(
-                {
-                    "bufferView": buffer_view_idx,
-                    "componentType": component_type,
-                    "type": accessor_type,
-                    "count": len(data),
-                }
-            )
-
-        else:
-            # Move offset
-            self.attribute_offset += byte_length
-
-            # Attribute boundaries
-            min_values = list(map(min, zip(*data)))
-            max_values = list(map(max, zip(*data)))
-
-            self.gltf["accessors"].append(
-                {
-                    "bufferView": buffer_view_idx,
-                    "componentType": component_type,
-                    "type": accessor_type,
-                    "count": len(data),
-                    "min": min_values,
-                    "max": max_values,
-                }
-            )
+        self.gltf["accessors"].append(
+            {
+                "bufferView": buffer_view_idx,
+                "componentType": component_type,
+                "count": count,
+                "type": accessor_type,
+            }
+        )
 
     def add_binary_chunk(self):
         # Size of BIN chunk placeholder
@@ -279,9 +267,18 @@ class GlbSerializer(FileSerializer[ModelData]):
                 # Joint Indices
                 array = self.create_vertex_array(
                     mesh.vertices,
-                    lambda v: list(v.joints.keys()),
-                    count=mesh.count.links,
+                    lambda v: list(islice(chain(v.bone_ids, repeat(0)), 4)),
+                    count=4,
                     data_type=F.U8,
+                )
+                self.buffer.write(array)
+
+                # Joint Weights
+                array = self.create_vertex_array(
+                    mesh.vertices,
+                    lambda v: list(islice(chain(v.bone_weights, repeat(0.0)), 4)),
+                    count=4,
+                    data_type=F.F32,
                 )
                 self.buffer.write(array)
 

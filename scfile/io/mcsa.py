@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 from numpy.typing import NDArray
 
 from scfile.consts import Factor, McsaModel, McsaSize
@@ -26,8 +27,6 @@ class McsaFileIO(StructFileIO):
         return count
 
     def readarray(self, fmt: str, size: int, count: int):
-        import numpy as np
-
         data = self.unpack(f"{size*count}{fmt}")
         return np.array(data, dtype=np.dtype(fmt))
 
@@ -70,10 +69,10 @@ class McsaFileIO(StructFileIO):
         data = data.reshape(-1, 2, 2)
 
         # Bone ids
-        ids = data[..., 0]
+        ids = data[:, 0, :]
 
         # Scale weights to floats
-        weights = data[..., 1] / Factor.U8
+        weights = data[:, 1, :] / Factor.U8
 
         # Round digits
         weights = weights.round(McsaModel.ROUND_DIGITS)
@@ -101,6 +100,8 @@ class McsaFileIO(StructFileIO):
         return reshape(data, size)
 
     def readlinksplains(self, count: int):
+        # Read data
         ids = self._readlinksids(count)
         weights = self._readlinksweights(count)
+
         return (ids, weights)
