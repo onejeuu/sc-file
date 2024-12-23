@@ -67,7 +67,7 @@ class CLI:
     """Command line interface constants."""
 
     FORMATS = EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_FORMATS)).upper()}."
-    VERSION = "4.0.0-dev"
+    VERSION = "4.0-dev"
 
 
 class OutputFormats:
