@@ -162,11 +162,13 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
             case 0:
                 pass
             case 1 | 2:
-                links = self.f.readlinkspacked(mesh.count.vertices, mesh.bones)
+                links = self.f.readlinkspacked(mesh.count.vertices)
                 self.load_links(mesh, links)
+                mesh.count.links = 2
             case 3 | 4:
-                links = self.f.readlinksplains(mesh.count.vertices, mesh.bones)
+                links = self.f.readlinksplains(mesh.count.vertices)
                 self.load_links(mesh, links)
+                mesh.count.links = 4
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
 
@@ -174,7 +176,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
         link_ids, link_weights = links
 
         for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):
-            vertex.joints = [Joint(bone_id=id, weight=weight) for id, weight in zip(ids, weights)]
+            vertex.joints = dict(zip(ids, weights))
 
     def skip_colors(self, mesh: ModelMesh):
         self.skip_vertices(mesh, size=4)

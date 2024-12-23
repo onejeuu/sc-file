@@ -2,7 +2,7 @@ import json
 import struct
 from copy import deepcopy
 from enum import IntEnum
-from typing import Callable, Optional, Sized, TypeAlias, TypedDict
+from typing import Callable, Sized, TypeAlias
 
 from scfile.consts import CLI, FileSignature, McsaModel
 from scfile.core.base.serializer import FileSerializer
@@ -14,7 +14,7 @@ from scfile.utils.model.data import Polygon, Texture, Vector
 from scfile.utils.model.vertex import Vertex
 
 
-VertexAttribute: TypeAlias = Callable[[Vertex], Vector | Texture]
+VertexAttribute: TypeAlias = Callable[[Vertex], Vector | Texture | list[int] | list[float]]
 
 
 VERSION = 2
@@ -36,6 +36,7 @@ DEFAULT_BUFFER = {"byteLength": 0}
 
 
 class ComponentType(IntEnum):
+    UBYTE = 5121
     FLOAT = 5126
     UINT16 = 5123
     UINT32 = 5125
@@ -48,15 +49,6 @@ class BufferTarget(IntEnum):
 
 class PrimitiveMode(IntEnum):
     TRIANGLES = 4
-
-
-class Accessor(TypedDict):
-    bufferView: int
-    componentType: ComponentType
-    type: str
-    count: int
-    min: Optional[list[float]]
-    max: Optional[list[float]]
 
 
 class GlbSerializer(FileSerializer[ModelData]):
@@ -83,48 +75,13 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.seek(8)
         self.buffer.write(struct.pack("<I", len(self.buffer.getvalue())))
 
-    def create_vertex_array(self, vertices: list[Vertex], attribute: VertexAttribute, count: int):
-        fmt = ByteOrder.LITTLE + F.F32 * len(vertices) * count
+    def create_vertex_array(self, vertices: list[Vertex], attribute: VertexAttribute, count: int, data_type: F = F.F32):
+        fmt = ByteOrder.LITTLE + (data_type * len(vertices) * count)
         return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
 
     def create_polygon_array(self, polygons: list[Polygon]):
-        fmt = ByteOrder.LITTLE + F.U32 * len(polygons) * 3
+        fmt = ByteOrder.LITTLE + (F.U32 * len(polygons) * 3)
         return struct.pack(fmt, *[value for polygon in polygons for value in polygon])
-
-    def add_binary_chunk(self):
-        # Size of BIN chunk placeholder
-        chunk_start = self.buffer.tell()
-        self.buffer.write(struct.pack("<I", 0))
-        self.buffer.write(b"BIN\0")
-
-        # Mesh data arrays
-        start = self.buffer.tell()
-
-        for mesh in self.model.meshes:
-            # XYZ Position
-            array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
-            self.buffer.write(array)
-
-            # UV Texture
-            if self.flags[Flag.TEXTURE]:
-                array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
-                self.buffer.write(array)
-
-            # XYZ Normals
-            if self.flags[Flag.NORMALS]:
-                array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
-                self.buffer.write(array)
-
-            # ABC Polygons
-            array = self.create_polygon_array(mesh.polygons)
-            self.buffer.write(array)
-
-        # Write size of BIN chunk
-        end = self.buffer.tell()
-        size = end - start
-
-        self.buffer.seek(chunk_start)
-        self.buffer.write(struct.pack("<I", size))
 
     def add_json_chunk(self):
         self.create_gltf()
@@ -173,8 +130,9 @@ class GlbSerializer(FileSerializer[ModelData]):
             # Create skin
             self.gltf["skins"] = [
                 {
+                    "name": "Armature",
                     "joints": list(range(len(self.model.skeleton.bones))),
-                    "skeleton": len(self.gltf["scenes"][0]["nodes"]),  # TODO: handle no meshes case
+                    # "skeleton": len(self.gltf["scenes"][0]["nodes"]),  # TODO: handle no meshes case
                 }
             ]
 
@@ -201,18 +159,27 @@ class GlbSerializer(FileSerializer[ModelData]):
 
             # TODO
             if self.flags[Flag.SKELETON]:
-                pass
                 # Joint Indices
-                # primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
-                # joint_indices = self.create_joint_indices(mesh.vertices)
+                primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
 
-                # Joint Weights
-                # primitive["attributes"]["WEIGHTS_0"] = len(self.gltf["accessors"])
-                # joint_weights = self.create_joint_weights(mesh.vertices)
+                self.create_attribute(
+                    [list(v.joints.keys()) for v in mesh.vertices],
+                    f"VEC{mesh.count.links}",
+                    count=mesh.count.links,
+                    component_type=ComponentType.UBYTE,
+                    element_bytes=1,
+                )
 
             # ABC Polygons
             primitive["indices"] = len(self.gltf["accessors"])
-            self.create_indices(mesh.polygons)
+            self.create_attribute(
+                [value for polygon in mesh.polygons for value in polygon],
+                "SCALAR",
+                count=1,
+                component_type=ComponentType.UINT32,
+                target=BufferTarget.ELEMENT_ARRAY_BUFFER,
+                element_bytes=4,
+            )
 
             # Add mesh to scene
             node = {"mesh": index, "name": mesh.name}
@@ -230,9 +197,18 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
         self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
 
-    def create_attribute(self, data: Sized, accessor_type: str, count: int):
+    # TODO: rewrite this pls
+    def create_attribute(
+        self,
+        data: Sized,
+        accessor_type: str,
+        count: int,
+        component_type: ComponentType = ComponentType.FLOAT,
+        target: BufferTarget = BufferTarget.ARRAY_BUFFER,
+        element_bytes: int = 4,
+    ):
         # Add buffer view
-        byte_length = len(data) * count * 4  # float
+        byte_length = len(data) * count * element_bytes
         buffer_view_idx = len(self.gltf["bufferViews"])
 
         self.gltf["bufferViews"].append(
@@ -240,54 +216,82 @@ class GlbSerializer(FileSerializer[ModelData]):
                 "buffer": 0,
                 "byteOffset": self.attribute_offset,
                 "byteLength": byte_length,
-                "target": BufferTarget.ARRAY_BUFFER,
-            }
-        )
-
-        # Move offset
-        self.attribute_offset += byte_length
-
-        # Attribute boundaries
-        min_values = list(map(min, zip(*data)))
-        max_values = list(map(max, zip(*data)))
-
-        # Add accessor
-        self.gltf["accessors"].append(
-            Accessor(
-                bufferView=buffer_view_idx,
-                componentType=ComponentType.FLOAT,
-                type=accessor_type,
-                count=len(data),
-                min=min_values,
-                max=max_values,
-            )
-        )
-
-    def create_indices(self, polygons: list[Polygon]):
-        # Prepare polygon data
-        indices = [i for polygon in polygons for i in polygon]
-
-        # Add buffer view
-        byte_length = len(indices) * 4  # uint32
-        buffer_view_idx = len(self.gltf["bufferViews"])
-
-        self.gltf["bufferViews"].append(
-            {
-                "buffer": 0,
-                "byteOffset": self.attribute_offset,
-                "byteLength": byte_length,
-                "target": BufferTarget.ELEMENT_ARRAY_BUFFER,
+                "target": target,
             }
         )
 
         # Add accessor
-        self.gltf["accessors"].append(
-            Accessor(
-                bufferView=buffer_view_idx,
-                componentType=ComponentType.UINT32,
-                type="SCALAR",
-                count=len(indices),
-                min=None,
-                max=None,
+        if "VEC" not in accessor_type:
+            self.gltf["accessors"].append(
+                {
+                    "bufferView": buffer_view_idx,
+                    "componentType": component_type,
+                    "type": accessor_type,
+                    "count": len(data),
+                }
             )
-        )
+
+        else:
+            # Move offset
+            self.attribute_offset += byte_length
+
+            # Attribute boundaries
+            min_values = list(map(min, zip(*data)))
+            max_values = list(map(max, zip(*data)))
+
+            self.gltf["accessors"].append(
+                {
+                    "bufferView": buffer_view_idx,
+                    "componentType": component_type,
+                    "type": accessor_type,
+                    "count": len(data),
+                    "min": min_values,
+                    "max": max_values,
+                }
+            )
+
+    def add_binary_chunk(self):
+        # Size of BIN chunk placeholder
+        chunk_start = self.buffer.tell()
+        self.buffer.write(struct.pack("<I", 0))
+        self.buffer.write(b"BIN\0")
+
+        # Mesh data arrays
+        start = self.buffer.tell()
+
+        for mesh in self.model.meshes:
+            # XYZ Position
+            array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
+            self.buffer.write(array)
+
+            # UV Texture
+            if self.flags[Flag.TEXTURE]:
+                array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
+                self.buffer.write(array)
+
+            # XYZ Normals
+            if self.flags[Flag.NORMALS]:
+                array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
+                self.buffer.write(array)
+
+            # TODO
+            if self.flags[Flag.SKELETON]:
+                # Joint Indices
+                array = self.create_vertex_array(
+                    mesh.vertices,
+                    lambda v: list(v.joints.keys()),
+                    count=mesh.count.links,
+                    data_type=F.U8,
+                )
+                self.buffer.write(array)
+
+            # ABC Polygons
+            array = self.create_polygon_array(mesh.polygons)
+            self.buffer.write(array)
+
+        # Write size of BIN chunk
+        end = self.buffer.tell()
+        size = end - start
+
+        self.buffer.seek(chunk_start)
+        self.buffer.write(struct.pack("<I", size))
