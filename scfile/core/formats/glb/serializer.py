@@ -146,24 +146,24 @@ class GlbSerializer(FileSerializer[ModelData]):
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
-            self.create_attribute(mesh.count.vertices, "VEC3", bytes_per_item=3 * 4)
+            self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4)
 
             # UV Texture
             if self.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
-                self.create_attribute(mesh.count.vertices, "VEC2", bytes_per_item=2 * 4)
+                self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4)
 
             # XYZ Normals
             if self.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
-                self.create_attribute(mesh.count.vertices, "VEC3", bytes_per_item=3 * 4)
+                self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4)
 
             # TODO
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
                 self.create_attribute(
-                    mesh.count.vertices,
+                    [v.bone_ids for v in mesh.vertices],
                     "VEC4",
                     component_type=ComponentType.UBYTE,
                     bytes_per_item=4,
@@ -172,7 +172,7 @@ class GlbSerializer(FileSerializer[ModelData]):
                 # Joint Weights
                 primitive["attributes"]["WEIGHTS_0"] = len(self.gltf["accessors"])
                 self.create_attribute(
-                    mesh.count.vertices,
+                    [v.bone_weights for v in mesh.vertices],
                     "VEC4",
                     component_type=ComponentType.FLOAT,
                     bytes_per_item=4 * 4,
@@ -181,7 +181,7 @@ class GlbSerializer(FileSerializer[ModelData]):
             # ABC Polygons
             primitive["indices"] = len(self.gltf["accessors"])
             self.create_attribute(
-                mesh.count.polygons * 3,
+                [i for p in mesh.polygons for i in p],
                 "SCALAR",
                 component_type=ComponentType.UINT32,
                 target=BufferTarget.ELEMENT_ARRAY_BUFFER,
@@ -206,13 +206,14 @@ class GlbSerializer(FileSerializer[ModelData]):
 
     def create_attribute(
         self,
-        count: int,
+        data: Sized,
         accessor_type: str,
         component_type: ComponentType = ComponentType.FLOAT,
         target: BufferTarget = BufferTarget.ARRAY_BUFFER,
         bytes_per_item: int = 4,
     ):
         # Add buffer view
+        count = len(data)
         byte_length = count * bytes_per_item
         buffer_view_idx = len(self.gltf["bufferViews"])
 
@@ -229,14 +230,31 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.attribute_offset += byte_length
 
         # Add accessor
-        self.gltf["accessors"].append(
-            {
-                "bufferView": buffer_view_idx,
-                "componentType": component_type,
-                "count": count,
-                "type": accessor_type,
-            }
-        )
+        if "VEC" not in accessor_type:
+            self.gltf["accessors"].append(
+                {
+                    "bufferView": buffer_view_idx,
+                    "componentType": component_type,
+                    "count": count,
+                    "type": accessor_type,
+                }
+            )
+
+        else:
+            # Attribute boundaries
+            min_values = list(map(min, zip(*data)))
+            max_values = list(map(max, zip(*data)))
+
+            self.gltf["accessors"].append(
+                {
+                    "bufferView": buffer_view_idx,
+                    "componentType": component_type,
+                    "count": count,
+                    "type": accessor_type,
+                    "min": min_values,
+                    "max": max_values,
+                }
+            )
 
     def add_binary_chunk(self):
         # Size of BIN chunk placeholder

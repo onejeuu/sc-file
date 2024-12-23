@@ -161,7 +161,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
             case 0:
                 pass
             case 1 | 2:
-                links = self.f.readlinkspacked(mesh.count.vertices)
+                links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
                 self.load_links(mesh, links)
             case 3 | 4:
                 links = self.f.readlinksplains(mesh.count.vertices)
