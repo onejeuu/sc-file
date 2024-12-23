@@ -7,7 +7,6 @@ from scfile.enums import StructFormat as F
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model.mesh import ModelMesh
 from scfile.utils.model.skeleton import SkeletonBone
-from scfile.utils.model.vertex import Joint
 
 from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -164,19 +163,20 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
             case 1 | 2:
                 links = self.f.readlinkspacked(mesh.count.vertices)
                 self.load_links(mesh, links)
-                mesh.count.links = 2
             case 3 | 4:
                 links = self.f.readlinksplains(mesh.count.vertices)
                 self.load_links(mesh, links)
-                mesh.count.links = 4
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
 
     def load_links(self, mesh: ModelMesh, links: Any):
+        # TODO: tf is this
+
         link_ids, link_weights = links
 
         for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):
-            vertex.joints = dict(zip(ids, weights))
+            vertex.bone_ids = ids
+            vertex.bone_weights = weights
 
     def skip_colors(self, mesh: ModelMesh):
         self.skip_vertices(mesh, size=4)
