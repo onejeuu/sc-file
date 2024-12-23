@@ -4,7 +4,7 @@ from copy import deepcopy
 from enum import IntEnum
 from typing import Callable, Optional, Sized, TypeAlias, TypedDict
 
-from scfile.consts import FileSignature, McsaModel
+from scfile.consts import CLI, FileSignature, McsaModel
 from scfile.core.base.serializer import FileSerializer
 from scfile.core.data.model import ModelData
 from scfile.core.formats.mcsa.flags import Flag
@@ -20,7 +20,7 @@ VertexAttribute: TypeAlias = Callable[[Vertex], Vector | Texture]
 VERSION = 2
 
 DEFAULT_GLTF = {
-    "asset": {"version": "2.0", "generator": "onejeuu@scfile"},
+    "asset": {"version": "2.0", "generator": f"onejeuu@scfile v{CLI.VERSION}"},
     "scene": 0,
     "scenes": [],
     "nodes": [],
@@ -31,7 +31,7 @@ DEFAULT_GLTF = {
     "buffers": [{"byteLength": 0}],
 }
 
-DEFAULT_SCENE = {"nodes": []}
+DEFAULT_SCENE = {"name": "Scene", "nodes": []}
 DEFAULT_BUFFER = {"byteLength": 0}
 
 
@@ -141,6 +141,7 @@ class GlbSerializer(FileSerializer[ModelData]):
 
         # Add attributes to gltf json
         self.attribute_offset = 0
+        self.node_offset = 0
 
         # Create scene nodes
         self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
@@ -158,12 +159,16 @@ class GlbSerializer(FileSerializer[ModelData]):
                     "translation": list(bone.position),
                 }
 
-                if bone.id != McsaModel.ROOT_BONE_ID and bone.children:
+                if bone.children:
                     node["children"] = [child.id for child in bone.children]
 
                 # Add to GLTF
                 self.gltf["nodes"].append(node)
-                self.gltf["scenes"][0]["nodes"].append(index)
+                self.node_offset += 1
+
+                # Add root bones to node indexes
+                if bone.parent_id == McsaModel.ROOT_BONE_ID:
+                    self.gltf["scenes"][0]["nodes"].append(index)
 
             # Create skin
             self.gltf["skins"] = [
@@ -219,7 +224,7 @@ class GlbSerializer(FileSerializer[ModelData]):
             # Add to GLTF
             self.gltf["nodes"].append(node)
             self.gltf["meshes"].append(mesh)
-            self.gltf["scenes"][0]["nodes"].append(index)
+            self.gltf["scenes"][0]["nodes"].append(index + self.node_offset)
 
         # Write length in buffers
         self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
