@@ -27,6 +27,10 @@ class ModelMesh:
     bones: dict[int, int] = field(default_factory=dict)
     """key: link id, value: bone id"""
 
+    @property
+    def id(self):
+        return f"{self.name}-mesh"
+
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]

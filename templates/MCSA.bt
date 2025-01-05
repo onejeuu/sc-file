@@ -42,6 +42,10 @@ struct Vec4 {
     short x, y, z, w;
 };
 
+struct Vec4f {
+    float x, y, z, w;
+};
+
 struct Vec4b {
     byte x, y, z, w;
 };
@@ -165,10 +169,13 @@ struct Mesh {
         float scale_unknown <name="Unknown scale">;
 
     if ( header.version >= 10.0 )
-        Locals locals <name="Locals", hidden=true>;
+        Vec3f position <name="Position", hidden=false>;
 
-    if ( header.version >= 11.0 )
-        float locals2 <name="Locals", hidden=true>;
+        if ( header.version == 10.0 )
+            Vec3f position <name="Rotation", hidden=false>;
+
+        if ( header.version >= 11.0 )
+            Vec4f position <name="Rotation", hidden=false>;
 
     Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
 
