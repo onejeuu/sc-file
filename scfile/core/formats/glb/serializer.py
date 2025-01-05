@@ -5,7 +5,7 @@ from enum import IntEnum
 from itertools import chain, islice, repeat
 from typing import Callable, Sized, TypeAlias
 
-from scfile.consts import CLI, FileSignature, McsaModel
+from scfile.consts import CLI, FileSignature
 from scfile.core.base.serializer import FileSerializer
 from scfile.core.data.model import ModelData
 from scfile.core.formats.mcsa.flags import Flag
@@ -124,16 +124,12 @@ class GlbSerializer(FileSerializer[ModelData]):
                 self.gltf["nodes"].append(node)
                 self.node_offset += 1
 
-                # Add root bones to node indexes
-                if bone.parent_id == McsaModel.ROOT_BONE_ID:
-                    self.gltf["scenes"][0]["nodes"].append(index)
-
             # Create skin
             self.gltf["skins"] = [
                 {
                     "name": "Armature",
                     "joints": list(range(len(self.model.skeleton.bones))),
-                    # "skeleton": len(self.gltf["scenes"][0]["nodes"]),  # TODO: handle no meshes case
+                    "skeleton": len(self.gltf["scenes"][0]["nodes"]),
                 }
             ]
 
