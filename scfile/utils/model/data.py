@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Self
 
@@ -16,6 +17,21 @@ class Vector:
 
     def __sub__(self, vec: Self):
         return Vector(self.x - vec.x, self.y - vec.y, self.z - vec.z)
+
+    def __truediv__(self, scalar: float):
+        return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
+
+    def __mul__(self, scalar: float):
+        return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
+
+    @property
+    def length(self):
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
+
+    def normalize(self):
+        if self.length == 0:
+            return self
+        return self / self.length
 
 
 @dataclass
