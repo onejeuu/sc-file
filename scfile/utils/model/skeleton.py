@@ -54,7 +54,7 @@ class ModelSkeleton:
 
         # Assign children to their respective parents
         for bone in self.bones:
-            if bone.parent_id == ROOT:
+            if bone.is_root:
                 roots.append(bone)
                 continue
 
@@ -65,24 +65,13 @@ class ModelSkeleton:
         self.roots = roots
         return roots
 
-    def create_transform_matrix(self, bone: SkeletonBone) -> np.ndarray:
-        # Матрица вращения
-        rotation_matrix = create_rotation_matrix(bone.rotation)
-
-        # Матрица преобразования 4x4
-        transform = np.eye(4)
-        transform[:3, :3] = rotation_matrix
-        transform[:3, 3] = [bone.position.x, bone.position.y, bone.position.z]
-
-        return transform
-
     def calculate_global_transforms(self) -> List[np.ndarray]:
         global_transforms = []
 
         for bone in self.bones:
-            local_transform = self.create_transform_matrix(bone)
+            local_transform = create_transform_matrix(bone)
 
-            if bone.parent_id == ROOT:
+            if bone.is_root:
                 global_transform = local_transform
             else:
                 parent_transform = global_transforms[bone.parent_id]
@@ -92,7 +81,7 @@ class ModelSkeleton:
 
         return global_transforms
 
-    def calculate_bind_poses(self) -> List[np.ndarray]:
+    def calculate_inverse_bind_matrices(self) -> List[np.ndarray]:
         # Сначала считаем глобальные преобразования
         global_transforms = self.calculate_global_transforms()
 
@@ -126,17 +115,13 @@ def create_rotation_matrix(rotation: Vector, homogeneous: bool = False) -> np.nd
     return rotation_matrix
 
 
-def create_transform_matrix(position: Vector, rotation: Vector):
-    # Разбиваем позицию на компоненты
-    px, py, pz = position
+def create_transform_matrix(bone: SkeletonBone) -> np.ndarray:
+    # Матрица вращения
+    rotation_matrix = create_rotation_matrix(bone.rotation)
 
-    # Матрица трансляции
-    translation_matrix = np.array([[1, 0, 0, px], [0, 1, 0, py], [0, 0, 1, pz], [0, 0, 0, 1]])
+    # Матрица преобразования 4x4
+    transform = np.eye(4)
+    transform[:3, :3] = rotation_matrix
+    transform[:3, 3] = list(bone.position)
 
-    # Матрицы вращения
-    rotation_matrix = create_rotation_matrix(rotation, homogeneous=True)
-
-    # Итоговая матрица трансформации (Translation * Rotation)
-    transform_matrix = translation_matrix @ rotation_matrix
-
-    return transform_matrix
+    return transform
