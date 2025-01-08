@@ -18,7 +18,11 @@ class SkeletonBone:
     parent_id: int = ROOT
     position: Vector = field(default_factory=Vector)
     rotation: Vector = field(default_factory=Vector)
-    children: List[Self] = field(default_factory=list)  # TODO: maybe save only ids
+    children: List[Self] = field(default_factory=list, repr=False)
+
+    @property
+    def is_root(self):
+        return self.parent_id == ROOT
 
 
 @dataclass
@@ -50,7 +54,6 @@ class ModelSkeleton:
 
         # Assign children to their respective parents
         for bone in self.bones:
-            # Root bone check
             if bone.parent_id == ROOT:
                 roots.append(bone)
                 continue
@@ -99,7 +102,7 @@ class ModelSkeleton:
 
 def create_rotation_matrix(rotation: Vector) -> np.ndarray:
     # Конвертируем в радианы
-    rx, ry, rz = [np.radians(angle) for angle in rotation]
+    rx, ry, rz = (np.radians(angle) for angle in rotation)
 
     # Матрицы вращения для каждой оси
     cos_rx, sin_rx = np.cos(rx), np.sin(rx)

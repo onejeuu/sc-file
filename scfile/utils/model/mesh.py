@@ -31,6 +31,10 @@ class ModelMesh:
     def id(self):
         return f"{self.name}-mesh"
 
+    @property
+    def bone_indices(self):
+        return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
+
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]

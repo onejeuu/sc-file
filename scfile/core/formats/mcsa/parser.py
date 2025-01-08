@@ -104,7 +104,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
 
         # Vertex links
         if self.data.flags[Flag.SKELETON]:
-            self.skip_links(mesh)
+            self.parse_links(mesh)
 
         # Vertex colors
         if self.data.flags[Flag.COLORS]:
@@ -156,7 +156,7 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
             vertex.normals.y = y
             vertex.normals.z = z
 
-    def skip_links(self, mesh: ModelMesh):
+    def parse_links(self, mesh: ModelMesh):
         match mesh.count.max_links:
             case 0:
                 pass
@@ -164,14 +164,12 @@ class McsaParser(FileParser[McsaFileIO, ModelData]):
                 links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
                 self.load_links(mesh, links)
             case 3 | 4:
-                links = self.f.readlinksplains(mesh.count.vertices)
+                links = self.f.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
                 self.load_links(mesh, links)
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
 
     def load_links(self, mesh: ModelMesh, links: Any):
-        # TODO: tf is this
-
         link_ids, link_weights = links
 
         for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):
