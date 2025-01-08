@@ -100,7 +100,7 @@ class ModelSkeleton:
         return [np.linalg.inv(transform) for transform in global_transforms]
 
 
-def create_rotation_matrix(rotation: Vector) -> np.ndarray:
+def create_rotation_matrix(rotation: Vector, homogeneous: bool = False) -> np.ndarray:
     # Конвертируем в радианы
     rx, ry, rz = (np.radians(angle) for angle in rotation)
 
@@ -115,32 +115,26 @@ def create_rotation_matrix(rotation: Vector) -> np.ndarray:
     Rz = np.array([[cos_rz, -sin_rz, 0], [sin_rz, cos_rz, 0], [0, 0, 1]])
 
     # Общая матрица вращения (Z * Y * X)
-    return Rz @ Ry @ Rx
+    rotation_matrix = Rz @ Ry @ Rx
+
+    # Преобразуем в однородную матрицу 4x4
+    if homogeneous:
+        homogeneous_matrix = np.eye(4)
+        homogeneous_matrix[:3, :3] = rotation_matrix
+        return homogeneous_matrix
+
+    return rotation_matrix
 
 
 def create_transform_matrix(position: Vector, rotation: Vector):
-    # Разбиваем на компоненты
+    # Разбиваем позицию на компоненты
     px, py, pz = position
-    rx, ry, rz = (np.radians(angle) for angle in rotation)
 
     # Матрица трансляции
     translation_matrix = np.array([[1, 0, 0, px], [0, 1, 0, py], [0, 0, 1, pz], [0, 0, 0, 1]])
 
     # Матрицы вращения
-    # Вращение вокруг X
-    cos_rx, sin_rx = np.cos(rx), np.sin(rx)
-    Rx = np.array([[1, 0, 0, 0], [0, cos_rx, -sin_rx, 0], [0, sin_rx, cos_rx, 0], [0, 0, 0, 1]])
-
-    # Вращение вокруг Y
-    cos_ry, sin_ry = np.cos(ry), np.sin(ry)
-    Ry = np.array([[cos_ry, 0, sin_ry, 0], [0, 1, 0, 0], [-sin_ry, 0, cos_ry, 0], [0, 0, 0, 1]])
-
-    # Вращение вокруг Z
-    cos_rz, sin_rz = np.cos(rz), np.sin(rz)
-    Rz = np.array([[cos_rz, -sin_rz, 0, 0], [sin_rz, cos_rz, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-
-    # Общая матрица вращения (Z * Y * X)
-    rotation_matrix = Rz @ Ry @ Rx
+    rotation_matrix = create_rotation_matrix(rotation, homogeneous=True)
 
     # Итоговая матрица трансформации (Translation * Rotation)
     transform_matrix = translation_matrix @ rotation_matrix
