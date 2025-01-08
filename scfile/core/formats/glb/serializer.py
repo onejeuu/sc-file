@@ -5,6 +5,8 @@ from enum import IntEnum
 from itertools import chain, islice, repeat
 from typing import Callable, Sized, TypeAlias
 
+import numpy as np
+
 from scfile.consts import CLI, FileSignature
 from scfile.core.base.serializer import FileSerializer
 from scfile.core.data.model import ModelData
@@ -12,6 +14,7 @@ from scfile.core.formats.mcsa.flags import Flag
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.utils.model.data import Polygon, Texture, Vector
+from scfile.utils.model.skeleton import create_transform_matrix
 from scfile.utils.model.vertex import Vertex
 
 
@@ -93,24 +96,20 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.write(b"JSON")
         self.buffer.write(gltf)
 
-    def create_gltf(self):
-        # Copy template
-        self.gltf = deepcopy(DEFAULT_GLTF)
+    def add_bones(self):
+        from scipy.spatial.transform import Rotation as R
 
-        # Add attributes to gltf json
-        self.attribute_offset = 0
-        self.node_offset = 0
+        # Root bones indexes
+        self.roots_idx: list[int] = []
 
-        # Create scene nodes
-        self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
-
-        # Add skeleton
         if self.flags[Flag.SKELETON]:
-            from scipy.spatial.transform import Rotation as R
+            for bone in self.model.skeleton.bones:
+                if bone.is_root:
+                    self.roots_idx.append(self.node_offset)
 
-            for index, bone in enumerate(self.model.skeleton.bones):
+                self.node_offset += 1
+
                 rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
-
                 node = {
                     "name": bone.name,
                     "rotation": rotation.as_quat().tolist(),
@@ -122,19 +121,15 @@ class GlbSerializer(FileSerializer[ModelData]):
 
                 # Add to GLTF
                 self.gltf["nodes"].append(node)
-                self.node_offset += 1
 
-            # Create skin
-            self.gltf["skins"] = [
-                {
-                    "name": "Armature",
-                    "joints": list(range(len(self.model.skeleton.bones))),
-                    "skeleton": len(self.gltf["scenes"][0]["nodes"]),
-                }
-            ]
+    def add_meshes(self):
+        # Mesh indexes
+        self.mesh_idx: list[int] = []
 
-        # Add meshes
         for index, mesh in enumerate(self.model.meshes):
+            self.mesh_idx.append(self.node_offset)
+            self.node_offset += 1
+
             primitive = {
                 "attributes": {},
                 "mode": PrimitiveMode.TRIANGLES,
@@ -142,18 +137,19 @@ class GlbSerializer(FileSerializer[ModelData]):
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
-            self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4)
+            self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
             # UV Texture
             if self.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
-                self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4)
+                self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4, boundaries=True)
 
             # XYZ Normals
             if self.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
-                self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4)
+                self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
+            # Bone Links
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
@@ -173,6 +169,15 @@ class GlbSerializer(FileSerializer[ModelData]):
                     bytes_per_item=4 * 4,
                 )
 
+                # Bind Matrix
+                self.add_skin()
+                self.create_attribute(
+                    self.model.skeleton.bones,
+                    "MAT4",
+                    component_type=ComponentType.FLOAT,
+                    bytes_per_item=4 * 4 * 4,
+                )
+
             # ABC Polygons
             primitive["indices"] = len(self.gltf["accessors"])
             self.create_attribute(
@@ -183,17 +188,49 @@ class GlbSerializer(FileSerializer[ModelData]):
                 bytes_per_item=4,
             )
 
-            # Add mesh to scene
-            node = {"mesh": index, "name": mesh.name}
+            # Create nodes
+            meshnode = {"name": mesh.name, "primitives": [primitive]}
+
+            node = {"name": mesh.name, "mesh": index}
             if self.flags[Flag.SKELETON]:
                 node["skin"] = 0
 
-            mesh = {"name": mesh.name, "primitives": [primitive]}
-
             # Add to GLTF
             self.gltf["nodes"].append(node)
-            self.gltf["meshes"].append(mesh)
-            self.gltf["scenes"][0]["nodes"].append(index + self.node_offset)
+            self.gltf["meshes"].append(meshnode)
+
+    def add_skin(self):
+        self.gltf["skins"] = [
+            {
+                "name": "Armature",
+                "inverseBindMatrices": len(self.gltf["accessors"]),
+                "joints": list(range(len(self.model.skeleton.bones))),
+            }
+        ]
+
+    def add_armature(self):
+        if self.flags[Flag.SKELETON]:
+            node = {"name": "Armature", "children": [*self.roots_idx, *self.mesh_idx]}
+            self.gltf["nodes"].append(node)
+
+    def create_gltf(self):
+        # Copy template
+        self.gltf = deepcopy(DEFAULT_GLTF)
+
+        # Add attributes to gltf json
+        self.attribute_offset = 0
+        self.node_offset = 0
+
+        # Create scene node
+        self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
+
+        # Add nodes
+        self.add_bones()
+        self.add_meshes()
+        self.add_armature()
+
+        # Write nodes count
+        self.gltf["scenes"][0]["nodes"] = [self.node_offset]
 
         # Write length in buffers
         self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
@@ -206,6 +243,7 @@ class GlbSerializer(FileSerializer[ModelData]):
         component_type: ComponentType = ComponentType.FLOAT,
         target: BufferTarget = BufferTarget.ARRAY_BUFFER,
         bytes_per_item: int = 4,
+        boundaries: bool = False,
     ):
         # Add buffer view
         count = len(data)
@@ -224,32 +262,21 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Move offset
         self.attribute_offset += byte_length
 
+        # Create accessor
+        accessor = {
+            "bufferView": buffer_view_idx,
+            "componentType": component_type,
+            "count": count,
+            "type": accessor_type,
+        }
+
+        # Attribute boundaries
+        if boundaries:
+            accessor["min"] = list(map(min, zip(*data)))
+            accessor["max"] = list(map(max, zip(*data)))
+
         # Add accessor
-        if "VEC" not in accessor_type:
-            self.gltf["accessors"].append(
-                {
-                    "bufferView": buffer_view_idx,
-                    "componentType": component_type,
-                    "count": count,
-                    "type": accessor_type,
-                }
-            )
-
-        else:
-            # Attribute boundaries
-            min_values = list(map(min, zip(*data)))
-            max_values = list(map(max, zip(*data)))
-
-            self.gltf["accessors"].append(
-                {
-                    "bufferView": buffer_view_idx,
-                    "componentType": component_type,
-                    "count": count,
-                    "type": accessor_type,
-                    "min": min_values,
-                    "max": max_values,
-                }
-            )
+        self.gltf["accessors"].append(accessor)
 
     def add_binary_chunk(self):
         # Size of BIN chunk placeholder
@@ -275,6 +302,7 @@ class GlbSerializer(FileSerializer[ModelData]):
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
                 self.buffer.write(array)
 
+            # Bone Links
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 array = self.create_vertex_array(
@@ -292,6 +320,12 @@ class GlbSerializer(FileSerializer[ModelData]):
                     count=4,
                     data_type=F.F32,
                 )
+                self.buffer.write(array)
+
+                # Bind Matrix
+                fmt = ByteOrder.LITTLE + (F.F32 * len(self.model.skeleton.bones) * 16)
+                data = np.array(self.model.skeleton.calculate_inverse_bind_matrices())
+                array = struct.pack(fmt, *data.flatten().tolist())
                 self.buffer.write(array)
 
             # ABC Polygons

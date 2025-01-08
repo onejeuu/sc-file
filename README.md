@@ -12,7 +12,7 @@ For answers to common questions, please refer to [FAQ section](FAQ.md).
 You can download executable from [Releases page](https://github.com/onejeuu/sc-file/releases).
 
 > [!WARNING]
-> Any changes in game client files can be detected. Use at your own risk.
+> Any changes in game assets can be detected. Use at your own risk.
 
 ## 📁 Formats
 
@@ -36,14 +36,14 @@ You can download executable from [Releases page](https://github.com/onejeuu/sc-f
 
 ## 💻 CLI Utility
 
-From bash:
-
-```bash
-scfile [FILES]... [OPTIONS]
-```
-
 > [!TIP]
 > You can just drag and drop one or multiple files onto `scfile.exe`.
+
+From terminal:
+
+```bash
+scfile.exe [FILES]... [OPTIONS]
+```
 
 ### Arguments
 

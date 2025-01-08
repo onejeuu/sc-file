@@ -141,7 +141,7 @@ class DaeSerializer(FileSerializer[ModelData]):
 
     def add_bindposes_matrix(self):
         name = "bindposes"
-        data = np.array(self.model.skeleton.calculate_bind_poses())
+        data = np.array(self.model.skeleton.calculate_inverse_bind_matrices())
         source = self.add_source(name, data, count=len(data) * 16)
         self.add_source_common(source, name, len(data), ["TRANSFORM"], "float4x4", 16)
 
@@ -182,7 +182,7 @@ class DaeSerializer(FileSerializer[ModelData]):
     def add_bone(self, node: etree.Element, bone: SkeletonBone):
         joint = etree.SubElement(node, "node", id=f"armature-{bone.name}", sid=bone.name, name=bone.name, type="JOINT")
 
-        matrix = create_transform_matrix(bone.position, bone.rotation)
+        matrix = create_transform_matrix(bone)
         etree.SubElement(joint, "matrix", sid="transform").text = " ".join(map(str, matrix.flatten()))
 
         for child in bone.children:
