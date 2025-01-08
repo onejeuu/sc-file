@@ -90,29 +90,32 @@ class McsaFileIO(StructFileIO):
 
         return (ids.tolist(), weights.tolist())
 
-    def _readlinksids(self, count: int):
+    def _readlinksids(self, count: int, bones: dict[int, int]):
         # Read array
         size = 4
-        data = self.readarray(fmt=F.U8, size=size, count=count)
+        ids = self.readarray(fmt=F.U8, size=size, count=count)
 
-        return reshape(data, size)
+        # Convert mesh bone ids to global skeleton ids
+        ids = self._boneids_to_global(ids, bones)
+
+        return reshape(ids, size)
 
     def _readlinksweights(self, count: int):
         # Read array
         size = 4
-        data = self.readarray(fmt=F.U8, size=size, count=count)
+        weights = self.readarray(fmt=F.U8, size=size, count=count)
 
         # Scale weights to floats
-        data = data / Factor.U8
+        weights = weights / Factor.U8
 
         # Round digits
-        data = data.round(McsaModel.ROUND_DIGITS)
+        weights = weights.round(McsaModel.ROUND_DIGITS)
 
-        return reshape(data, size)
+        return reshape(weights, size)
 
-    def readlinksplains(self, count: int):
+    def readlinksplains(self, count: int, max_links: int, bones: dict[int, int]):
         # Read data
-        ids = self._readlinksids(count)
+        ids = self._readlinksids(count, bones)
         weights = self._readlinksweights(count)
 
         return (ids, weights)

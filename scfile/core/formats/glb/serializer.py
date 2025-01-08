@@ -154,7 +154,6 @@ class GlbSerializer(FileSerializer[ModelData]):
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
                 self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4)
 
-            # TODO
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
@@ -276,7 +275,6 @@ class GlbSerializer(FileSerializer[ModelData]):
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
                 self.buffer.write(array)
 
-            # TODO
             if self.flags[Flag.SKELETON]:
                 # Joint Indices
                 array = self.create_vertex_array(

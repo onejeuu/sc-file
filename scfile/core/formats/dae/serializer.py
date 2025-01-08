@@ -3,7 +3,6 @@ from typing import Optional
 
 import numpy as np
 
-from scfile.consts import McsaModel
 from scfile.core.base.serializer import FileSerializer
 from scfile.core.data.model import ModelData
 from scfile.core.formats.mcsa.flags import Flag
@@ -134,53 +133,51 @@ class DaeSerializer(FileSerializer[ModelData]):
         p = etree.SubElement(self.triangles, "p")
         p.text = " ".join(map(str, indices))
 
-    def add_joints(self):
+    def add_joints_names(self):
         name = "joints"
         data = np.array([b.name for b in self.model.skeleton.bones])
         source = self.add_source(name, data, "Name_array")
         self.add_source_common(source, name, len(data), ["JOINT"], "name")
 
-    def add_bindposes(self):
+    def add_bindposes_matrix(self):
         name = "bindposes"
         data = np.array(self.model.skeleton.calculate_bind_poses())
         source = self.add_source(name, data, count=len(data) * 16)
         self.add_source_common(source, name, len(data), ["TRANSFORM"], "float4x4", 16)
 
-    def add_weights(self):
+    def add_weights_values(self):
         name = "weights"
-        links = self.mesh.count.max_links
-        data = np.array([v.bone_weights[:links] for v in self.mesh.vertices])
+        data = np.array([v.bone_weights[:1] for v in self.mesh.vertices])
         source = self.add_source(name, data)
         self.add_source_common(source, name, len(data), ["WEIGHT"], "float")
+
+    def add_joints(self):
+        joints = etree.SubElement(self.node, "joints")
+        etree.SubElement(joints, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints")
+        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{self.mesh.id}-bindposes")
+
+    def add_vertex_weights(self):
+        weights = etree.SubElement(self.node, "vertex_weights", count=str(self.mesh.count.vertices))
+        etree.SubElement(weights, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints", offset="0")
+        etree.SubElement(weights, "input", semantic="WEIGHT", source=f"#{self.mesh.id}-weights", offset="1")
+
+        # TODO: figure out why zeros in ids and weights...
+        etree.SubElement(weights, "vcount").text = " ".join(["1"] * self.mesh.count.vertices)
+        etree.SubElement(weights, "v").text = " ".join(self.mesh.bone_indices)
 
     def add_controllers(self):
         library = etree.SubElement(self.root, "library_controllers")
 
         controller = etree.SubElement(library, "controller", id=f"{self.mesh.id}-skin", name="Armature")
-        self.node = skin = etree.SubElement(controller, "skin", source=f"#{self.mesh.id}")
-        etree.SubElement(skin, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+        self.node = etree.SubElement(controller, "skin", source=f"#{self.mesh.id}")
+        etree.SubElement(self.node, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+
+        self.add_joints_names()
+        self.add_bindposes_matrix()
+        self.add_weights_values()
 
         self.add_joints()
-        self.add_bindposes()
-        self.add_weights()
-
-        joints = etree.SubElement(skin, "joints")
-        etree.SubElement(joints, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints")
-        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{self.mesh.id}-bindposes")
-
-        weights = etree.SubElement(skin, "vertex_weights", count=str(self.mesh.count.vertices))
-        etree.SubElement(weights, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints", offset="0")
-        etree.SubElement(weights, "input", semantic="WEIGHT", source=f"#{self.mesh.id}-weights", offset="1")
-
-        links = self.mesh.count.max_links
-        v = []
-
-        for index, vertex in enumerate(self.mesh.vertices):
-            for bone_id in vertex.bone_ids[:links]:
-                v.append(f"{bone_id} {index}")
-
-        etree.SubElement(weights, "vcount").text = " ".join([str(links)] * self.mesh.count.vertices)
-        etree.SubElement(weights, "v").text = " ".join(v)
+        self.add_vertex_weights()
 
     def add_bone(self, node: etree.Element, bone: SkeletonBone):
         joint = etree.SubElement(node, "node", id=f"armature-{bone.name}", sid=bone.name, name=bone.name, type="JOINT")
