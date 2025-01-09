@@ -20,4 +20,9 @@ class ModelOptions(FileOptions):
 
 @dataclass
 class TextureOptions(FileOptions):
-    is_cubemaps: bool = False
+    is_hdri: bool = False
+
+
+@dataclass
+class ImageOptions(FileOptions):
+    pass

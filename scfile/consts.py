@@ -16,6 +16,7 @@ class FileSignature:
     PNG = b"\x89PNG"
     FBX = b"Kaydara FBX Binary\x20\x20\x00\x1a\x00"
     GLTF = b"glTF"
+    MS3D = b"MS3D000000"
 
 
 class Factor:

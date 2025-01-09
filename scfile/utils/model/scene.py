@@ -18,6 +18,14 @@ class ModelScene:
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
 
+    @property
+    def total_vertices(self):
+        return sum(mesh.count.vertices for mesh in self.meshes)
+
+    @property
+    def total_polygons(self):
+        return sum(mesh.count.polygons for mesh in self.meshes)
+
     def ensure_unique_names(self):
         """Updates meshes names, excluding repetitions."""
         seen_names: set[str] = set()
