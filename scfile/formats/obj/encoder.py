@@ -1,33 +1,34 @@
-from scfile.core.base.serializer import FileSerializer
-from scfile.core.data.model import ModelData
-from scfile.core.formats.mcsa.flags import Flag
+from scfile.core.context import ModelContext
+from scfile.core.encoder import FileEncoder
+from scfile.enums import FileFormat
+from scfile.formats.mcsa.flags import Flag
 from scfile.utils.model.data import Polygon
 from scfile.utils.model.mesh import ModelMesh
 
 
-class ObjSerializer(FileSerializer[ModelData]):
+class ObjEncoder(FileEncoder[ModelContext]):
     @property
-    def model(self):
-        return self.data.model
+    def format(self):
+        return FileFormat.OBJ
 
-    @property
-    def flags(self):
-        return self.data.flags
+    def prepare(self):
+        self.ctx.scene.ensure_unique_names()
+        self.ctx.scene.convert_polygons_to_global(start_index=1)
 
     def serialize(self):
         self.add_meshes()
 
     def add_meshes(self):
-        for mesh in self.model.meshes:
+        for mesh in self.ctx.meshes:
             self.b.writeutf8(f"o {mesh.name}\n")
             self.b.writeutf8(f"usemtl {mesh.material}\n")
 
             self.add_geometric_vertices(mesh)
 
-            if self.flags[Flag.TEXTURE]:
+            if self.ctx.flags[Flag.TEXTURE]:
                 self.add_texture_coordinates(mesh)
 
-            if self.flags[Flag.NORMALS]:
+            if self.ctx.flags[Flag.NORMALS]:
                 self.add_vertex_normals(mesh)
 
             self.b.writeutf8(f"g {mesh.name}\n")
@@ -53,13 +54,13 @@ class ObjSerializer(FileSerializer[ModelData]):
         a, b, c = polygon.a, polygon.b, polygon.c
 
         # TODO: find fastest switch case (for example bits or str mask)
-        if self.flags[Flag.TEXTURE] and self.flags[Flag.NORMALS]:
+        if self.ctx.flags[Flag.TEXTURE] and self.ctx.flags[Flag.NORMALS]:
             return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
 
-        if self.flags[Flag.TEXTURE]:
+        if self.ctx.flags[Flag.TEXTURE]:
             return f"{a}/{a} {b}/{b} {c}/{c}"
 
-        if self.flags[Flag.NORMALS]:
+        if self.ctx.flags[Flag.NORMALS]:
             return f"{a}//{a} {b}//{b} {c}//{c}"
 
         return f"{a} {b} {c}"

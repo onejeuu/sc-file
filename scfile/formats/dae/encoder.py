@@ -3,23 +3,25 @@ from typing import Optional
 
 import numpy as np
 
-from scfile.core.base.serializer import FileSerializer
-from scfile.core.data.model import ModelData
-from scfile.core.formats.mcsa.flags import Flag
+from scfile.core.context import ModelContext
+from scfile.core.encoder import FileEncoder
+from scfile.enums import FileFormat
+from scfile.formats.mcsa.flags import Flag
 from scfile.utils.model.skeleton import SkeletonBone, create_transform_matrix
 
 
 UP_AXIS = "Y_UP"
 
 
-class DaeSerializer(FileSerializer[ModelData]):
+class DaeEncoder(FileEncoder[ModelContext]):
     @property
-    def model(self):
-        return self.data.model
+    def format(self):
+        return FileFormat.DAE
 
-    @property
-    def flags(self):
-        return self.data.flags
+    def prepare(self):
+        self.ctx.scene.ensure_unique_names()
+        self.ctx.scene.skeleton.convert_to_local()
+        self.ctx.scene.skeleton.build_hierarchy()
 
     def serialize(self):
         self.add_declaration()
@@ -45,7 +47,7 @@ class DaeSerializer(FileSerializer[ModelData]):
     def add_geometries(self):
         library = etree.SubElement(self.root, "library_geometries")
 
-        for mesh in self.model.meshes:
+        for mesh in self.ctx.meshes:
             geom = etree.SubElement(library, "geometry", id=mesh.id, name=mesh.name)
             self.node = etree.SubElement(geom, "mesh")
 
@@ -112,10 +114,10 @@ class DaeSerializer(FileSerializer[ModelData]):
     def add_inputs(self):
         self.add_input("VERTEX", "vertices")
 
-        if self.flags[Flag.TEXTURE]:
+        if self.ctx.flags[Flag.TEXTURE]:
             self.add_input("TEXCOORD", "texture")
 
-        if self.flags[Flag.NORMALS]:
+        if self.ctx.flags[Flag.NORMALS]:
             self.add_input("NORMAL", "normals")
 
     def add_input(self, semantic: str, name: str):
@@ -135,13 +137,13 @@ class DaeSerializer(FileSerializer[ModelData]):
 
     def add_joints_names(self):
         name = "joints"
-        data = np.array([b.name for b in self.model.skeleton.bones])
+        data = np.array([b.name for b in self.ctx.skeleton.bones])
         source = self.add_source(name, data, "Name_array")
         self.add_source_common(source, name, len(data), ["JOINT"], "name")
 
     def add_bindposes_matrix(self):
         name = "bindposes"
-        data = np.array(self.model.skeleton.calculate_inverse_bind_matrices())
+        data = np.array(self.ctx.skeleton.calculate_inverse_bind_matrices())
         source = self.add_source(name, data, count=len(data) * 16)
         self.add_source_common(source, name, len(data), ["TRANSFORM"], "float4x4", 16)
 
@@ -192,18 +194,18 @@ class DaeSerializer(FileSerializer[ModelData]):
         self.root_node = node = etree.SubElement(self.scene, "node", id="armature", name="Armature", type="NODE")
         etree.SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
-        for root in self.model.skeleton.roots:
+        for root in self.ctx.skeleton.roots:
             self.add_bone(node, root)
 
     def add_meshes(self):
-        for mesh in self.model.meshes:
+        for mesh in self.ctx.meshes:
             node = etree.SubElement(self.root_node, "node", id=mesh.name, name=mesh.name, type="NODE")
 
-            if not self.flags[Flag.SKELETON]:
+            if not self.ctx.flags[Flag.SKELETON]:
                 etree.SubElement(node, "instance_geometry", url=f"#{mesh.id}", name=mesh.name)
 
             else:
-                bone = self.model.skeleton.roots[0]
+                bone = self.ctx.skeleton.roots[0]
                 skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.id}-skin")
                 etree.SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
 
@@ -211,7 +213,7 @@ class DaeSerializer(FileSerializer[ModelData]):
         library = etree.SubElement(self.root, "library_visual_scenes")
         self.root_node = self.scene = etree.SubElement(library, "visual_scene", id="scene", name="Scene")
 
-        if self.flags[Flag.SKELETON]:
+        if self.ctx.flags[Flag.SKELETON]:
             self.add_armature()
 
         self.add_meshes()
