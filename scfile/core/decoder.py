@@ -1,6 +1,6 @@
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from scfile.enums import FileMode
 from scfile.io.file import StructFileIO
@@ -9,34 +9,45 @@ from scfile.io.types import PathLike
 from .context import FileContext
 from .encoder import FileEncoder
 from .handler import FileHandler
+from .options import FileOptions
 
 
 Opener = TypeVar("Opener", bound=StructFileIO)
 Context = TypeVar("Context", bound=FileContext)
+Options = TypeVar("Options", bound=FileOptions)
 
 
-class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context], ABC):
+class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options], ABC):
     mode: FileMode = FileMode.READ
 
-    def __init__(self, file: PathLike):
+    def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file
         self.path = pathlib.Path(self.file)
 
-        self.buffer = self.f = self.type_opener(file=file, mode=self.mode)
+        # Create file reader
+        self.buffer = self.f = self._opener(file=file, mode=self.mode)
         self.buffer.order = self.order
 
-        self.ctx = self.type_context()
+        # Create base context and options
+        self.ctx = self._context()
+        self.options = options or self._options()
 
         super().__init__(self.buffer, self.ctx)
 
+    # TODO: try rid out of duplications
     @property
     @abstractmethod
-    def type_opener(self) -> type[Opener]:
+    def _opener(self) -> type[Opener]:
         pass
 
     @property
     @abstractmethod
-    def type_context(self) -> type[Context]:
+    def _context(self) -> type[Context]:
+        pass
+
+    @property
+    @abstractmethod
+    def _options(self) -> type[Options]:
         pass
 
     @abstractmethod
