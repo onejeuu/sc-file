@@ -21,7 +21,7 @@ class SkeletonBone:
     children: List[Self] = field(default_factory=list, repr=False)
 
     @property
-    def is_root(self):
+    def is_root(self) -> bool:
         return self.parent_id == ROOT
 
 

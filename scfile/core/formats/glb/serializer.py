@@ -14,7 +14,6 @@ from scfile.core.formats.mcsa.flags import Flag
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.utils.model.data import Polygon, Texture, Vector
-from scfile.utils.model.skeleton import create_transform_matrix
 from scfile.utils.model.vertex import Vertex
 
 
@@ -79,6 +78,7 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.seek(8)
         self.buffer.write(struct.pack("<I", len(self.buffer.getvalue())))
 
+    # TODO: update fmt and test
     def create_vertex_array(self, vertices: list[Vertex], attribute: VertexAttribute, count: int, data_type: F = F.F32):
         fmt = ByteOrder.LITTLE + (data_type * len(vertices) * count)
         return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
@@ -323,8 +323,11 @@ class GlbSerializer(FileSerializer[ModelData]):
                 self.buffer.write(array)
 
                 # Bind Matrix
-                fmt = ByteOrder.LITTLE + (F.F32 * len(self.model.skeleton.bones) * 16)
+                fmt = f"{ByteOrder.LITTLE}{len(self.model.skeleton.bones) * 16}{F.F32}"
+
+                # ! TODO: get right inverse bind poses
                 data = np.array(self.model.skeleton.calculate_inverse_bind_matrices())
+
                 array = struct.pack(fmt, *data.flatten().tolist())
                 self.buffer.write(array)
 
