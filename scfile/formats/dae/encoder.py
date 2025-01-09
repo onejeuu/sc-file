@@ -3,8 +3,7 @@ from typing import Optional
 
 import numpy as np
 
-from scfile.core.context import ModelContext
-from scfile.core.encoder import FileEncoder
+from scfile.core import FileEncoder, ModelContext
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.utils.model.skeleton import SkeletonBone, create_transform_matrix

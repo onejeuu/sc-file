@@ -22,3 +22,28 @@ class ModelContext(FileContext):
     @property
     def skeleton(self):
         return self.scene.skeleton
+
+
+@dataclass
+class TextureContext(FileContext):
+    width: int = 0
+    height: int = 0
+    mipmap_count: int = 0
+    fourcc: bytes = field(default_factory=bytes)
+    uncompressed: list[int] = field(default_factory=list)
+    compressed: list[int] = field(default_factory=list)
+    mipmaps: list[bytes] = field(default_factory=list)
+    is_hdri: bool = False
+
+    @property
+    def image(self):
+        return b"".join(self.mipmaps)
+
+    @property
+    def linear_size(self):
+        return self.uncompressed[0]
+
+
+@dataclass
+class ImageContext(FileContext):
+    image: bytes = field(default_factory=bytes)
