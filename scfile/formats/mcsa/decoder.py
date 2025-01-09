@@ -3,6 +3,7 @@ from typing import Any
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core.context import ModelContext
 from scfile.core.decoder import FileDecoder
+from scfile.core.options import ModelOptions
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.io.mcsa import McsaFileIO
@@ -13,17 +14,21 @@ from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
-class McsaDecoder(FileDecoder[McsaFileIO, ModelContext]):
+class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 
     @property
-    def type_opener(self):
+    def _opener(self):
         return McsaFileIO
 
     @property
-    def type_context(self):
+    def _context(self):
         return ModelContext
+
+    @property
+    def _options(self):
+        return ModelOptions
 
     def parse(self):
         self.parse_header()
