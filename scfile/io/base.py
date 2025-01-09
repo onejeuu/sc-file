@@ -40,8 +40,8 @@ class StructIO(StructIOBase):
         data = self.pack(f"{order}{fmt}", *values)
         self.write(data)
 
-    def writenull(self, count: int = 1, size: int = 4) -> None:
-        self.write(bytes(size * count))
+    def writenull(self, size: int = 4) -> None:
+        self.write(bytes(size))
 
     def writeutf8(self, string: str) -> None:
         self.write(string.encode("utf-8", errors="replace"))

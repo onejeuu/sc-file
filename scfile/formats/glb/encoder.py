@@ -1,67 +1,33 @@
 import json
 import struct
 from copy import deepcopy
-from enum import IntEnum
 from itertools import chain, islice, repeat
-from typing import Callable, Sized, TypeAlias
+from typing import Any, Sized
 
 import numpy as np
 
-from scfile.consts import CLI, FileSignature
-from scfile.core.base.serializer import FileSerializer
-from scfile.core.data.model import ModelData
-from scfile.core.formats.mcsa.flags import Flag
-from scfile.enums import ByteOrder
+from scfile.consts import FileSignature
+from scfile.core.context import ModelContext
+from scfile.core.encoder import FileEncoder
+from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
-from scfile.utils.model.data import Polygon, Texture, Vector
+from scfile.formats.mcsa.flags import Flag
+from scfile.utils.model.data import Polygon
 from scfile.utils.model.vertex import Vertex
 
-
-VertexAttribute: TypeAlias = Callable[[Vertex], Vector | Texture | list[int] | list[float]]
-
-
-VERSION = 2
-
-DEFAULT_GLTF = {
-    "asset": {"version": "2.0", "generator": f"onejeuu@scfile v{CLI.VERSION}"},
-    "scene": 0,
-    "scenes": [],
-    "nodes": [],
-    "meshes": [],
-    "skins": [],
-    "accessors": [],
-    "bufferViews": [],
-    "buffers": [],
-}
-
-DEFAULT_SCENE = {"name": "Scene", "nodes": []}
-DEFAULT_BUFFER = {"byteLength": 0}
+from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION
+from .enums import BufferTarget, ComponentType
 
 
-class ComponentType(IntEnum):
-    UBYTE = 5121
-    FLOAT = 5126
-    UINT16 = 5123
-    UINT32 = 5125
-
-
-class BufferTarget(IntEnum):
-    ARRAY_BUFFER = 34962
-    ELEMENT_ARRAY_BUFFER = 34963
-
-
-class PrimitiveMode(IntEnum):
-    TRIANGLES = 4
-
-
-class GlbSerializer(FileSerializer[ModelData]):
+class GlbEncoder(FileEncoder[ModelContext]):
     @property
-    def model(self):
-        return self.data.model
+    def format(self):
+        return FileFormat.GLB
 
-    @property
-    def flags(self):
-        return self.data.flags
+    def prepare(self):
+        self.ctx.scene.ensure_unique_names()
+        self.ctx.scene.skeleton.convert_to_local()
+        self.ctx.scene.skeleton.build_hierarchy()
 
     def serialize(self):
         self.add_header()
@@ -79,7 +45,7 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.buffer.write(struct.pack("<I", len(self.buffer.getvalue())))
 
     # TODO: update fmt and test
-    def create_vertex_array(self, vertices: list[Vertex], attribute: VertexAttribute, count: int, data_type: F = F.F32):
+    def create_vertex_array(self, vertices: list[Vertex], attribute: Any, count: int, data_type: F = F.F32):
         fmt = ByteOrder.LITTLE + (data_type * len(vertices) * count)
         return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
 
@@ -102,8 +68,8 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Root bones indexes
         self.roots_idx: list[int] = []
 
-        if self.flags[Flag.SKELETON]:
-            for bone in self.model.skeleton.bones:
+        if self.ctx.flags[Flag.SKELETON]:
+            for bone in self.ctx.skeleton.bones:
                 if bone.is_root:
                     self.roots_idx.append(self.node_offset)
 
@@ -126,31 +92,28 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Mesh indexes
         self.mesh_idx: list[int] = []
 
-        for index, mesh in enumerate(self.model.meshes):
+        for index, mesh in enumerate(self.ctx.meshes):
             self.mesh_idx.append(self.node_offset)
             self.node_offset += 1
 
-            primitive = {
-                "attributes": {},
-                "mode": PrimitiveMode.TRIANGLES,
-            }
+            primitive = deepcopy(BASE_PRIMITIVE)
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
             self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
             # UV Texture
-            if self.flags[Flag.TEXTURE]:
+            if self.ctx.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
                 self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4, boundaries=True)
 
             # XYZ Normals
-            if self.flags[Flag.NORMALS]:
+            if self.ctx.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
                 self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
             # Bone Links
-            if self.flags[Flag.SKELETON]:
+            if self.ctx.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
                 self.create_attribute(
@@ -172,7 +135,7 @@ class GlbSerializer(FileSerializer[ModelData]):
                 # Bind Matrix
                 self.add_skin()
                 self.create_attribute(
-                    self.model.skeleton.bones,
+                    self.ctx.skeleton.bones,
                     "MAT4",
                     component_type=ComponentType.FLOAT,
                     bytes_per_item=4 * 4 * 4,
@@ -192,7 +155,7 @@ class GlbSerializer(FileSerializer[ModelData]):
             meshnode = {"name": mesh.name, "primitives": [primitive]}
 
             node = {"name": mesh.name, "mesh": index}
-            if self.flags[Flag.SKELETON]:
+            if self.ctx.flags[Flag.SKELETON]:
                 node["skin"] = 0
 
             # Add to GLTF
@@ -204,25 +167,25 @@ class GlbSerializer(FileSerializer[ModelData]):
             {
                 "name": "Armature",
                 "inverseBindMatrices": len(self.gltf["accessors"]),
-                "joints": list(range(len(self.model.skeleton.bones))),
+                "joints": list(range(len(self.ctx.skeleton.bones))),
             }
         ]
 
     def add_armature(self):
-        if self.flags[Flag.SKELETON]:
+        if self.ctx.flags[Flag.SKELETON]:
             node = {"name": "Armature", "children": [*self.roots_idx, *self.mesh_idx]}
             self.gltf["nodes"].append(node)
 
     def create_gltf(self):
         # Copy template
-        self.gltf = deepcopy(DEFAULT_GLTF)
+        self.gltf = deepcopy(BASE_GLTF)
 
         # Add attributes to gltf json
         self.attribute_offset = 0
         self.node_offset = 0
 
         # Create scene node
-        self.gltf["scenes"].append(deepcopy(DEFAULT_SCENE))
+        self.gltf["scenes"].append(deepcopy(BASE_SCENE))
 
         # Add nodes
         self.add_bones()
@@ -233,7 +196,7 @@ class GlbSerializer(FileSerializer[ModelData]):
         self.gltf["scenes"][0]["nodes"] = [self.node_offset]
 
         # Write length in buffers
-        self.gltf["buffers"].append(deepcopy(DEFAULT_BUFFER))
+        self.gltf["buffers"].append(deepcopy(BASE_BUFFER))
         self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
 
     def create_attribute(
@@ -287,23 +250,23 @@ class GlbSerializer(FileSerializer[ModelData]):
         # Mesh data arrays
         start = self.buffer.tell()
 
-        for mesh in self.model.meshes:
+        for mesh in self.ctx.meshes:
             # XYZ Position
             array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
             self.buffer.write(array)
 
             # UV Texture
-            if self.flags[Flag.TEXTURE]:
+            if self.ctx.flags[Flag.TEXTURE]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
                 self.buffer.write(array)
 
             # XYZ Normals
-            if self.flags[Flag.NORMALS]:
+            if self.ctx.flags[Flag.NORMALS]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
                 self.buffer.write(array)
 
             # Bone Links
-            if self.flags[Flag.SKELETON]:
+            if self.ctx.flags[Flag.SKELETON]:
                 # Joint Indices
                 array = self.create_vertex_array(
                     mesh.vertices,
@@ -323,10 +286,10 @@ class GlbSerializer(FileSerializer[ModelData]):
                 self.buffer.write(array)
 
                 # Bind Matrix
-                fmt = f"{ByteOrder.LITTLE}{len(self.model.skeleton.bones) * 16}{F.F32}"
+                fmt = f"{ByteOrder.LITTLE}{len(self.ctx.skeleton.bones) * 16}{F.F32}"
 
                 # ! TODO: get right inverse bind poses
-                data = np.array(self.model.skeleton.calculate_inverse_bind_matrices())
+                data = np.array(self.ctx.skeleton.calculate_inverse_bind_matrices())
 
                 array = struct.pack(fmt, *data.flatten().tolist())
                 self.buffer.write(array)
