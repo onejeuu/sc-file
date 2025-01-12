@@ -12,7 +12,7 @@ from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
-class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
+class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 

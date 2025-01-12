@@ -17,22 +17,22 @@ Context = TypeVar("Context", bound=FileContext)
 Options = TypeVar("Options", bound=FileOptions)
 
 
-class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options], ABC):
+class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options], ABC):
     mode: FileMode = FileMode.READ
 
     def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file
         self.path = pathlib.Path(self.file)
 
-        # Create file reader
-        self.buffer = self.f = self._opener(file=file, mode=self.mode)
-        self.buffer.order = self.order
-
         # Create base context and options
         self.ctx = self._context()
         self.options = options or self._options()
 
-        super().__init__(self.buffer, self.ctx)
+        # Create file reader
+        self.buffer = self.f = self._opener(file=file, mode=self.mode)
+        self.buffer.order = self.order
+
+        super().__init__(self.ctx, self.buffer)
 
     # TODO: try rid out of duplications
     @property

@@ -4,7 +4,7 @@ from scfile.enums import ByteOrder
 from scfile.io.file import StructFileIO
 
 
-class MicDecoder(FileDecoder[StructFileIO, ImageContext, ImageOptions]):
+class MicDecoder(FileDecoder[ImageContext, StructFileIO, ImageOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MIC
 

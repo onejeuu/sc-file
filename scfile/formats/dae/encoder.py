@@ -12,6 +12,7 @@ from scfile.utils.model.skeleton import SkeletonBone, create_transform_matrix
 UP_AXIS = "Y_UP"
 
 
+# ! TODO: rewrite without "self" garbage
 class DaeEncoder(FileEncoder[ModelContext]):
     @property
     def format(self):
@@ -47,7 +48,7 @@ class DaeEncoder(FileEncoder[ModelContext]):
         library = etree.SubElement(self.root, "library_geometries")
 
         for mesh in self.ctx.meshes:
-            geom = etree.SubElement(library, "geometry", id=mesh.id, name=mesh.name)
+            geom = etree.SubElement(library, "geometry", id=mesh.name, name=mesh.name)
             self.node = etree.SubElement(geom, "mesh")
 
             self.mesh = mesh
@@ -78,8 +79,8 @@ class DaeEncoder(FileEncoder[ModelContext]):
 
     def add_source(self, name: str, data: np.ndarray, tag: str = "float_array", count: Optional[int] = None):
         count = count or len(data)
-        source = etree.SubElement(self.node, "source", id=f"{self.mesh.id}-{name}")
-        array = etree.SubElement(source, tag, id=f"{self.mesh.id}-{name}-array", count=str(count))
+        source = etree.SubElement(self.node, "source", id=f"{self.mesh.name}-{name}")
+        array = etree.SubElement(source, tag, id=f"{self.mesh.name}-{name}-array", count=str(count))
         array.text = " ".join(map(str, data.flatten()))
         return source
 
@@ -92,7 +93,7 @@ class DaeEncoder(FileEncoder[ModelContext]):
         type: str,
         stride: Optional[int] = None,
     ):
-        array_id = f"#{self.mesh.id}-{name}-array"
+        array_id = f"#{self.mesh.name}-{name}-array"
         stride = stride or len(components)
 
         common = etree.SubElement(source, "technique_common")
@@ -102,8 +103,8 @@ class DaeEncoder(FileEncoder[ModelContext]):
             accessor.append(etree.Element("param", name=name, type=type))
 
     def add_vertices(self):
-        vertices = etree.SubElement(self.node, "vertices", id=f"{self.mesh.id}-vertices")
-        etree.SubElement(vertices, "input", semantic="POSITION", source=f"#{self.mesh.id}-positions")
+        vertices = etree.SubElement(self.node, "vertices", id=f"{self.mesh.name}-vertices")
+        etree.SubElement(vertices, "input", semantic="POSITION", source=f"#{self.mesh.name}-positions")
 
     def add_triangles(self):
         self.triangles = etree.SubElement(self.node, "triangles", count=str(self.mesh.count.polygons))
@@ -124,7 +125,7 @@ class DaeEncoder(FileEncoder[ModelContext]):
             self.triangles,
             "input",
             semantic=semantic,
-            source=f"#{self.mesh.id}-{name}",
+            source=f"#{self.mesh.name}-{name}",
             offset="0",
         )
 
@@ -154,13 +155,13 @@ class DaeEncoder(FileEncoder[ModelContext]):
 
     def add_joints(self):
         joints = etree.SubElement(self.node, "joints")
-        etree.SubElement(joints, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints")
-        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{self.mesh.id}-bindposes")
+        etree.SubElement(joints, "input", semantic="JOINT", source=f"#{self.mesh.name}-joints")
+        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{self.mesh.name}-bindposes")
 
     def add_vertex_weights(self):
         weights = etree.SubElement(self.node, "vertex_weights", count=str(self.mesh.count.vertices))
-        etree.SubElement(weights, "input", semantic="JOINT", source=f"#{self.mesh.id}-joints", offset="0")
-        etree.SubElement(weights, "input", semantic="WEIGHT", source=f"#{self.mesh.id}-weights", offset="1")
+        etree.SubElement(weights, "input", semantic="JOINT", source=f"#{self.mesh.name}-joints", offset="0")
+        etree.SubElement(weights, "input", semantic="WEIGHT", source=f"#{self.mesh.name}-weights", offset="1")
 
         # TODO: figure out why zeros in ids and weights...
         etree.SubElement(weights, "vcount").text = " ".join(["1"] * self.mesh.count.vertices)
@@ -169,8 +170,8 @@ class DaeEncoder(FileEncoder[ModelContext]):
     def add_controllers(self):
         library = etree.SubElement(self.root, "library_controllers")
 
-        controller = etree.SubElement(library, "controller", id=f"{self.mesh.id}-skin", name="Armature")
-        self.node = etree.SubElement(controller, "skin", source=f"#{self.mesh.id}")
+        controller = etree.SubElement(library, "controller", id=f"{self.mesh.name}-skin", name="Armature")
+        self.node = etree.SubElement(controller, "skin", source=f"#{self.mesh.name}")
         etree.SubElement(self.node, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
         self.add_joints_names()
@@ -201,11 +202,11 @@ class DaeEncoder(FileEncoder[ModelContext]):
             node = etree.SubElement(self.root_node, "node", id=mesh.name, name=mesh.name, type="NODE")
 
             if not self.ctx.flags[Flag.SKELETON]:
-                etree.SubElement(node, "instance_geometry", url=f"#{mesh.id}", name=mesh.name)
+                etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
 
             else:
                 bone = self.ctx.skeleton.roots[0]
-                skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.id}-skin")
+                skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 etree.SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
 
     def add_scenes(self):

@@ -8,13 +8,13 @@ from scfile.io.base import StructIOBase
 from .context import FileContext
 
 
-Opener = TypeVar("Opener", bound=StructIOBase)
 Context = TypeVar("Context", bound=FileContext)
+Opener = TypeVar("Opener", bound=StructIOBase)
 
 
-class FileHandler(Generic[Opener, Context], ABC):
+class FileHandler(Generic[Context, Opener], ABC):
     # TODO: check context memory release
-    def __init__(self, buffer: Opener, ctx: Context):
+    def __init__(self, ctx: Context, buffer: Opener):
         self.buffer = buffer
         self.ctx = ctx
 

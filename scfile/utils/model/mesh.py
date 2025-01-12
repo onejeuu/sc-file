@@ -28,10 +28,6 @@ class ModelMesh:
     """key: link id, value: bone id"""
 
     @property
-    def id(self):
-        return f"{self.name}-mesh"
-
-    @property
     def bone_indices(self):
         return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
 

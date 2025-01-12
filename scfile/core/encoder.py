@@ -9,18 +9,18 @@ from .context import FileContext
 from .handler import FileHandler
 
 
-Opener = StructBytesIO
 Context = TypeVar("Context", bound=FileContext)
+Opener = StructBytesIO
 
 
-class FileEncoder(FileHandler[Opener, Context], Generic[Context], ABC):
+class FileEncoder(FileHandler[Context, Opener], Generic[Context], ABC):
     mode: FileMode = FileMode.WRITE
 
     def __init__(self, ctx: Context):
-        self.buffer = self.b = Opener()
         self.ctx = ctx
+        self.buffer = self.b = Opener()
 
-        super().__init__(self.buffer, self.ctx)
+        super().__init__(self.ctx, self.buffer)
 
     @property
     @abstractmethod
