@@ -11,7 +11,7 @@ def fixedlen(name: str) -> bytes:
     return name.encode("utf-8").ljust(32, b"\x00")
 
 
-class Ms3dBinEncoder(FileEncoder[ModelContext]):
+class Ms3dEncoder(FileEncoder[ModelContext]):
     signature = FileSignature.MS3D
 
     @property
