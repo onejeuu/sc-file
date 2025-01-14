@@ -4,6 +4,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileDecoder, TextureContext, TextureOptions
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
+from scfile.formats.dds.encoder import DdsEncoder
 from scfile.io.ol import OlFileIO
 
 from .formats import SUPPORTED_FORMATS
@@ -25,6 +26,9 @@ class OlDecoder(FileDecoder[TextureContext, OlFileIO, TextureOptions]):
     def _options(self):
         return TextureOptions
 
+    def to_dds(self):
+        return self.convert_to(DdsEncoder)
+
     def parse(self):
         self.parse_header()
         self.parse_fourcc()
@@ -39,12 +43,12 @@ class OlDecoder(FileDecoder[TextureContext, OlFileIO, TextureOptions]):
     def parse_fourcc(self):
         self.ctx.fourcc = self.f.readfourcc()
 
-        if self.fourcc not in SUPPORTED_FORMATS:
-            raise Exception(self.path, self.fourcc.decode(encoding="utf-8", errors="replace"))
+        if self.ctx.fourcc not in SUPPORTED_FORMATS:
+            raise Exception(self.path, self.ctx.fourcc.decode(encoding="utf-8", errors="replace"))
 
         # ? change strange naming
-        if self.fourcc == b"DXN_XY":
-            self.fourcc = b"ATI2"
+        if self.ctx.fourcc == b"DXN_XY":
+            self.ctx.fourcc = b"ATI2"
 
     def parse_sizes(self):
         self.ctx.uncompressed = self.f.readsizes(self.ctx.mipmap_count)

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Optional, Self, TypeVar
 
 from scfile.enums import FileFormat, FileMode
 from scfile.io.binary import StructBytesIO
@@ -15,6 +15,7 @@ Opener = StructBytesIO
 
 class FileEncoder(FileHandler[Context, Opener], Generic[Context], ABC):
     mode: FileMode = FileMode.WRITE
+    signature: Optional[bytes] = None
 
     def __init__(self, ctx: Context):
         self.ctx = ctx
@@ -42,9 +43,15 @@ class FileEncoder(FileHandler[Context, Opener], Generic[Context], ABC):
     def content(self) -> bytes:
         return self.buffer.getvalue()
 
-    def encode(self) -> None:
+    def encode(self) -> Self:
         self.prepare()
+        self.add_signature()
         self.serialize()
+        return self
+
+    def add_signature(self) -> None:
+        if self.signature:
+            self.buffer.write(self.signature)
 
     def save_as(self, path: PathLike) -> None:
         with open(path, mode=self.mode) as fp:

@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from scfile import MicDecoder, PngEncoder
+from scfile.formats.mic.decoder import MicDecoder
+from scfile.formats.png.encoder import PngEncoder
 from tests.codec.extract import extract
 
 

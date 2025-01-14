@@ -1,12 +1,13 @@
 from pathlib import Path
 
-from scfile.file import McsaDecoder, ObjEncoder
-from scfile.file.data import ModelData
+from scfile.core import ModelContext
+from scfile.formats.mcsa.decoder import McsaDecoder
+from scfile.formats.obj.encoder import ObjEncoder
 
 
 def test_default(assets: Path, temp: Path):
     mcsa = McsaDecoder(assets / "model.mcsa")
-    data: ModelData = mcsa.decode()
+    data: ModelContext = mcsa.decode()
     mcsa.close()
 
     obj = ObjEncoder(data)
@@ -15,7 +16,7 @@ def test_default(assets: Path, temp: Path):
 
 def test_content_bytes(assets: Path, temp: Path):
     mcsa = McsaDecoder(assets / "model.mcsa")
-    data: ModelData = mcsa.decode()
+    data: ModelContext = mcsa.decode()
     mcsa.close()
 
     obj = ObjEncoder(data)
@@ -41,7 +42,7 @@ def test_sugar_to_xxx(assets: Path, temp: Path):
 
 def test_context_manager(assets: Path, temp: Path):
     with McsaDecoder(assets / "model.mcsa") as mcsa:
-        data: ModelData = mcsa.decode()
+        data: ModelContext = mcsa.decode()
 
     with ObjEncoder(data) as obj:
         obj.encode().save(temp / "model.obj")

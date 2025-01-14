@@ -19,6 +19,7 @@ Options = TypeVar("Options", bound=FileOptions)
 
 class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options], ABC):
     mode: FileMode = FileMode.READ
+    signature: Optional[bytes] = None
 
     def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file

@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from scfile import McsaDecoder, ObjEncoder
+from scfile.formats.mcsa.decoder import McsaDecoder
+from scfile.formats.obj.encoder import ObjEncoder
 from tests.codec.extract import extract
 
 

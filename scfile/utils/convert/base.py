@@ -1,5 +1,5 @@
 import pathlib
-from typing import Optional
+from typing import Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.decoder import Context, Opener, Options
@@ -7,8 +7,8 @@ from scfile.io.types import PathLike
 
 
 def convert(
-    decoder: type[FileDecoder[Context, Opener, Options]],
-    encoder: type[FileEncoder[Context]],
+    decoder: Type[FileDecoder[Context, Opener, Options]],
+    encoder: Type[FileEncoder[Context]],
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[Options] = None,

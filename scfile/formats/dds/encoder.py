@@ -1,3 +1,4 @@
+from scfile.consts import FileSignature
 from scfile.core.context import TextureContext
 from scfile.core.encoder import FileEncoder
 from scfile.enums import FileFormat
@@ -8,6 +9,8 @@ from .mask import BGRA8, RGBA8
 
 
 class DdsEncoder(FileEncoder[TextureContext]):
+    signature = FileSignature.DDS
+
     @property
     def format(self):
         return FileFormat.DDS
