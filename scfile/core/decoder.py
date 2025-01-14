@@ -17,7 +17,7 @@ Context = TypeVar("Context", bound=FileContext)
 Options = TypeVar("Options", bound=FileOptions)
 
 
-class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options], ABC):
+class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options], ABC):
     mode: FileMode = FileMode.READ
     signature: Optional[bytes] = None
 
@@ -30,14 +30,17 @@ class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options
         self.path = pathlib.Path(self.file)
 
         # Create base context and options
-        self.ctx = self._context()
-        self.options = options or self._options()
+        self.ctx: Context = self._context()
+        self.options: Options = options or self._options()
 
         # Create file reader
-        self.buffer = self.f = self._opener(file=file, mode=self.mode)
+        self.buffer: Opener = self._opener(file=file, mode=self.mode)
         self.buffer.order = self.order
 
-        super().__init__(self.ctx, self.buffer)
+        # Buffer abbreviation
+        self.f = self.buffer
+
+        super().__init__(self.buffer, self.ctx)
 
     @abstractmethod
     def parse(self) -> None:
@@ -48,13 +51,13 @@ class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options
         self.parse()
         return self.ctx
 
-    def convert_to(self, encoder: type[FileEncoder[Context]]) -> FileEncoder[Context]:
+    def convert_to(self, encoder: type[FileEncoder[Context, Options]]) -> FileEncoder[Context, Options]:
         data = self.decode()
         enc = encoder(data)
         enc.encode()
         return enc
 
-    def convert(self, encoder: type[FileEncoder[Context]]) -> bytes:
+    def convert(self, encoder: type[FileEncoder[Context, Options]]) -> bytes:
         enc = self.convert_to(encoder)
         content = enc.content
         enc.close()

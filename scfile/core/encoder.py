@@ -7,26 +7,32 @@ from scfile.io.types import PathLike
 
 from .context import FileContext
 from .handler import FileHandler
+from .options import FileOptions
 
 
-Context = TypeVar("Context", bound=FileContext)
 Opener = StructBytesIO
+Context = TypeVar("Context", bound=FileContext)
+Options = TypeVar("Options", bound=FileOptions)
 
 
-class FileEncoder(FileHandler[Context, Opener], Generic[Context], ABC):
+class FileEncoder(FileHandler[Opener, Context], Generic[Context, Options], ABC):
     mode: FileMode = FileMode.WRITE
+
+    format: FileFormat
     signature: Optional[bytes] = None
 
-    def __init__(self, ctx: Context):
-        self.ctx = ctx
-        self.buffer = self.b = Opener()
+    _options: type[Options]
 
-        super().__init__(self.ctx, self.buffer)
+    def __init__(self, ctx: Context, options: Optional[Options] = None):
+        self.ctx: Context = ctx
 
-    @property
-    @abstractmethod
-    def format(self) -> FileFormat:
-        pass
+        self.buffer: Opener = Opener()
+        self.options: Options = options or self._options()
+
+        # Buffer abbreviation
+        self.b = self.buffer
+
+        super().__init__(self.buffer, self.ctx)
 
     def prepare(self) -> None:
         pass

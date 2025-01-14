@@ -7,8 +7,8 @@ from scfile.io.types import PathLike
 
 
 def convert(
-    decoder: Type[FileDecoder[Context, Opener, Options]],
-    encoder: Type[FileEncoder[Context]],
+    decoder: Type[FileDecoder[Opener, Context, Options]],
+    encoder: Type[FileEncoder[Context, Options]],
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[Options] = None,

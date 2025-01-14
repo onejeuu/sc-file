@@ -1,6 +1,7 @@
 from scfile.consts import FileSignature
 from scfile.core.context import TextureContext
 from scfile.core.encoder import FileEncoder
+from scfile.core.options import TextureOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 
@@ -8,12 +9,11 @@ from .header import DDS
 from .mask import BGRA8, RGBA8
 
 
-class DdsEncoder(FileEncoder[TextureContext]):
+class DdsEncoder(FileEncoder[TextureContext, TextureOptions]):
+    format = FileFormat.DDS
     signature = FileSignature.DDS
 
-    @property
-    def format(self):
-        return FileFormat.DDS
+    _options = TextureOptions
 
     def serialize(self):
         self.b.writeb(F.U32, DDS.HEADER.SIZE)

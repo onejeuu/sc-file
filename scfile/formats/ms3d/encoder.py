@@ -1,5 +1,6 @@
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder, ModelContext
+from scfile.core.options import ModelOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 
@@ -11,12 +12,11 @@ def fixedlen(name: str) -> bytes:
     return name.encode("utf-8").ljust(32, b"\x00")
 
 
-class Ms3dEncoder(FileEncoder[ModelContext]):
+class Ms3dEncoder(FileEncoder[ModelContext, ModelOptions]):
+    format = FileFormat.MS3D
     signature = FileSignature.MS3D
 
-    @property
-    def format(self):
-        return FileFormat.MS3D
+    _options = ModelOptions
 
     def prepare(self):
         self.ctx.scene.ensure_unique_names()

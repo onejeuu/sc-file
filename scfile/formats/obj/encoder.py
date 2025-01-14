@@ -1,14 +1,15 @@
 from scfile.core import FileEncoder, ModelContext
+from scfile.core.options import ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.utils.model.data import Polygon
 from scfile.utils.model.mesh import ModelMesh
 
 
-class ObjEncoder(FileEncoder[ModelContext]):
-    @property
-    def format(self):
-        return FileFormat.OBJ
+class ObjEncoder(FileEncoder[ModelContext, ModelOptions]):
+    format = FileFormat.OBJ
+
+    _options = ModelOptions
 
     def prepare(self):
         self.ctx.scene.ensure_unique_names()
