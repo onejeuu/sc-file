@@ -5,7 +5,7 @@ from scfile.core import FileDecoder, TextureContext, TextureOptions
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
-from scfile.io.ol import OlFileIO
+from scfile.io.formats.ol import OlFileIO
 
 from .formats import SUPPORTED_FORMATS
 
