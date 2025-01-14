@@ -21,6 +21,10 @@ class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options
     mode: FileMode = FileMode.READ
     signature: Optional[bytes] = None
 
+    _opener: type[Opener]
+    _context: type[Context]
+    _options: type[Options]
+
     def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file
         self.path = pathlib.Path(self.file)
@@ -34,22 +38,6 @@ class FileDecoder(FileHandler[Context, Opener], Generic[Context, Opener, Options
         self.buffer.order = self.order
 
         super().__init__(self.ctx, self.buffer)
-
-    # TODO: try rid out of duplications
-    @property
-    @abstractmethod
-    def _opener(self) -> type[Opener]:
-        pass
-
-    @property
-    @abstractmethod
-    def _context(self) -> type[Context]:
-        pass
-
-    @property
-    @abstractmethod
-    def _options(self) -> type[Options]:
-        pass
 
     @abstractmethod
     def parse(self) -> None:

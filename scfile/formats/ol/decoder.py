@@ -14,17 +14,9 @@ class OlDecoder(FileDecoder[TextureContext, OlFileIO, TextureOptions]):
     order = ByteOrder.BIG
     signature = FileSignature.OL
 
-    @property
-    def _opener(self):
-        return OlFileIO
-
-    @property
-    def _context(self):
-        return TextureContext
-
-    @property
-    def _options(self):
-        return TextureOptions
+    _opener = OlFileIO
+    _context = TextureContext
+    _options = TextureOptions
 
     def to_dds(self):
         return self.convert_to(DdsEncoder)
