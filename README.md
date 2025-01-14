@@ -5,6 +5,9 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml)](https://github.com/onejeuu/sc-file/actions/workflows/build.yml)
 [![Issues](https://img.shields.io/github/issues/onejeuu/sc-file)](https://github.com/onejeuu/sc-file/issues)
 
+> [!CAUTION]
+> Work In Progress. Functionality may be missing or malfunctioning.
+
 Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 
 For answers to common questions, please refer to [FAQ section](FAQ.md).

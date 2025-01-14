@@ -24,10 +24,6 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
     _context = ModelContext
     _options = ModelOptions
 
-    @property
-    def skeleton_present(self) -> bool:
-        return self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton
-
     def to_dae(self):
         return self.convert_to(DaeEncoder)
 
@@ -44,7 +40,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         self.parse_header()
         self.parse_meshes()
 
-        if self.skeleton_present:
+        if self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
 
     def parse_header(self):
@@ -90,8 +86,9 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         mesh.material = self.f.readstring()
 
         # Skeleton bone indexes
-        if self.skeleton_present:
-            self.parse_bone_indexes(mesh)
+        if self.ctx.flags[Flag.SKELETON]:
+            self.parse_links_count(mesh)
+            self.load_bone_indexes(mesh)
 
         # Geometry counts
         mesh.count.vertices = self.f.readcount()
@@ -126,7 +123,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
             self.skip_vertices(mesh, size=4)
 
         # Vertex links
-        if self.skeleton_present:
+        if self.ctx.flags[Flag.SKELETON]:
             self.parse_links(mesh)
 
         # Vertex colors
@@ -138,15 +135,16 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
 
         self.ctx.meshes.append(mesh)
 
-    def parse_bone_indexes(self, mesh: ModelMesh):
+    def parse_links_count(self, mesh: ModelMesh):
         mesh.count.max_links = self.f.readb(F.U8)
         mesh.count.bones = self.f.readb(F.U8)
 
+    def load_bone_indexes(self, mesh: ModelMesh):
         for index in range(mesh.count.bones):
             mesh.bones[index] = self.f.readb(F.U8)
 
     def skip_locals(self):
-        self.f.read(24)  # ? 6 floats
+        self.f.read(24)
 
         if self.ctx.version >= 11.0:
             self.f.read(4)
@@ -183,14 +181,29 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         match mesh.count.max_links:
             case 0:
                 pass
+
             case 1 | 2:
-                links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
-                self.load_links(mesh, links)
+                if self.options.parse_skeleton:
+                    self.parse_packed_links(mesh)
+                else:
+                    self.skip_vertices(mesh, size=4)
+
             case 3 | 4:
-                links = self.f.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
-                self.load_links(mesh, links)
+                if self.options.parse_skeleton:
+                    self.parse_plain_links(mesh)
+                else:
+                    self.skip_vertices(mesh, size=8)
+
             case _:
                 raise Exception(f"Unknown links count: {mesh.count.max_links}")
+
+    def parse_packed_links(self, mesh: ModelMesh):
+        links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        self.load_links(mesh, links)
+
+    def parse_plain_links(self, mesh: ModelMesh):
+        links = self.f.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        self.load_links(mesh, links)
 
     def load_links(self, mesh: ModelMesh, links: Any):
         link_ids, link_weights = links

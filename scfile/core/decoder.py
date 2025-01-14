@@ -50,7 +50,7 @@ class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options
 
     def convert_to(self, encoder: type[FileEncoder[Context, Options]]) -> FileEncoder[Context, Options]:
         data = self.decode()
-        enc = encoder(data)
+        enc = encoder(data, self.options)
         enc.encode()
         return enc
 
