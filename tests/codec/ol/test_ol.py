@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from scfile import DdsEncoder, OlDecoder
+from scfile.formats.dds.encoder import DdsEncoder
+from scfile.formats.ol.decoder import OlDecoder
 from tests.codec.extract import extract
 
 

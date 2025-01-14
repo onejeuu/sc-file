@@ -1,13 +1,8 @@
 from pathlib import Path
-from typing import NamedTuple, Optional, TypeVar
+from typing import NamedTuple, Optional
 
-from scfile.file.base import FileDecoder, FileEncoder
-from scfile.file.data import FileData
-from scfile.io.binary import BinaryFileIO
-
-
-OPENER = TypeVar("OPENER", bound=BinaryFileIO)
-DATA = TypeVar("DATA", bound=FileData)
+from scfile.core import FileDecoder, FileEncoder
+from scfile.core.decoder import Context, Opener, Options
 
 
 class Results(NamedTuple):
@@ -16,8 +11,8 @@ class Results(NamedTuple):
 
 
 def extract(
-    decoder: type[FileDecoder[OPENER, DATA]],
-    encoder: type[FileEncoder[DATA]],
+    decoder: type[FileDecoder[Context, Opener, Options]],
+    encoder: type[FileEncoder[Context]],
     assets: Path,
     subdir: Optional[Path] = None,
     output_filename: str = "output",

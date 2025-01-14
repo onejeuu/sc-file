@@ -4,6 +4,10 @@ from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core import FileDecoder, ModelContext, ModelOptions
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
+from scfile.formats.dae.encoder import DaeEncoder
+from scfile.formats.glb.encoder import GlbEncoder
+from scfile.formats.ms3d.encoder import Ms3dEncoder
+from scfile.formats.obj.encoder import ObjEncoder
 from scfile.io.mcsa import McsaFileIO
 from scfile.utils.model.mesh import ModelMesh
 from scfile.utils.model.skeleton import SkeletonBone
@@ -27,6 +31,18 @@ class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
     @property
     def _options(self):
         return ModelOptions
+
+    def to_dae(self):
+        return self.convert_to(DaeEncoder)
+
+    def to_obj(self):
+        return self.convert_to(ObjEncoder)
+
+    def to_gltf(self):
+        return self.convert_to(GlbEncoder)
+
+    def to_ms3d(self):
+        return self.convert_to(Ms3dEncoder)
 
     def parse(self):
         self.parse_header()

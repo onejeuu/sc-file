@@ -1,6 +1,7 @@
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ImageContext, ImageOptions
 from scfile.enums import ByteOrder
+from scfile.formats.png.encoder import PngEncoder
 from scfile.io.file import StructFileIO
 
 
@@ -20,5 +21,8 @@ class MicDecoder(FileDecoder[ImageContext, StructFileIO, ImageOptions]):
     def _options(self):
         return ImageOptions
 
+    def to_png(self):
+        return self.convert_to(PngEncoder)
+
     def parse(self):
-        self.ctx.image = self.f.read()  # 23 lines of template vs 1 line of action, kinda cool... i guess...
+        self.ctx.image = self.f.read()
