@@ -2,7 +2,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ImageContext, ImageOptions
 from scfile.enums import ByteOrder
 from scfile.formats.png.encoder import PngEncoder
-from scfile.io.file import StructFileIO
+from scfile.io.streams import StructFileIO
 
 
 class MicDecoder(FileDecoder[ImageContext, StructFileIO, ImageOptions]):

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, Optional, TypeVar
 
 from scfile.enums import FileMode
-from scfile.io.file import StructFileIO
+from scfile.io.streams import StructFileIO
 from scfile.io.types import PathLike
 
 from .context import FileContext

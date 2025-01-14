@@ -1,7 +1,0 @@
-import io
-
-from scfile.io.base import StructIO
-
-
-class StructBytesIO(io.BytesIO, StructIO):
-    pass

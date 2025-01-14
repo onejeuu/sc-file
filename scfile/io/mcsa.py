@@ -5,7 +5,8 @@ from numpy.typing import NDArray
 
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.enums import StructFormat as F
-from scfile.io.file import StructFileIO
+
+from .streams import StructFileIO
 
 
 def reshape(data: NDArray[Any], size: int) -> list[list[Any]]:
@@ -27,7 +28,7 @@ class McsaFileIO(StructFileIO):
         return count
 
     def readarray(self, fmt: str, size: int, count: int):
-        data = self.unpack(f"{size*count}{fmt}")
+        data = self.unpack(f"{size * count}{fmt}")
         return np.array(data, dtype=np.dtype(fmt))
 
     def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
