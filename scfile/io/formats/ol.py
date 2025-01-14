@@ -1,7 +1,6 @@
 from scfile.consts import CubemapFaces, OlString
 from scfile.enums import StructFormat as F
-
-from .streams import StructFileIO
+from scfile.io.streams import StructFileIO
 
 
 class OlFileIO(StructFileIO):

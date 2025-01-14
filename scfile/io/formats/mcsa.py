@@ -5,8 +5,7 @@ from numpy.typing import NDArray
 
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.enums import StructFormat as F
-
-from .streams import StructFileIO
+from scfile.io.streams import StructFileIO
 
 
 def reshape(data: NDArray[Any], size: int) -> list[list[Any]]:

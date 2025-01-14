@@ -8,7 +8,7 @@ from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.io.mcsa import McsaFileIO
+from scfile.io.formats.mcsa import McsaFileIO
 from scfile.utils.model.mesh import ModelMesh
 from scfile.utils.model.skeleton import SkeletonBone
 
