@@ -20,17 +20,9 @@ class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 
-    @property
-    def _opener(self):
-        return McsaFileIO
-
-    @property
-    def _context(self):
-        return ModelContext
-
-    @property
-    def _options(self):
-        return ModelOptions
+    _opener = McsaFileIO
+    _context = ModelContext
+    _options = ModelOptions
 
     def to_dae(self):
         return self.convert_to(DaeEncoder)
