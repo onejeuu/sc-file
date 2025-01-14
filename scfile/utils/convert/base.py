@@ -2,7 +2,8 @@ import pathlib
 from typing import Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
-from scfile.core.decoder import Context, Opener, Options
+from scfile.core.decoder import Opener
+from scfile.core.types import Context, Options
 from scfile.io.types import PathLike
 
 

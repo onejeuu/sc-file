@@ -6,15 +6,12 @@ from scfile.enums import FileMode
 from scfile.io.streams import StructFileIO
 from scfile.io.types import PathLike
 
-from .context import FileContext
 from .encoder import FileEncoder
 from .handler import FileHandler
-from .options import FileOptions
+from .types import Context, Options
 
 
 Opener = TypeVar("Opener", bound=StructFileIO)
-Context = TypeVar("Context", bound=FileContext)
-Options = TypeVar("Options", bound=FileOptions)
 
 
 class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options], ABC):
