@@ -4,6 +4,7 @@ from typing import Optional
 import numpy as np
 
 from scfile.core import FileEncoder, ModelContext
+from scfile.core.options import ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.utils.model.skeleton import SkeletonBone, create_transform_matrix
@@ -13,10 +14,14 @@ UP_AXIS = "Y_UP"
 
 
 # ! TODO: rewrite without "self" garbage
-class DaeEncoder(FileEncoder[ModelContext]):
+class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
+    format = FileFormat.DAE
+
+    _options = ModelOptions
+
     @property
-    def format(self):
-        return FileFormat.DAE
+    def skeleton_present(self) -> bool:
+        return self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton
 
     def prepare(self):
         self.ctx.scene.ensure_unique_names()
@@ -201,19 +206,19 @@ class DaeEncoder(FileEncoder[ModelContext]):
         for mesh in self.ctx.meshes:
             node = etree.SubElement(self.root_node, "node", id=mesh.name, name=mesh.name, type="NODE")
 
-            if not self.ctx.flags[Flag.SKELETON]:
-                etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
-
-            else:
+            if self.skeleton_present:
                 bone = self.ctx.skeleton.roots[0]
                 skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 etree.SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
+
+            else:
+                etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
 
     def add_scenes(self):
         library = etree.SubElement(self.root, "library_visual_scenes")
         self.root_node = self.scene = etree.SubElement(library, "visual_scene", id="scene", name="Scene")
 
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.skeleton_present:
             self.add_armature()
 
         self.add_meshes()

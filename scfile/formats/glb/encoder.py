@@ -8,6 +8,7 @@ import numpy as np
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContext
+from scfile.core.options import ModelOptions
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
@@ -18,10 +19,10 @@ from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION
 from .enums import BufferTarget, ComponentType
 
 
-class GlbEncoder(FileEncoder[ModelContext]):
-    @property
-    def format(self):
-        return FileFormat.GLB
+class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
+    format = FileFormat.GLB
+
+    _options = ModelOptions
 
     def prepare(self):
         self.ctx.scene.ensure_unique_names()

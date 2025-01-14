@@ -5,7 +5,7 @@ from scfile.formats.png.encoder import PngEncoder
 from scfile.io.streams import StructFileIO
 
 
-class MicDecoder(FileDecoder[ImageContext, StructFileIO, ImageOptions]):
+class MicDecoder(FileDecoder[StructFileIO, ImageContext, ImageOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MIC
 

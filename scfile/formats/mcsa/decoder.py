@@ -16,13 +16,17 @@ from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
-class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
+class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 
     _opener = McsaFileIO
     _context = ModelContext
     _options = ModelOptions
+
+    @property
+    def skeleton_present(self) -> bool:
+        return self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton
 
     def to_dae(self):
         return self.convert_to(DaeEncoder)
@@ -40,7 +44,7 @@ class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
         self.parse_header()
         self.parse_meshes()
 
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.skeleton_present:
             self.parse_skeleton()
 
     def parse_header(self):
@@ -86,7 +90,7 @@ class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
         mesh.material = self.f.readstring()
 
         # Skeleton bone indexes
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.skeleton_present:
             self.parse_bone_indexes(mesh)
 
         # Geometry counts
@@ -122,7 +126,7 @@ class McsaDecoder(FileDecoder[ModelContext, McsaFileIO, ModelOptions]):
             self.skip_vertices(mesh, size=4)
 
         # Vertex links
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.skeleton_present:
             self.parse_links(mesh)
 
         # Vertex colors

@@ -10,7 +10,7 @@ from scfile.io.formats.ol import OlFileIO
 from .formats import SUPPORTED_FORMATS
 
 
-class OlDecoder(FileDecoder[TextureContext, OlFileIO, TextureOptions]):
+class OlDecoder(FileDecoder[OlFileIO, TextureContext, TextureOptions]):
     order = ByteOrder.BIG
     signature = FileSignature.OL
 

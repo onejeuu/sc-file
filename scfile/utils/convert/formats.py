@@ -18,7 +18,10 @@ from scfile.io.types import PathLike
 from .base import convert
 
 
-def converter(decoder: Type[FileDecoder[Context, Opener, Options]], encoder: Type[FileEncoder[Context]]) -> Callable:
+def converter(
+    decoder: Type[FileDecoder[Opener, Context, Options]],
+    encoder: Type[FileEncoder[Context, Options]],
+) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(

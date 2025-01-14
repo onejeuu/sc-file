@@ -11,8 +11,8 @@ class Results(NamedTuple):
 
 
 def extract(
-    decoder: type[FileDecoder[Context, Opener, Options]],
-    encoder: type[FileEncoder[Context]],
+    decoder: type[FileDecoder[Opener, Context, Options]],
+    encoder: type[FileEncoder[Context, Options]],
     assets: Path,
     subdir: Optional[Path] = None,
     output_filename: str = "output",
