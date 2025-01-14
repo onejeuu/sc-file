@@ -5,11 +5,10 @@ from typing import Generic, Optional, TypeVar
 from scfile.enums import ByteOrder, FileMode
 from scfile.io.base import StructIOBase
 
-from .context import FileContext
+from .types import Context
 
 
 Opener = TypeVar("Opener", bound=StructIOBase)
-Context = TypeVar("Context", bound=FileContext)
 
 
 class FileHandler(Generic[Opener, Context], ABC):

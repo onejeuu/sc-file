@@ -1,18 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, Self, TypeVar
+from typing import Generic, Optional, Self
 
 from scfile.enums import FileFormat, FileMode
 from scfile.io.streams import StructBytesIO
 from scfile.io.types import PathLike
 
-from .context import FileContext
 from .handler import FileHandler
-from .options import FileOptions
+from .types import Context, Options
 
 
 Opener = StructBytesIO
-Context = TypeVar("Context", bound=FileContext)
-Options = TypeVar("Options", bound=FileOptions)
 
 
 class FileEncoder(FileHandler[Opener, Context], Generic[Context, Options], ABC):

@@ -1,9 +1,10 @@
 from functools import wraps
 from typing import Callable, Optional, Type
 
-from scfile.core.decoder import Context, FileDecoder, Opener, Options
-from scfile.core.encoder import FileEncoder
+from scfile.core import FileDecoder, FileEncoder
+from scfile.core.decoder import Opener
 from scfile.core.options import ImageOptions, ModelOptions, TextureOptions
+from scfile.core.types import Context, Options
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
