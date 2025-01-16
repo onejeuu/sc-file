@@ -1,7 +1,5 @@
 from scfile.consts import FileSignature
-from scfile.core.context import TextureContext
-from scfile.core.encoder import FileEncoder
-from scfile.core.options import TextureOptions
+from scfile.core import FileEncoder, TextureContext, TextureOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 

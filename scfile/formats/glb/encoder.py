@@ -7,8 +7,7 @@ from typing import Any, Sized
 import numpy as np
 
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder, ModelContext
-from scfile.core.options import ModelOptions
+from scfile.core import FileEncoder, ModelContext, ModelOptions
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag

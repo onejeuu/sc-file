@@ -1,6 +1,5 @@
 from scfile.consts import FileSignature, McsaModel
-from scfile.core import FileEncoder, ModelContext
-from scfile.core.options import ModelOptions
+from scfile.core import FileEncoder, ModelContext, ModelOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 

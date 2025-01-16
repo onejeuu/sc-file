@@ -3,7 +3,7 @@ from typing import Callable, Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.decoder import Opener
-from scfile.core.options import ImageOptions, ModelOptions, TextureOptions
+from scfile.core.meta import ImageOptions, ModelOptions, TextureOptions
 from scfile.core.types import Context, Options
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder

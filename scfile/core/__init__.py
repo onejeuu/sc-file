@@ -1,18 +1,26 @@
-from .context import FileContext, ImageContext, ModelContext, TextureContext
 from .decoder import FileDecoder
 from .encoder import FileEncoder
 from .handler import FileHandler
-from .options import FileOptions, ImageOptions, ModelOptions, TextureOptions
+from .meta import (
+    FileContext,
+    FileOptions,
+    ImageContext,
+    ImageOptions,
+    ModelContext,
+    ModelOptions,
+    TextureContext,
+    TextureOptions,
+)
 
 
 __all__ = (
+    "FileDecoder",
+    "FileEncoder",
+    "FileHandler",
     "FileContext",
     "ImageContext",
     "ModelContext",
     "TextureContext",
-    "FileDecoder",
-    "FileEncoder",
-    "FileHandler",
     "FileOptions",
     "ImageOptions",
     "ModelOptions",
