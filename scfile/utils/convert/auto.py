@@ -1,7 +1,7 @@
 import pathlib
 from typing import Callable, Optional, Sequence, TypeAlias
 
-from scfile.core.options import ImageOptions, ModelOptions, TextureOptions
+from scfile.core import ImageOptions, ModelOptions, TextureOptions
 from scfile.enums import FileFormat
 from scfile.io.types import PathLike
 
