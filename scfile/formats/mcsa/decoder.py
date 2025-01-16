@@ -9,6 +9,7 @@ from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
 from scfile.io.formats.mcsa import McsaFileIO
+from scfile.utils.model.anim import AnimationClip, AnimationFrame
 from scfile.utils.model.mesh import ModelMesh
 from scfile.utils.model.skeleton import SkeletonBone
 
@@ -42,6 +43,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
 
         if self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
+
+            # TODO: first validate there is data remaining
+            if self.options.parse_skeleton and self.options.parse_animations:
+                self.parse_animations()
 
     def parse_header(self):
         self.parse_version()
@@ -259,3 +264,37 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         bone.rotation.x = x
         bone.rotation.y = y
         bone.rotation.z = z
+
+    def parse_animations(self):
+        animations_count = self.f.readb(F.U32)
+
+        for _ in range(animations_count):
+            self.parse_animation()
+
+    def parse_animation(self):
+        anim = AnimationClip()
+
+        anim.name = self.f.readstring()
+        anim.frames_count = self.f.readb(F.U32)
+        anim.frame_rate = self.f.readb(F.F32)
+
+        self.parse_animation_frames(anim)
+
+        self.ctx.scene.animations.anims.append(anim)
+
+    def parse_animation_frames(self, anim: AnimationClip):
+        frames = self.f.readanimframes(anim.frames_count * len(self.ctx.skeleton.bones))
+
+        for (tx, ty, tz), (rx, ry, rz, rw) in frames:
+            frame = AnimationFrame()
+
+            frame.translation.x = tx
+            frame.translation.y = ty
+            frame.translation.z = tz
+
+            frame.rotation.x = rx
+            frame.rotation.y = ry
+            frame.rotation.z = rz
+            frame.rotation.w = rw
+
+            anim.frames.append(frame)

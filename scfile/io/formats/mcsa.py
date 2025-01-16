@@ -54,12 +54,31 @@ class McsaFileIO(StructFileIO):
 
         return reshape(data, size)
 
-    def readbonedata(self) -> list[int]:
+    def readbonedata(self) -> list[float]:
         # Read vertex array
         data = self.readarray(fmt=F.F32, size=McsaSize.BONE, count=1)
 
         # TODO: fix type hints
         return data.tolist()  # type: ignore
+
+    def readanimframes(self, count: int) -> list[list[list[float]]]:
+        size = 7
+
+        # Read array
+        data = self.readarray(fmt=F.U16, size=size, count=count)
+
+        # Scale values to floats
+        data = data / (Factor.U16)
+
+        # Round digits
+        data = data.round(McsaModel.ROUND_DIGITS)
+
+        # Reshape to arr[arr[float[3], float[4]]]
+        data = data.reshape(-1, size)
+        data = [[block[:3].tolist(), block[3:].tolist()] for block in data]
+
+        # TODO: fix type hints
+        return data  # type: ignore
 
     def _boneids_to_global(self, data: Any, bones: dict[int, int]):
         def apply_mesh_bones(x: int):

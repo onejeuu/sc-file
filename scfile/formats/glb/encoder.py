@@ -11,7 +11,7 @@ from scfile.core import FileEncoder, ModelContext, ModelOptions
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
-from scfile.utils.model.data import Polygon
+from scfile.utils.model.vector import Polygon
 from scfile.utils.model.vertex import Vertex
 
 from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION

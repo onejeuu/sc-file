@@ -5,7 +5,7 @@ import numpy as np
 
 from scfile.consts import McsaModel
 
-from .data import Vector
+from .vector import Vector3
 
 
 ROOT = McsaModel.ROOT_BONE_ID
@@ -16,8 +16,8 @@ class SkeletonBone:
     id: int = 0
     name: str = "bone"
     parent_id: int = ROOT
-    position: Vector = field(default_factory=Vector)
-    rotation: Vector = field(default_factory=Vector)
+    position: Vector3 = field(default_factory=Vector3)
+    rotation: Vector3 = field(default_factory=Vector3)
     children: List[Self] = field(default_factory=list, repr=False)
 
     @property
@@ -89,7 +89,7 @@ class ModelSkeleton:
         return [np.linalg.inv(transform) for transform in global_transforms]
 
 
-def create_rotation_matrix(rotation: Vector, homogeneous: bool = False) -> np.ndarray:
+def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.ndarray:
     # Конвертируем в радианы
     rx, ry, rz = (np.radians(angle) for angle in rotation)
 

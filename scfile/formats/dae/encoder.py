@@ -41,6 +41,9 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         if self.skeleton_present:
             self.add_controllers(root)
 
+            if self.options.parse_animations:
+                self.add_animations(root)
+
         self.add_scenes(root)
         self.render_xml(root)
 
@@ -58,36 +61,36 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
     def create_source(
         self,
         parent: etree.Element,
-        mesh_name: str,
+        id: str,
         name: str,
         data: np.ndarray,
         tag: str = "float_array",
         count: Optional[int] = None,
     ) -> etree.Element:
         count = count or len(data)
-        source = etree.SubElement(parent, "source", id=f"{mesh_name}-{name}")
-        array = etree.SubElement(source, tag, id=f"{mesh_name}-{name}-array", count=str(count))
+        source = etree.SubElement(parent, "source", id=f"{id}-{name}")
+        array = etree.SubElement(source, tag, id=f"{id}-{name}-array", count=str(count))
         array.text = " ".join(map(str, data.flatten()))
         return source
 
     def add_source_common(
         self,
         source: etree.Element,
-        mesh_name: str,
+        id: str,
         name: str,
         count: int,
         components: list[str],
-        type_: str,
+        datatype: str,
         stride: Optional[int] = None,
     ):
-        array_id = f"#{mesh_name}-{name}-array"
+        array_id = f"#{id}-{name}-array"
         stride = stride or len(components)
 
         common = etree.SubElement(source, "technique_common")
         accessor = etree.SubElement(common, "accessor", source=array_id, count=str(count), stride=str(stride))
 
         for component in components:
-            accessor.append(etree.Element("param", name=component, type=type_))
+            accessor.append(etree.Element("param", name=component, type=datatype))
 
     def add_mesh_sources(self, mesh_node: etree.Element, mesh: ModelMesh):
         # Positions XYZ
@@ -178,6 +181,10 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         # TODO: figure out why tf zeros in ids and weights...
         etree.SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
         etree.SubElement(weights, "v").text = " ".join(mesh.bone_indices)
+
+    def add_animations(self, root: etree.Element):
+        # TODO
+        pass
 
     def add_scenes(self, root: etree.Element):
         library = etree.SubElement(root, "library_visual_scenes")
