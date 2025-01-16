@@ -8,7 +8,7 @@
 > [!CAUTION]
 > Work In Progress. Functionality may be missing or malfunctioning.
 
-[<img src="https://em-content.zobj.net/source/apple/391/flag-russia_1f1f7-1f1fa.png" alt="🇷🇺" width=20 /> Перевод на русский](README_RU.md)
+[Перевод на русский](README_RU.md)
 
 Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 

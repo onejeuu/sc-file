@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from scfile.utils.model.anim import ModelAnimations
+
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 
@@ -17,6 +19,7 @@ class ModelScene:
     scale: SceneScales = field(default_factory=SceneScales)
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
+    animations: ModelAnimations = field(default_factory=ModelAnimations)
 
     @property
     def total_vertices(self):
