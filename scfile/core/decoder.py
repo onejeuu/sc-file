@@ -2,6 +2,7 @@ import pathlib
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, TypeVar
 
+from scfile import exceptions as exc
 from scfile.enums import FileMode
 from scfile.io.streams import StructFileIO
 from scfile.io.types import PathLike
@@ -25,6 +26,7 @@ class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options
     def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file
         self.path = pathlib.Path(self.file)
+        self.filesize = self.path.stat().st_size
 
         # Create base context and options
         self.ctx: Context = self._context()
@@ -61,6 +63,11 @@ class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options
         return content
 
     def validate(self) -> None:
+        if self.filesize <= len(self.signature or bytes()):
+            raise exc.FileIsEmpty(self.path)
+
         if self.signature:
-            if readed := self.f.read(len(self.signature)) != self.signature:
-                raise Exception(f"{readed} != {self.signature}")
+            readed = self.f.read(len(self.signature))
+
+            if readed != self.signature:
+                raise exc.FileSignatureInvalid(self.path, readed, self.signature)

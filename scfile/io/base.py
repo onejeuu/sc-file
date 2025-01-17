@@ -9,15 +9,16 @@ from scfile.enums import StructFormat as F
 class StructIOBase(io.IOBase):
     order = ByteOrder.LITTLE
 
+    def _validate_buffer(self, size: int):
+        pass
+
     def pack(self, fmt: str, *values: Any) -> bytes:
         return struct.pack(str(fmt), *values)
 
     def unpack(self, fmt: str) -> tuple[Any]:
         size = struct.calcsize(str(fmt))
+        self._validate_buffer(size)
         data = self.read(size)
-
-        if size != len(data):
-            raise Exception(f"Not enough bytes. {size} needed, {len(data)} readed.")
 
         return struct.unpack(fmt, data)
 
