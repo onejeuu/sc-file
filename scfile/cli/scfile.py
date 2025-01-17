@@ -17,13 +17,13 @@ from . import types
 from .excepthook import excepthook
 
 
+sys.excepthook = excepthook
+
 FilesType: TypeAlias = Sequence[types.PathType]
 FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
 
-sys.excepthook = excepthook
 
-
-@click.command(epilog=CLI.EPILOG)
+@click.command(name="scfile", epilog=CLI.EPILOG)
 @click.argument("PATHS", type=types.Files, nargs=-1)
 @click.option(
     "-O",
