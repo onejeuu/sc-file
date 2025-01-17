@@ -131,13 +131,20 @@ def filter_files(files: FilesType):
 
 def paths_to_files_map(paths: FilesType) -> FilesMap:
     files_map: FilesMap = defaultdict(list)
+    resolved_symlinks: set[types.PathType] = set()
 
     for path in paths:
         if path.is_dir():
-            files_map[path] += filter_files(list(path.rglob("**/*")))
+            if path.is_symlink():
+                resolved = path.resolve()
+                if resolved in resolved_symlinks:
+                    continue
+                resolved_symlinks.add(resolved)
+
+            files_map[path].extend(filter_files(list(path.rglob("**/*"))))
 
         elif path.is_file():
-            files_map[path.parent] += filter_files([path])
+            files_map[path.parent].extend(filter_files([path]))
 
     valid_files: FilesMap = {key: value for key, value in files_map.items() if value}
 
