@@ -13,8 +13,8 @@ class FileOptions(ABC):
 # ? Test Examples
 @dataclass
 class ModelOptions(FileOptions):
-    parse_skeleton: bool = True
-    parse_animations: bool = True
+    parse_skeleton: bool = False
+    parse_animations: bool = False
     calculate_tangents: bool = False
 
 

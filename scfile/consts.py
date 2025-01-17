@@ -4,6 +4,9 @@ from .enums import FileFormat
 SUPPORTED_FORMATS = {FileFormat.MCSA, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
 """Files formats (suffixes without dot) that can be converted."""
 
+SUPPORTED_SUFFIXES = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS))
+"""Files suffixes that can be converted."""
+
 
 class FileSignature:
     """File signature for formats (big-endian)."""
@@ -67,13 +70,13 @@ class McsaSize:
 class CLI:
     """Command line interface constants."""
 
-    FORMATS = EPILOG = f"Supported Formats: {', '.join(sorted(SUPPORTED_FORMATS)).upper()}."
-    VERSION = "4.0-dev"
+    FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
+    PAUSE_TEXT = "\nPress Enter to exit..."
 
 
 class OutputFormats:
     """Supported output formats for file data types."""
 
-    MODELS = {FileFormat.DAE, FileFormat.MS3D, FileFormat.MS3D_ASCII, FileFormat.OBJ}
+    MODELS = sorted({FileFormat.DAE, FileFormat.MS3D, FileFormat.OBJ, FileFormat.GLB})
     TEXTURES = {FileFormat.DDS}
     IMAGES = {FileFormat.PNG}

@@ -26,8 +26,8 @@ def auto(
     model_options: Optional[ModelOptions] = None,
     texture_options: Optional[TextureOptions] = None,
     image_options: Optional[ImageOptions] = None,
-    overwrite: bool = True,
     model_formats: Optional[ModelFormats] = None,
+    overwrite: bool = True,
 ):
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")

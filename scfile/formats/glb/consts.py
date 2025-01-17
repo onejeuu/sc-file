@@ -1,12 +1,10 @@
-from scfile.consts import CLI
-
 from .enums import PrimitiveMode
 
 
 VERSION = 2
 
 BASE_GLTF = {
-    "asset": {"version": "2.0", "generator": f"onejeuu@scfile v{CLI.VERSION}"},
+    "asset": {"version": "2.0", "generator": f"onejeuu@scfile"},
     "scene": 0,
     "scenes": [],
     "nodes": [],
