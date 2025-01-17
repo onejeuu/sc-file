@@ -1,10 +1,15 @@
-import pathlib
+from pathlib import Path
 from typing import Optional, Type
 
+from scfile.consts import SUPPORTED_SUFFIXES
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.decoder import Opener
 from scfile.core.types import Context, Options
 from scfile.io.types import PathLike
+
+
+def is_supported(source: PathLike) -> bool:
+    return Path(source).suffix in SUPPORTED_SUFFIXES
 
 
 def convert(
@@ -15,8 +20,8 @@ def convert(
     options: Optional[Options] = None,
     overwrite: bool = True,
 ):
-    src_path = pathlib.Path(source)
-    out_path = pathlib.Path(output or source)
+    src_path = Path(source)
+    out_path = Path(output or source)
 
     if not src_path.exists() or not src_path.is_file():
         raise Exception("Source path not exists")
@@ -34,12 +39,12 @@ def convert(
             out.save(path=output)
 
 
-def ensure_unique_path(path: pathlib.Path, suffix: str) -> pathlib.Path:
+def ensure_unique_path(path: Path, suffix: str) -> Path:
     filename = path.stem
     counter = 1
 
     while path.exists():
-        path = path.parent / pathlib.Path(f"{filename} ({counter}){suffix}")
+        path = path.parent / Path(f"{filename} ({counter}){suffix}")
         counter += 1
 
     return path
