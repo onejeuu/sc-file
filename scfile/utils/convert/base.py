@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional, Type
 
+from scfile import exceptions as exc
 from scfile.consts import SUPPORTED_SUFFIXES
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.decoder import Opener
@@ -24,7 +25,7 @@ def convert(
     out_path = Path(output or source)
 
     if not src_path.exists() or not src_path.is_file():
-        raise Exception("Source path not exists")
+        raise exc.FileNotFound(src_path)
 
     if not out_path.parent.exists():
         out_path.parent.mkdir(exist_ok=True, parents=True)

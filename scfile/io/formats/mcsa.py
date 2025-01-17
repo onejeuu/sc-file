@@ -3,6 +3,7 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
+from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.enums import StructFormat as F
 from scfile.io.streams import StructFileIO
@@ -22,7 +23,7 @@ class McsaFileIO(StructFileIO):
         count = self.readb(F.U32)
 
         if count > McsaModel.COUNT_LIMIT:
-            raise Exception(f"Count limit {count:,} > {McsaModel.COUNT_LIMIT:,}")
+            raise exc.McsaCountsLimit(self.path, count)
 
         return count
 

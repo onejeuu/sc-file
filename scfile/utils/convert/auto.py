@@ -1,6 +1,7 @@
 import pathlib
 from typing import Callable, Optional, Sequence, TypeAlias
 
+from scfile import exceptions as exc
 from scfile.core import ImageOptions, ModelOptions, TextureOptions
 from scfile.enums import FileFormat
 from scfile.io.types import PathLike
@@ -47,4 +48,4 @@ def auto(
             formats.mic_to_png(source, output, image_options, overwrite)
 
         case _:
-            raise Exception("File suffix not supported")
+            raise exc.FileSuffixUnsupported(src_path)

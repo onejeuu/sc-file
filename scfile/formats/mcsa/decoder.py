@@ -1,5 +1,6 @@
 from typing import Any
 
+from scfile import exceptions as exc
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core import FileDecoder, ModelContext, ModelOptions
 from scfile.enums import ByteOrder
@@ -57,13 +58,13 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         self.ctx.version = self.f.readb(F.F32)
 
         if self.ctx.version not in SUPPORTED_VERSIONS:
-            raise Exception(self.path, self.ctx.version)
+            raise exc.McsaUnsupportedVersion(self.path, self.ctx.version)
 
     def parse_flags(self):
         flags_count = VERSION_FLAGS.get(self.ctx.version)
 
         if not flags_count:
-            raise Exception(self.path, self.ctx.version)
+            raise exc.McsaUnsupportedVersion(self.path, self.ctx.version)
 
         for index in range(flags_count):
             self.ctx.flags[index] = self.f.readb(F.BOOL)
@@ -200,7 +201,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
                     self.skip_vertices(mesh, size=8)
 
             case _:
-                raise Exception(f"Unknown links count: {mesh.count.max_links}")
+                raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
         links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)

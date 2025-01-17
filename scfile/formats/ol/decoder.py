@@ -1,5 +1,6 @@
 import lz4.block
 
+from scfile import exceptions as exc
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, TextureContext, TextureOptions
 from scfile.enums import ByteOrder
@@ -36,7 +37,7 @@ class OlDecoder(FileDecoder[OlFileIO, TextureContext, TextureOptions]):
         self.ctx.fourcc = self.f.readfourcc()
 
         if self.ctx.fourcc not in SUPPORTED_FORMATS:
-            raise Exception(self.path, self.ctx.fourcc.decode(encoding="utf-8", errors="replace"))
+            raise exc.OlUnsupportedFourcc(self.path, self.ctx.fourcc)
 
         # ? change strange naming
         if self.ctx.fourcc == b"DXN_XY":
