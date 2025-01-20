@@ -14,7 +14,7 @@
 LittleEndian();
 
 
-// Data Types
+// Length Prefixed String
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
@@ -25,6 +25,9 @@ typedef struct {
 string ReadSTRING( String &str ) {
     return exists(str.data) ? str.data : "";
 }
+
+
+// Vectors
 
 typedef struct Vec2  { short u, v; };
 
@@ -42,9 +45,9 @@ typedef struct Polygons_int     { uint   a, b, c; };
 // Header Flags
 
 typedef ubyte flag;
-typedef struct Flags4 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; };
-typedef struct Flags5 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; flag BITANGENTS; };
-typedef struct Flags6 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; flag BITANGENTS; flag COLORS; };
+typedef struct Flags4 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS; };
+typedef struct Flags5 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS; };
+typedef struct Flags6 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS,  COLORS; };
 
 
 // Model Header
@@ -165,7 +168,6 @@ struct Meshes {
 
 
 // Model Skeleton
-
 
 struct Bone {
     String name <name="Name">;
