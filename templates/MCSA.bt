@@ -26,73 +26,25 @@ string ReadSTRING( String &str ) {
     return exists(str.data) ? str.data : "";
 }
 
-struct Vec2 {
-    short u, v;
-};
+typedef struct Vec2  { short u, v; };
 
-struct Vec3 {
-    short x, y, z;
-};
+typedef struct Vec3  { short x, y, z; };
+typedef struct Vec3f { float x, y, z; };
 
-struct Vec3f {
-    float x, y, z;
-};
+typedef struct Vec4  { short x, y, z, w; };
+typedef struct Vec4f { float x, y, z, w; };
+typedef struct Vec4b { byte  x, y, z, w; };
 
-struct Vec4 {
-    short x, y, z, w;
-};
-
-struct Vec4f {
-    float x, y, z, w;
-};
-
-struct Vec4b {
-    byte x, y, z, w;
-};
-
-struct Polygons_short {
-    ushort a, b, c;
-};
-
-struct Polygons_int {
-    uint a, b, c;
-};
+typedef struct Polygons_short   { ushort a, b, c; };
+typedef struct Polygons_int     { uint   a, b, c; };
 
 
 // Header Flags
 
-struct Flags7 {
-    ubyte SKELETON;
-    ubyte TEXTURE;
-    ubyte NORMALS;
-    ubyte BITANGENTS;
-};
-
-struct Flags8 {
-    ubyte SKELETON;
-    ubyte TEXTURE;
-    ubyte NORMALS;
-    ubyte TANGENTS;
-    ubyte BITANGENTS;
-};
-
-struct Flags10 {
-    ubyte SKELETON;
-    ubyte TEXTURE;
-    ubyte NORMALS;
-    ubyte TANGENTS;
-    ubyte BITANGENTS;
-    ubyte COLORS;
-};
-
-struct Flags11 {
-    ubyte SKELETON;
-    ubyte TEXTURE;
-    ubyte NORMALS;
-    ubyte TANGENTS;
-    ubyte BITANGENTS;
-    ubyte COLORS;
-};
+typedef ubyte flag;
+typedef struct Flags4 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; };
+typedef struct Flags5 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; flag BITANGENTS; };
+typedef struct Flags6 { flag SKELETON; flag TEXTURE; flag NORMALS; flag TANGENTS; flag BITANGENTS; flag COLORS; };
 
 
 // Model Header
@@ -104,46 +56,40 @@ struct Header {
 
     switch( version ) {
         case 7.0:
-            Flags7 flags <name="Flags", fgcolor=cAqua>; break;
+            Flags4 flags <name="Flags", fgcolor=cAqua>; break;
         case 8.0:
-            Flags8 flags <name="Flags", fgcolor=cAqua>; break;
+            Flags5 flags <name="Flags", fgcolor=cAqua>; break;
         case 10.0:
-            Flags10 flags <name="Flags", fgcolor=cAqua>; break;
         case 11.0:
-            Flags11 flags <name="Flags", fgcolor=cAqua>; break;
+            Flags6 flags <name="Flags", fgcolor=cAqua>; break;
         default:
             Warning( "ERROR: File version '%g' is unsupported.\n", version );
             Exit(-1);
     }
 
-    float scale_positions <name="Positions scale">;
+    float scale_positions <name="Scale">;
 
     if ( flags.TEXTURE )
-        float scale_texture <name="Texture scale">;
+        float scale_texture <name="UV Scale">;
 
     if ( version >= 10.0 )
         if ( flags.NORMALS )
-            float scale_normals <name="Normals scale">;
+            float scale_normals <name="Scale UNKNOWN">;
 } header <name="Header">;
 
 
 // Model Meshes
 
 struct BonesIndexes {
-    ubyte links <name="Links">;
-    ubyte count <name="Count">;
+    ubyte links <name="Links Count">;
+    ubyte count <name="Bones Count">;
     if ( count > 0 )
-        byte bones[count] <name="Index">;
+        byte bones[count] <name="Bone">;
 };
 
 struct Counts {
     uint vertices <name="Vertices", bgcolor=cLtGreen>;
     uint polygons <name="Polygons", bgcolor=cLtBlue>;
-};
-
-struct Locals {
-    Vec3f position <name="Position">;
-    Vec3f rotation <name="Rotation">;
 };
 
 struct LinksPacked {
@@ -161,21 +107,20 @@ struct Mesh {
     String material <name="Material">;
 
     if ( header.flags.SKELETON )
-        BonesIndexes bones <name="Bones", bgcolor=cWhite>;
+        BonesIndexes bones <name="Joints", bgcolor=cWhite>;
 
     Counts counts <name="Counts">;
 
     if ( header.flags.TEXTURE )
-        float scale_unknown <name="Unknown scale">;
+        float texture_filtering <name="Texture Filtering">;
 
-    if ( header.version >= 10.0 )
-        Vec3f position <name="Position", hidden=false>;
+    if ( header.version >= 10.0 ) {
+        Vec3f default_rotation <name="Default Rotation">;
+        Vec3f default_position <name="Default Position">;
+    }
 
-        if ( header.version == 10.0 )
-            Vec3f position <name="Rotation", hidden=false>;
-
-        if ( header.version >= 11.0 )
-            Vec4f position <name="Rotation", hidden=false>;
+    if ( header.version >= 11.0 )
+        float default_scale <name="Default Scale">;
 
     Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
 
