@@ -10,7 +10,7 @@ class SceneScales:
     position: float = 1.0
     texture: float = 1.0
     normals: float = 1.0
-    weight: float = 1.0
+    filtering: float = 0.1
 
 
 @dataclass

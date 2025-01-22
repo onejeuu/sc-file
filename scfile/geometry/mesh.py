@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from .vectors import Polygon
+from .vectors import Polygon, Vector3
 from .vertex import Vertex
 
 
@@ -13,11 +13,19 @@ class MeshCounts:
 
 
 @dataclass
+class MeshDefault:
+    rotation: Vector3 = field(default_factory=Vector3)
+    position: Vector3 = field(default_factory=Vector3)
+    scale: float = 1.0
+
+
+@dataclass
 class ModelMesh:
     name: str = "name"
     material: str = "material"
 
     count: MeshCounts = field(default_factory=MeshCounts)
+    default: MeshDefault = field(default_factory=MeshDefault)
 
     vertices: list[Vertex] = field(default_factory=list)
 
