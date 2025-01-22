@@ -1,10 +1,10 @@
 from .enums import FileFormat
 
 
-SUPPORTED_FORMATS = {FileFormat.MCSA, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
+SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
 """Files formats (suffixes without dot) that can be converted."""
 
-SUPPORTED_SUFFIXES = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS))
+SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS))
 """Files suffixes that can be converted."""
 
 
@@ -78,5 +78,5 @@ class OutputFormats:
     """Supported output formats for file data types."""
 
     MODELS = sorted({FileFormat.DAE, FileFormat.MS3D, FileFormat.OBJ, FileFormat.GLB})
-    TEXTURES = {FileFormat.DDS}
-    IMAGES = {FileFormat.PNG}
+    TEXTURES = sorted({FileFormat.DDS})
+    IMAGES = sorted({FileFormat.PNG})

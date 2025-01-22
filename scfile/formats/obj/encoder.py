@@ -1,36 +1,37 @@
-from scfile.core import FileEncoder, ModelContext, ModelOptions
+from scfile.core import FileEncoder
+from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.geometry.mesh import ModelMesh
 from scfile.geometry.vectors import Polygon
 
 
-class ObjEncoder(FileEncoder[ModelContext, ModelOptions]):
+class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
     format = FileFormat.OBJ
 
     _options = ModelOptions
 
     def prepare(self):
-        self.ctx.scene.ensure_unique_names()
-        self.ctx.scene.convert_polygons_to_global(start_index=1)
+        self.data.scene.ensure_unique_names()
+        self.data.scene.convert_polygons_to_global(start_index=1)
 
     def serialize(self):
         self.add_meshes()
 
     def add_meshes(self):
-        for mesh in self.ctx.meshes:
-            self.b.writeutf8(f"o {mesh.name}\n")
-            self.b.writeutf8(f"usemtl {mesh.material}\n")
+        for mesh in self.data.meshes:
+            self.writeutf8(f"o {mesh.name}\n")
+            self.writeutf8(f"usemtl {mesh.material}\n")
 
             self.add_geometric_vertices(mesh)
 
-            if self.ctx.flags[Flag.TEXTURE]:
+            if self.data.flags[Flag.TEXTURE]:
                 self.add_texture_coordinates(mesh)
 
-            if self.ctx.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS]:
                 self.add_vertex_normals(mesh)
 
-            self.b.writeutf8(f"g {mesh.name}\n")
+            self.writeutf8(f"g {mesh.name}\n")
             self.add_polygonal_faces(mesh)
 
     def add_geometric_vertices(self, mesh: ModelMesh):
@@ -46,20 +47,20 @@ class ObjEncoder(FileEncoder[ModelContext, ModelOptions]):
         self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.global_polygons])
 
     def _write_vertex_data(self, data: list[str]):
-        self.b.writeutf8("\n".join(data))
-        self.b.write(b"\n\n")
+        self.writeutf8("\n".join(data))
+        self.write(b"\n\n")
 
     def _polygon_to_faces(self, polygon: Polygon):
         a, b, c = polygon.a, polygon.b, polygon.c
 
         # TODO: find fastest switch case (for example bits or str mask)
-        if self.ctx.flags[Flag.TEXTURE] and self.ctx.flags[Flag.NORMALS]:
+        if self.data.flags[Flag.TEXTURE] and self.data.flags[Flag.NORMALS]:
             return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
 
-        if self.ctx.flags[Flag.TEXTURE]:
+        if self.data.flags[Flag.TEXTURE]:
             return f"{a}/{a} {b}/{b} {c}/{c}"
 
-        if self.ctx.flags[Flag.NORMALS]:
+        if self.data.flags[Flag.NORMALS]:
             return f"{a}//{a} {b}//{b} {c}//{c}"
 
         return f"{a} {b} {c}"

@@ -1,12 +1,12 @@
-from .context import FileContext, ImageContext, ModelContext, TextureContext
+from .content import FileContent, ImageContent, ModelContent, TextureContent
 from .options import FileOptions, ImageOptions, ModelOptions, TextureOptions
 
 
 __all__ = (
-    "FileContext",
-    "ImageContext",
-    "ModelContext",
-    "TextureContext",
+    "FileContent",
+    "ImageContent",
+    "ModelContent",
+    "TextureContent",
     "FileOptions",
     "ImageOptions",
     "ModelOptions",

@@ -2,8 +2,9 @@ import lz4.block
 
 from scfile import exceptions as exc
 from scfile.consts import FileSignature
-from scfile.core import FileDecoder, TextureContext, TextureOptions
-from scfile.enums import ByteOrder
+from scfile.core import FileDecoder
+from scfile.core.context import TextureContent, TextureOptions
+from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.io.formats.ol import OlFileIO
@@ -11,12 +12,12 @@ from scfile.io.formats.ol import OlFileIO
 from .formats import SUPPORTED_FORMATS
 
 
-class OlDecoder(FileDecoder[OlFileIO, TextureContext, TextureOptions]):
+class OlDecoder(FileDecoder[TextureContent, TextureOptions], OlFileIO):
+    format = FileFormat.OL
     order = ByteOrder.BIG
     signature = FileSignature.OL
 
-    _opener = OlFileIO
-    _context = TextureContext
+    _content = TextureContent
     _options = TextureOptions
 
     def to_dds(self):
@@ -29,33 +30,33 @@ class OlDecoder(FileDecoder[OlFileIO, TextureContext, TextureOptions]):
         self.parse_image()
 
     def parse_header(self):
-        self.ctx.width = self.f.readb(F.U32)
-        self.ctx.height = self.f.readb(F.U32)
-        self.ctx.mipmap_count = self.f.readb(F.U32)
+        self.data.width = self.readb(F.U32)
+        self.data.height = self.readb(F.U32)
+        self.data.mipmap_count = self.readb(F.U32)
 
     def parse_fourcc(self):
-        self.ctx.fourcc = self.f.readfourcc()
+        self.data.fourcc = self.readfourcc()
 
-        if self.ctx.fourcc not in SUPPORTED_FORMATS:
-            raise exc.OlUnsupportedFourcc(self.path, self.ctx.fourcc)
+        if self.data.fourcc not in SUPPORTED_FORMATS:
+            raise exc.OlUnsupportedFourcc(self.path, self.data.fourcc)
 
         # ? change strange naming
-        if self.ctx.fourcc == b"DXN_XY":
-            self.ctx.fourcc = b"ATI2"
+        if self.data.fourcc == b"DXN_XY":
+            self.data.fourcc = b"ATI2"
 
     def parse_sizes(self):
-        self.ctx.uncompressed = self.f.readsizes(self.ctx.mipmap_count)
-        self.ctx.compressed = self.f.readsizes(self.ctx.mipmap_count)
+        self.data.uncompressed = self.readsizes(self.data.mipmap_count)
+        self.data.compressed = self.readsizes(self.data.mipmap_count)
 
     def decompress_mipmaps(self):
-        for mipmap in range(self.ctx.mipmap_count):
-            self.ctx.mipmaps.append(
+        for mipmap in range(self.data.mipmap_count):
+            self.data.mipmaps.append(
                 lz4.block.decompress(
-                    self.f.read(self.ctx.compressed[mipmap]),
-                    self.ctx.uncompressed[mipmap],
+                    self.read(self.data.compressed[mipmap]),
+                    self.data.uncompressed[mipmap],
                 )
             )
 
     def parse_image(self):
-        self.texture_id = self.f.reads()
+        self.texture_id = self.reads()
         self.decompress_mipmaps()

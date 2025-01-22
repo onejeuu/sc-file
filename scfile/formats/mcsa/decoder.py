@@ -2,8 +2,9 @@ from typing import Any
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
-from scfile.core import FileDecoder, ModelContext, ModelOptions
-from scfile.enums import ByteOrder
+from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.decoder import FileDecoder
+from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
@@ -18,12 +19,12 @@ from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
-class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
+class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
+    format = FileFormat.MCSA
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 
-    _opener = McsaFileIO
-    _context = ModelContext
+    _content = ModelContent
     _options = ModelOptions
 
     def to_dae(self):
@@ -42,7 +43,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         self.parse_header()
         self.parse_meshes()
 
-        if self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton:
+        if self.data.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
 
             # TODO: first validate there is data remaining
@@ -55,31 +56,31 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         self.parse_scales()
 
     def parse_version(self):
-        self.ctx.version = self.f.readb(F.F32)
+        self.data.version = self.readb(F.F32)
 
-        if self.ctx.version not in SUPPORTED_VERSIONS:
-            raise exc.McsaUnsupportedVersion(self.path, self.ctx.version)
+        if self.data.version not in SUPPORTED_VERSIONS:
+            raise exc.McsaUnsupportedVersion(self.path, self.data.version)
 
     def parse_flags(self):
-        flags_count = VERSION_FLAGS.get(self.ctx.version)
+        flags_count = VERSION_FLAGS.get(self.data.version)
 
         if not flags_count:
-            raise exc.McsaUnsupportedVersion(self.path, self.ctx.version)
+            raise exc.McsaUnsupportedVersion(self.path, self.data.version)
 
         for index in range(flags_count):
-            self.ctx.flags[index] = self.f.readb(F.BOOL)
+            self.data.flags[index] = self.readb(F.BOOL)
 
     def parse_scales(self):
-        self.ctx.scene.scale.position = self.f.readb(F.F32)
+        self.data.scene.scale.position = self.readb(F.F32)
 
-        if self.ctx.flags[Flag.TEXTURE]:
-            self.ctx.scene.scale.texture = self.f.readb(F.F32)
+        if self.data.flags[Flag.TEXTURE]:
+            self.data.scene.scale.texture = self.readb(F.F32)
 
-        if self.ctx.flags[Flag.NORMALS] and self.ctx.version >= 10.0:
-            self.ctx.scene.scale.normals = self.f.readb(F.F32)
+        if self.data.flags[Flag.NORMALS] and self.data.version >= 10.0:
+            self.data.scene.scale.normals = self.readb(F.F32)
 
     def parse_meshes(self):
-        meshes_count = self.f.readb(F.U32)
+        meshes_count = self.readb(F.U32)
 
         for _ in range(meshes_count):
             self.parse_mesh()
@@ -88,77 +89,77 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         mesh = ModelMesh()
 
         # Name & Material
-        mesh.name = self.f.readstring()
-        mesh.material = self.f.readstring()
+        mesh.name = self.readstring()
+        mesh.material = self.readstring()
 
         # Skeleton bone indexes
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.data.flags[Flag.SKELETON]:
             self.parse_links_count(mesh)
             self.load_bone_indexes(mesh)
 
         # Geometry counts
-        mesh.count.vertices = self.f.readcount()
-        mesh.count.polygons = self.f.readcount()
+        mesh.count.vertices = self.readcount()
+        mesh.count.polygons = self.readcount()
         mesh.allocate_geometry()
 
         # ! unknown, unconfirmed
-        if self.ctx.flags[Flag.TEXTURE]:
-            self.ctx.scene.scale.weight = self.f.readb(F.F32)
+        if self.data.flags[Flag.TEXTURE]:
+            self.data.scene.scale.weight = self.readb(F.F32)
 
         # ! unknown, unconfirmed
-        if self.ctx.version >= 10.0:
+        if self.data.version >= 10.0:
             self.skip_locals()
 
         # Geometric vertices
         self.parse_position(mesh)
 
         # Texture coordinates
-        if self.ctx.flags[Flag.TEXTURE]:
+        if self.data.flags[Flag.TEXTURE]:
             self.parse_texture(mesh)
 
         # ! unconfirmed
-        if self.ctx.flags[Flag.BITANGENTS]:
+        if self.data.flags[Flag.BITANGENTS]:
             self.skip_vertices(mesh, size=4)
 
         # Vertex normals
-        if self.ctx.flags[Flag.NORMALS]:
+        if self.data.flags[Flag.NORMALS]:
             self.parse_normals(mesh)
 
         # ! unconfirmed
-        if self.ctx.flags[Flag.TANGENTS]:
+        if self.data.flags[Flag.TANGENTS]:
             self.skip_vertices(mesh, size=4)
 
         # Vertex links
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.data.flags[Flag.SKELETON]:
             self.parse_links(mesh)
 
         # Vertex colors
-        if self.ctx.flags[Flag.COLORS]:
+        if self.data.flags[Flag.COLORS]:
             self.skip_colors(mesh)
 
         # Polygon faces
         self.parse_polygons(mesh)
 
-        self.ctx.meshes.append(mesh)
+        self.data.meshes.append(mesh)
 
     def parse_links_count(self, mesh: ModelMesh):
-        mesh.count.max_links = self.f.readb(F.U8)
-        mesh.count.bones = self.f.readb(F.U8)
+        mesh.count.max_links = self.readb(F.U8)
+        mesh.count.bones = self.readb(F.U8)
 
     def load_bone_indexes(self, mesh: ModelMesh):
         for index in range(mesh.count.bones):
-            mesh.bones[index] = self.f.readb(F.U8)
+            mesh.bones[index] = self.readb(F.U8)
 
     def skip_locals(self):
-        self.f.read(24)
+        self.read(24)
 
-        if self.ctx.version >= 11.0:
-            self.f.read(4)
+        if self.data.version >= 11.0:
+            self.read(4)
 
     def parse_position(self, mesh: ModelMesh):
         count = mesh.count.vertices
-        scale = self.ctx.scene.scale.position
-        xyzw = self.f.readvertex(F.I16, Factor.I16 + 1, McsaSize.POSITION, count, scale)
+        scale = self.data.scene.scale.position
+        xyzw = self.readvertex(F.I16, Factor.I16 + 1, McsaSize.POSITION, count, scale)
 
         for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
             vertex.position.x = x
@@ -167,8 +168,8 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
 
     def parse_texture(self, mesh: ModelMesh):
         count = mesh.count.vertices
-        scale = self.ctx.scene.scale.texture
-        uv = self.f.readvertex(F.I16, Factor.I16, McsaSize.TEXTURE, count, scale)
+        scale = self.data.scene.scale.texture
+        uv = self.readvertex(F.I16, Factor.I16, McsaSize.TEXTURE, count, scale)
 
         for vertex, (u, v) in zip(mesh.vertices, uv):
             vertex.texture.u = u
@@ -176,7 +177,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
 
     def parse_normals(self, mesh: ModelMesh):
         count = mesh.count.vertices
-        xyzw = self.f.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
+        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
 
         for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
             vertex.normals.x = x
@@ -204,11 +205,11 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
                 raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
-        links = self.f.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        links = self.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
         self.load_links(mesh, links)
 
     def parse_plain_links(self, mesh: ModelMesh):
-        links = self.f.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        links = self.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
         self.load_links(mesh, links)
 
     def load_links(self, mesh: ModelMesh, links: Any):
@@ -222,7 +223,7 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         self.skip_vertices(mesh, size=4)
 
     def parse_polygons(self, mesh: ModelMesh):
-        abc = self.f.readpolygons(mesh.count.polygons)
+        abc = self.readpolygons(mesh.count.polygons)
 
         for polygon, (a, b, c) in zip(mesh.polygons, abc):
             polygon.a = a
@@ -230,10 +231,10 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
             polygon.c = c
 
     def skip_vertices(self, mesh: ModelMesh, size: int):
-        self.f.read(mesh.count.vertices * size)
+        self.read(mesh.count.vertices * size)
 
     def parse_skeleton(self):
-        bones_count = self.f.readb(F.U8)
+        bones_count = self.readb(F.U8)
 
         for index in range(bones_count):
             self.parse_bone(index)
@@ -242,32 +243,32 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
         bone = SkeletonBone()
 
         bone.id = index
-        bone.name = self.f.readstring()
+        bone.name = self.readstring()
 
-        parent_id = self.f.readb(F.U8)
+        parent_id = self.readb(F.U8)
         bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
 
         self.parse_bone_position(bone)
         self.parse_bone_rotation(bone)
 
-        self.ctx.skeleton.bones.append(bone)
+        self.data.skeleton.bones.append(bone)
 
     def parse_bone_position(self, bone: SkeletonBone):
-        x, y, z = self.f.readbonedata()
+        x, y, z = self.readbonedata()
 
         bone.position.x = x
         bone.position.y = y
         bone.position.z = z
 
     def parse_bone_rotation(self, bone: SkeletonBone):
-        x, y, z = self.f.readbonedata()
+        x, y, z = self.readbonedata()
 
         bone.rotation.x = x
         bone.rotation.y = y
         bone.rotation.z = z
 
     def parse_animations(self):
-        animations_count = self.f.readb(F.U32)
+        animations_count = self.readb(F.U32)
 
         for _ in range(animations_count):
             self.parse_animation()
@@ -275,16 +276,16 @@ class McsaDecoder(FileDecoder[McsaFileIO, ModelContext, ModelOptions]):
     def parse_animation(self):
         anim = AnimationClip()
 
-        anim.name = self.f.readstring()
-        anim.frames_count = self.f.readb(F.U32)
-        anim.frame_rate = self.f.readb(F.F32)
+        anim.name = self.readstring()
+        anim.frames_count = self.readb(F.U32)
+        anim.frame_rate = self.readb(F.F32)
 
         self.parse_animation_frames(anim)
 
-        self.ctx.scene.animations.anims.append(anim)
+        self.data.scene.animations.anims.append(anim)
 
     def parse_animation_frames(self, anim: AnimationClip):
-        frames = self.f.readanimframes(anim.frames_count * len(self.ctx.skeleton.bones))
+        frames = self.readanimframes(anim.frames_count * len(self.data.skeleton.bones))
 
         for (tx, ty, tz), (rx, ry, rz, rw) in frames:
             frame = AnimationFrame()

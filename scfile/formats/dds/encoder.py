@@ -1,5 +1,6 @@
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder, TextureContext, TextureOptions
+from scfile.core import FileEncoder
+from scfile.core.context import TextureContent, TextureOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 
@@ -7,29 +8,29 @@ from .header import DDS
 from .mask import BGRA8, RGBA8
 
 
-class DdsEncoder(FileEncoder[TextureContext, TextureOptions]):
+class DdsEncoder(FileEncoder[TextureContent, TextureOptions]):
     format = FileFormat.DDS
     signature = FileSignature.DDS
 
     _options = TextureOptions
 
     def serialize(self):
-        self.b.writeb(F.U32, DDS.HEADER.SIZE)
-        self.b.writeb(F.U32, self.flags)
-        self.b.writeb(F.U32, self.ctx.height)
-        self.b.writeb(F.U32, self.ctx.width)
-        self.b.writeb(F.U32, self.pitch_or_linear_size)
-        self.b.writenull(size=4)  # Depth
-        self.b.writeb(F.U32, self.ctx.mipmap_count)  # MipMapsCount
-        self.b.writenull(size=4 * 11)  # Reserved
+        self.writeb(F.U32, DDS.HEADER.SIZE)
+        self.writeb(F.U32, self.flags)
+        self.writeb(F.U32, self.data.height)
+        self.writeb(F.U32, self.data.width)
+        self.writeb(F.U32, self.pitch_or_linear_size)
+        self.writenull(size=4)  # Depth
+        self.writeb(F.U32, self.data.mipmap_count)  # MipMapsCount
+        self.writenull(size=4 * 11)  # Reserved
 
         self.add_pixelformat()
         self.add_caps()
 
-        self.b.write(self.ctx.image)
+        self.write(self.data.image)
 
     def add_pixelformat(self):
-        self.b.writeb(F.U32, DDS.PF.SIZE)
+        self.writeb(F.U32, DDS.PF.SIZE)
 
         if self.is_compressed:
             self.add_pf_fourcc()
@@ -38,24 +39,24 @@ class DdsEncoder(FileEncoder[TextureContext, TextureOptions]):
             self.add_pf_rgb()
 
     def add_pf_fourcc(self):
-        self.b.writeb(F.U32, DDS.PF.FLAG.FOURCC)
-        self.b.write(self.ctx.fourcc)  # FourCC
-        self.b.writenull(size=4 * 5)  # BitCount & BitMasks
+        self.writeb(F.U32, DDS.PF.FLAG.FOURCC)
+        self.write(self.data.fourcc)  # FourCC
+        self.writenull(size=4 * 5)  # BitCount & BitMasks
 
     def add_pf_rgb(self):
-        self.b.writeb(F.U32, DDS.PF.RGB)
-        self.b.writenull(size=4)  # FourCC
-        self.b.writeb(F.U32, DDS.PF.BIT_COUNT)  # BitCount
-        self.b.writeb(F.U32 * 4, BGRA8 if self.ctx.fourcc == b"BGRA8" else RGBA8)  # BitMask
+        self.writeb(F.U32, DDS.PF.RGB)
+        self.writenull(size=4)  # FourCC
+        self.writeb(F.U32, DDS.PF.BIT_COUNT)  # BitCount
+        self.writeb(F.U32 * 4, BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8)  # BitMask
 
     def add_caps(self):
-        self.b.writeb(F.U32, self.caps)  # Caps1
-        self.b.writeb(F.U32, self.cubemap)  # Caps2
-        self.b.writenull(size=4 * 3)  # Reserved
+        self.writeb(F.U32, self.caps)  # Caps1
+        self.writeb(F.U32, self.cubemap)  # Caps2
+        self.writenull(size=4 * 3)  # Reserved
 
     @property
     def is_compressed(self) -> bool:
-        return self.ctx.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI2")
+        return self.data.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI2")
 
     @property
     def flags(self) -> int:
@@ -66,23 +67,23 @@ class DdsEncoder(FileEncoder[TextureContext, TextureOptions]):
     @property
     def pitch(self) -> int:
         bytes_per_pixel = 4
-        aligned_width = (self.ctx.width * bytes_per_pixel + 3) & ~3
+        aligned_width = (self.data.width * bytes_per_pixel + 3) & ~3
         return aligned_width
 
     @property
     def pitch_or_linear_size(self) -> int:
         if self.is_compressed:
-            return self.ctx.linear_size
+            return self.data.linear_size
         return self.pitch
 
     @property
     def caps(self):
-        if self.ctx.is_hdri:
+        if self.data.is_hdri:
             return DDS.CAPS | DDS.CUBEMAP
         return DDS.CAPS
 
     @property
     def cubemap(self) -> int:
-        if self.ctx.is_hdri:
+        if self.data.is_hdri:
             return DDS.CUBEMAPS
         return 0

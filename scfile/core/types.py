@@ -1,7 +1,7 @@
 from typing import TypeVar
 
-from .meta import FileContext, FileOptions
+from .context import FileContent, FileOptions
 
 
-Context = TypeVar("Context", bound=FileContext)
+Content = TypeVar("Content", bound=FileContent)
 Options = TypeVar("Options", bound=FileOptions)

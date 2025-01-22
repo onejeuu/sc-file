@@ -14,6 +14,10 @@ class StructFileIO(io.FileIO, StructIO):
     def path(self) -> Path:
         return Path(str(self.name))
 
+    @property
+    def filesize(self) -> int:
+        return self.path.stat().st_size
+
     def _validate_buffer(self, size: int):
         current_pos = self.tell()
         self.seek(0, io.SEEK_END)

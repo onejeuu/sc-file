@@ -2,9 +2,8 @@ from functools import wraps
 from typing import Callable, Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
-from scfile.core.decoder import Opener
-from scfile.core.meta import ImageOptions, ModelOptions, TextureOptions
-from scfile.core.types import Context, Options
+from scfile.core.context import ImageOptions, ModelOptions, TextureOptions
+from scfile.core.types import Content, Options
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
@@ -20,8 +19,8 @@ from .base import convert
 
 
 def converter(
-    decoder: Type[FileDecoder[Opener, Context, Options]],
-    encoder: Type[FileEncoder[Context, Options]],
+    decoder: Type[FileDecoder[Content, Options]],
+    encoder: Type[FileEncoder[Content, Options]],
 ) -> Callable:
     def decorator(func: Callable) -> Callable:
         @wraps(func)

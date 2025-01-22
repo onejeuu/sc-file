@@ -7,7 +7,8 @@ from typing import Any, Sized
 import numpy as np
 
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder, ModelContext, ModelOptions
+from scfile.core import FileEncoder
+from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
@@ -18,15 +19,15 @@ from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION
 from .enums import BufferTarget, ComponentType
 
 
-class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
+class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     format = FileFormat.GLB
 
     _options = ModelOptions
 
     def prepare(self):
-        self.ctx.scene.ensure_unique_names()
-        self.ctx.scene.skeleton.convert_to_local()
-        self.ctx.scene.skeleton.build_hierarchy()
+        self.data.scene.ensure_unique_names()
+        self.data.scene.skeleton.convert_to_local()
+        self.data.scene.skeleton.build_hierarchy()
 
     def serialize(self):
         self.add_header()
@@ -35,13 +36,13 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
         self.update_total_size()
 
     def add_header(self):
-        self.buffer.write(FileSignature.GLTF)
-        self.buffer.write(struct.pack("<I", VERSION))
-        self.buffer.write(struct.pack("<I", 0))  # Total size placeholder
+        self.write(FileSignature.GLTF)
+        self.write(struct.pack("<I", VERSION))
+        self.write(struct.pack("<I", 0))  # Total size placeholder
 
     def update_total_size(self):
-        self.buffer.seek(8)
-        self.buffer.write(struct.pack("<I", len(self.buffer.getvalue())))
+        self.seek(8)
+        self.write(struct.pack("<I", len(self.getvalue())))
 
     # TODO: update fmt and test
     def create_vertex_array(self, vertices: list[Vertex], attribute: Any, count: int, data_type: F = F.F32):
@@ -57,9 +58,9 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
 
         gltf = json.dumps(self.gltf).encode()
 
-        self.buffer.write(struct.pack("<I", len(gltf)))
-        self.buffer.write(b"JSON")
-        self.buffer.write(gltf)
+        self.write(struct.pack("<I", len(gltf)))
+        self.write(b"JSON")
+        self.write(gltf)
 
     def add_bones(self):
         from scipy.spatial.transform import Rotation as R
@@ -67,8 +68,8 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
         # Root bones indexes
         self.roots_idx: list[int] = []
 
-        if self.ctx.flags[Flag.SKELETON]:
-            for bone in self.ctx.skeleton.bones:
+        if self.data.flags[Flag.SKELETON]:
+            for bone in self.data.skeleton.bones:
                 if bone.is_root:
                     self.roots_idx.append(self.node_offset)
 
@@ -91,7 +92,7 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
         # Mesh indexes
         self.mesh_idx: list[int] = []
 
-        for index, mesh in enumerate(self.ctx.meshes):
+        for index, mesh in enumerate(self.data.meshes):
             self.mesh_idx.append(self.node_offset)
             self.node_offset += 1
 
@@ -102,17 +103,17 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
             self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
             # UV Texture
-            if self.ctx.flags[Flag.TEXTURE]:
+            if self.data.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
                 self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4, boundaries=True)
 
             # XYZ Normals
-            if self.ctx.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
                 self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
 
             # Bone Links
-            if self.ctx.flags[Flag.SKELETON]:
+            if self.data.flags[Flag.SKELETON]:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
                 self.create_attribute(
@@ -134,7 +135,7 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
                 # Bind Matrix
                 self.add_skin()
                 self.create_attribute(
-                    self.ctx.skeleton.bones,
+                    self.data.skeleton.bones,
                     "MAT4",
                     component_type=ComponentType.FLOAT,
                     bytes_per_item=4 * 4 * 4,
@@ -154,7 +155,7 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
             meshnode = {"name": mesh.name, "primitives": [primitive]}
 
             node = {"name": mesh.name, "mesh": index}
-            if self.ctx.flags[Flag.SKELETON]:
+            if self.data.flags[Flag.SKELETON]:
                 node["skin"] = 0
 
             # Add to GLTF
@@ -166,12 +167,12 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
             {
                 "name": "Armature",
                 "inverseBindMatrices": len(self.gltf["accessors"]),
-                "joints": list(range(len(self.ctx.skeleton.bones))),
+                "joints": list(range(len(self.data.skeleton.bones))),
             }
         ]
 
     def add_armature(self):
-        if self.ctx.flags[Flag.SKELETON]:
+        if self.data.flags[Flag.SKELETON]:
             node = {"name": "Armature", "children": [*self.roots_idx, *self.mesh_idx]}
             self.gltf["nodes"].append(node)
 
@@ -242,30 +243,30 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
 
     def add_binary_chunk(self):
         # Size of BIN chunk placeholder
-        chunk_start = self.buffer.tell()
-        self.buffer.write(struct.pack("<I", 0))
-        self.buffer.write(b"BIN\0")
+        chunk_start = self.tell()
+        self.write(struct.pack("<I", 0))
+        self.write(b"BIN\0")
 
         # Mesh data arrays
-        start = self.buffer.tell()
+        start = self.tell()
 
-        for mesh in self.ctx.meshes:
+        for mesh in self.data.meshes:
             # XYZ Position
             array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
-            self.buffer.write(array)
+            self.write(array)
 
             # UV Texture
-            if self.ctx.flags[Flag.TEXTURE]:
+            if self.data.flags[Flag.TEXTURE]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
-                self.buffer.write(array)
+                self.write(array)
 
             # XYZ Normals
-            if self.ctx.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS]:
                 array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
-                self.buffer.write(array)
+                self.write(array)
 
             # Bone Links
-            if self.ctx.flags[Flag.SKELETON]:
+            if self.data.flags[Flag.SKELETON]:
                 # Joint Indices
                 array = self.create_vertex_array(
                     mesh.vertices,
@@ -273,7 +274,7 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
                     count=4,
                     data_type=F.U8,
                 )
-                self.buffer.write(array)
+                self.write(array)
 
                 # Joint Weights
                 array = self.create_vertex_array(
@@ -282,24 +283,24 @@ class GlbEncoder(FileEncoder[ModelContext, ModelOptions]):
                     count=4,
                     data_type=F.F32,
                 )
-                self.buffer.write(array)
+                self.write(array)
 
                 # Bind Matrix
-                fmt = f"{ByteOrder.LITTLE}{len(self.ctx.skeleton.bones) * 16}{F.F32}"
+                fmt = f"{ByteOrder.LITTLE}{len(self.data.skeleton.bones) * 16}{F.F32}"
 
                 # ! TODO: get right inverse bind poses
-                data = np.array(self.ctx.skeleton.calculate_inverse_bind_matrices())
+                data = np.array(self.data.skeleton.calculate_inverse_bind_matrices())
 
                 array = struct.pack(fmt, *data.flatten().tolist())
-                self.buffer.write(array)
+                self.write(array)
 
             # ABC Polygons
             array = self.create_polygon_array(mesh.polygons)
-            self.buffer.write(array)
+            self.write(array)
 
         # Write size of BIN chunk
-        end = self.buffer.tell()
+        end = self.tell()
         size = end - start
 
-        self.buffer.seek(chunk_start)
-        self.buffer.write(struct.pack("<I", size))
+        self.seek(chunk_start)
+        self.write(struct.pack("<I", size))

@@ -3,7 +3,8 @@ from typing import Optional
 
 import numpy as np
 
-from scfile.core import FileEncoder, ModelContext, ModelOptions
+from scfile.core import FileEncoder
+from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.geometry.mesh import ModelMesh
@@ -18,19 +19,19 @@ VERSION = "1.5.0"
 UP_AXIS = "Y_UP"
 
 
-class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
+class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
     format = FileFormat.DAE
 
     _options = ModelOptions
 
     @property
-    def skeleton_present(self) -> bool:
-        return self.ctx.flags[Flag.SKELETON] and self.options.parse_skeleton
+    def skeleton_presented(self) -> bool:
+        return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
 
     def prepare(self):
-        self.ctx.scene.ensure_unique_names()
-        self.ctx.scene.skeleton.convert_to_local()
-        self.ctx.scene.skeleton.build_hierarchy()
+        self.data.scene.ensure_unique_names()
+        self.data.scene.skeleton.convert_to_local()
+        self.data.scene.skeleton.build_hierarchy()
 
     def serialize(self):
         root = self.create_root()
@@ -38,7 +39,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         self.add_asset(root)
         self.add_geometries(root)
 
-        if self.skeleton_present:
+        if self.skeleton_presented:
             self.add_controllers(root)
 
             if self.options.parse_animations:
@@ -48,7 +49,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         self.render_xml(root)
 
     def add_declaration(self):
-        self.buffer.write(DECLARATION)
+        self.write(DECLARATION)
 
     def create_root(self) -> etree.Element:
         return etree.Element("COLLADA", xmlns=XMLNS, version=VERSION)
@@ -99,13 +100,13 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         self.add_source_common(pos_source, mesh.name, "positions", len(pos_data), ["X", "Y", "Z"], "float")
 
         # Normals XUZ
-        if self.ctx.flags[Flag.NORMALS]:
+        if self.data.flags[Flag.NORMALS]:
             norm_data = np.array([list(v.normals) for v in mesh.vertices])
             norm_source = self.create_source(mesh_node, mesh.name, "normals", norm_data)
             self.add_source_common(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
 
         # Texture UV
-        if self.ctx.flags[Flag.TEXTURE]:
+        if self.data.flags[Flag.TEXTURE]:
             tex_data = np.array([(v.texture.u, -v.texture.v) for v in mesh.vertices])
             tex_source = self.create_source(mesh_node, mesh.name, "texture", tex_data)
             self.add_source_common(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
@@ -119,10 +120,10 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         # Inputs
         etree.SubElement(triangles, "input", semantic="VERTEX", source=f"#{mesh.name}-vertices", offset="0")
 
-        if self.ctx.flags[Flag.TEXTURE]:
+        if self.data.flags[Flag.TEXTURE]:
             etree.SubElement(triangles, "input", semantic="TEXCOORD", source=f"#{mesh.name}-texture", offset="0")
 
-        if self.ctx.flags[Flag.NORMALS]:
+        if self.data.flags[Flag.NORMALS]:
             etree.SubElement(triangles, "input", semantic="NORMAL", source=f"#{mesh.name}-normals", offset="0")
 
         # Polygons ABC
@@ -133,7 +134,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
     def add_geometries(self, root: etree.Element):
         library = etree.SubElement(root, "library_geometries")
 
-        for mesh in self.ctx.meshes:
+        for mesh in self.data.meshes:
             geom = etree.SubElement(library, "geometry", id=mesh.name, name=mesh.name)
             mesh_node = etree.SubElement(geom, "mesh")
 
@@ -143,7 +144,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
     def add_controllers(self, root: etree.Element):
         library = etree.SubElement(root, "library_controllers")
 
-        for mesh in self.ctx.meshes:
+        for mesh in self.data.meshes:
             controller = etree.SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
             skin_node = etree.SubElement(controller, "skin", source=f"#{mesh.name}")
             etree.SubElement(skin_node, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
@@ -153,12 +154,12 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
 
     def add_controller_sources(self, skin_node: etree.Element, mesh: ModelMesh):
         # Add joint names
-        joint_data = np.array([b.name for b in self.ctx.skeleton.bones])
+        joint_data = np.array([b.name for b in self.data.skeleton.bones])
         joint_source = self.create_source(skin_node, mesh.name, "joints", joint_data, "Name_array")
         self.add_source_common(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
 
         # Add bind poses
-        bind_data = np.array(self.ctx.skeleton.calculate_inverse_bind_matrices())
+        bind_data = np.array(self.data.skeleton.calculate_inverse_bind_matrices())
         bind_source = self.create_source(skin_node, mesh.name, "bindposes", bind_data, count=len(bind_data) * 16)
         self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
@@ -191,7 +192,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         scene = etree.SubElement(library, "visual_scene", id="scene", name="Scene")
 
         root_node = scene
-        if self.skeleton_present:
+        if self.skeleton_presented:
             root_node = self.add_armature(scene)
 
         self.add_mesh_instances(root_node)
@@ -203,7 +204,7 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
         node = etree.SubElement(scene, "node", id="armature", name="Armature", type="NODE")
         etree.SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
-        for root in self.ctx.skeleton.roots:
+        for root in self.data.skeleton.roots:
             self.add_bone(node, root)
 
         return node
@@ -220,11 +221,11 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
             self.add_bone(joint, child)
 
     def add_mesh_instances(self, parent: etree.Element):
-        for mesh in self.ctx.meshes:
+        for mesh in self.data.meshes:
             node = etree.SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
 
-            if self.skeleton_present:
-                bone = self.ctx.skeleton.roots[0]
+            if self.skeleton_presented:
+                bone = self.data.skeleton.roots[0]
                 skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 etree.SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
             else:
@@ -232,4 +233,4 @@ class DaeEncoder(FileEncoder[ModelContext, ModelOptions]):
 
     def render_xml(self, root: etree.Element):
         etree.indent(root)
-        self.buffer.write(etree.tostring(root))
+        self.write(etree.tostring(root))
