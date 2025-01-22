@@ -7,7 +7,7 @@ from scfile.cli.scfile import scfile
 
 @pytest.fixture
 def mock_convert_auto():
-    with patch("scfile.utils.convert.auto.auto") as mock:
+    with patch("scfile.convert.auto.auto") as mock:
         yield mock
 
 

@@ -9,10 +9,10 @@ from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
+from scfile.geometry.anim import AnimationClip, AnimationFrame
+from scfile.geometry.mesh import ModelMesh
+from scfile.geometry.skeleton import SkeletonBone
 from scfile.io.formats.mcsa import McsaFileIO
-from scfile.utils.model.anim import AnimationClip, AnimationFrame
-from scfile.utils.model.mesh import ModelMesh
-from scfile.utils.model.skeleton import SkeletonBone
 
 from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS

@@ -2,7 +2,7 @@ from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from scfile.utils.model.scene import ModelScene
+from scfile.geometry.scene import ModelScene
 
 
 class FileContext(ABC):

@@ -9,7 +9,7 @@
 //------------------------------------------------
 
 
-// Define byte order
+// Define Byte Order
 
 LittleEndian();
 

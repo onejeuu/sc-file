@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from .vector import Texture, Vector3
+from .vectors import Texture, Vector3
 
 
 @dataclass

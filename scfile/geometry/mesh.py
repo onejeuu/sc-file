@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from .vector import Polygon
+from .vectors import Polygon
 from .vertex import Vertex
 
 

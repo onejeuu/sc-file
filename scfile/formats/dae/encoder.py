@@ -6,8 +6,8 @@ import numpy as np
 from scfile.core import FileEncoder, ModelContext, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
-from scfile.utils.model.mesh import ModelMesh
-from scfile.utils.model.skeleton import SkeletonBone, create_transform_matrix
+from scfile.geometry.mesh import ModelMesh
+from scfile.geometry.skeleton import SkeletonBone, create_transform_matrix
 
 
 DECLARATION = b'<?xml version="1.0" encoding="utf-8"?>\n'

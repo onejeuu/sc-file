@@ -5,13 +5,13 @@ from typing import Optional, Sequence, TypeAlias
 import click
 from rich import print
 
+from scfile import convert
 from scfile.cli.enums import Prefix
 from scfile.consts import CLI
+from scfile.convert.auto import ModelFormats
 from scfile.core.meta import ModelOptions
 from scfile.core.meta.options import ImageOptions, TextureOptions
 from scfile.exceptions.base import ScFileException
-from scfile.utils import convert
-from scfile.utils.convert.auto import ModelFormats
 
 from . import types
 from .excepthook import excepthook

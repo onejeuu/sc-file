@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from .vector import Vector3, Vector4
+from .vectors import Vector3, Vector4
 
 
 @dataclass
