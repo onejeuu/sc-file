@@ -1,20 +1,19 @@
 from scfile.consts import FileSignature
-from scfile.core import FileDecoder, ImageContext, ImageOptions
-from scfile.enums import ByteOrder
+from scfile.core import FileDecoder
+from scfile.core.context import ImageContent, ImageOptions
+from scfile.enums import FileFormat
 from scfile.formats.png.encoder import PngEncoder
-from scfile.io.streams import StructFileIO
 
 
-class MicDecoder(FileDecoder[StructFileIO, ImageContext, ImageOptions]):
-    order = ByteOrder.LITTLE
+class MicDecoder(FileDecoder[ImageContent, ImageOptions]):
+    format = FileFormat.MIC
     signature = FileSignature.MIC
 
-    _opener = StructFileIO
-    _context = ImageContext
+    _content = ImageContent
     _options = ImageOptions
 
     def to_png(self):
         return self.convert_to(PngEncoder)
 
     def parse(self):
-        self.ctx.image = self.f.read()
+        self.data.image = self.read()

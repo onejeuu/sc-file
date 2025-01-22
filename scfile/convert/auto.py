@@ -2,7 +2,7 @@ import pathlib
 from typing import Callable, Optional, Sequence, TypeAlias
 
 from scfile import exceptions as exc
-from scfile.core import ImageOptions, ModelOptions, TextureOptions
+from scfile.core.context import ImageOptions, ModelOptions, TextureOptions
 from scfile.enums import FileFormat
 from scfile.io.types import PathLike
 

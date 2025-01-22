@@ -4,7 +4,7 @@ from .enums import PrimitiveMode
 VERSION = 2
 
 BASE_GLTF = {
-    "asset": {"version": "2.0", "generator": f"onejeuu@scfile"},
+    "asset": {"version": "2.0", "generator": "onejeuu@scfile"},
     "scene": 0,
     "scenes": [],
     "nodes": [],

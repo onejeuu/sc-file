@@ -9,8 +9,8 @@ from scfile import convert
 from scfile.cli.enums import Prefix
 from scfile.consts import CLI
 from scfile.convert.auto import ModelFormats
-from scfile.core.meta import ModelOptions
-from scfile.core.meta.options import ImageOptions, TextureOptions
+from scfile.core.context import ModelOptions
+from scfile.core.context.options import ImageOptions, TextureOptions
 from scfile.exceptions.base import ScFileException
 
 from . import types
@@ -40,17 +40,17 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
 )
 @click.option(
     "--parse-skeleton",
-    help="Parse armature in models (if presented)",
+    help="Parse armature in models (if presented).",
     is_flag=True,
 )
 @click.option(
     "--parse-animations",
-    help="Parse animations in models (if presented)",
+    help="Parse animations in models (if presented).",
     is_flag=True,
 )
 @click.option(
     "--is-hdri",
-    help="Parse textures as hdri (cubemaps)",
+    help="Parse textures as hdri (cubemaps).",
     is_flag=True,
 )
 @click.option(

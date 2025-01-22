@@ -5,12 +5,12 @@ from dataclasses import dataclass, field
 from scfile.geometry.scene import ModelScene
 
 
-class FileContext(ABC):
+class FileContent(ABC):
     pass
 
 
 @dataclass
-class ModelContext(FileContext):
+class ModelContent(FileContent):
     version: float = 0.0
     flags: defaultdict[int, bool] = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
@@ -25,7 +25,7 @@ class ModelContext(FileContext):
 
 
 @dataclass
-class TextureContext(FileContext):
+class TextureContent(FileContent):
     width: int = 0
     height: int = 0
     mipmap_count: int = 0
@@ -45,5 +45,5 @@ class TextureContext(FileContext):
 
 
 @dataclass
-class ImageContext(FileContext):
+class ImageContent(FileContent):
     image: bytes = field(default_factory=bytes)

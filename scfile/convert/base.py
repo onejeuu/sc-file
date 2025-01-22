@@ -4,8 +4,7 @@ from typing import Optional, Type
 from scfile import exceptions as exc
 from scfile.consts import SUPPORTED_SUFFIXES
 from scfile.core import FileDecoder, FileEncoder
-from scfile.core.decoder import Opener
-from scfile.core.types import Context, Options
+from scfile.core.types import Content, Options
 from scfile.io.types import PathLike
 
 
@@ -14,8 +13,8 @@ def is_supported(source: PathLike) -> bool:
 
 
 def convert(
-    decoder: Type[FileDecoder[Opener, Context, Options]],
-    encoder: Type[FileEncoder[Context, Options]],
+    decoder: Type[FileDecoder[Content, Options]],
+    encoder: Type[FileEncoder[Content, Options]],
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[Options] = None,

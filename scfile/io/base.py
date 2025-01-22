@@ -5,9 +5,11 @@ from typing import Any, Optional
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 
+from .consts import DEFAULT_BYTES_ORDER
+
 
 class StructIOBase(io.IOBase):
-    order = ByteOrder.LITTLE
+    order = DEFAULT_BYTES_ORDER
 
     def _validate_buffer(self, size: int):
         pass

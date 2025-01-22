@@ -1,64 +1,47 @@
-import pathlib
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, TypeVar
+from typing import Generic, Optional
 
 from scfile import exceptions as exc
 from scfile.enums import FileMode
 from scfile.io.streams import StructFileIO
 from scfile.io.types import PathLike
 
+from .base import BaseFile
 from .encoder import FileEncoder
-from .handler import FileHandler
-from .types import Context, Options
+from .types import Content, Options
 
 
-Opener = TypeVar("Opener", bound=StructFileIO)
+class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
+    mode: str = FileMode.READ
 
-
-class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options], ABC):
-    mode: FileMode = FileMode.READ
-    signature: Optional[bytes] = None
-
-    _opener: type[Opener]
-    _context: type[Context]
+    _content: type[Content]
     _options: type[Options]
 
     def __init__(self, file: PathLike, options: Optional[Options] = None):
         self.file = file
-        self.path = pathlib.Path(self.file)
-        self.filesize = self.path.stat().st_size
-
-        # Create base context and options
-        self.ctx: Context = self._context()
         self.options: Options = options or self._options()
+        self.data: Content = self._content()
 
-        # Create file reader
-        self.buffer: Opener = self._opener(file=file, mode=self.mode)
-        self.buffer.order = self.order
-
-        # Buffer abbreviation
-        self.f = self.buffer
-
-        super().__init__(self.buffer, self.ctx)
+        super().__init__(file=self.file, mode=self.mode)
 
     @abstractmethod
     def parse(self) -> None:
         pass
 
-    def decode(self) -> Context:
+    def decode(self) -> Content:
         self.validate()
         self.parse()
-        return self.ctx
+        return self.data
 
-    def convert_to(self, encoder: type[FileEncoder[Context, Options]]) -> FileEncoder[Context, Options]:
+    def convert_to(self, encoder: type[FileEncoder[Content, Options]]) -> FileEncoder[Content, Options]:
         data = self.decode()
         enc = encoder(data, self.options)
         enc.encode()
         return enc
 
-    def convert(self, encoder: type[FileEncoder[Context, Options]]) -> bytes:
+    def convert(self, encoder: type[FileEncoder[Content, Options]]) -> bytes:
         enc = self.convert_to(encoder)
-        content = enc.content
+        content = enc.getvalue()
         enc.close()
         return content
 
@@ -67,7 +50,7 @@ class FileDecoder(FileHandler[Opener, Context], Generic[Opener, Context, Options
             raise exc.FileIsEmpty(self.path)
 
         if self.signature:
-            readed = self.f.read(len(self.signature))
+            readed = self.read(len(self.signature))
 
             if readed != self.signature:
                 raise exc.FileSignatureInvalid(self.path, readed, self.signature)
