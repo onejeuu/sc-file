@@ -1,8 +1,8 @@
 from scfile.core import FileEncoder, ModelContext, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
-from scfile.utils.model.mesh import ModelMesh
-from scfile.utils.model.vector import Polygon
+from scfile.geometry.mesh import ModelMesh
+from scfile.geometry.vectors import Polygon
 
 
 class ObjEncoder(FileEncoder[ModelContext, ModelOptions]):

@@ -5,7 +5,7 @@ import numpy as np
 
 from scfile.consts import McsaModel
 
-from .vector import Vector3
+from .vectors import Vector3
 
 
 ROOT = McsaModel.ROOT_BONE_ID

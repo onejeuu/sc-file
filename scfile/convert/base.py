@@ -21,6 +21,7 @@ def convert(
     options: Optional[Options] = None,
     overwrite: bool = True,
 ):
+    """Convert file"""
     src_path = Path(source)
     out_path = Path(output or source)
 

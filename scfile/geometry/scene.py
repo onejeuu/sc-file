@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 
-from scfile.utils.model.anim import ModelAnimations
-
+from .anim import ModelAnimations
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 

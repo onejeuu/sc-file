@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.utils import convert
+from scfile import convert
 
 
 def test_convert_formats(assets: Path, temp: Path):
