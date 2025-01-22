@@ -31,6 +31,15 @@ class McsaFileIO(StructFileIO):
         data = self.unpack(f"{size * count}{fmt}")
         return np.array(data, dtype=np.dtype(fmt))
 
+    def readdefault(self):
+        # Read array
+        data = self.readarray(fmt=F.F32, size=3, count=1)
+
+        # Round digits
+        data = data.round(McsaModel.ROUND_DIGITS)
+
+        return reshape(data, 3)
+
     def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
         # Read array
         data = self.readarray(fmt=fmt, size=size, count=count)

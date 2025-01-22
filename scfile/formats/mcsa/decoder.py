@@ -76,6 +76,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.TEXTURE]:
             self.data.scene.scale.texture = self.readb(F.F32)
 
+        # ! unknown
         if self.data.flags[Flag.NORMALS] and self.data.version >= 10.0:
             self.data.scene.scale.normals = self.readb(F.F32)
 
@@ -102,13 +103,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         mesh.count.polygons = self.readcount()
         mesh.allocate_geometry()
 
-        # ! unknown, unconfirmed
         if self.data.flags[Flag.TEXTURE]:
-            self.data.scene.scale.weight = self.readb(F.F32)
+            self.data.scene.scale.filtering = self.readb(F.F32)
 
-        # ! unknown, unconfirmed
         if self.data.version >= 10.0:
-            self.skip_locals()
+            self.parse_defaults(mesh)
 
         # Geometric vertices
         self.parse_position(mesh)
@@ -133,6 +132,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.SKELETON]:
             self.parse_links(mesh)
 
+        # TODO: optional parse and export
         # Vertex colors
         if self.data.flags[Flag.COLORS]:
             self.skip_colors(mesh)
@@ -150,11 +150,19 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         for index in range(mesh.count.bones):
             mesh.bones[index] = self.readb(F.U8)
 
-    def skip_locals(self):
-        self.read(24)
+    def parse_defaults(self, mesh: ModelMesh):
+        for x, y, z in self.readdefault():
+            mesh.default.rotation.x = x
+            mesh.default.rotation.y = y
+            mesh.default.rotation.z = z
+
+        for x, y, z in self.readdefault():
+            mesh.default.position.x = x
+            mesh.default.position.y = y
+            mesh.default.position.z = z
 
         if self.data.version >= 11.0:
-            self.read(4)
+            mesh.default.scale = self.readb(F.F32)
 
     def parse_position(self, mesh: ModelMesh):
         count = mesh.count.vertices
