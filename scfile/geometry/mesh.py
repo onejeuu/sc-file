@@ -30,7 +30,7 @@ class ModelMesh:
     vertices: list[Vertex] = field(default_factory=list)
 
     polygons: list[Polygon] = field(default_factory=list)
-    global_polygons: list[Polygon] = polygons
+    faces: list[Polygon] = field(default_factory=list)
 
     bones: dict[int, int] = field(default_factory=dict)
     """key: link id, value: bone id"""
