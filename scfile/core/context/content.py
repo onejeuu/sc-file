@@ -1,12 +1,23 @@
+import dataclasses
 from abc import ABC
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 from scfile.geometry.scene import ModelScene
 
 
+@dataclass
 class FileContent(ABC):
-    pass
+    def reset(self):
+        for f in fields(self):
+            if f.default_factory is not dataclasses.MISSING:
+                setattr(self, f.name, f.default_factory())
+
+            elif f.default is not dataclasses.MISSING:
+                setattr(self, f.name, f.default)
+
+            else:
+                setattr(self, f.name, None)
 
 
 @dataclass

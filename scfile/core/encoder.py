@@ -51,3 +51,7 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content, Options], ABC):
 
     def export(self, filename: str) -> None:
         self.save(path=f"{filename}{self.suffix}")
+
+    def close(self) -> None:
+        self.data.reset()
+        super().close()

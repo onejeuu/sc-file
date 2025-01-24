@@ -45,10 +45,10 @@ class ModelScene:
             mesh.name = unique_name
             seen_names.add(unique_name)
 
-    def convert_polygons_to_global(self, start_index: int = 0):
-        """Updates meshes global_polygons indexes."""
+    def convert_polygons_to_faces(self, start_index: int = 0):
+        """Updates meshes faces indexes."""
         offset = start_index
 
         for mesh in self.meshes:
-            mesh.global_polygons = [polygon >> offset for polygon in mesh.polygons]
+            mesh.faces = [polygon >> offset for polygon in mesh.polygons]
             offset += mesh.count.vertices

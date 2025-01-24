@@ -13,7 +13,7 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
-        self.data.scene.convert_polygons_to_global(start_index=1)
+        self.data.scene.convert_polygons_to_faces(start_index=1)
 
     def serialize(self):
         self.add_meshes()
@@ -44,7 +44,7 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
         self._write_vertex_data([f"vn {v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices])
 
     def add_polygonal_faces(self, mesh: ModelMesh):
-        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.global_polygons])
+        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.faces])
 
     def _write_vertex_data(self, data: list[str]):
         self.writeutf8("\n".join(data))

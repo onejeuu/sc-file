@@ -31,6 +31,7 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
     def decode(self) -> Content:
         self.validate()
         self.parse()
+        self.seek(0)
         return self.data
 
     def convert_to(self, encoder: type[FileEncoder[Content, Options]]) -> FileEncoder[Content, Options]:
@@ -54,3 +55,7 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
 
             if readed != self.signature:
                 raise exc.FileSignatureInvalid(self.path, readed, self.signature)
+
+    def close(self) -> None:
+        self.data.reset()
+        super().close()

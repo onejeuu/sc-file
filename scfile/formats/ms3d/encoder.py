@@ -20,7 +20,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
-        self.data.scene.convert_polygons_to_global()
+        self.data.scene.convert_polygons_to_faces()
         self.data.skeleton.convert_to_local()
 
     def serialize(self):
@@ -51,7 +51,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, ModelOptions]):
         fmt = f"{F.U16 * 4}{F.F32 * 15}{F.U8 * 2}"
 
         for index, mesh in enumerate(self.data.meshes):
-            for p, gp in zip(mesh.polygons, mesh.global_polygons):
+            for p, gp in zip(mesh.polygons, mesh.faces):
                 v1 = mesh.vertices[p.a]
                 v2 = mesh.vertices[p.b]
                 v3 = mesh.vertices[p.c]
