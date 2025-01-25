@@ -1,8 +1,13 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import TypeAlias
 
 from .anim import ModelAnimations
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
+
+
+ModelFlags: TypeAlias = defaultdict[int, bool]
 
 
 @dataclass

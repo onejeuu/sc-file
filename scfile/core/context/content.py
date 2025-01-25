@@ -3,7 +3,7 @@ from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass, field, fields
 
-from scfile.geometry.scene import ModelScene
+from scfile.geometry.scene import ModelFlags, ModelScene
 
 
 @dataclass
@@ -23,7 +23,7 @@ class FileContent(ABC):
 @dataclass
 class ModelContent(FileContent):
     version: float = 0.0
-    flags: defaultdict[int, bool] = field(default_factory=lambda: defaultdict(bool))
+    flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
 
     @property
