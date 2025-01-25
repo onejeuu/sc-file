@@ -28,7 +28,6 @@ class ModelMesh:
     default: MeshDefault = field(default_factory=MeshDefault)
 
     vertices: list[Vertex] = field(default_factory=list)
-
     polygons: list[Polygon] = field(default_factory=list)
     faces: list[Polygon] = field(default_factory=list)
 
@@ -36,7 +35,7 @@ class ModelMesh:
     """key: link id, value: bone id"""
 
     @property
-    def bone_indices(self):
+    def bone_indices(self) -> list[str]:
         return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
 
     def allocate_geometry(self) -> None:
