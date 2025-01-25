@@ -3,8 +3,6 @@ from dataclasses import dataclass, fields
 from typing import Iterator, TypeVar
 
 
-# TODO: switch to PyGLM
-
 T = TypeVar("T", bound="VectorBase")
 
 

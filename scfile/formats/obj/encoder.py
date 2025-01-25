@@ -3,7 +3,23 @@ from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.geometry.mesh import ModelMesh
+from scfile.geometry.scene import ModelFlags
 from scfile.geometry.vectors import Polygon
+
+
+def polygon_to_faces(polygon: Polygon, flags: ModelFlags):
+    a, b, c = polygon.a, polygon.b, polygon.c
+
+    if flags[Flag.TEXTURE] and flags[Flag.NORMALS]:
+        return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
+
+    if flags[Flag.TEXTURE]:
+        return f"{a}/{a} {b}/{b} {c}/{c}"
+
+    if flags[Flag.NORMALS]:
+        return f"{a}//{a} {b}//{b} {c}//{c}"
+
+    return f"{a} {b} {c}"
 
 
 class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
@@ -35,32 +51,17 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
             self.add_polygonal_faces(mesh)
 
     def add_geometric_vertices(self, mesh: ModelMesh):
-        self._write_vertex_data([f"v {v.position.x} {v.position.y} {v.position.z}" for v in mesh.vertices])
-
-    def add_texture_coordinates(self, mesh: ModelMesh):
-        self._write_vertex_data([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices])
-
-    def add_vertex_normals(self, mesh: ModelMesh):
-        self._write_vertex_data([f"vn {v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices])
-
-    def add_polygonal_faces(self, mesh: ModelMesh):
-        self._write_vertex_data([f"f {self._polygon_to_faces(p)}" for p in mesh.faces])
-
-    def _write_vertex_data(self, data: list[str]):
-        self.writeutf8("\n".join(data))
+        self.writeutf8("\n".join([f"v {v.position.x} {v.position.y} {v.position.z}" for v in mesh.vertices]))
         self.write(b"\n\n")
 
-    def _polygon_to_faces(self, polygon: Polygon):
-        a, b, c = polygon.a, polygon.b, polygon.c
+    def add_texture_coordinates(self, mesh: ModelMesh):
+        self.writeutf8("\n".join([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices]))
+        self.write(b"\n\n")
 
-        # TODO: find fastest switch case (for example bits or str mask)
-        if self.data.flags[Flag.TEXTURE] and self.data.flags[Flag.NORMALS]:
-            return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
+    def add_vertex_normals(self, mesh: ModelMesh):
+        self.writeutf8("\n".join([f"vn {v.normals.x} {v.normals.y} {v.normals.z}" for v in mesh.vertices]))
+        self.write(b"\n\n")
 
-        if self.data.flags[Flag.TEXTURE]:
-            return f"{a}/{a} {b}/{b} {c}/{c}"
-
-        if self.data.flags[Flag.NORMALS]:
-            return f"{a}//{a} {b}//{b} {c}//{c}"
-
-        return f"{a} {b} {c}"
+    def add_polygonal_faces(self, mesh: ModelMesh):
+        self.writeutf8("\n".join([f"f {polygon_to_faces(polygon, self.data.flags)}" for polygon in mesh.faces]))
+        self.write(b"\n\n")
