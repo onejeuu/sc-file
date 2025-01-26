@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as etree
 from typing import Optional
+from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
 
@@ -42,41 +43,38 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         if self.skeleton_presented:
             self.add_controllers(root)
 
-            if self.options.parse_animations:
-                self.add_animations(root)
-
         self.add_scenes(root)
         self.render_xml(root)
 
     def add_declaration(self):
         self.write(DECLARATION)
 
-    def create_root(self) -> etree.Element:
-        return etree.Element("COLLADA", xmlns=XMLNS, version=VERSION)
+    def create_root(self) -> Element:
+        return Element("COLLADA", xmlns=XMLNS, version=VERSION)
 
-    def add_asset(self, root: etree.Element):
-        asset = etree.SubElement(root, "asset")
-        etree.SubElement(asset, "unit", name="meter", meter="1")
-        etree.SubElement(asset, "up_axis").text = UP_AXIS
+    def add_asset(self, root: Element):
+        asset = SubElement(root, "asset")
+        SubElement(asset, "unit", name="meter", meter="1")
+        SubElement(asset, "up_axis").text = UP_AXIS
 
     def create_source(
         self,
-        parent: etree.Element,
+        parent: Element,
         id: str,
         name: str,
         data: np.ndarray,
         tag: str = "float_array",
         count: Optional[int] = None,
-    ) -> etree.Element:
+    ) -> Element:
         count = count or len(data)
-        source = etree.SubElement(parent, "source", id=f"{id}-{name}")
-        array = etree.SubElement(source, tag, id=f"{id}-{name}-array", count=str(count))
+        source = SubElement(parent, "source", id=f"{id}-{name}")
+        array = SubElement(source, tag, id=f"{id}-{name}-array", count=str(count))
         array.text = " ".join(map(str, data.flatten()))
         return source
 
     def add_source_common(
         self,
-        source: etree.Element,
+        source: Element,
         id: str,
         name: str,
         count: int,
@@ -87,13 +85,13 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         array_id = f"#{id}-{name}-array"
         stride = stride or len(components)
 
-        common = etree.SubElement(source, "technique_common")
-        accessor = etree.SubElement(common, "accessor", source=array_id, count=str(count), stride=str(stride))
+        common = SubElement(source, "technique_common")
+        accessor = SubElement(common, "accessor", source=array_id, count=str(count), stride=str(stride))
 
         for component in components:
-            accessor.append(etree.Element("param", name=component, type=datatype))
+            accessor.append(Element("param", name=component, type=datatype))
 
-    def add_mesh_sources(self, mesh_node: etree.Element, mesh: ModelMesh):
+    def add_mesh_sources(self, mesh_node: Element, mesh: ModelMesh):
         # Positions XYZ
         pos_data = np.array([list(v.position) for v in mesh.vertices])
         pos_source = self.create_source(mesh_node, mesh.name, "positions", pos_data)
@@ -111,48 +109,48 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             tex_source = self.create_source(mesh_node, mesh.name, "texture", tex_data)
             self.add_source_common(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
 
-    def add_triangles(self, mesh_node: etree.Element, mesh: ModelMesh):
-        vertices = etree.SubElement(mesh_node, "vertices", id=f"{mesh.name}-vertices")
-        etree.SubElement(vertices, "input", semantic="POSITION", source=f"#{mesh.name}-positions")
+    def add_triangles(self, mesh_node: Element, mesh: ModelMesh):
+        vertices = SubElement(mesh_node, "vertices", id=f"{mesh.name}-vertices")
+        SubElement(vertices, "input", semantic="POSITION", source=f"#{mesh.name}-positions")
 
-        triangles = etree.SubElement(mesh_node, "triangles", count=str(mesh.count.polygons))
+        triangles = SubElement(mesh_node, "triangles", count=str(mesh.count.polygons))
 
         # Inputs
-        etree.SubElement(triangles, "input", semantic="VERTEX", source=f"#{mesh.name}-vertices", offset="0")
+        SubElement(triangles, "input", semantic="VERTEX", source=f"#{mesh.name}-vertices", offset="0")
 
         if self.data.flags[Flag.TEXTURE]:
-            etree.SubElement(triangles, "input", semantic="TEXCOORD", source=f"#{mesh.name}-texture", offset="0")
+            SubElement(triangles, "input", semantic="TEXCOORD", source=f"#{mesh.name}-texture", offset="0")
 
         if self.data.flags[Flag.NORMALS]:
-            etree.SubElement(triangles, "input", semantic="NORMAL", source=f"#{mesh.name}-normals", offset="0")
+            SubElement(triangles, "input", semantic="NORMAL", source=f"#{mesh.name}-normals", offset="0")
 
         # Polygons ABC
         indices = np.array([vertex_id for polygon in mesh.polygons for vertex_id in polygon])
-        p = etree.SubElement(triangles, "p")
+        p = SubElement(triangles, "p")
         p.text = " ".join(map(str, indices))
 
-    def add_geometries(self, root: etree.Element):
-        library = etree.SubElement(root, "library_geometries")
+    def add_geometries(self, root: Element):
+        library = SubElement(root, "library_geometries")
 
         for mesh in self.data.meshes:
-            geom = etree.SubElement(library, "geometry", id=mesh.name, name=mesh.name)
-            mesh_node = etree.SubElement(geom, "mesh")
+            geom = SubElement(library, "geometry", id=mesh.name, name=mesh.name)
+            mesh_node = SubElement(geom, "mesh")
 
             self.add_mesh_sources(mesh_node, mesh)
             self.add_triangles(mesh_node, mesh)
 
-    def add_controllers(self, root: etree.Element):
-        library = etree.SubElement(root, "library_controllers")
+    def add_controllers(self, root: Element):
+        library = SubElement(root, "library_controllers")
 
         for mesh in self.data.meshes:
-            controller = etree.SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
-            skin_node = etree.SubElement(controller, "skin", source=f"#{mesh.name}")
-            etree.SubElement(skin_node, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+            controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
+            skin_node = SubElement(controller, "skin", source=f"#{mesh.name}")
+            SubElement(skin_node, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
             self.add_controller_sources(skin_node, mesh)
             self.add_joints_and_weights(skin_node, mesh)
 
-    def add_controller_sources(self, skin_node: etree.Element, mesh: ModelMesh):
+    def add_controller_sources(self, skin_node: Element, mesh: ModelMesh):
         # Add joint names
         joint_data = np.array([b.name for b in self.data.skeleton.bones])
         joint_source = self.create_source(skin_node, mesh.name, "joints", joint_data, "Name_array")
@@ -168,28 +166,24 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         weight_source = self.create_source(skin_node, mesh.name, "weights", weight_data)
         self.add_source_common(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
 
-    def add_joints_and_weights(self, skin_node: etree.Element, mesh: ModelMesh):
+    def add_joints_and_weights(self, skin_node: Element, mesh: ModelMesh):
         # Add joints
-        joints = etree.SubElement(skin_node, "joints")
-        etree.SubElement(joints, "input", semantic="JOINT", source=f"#{mesh.name}-joints")
-        etree.SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{mesh.name}-bindposes")
+        joints = SubElement(skin_node, "joints")
+        SubElement(joints, "input", semantic="JOINT", source=f"#{mesh.name}-joints")
+        SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{mesh.name}-bindposes")
 
         # Add vertex weights
-        weights = etree.SubElement(skin_node, "vertex_weights", count=str(mesh.count.vertices))
-        etree.SubElement(weights, "input", semantic="JOINT", source=f"#{mesh.name}-joints", offset="0")
-        etree.SubElement(weights, "input", semantic="WEIGHT", source=f"#{mesh.name}-weights", offset="1")
+        weights = SubElement(skin_node, "vertex_weights", count=str(mesh.count.vertices))
+        SubElement(weights, "input", semantic="JOINT", source=f"#{mesh.name}-joints", offset="0")
+        SubElement(weights, "input", semantic="WEIGHT", source=f"#{mesh.name}-weights", offset="1")
 
         # TODO: figure out why tf zeros in ids and weights...
-        etree.SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
-        etree.SubElement(weights, "v").text = " ".join(mesh.bone_indices)
+        SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
+        SubElement(weights, "v").text = " ".join(mesh.bone_indices)
 
-    def add_animations(self, root: etree.Element):
-        # TODO
-        pass
-
-    def add_scenes(self, root: etree.Element):
-        library = etree.SubElement(root, "library_visual_scenes")
-        scene = etree.SubElement(library, "visual_scene", id="scene", name="Scene")
+    def add_scenes(self, root: Element):
+        library = SubElement(root, "library_visual_scenes")
+        scene = SubElement(library, "visual_scene", id="scene", name="Scene")
 
         root_node = scene
         if self.skeleton_presented:
@@ -197,40 +191,38 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         self.add_mesh_instances(root_node)
 
-        scene_elem = etree.SubElement(root, "scene")
-        etree.SubElement(scene_elem, "instance_visual_scene", url="#scene")
+        scene_elem = SubElement(root, "scene")
+        SubElement(scene_elem, "instance_visual_scene", url="#scene")
 
-    def add_armature(self, scene: etree.Element) -> etree.Element:
-        node = etree.SubElement(scene, "node", id="armature", name="Armature", type="NODE")
-        etree.SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+    def add_armature(self, scene: Element) -> Element:
+        node = SubElement(scene, "node", id="armature", name="Armature", type="NODE")
+        SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
         for root in self.data.skeleton.roots:
             self.add_bone(node, root)
 
         return node
 
-    def add_bone(self, parent: etree.Element, bone: "SkeletonBone"):
-        joint = etree.SubElement(
-            parent, "node", id=f"armature-{bone.name}", sid=bone.name, name=bone.name, type="JOINT"
-        )
+    def add_bone(self, parent: Element, bone: "SkeletonBone"):
+        joint = SubElement(parent, "node", id=f"armature-{bone.name}", sid=bone.name, name=bone.name, type="JOINT")
 
         matrix = create_transform_matrix(bone)
-        etree.SubElement(joint, "matrix", sid="transform").text = " ".join(map(str, matrix.flatten()))
+        SubElement(joint, "matrix", sid="transform").text = " ".join(map(str, matrix.flatten()))
 
         for child in bone.children:
             self.add_bone(joint, child)
 
-    def add_mesh_instances(self, parent: etree.Element):
+    def add_mesh_instances(self, parent: Element):
         for mesh in self.data.meshes:
-            node = etree.SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
+            node = SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
 
             if self.skeleton_presented:
                 bone = self.data.skeleton.roots[0]
-                skin = etree.SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
-                etree.SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
+                skin = SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
+                SubElement(skin, "skeleton").text = f"#armature-{bone.name}"
             else:
-                etree.SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
+                SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
 
-    def render_xml(self, root: etree.Element):
+    def render_xml(self, root: Element):
         etree.indent(root)
         self.write(etree.tostring(root))

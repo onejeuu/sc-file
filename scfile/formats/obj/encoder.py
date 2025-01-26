@@ -1,25 +1,23 @@
+from typing import NamedTuple
+
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.geometry.mesh import ModelMesh
-from scfile.geometry.scene import ModelFlags
-from scfile.geometry.vectors import Polygon
 
 
-def polygon_to_faces(polygon: Polygon, flags: ModelFlags):
-    a, b, c = polygon.a, polygon.b, polygon.c
+class TemplateFlags(NamedTuple):
+    texture: bool
+    normals: bool
 
-    if flags[Flag.TEXTURE] and flags[Flag.NORMALS]:
-        return f"{a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}"
 
-    if flags[Flag.TEXTURE]:
-        return f"{a}/{a} {b}/{b} {c}/{c}"
-
-    if flags[Flag.NORMALS]:
-        return f"{a}//{a} {b}//{b} {c}//{c}"
-
-    return f"{a} {b} {c}"
+FACES_TEMPLATE: dict[TemplateFlags, str] = {
+    TemplateFlags(True, True): "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}",
+    TemplateFlags(True, False): "f {a}/{a} {b}/{b} {c}/{c}",
+    TemplateFlags(False, True): "f {a}//{a} {b}//{b} {c}//{c}",
+    TemplateFlags(False, False): "f {a} {b} {c}",
+}
 
 
 class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
@@ -63,5 +61,8 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.write(b"\n\n")
 
     def add_polygonal_faces(self, mesh: ModelMesh):
-        self.writeutf8("\n".join([f"f {polygon_to_faces(polygon, self.data.flags)}" for polygon in mesh.faces]))
+        flags = TemplateFlags(self.data.flags[Flag.TEXTURE], self.data.flags[Flag.NORMALS])
+        template = FACES_TEMPLATE[flags]
+
+        self.writeutf8("\n".join([template.format(a=polygon.a, b=polygon.b, c=polygon.c) for polygon in mesh.faces]))
         self.write(b"\n\n")
