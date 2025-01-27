@@ -1,9 +1,7 @@
 from .enums import PrimitiveMode
 
 
-VERSION = 2
-
-BASE_GLTF = {
+GLTF = {
     "asset": {"version": "2.0", "generator": "onejeuu@scfile"},
     "scene": 0,
     "scenes": [],
@@ -15,6 +13,6 @@ BASE_GLTF = {
     "buffers": [],
 }
 
-BASE_SCENE = {"name": "Scene", "nodes": []}
-BASE_BUFFER = {"byteLength": 0}
-BASE_PRIMITIVE = {"attributes": {}, "mode": PrimitiveMode.TRIANGLES}
+SCENE = {"name": "Scene", "nodes": []}
+BUFFER = {"byteLength": 0}
+PRIMITIVE = {"attributes": {}, "mode": PrimitiveMode.TRIANGLES}
