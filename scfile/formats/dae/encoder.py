@@ -157,7 +157,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.add_source_common(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
 
         # Add bind poses
-        bind_data = np.array(self.data.skeleton.calculate_inverse_bind_matrices())
+        bind_data = np.array(self.data.skeleton.inverse_bind_matrices(transpose=False))
         bind_source = self.create_source(skin_node, mesh.name, "bindposes", bind_data, count=len(bind_data) * 16)
         self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 

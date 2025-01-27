@@ -81,12 +81,15 @@ class ModelSkeleton:
 
         return global_transforms
 
-    def calculate_inverse_bind_matrices(self) -> List[np.ndarray]:
+    def inverse_bind_matrices(self, transpose: bool) -> List[np.ndarray]:
         # Сначала считаем глобальные преобразования
         global_transforms = self.calculate_global_transforms()
 
         # Вычисление обратных преобразований (bind poses)
-        return [np.linalg.inv(transform.T) for transform in global_transforms]
+        if transpose:
+            return [np.linalg.inv(transform.T) for transform in global_transforms]
+        else:
+            return [np.linalg.inv(transform) for transform in global_transforms]
 
 
 def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.ndarray:
