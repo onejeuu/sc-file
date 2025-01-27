@@ -13,8 +13,11 @@ from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
 
-from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION
+from . import base
 from .enums import BufferTarget, ComponentType
+
+
+VERSION = 2
 
 
 class Bounds(NamedTuple):
@@ -71,18 +74,18 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.write(gltf.encode())
 
     def create_gltf(self):
-        self.ctx["GLTF"] = deepcopy(BASE_GLTF)
+        self.ctx["GLTF"] = deepcopy(base.GLTF)
         self.ctx["BUFFER_VIEW_OFFSET"] = 0
 
         # Create scene
-        scene = deepcopy(BASE_SCENE)
+        scene = deepcopy(base.SCENE)
         self.ctx["GLTF"]["scenes"].append(scene)
 
         self.create_nodes()
         self.count_nodes()
 
         # Write length in buffers
-        self.ctx["GLTF"]["buffers"].append(deepcopy(BASE_BUFFER))
+        self.ctx["GLTF"]["buffers"].append(deepcopy(base.BUFFER))
         self.ctx["GLTF"]["buffers"][0]["byteLength"] = self.ctx["BUFFER_VIEW_OFFSET"]
 
     def create_nodes(self):
@@ -105,7 +108,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             return len(self.ctx["GLTF"]["accessors"])
 
         for index, mesh in enumerate(self.data.meshes):
-            primitive = deepcopy(BASE_PRIMITIVE)
+            primitive = deepcopy(base.PRIMITIVE)
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = accessor_index()
