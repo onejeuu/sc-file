@@ -179,7 +179,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         # TODO: figure out why tf zeros in ids and weights...
         SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
-        SubElement(weights, "v").text = " ".join(mesh.bone_indices)
+        SubElement(weights, "v").text = " ".join(mesh.get_bone_indices())
 
     def add_scenes(self):
         library = SubElement(self.ctx["ROOT"], "library_visual_scenes")

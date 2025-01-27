@@ -35,10 +35,6 @@ class ModelMesh:
     local_bones: dict[int, int] = field(default_factory=dict)
     """key: link id, value: bone id"""
 
-    @property
-    def bone_indices(self) -> list[str]:
-        return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
-
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]
@@ -56,4 +52,7 @@ class ModelMesh:
         return [i for v in self.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), links))]
 
     def get_bone_weights(self, links: int = 4):
-        return [i for v in self.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), 4))]
+        return [i for v in self.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), links))]
+
+    def get_bone_indices(self) -> list[str]:
+        return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]

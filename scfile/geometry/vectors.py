@@ -1,9 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, fields
-from typing import Iterator, TypeVar
-
-
-T = TypeVar("T", bound="VectorBase")
+from typing import Iterator, Self
 
 
 @dataclass
@@ -11,20 +8,16 @@ class VectorBase(ABC):
     def __iter__(self) -> Iterator:
         return iter(getattr(self, field.name) for field in fields(self))
 
-    def __add__(self: T, other: T) -> T:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
+    def __add__(self: Self, other: Self) -> Self:
         return self.__class__(*(a + b for a, b in zip(self, other)))
 
-    def __sub__(self: T, other: T) -> T:
-        if not isinstance(other, self.__class__):
-            return NotImplemented
+    def __sub__(self: Self, other: Self) -> Self:
         return self.__class__(*(a - b for a, b in zip(self, other)))
 
-    def __rshift__(self: T, offset: float) -> T:
+    def __rshift__(self: Self, offset: float) -> Self:
         return self.__class__(*(value + offset for value in self))
 
-    def __lshift__(self: T, offset: float) -> T:
+    def __lshift__(self: Self, offset: float) -> Self:
         return self.__class__(*(value - offset for value in self))
 
 
