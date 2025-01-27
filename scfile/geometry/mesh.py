@@ -56,3 +56,9 @@ class ModelMesh:
 
     def get_bone_indices(self) -> list[str]:
         return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
+
+    def get_polygons(self) -> list[float]:
+        return [i for p in self.polygons for i in p]
+
+    def get_faces(self) -> list[float]:
+        return [i for f in self.faces for i in f]
