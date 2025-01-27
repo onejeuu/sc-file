@@ -1,7 +1,6 @@
 import json
 import struct
 from copy import deepcopy
-from typing import Optional
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
