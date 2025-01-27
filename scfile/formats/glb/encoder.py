@@ -1,10 +1,7 @@
 import json
 import struct
 from copy import deepcopy
-from itertools import chain, islice, repeat
-from typing import NamedTuple, Optional, Self, Sized
-
-import numpy as np
+from typing import Optional
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
@@ -18,18 +15,6 @@ from .enums import BufferTarget, ComponentType
 
 
 VERSION = 2
-
-
-class Bounds(NamedTuple):
-    min_values: list[float]
-    max_values: list[float]
-
-    @classmethod
-    def calculate(cls, data: Sized) -> Self:
-        return cls(
-            min_values=list(map(min, zip(*data))),
-            max_values=list(map(max, zip(*data))),
-        )
 
 
 class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
@@ -81,6 +66,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         scene = deepcopy(base.SCENE)
         self.ctx["GLTF"]["scenes"].append(scene)
 
+        # Create nodes
         self.create_nodes()
         self.count_nodes()
 
@@ -93,7 +79,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         if self.skeleton_presented:
             self.create_bones()
-            # self.create_armature()
 
     def count_nodes(self):
         nodes = list(range(len(self.data.meshes)))
@@ -112,37 +97,32 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = accessor_index()
-            bounds = Bounds.calculate([v.position for v in mesh.vertices])
             self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
-            self.create_accessor(mesh.count.vertices, "VEC3", bounds=bounds)
+            self.create_accessor(mesh.count.vertices, "VEC3")
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
                 primitive["attributes"]["TEXCOORD_0"] = accessor_index()
-                bounds = Bounds.calculate([v.texture for v in mesh.vertices])
                 self.create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
-                self.create_accessor(mesh.count.vertices, "VEC2", bounds=bounds)
+                self.create_accessor(mesh.count.vertices, "VEC2")
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = accessor_index()
-                bounds = Bounds.calculate([v.normals for v in mesh.vertices])
                 self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
-                self.create_accessor(mesh.count.vertices, "VEC3", bounds=bounds)
+                self.create_accessor(mesh.count.vertices, "VEC3")
 
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = accessor_index()
-                bounds = Bounds.calculate([v.bone_ids for v in mesh.vertices])
                 self.create_bufferview(byte_length=mesh.count.vertices * 4)
-                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE, bounds=bounds)
+                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE)
 
                 # Joint Weights
                 primitive["attributes"]["WEIGHTS_0"] = accessor_index()
-                bounds = Bounds.calculate([v.bone_weights for v in mesh.vertices])
                 self.create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
-                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT, bounds=bounds)
+                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
                 # Bind Matrix
                 joints = list(range(len(self.data.skeleton.bones)))
@@ -176,6 +156,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
             rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
+
             node = {
                 "name": bone.name,
                 "rotation": rotation.as_quat().tolist(),
@@ -190,15 +171,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
-
-    def create_armature(self):
-        # children = list(range(len(self.data.scene.meshes)))
-        # children += self.ctx["ROOT_BONE_INDEXES"]
-
-        children = self.ctx["ROOT_BONE_INDEXES"]
-
-        node = {"name": "Armature", "children": children}
-        self.ctx["GLTF"]["nodes"].append(node)
 
     def create_bufferview(
         self,
@@ -215,13 +187,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         )
         self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
 
-    def create_accessor(
-        self,
-        count: int,
-        accessor_type: str,
-        component_type: ComponentType = ComponentType.FLOAT,
-        bounds: Optional[Bounds] = None,
-    ):
+    def create_accessor(self, count: int, accessor_type: str, component_type: ComponentType = ComponentType.FLOAT):
         buffer_view_idx = len(self.ctx["GLTF"]["bufferViews"]) - 1
         accessor = {
             "bufferView": buffer_view_idx,
@@ -229,10 +195,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             "componentType": component_type,
             "type": accessor_type,
         }
-
-        if bounds:
-            accessor["min"] = bounds.min_values
-            accessor["max"] = bounds.max_values
 
         self.ctx["GLTF"]["accessors"].append(accessor)
 
@@ -257,42 +219,26 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_meshes(self):
         for mesh in self.data.meshes:
             # XYZ Position
-            self.write(
-                struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *[i for v in mesh.vertices for i in v.position])
-            )
+            self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_positions()))
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
-                self.write(
-                    struct.pack(f"{mesh.count.vertices * 2}{F.F32}", *[i for v in mesh.vertices for i in v.texture])
-                )
+                self.write(struct.pack(f"{mesh.count.vertices * 2}{F.F32}", *mesh.get_textures()))
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                self.write(
-                    struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *[i for v in mesh.vertices for i in v.normals])
-                )
+                self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_normals()))
 
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
-                self.write(
-                    struct.pack(
-                        f"{mesh.count.vertices * 4}{F.U8}",
-                        *[i for v in mesh.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), 4))],
-                    )
-                )
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *mesh.get_bone_ids()))
 
                 # Joint Weights
-                self.write(
-                    struct.pack(
-                        f"{mesh.count.vertices * 4}{F.F32}",
-                        *[i for v in mesh.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), 4))],
-                    )
-                )
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *mesh.get_bone_weights()))
 
                 # Bind Matrix
-                data = np.array(self.data.skeleton.inverse_bind_matrices(transpose=True))
+                data = self.data.skeleton.inverse_bind_matrices(transpose=True)
                 array = struct.pack(f"{len(self.data.skeleton.bones) * 16}{F.F32}", *data.flatten().tolist())
                 self.write(array)
 

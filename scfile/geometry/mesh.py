@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from itertools import chain, islice, repeat
 
 from .vectors import Polygon, Vector3
 from .vertex import Vertex
@@ -41,3 +42,18 @@ class ModelMesh:
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]
+
+    def get_positions(self) -> list[float]:
+        return [i for vertex in self.vertices for i in vertex.position]
+
+    def get_textures(self) -> list[float]:
+        return [i for vertex in self.vertices for i in vertex.texture]
+
+    def get_normals(self) -> list[float]:
+        return [i for vertex in self.vertices for i in vertex.normals]
+
+    def get_bone_ids(self, links: int = 4):
+        return [i for v in self.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), links))]
+
+    def get_bone_weights(self, links: int = 4):
+        return [i for v in self.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), 4))]
