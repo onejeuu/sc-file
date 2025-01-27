@@ -2,27 +2,42 @@ import json
 import struct
 from copy import deepcopy
 from itertools import chain, islice, repeat
-from typing import Any, Sized
+from typing import NamedTuple, Optional, Self, Sized
 
 import numpy as np
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
-from scfile.enums import ByteOrder, FileFormat
+from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
-from scfile.geometry.vectors import Polygon
-from scfile.geometry.vertex import Vertex
 
 from .consts import BASE_BUFFER, BASE_GLTF, BASE_PRIMITIVE, BASE_SCENE, VERSION
 from .enums import BufferTarget, ComponentType
 
 
+class Bounds(NamedTuple):
+    min_values: list[float]
+    max_values: list[float]
+
+    @classmethod
+    def calculate(cls, data: Sized) -> Self:
+        return cls(
+            min_values=list(map(min, zip(*data))),
+            max_values=list(map(max, zip(*data))),
+        )
+
+
 class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     format = FileFormat.GLB
+    signature = FileSignature.GLTF
 
     _options = ModelOptions
+
+    @property
+    def skeleton_presented(self) -> bool:
+        return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
@@ -36,271 +51,249 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.update_total_size()
 
     def add_header(self):
-        self.write(FileSignature.GLTF)
         self.write(struct.pack("<I", VERSION))
-        self.write(struct.pack("<I", 0))  # Total size placeholder
+
+        # Total Size Placeholder
+        self.ctx["TOTAL_SIZE_POS"] = self.tell()
+        self.write(struct.pack("<I", 0))
 
     def update_total_size(self):
-        self.seek(8)
+        self.seek(self.ctx["TOTAL_SIZE_POS"])
         self.write(struct.pack("<I", len(self.getvalue())))
-
-    # TODO: update fmt and test
-    def create_vertex_array(self, vertices: list[Vertex], attribute: Any, count: int, data_type: F = F.F32):
-        fmt = ByteOrder.LITTLE + (data_type * len(vertices) * count)
-        return struct.pack(fmt, *[value for vertex in vertices for value in attribute(vertex)])
-
-    def create_polygon_array(self, polygons: list[Polygon]):
-        fmt = ByteOrder.LITTLE + (F.U32 * len(polygons) * 3)
-        return struct.pack(fmt, *[value for polygon in polygons for value in polygon])
 
     def add_json_chunk(self):
         self.create_gltf()
 
-        gltf = json.dumps(self.gltf).encode()
+        gltf = json.dumps(self.ctx["GLTF"], indent=2)
 
         self.write(struct.pack("<I", len(gltf)))
         self.write(b"JSON")
-        self.write(gltf)
+        self.write(gltf.encode())
 
-    def add_bones(self):
-        from scipy.spatial.transform import Rotation as R
+    def create_gltf(self):
+        self.ctx["GLTF"] = deepcopy(BASE_GLTF)
+        self.ctx["BUFFER_VIEW_OFFSET"] = 0
 
-        # Root bones indexes
-        self.roots_idx: list[int] = []
+        # Create scene
+        scene = deepcopy(BASE_SCENE)
+        self.ctx["GLTF"]["scenes"].append(scene)
 
-        if self.data.flags[Flag.SKELETON]:
-            for bone in self.data.skeleton.bones:
-                if bone.is_root:
-                    self.roots_idx.append(self.node_offset)
+        self.create_nodes()
+        self.count_nodes()
 
-                self.node_offset += 1
+        # Write length in buffers
+        self.ctx["GLTF"]["buffers"].append(deepcopy(BASE_BUFFER))
+        self.ctx["GLTF"]["buffers"][0]["byteLength"] = self.ctx["BUFFER_VIEW_OFFSET"]
 
-                rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
-                node = {
-                    "name": bone.name,
-                    "rotation": rotation.as_quat().tolist(),
-                    "translation": list(bone.position),
-                }
+    def create_nodes(self):
+        self.create_meshes()
 
-                if bone.children:
-                    node["children"] = [child.id for child in bone.children]
+        if self.skeleton_presented:
+            self.create_bones()
+            # self.create_armature()
 
-                # Add to GLTF
-                self.gltf["nodes"].append(node)
+    def count_nodes(self):
+        nodes = list(range(len(self.data.meshes)))
 
-    def add_meshes(self):
-        # Mesh indexes
-        self.mesh_idx: list[int] = []
+        if self.skeleton_presented:
+            nodes += self.ctx["ROOT_BONE_INDEXES"]
+
+        self.ctx["GLTF"]["scenes"][0]["nodes"] = nodes
+
+    def create_meshes(self):
+        def accessor_index() -> int:
+            return len(self.ctx["GLTF"]["accessors"])
 
         for index, mesh in enumerate(self.data.meshes):
-            self.mesh_idx.append(self.node_offset)
-            self.node_offset += 1
-
             primitive = deepcopy(BASE_PRIMITIVE)
 
             # XYZ Position
-            primitive["attributes"]["POSITION"] = len(self.gltf["accessors"])
-            self.create_attribute([v.position for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
+            primitive["attributes"]["POSITION"] = accessor_index()
+            bounds = Bounds.calculate([v.position for v in mesh.vertices])
+            self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
+            self.create_accessor(mesh.count.vertices, "VEC3", bounds=bounds)
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
-                primitive["attributes"]["TEXCOORD_0"] = len(self.gltf["accessors"])
-                self.create_attribute([v.texture for v in mesh.vertices], "VEC2", bytes_per_item=2 * 4, boundaries=True)
+                primitive["attributes"]["TEXCOORD_0"] = accessor_index()
+                bounds = Bounds.calculate([v.texture for v in mesh.vertices])
+                self.create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
+                self.create_accessor(mesh.count.vertices, "VEC2", bounds=bounds)
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                primitive["attributes"]["NORMAL"] = len(self.gltf["accessors"])
-                self.create_attribute([v.normals for v in mesh.vertices], "VEC3", bytes_per_item=3 * 4, boundaries=True)
+                primitive["attributes"]["NORMAL"] = accessor_index()
+                bounds = Bounds.calculate([v.normals for v in mesh.vertices])
+                self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
+                self.create_accessor(mesh.count.vertices, "VEC3", bounds=bounds)
 
             # Bone Links
-            if self.data.flags[Flag.SKELETON]:
+            if self.skeleton_presented:
                 # Joint Indices
-                primitive["attributes"]["JOINTS_0"] = len(self.gltf["accessors"])
-                self.create_attribute(
-                    [v.bone_ids for v in mesh.vertices],
-                    "VEC4",
-                    component_type=ComponentType.UBYTE,
-                    bytes_per_item=4,
-                )
+                primitive["attributes"]["JOINTS_0"] = accessor_index()
+                bounds = Bounds.calculate([v.bone_ids for v in mesh.vertices])
+                self.create_bufferview(byte_length=mesh.count.vertices * 4)
+                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE, bounds=bounds)
 
                 # Joint Weights
-                primitive["attributes"]["WEIGHTS_0"] = len(self.gltf["accessors"])
-                self.create_attribute(
-                    [v.bone_weights for v in mesh.vertices],
-                    "VEC4",
-                    component_type=ComponentType.FLOAT,
-                    bytes_per_item=4 * 4,
-                )
+                primitive["attributes"]["WEIGHTS_0"] = accessor_index()
+                bounds = Bounds.calculate([v.bone_weights for v in mesh.vertices])
+                self.create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
+                self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT, bounds=bounds)
 
                 # Bind Matrix
-                self.add_skin()
-                self.create_attribute(
-                    self.data.skeleton.bones,
-                    "MAT4",
-                    component_type=ComponentType.FLOAT,
-                    bytes_per_item=4 * 4 * 4,
-                )
+                joints = list(range(len(self.data.skeleton.bones)))
+                joints = [len(self.data.meshes) + j for j in joints]
+                self.ctx["GLTF"]["skins"] = [dict(name="Armature", inverseBindMatrices=accessor_index(), joints=joints)]
+                self.create_bufferview(byte_length=len(self.data.skeleton.bones) * 16 * 4)
+                self.create_accessor(len(self.data.skeleton.bones), "MAT4", ComponentType.FLOAT)
 
             # ABC Polygons
-            primitive["indices"] = len(self.gltf["accessors"])
-            self.create_attribute(
-                [i for p in mesh.polygons for i in p],
-                "SCALAR",
-                component_type=ComponentType.UINT32,
-                target=BufferTarget.ELEMENT_ARRAY_BUFFER,
-                bytes_per_item=4,
-            )
+            primitive["indices"] = accessor_index()
+            self.create_bufferview(byte_length=mesh.count.polygons * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
+            self.create_accessor(mesh.count.polygons * 3, "SCALAR", ComponentType.UINT32)
 
             # Create nodes
-            meshnode = {"name": mesh.name, "primitives": [primitive]}
-
             node = {"name": mesh.name, "mesh": index}
-            if self.data.flags[Flag.SKELETON]:
+            mesh_node = {"name": mesh.name, "primitives": [primitive]}
+
+            if self.skeleton_presented:
                 node["skin"] = 0
 
             # Add to GLTF
-            self.gltf["nodes"].append(node)
-            self.gltf["meshes"].append(meshnode)
+            self.ctx["GLTF"]["nodes"].append(node)
+            self.ctx["GLTF"]["meshes"].append(mesh_node)
 
-    def add_skin(self):
-        self.gltf["skins"] = [
-            {
-                "name": "Armature",
-                "inverseBindMatrices": len(self.gltf["accessors"]),
-                "joints": list(range(len(self.data.skeleton.bones))),
+    def create_bones(self):
+        from scipy.spatial.transform import Rotation as R
+
+        self.ctx["ROOT_BONE_INDEXES"] = []
+
+        node_index_offset = len(self.data.scene.meshes)
+
+        for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
+            rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
+            node = {
+                "name": bone.name,
+                "rotation": rotation.as_quat().tolist(),
+                "translation": list(bone.position),
             }
-        ]
 
-    def add_armature(self):
-        if self.data.flags[Flag.SKELETON]:
-            node = {"name": "Armature", "children": [*self.roots_idx, *self.mesh_idx]}
-            self.gltf["nodes"].append(node)
+            if bone.is_root:
+                self.ctx["ROOT_BONE_INDEXES"].append(index)
 
-    def create_gltf(self):
-        # Copy template
-        self.gltf = deepcopy(BASE_GLTF)
+            if bone.children:
+                node["children"] = [node_index_offset + child.id for child in bone.children]
 
-        # Add attributes to gltf json
-        self.attribute_offset = 0
-        self.node_offset = 0
+            # Add to GLTF
+            self.ctx["GLTF"]["nodes"].append(node)
 
-        # Create scene node
-        self.gltf["scenes"].append(deepcopy(BASE_SCENE))
+    def create_armature(self):
+        # children = list(range(len(self.data.scene.meshes)))
+        # children += self.ctx["ROOT_BONE_INDEXES"]
 
-        # Add nodes
-        self.add_bones()
-        self.add_meshes()
-        self.add_armature()
+        children = self.ctx["ROOT_BONE_INDEXES"]
 
-        # Write nodes count
-        self.gltf["scenes"][0]["nodes"] = [self.node_offset]
+        node = {"name": "Armature", "children": children}
+        self.ctx["GLTF"]["nodes"].append(node)
 
-        # Write length in buffers
-        self.gltf["buffers"].append(deepcopy(BASE_BUFFER))
-        self.gltf["buffers"][0]["byteLength"] = self.attribute_offset
-
-    def create_attribute(
+    def create_bufferview(
         self,
-        data: Sized,
-        accessor_type: str,
-        component_type: ComponentType = ComponentType.FLOAT,
+        byte_length: int,
         target: BufferTarget = BufferTarget.ARRAY_BUFFER,
-        bytes_per_item: int = 4,
-        boundaries: bool = False,
     ):
-        # Add buffer view
-        count = len(data)
-        byte_length = count * bytes_per_item
-        buffer_view_idx = len(self.gltf["bufferViews"])
-
-        self.gltf["bufferViews"].append(
+        self.ctx["GLTF"]["bufferViews"].append(
             {
                 "buffer": 0,
                 "byteLength": byte_length,
-                "byteOffset": self.attribute_offset,
+                "byteOffset": self.ctx["BUFFER_VIEW_OFFSET"],
                 "target": target,
             }
         )
+        self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
 
-        # Move offset
-        self.attribute_offset += byte_length
-
-        # Create accessor
+    def create_accessor(
+        self,
+        count: int,
+        accessor_type: str,
+        component_type: ComponentType = ComponentType.FLOAT,
+        bounds: Optional[Bounds] = None,
+    ):
+        buffer_view_idx = len(self.ctx["GLTF"]["bufferViews"]) - 1
         accessor = {
             "bufferView": buffer_view_idx,
-            "componentType": component_type,
             "count": count,
+            "componentType": component_type,
             "type": accessor_type,
         }
 
-        # Attribute boundaries
-        if boundaries:
-            accessor["min"] = list(map(min, zip(*data)))
-            accessor["max"] = list(map(max, zip(*data)))
+        if bounds:
+            accessor["min"] = bounds.min_values
+            accessor["max"] = bounds.max_values
 
-        # Add accessor
-        self.gltf["accessors"].append(accessor)
+        self.ctx["GLTF"]["accessors"].append(accessor)
 
     def add_binary_chunk(self):
-        # Size of BIN chunk placeholder
-        chunk_start = self.tell()
+        self.add_bin_size()
+        self.ctx["BIN_START"] = self.tell()
+        self.add_meshes()
+        self.ctx["BIN_END"] = self.tell()
+        self.update_bin_size()
+
+    def add_bin_size(self):
+        # BIN Size Placeholder
+        self.ctx["BIN_SIZE_POS"] = self.tell()
         self.write(struct.pack("<I", 0))
         self.write(b"BIN\0")
 
-        # Mesh data arrays
-        start = self.tell()
+    def update_bin_size(self):
+        size = self.ctx["BIN_END"] - self.ctx["BIN_START"]
+        self.seek(self.ctx["BIN_SIZE_POS"])
+        self.write(struct.pack("<I", size))
 
+    def add_meshes(self):
         for mesh in self.data.meshes:
             # XYZ Position
-            array = self.create_vertex_array(mesh.vertices, lambda v: v.position, count=3)
-            self.write(array)
+            self.write(
+                struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *[i for v in mesh.vertices for i in v.position])
+            )
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
-                array = self.create_vertex_array(mesh.vertices, lambda v: v.texture, count=2)
-                self.write(array)
+                self.write(
+                    struct.pack(f"{mesh.count.vertices * 2}{F.F32}", *[i for v in mesh.vertices for i in v.texture])
+                )
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                array = self.create_vertex_array(mesh.vertices, lambda v: v.normals, count=3)
-                self.write(array)
+                self.write(
+                    struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *[i for v in mesh.vertices for i in v.normals])
+                )
 
             # Bone Links
-            if self.data.flags[Flag.SKELETON]:
+            if self.skeleton_presented:
                 # Joint Indices
-                array = self.create_vertex_array(
-                    mesh.vertices,
-                    lambda v: list(islice(chain(v.bone_ids, repeat(0)), 4)),
-                    count=4,
-                    data_type=F.U8,
+                self.write(
+                    struct.pack(
+                        f"{mesh.count.vertices * 4}{F.U8}",
+                        *[i for v in mesh.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), 4))],
+                    )
                 )
-                self.write(array)
 
                 # Joint Weights
-                array = self.create_vertex_array(
-                    mesh.vertices,
-                    lambda v: list(islice(chain(v.bone_weights, repeat(0.0)), 4)),
-                    count=4,
-                    data_type=F.F32,
+                self.write(
+                    struct.pack(
+                        f"{mesh.count.vertices * 4}{F.F32}",
+                        *[i for v in mesh.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), 4))],
+                    )
                 )
-                self.write(array)
 
                 # Bind Matrix
-                fmt = f"{ByteOrder.LITTLE}{len(self.data.skeleton.bones) * 16}{F.F32}"
-
-                # ! TODO: get right inverse bind poses
                 data = np.array(self.data.skeleton.calculate_inverse_bind_matrices())
+                # data = np.flip(data, axis=1)
 
-                array = struct.pack(fmt, *data.flatten().tolist())
+                array = struct.pack(f"{len(self.data.skeleton.bones) * 16}{F.F32}", *data.flatten().tolist())
                 self.write(array)
 
             # ABC Polygons
-            array = self.create_polygon_array(mesh.polygons)
-            self.write(array)
-
-        # Write size of BIN chunk
-        end = self.tell()
-        size = end - start
-
-        self.seek(chunk_start)
-        self.write(struct.pack("<I", size))
+            self.write(struct.pack(f"{mesh.count.polygons * 3}{F.U32}", *[i for p in mesh.polygons for i in p]))

@@ -144,11 +144,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
 
     def parse_links_count(self, mesh: ModelMesh):
         mesh.count.max_links = self.readb(F.U8)
-        mesh.count.bones = self.readb(F.U8)
+        mesh.count.local_bones = self.readb(F.U8)
 
     def load_bone_indexes(self, mesh: ModelMesh):
-        for index in range(mesh.count.bones):
-            mesh.bones[index] = self.readb(F.U8)
+        for index in range(mesh.count.local_bones):
+            mesh.local_bones[index] = self.readb(F.U8)
 
     def parse_defaults(self, mesh: ModelMesh):
         for x, y, z in self.readdefault():
@@ -213,11 +213,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
                 raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
-        links = self.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        links = self.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.local_bones)
         self.load_links(mesh, links)
 
     def parse_plain_links(self, mesh: ModelMesh):
-        links = self.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.bones)
+        links = self.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.local_bones)
         self.load_links(mesh, links)
 
     def load_links(self, mesh: ModelMesh, links: Any):

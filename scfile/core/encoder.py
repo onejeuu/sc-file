@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, Self
+from typing import Any, Generic, Optional, Self
 
 from scfile.enums import FileMode
 from scfile.io.streams import StructBytesIO
@@ -19,6 +19,7 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content, Options], ABC):
     def __init__(self, data: Content, options: Optional[Options] = None):
         self.data: Content = data
         self.options: Options = options or self._options()
+        self.ctx: dict[str, Any] = {}
 
     def prepare(self) -> None:
         pass
@@ -54,4 +55,5 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content, Options], ABC):
 
     def close(self) -> None:
         self.data.reset()
+        self.ctx = {}
         super().close()

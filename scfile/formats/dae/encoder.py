@@ -35,25 +35,25 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.data.scene.skeleton.build_hierarchy()
 
     def serialize(self):
-        root = self.create_root()
+        self.create_root()
         self.add_declaration()
-        self.add_asset(root)
-        self.add_geometries(root)
+        self.add_asset()
+        self.add_geometries()
 
         if self.skeleton_presented:
-            self.add_controllers(root)
+            self.add_controllers()
 
-        self.add_scenes(root)
-        self.render_xml(root)
+        self.add_scenes()
+        self.render_xml()
 
     def add_declaration(self):
         self.write(DECLARATION)
 
-    def create_root(self) -> Element:
-        return Element("COLLADA", xmlns=XMLNS, version=VERSION)
+    def create_root(self):
+        self.ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)
 
-    def add_asset(self, root: Element):
-        asset = SubElement(root, "asset")
+    def add_asset(self):
+        asset = SubElement(self.ctx["ROOT"], "asset")
         SubElement(asset, "unit", name="meter", meter="1")
         SubElement(asset, "up_axis").text = UP_AXIS
 
@@ -92,22 +92,22 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             accessor.append(Element("param", name=component, type=datatype))
 
     def add_mesh_sources(self, mesh_node: Element, mesh: ModelMesh):
-        # Positions XYZ
+        # XYZ Positions
         pos_data = np.array([list(v.position) for v in mesh.vertices])
         pos_source = self.create_source(mesh_node, mesh.name, "positions", pos_data)
         self.add_source_common(pos_source, mesh.name, "positions", len(pos_data), ["X", "Y", "Z"], "float")
 
-        # Normals XUZ
-        if self.data.flags[Flag.NORMALS]:
-            norm_data = np.array([list(v.normals) for v in mesh.vertices])
-            norm_source = self.create_source(mesh_node, mesh.name, "normals", norm_data)
-            self.add_source_common(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
-
-        # Texture UV
+        # UV Texture
         if self.data.flags[Flag.TEXTURE]:
             tex_data = np.array([(v.texture.u, -v.texture.v) for v in mesh.vertices])
             tex_source = self.create_source(mesh_node, mesh.name, "texture", tex_data)
             self.add_source_common(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
+
+        # XYZ Normals
+        if self.data.flags[Flag.NORMALS]:
+            norm_data = np.array([list(v.normals) for v in mesh.vertices])
+            norm_source = self.create_source(mesh_node, mesh.name, "normals", norm_data)
+            self.add_source_common(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
 
     def add_triangles(self, mesh_node: Element, mesh: ModelMesh):
         vertices = SubElement(mesh_node, "vertices", id=f"{mesh.name}-vertices")
@@ -129,8 +129,8 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         p = SubElement(triangles, "p")
         p.text = " ".join(map(str, indices))
 
-    def add_geometries(self, root: Element):
-        library = SubElement(root, "library_geometries")
+    def add_geometries(self):
+        library = SubElement(self.ctx["ROOT"], "library_geometries")
 
         for mesh in self.data.meshes:
             geom = SubElement(library, "geometry", id=mesh.name, name=mesh.name)
@@ -139,8 +139,8 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             self.add_mesh_sources(mesh_node, mesh)
             self.add_triangles(mesh_node, mesh)
 
-    def add_controllers(self, root: Element):
-        library = SubElement(root, "library_controllers")
+    def add_controllers(self):
+        library = SubElement(self.ctx["ROOT"], "library_controllers")
 
         for mesh in self.data.meshes:
             controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
@@ -181,8 +181,8 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
         SubElement(weights, "v").text = " ".join(mesh.bone_indices)
 
-    def add_scenes(self, root: Element):
-        library = SubElement(root, "library_visual_scenes")
+    def add_scenes(self):
+        library = SubElement(self.ctx["ROOT"], "library_visual_scenes")
         scene = SubElement(library, "visual_scene", id="scene", name="Scene")
 
         root_node = scene
@@ -191,7 +191,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         self.add_mesh_instances(root_node)
 
-        scene_elem = SubElement(root, "scene")
+        scene_elem = SubElement(self.ctx["ROOT"], "scene")
         SubElement(scene_elem, "instance_visual_scene", url="#scene")
 
     def add_armature(self, scene: Element) -> Element:
@@ -223,6 +223,6 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             else:
                 SubElement(node, "instance_geometry", url=f"#{mesh.name}", name=mesh.name)
 
-    def render_xml(self, root: Element):
-        etree.indent(root)
-        self.write(etree.tostring(root))
+    def render_xml(self):
+        etree.indent(self.ctx["ROOT"])
+        self.write(etree.tostring(self.ctx["ROOT"]))
