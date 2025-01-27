@@ -292,9 +292,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 )
 
                 # Bind Matrix
-                data = np.array(self.data.skeleton.calculate_inverse_bind_matrices())
-                # data = np.flip(data, axis=1)
-
+                data = np.array(self.data.skeleton.inverse_bind_matrices(transpose=True))
                 array = struct.pack(f"{len(self.data.skeleton.bones) * 16}{F.F32}", *data.flatten().tolist())
                 self.write(array)
 
