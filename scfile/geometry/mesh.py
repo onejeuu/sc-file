@@ -7,7 +7,7 @@ from .vertex import Vertex
 @dataclass
 class MeshCounts:
     max_links: int = 0
-    bones: int = 0
+    local_bones: int = 0
     vertices: int = 0
     polygons: int = 0
 
@@ -31,7 +31,7 @@ class ModelMesh:
     polygons: list[Polygon] = field(default_factory=list)
     faces: list[Polygon] = field(default_factory=list)
 
-    bones: dict[int, int] = field(default_factory=dict)
+    local_bones: dict[int, int] = field(default_factory=dict)
     """key: link id, value: bone id"""
 
     @property

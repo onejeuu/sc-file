@@ -25,7 +25,6 @@ scipy = "^1.15.0"
 pyinstaller = {version = "^6.11.1", python = "^3.11,<3.14"}
 pytest = "^8.1.1"
 
-
 [tool.poetry.scripts]
 scfile = "scfile.__main__:main"
 

@@ -86,7 +86,7 @@ class ModelSkeleton:
         global_transforms = self.calculate_global_transforms()
 
         # Вычисление обратных преобразований (bind poses)
-        return [np.linalg.inv(transform) for transform in global_transforms]
+        return [np.linalg.inv(transform.T) for transform in global_transforms]
 
 
 def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.ndarray:
@@ -116,12 +116,8 @@ def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.n
 
 
 def create_transform_matrix(bone: SkeletonBone) -> np.ndarray:
-    # Матрица вращения
-    rotation_matrix = create_rotation_matrix(bone.rotation)
-
-    # Матрица преобразования 4x4
     transform = np.eye(4)
-    transform[:3, :3] = rotation_matrix
+    transform[:3, :3] = create_rotation_matrix(bone.rotation)
     transform[:3, 3] = list(bone.position)
 
     return transform
