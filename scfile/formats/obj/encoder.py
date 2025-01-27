@@ -26,6 +26,7 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
     _options = ModelOptions
 
     def prepare(self):
+        self.data.scene.flip_v_textures()
         self.data.scene.ensure_unique_names()
         self.data.scene.convert_polygons_to_faces(start_index=1)
 
@@ -53,7 +54,7 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.write(b"\n\n")
 
     def add_texture_coordinates(self, mesh: ModelMesh):
-        self.writeutf8("\n".join([f"vt {v.texture.u} {1.0 - v.texture.v}" for v in mesh.vertices]))
+        self.writeutf8("\n".join([f"vt {v.texture.u} {v.texture.v}" for v in mesh.vertices]))
         self.write(b"\n\n")
 
     def add_vertex_normals(self, mesh: ModelMesh):

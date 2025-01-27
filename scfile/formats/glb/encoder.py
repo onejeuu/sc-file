@@ -242,4 +242,4 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 self.write(array)
 
             # ABC Polygons
-            self.write(struct.pack(f"{mesh.count.polygons * 3}{F.U32}", *[i for p in mesh.polygons for i in p]))
+            self.write(struct.pack(f"{mesh.count.polygons * 3}{F.U32}", *mesh.get_polygons()))

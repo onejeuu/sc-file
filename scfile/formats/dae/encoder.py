@@ -30,6 +30,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
 
     def prepare(self):
+        self.data.scene.invert_v_textures()
         self.data.scene.ensure_unique_names()
         self.data.scene.skeleton.convert_to_local()
         self.data.scene.skeleton.build_hierarchy()
@@ -93,19 +94,19 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def add_mesh_sources(self, mesh_node: Element, mesh: ModelMesh):
         # XYZ Positions
-        pos_data = np.array([list(v.position) for v in mesh.vertices])
+        pos_data = np.array(mesh.get_positions())
         pos_source = self.create_source(mesh_node, mesh.name, "positions", pos_data)
         self.add_source_common(pos_source, mesh.name, "positions", len(pos_data), ["X", "Y", "Z"], "float")
 
         # UV Texture
         if self.data.flags[Flag.TEXTURE]:
-            tex_data = np.array([(v.texture.u, -v.texture.v) for v in mesh.vertices])
+            tex_data = np.array(mesh.get_textures())
             tex_source = self.create_source(mesh_node, mesh.name, "texture", tex_data)
             self.add_source_common(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
 
         # XYZ Normals
         if self.data.flags[Flag.NORMALS]:
-            norm_data = np.array([list(v.normals) for v in mesh.vertices])
+            norm_data = np.array(mesh.get_normals())
             norm_source = self.create_source(mesh_node, mesh.name, "normals", norm_data)
             self.add_source_common(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
 
@@ -125,7 +126,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             SubElement(triangles, "input", semantic="NORMAL", source=f"#{mesh.name}-normals", offset="0")
 
         # Polygons ABC
-        indices = np.array([vertex_id for polygon in mesh.polygons for vertex_id in polygon])
+        indices = np.array(mesh.get_polygons())
         p = SubElement(triangles, "p")
         p.text = " ".join(map(str, indices))
 

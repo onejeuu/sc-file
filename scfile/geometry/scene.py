@@ -57,3 +57,13 @@ class ModelScene:
         for mesh in self.meshes:
             mesh.faces = [polygon >> offset for polygon in mesh.polygons]
             offset += mesh.count.vertices
+
+    def invert_v_textures(self):
+        for mesh in self.meshes:
+            for vertex in mesh.vertices:
+                vertex.texture.v *= -1
+
+    def flip_v_textures(self):
+        for mesh in self.meshes:
+            for vertex in mesh.vertices:
+                vertex.texture.v = 1.0 - vertex.texture.v
