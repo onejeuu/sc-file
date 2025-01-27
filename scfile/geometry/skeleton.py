@@ -65,31 +65,31 @@ class ModelSkeleton:
         self.roots = roots
         return roots
 
-    def calculate_global_transforms(self) -> List[np.ndarray]:
+    def calculate_global_transforms(self) -> list[np.ndarray]:
         global_transforms = []
 
         for bone in self.bones:
-            local_transform = create_transform_matrix(bone)
+            local_matrix = create_transform_matrix(bone)
 
             if bone.is_root:
-                global_transform = local_transform
+                global_transform = local_matrix
             else:
                 parent_transform = global_transforms[bone.parent_id]
-                global_transform = parent_transform @ local_transform
+                global_transform = parent_transform @ local_matrix
 
             global_transforms.append(global_transform)
 
         return global_transforms
 
-    def inverse_bind_matrices(self, transpose: bool) -> List[np.ndarray]:
+    def inverse_bind_matrices(self, transpose: bool) -> np.ndarray:
         # Сначала считаем глобальные преобразования
         global_transforms = self.calculate_global_transforms()
 
         # Вычисление обратных преобразований (bind poses)
         if transpose:
-            return [np.linalg.inv(transform.T) for transform in global_transforms]
+            return np.array([np.linalg.inv(transform.T) for transform in global_transforms])
         else:
-            return [np.linalg.inv(transform) for transform in global_transforms]
+            return np.array([np.linalg.inv(transform) for transform in global_transforms])
 
 
 def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.ndarray:
@@ -119,8 +119,8 @@ def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.n
 
 
 def create_transform_matrix(bone: SkeletonBone) -> np.ndarray:
-    transform = np.eye(4)
-    transform[:3, :3] = create_rotation_matrix(bone.rotation)
-    transform[:3, 3] = list(bone.position)
+    matrix = np.eye(4)
+    matrix[:3, :3] = create_rotation_matrix(bone.rotation)
+    matrix[:3, 3] = list(bone.position)
 
-    return transform
+    return matrix
