@@ -47,10 +47,3 @@ class Polygon(VectorBase):
     a: int = 0
     b: int = 0
     c: int = 0
-
-
-@dataclass
-class Color(VectorBase):
-    r: float = 0.8
-    g: float = 0.8
-    b: float = 0.8

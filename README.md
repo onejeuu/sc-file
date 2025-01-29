@@ -10,7 +10,9 @@
 
 [Перевод на русский](README_RU.md)
 
-Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
+Utility and Library for decoding and converting STALCRAFT asset files, such as models and textures, into popular formats.
+
+Supported formats: `.mcsa`, `.ol`, `.mic`.
 
 For answers to common questions, please refer to [FAQ section](FAQ.md).
 
