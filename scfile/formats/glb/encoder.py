@@ -231,10 +231,10 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *mesh.get_bone_ids()))
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *mesh.get_bone_ids(max_links=4)))
 
                 # Joint Weights
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *mesh.get_bone_weights()))
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *mesh.get_bone_weights(max_links=4)))
 
                 # Bind Matrix
                 data = self.data.skeleton.inverse_bind_matrices(transpose=True)

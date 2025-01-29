@@ -1,6 +1,7 @@
 import itertools
 from dataclasses import dataclass, field
 from itertools import chain, islice, repeat
+from typing import Iterable, Sized
 
 from .vectors import Polygon, Vector3
 from .vertex import Vertex
@@ -55,13 +56,20 @@ class ModelMesh:
     def get_faces(self) -> list[float]:
         return [i for f in self.faces for i in f]
 
-    def get_bone_ids(self, links: int = 4):
-        return [i for v in self.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), links))]
+    def get_bone_ids(self, max_links: int):
+        return [i for v in self.vertices for i in padded(v.bone_ids, max_links, default=0)]
 
-    def get_bone_weights(self, links: int = 4):
-        return [i for v in self.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), links))]
+    def get_bone_weights(self, max_links: int):
+        return [i for v in self.vertices for i in padded(v.bone_weights, max_links, default=0.0)]
 
-    def get_bone_indices(self) -> list[str]:
-        # TODO: valid it will work with other links count
+    def get_bone_indices(self, max_links: int) -> list[str]:
         index = itertools.count()
-        return [f"{bone_id} {next(index)}" for vertex in self.vertices for bone_id in vertex.bone_ids]
+        return [
+            f"{bone_id} {next(index)}"
+            for vertex in self.vertices
+            for bone_id in padded(vertex.bone_ids, max_links, default=0)
+        ]
+
+
+def padded(data: Iterable[int], stop: int, default: float):
+    return list(islice(chain(data, repeat(default)), stop))
