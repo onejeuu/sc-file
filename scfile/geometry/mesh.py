@@ -1,3 +1,4 @@
+import itertools
 from dataclasses import dataclass, field
 from itertools import chain, islice, repeat
 
@@ -33,7 +34,7 @@ class ModelMesh:
     faces: list[Polygon] = field(default_factory=list)
 
     local_bones: dict[int, int] = field(default_factory=dict)
-    """key: link id, value: bone id"""
+    """key: local bone id, value: global bone id"""
 
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
@@ -48,6 +49,12 @@ class ModelMesh:
     def get_normals(self) -> list[float]:
         return [i for vertex in self.vertices for i in vertex.normals]
 
+    def get_polygons(self) -> list[float]:
+        return [i for p in self.polygons for i in p]
+
+    def get_faces(self) -> list[float]:
+        return [i for f in self.faces for i in f]
+
     def get_bone_ids(self, links: int = 4):
         return [i for v in self.vertices for i in list(islice(chain(v.bone_ids, repeat(0)), links))]
 
@@ -55,10 +62,6 @@ class ModelMesh:
         return [i for v in self.vertices for i in list(islice(chain(v.bone_weights, repeat(0.0)), links))]
 
     def get_bone_indices(self) -> list[str]:
-        return [f"{bone_id} {index}" for index, vertex in enumerate(self.vertices) for bone_id in vertex.bone_ids[:1]]
-
-    def get_polygons(self) -> list[float]:
-        return [i for p in self.polygons for i in p]
-
-    def get_faces(self) -> list[float]:
-        return [i for f in self.faces for i in f]
+        # TODO: valid it will work with other links count
+        index = itertools.count()
+        return [f"{bone_id} {next(index)}" for vertex in self.vertices for bone_id in vertex.bone_ids]

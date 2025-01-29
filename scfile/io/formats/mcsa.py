@@ -90,15 +90,7 @@ class McsaFileIO(StructFileIO):
         # TODO: fix type hints
         return data  # type: ignore
 
-    def _boneids_to_global(self, data: Any, bones: dict[int, int]):
-        def apply_mesh_bones(x: int):
-            return bones.get(x, McsaModel.ROOT_BONE_ID)
-
-        vectorized = np.vectorize(apply_mesh_bones)
-
-        return vectorized(data)
-
-    def readlinkspacked(self, count: int, max_links: int, bones: dict[int, int]):
+    def readlinkspacked(self, count: int, bones: dict[int, int]):
         # Read array
         data = self.readarray(fmt=F.U8, size=4, count=count)
 
@@ -106,10 +98,10 @@ class McsaFileIO(StructFileIO):
         data = data.reshape(-1, 2, 2)
 
         # Bone ids
-        ids = data[:, 0, :max_links]
+        ids = data[:, 0, :]
 
         # Convert mesh bone ids to global skeleton ids
-        ids = self._boneids_to_global(ids, bones)
+        ids = np.vectorize(bones.get)(ids)
 
         # Scale weights to floats
         weights = data[:, 1, :] / Factor.U8
@@ -125,7 +117,7 @@ class McsaFileIO(StructFileIO):
         ids = self.readarray(fmt=F.U8, size=size, count=count)
 
         # Convert mesh bone ids to global skeleton ids
-        ids = self._boneids_to_global(ids, bones)
+        ids = np.vectorize(bones.get)(ids)
 
         return reshape(ids, size)
 
@@ -142,7 +134,7 @@ class McsaFileIO(StructFileIO):
 
         return reshape(weights, size)
 
-    def readlinksplains(self, count: int, max_links: int, bones: dict[int, int]):
+    def readlinksplains(self, count: int, bones: dict[int, int]):
         # Read data
         ids = self._readlinksids(count, bones)
         weights = self._readlinksweights(count)

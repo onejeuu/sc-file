@@ -30,6 +30,9 @@ class ModelSkeleton:
     bones: List[SkeletonBone] = field(default_factory=list)
     roots: List[SkeletonBone] = field(default_factory=list)
 
+    def get_bones_names(self) -> list[str]:
+        return [b.name for b in self.bones]
+
     def convert_to_local(self):
         """Update bones positions by their parent bone."""
         parent_id = 0

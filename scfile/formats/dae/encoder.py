@@ -176,7 +176,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def add_controller_sources(self, mesh: ModelMesh, skin: Element):
         # Add joint names
-        joint_data = np.array([b.name for b in self.data.skeleton.bones])
+        joint_data = np.array(self.data.skeleton.get_bones_names())
         joint_source = self.create_source(skin, mesh.name, "joints", joint_data, "Name_array")
         self.add_source_common(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
 
@@ -186,7 +186,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
         # Add weights
-        weight_data = np.array([v.bone_weights[:1] for v in mesh.vertices])
+        weight_data = np.array(mesh.get_bone_weights())
         weight_source = self.create_source(skin, mesh.name, "weights", weight_data)
         self.add_source_common(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
 
@@ -201,8 +201,8 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         SubElement(weights, "input", semantic="JOINT", source=f"#{mesh.name}-joints", offset="0")
         SubElement(weights, "input", semantic="WEIGHT", source=f"#{mesh.name}-weights", offset="1")
 
-        # TODO: figure out why tf zeros in ids and weights...
-        SubElement(weights, "vcount").text = " ".join(["1"] * mesh.count.vertices)
+        # Add indices
+        SubElement(weights, "vcount").text = " ".join([str(mesh.count.max_links)] * mesh.count.vertices)
         SubElement(weights, "v").text = " ".join(mesh.get_bone_indices())
 
     def add_scenes(self):
