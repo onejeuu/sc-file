@@ -1,12 +1,12 @@
 from abc import ABC
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from typing import Iterator, Self
 
 
 @dataclass
 class VectorBase(ABC):
     def __iter__(self) -> Iterator:
-        return iter(getattr(self, field.name) for field in fields(self))
+        return iter(self.__dict__.values())
 
     def __add__(self: Self, other: Self) -> Self:
         return self.__class__(*(a + b for a, b in zip(self, other)))
