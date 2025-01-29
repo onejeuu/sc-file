@@ -186,7 +186,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
         # Add weights
-        weight_data = np.array(mesh.get_bone_weights())
+        weight_data = np.array(mesh.get_bone_weights(mesh.count.max_links))
         weight_source = self.create_source(skin, mesh.name, "weights", weight_data)
         self.add_source_common(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
 
@@ -203,7 +203,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         # Add indices
         SubElement(weights, "vcount").text = " ".join([str(mesh.count.max_links)] * mesh.count.vertices)
-        SubElement(weights, "v").text = " ".join(mesh.get_bone_indices())
+        SubElement(weights, "v").text = " ".join(mesh.get_bone_indices(mesh.count.max_links))
 
     def add_scenes(self):
         library = SubElement(self.ctx["ROOT"], "library_visual_scenes")
