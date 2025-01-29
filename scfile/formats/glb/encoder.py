@@ -2,6 +2,8 @@ import json
 import struct
 from copy import deepcopy
 
+from scipy.spatial.transform import Rotation as R
+
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
@@ -147,8 +149,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             self.ctx["GLTF"]["meshes"].append(mesh_node)
 
     def create_bones(self):
-        from scipy.spatial.transform import Rotation as R
-
         self.ctx["ROOT_BONE_INDEXES"] = []
 
         node_index_offset = len(self.data.scene.meshes)
