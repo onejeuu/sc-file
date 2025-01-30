@@ -213,11 +213,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
                 raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
-        links = self.readlinkspacked(mesh.count.vertices, mesh.local_bones)
+        links = self.readlinkspacked(mesh.count.vertices, mesh.count.max_links, mesh.local_bones)
         self.load_links(mesh, links)
 
     def parse_plain_links(self, mesh: ModelMesh):
-        links = self.readlinksplains(mesh.count.vertices, mesh.local_bones)
+        links = self.readlinksplains(mesh.count.vertices, mesh.count.max_links, mesh.local_bones)
         self.load_links(mesh, links)
 
     def load_links(self, mesh: ModelMesh, links: Any):

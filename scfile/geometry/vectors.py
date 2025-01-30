@@ -5,7 +5,7 @@ from typing import Iterator, Self
 
 @dataclass
 class VectorBase(ABC):
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[float]:
         return iter(self.__dict__.values())
 
     def __add__(self: Self, other: Self) -> Self:

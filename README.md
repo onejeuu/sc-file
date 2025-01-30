@@ -1,4 +1,4 @@
-# SC FILE 4.0 [WIP]
+# sc-file 4.0 [WIP]
 
 [![Pypi](https://img.shields.io/pypi/v/sc-file.svg)](https://pypi.org/project/sc-file)
 [![License](https://img.shields.io/github/license/onejeuu/sc-file)](https://opensource.org/licenses/MIT)
