@@ -1,7 +1,7 @@
 import itertools
 from dataclasses import dataclass, field
 from itertools import chain, islice, repeat
-from typing import Iterable, Sized
+from typing import Iterable
 
 from .vectors import Polygon, Vector3
 from .vertex import Vertex

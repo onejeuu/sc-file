@@ -1,6 +1,7 @@
 import json
 import struct
 from copy import deepcopy
+from typing import Optional
 
 from scipy.spatial.transform import Rotation as R
 
@@ -53,7 +54,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_json_chunk(self):
         self.create_gltf()
 
-        gltf = json.dumps(self.ctx["GLTF"], indent=2)
+        gltf = json.dumps(self.ctx["GLTF"])
 
         self.write(struct.pack("<I", len(gltf)))
         self.write(b"JSON")
@@ -117,7 +118,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             if self.skeleton_presented:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = accessor_index()
-                self.create_bufferview(byte_length=mesh.count.vertices * 4)
+                self.create_bufferview(byte_length=mesh.count.vertices * 4 * 1)
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE)
 
                 # Joint Weights
@@ -126,11 +127,15 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
                 # Bind Matrix
-                joints = list(range(len(self.data.skeleton.bones)))
-                joints = [len(self.data.meshes) + j for j in joints]
+                bones_count = len(self.data.skeleton.bones)
+                joint_offset = len(self.data.meshes)
+
+                joints = list(range(bones_count))
+                joints = [joint_offset + j for j in joints]
+
                 self.ctx["GLTF"]["skins"] = [dict(name="Armature", inverseBindMatrices=accessor_index(), joints=joints)]
-                self.create_bufferview(byte_length=len(self.data.skeleton.bones) * 16 * 4)
-                self.create_accessor(len(self.data.skeleton.bones), "MAT4", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=bones_count * 16 * 4, target=None)
+                self.create_accessor(bones_count, "MAT4", ComponentType.FLOAT)
 
             # ABC Polygons
             primitive["indices"] = accessor_index()
@@ -138,20 +143,22 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             self.create_accessor(mesh.count.polygons * 3, "SCALAR", ComponentType.UINT32)
 
             # Create nodes
+            primitive["material"] = index
+
             node = {"name": mesh.name, "mesh": index}
-            mesh_node = {"name": mesh.name, "primitives": [primitive]}
 
             if self.skeleton_presented:
                 node["skin"] = 0
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
-            self.ctx["GLTF"]["meshes"].append(mesh_node)
+            self.ctx["GLTF"]["meshes"].append({"name": mesh.name, "primitives": [primitive]})
+            self.ctx["GLTF"]["materials"].append({"name": mesh.material})
 
     def create_bones(self):
         self.ctx["ROOT_BONE_INDEXES"] = []
 
-        node_index_offset = len(self.data.scene.meshes)
+        node_index_offset = len(self.data.meshes)
 
         for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
             rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
@@ -171,19 +178,17 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
 
-    def create_bufferview(
-        self,
-        byte_length: int,
-        target: BufferTarget = BufferTarget.ARRAY_BUFFER,
-    ):
-        self.ctx["GLTF"]["bufferViews"].append(
-            {
-                "buffer": 0,
-                "byteLength": byte_length,
-                "byteOffset": self.ctx["BUFFER_VIEW_OFFSET"],
-                "target": target,
-            }
-        )
+    def create_bufferview(self, byte_length: int, target: Optional[BufferTarget] = BufferTarget.ARRAY_BUFFER):
+        view = {
+            "buffer": 0,
+            "byteLength": byte_length,
+            "byteOffset": self.ctx["BUFFER_VIEW_OFFSET"],
+        }
+
+        if target:
+            view["target"] = target
+
+        self.ctx["GLTF"]["bufferViews"].append(view)
         self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
 
     def create_accessor(self, count: int, accessor_type: str, component_type: ComponentType = ComponentType.FLOAT):

@@ -6,6 +6,7 @@ GLTF = {
     "scene": 0,
     "scenes": [],
     "nodes": [],
+    "materials": [],
     "meshes": [],
     "skins": [],
     "accessors": [],
