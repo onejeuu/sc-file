@@ -10,13 +10,15 @@
 
 [Перевод на русский](README_RU.md)
 
-Utility and Library for decoding and converting STALCRAFT asset files, such as models and textures, into popular formats.
+**scfile** is a utility and library designed for decoding and converting STALCRAFT asset files, such as models and textures, into popular formats.
 
 Supported formats: `.mcsa`, `.ol`, `.mic`.
 
-For answers to common questions, please refer to [FAQ section](FAQ.md).
+❓ [Why reverse encoding into game formats is unsupported?](https://github.com/onejeuu/sc-file/blob/4.0-dev/FAQ.md#q-how-to-encode-files-back-into-game-formats)
 
-Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compile from source](https://github.com/onejeuu/sc-file?tab=readme-ov-file#%EF%B8%8F-build).
+🗂 For answers to other common questions, please refer to [FAQ page](FAQ.md).
+
+Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compiled from source](https://github.com/onejeuu/sc-file/tree/4.0-dev?tab=readme-ov-file#%EF%B8%8F-build).
 
 > [!WARNING]
 > Any changes in game assets can be detected. Use at your own risk.
@@ -44,7 +46,6 @@ pip install sc-file -U
 ### Textures
 
 - Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
-- Formats supported partially: Cubemaps (HDRI)
 - Formats unsupported: RGBA32F
 - Some normal map textures can be inverted
 
