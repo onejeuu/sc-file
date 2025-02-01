@@ -1,9 +1,15 @@
 from .base import ScFileException
-from .file import BaseFileError
+from .file import BaseFileError, FileError
 
 
-class FileDecodingError(BaseFileError):
+class FileDecodingError(FileError):
     """Base exception occurring while file decoding."""
+
+    pass
+
+
+class FileEncodingError(BaseFileError):
+    """Base exception occurring while file encoding."""
 
     pass
 

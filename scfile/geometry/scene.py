@@ -67,3 +67,6 @@ class ModelScene:
         for mesh in self.meshes:
             for vertex in mesh.vertices:
                 vertex.texture.v = 1.0 - vertex.texture.v
+
+    def get_vertices(self):
+        return [v for mesh in self.meshes for v in mesh.vertices]
