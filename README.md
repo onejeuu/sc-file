@@ -14,11 +14,11 @@
 
 Supported formats: `.mcsa`, `.ol`, `.mic`.
 
+Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compiled from source](https://github.com/onejeuu/sc-file/tree/4.0-dev?tab=readme-ov-file#%EF%B8%8F-build).
+
 ❓ [Why reverse encoding into game formats is unsupported?](https://github.com/onejeuu/sc-file/blob/4.0-dev/FAQ.md#q-how-to-encode-files-back-into-game-formats)
 
 🗂 For answers to other common questions, please refer to [FAQ page](FAQ.md).
-
-Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compiled from source](https://github.com/onejeuu/sc-file/tree/4.0-dev?tab=readme-ov-file#%EF%B8%8F-build).
 
 > [!WARNING]
 > Any changes in game assets can be detected. Use at your own risk.
