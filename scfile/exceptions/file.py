@@ -6,26 +6,29 @@ from scfile.io.types import PathLike
 from .base import ScFileException
 
 
-@dataclass
 class BaseFileError(ScFileException):
-    """Basic files exception. Occurring with file processing."""
+    @property
+    def prefix(self) -> str:
+        return "File"
 
+    def __str__(self):
+        return f"{self.prefix}"
+
+
+@dataclass
+class FileError(BaseFileError):
     file: PathLike
 
     @property
     def path(self):
         return Path(self.file)
 
-    @property
-    def prefix(self) -> str:
-        return "File"
-
     def __str__(self):
-        return f'{self.prefix} "{self.path.as_posix()}"'
+        return f'{super().__str__()} "{self.path.as_posix()}"'
 
 
 @dataclass
-class FileNotFound(BaseFileError):
+class FileNotFound(FileError):
     """Exception occurring when file not found or does not exists."""
 
     def __str__(self):
@@ -33,7 +36,7 @@ class FileNotFound(BaseFileError):
 
 
 @dataclass
-class FileIsEmpty(BaseFileError):
+class FileIsEmpty(FileError):
     """Exception occurring when file is empty."""
 
     def __str__(self):
@@ -41,7 +44,7 @@ class FileIsEmpty(BaseFileError):
 
 
 @dataclass
-class FileSuffixUnsupported(BaseFileError):
+class FileSuffixUnsupported(FileError):
     """Exception occurring when file cannot be decoded or encoded."""
 
     def __str__(self):
@@ -49,7 +52,7 @@ class FileSuffixUnsupported(BaseFileError):
 
 
 @dataclass
-class FileSignatureInvalid(BaseFileError):
+class FileSignatureInvalid(FileError):
     """Exception occurring when file signature does not match file type."""
 
     readed: bytes
@@ -64,7 +67,7 @@ class FileSignatureInvalid(BaseFileError):
 
 
 @dataclass
-class FileStructureInvalid(BaseFileError):
+class FileStructureInvalid(FileError):
     """Exception occurring when file does not hold expected number of bytes."""
 
     pos: int

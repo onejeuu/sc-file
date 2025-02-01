@@ -1,5 +1,5 @@
 from .base import ScFileException
-from .decode import FileDecodingError, FileParsingError, FileUnsupportedError
+from .core import FileDecodingError, FileParsingError, FileUnsupportedError
 from .file import (
     BaseFileError,
     FileIsEmpty,
@@ -13,11 +13,14 @@ from .formats import (
     McsaDecodingError,
     McsaUnknownLinkCount,
     McsaUnsupportedVersion,
+    Ms3dCountsLimit,
+    Ms3dEncodingError,
     OlDecodingError,
     OlUnsupportedFourcc,
 )
 
 
+# TODO: update imports
 __all__ = (
     "ScFileException",
     "FileDecodingError",
@@ -35,4 +38,6 @@ __all__ = (
     "McsaUnsupportedVersion",
     "OlDecodingError",
     "OlUnsupportedFourcc",
+    "Ms3dCountsLimit",
+    "Ms3dEncodingError",
 )

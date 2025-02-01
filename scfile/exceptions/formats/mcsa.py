@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from scfile.exceptions.decode import (
+from scfile.exceptions.core import (
     FileDecodingError,
     FileParsingError,
     FileUnsupportedError,

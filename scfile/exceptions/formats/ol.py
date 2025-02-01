@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from scfile.exceptions.decode import FileDecodingError, FileUnsupportedError
+from scfile.exceptions.core import FileDecodingError, FileUnsupportedError
 
 
 class OlDecodingError(FileDecodingError):

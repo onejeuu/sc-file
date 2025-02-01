@@ -115,9 +115,6 @@ def scfile(
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))
 
-            except Exception as err:
-                print(Prefix.EXCEPTION, str(err))
-
 
 def no_args(ctx: click.Context) -> None:
     print("[b yellow]No arguments provided. Showing help:[/]\n")
