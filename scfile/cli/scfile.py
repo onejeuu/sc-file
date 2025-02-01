@@ -11,6 +11,7 @@ from scfile.consts import CLI
 from scfile.convert.auto import ModelFormats
 from scfile.core.context import ModelOptions
 from scfile.core.context.options import ImageOptions, TextureOptions
+from scfile.enums import FileFormat
 from scfile.exceptions.base import ScFileException
 
 from . import types
@@ -44,11 +45,6 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
     is_flag=True,
 )
 @click.option(
-    "--parse-animations",
-    help="Parse animations in models (if presented).",
-    is_flag=True,
-)
-@click.option(
     "--is-hdri",
     help="Parse textures as hdri (cubemaps).",
     is_flag=True,
@@ -71,7 +67,6 @@ def scfile(
     output: Optional[types.PathType],
     model_formats: ModelFormats,
     parse_skeleton: bool,
-    parse_animations: bool,
     is_hdri: bool,
     subdir: bool,
     no_overwrite: bool,
@@ -82,6 +77,9 @@ def scfile(
 
     if subdir and not output:
         print(Prefix.WARN, "[b]--subdir[/] flag cannot be used without specifying [b]--output[/] option.")
+
+    if model_formats == (FileFormat.OBJ,) and parse_skeleton:
+        print(Prefix.WARN, f'format "[b].{FileFormat.OBJ}[/]" does not support skeleton and animation.')
 
     files = paths_to_files_map(paths)
 
@@ -103,7 +101,6 @@ def scfile(
                     output=dest,
                     model_options=ModelOptions(
                         parse_skeleton=parse_skeleton,
-                        parse_animations=parse_animations,
                     ),
                     texture_options=TextureOptions(is_hdri=is_hdri),
                     image_options=ImageOptions(),
