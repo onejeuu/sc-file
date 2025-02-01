@@ -1,6 +1,7 @@
-lz4==4.3.2
-click==8.1.7
-numpy==2.0.1
-rich==13.0.0
-pyinstaller==6.0.0
-pytest==8.1.1
+lz4==4.3.3
+click==8.1.8
+numpy==2.2.2
+rich==13.9.4
+scipy==1.15.1
+pyinstaller==6.11.1
+pytest==8.3.4
