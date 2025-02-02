@@ -11,7 +11,7 @@ from . import formats
 
 ModelFormats: TypeAlias = Sequence[FileFormat]
 
-DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.OBJ,)
+DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.GLB,)
 
 MODEL_CONVERTER_MAP: dict[FileFormat, Callable] = {
     FileFormat.DAE: formats.mcsa_to_dae,

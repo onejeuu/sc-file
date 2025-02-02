@@ -3,14 +3,13 @@ import struct
 from copy import deepcopy
 from typing import Optional
 
-from scipy.spatial.transform import Rotation as R
-
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
+from scfile.geometry.skeleton import euler_to_quat
 
 from . import base
 from .enums import BufferTarget, ComponentType
@@ -161,11 +160,9 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         node_index_offset = len(self.data.meshes)
 
         for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
-            rotation = R.from_euler("xyz", list(bone.rotation), degrees=True)
-
             node = {
                 "name": bone.name,
-                "rotation": rotation.as_quat().tolist(),
+                "rotation": euler_to_quat(bone.rotation),
                 "translation": list(bone.position),
             }
 

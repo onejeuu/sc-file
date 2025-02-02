@@ -166,11 +166,10 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_controllers(self):
         library = SubElement(self.ctx["ROOT"], "library_controllers")
 
+        # !!! TODO: fix links, looks right, but somewhere unlinked
         for mesh in self.data.meshes:
             controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
             skin = SubElement(controller, "skin", source=f"#{mesh.name}")
-            SubElement(skin, "bind_shape_matrix").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
-
             self.add_controller_sources(mesh, skin)
             self.add_joints_and_weights(mesh, skin)
 
@@ -186,7 +185,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
         # Add weights
-        weight_data = np.array(mesh.get_bone_weights(mesh.count.max_links))
+        weight_data = np.array(mesh.get_bone_weights(max_links=mesh.count.max_links))
         weight_source = self.create_source(skin, mesh.name, "weights", weight_data)
         self.add_source_common(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
 
@@ -219,7 +218,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def add_armature(self, scene: Element) -> Element:
         node = SubElement(scene, "node", id="armature", name="Armature", type="NODE")
-        SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+        # SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
         for root in self.data.skeleton.roots:
             self.add_bone(node, root)

@@ -20,9 +20,6 @@ Executable utility `scfile.exe` can be downloaded from [Releases page](https://g
 
 🗂 For answers to other common questions, please refer to [FAQ page](FAQ.md).
 
-> [!WARNING]
-> Any changes in game assets can be detected. Use at your own risk.
-
 ## 📚 Library
 
 ### Install

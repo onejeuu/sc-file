@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "4.0.0.dev1"
+version = "4.0.0.dev2"
 description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <mail@66rk.ru>"]
 
@@ -19,7 +19,6 @@ lz4 = "^4.3.0"
 click = "^8.1.0"
 numpy = "^2.2.0"
 rich = "^13.9.0"
-scipy = "^1.15.0"
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = {version = "^6.11.1", python = "^3.11,<3.14"}
