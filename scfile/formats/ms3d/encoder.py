@@ -1,5 +1,3 @@
-from scipy.spatial.transform import Rotation as R
-
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
@@ -8,6 +6,7 @@ from scfile.enums import StructFormat as F
 from scfile.exceptions import Ms3dCountsLimit
 from scfile.formats.mcsa.flags import Flag
 from scfile.geometry.mesh import padded
+from scfile.geometry.skeleton import euler_to_quat
 
 
 VERSION = 4
@@ -136,8 +135,8 @@ class Ms3dEncoder(FileEncoder[ModelContent, ModelOptions]):
             # f32 rotation[3], f32 position[3], u16 rotation keyframes, u16 keyframes transition
             fmt = f"{F.F32 * 6}{F.U16 * 2}"
 
-            rotation = R.from_euler("XYZ", list(bone.rotation), degrees=True).as_euler("XYZ", degrees=False)
-            self.writeb(fmt, *rotation, *bone.position, 0, 0)
+            qx, qy, qz, qw = euler_to_quat(bone.rotation)
+            self.writeb(fmt, qx, qy, qz, *bone.position, 0, 0)
 
     def add_comments(self):
         self.writeb(F.I32, COMMENTS_VERSION)  # comments version

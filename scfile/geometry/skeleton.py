@@ -127,3 +127,24 @@ def create_transform_matrix(bone: SkeletonBone) -> np.ndarray:
     matrix[:3, 3] = list(bone.position)
 
     return matrix
+
+
+def euler_to_quat(rotation: Vector3, degrees=True):
+    x, y, z = rotation
+
+    if degrees:
+        x, y, z = np.radians(x), np.radians(y), np.radians(z)
+
+    cy = np.cos(z * 0.5)
+    sy = np.sin(z * 0.5)
+    cp = np.cos(y * 0.5)
+    sp = np.sin(y * 0.5)
+    cr = np.cos(x * 0.5)
+    sr = np.sin(x * 0.5)
+
+    qw = cr * cp * cy + sr * sp * sy
+    qx = sr * cp * cy - cr * sp * sy
+    qy = cr * sp * cy + sr * cp * sy
+    qz = cr * cp * sy - sr * sp * cy
+
+    return [qx, qy, qz, qw]

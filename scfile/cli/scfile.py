@@ -40,7 +40,7 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
     multiple=True,
 )
 @click.option(
-    "--parse-skeleton",
+    "--skeleton",
     help="Parse armature in models (if presented).",
     is_flag=True,
 )
@@ -59,14 +59,14 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
     help="Do not overwrite file if already exists.",
     is_flag=True,
 )
-@click.version_option(package_name="sc-file")
+@click.version_option(CLI.VERSION)
 @click.pass_context
 def scfile(
     ctx: click.Context,
     paths: FilesType,
     output: Optional[types.PathType],
     model_formats: ModelFormats,
-    parse_skeleton: bool,
+    skeleton: bool,
     is_hdri: bool,
     subdir: bool,
     no_overwrite: bool,
@@ -78,7 +78,7 @@ def scfile(
     if subdir and not output:
         print(Prefix.WARN, "[b]--subdir[/] flag cannot be used without specifying [b]--output[/] option.")
 
-    if model_formats == (FileFormat.OBJ,) and parse_skeleton:
+    if skeleton and model_formats == (FileFormat.OBJ,):
         print(Prefix.WARN, f'format "[b].{FileFormat.OBJ}[/]" does not support skeleton and animation.')
 
     files = paths_to_files_map(paths)
@@ -100,7 +100,7 @@ def scfile(
                     source=source,
                     output=dest,
                     model_options=ModelOptions(
-                        parse_skeleton=parse_skeleton,
+                        parse_skeleton=skeleton,
                     ),
                     texture_options=TextureOptions(is_hdri=is_hdri),
                     image_options=ImageOptions(),

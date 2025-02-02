@@ -85,9 +85,9 @@ struct Header {
 
 struct BonesIndexes {
     ubyte links <name="Links Count">;
-    ubyte count <name="Bones Count">;
+    ubyte count <name="Local Bones Count">;
     if ( count > 0 )
-        byte bones[count] <name="Bone">;
+        ubyte bones[count] <name="Local Bones">;
 };
 
 struct Counts {
