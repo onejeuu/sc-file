@@ -45,18 +45,18 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
     is_flag=True,
 )
 @click.option(
-    "--is-hdri",
+    "--hdri",
     help="Parse textures as hdri (cubemaps).",
     is_flag=True,
 )
 @click.option(
-    "--subdir",
-    help="Recreate input subdirectories to output.",
+    "--relative",
+    help="Preserve sources relative directory structure in output (if specified).",
     is_flag=True,
 )
 @click.option(
     "--no-overwrite",
-    help="Do not overwrite file if already exists.",
+    help="Do not overwrite an existing file.",
     is_flag=True,
 )
 @click.version_option(CLI.VERSION)
@@ -67,16 +67,16 @@ def scfile(
     output: Optional[types.PathType],
     model_formats: ModelFormats,
     skeleton: bool,
-    is_hdri: bool,
-    subdir: bool,
+    hdri: bool,
+    relative: bool,
     no_overwrite: bool,
 ):
     if not paths:
         no_args(ctx)
         return
 
-    if subdir and not output:
-        print(Prefix.WARN, "[b]--subdir[/] flag cannot be used without specifying [b]--output[/] option.")
+    if not output and relative:
+        print(Prefix.WARN, "[b]--relative[/] flag cannot be used without specifying [b]--output[/] option.")
 
     if skeleton and model_formats == (FileFormat.OBJ,):
         print(Prefix.WARN, f'format "[b].{FileFormat.OBJ}[/]" does not support skeleton and animation.')
@@ -92,17 +92,15 @@ def scfile(
         for source in sources:
             dest = output
 
-            if output and subdir:
+            if output and relative:
                 dest = output / source.relative_to(root.parent).parent
 
             try:
                 convert.auto(
                     source=source,
                     output=dest,
-                    model_options=ModelOptions(
-                        parse_skeleton=skeleton,
-                    ),
-                    texture_options=TextureOptions(is_hdri=is_hdri),
+                    model_options=ModelOptions(parse_skeleton=skeleton),
+                    texture_options=TextureOptions(is_hdri=hdri),
                     image_options=ImageOptions(),
                     model_formats=model_formats,
                     overwrite=not no_overwrite,
