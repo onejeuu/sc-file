@@ -3,6 +3,8 @@ import struct
 from copy import deepcopy
 from typing import Optional
 
+import numpy as np
+
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
@@ -53,11 +55,22 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_json_chunk(self):
         self.create_gltf()
 
+        # Serialize gltf json
         gltf = json.dumps(self.ctx["GLTF"])
+        gltf_bytes = gltf.encode()
+        json_length = len(gltf_bytes)
 
-        self.write(struct.pack("<I", len(gltf)))
+        # Validate padding length
+        padding_length = (4 - (json_length % 4)) % 4
+
+        # Write json
+        self.write(struct.pack("<I", json_length + padding_length))
         self.write(b"JSON")
-        self.write(gltf.encode())
+        self.write(gltf_bytes)
+
+        # Add padding if necessary
+        if padding_length > 0:
+            self.write(b"\x20" * padding_length)
 
     def create_gltf(self):
         self.ctx["GLTF"] = deepcopy(base.GLTF)
@@ -93,6 +106,13 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         def accessor_index() -> int:
             return len(self.ctx["GLTF"]["accessors"])
 
+        if self.skeleton_presented:
+            self.ctx["GLTF"]["skins"] = []
+
+        # Calculate joints with offset
+        bones_count = len(self.data.skeleton.bones)
+        joints = [len(self.data.meshes) + j for j in list(range(bones_count))]
+
         for index, mesh in enumerate(self.data.meshes):
             primitive = deepcopy(base.PRIMITIVE)
 
@@ -126,13 +146,9 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
                 # Bind Matrix
-                bones_count = len(self.data.skeleton.bones)
-                joint_offset = len(self.data.meshes)
-
-                joints = list(range(bones_count))
-                joints = [joint_offset + j for j in joints]
-
-                self.ctx["GLTF"]["skins"] = [dict(name="Armature", inverseBindMatrices=accessor_index(), joints=joints)]
+                self.ctx["GLTF"]["skins"].append(
+                    dict(name="Armature", inverseBindMatrices=accessor_index(), joints=joints)
+                )
                 self.create_bufferview(byte_length=bones_count * 16 * 4, target=None)
                 self.create_accessor(bones_count, "MAT4", ComponentType.FLOAT)
 
@@ -147,7 +163,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             node = {"name": mesh.name, "mesh": index}
 
             if self.skeleton_presented:
-                node["skin"] = 0
+                node["skin"] = index
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
@@ -218,6 +234,11 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.write(struct.pack("<I", size))
 
     def add_meshes(self):
+        def normalized(weights: np.ndarray):
+            weights = weights.reshape(-1, 4)
+            weights /= np.sum(weights, axis=1, keepdims=True)
+            return weights.flatten()
+
         for mesh in self.data.meshes:
             # XYZ Position
             self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_positions()))
@@ -232,11 +253,17 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # Bone Links
             if self.skeleton_presented:
+                # Joints prepare
+                indices = np.array(mesh.get_bone_ids(max_links=4))
+                weights = np.array(mesh.get_bone_weights(max_links=4))
+                weights = normalized(weights)
+                indices[weights == 0.0] = 0
+
                 # Joint Indices
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *mesh.get_bone_ids(max_links=4)))
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *indices))
 
                 # Joint Weights
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *mesh.get_bone_weights(max_links=4)))
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *weights))
 
                 # Bind Matrix
                 data = self.data.skeleton.inverse_bind_matrices(transpose=True)
