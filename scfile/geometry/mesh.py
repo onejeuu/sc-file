@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from itertools import chain, islice, repeat
 from typing import Iterable
 
+import numpy as np
+
 from .vectors import Polygon, Vector3
 from .vertex import Vertex
 
@@ -69,6 +71,20 @@ class ModelMesh:
             for vertex in self.vertices
             for bone_id in padded(vertex.bone_ids, max_links, default=0)
         ]
+
+    def get_defragment_links(self, max_links: int) -> tuple[list[int], list[float]]:
+        ids = np.array(self.get_bone_ids(max_links))
+        weights = np.array(self.get_bone_weights(max_links))
+
+        # normalize
+        weights = weights.reshape(-1, 4)
+        weights /= np.sum(weights, axis=1, keepdims=True)
+        weights = weights.flatten()
+
+        # clean
+        ids[weights == 0.0] = 0
+
+        return (ids.tolist(), weights.tolist())  # type: ignore
 
 
 def padded(data: Iterable[int], stop: int, default: float):
