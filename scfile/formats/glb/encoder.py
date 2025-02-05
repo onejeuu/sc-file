@@ -3,8 +3,6 @@ import struct
 from copy import deepcopy
 from typing import Optional
 
-import numpy as np
-
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
@@ -234,11 +232,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         self.write(struct.pack("<I", size))
 
     def add_meshes(self):
-        def normalized(weights: np.ndarray):
-            weights = weights.reshape(-1, 4)
-            weights /= np.sum(weights, axis=1, keepdims=True)
-            return weights.flatten()
-
         for mesh in self.data.meshes:
             # XYZ Position
             self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_positions()))
@@ -253,14 +246,11 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # Bone Links
             if self.skeleton_presented:
-                # Joints prepare
-                indices = np.array(mesh.get_bone_ids(max_links=4))
-                weights = np.array(mesh.get_bone_weights(max_links=4))
-                weights = normalized(weights)
-                indices[weights == 0.0] = 0
+                # Joints Prepare
+                ids, weights = mesh.get_defragment_links(max_links=4)
 
                 # Joint Indices
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *indices))
+                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *ids))
 
                 # Joint Weights
                 self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *weights))

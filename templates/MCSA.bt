@@ -195,7 +195,7 @@ struct Frame {
     Joint joint[skeleton.count];
 };
 
-struct Anim {
+struct Clip {
     String name <name="Name">;
     uint count <name="Frames", bgcolor=cGreen>;
     float time <name="Time", bgcolor=cPurple>;
@@ -210,5 +210,5 @@ if ( !FEof() )
         struct Animations {
             int count <name="Count", bgcolor=cBlue>;
             if ( count > 0 )
-                Anim anims[count] <name="Animation", optimize=false>;
+                Clip clips[count] <name="Clip", optimize=false>;
         } animations <name="Animations">;
