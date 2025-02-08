@@ -47,7 +47,9 @@ class DdsEncoder(FileEncoder[TextureContent, TextureOptions]):
         self.writeb(F.U32, DDS.PF.RGB)
         self.writenull(size=4)  # FourCC
         self.writeb(F.U32, DDS.PF.BIT_COUNT)  # BitCount
-        self.writeb(F.U32 * 4, BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8)  # BitMask
+
+        bitmask = BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8
+        self.writeb(F.U32 * 4, *bitmask)  # BitMask
 
     def add_caps(self):
         self.writeb(F.U32, self.caps)  # Caps1
