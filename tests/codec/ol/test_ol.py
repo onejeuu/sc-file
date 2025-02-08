@@ -10,6 +10,26 @@ def test_to_dds_dxt1(assets: Path):
     assert converted == expected
 
 
+def test_to_dds_dxt3(assets: Path):
+    converted, expected = extract(OlDecoder, DdsEncoder, assets, Path("dxt3"))
+    assert converted == expected
+
+
 def test_to_dds_dxt5(assets: Path):
     converted, expected = extract(OlDecoder, DdsEncoder, assets, Path("dxt5"))
+    assert converted == expected
+
+
+def test_to_dds_rgba(assets: Path):
+    converted, expected = extract(OlDecoder, DdsEncoder, assets, Path("rgba"))
+    assert converted == expected
+
+
+def test_to_dds_bgra(assets: Path):
+    converted, expected = extract(OlDecoder, DdsEncoder, assets, Path("bgra"))
+    assert converted == expected
+
+
+def test_to_dds_dxnxy(assets: Path):
+    converted, expected = extract(OlDecoder, DdsEncoder, assets, Path("dxnxy"))
     assert converted == expected
