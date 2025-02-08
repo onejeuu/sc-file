@@ -51,10 +51,10 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
             raise exc.FileIsEmpty(self.path)
 
         if self.signature:
-            readed = self.read(len(self.signature))
+            read = self.read(len(self.signature))
 
-            if readed != self.signature:
-                raise exc.FileSignatureInvalid(self.path, readed, self.signature)
+            if read != self.signature:
+                raise exc.FileSignatureInvalid(self.path, read, self.signature)
 
     def close(self) -> None:
         self.data.reset()

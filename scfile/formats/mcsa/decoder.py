@@ -11,7 +11,7 @@ from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
 from scfile.geometry.anim import AnimationClip, AnimationFrame
-from scfile.geometry.mesh import ModelMesh
+from scfile.geometry.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.geometry.skeleton import SkeletonBone
 from scfile.io.formats.mcsa import McsaFileIO
 
@@ -46,8 +46,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
 
-            # TODO: first validate there is data remaining
-            if self.options.parse_skeleton and self.options.parse_animations:
+            if self.options.parse_animations:
                 self.parse_animations()
 
     def parse_header(self):
@@ -96,7 +95,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         # Skeleton bone indexes
         if self.data.flags[Flag.SKELETON]:
             self.parse_links_count(mesh)
-            self.load_bone_indexes(mesh)
+            self.parse_local_bones(mesh)
 
         # Geometry counts
         mesh.count.vertices = self.readcount()
@@ -146,9 +145,9 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         mesh.count.max_links = self.readb(F.U8)
         mesh.count.local_bones = self.readb(F.U8)
 
-    def load_bone_indexes(self, mesh: ModelMesh):
+    def parse_local_bones(self, mesh: ModelMesh):
         for index in range(mesh.count.local_bones):
-            mesh.local_bones[index] = self.readb(F.U8)
+            mesh.bones_mapping[LocalBoneId(index)] = SkeletonBoneId(self.readb(F.U8))
 
     def parse_defaults(self, mesh: ModelMesh):
         for x, y, z in self.readdefault():
@@ -213,11 +212,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
                 raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
-        links = self.readlinkspacked(mesh.count.vertices, mesh.local_bones)
+        links = self.readlinkspacked(mesh.count.vertices, mesh.bones_mapping)
         self.load_links(mesh, links)
 
     def parse_plain_links(self, mesh: ModelMesh):
-        links = self.readlinksplains(mesh.count.vertices, mesh.local_bones)
+        links = self.readlinksplains(mesh.count.vertices, mesh.bones_mapping)
         self.load_links(mesh, links)
 
     def load_links(self, mesh: ModelMesh, links: Any):
@@ -293,7 +292,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         self.data.scene.animations.anims.append(anim)
 
     def parse_animation_frames(self, anim: AnimationClip):
-        frames = self.readanimframes(anim.frames_count * len(self.data.skeleton.bones))
+        frames = self.readclipframes(anim.frames_count * len(self.data.skeleton.bones))
 
         for (tx, ty, tz), (rx, ry, rz, rw) in frames:
             frame = AnimationFrame()
