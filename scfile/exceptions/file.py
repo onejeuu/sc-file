@@ -55,14 +55,14 @@ class FileSuffixUnsupported(FileError):
 class FileSignatureInvalid(FileError):
     """Exception occurring when file signature does not match file type."""
 
-    readed: bytes
+    read: bytes
     signature: bytes
 
     def __str__(self):
         return (
             f"{super().__str__()} has invalid signature - "
-            f"'{self.readed.hex().upper()}' != '{self.signature.hex().upper()}'. "
-            "(File content doesnt match suffix)."
+            f"'{self.read.hex().upper()}' != '{self.signature.hex().upper()}'. "
+            "(File content doesn't match suffix)."
         )
 
 

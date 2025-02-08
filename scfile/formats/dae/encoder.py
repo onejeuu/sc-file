@@ -166,7 +166,6 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_controllers(self):
         library = SubElement(self.ctx["ROOT"], "library_controllers")
 
-        # !!! TODO: fix links, looks right, but somewhere unlinked
         for mesh in self.data.meshes:
             controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
             skin = SubElement(controller, "skin", source=f"#{mesh.name}")

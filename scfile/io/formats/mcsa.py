@@ -1,18 +1,37 @@
 from typing import Any
 
 import numpy as np
-from numpy.typing import NDArray
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.enums import StructFormat as F
+from scfile.geometry.mesh import BonesMapping
 from scfile.io.streams import StructFileIO
 
 
-def reshape(data: NDArray[Any], size: int) -> list[list[Any]]:
+# TODO: finally set proper numpy typing
+
+
+def reshape(data: np.ndarray, size: int) -> list[list[Any]]:
     # tolist: no further manipulation is provided
     # and python works faster with native lists (for encoders)
     return data.reshape(-1, size).tolist()
+
+
+def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np.ndarray, np.ndarray]:
+    # Convert local bone ids to skeleton bone ids
+    ids = np.vectorize(bones.get)(ids)
+
+    # Clean empty ids
+    ids[weights == 0.0] = 0
+
+    # Scale and Round
+    weights = weights.astype(F.F32) / Factor.U8
+    weights = weights.round(McsaModel.ROUND_DIGITS)
+
+    # !!! TODO: weights normalize
+
+    return (ids, weights)
 
 
 class McsaFileIO(StructFileIO):
@@ -27,13 +46,13 @@ class McsaFileIO(StructFileIO):
 
         return count
 
-    def readarray(self, fmt: str, size: int, count: int):
-        data = self.unpack(f"{size * count}{fmt}")
+    def readarray(self, fmt: str, count: int):
+        data = self.unpack(f"{count}{fmt}")
         return np.array(data, dtype=np.dtype(fmt))
 
     def readdefault(self):
         # Read array
-        data = self.readarray(fmt=F.F32, size=3, count=1)
+        data = self.readarray(fmt=F.F32, count=3)
 
         # Round digits
         data = data.round(McsaModel.ROUND_DIGITS)
@@ -42,7 +61,7 @@ class McsaFileIO(StructFileIO):
 
     def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
         # Read array
-        data = self.readarray(fmt=fmt, size=size, count=count)
+        data = self.readarray(fmt=fmt, count=count * size)
 
         # Scale values to floats
         data = data * scale / (factor)
@@ -60,22 +79,22 @@ class McsaFileIO(StructFileIO):
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
-        data = self.readarray(fmt=fmt, size=size, count=count)
+        data = self.readarray(fmt=fmt, count=count * size)
 
         return reshape(data, size)
 
     def readbonedata(self) -> list[float]:
         # Read vertex array
-        data = self.readarray(fmt=F.F32, size=McsaSize.BONE, count=1)
+        data = self.readarray(fmt=F.F32, count=McsaSize.BONE)
 
         # TODO: fix type hints
         return data.tolist()  # type: ignore
 
-    def readanimframes(self, count: int) -> list[list[list[float]]]:
+    def readclipframes(self, count: int) -> list[list[list[float]]]:
         size = 7
 
         # Read array
-        data = self.readarray(fmt=F.U16, size=size, count=count)
+        data = self.readarray(fmt=F.U16, count=count * size)
 
         # Scale values to floats
         data = data / (Factor.U16)
@@ -90,51 +109,28 @@ class McsaFileIO(StructFileIO):
         # TODO: fix type hints
         return data  # type: ignore
 
-    def readlinkspacked(self, count: int, bones: dict[int, int]):
+    def readlinkspacked(self, count: int, bones: BonesMapping):
+        size = 4
+
         # Read array
-        data = self.readarray(fmt=F.U8, size=4, count=count)
+        data = self.readarray(fmt=F.U8, count=count * size)
 
         # Reshape to vertex[ids[2], weights[2]]
         data = data.reshape(-1, 2, 2)
 
-        # Convert mesh bone ids to global skeleton ids
-        ids = data[:, 0, :]
-        ids = np.vectorize(bones.get)(ids)
-
-        # Scale weights to floats
-        weights = data[:, 1, :] / Factor.U8
-
-        # Round digits
-        weights = weights.round(McsaModel.ROUND_DIGITS)
+        # Parse Links
+        ids, weights = links(data[:, 0, :], data[:, 1, :], bones)
 
         return (ids.tolist(), weights.tolist())
 
-    def _readlinksids(self, count: int, bones: dict[int, int]):
-        # Read array
+    def readlinksplains(self, count: int, bones: BonesMapping):
         size = 4
-        ids = self.readarray(fmt=F.U8, size=size, count=count)
 
-        # Convert mesh bone ids to global skeleton ids
-        ids = np.vectorize(bones.get)(ids)
+        # Read arrays
+        ids = self.readarray(fmt=F.U8, count=count * size)
+        weights = self.readarray(fmt=F.U8, count=count * size)
 
-        return reshape(ids, size)
+        # Parse Links
+        ids, weights = links(ids, weights, bones)
 
-    def _readlinksweights(self, count: int):
-        # Read array
-        size = 4
-        weights = self.readarray(fmt=F.U8, size=size, count=count)
-
-        # Scale weights to floats
-        weights = weights / Factor.U8
-
-        # Round digits
-        weights = weights.round(McsaModel.ROUND_DIGITS)
-
-        return reshape(weights, size)
-
-    def readlinksplains(self, count: int, bones: dict[int, int]):
-        # Read data
-        ids = self._readlinksids(count, bones)
-        weights = self._readlinksweights(count)
-
-        return (ids, weights)
+        return (reshape(ids, size), reshape(weights, size))

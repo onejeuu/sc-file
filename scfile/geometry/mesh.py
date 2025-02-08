@@ -1,12 +1,16 @@
 import itertools
 from dataclasses import dataclass, field
 from itertools import chain, islice, repeat
-from typing import Iterable
-
-import numpy as np
+from typing import Iterable, NewType, TypeAlias
 
 from .vectors import Polygon, Vector3
 from .vertex import Vertex
+
+
+LocalBoneId = NewType("LocalBoneId", int)
+SkeletonBoneId = NewType("SkeletonBoneId", int)
+
+BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]
 
 
 @dataclass
@@ -36,8 +40,8 @@ class ModelMesh:
     polygons: list[Polygon] = field(default_factory=list)
     faces: list[Polygon] = field(default_factory=list)
 
-    local_bones: dict[int, int] = field(default_factory=dict)
-    """key: local bone id, value: global bone id"""
+    bones_mapping: BonesMapping = field(default_factory=dict)
+    """key: local bone id, value: skeleton bone id"""
 
     def allocate_geometry(self) -> None:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
@@ -65,26 +69,12 @@ class ModelMesh:
         return [i for v in self.vertices for i in padded(v.bone_weights, max_links, default=0.0)]
 
     def get_bone_indices(self, max_links: int) -> list[str]:
-        index = itertools.count()
+        weight_index = itertools.count()
         return [
-            f"{bone_id} {next(index)}"
+            f"{bone_id} {next(weight_index)}"
             for vertex in self.vertices
             for bone_id in padded(vertex.bone_ids, max_links, default=0)
         ]
-
-    def get_defragment_links(self, max_links: int) -> tuple[list[int], list[float]]:
-        ids = np.array(self.get_bone_ids(max_links))
-        weights = np.array(self.get_bone_weights(max_links))
-
-        # normalize
-        weights = weights.reshape(-1, 4)
-        weights /= np.sum(weights, axis=1, keepdims=True)
-        weights = weights.flatten()
-
-        # clean
-        ids[weights == 0.0] = 0
-
-        return (ids.tolist(), weights.tolist())  # type: ignore
 
 
 def padded(data: Iterable[int], stop: int, default: float):
