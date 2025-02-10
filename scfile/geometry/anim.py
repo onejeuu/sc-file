@@ -11,12 +11,12 @@ class AnimationFrame:
 
 @dataclass
 class AnimationClip:
-    name: str = "anim"
+    name: str = "clip"
     frames_count: int = 0
     frame_rate: float = 0.33
     frames: list[AnimationFrame] = field(default_factory=list)
 
 
 @dataclass
-class ModelAnimations:
-    anims: list[AnimationClip] = field(default_factory=list)
+class ModelAnimation:
+    clips: list[AnimationClip] = field(default_factory=list)

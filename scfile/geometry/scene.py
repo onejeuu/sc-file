@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TypeAlias
 
-from .anim import ModelAnimations
+from .anim import ModelAnimation
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 
@@ -23,7 +23,7 @@ class ModelScene:
     scale: SceneScales = field(default_factory=SceneScales)
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
-    animations: ModelAnimations = field(default_factory=ModelAnimations)
+    animation: ModelAnimation = field(default_factory=ModelAnimation)
 
     @property
     def total_vertices(self):

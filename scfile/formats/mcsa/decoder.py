@@ -281,18 +281,18 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
             self.parse_animation()
 
     def parse_animation(self):
-        anim = AnimationClip()
+        clip = AnimationClip()
 
-        anim.name = self.readstring()
-        anim.frames_count = self.readb(F.U32)
-        anim.frame_rate = self.readb(F.F32)
+        clip.name = self.readstring()
+        clip.frames_count = self.readb(F.U32)
+        clip.frame_rate = self.readb(F.F32)
 
-        self.parse_animation_frames(anim)
+        self.parse_animation_frames(clip)
 
-        self.data.scene.animations.anims.append(anim)
+        self.data.scene.animation.clips.append(clip)
 
-    def parse_animation_frames(self, anim: AnimationClip):
-        frames = self.readclipframes(anim.frames_count * len(self.data.skeleton.bones))
+    def parse_animation_frames(self, clip: AnimationClip):
+        frames = self.readclipframes(clip.frames_count * len(self.data.skeleton.bones))
 
         for (tx, ty, tz), (rx, ry, rz, rw) in frames:
             frame = AnimationFrame()
@@ -306,4 +306,4 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
             frame.rotation.z = rz
             frame.rotation.w = rw
 
-            anim.frames.append(frame)
+            clip.frames.append(frame)
