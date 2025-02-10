@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 1.2
+// Version: 1.3
 // Purpose: Parse 3D object model files.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcvd
@@ -52,10 +52,10 @@ typedef struct Flags6 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENT
 
 // Model Header
 
-char signature[4] <name="Signature">;
+char signature[4] <name="Signature", fgcolor=cGreen>;
 
 struct Header {
-    float version <name="Version", bgcolor=cRed>;
+    float version <name="Version", fgcolor=cRed>;
 
     switch( version ) {
         case 7.0:
@@ -195,13 +195,17 @@ struct Frame {
     Joint joint[skeleton.count];
 };
 
-struct Clip {
+typedef struct {
     String name <name="Name">;
-    uint count <name="Frames Count", bgcolor=cGreen>;
-    float rate <name="Frame Rate", bgcolor=cPurple>;
-    if ( count > 0 )
-        Frame frames[count] <optimize=false>;
-};
+    int framesCount <name="Frames Count", bgcolor=cGreen>;
+    float frameRate <name="Frame Rate", fgcolor=cPurple>;
+    if ( framesCount > 0 )
+        Frame frames[framesCount] <optimize=false>;
+} Clip <read=ReadCLIP>;
+
+string ReadCLIP( Clip &clip ) {
+    return exists(clip.name) ? clip.name.data : "";
+}
 
 // Not sure where exactly marked that file contains animations.
 // Perhaps its indicated from outside.
