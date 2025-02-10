@@ -197,8 +197,8 @@ struct Frame {
 
 struct Clip {
     String name <name="Name">;
-    uint count <name="Frames", bgcolor=cGreen>;
-    float time <name="Time", bgcolor=cPurple>;
+    uint count <name="Frames Count", bgcolor=cGreen>;
+    float rate <name="Frame Rate", bgcolor=cPurple>;
     if ( count > 0 )
         Frame frames[count] <optimize=false>;
 };
@@ -207,8 +207,8 @@ struct Clip {
 // Perhaps its indicated from outside.
 if ( !FEof() )
     if ( header.flags.SKELETON )
-        struct Animations {
+        struct Animation {
             int count <name="Count", bgcolor=cBlue>;
             if ( count > 0 )
                 Clip clips[count] <name="Clip", optimize=false>;
-        } animations <name="Animations">;
+        } animation <name="Animation">;
