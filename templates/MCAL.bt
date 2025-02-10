@@ -1,0 +1,72 @@
+//------------------------------------------------
+// File: MCAL.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse animation library.
+// Category: STALCRAFT
+// File Mask: *.mcal
+// ID Bytes: 4D 43 41 4C // MCAL
+//------------------------------------------------
+
+
+// Define Byte Order
+
+LittleEndian();
+
+
+// Length Prefixed String
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 )
+        char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=ReadSTRING>;
+
+//
+string ReadSTRING( String &str ) {
+    return exists(str.data) ? str.data : "";
+}
+
+
+// Vectors
+
+typedef struct Vec3  { short x, y, z; };
+typedef struct Vec4  { short x, y, z, w; };
+
+
+// Header
+
+char signature[4] <name="Signature", fgcolor=cGreen>;
+float version <name="Version", fgcolor=cRed>;
+
+
+// Animations
+
+struct Joint {
+    Vec3 position <name="Position", bgcolor=cWhite>;
+    Vec4 rotation <name="Rotation", bgcolor=cGray>;
+};
+
+struct Frame {
+    Joint joint[animation.bonesCount];
+};
+
+typedef struct {
+    String name <name="Name">;
+    int framesCount <name="Frames Count", bgcolor=cGreen>;
+    float frameRate <name="Frame Rate", fgcolor=cPurple>;
+    if ( framesCount > 0 )
+        Frame frames[framesCount] <optimize=false>;
+} Clip <read=ReadCLIP>;
+
+string ReadCLIP( Clip &clip ) {
+    return exists(clip.name) ? clip.name.data : "";
+}
+
+struct Animation {
+    uint bonesCount <name="Bones Count", bgcolor=cPurple>;
+    ubyte unknown <fgcolor=cBlack, comment="Often 64. Maybe some buffer size?">;
+    int clipsCount <name="Clips Count", bgcolor=cBlue>;
+    if ( clipsCount > 0 )
+        Clip clips[clipsCount] <name="Clip", optimize=false>;
+} animation <name="Animation">;
