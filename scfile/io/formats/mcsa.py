@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
+from numpy.typing import NDArray
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize
@@ -25,20 +26,19 @@ def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np
     # Clean empty ids
     ids[weights == 0.0] = 0
 
-    # Scale and Round
+    # Scale, Round
     weights = weights.astype(F.F32) / Factor.U8
     weights = weights.round(McsaModel.ROUND_DIGITS)
-
-    # !!! TODO: weights normalize
+    # TODO: Normalize
 
     return (ids, weights)
 
 
 class McsaFileIO(StructFileIO):
-    def readstring(self):
+    def readstring(self) -> str:
         return self.reads().decode("utf-8", errors="replace")
 
-    def readcount(self):
+    def readcount(self) -> int:
         count = self.readb(F.U32)
 
         if count > McsaModel.COUNT_LIMIT:
@@ -46,20 +46,22 @@ class McsaFileIO(StructFileIO):
 
         return count
 
-    def readarray(self, fmt: str, count: int):
+    def readarray(self, fmt: str, count: int) -> NDArray[Any]:
         data = self.unpack(f"{count}{fmt}")
         return np.array(data, dtype=np.dtype(fmt))
 
-    def readdefault(self):
+    def readdefault(self) -> list[list[float]]:
+        size = McsaSize.DEFAULTS
+
         # Read array
-        data = self.readarray(fmt=F.F32, count=3)
+        data = self.readarray(fmt=F.F32, count=size)
 
         # Round digits
         data = data.round(McsaModel.ROUND_DIGITS)
 
-        return reshape(data, 3)
+        return reshape(data, size)
 
-    def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
+    def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0) -> list[list[float]]:
         # Read array
         data = self.readarray(fmt=fmt, count=count * size)
 
@@ -71,7 +73,7 @@ class McsaFileIO(StructFileIO):
 
         return reshape(data, size)
 
-    def readpolygons(self, count: int):
+    def readpolygons(self, count: int) -> list[list[int]]:
         size = McsaSize.POLYGONS
 
         # Validate that indexes fits into U16 range. Otherwise use U32.
@@ -84,14 +86,14 @@ class McsaFileIO(StructFileIO):
         return reshape(data, size)
 
     def readbonedata(self) -> list[float]:
-        # Read vertex array
-        data = self.readarray(fmt=F.F32, count=McsaSize.BONE)
+        # TODO: read pos and rot one time
+        # Read array
+        data: NDArray[np.float64] = self.readarray(fmt=F.F32, count=McsaSize.BONE)
 
-        # TODO: fix type hints
-        return data.tolist()  # type: ignore
+        return cast(list[float], data.tolist())
 
     def readclipframes(self, count: int) -> list[list[list[float]]]:
-        size = 7
+        size = McsaSize.CLIP_FRAMES
 
         # Read array
         data = self.readarray(fmt=F.U16, count=count * size)
@@ -106,10 +108,10 @@ class McsaFileIO(StructFileIO):
         data = data.reshape(-1, size)
         data = [[block[:3].tolist(), block[3:].tolist()] for block in data]
 
-        # TODO: fix type hints
+        # TODO: fix typing
         return data  # type: ignore
 
-    def readlinkspacked(self, count: int, bones: BonesMapping):
+    def readlinkspacked(self, count: int, bones: BonesMapping) -> tuple[list[int], list[float]]:
         size = 4
 
         # Read array
@@ -121,9 +123,10 @@ class McsaFileIO(StructFileIO):
         # Parse Links
         ids, weights = links(data[:, 0, :], data[:, 1, :], bones)
 
-        return (ids.tolist(), weights.tolist())
+        # TODO: fix typing
+        return (ids.tolist(), weights.tolist())  # type: ignore
 
-    def readlinksplains(self, count: int, bones: BonesMapping):
+    def readlinksplains(self, count: int, bones: BonesMapping) -> tuple[list[list[int]], list[list[float]]]:
         size = 4
 
         # Read arrays

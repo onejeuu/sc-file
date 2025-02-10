@@ -65,6 +65,8 @@ class McsaSize:
     POLYGONS = 3
     COLOR = 4
     BONE = 3
+    DEFAULTS = 3
+    CLIP_FRAMES = 7
 
 
 class CLI:
