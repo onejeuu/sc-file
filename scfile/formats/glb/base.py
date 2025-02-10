@@ -14,5 +14,13 @@ GLTF = {
 }
 
 SCENE = {"name": "Scene", "nodes": []}
+
 BUFFER = {"byteLength": 0}
+
 PRIMITIVE = {"attributes": {}, "mode": PrimitiveMode.TRIANGLES}
+
+# R, G, B, A
+COLOR = [0.5, 0.5, 0.5, 1.0]
+
+# pbrMetallicRoughness
+PBR = {"baseColorFactor": COLOR}

@@ -166,7 +166,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
             self.ctx["GLTF"]["meshes"].append({"name": mesh.name, "primitives": [primitive]})
-            self.ctx["GLTF"]["materials"].append({"name": mesh.material})
+            self.ctx["GLTF"]["materials"].append({"name": mesh.material, "pbrMetallicRoughness": base.PBR})
 
     def create_bones(self):
         self.ctx["ROOT_BONE_INDEXES"] = []
