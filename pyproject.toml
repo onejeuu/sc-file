@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sc-file"
-version = "4.0.0.dev2"
+version = "4.0.0.dev3"
 description = "Utility & Library for decoding stalcraft assets"
 authors = ["onejeuu <mail@66rk.ru>"]
 
