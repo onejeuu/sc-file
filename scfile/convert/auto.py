@@ -13,7 +13,16 @@ ModelFormats: TypeAlias = Sequence[FileFormat]
 
 DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.GLB,)
 
-MODEL_CONVERTER_MAP: dict[FileFormat, Callable] = {
+# TODO: try refactor this, get rid of formats maps
+MCSB_CONVERTER_MAP: dict[FileFormat, Callable] = {
+    FileFormat.DAE: formats.mcsb_to_dae,
+    FileFormat.OBJ: formats.mcsb_to_obj,
+    FileFormat.GLB: formats.mcsb_to_gltf,
+    FileFormat.MS3D: formats.mcsb_to_ms3d,
+}
+
+# ? Legacy
+MCSA_CONVERTER_MAP: dict[FileFormat, Callable] = {
     FileFormat.DAE: formats.mcsa_to_dae,
     FileFormat.OBJ: formats.mcsa_to_obj,
     FileFormat.GLB: formats.mcsa_to_gltf,
@@ -35,10 +44,16 @@ def auto(
 
     model_formats = model_formats or DEFAULT_MODEL_FORMATS
 
+    # TODO: DRY
     match src_format:
+        case FileFormat.MCSB:
+            for fmt in model_formats:
+                if converter := MCSB_CONVERTER_MAP.get(fmt):
+                    converter(source, output, model_options, overwrite)
+
         case FileFormat.MCSA | FileFormat.MCVD:
             for fmt in model_formats:
-                if converter := MODEL_CONVERTER_MAP.get(fmt):
+                if converter := MCSA_CONVERTER_MAP.get(fmt):
                     converter(source, output, model_options, overwrite)
 
         case FileFormat.OL:

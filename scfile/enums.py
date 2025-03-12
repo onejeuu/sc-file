@@ -9,6 +9,7 @@ class FileFormat(StrEnum):
     FBX = auto()
     GLB = auto()
     MCSA = auto()
+    MCSB = auto()
     MCVD = auto()
     MIC = auto()
     MS3D = auto()

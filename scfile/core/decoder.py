@@ -24,11 +24,15 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
 
         super().__init__(file=self.file, mode=self.mode)
 
+    def prepare(self) -> None:
+        pass
+
     @abstractmethod
     def parse(self) -> None:
         pass
 
     def decode(self) -> Content:
+        self.prepare()
         self.validate()
         self.parse()
         self.seek(0)
