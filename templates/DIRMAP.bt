@@ -26,7 +26,7 @@ string ReadPATH( Path &path ) {
 }
 
 
-// File
+// Map File
 
 struct Item {
     Path path <name="Path">;

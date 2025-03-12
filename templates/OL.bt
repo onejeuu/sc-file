@@ -42,7 +42,7 @@ string ReadFOURCC( FourCC &fourcc ) {
 
 // Header
 
-char signature[4] <name="Signature">;
+char signature[4] <name="Signature", fgcolor=cGreen>;
 
 struct Header {
     uint width <name="Width", bgcolor=cWhite>;
