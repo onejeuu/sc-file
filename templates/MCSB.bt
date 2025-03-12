@@ -1,0 +1,225 @@
+//------------------------------------------------
+// File: MCSB.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse model scenes (with hash).
+// Category: STALCRAFT
+// File Mask: *.mcsb
+//------------------------------------------------
+
+
+// Model Hash Prefix
+
+BigEndian();
+
+uint hashSize <hidden=true, bgcolor=cLtGray>;
+char hashData[hashSize] <hidden=true, bgcolor=cGray>;
+
+
+// Define Byte Order
+
+LittleEndian();
+
+
+// Length Prefixed String
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 )
+        char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=ReadSTRING>;
+
+string ReadSTRING( String &str ) {
+    return exists(str.data) ? str.data : "";
+}
+
+
+// Vectors
+
+typedef struct Vec2  { short u, v; };
+
+typedef struct Vec3  { short x, y, z; };
+typedef struct Vec3f { float x, y, z; };
+
+typedef struct Vec4  { short x, y, z, w; };
+typedef struct Vec4f { float x, y, z, w; };
+typedef struct Vec4b { byte  x, y, z, w; };
+
+typedef struct Polygons_short   { ushort a, b, c; };
+typedef struct Polygons_int     { uint   a, b, c; };
+
+
+// Header Flags
+
+typedef ubyte flag;
+typedef struct Flags4 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS; };
+typedef struct Flags5 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS; };
+typedef struct Flags6 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS,  COLORS; };
+
+
+// Model Header
+
+char signature[4] <name="Signature", fgcolor=cGreen>;
+
+struct Header {
+    float version <name="Version", fgcolor=cRed>;
+
+    switch( version ) {
+        case 7.0:
+            Flags4 flags <name="Flags", fgcolor=cAqua>; break;
+        case 8.0:
+            Flags5 flags <name="Flags", fgcolor=cAqua>; break;
+        case 10.0:
+        case 11.0:
+            Flags6 flags <name="Flags", fgcolor=cAqua>; break;
+        default:
+            Warning( "ERROR: File version '%g' is unsupported.\n", version );
+            Exit(-1);
+    }
+
+    float scale_positions <name="Scale">;
+
+    if ( flags.TEXTURE )
+        float scale_texture <name="UV Scale">;
+
+    if ( version >= 10.0 )
+        if ( flags.NORMALS )
+            float scale_normals <name="Scale UNKNOWN">;
+} header <name="Header">;
+
+
+// Model Meshes
+
+struct BonesIndexes {
+    ubyte links <name="Links Count">;
+    ubyte count <name="Local Bones Count">;
+    if ( count > 0 )
+        ubyte bones[count] <name="Local Bones">;
+};
+
+struct Counts {
+    uint vertices <name="Vertices", bgcolor=cLtGreen>;
+    uint polygons <name="Polygons", bgcolor=cLtBlue>;
+};
+
+struct LinksPacked {
+    ubyte id[2];
+    ubyte weight[2];
+};
+
+struct LinksPlains {
+    ubyte id[counts.vertices * 4];
+    ubyte weight[counts.vertices * 4];
+};
+
+struct Mesh {
+    String name <name="Name">;
+    String material <name="Material">;
+
+    if ( header.flags.SKELETON )
+        BonesIndexes bones <name="Joints", bgcolor=cWhite>;
+
+    Counts counts <name="Counts">;
+
+    if ( header.flags.TEXTURE )
+        float texture_filtering <name="Texture Filtering">;
+
+    if ( header.version >= 10.0 ) {
+        Vec3f default_rotation <name="Default Rotation">;
+        Vec3f default_position <name="Default Position">;
+    }
+
+    if ( header.version >= 11.0 )
+        float default_scale <name="Default Scale">;
+
+    Vec4 positions[counts.vertices] <name="Positions", bgcolor=cGreen>;
+
+    if ( header.flags.TEXTURE )
+        Vec2 textures[counts.vertices] <name="Textures", bgcolor=cRed>;
+
+    if ( header.flags.BITANGENTS )
+        Vec4b _bitangents[counts.vertices] <name="Bitangents", bgcolor=cDkPurple>;
+
+    if ( header.flags.NORMALS )
+        Vec4b normals[counts.vertices] <name="Normals", bgcolor=cPurple>;
+
+    if ( header.version >= 8.0 )
+        if ( header.flags.TANGENTS )
+            Vec4b _tangents[counts.vertices] <name="Tangents", bgcolor=cDkPurple>;
+
+    if ( header.flags.SKELETON )
+        switch( bones.links ) {
+            case 1:
+            case 2:
+                LinksPacked links[counts.vertices] <name="Links", bgcolor=cWhite>; break;
+            case 3:
+            case 4:
+                LinksPlains links <name="Links", bgcolor=cWhite>; break;
+        }
+
+    if ( header.version >= 10.0 )
+        if ( header.flags.COLORS )
+            byte _colors[counts.vertices*4] <hidden=true>;
+
+    if ( counts.polygons * 3 < 0x10000 )
+        Polygons_short polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
+    else
+        Polygons_int polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
+};
+
+struct Meshes {
+    uint count <name="Count", bgcolor=cAqua>;
+    if ( count > 0 )
+        Mesh meshes[count] <name="Mesh", optimize=false>;
+} meshes <name="Meshes">;
+
+
+// Model Skeleton
+
+struct Bone {
+    String name <name="Name">;
+    byte parent_id <name="Parent ID", fgcolor=cAqua>;
+    Vec3f position <name="Position", bgcolor=cWhite>;
+    Vec3f rotation <name="Rotation", bgcolor=cGray>;
+};
+
+if ( header.flags.SKELETON )
+    struct Skeleton {
+        ubyte count <name="Count", bgcolor=cPurple>;
+        if ( count > 0 )
+            Bone bones[count] <name="Bone", optimize=false>;
+    } skeleton <name="Skeleton">;
+
+
+// Model Animations
+
+struct Joint {
+    Vec3 position <name="Position", bgcolor=cWhite>;
+    Vec4 rotation <name="Rotation", bgcolor=cGray>;
+};
+
+struct Frame {
+    Joint joint[skeleton.count];
+};
+
+typedef struct {
+    String name <name="Name">;
+    int framesCount <name="Frames Count", bgcolor=cGreen>;
+    float frameRate <name="Frame Rate", fgcolor=cPurple>;
+    if ( framesCount > 0 )
+        Frame frames[framesCount] <optimize=false>;
+} Clip <read=ReadCLIP>;
+
+string ReadCLIP( Clip &clip ) {
+    return exists(clip.name) ? clip.name.data : "";
+}
+
+// Not sure where exactly marked that file contains animations.
+// Perhaps its indicated from outside.
+if ( !FEof() )
+    if ( header.flags.SKELETON )
+        struct Animation {
+            int count <name="Count", bgcolor=cBlue>;
+            if ( count > 0 )
+                Clip clips[count] <name="Clip", optimize=false>;
+        } animation <name="Animation">;

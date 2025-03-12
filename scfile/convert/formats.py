@@ -8,6 +8,7 @@ from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.mcsa.decoder import McsaDecoder
+from scfile.formats.mcsb.decoder import McsbDecoder
 from scfile.formats.mic.decoder import MicDecoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
@@ -44,6 +45,67 @@ def converter(
     return decorator
 
 
+@converter(McsbDecoder, DaeEncoder)
+def mcsb_to_dae(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[ModelOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(McsbDecoder, ObjEncoder)
+def mcsb_to_obj(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[ModelOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(McsbDecoder, GlbEncoder)
+def mcsb_to_gltf(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[ModelOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(McsbDecoder, Ms3dEncoder)
+def mcsb_to_ms3d(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[ModelOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(OlDecoder, DdsEncoder)
+def ol_to_dds(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[TextureOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(MicDecoder, PngEncoder)
+def mic_to_png(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[ImageOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+# ? Legacy
 @converter(McsaDecoder, DaeEncoder)
 def mcsa_to_dae(
     source: PathLike,
@@ -79,26 +141,6 @@ def mcsa_to_ms3d(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
-):
-    pass
-
-
-@converter(OlDecoder, DdsEncoder)
-def ol_to_dds(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[TextureOptions] = None,
-    overwrite: bool = True,
-):
-    pass
-
-
-@converter(MicDecoder, PngEncoder)
-def mic_to_png(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ImageOptions] = None,
     overwrite: bool = True,
 ):
     pass

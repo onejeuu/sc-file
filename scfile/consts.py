@@ -1,7 +1,7 @@
 from .enums import FileFormat
 
 
-SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
+SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
 """Files formats (suffixes without dot) that can be converted."""
 
 SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS))

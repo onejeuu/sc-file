@@ -12,7 +12,7 @@
 
 **scfile** is a utility and library designed for decoding and converting STALCRAFT asset files, such as models and textures, into popular formats.
 
-Supported formats: `.mcsa`, `.ol`, `.mic`.
+Supported formats: `.mcsb`, `.mcsa`, `.ol`, `.mic`.
 
 Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compiled from source](https://github.com/onejeuu/sc-file/tree/4.0-dev?tab=readme-ov-file#%EF%B8%8F-build).
 
@@ -30,11 +30,11 @@ pip install sc-file -U
 
 ## 📁 Formats
 
-| Type    | Source        | Output                  |
-| ------- | ------------- | ----------------------- |
-| Model   | .mcsa / .mcvd | .obj, .dae, .glb, .ms3d |
-| Texture | .ol           | .dds                    |
-| Image   | .mic          | .png                    |
+| Type    | Source       | Output                  |
+| ------- | ------------ | ----------------------- |
+| Model   | .mcsa, .mcsb | .obj, .dae, .glb, .ms3d |
+| Texture | .ol          | .dds                    |
+| Image   | .mic         | .png                    |
 
 ### Models
 
