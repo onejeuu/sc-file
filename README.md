@@ -1,4 +1,8 @@
-# SC FILE
+# sc-file 3.0 [LEGACY]
+
+> [!IMPORTANT]
+> This version is deprecated and no longer maintained. \
+> Check out the latest version: [sc-file 4.0](https://github.com/onejeuu/sc-file/tree/4.0-dev)
 
 Utility and Library for decoding and converting stalcraft asset files, such as models and textures, into popular formats.
 
