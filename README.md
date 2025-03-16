@@ -32,7 +32,7 @@ pip install sc-file -U
 
 | Type    | Source       | Output                  |
 | ------- | ------------ | ----------------------- |
-| Model   | .mcsa, .mcsb | .obj, .dae, .glb, .ms3d |
+| Model   | .mcsb, .mcsa | .obj, .dae, .glb, .ms3d |
 | Texture | .ol          | .dds                    |
 | Image   | .mic         | .png                    |
 

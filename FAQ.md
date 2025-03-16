@@ -14,16 +14,18 @@ My goal is to support research and creativity, not spark a tech arms race or cre
 
 ### Q: **After game update %any_filename% no longer decodes!**
 
-**Answer:** Format structure may have been updated. Please wait for a program update. In case of large changes, it might take some time to adapt.
+**Answer:** Format structure may have been updated. Wait for program update. In case of large changes, it might take some time to adapt.
 
-### Q: **How safe is it in terms of game ban to use this program?**
+### Q: **Could using this program lead to game ban?**
 
 **Answer:** Use at your own risk.
 
 Some basic recommendations:
 
-- **DO NOT** leave anything in the game assets directory. Any changes can and will be tracked, as there are tools for this.
-- Copy the required files to a separate directory and **ONLY THEN** perform manipulations.
+- You **MUST** close both game and launcher before interacting with any assets files.
+- You **MUST NOT** leave any files or modifications in the game assets directory.
+  All changes can and will be tracked, as there are tools for this.
+- You **SHOULD** copy required files to separate directory **BEFORE** performing any manipulations.
 
 ## Textures and Models
 
@@ -40,7 +42,7 @@ Note: I cannot vouch for their safety or perfect compatibility.
 
 ### Q: **Is it possible to convert DDS textures to PNG?**
 
-**Answer:** Yes, but native support is not planned for the sake of code simplicity.
+**Answer:** Yes, but native support is not planned for sake of code simplicity.
 
 If needed, convert DDS to PNG using [ImageMagick](https://imagemagick.org). \
 Command example:
@@ -65,7 +67,7 @@ magick mogrify -format png *.dds
 
 If anyone wants to implement a map cache decoder, feel free to contribute to [Pull Requests](https://github.com/onejeuu/sc-file/pulls).
 
-### Q: **How to open other game file types? (xeon, t, mcws, ...)**
+### Q: **How to open other game file types? (xeon, mcws, etc)**
 
 **Answer:** These files are encrypted using [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) and cannot be decrypted without the key.
 
