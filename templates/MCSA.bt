@@ -1,15 +1,30 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 1.3
+// Version: 1.4
 // Purpose: Parse model scenes.
 // Category: STALCRAFT
-// File Mask: *.mcsa,*.mcvd
+// File Mask: *.mcsa,*.mcsb,*.mcvd
 // ID Bytes: 4D 43 53 41 // MCSA
 //------------------------------------------------
 
 
-// Define Byte Order
+// File Extension
+
+local string ext = FileNameGetExtension(GetFileName());
+
+
+// Hash Prefix (MCSB)
+
+BigEndian();
+
+if ( ext == ".mcsb" ) {
+    uint hashSize <hidden=true, bgcolor=cLtGray>;
+    char hashData[hashSize] <hidden=true, bgcolor=cGray>;
+}
+
+
+// Default Byte Order
 
 LittleEndian();
 
@@ -70,14 +85,14 @@ struct Header {
             Exit(-1);
     }
 
-    float scale_positions <name="Scale">;
+    float scale_positions <name="Scale Model">;
 
     if ( flags.TEXTURE )
-        float scale_texture <name="UV Scale">;
+        float scale_texture <name="Scale UV">;
 
     if ( version >= 10.0 )
         if ( flags.NORMALS )
-            float scale_normals <name="Scale UNKNOWN">;
+            float scale_unknown <name="Scale Unknown">;
 } header <name="Header">;
 
 
@@ -105,7 +120,7 @@ struct LinksPlains {
     ubyte weight[counts.vertices * 4];
 };
 
-struct Mesh {
+typedef struct {
     String name <name="Name">;
     String material <name="Material">;
 
@@ -158,7 +173,11 @@ struct Mesh {
         Polygons_short polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
     else
         Polygons_int polygons[counts.polygons] <name="Polygons", bgcolor=cLtBlue>;
-};
+} Mesh <read=ReadMESH>;
+
+string ReadMESH( Mesh &mesh ) {
+    return exists(mesh.name) ? mesh.name.data : "";
+}
 
 struct Meshes {
     uint count <name="Count", bgcolor=cAqua>;
@@ -169,12 +188,16 @@ struct Meshes {
 
 // Model Skeleton
 
-struct Bone {
+typedef struct {
     String name <name="Name">;
     byte parent_id <name="Parent ID", fgcolor=cAqua>;
     Vec3f position <name="Position", bgcolor=cWhite>;
     Vec3f rotation <name="Rotation", bgcolor=cGray>;
-};
+} Bone <read=ReadBONE>;
+
+string ReadBONE( Bone &bone ) {
+    return exists(bone.name) ? bone.name.data : "";
+}
 
 if ( header.flags.SKELETON )
     struct Skeleton {
