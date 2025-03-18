@@ -8,10 +8,9 @@ from rich import print
 from scfile import convert
 from scfile.cli.enums import Prefix
 from scfile.consts import CLI
-from scfile.convert.auto import ModelFormats
+from scfile.convert.auto import MODELS_WITHOUT_SKELETON, ModelFormats
 from scfile.core.context import ModelOptions
 from scfile.core.context.options import ImageOptions, TextureOptions
-from scfile.enums import FileFormat
 from scfile.exceptions.base import ScFileException
 
 from . import types
@@ -71,44 +70,59 @@ def scfile(
     relative: bool,
     no_overwrite: bool,
 ):
+    # In case program executed without arguments
     if not paths:
         no_args(ctx)
         return
 
+    # Relative flag is useless without output path
     if not output and relative:
         print(Prefix.WARN, "[b]--relative[/] flag cannot be used without specifying [b]--output[/] option.")
 
-    if skeleton and model_formats == (FileFormat.OBJ,):
-        print(Prefix.WARN, f'format "[b].{FileFormat.OBJ}[/]" does not support skeleton and animation.')
+    # Warn when any specified model format not supports skeletal animation
+    if skeleton and has_no_skeleton_formats(model_formats):
+        target_formats = filter_no_skeleton_formats(model_formats)
+        print(Prefix.WARN, f"specified formats [b]({target_formats})[/] does not support skeleton and animation.")
 
-    files = paths_to_files_map(paths)
-
-    if not files:
+    # Maps directories to their supported files, using directory as key
+    files_map = paths_to_files_map(paths)
+    if not files_map:
         print(Prefix.ERROR, "No supported files found in provided arguments.")
         print(CLI.FORMATS)
         return
 
-    for root, sources in files.items():
+    # Prepare options
+    model_options = ModelOptions(parse_skeleton=skeleton)
+    texture_options = TextureOptions(is_hdri=hdri)
+    image_options = ImageOptions()
+    overwrite = not no_overwrite
+
+    # Iterates over each directory and its list of source files
+    for root, sources in files_map.items():
         for source in sources:
             dest = output
 
+            # Set relative path if enabled
             if output and relative:
                 dest = output / source.relative_to(root.parent).parent
 
+            # Convert file
             try:
-                convert.auto(
-                    source=source,
-                    output=dest,
-                    model_options=ModelOptions(parse_skeleton=skeleton),
-                    texture_options=TextureOptions(is_hdri=hdri),
-                    image_options=ImageOptions(),
-                    model_formats=model_formats,
-                    overwrite=not no_overwrite,
-                )
+                convert.auto(source, dest, model_options, texture_options, image_options, model_formats, overwrite)
                 print(Prefix.INFO, f"File '{source.name}' converted to '{dest or source.parent}'")
 
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))
+
+
+def has_no_skeleton_formats(model_formats: ModelFormats):
+    """Checks if any model format in the list does not support skeletal animation."""
+    return any(model in model_formats for model in MODELS_WITHOUT_SKELETON)
+
+
+def filter_no_skeleton_formats(model_formats: ModelFormats):
+    """Returns string of model formats that do not support skeletal animation."""
+    return ", ".join(filter(lambda model: model in MODELS_WITHOUT_SKELETON, model_formats))
 
 
 def no_args(ctx: click.Context) -> None:
@@ -139,5 +153,4 @@ def paths_to_files_map(paths: FilesType) -> FilesMap:
             files_map[path.parent].extend(filter_files([path]))
 
     valid_files: FilesMap = {key: value for key, value in files_map.items() if value}
-
     return valid_files

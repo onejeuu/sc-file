@@ -12,6 +12,7 @@ from . import formats
 ModelFormats: TypeAlias = Sequence[FileFormat]
 
 DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.GLB,)
+MODELS_WITHOUT_SKELETON: ModelFormats = (FileFormat.OBJ,)
 
 # TODO: try refactor this, get rid of formats maps
 MCSB_CONVERTER_MAP: dict[FileFormat, Callable] = {
