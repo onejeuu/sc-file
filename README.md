@@ -48,6 +48,9 @@ pip install sc-file -U
 
 ## 🛠️ Build
 
+> [!IMPORTANT]
+> Instructions are tailored for the [uv tool](https://github.com/astral-sh/uv).
+
 1. Download project
 
    ```bash
@@ -61,7 +64,7 @@ pip install sc-file -U
 2. Recommended to create virtual environment
 
    ```bash
-   python -m venv .venv
+   uv venv
    ```
 
    ```bash
@@ -70,22 +73,14 @@ pip install sc-file -U
 
 3. Install dependencies
 
-   via poetry
-
    ```bash
-   poetry install
-   ```
-
-   or via pip
-
-   ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 4. Run script to compile
 
    ```bash
-   python scripts/build.py
+   uv run scripts/build.py
    ```
 
    Executable file `scfile.exe` will be created in `/dist` directory.

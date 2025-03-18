@@ -1,32 +1,38 @@
-[tool.poetry]
+[project]
 name = "sc-file"
-version = "4.0.0.dev4"
+version = "4.0.0.dev5"
 description = "Utility & Library for decoding stalcraft assets"
-authors = ["onejeuu <mail@66rk.ru>"]
 
-license = "MIT"
+requires-python = ">=3.11"
+
+authors = [{ name = "onejeuu", email = "mail@66rk.ru" }]
+
 readme = "README.md"
+license = {text = "MIT"}
 
-homepage = "https://github.com/onejeuu/sc-file"
-repository = "https://github.com/onejeuu/sc-file"
-documentation = "https://github.com/onejeuu/sc-file/?tab=readme-ov-file#usage"
+dependencies = [
+    "click>=8.1.8",
+    "lz4>=4.4.3",
+    "numpy>=2.2.4",
+    "rich>=13.9.4",
+]
 
-packages = [{ include = "scfile" }]
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.12.0",
+    "pytest>=8.3.5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-lz4 = "^4.3.0"
-click = "^8.1.0"
-numpy = "^2.2.0"
-rich = "^13.9.0"
+[project.urls]
+Homepage = "https://github.com/onejeuu/sc-file"
+Repository = "https://github.com/onejeuu/sc-file"
 
-[tool.poetry.group.dev.dependencies]
-pyinstaller = {version = "^6.11.1", python = "^3.11,<3.14"}
-pytest = "^8.1.1"
-
-[tool.poetry.scripts]
+[project.scripts]
 scfile = "scfile.__main__:main"
 
+[tool.setuptools]
+packages = ["scfile"]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

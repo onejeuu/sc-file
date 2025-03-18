@@ -46,6 +46,9 @@ pip install sc-file -U
 
 ## 🛠️ Сборка
 
+> [!IMPORTANT]
+> Инструкции написаны под [инструмент uv](https://github.com/astral-sh/uv).
+
 1. Скачайте проект
 
    ```bash
@@ -59,7 +62,7 @@ pip install sc-file -U
 2. Рекомендуется создать виртуальную среду
 
    ```bash
-   python -m venv .venv
+   uv venv
    ```
 
    ```bash
@@ -68,22 +71,14 @@ pip install sc-file -U
 
 3. Установите зависимости
 
-   через poetry
-
    ```bash
-   poetry install
-   ```
-
-   или через pip
-
-   ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 4. Запустите скрипт для компиляции
 
    ```bash
-   python scripts/build.py
+   uv run scripts/build.py
    ```
 
    В директории `/dist` будет создан исполняемый файл `scfile.exe`
