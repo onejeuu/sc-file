@@ -45,7 +45,7 @@ FilesMap: TypeAlias = dict[types.PathType, list[types.PathType]]
 )
 @click.option(
     "--hdri",
-    help="Parse textures as hdri (cubemaps).",
+    help="[STUB] Parse textures as hdri (cubemaps).",
     is_flag=True,
 )
 @click.option(
@@ -140,7 +140,10 @@ def paths_to_files_map(paths: FilesType) -> FilesMap:
     resolved_symlinks: set[types.PathType] = set()
 
     for path in paths:
-        if path.is_dir():
+        if path.is_file():
+            files_map[path.parent].extend(filter_files([path]))
+
+        elif path.is_dir():
             if path.is_symlink():
                 resolved = path.resolve()
                 if resolved in resolved_symlinks:
@@ -148,9 +151,6 @@ def paths_to_files_map(paths: FilesType) -> FilesMap:
                 resolved_symlinks.add(resolved)
 
             files_map[path].extend(filter_files(list(path.rglob("**/*"))))
-
-        elif path.is_file():
-            files_map[path.parent].extend(filter_files([path]))
 
     valid_files: FilesMap = {key: value for key, value in files_map.items() if value}
     return valid_files
