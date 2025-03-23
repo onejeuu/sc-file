@@ -5,7 +5,6 @@
 // Purpose: Parse model scenes.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcsb,*.mcvd
-// ID Bytes: 4D 43 53 41 // MCSA
 //------------------------------------------------
 
 
@@ -210,8 +209,8 @@ if ( header.flags.SKELETON )
 // Model Animations
 
 struct Joint {
-    Vec3 position <name="Position", bgcolor=cWhite>;
     Vec4 rotation <name="Rotation", bgcolor=cGray>;
+    Vec3 translation <name="Translation", bgcolor=cWhite>;
 };
 
 struct Frame {
@@ -234,8 +233,8 @@ string ReadCLIP( Clip &clip ) {
 // Perhaps its indicated from outside.
 if ( !FEof() )
     if ( header.flags.SKELETON )
-        struct Animation {
+        struct Animations {
             int count <name="Count", bgcolor=cBlue>;
             if ( count > 0 )
                 Clip clips[count] <name="Clip", optimize=false>;
-        } animation <name="Animation">;
+        } animations <name="Animations">;
