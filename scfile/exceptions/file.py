@@ -73,4 +73,4 @@ class FileStructureInvalid(FileError):
     pos: int
 
     def __str__(self):
-        return f"{super().__str__()} has invalid structure. Current position: {self.pos}."
+        return f"{super().__str__()} has invalid structure. Pointer position: {self.pos}."

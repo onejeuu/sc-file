@@ -21,6 +21,10 @@ dependencies = [
 dev = [
     "pyinstaller>=6.12.0",
     "pytest>=8.3.5",
+    "sphinx>=8.2.3",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-autodoc-typehints>=3.1.0",
+    "sphinx-book-theme>=1.1.4",
 ]
 
 [project.urls]
@@ -31,7 +35,7 @@ Repository = "https://github.com/onejeuu/sc-file"
 scfile = "scfile.__main__:main"
 
 [tool.setuptools]
-packages = ["scfile"]
+packages = { find = { include = ["scfile", "scfile.*"] } }
 
 [build-system]
 requires = ["setuptools"]
