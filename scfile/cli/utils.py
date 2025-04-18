@@ -5,19 +5,23 @@ from rich import print
 
 from scfile import convert
 from scfile.consts import CLI
-from scfile.convert.auto import MODELS_WITHOUT_SKELETON, ModelFormats
+from scfile.convert.auto import ModelFormats
+from scfile.enums import FileFormat
 
 from . import types
 
 
+MODEL_FORMATS_WITHOUT_SKELETON: ModelFormats = (FileFormat.OBJ,)
+
+
 def has_no_skeleton_formats(model_formats: ModelFormats):
-    """Checks if any model format in the list does not support skeletal animation."""
-    return any(model in model_formats for model in MODELS_WITHOUT_SKELETON)
+    """Checks if any model format in the list doesn't support skeletal animation."""
+    return any(model in model_formats for model in MODEL_FORMATS_WITHOUT_SKELETON)
 
 
 def filter_no_skeleton_formats(model_formats: ModelFormats):
     """Returns string of model formats that do not support skeletal animation."""
-    return ", ".join(filter(lambda model: model in MODELS_WITHOUT_SKELETON, model_formats))
+    return ", ".join(filter(lambda model: model in MODEL_FORMATS_WITHOUT_SKELETON, model_formats))
 
 
 def no_args(ctx: click.Context) -> None:
