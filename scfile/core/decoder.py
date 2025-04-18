@@ -2,13 +2,11 @@ from abc import ABC, abstractmethod
 from typing import Generic, Optional
 
 from scfile import exceptions as exc
+from scfile.core.base import BaseFile
+from scfile.core.encoder import FileEncoder
+from scfile.core.io.streams import StructFileIO
+from scfile.core.types import Content, Options, PathLike
 from scfile.enums import FileMode
-from scfile.io.streams import StructFileIO
-from scfile.io.types import PathLike
-
-from .base import BaseFile
-from .encoder import FileEncoder
-from .types import Content, Options
 
 
 class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):

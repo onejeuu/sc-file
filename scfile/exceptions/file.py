@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from scfile.io.types import PathLike
+from scfile.core.types import PathLike
 
 from .base import ScFileException
 

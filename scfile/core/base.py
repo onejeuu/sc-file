@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import Optional
 
+from scfile.core.io.base import DEFAULT_BYTES_ORDER
 from scfile.enums import ByteOrder, FileFormat
-from scfile.io.consts import DEFAULT_BYTES_ORDER
 
 
 class BaseFile(ABC):

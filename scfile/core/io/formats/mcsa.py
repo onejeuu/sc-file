@@ -5,9 +5,9 @@ from numpy.typing import NDArray
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize
+from scfile.core.io.streams import StructFileIO
 from scfile.enums import StructFormat as F
 from scfile.geometry.mesh import BonesMapping
-from scfile.io.streams import StructFileIO
 
 
 # TODO: finally set proper numpy typing

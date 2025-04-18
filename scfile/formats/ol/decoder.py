@@ -4,10 +4,10 @@ from scfile import exceptions as exc
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder
 from scfile.core.context import TextureContent, TextureOptions
+from scfile.core.io.formats.ol import OlFileIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
-from scfile.io.formats.ol import OlFileIO
 
 from .formats import SUPPORTED_FORMATS
 
