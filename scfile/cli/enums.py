@@ -5,5 +5,5 @@ class Prefix(StrEnum):
     INFO = "[b blue]INFO:[/]"
     WARN = "[b yellow]WARN:[/]"
     ERROR = "[b red]ERROR:[/]"
-    CLIERROR = "[b red]CLI ERROR:[/]"
+    INVALID = "[b red]INVALID INPUT:[/]"
     EXCEPTION = "[b red]UNEXPECTED ERROR:[/]"

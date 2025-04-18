@@ -13,7 +13,7 @@ def mock_convert_auto():
 
 @pytest.fixture
 def mock_paths_to_files_map():
-    with patch("scfile.cli.scfile.paths_to_files_map", return_value={}) as mock:
+    with patch("scfile.cli.scfile.utils.paths_to_files_map", return_value={}) as mock:
         yield mock
 
 
