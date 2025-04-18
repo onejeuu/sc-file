@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 
-from .vectors import Vector3, Vector4
+from .vectors import Quaternion, Vector3
 
 
 @dataclass
 class AnimationFrame:
     translation: Vector3 = field(default_factory=Vector3)
-    rotation: Vector4 = field(default_factory=Vector4)
+    rotation: Quaternion = field(default_factory=Quaternion)
 
 
 @dataclass

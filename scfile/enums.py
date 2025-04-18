@@ -19,6 +19,14 @@ class FileFormat(StrEnum):
     TXT = MS3D_ASCII = auto()
 
 
+class FileType(StrEnum):
+    """File content type."""
+
+    MODEL = auto()
+    TEXTURE = auto()
+    IMAGE = auto()
+
+
 class FileMode(StrEnum):
     """File open mode."""
 
