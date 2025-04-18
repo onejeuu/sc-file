@@ -9,7 +9,7 @@ def main():
         scfile(standalone_mode=False)
 
     except (KeyboardInterrupt, click.exceptions.Abort):
-        print("[yellow]Operation Aborted.[/]")
+        print("[yellow]Operation aborted.[/]")
 
 
 if __name__ == "__main__":

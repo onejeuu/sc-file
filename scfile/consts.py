@@ -74,7 +74,7 @@ class CLI:
 
     VERSION = "4.0.0.dev"
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
-    PAUSE_TEXT = "\nPress Enter to exit..."
+    PAUSE_TEXT = "\nPress Enter to continue or exit..."
 
 
 class OutputFormats:
