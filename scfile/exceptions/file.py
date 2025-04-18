@@ -29,7 +29,7 @@ class FileError(BaseFileError):
 
 @dataclass
 class FileNotFound(FileError):
-    """Exception occurring when file not found or does not exists."""
+    """Exception occurring when file not found or doesn't exists."""
 
     def __str__(self):
         return f"{super().__str__()} not found (not exists)."
@@ -53,7 +53,7 @@ class FileSuffixUnsupported(FileError):
 
 @dataclass
 class FileSignatureInvalid(FileError):
-    """Exception occurring when file signature does not match file type."""
+    """Exception occurring when file signature doesn't match file type."""
 
     read: bytes
     signature: bytes
@@ -68,7 +68,7 @@ class FileSignatureInvalid(FileError):
 
 @dataclass
 class FileStructureInvalid(FileError):
-    """Exception occurring when file does not hold expected number of bytes."""
+    """Exception occurring when file doesn't hold expected number of bytes."""
 
     pos: int
 

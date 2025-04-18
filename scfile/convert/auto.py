@@ -10,24 +10,32 @@ from . import formats
 
 
 ModelFormats: TypeAlias = Sequence[FileFormat]
+ModelConverters: TypeAlias = dict[FileFormat, Callable]
 
-DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.GLB,)
-MODELS_WITHOUT_SKELETON: ModelFormats = (FileFormat.OBJ,)
+DEFAULT_MODEL_FORMATS: ModelFormats = (FileFormat.OBJ,)
+DEFAULT_SKELETON_MODEL_FORMATS: ModelFormats = (FileFormat.GLB,)
 
-# TODO: try refactor this, get rid of formats maps
-MCSB_CONVERTER_MAP: dict[FileFormat, Callable] = {
+
+# TODO: global converter map?
+
+MCSB_CONVERTERS: ModelConverters = {
     FileFormat.DAE: formats.mcsb_to_dae,
     FileFormat.OBJ: formats.mcsb_to_obj,
     FileFormat.GLB: formats.mcsb_to_gltf,
     FileFormat.MS3D: formats.mcsb_to_ms3d,
 }
 
-# ? Legacy
-MCSA_CONVERTER_MAP: dict[FileFormat, Callable] = {
+MCSA_CONVERTERS: ModelConverters = {
     FileFormat.DAE: formats.mcsa_to_dae,
     FileFormat.OBJ: formats.mcsa_to_obj,
     FileFormat.GLB: formats.mcsa_to_gltf,
     FileFormat.MS3D: formats.mcsa_to_ms3d,
+}
+
+MODEL_CONVERTERS: dict[FileFormat, ModelConverters] = {
+    FileFormat.MCSB: MCSB_CONVERTERS,
+    FileFormat.MCSA: MCSA_CONVERTERS,
+    FileFormat.MCVD: MCSA_CONVERTERS,
 }
 
 
@@ -43,18 +51,16 @@ def auto(
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
 
-    model_formats = model_formats or DEFAULT_MODEL_FORMATS
+    default_formats = (
+        DEFAULT_SKELETON_MODEL_FORMATS if model_options and model_options.parse_skeleton else DEFAULT_MODEL_FORMATS
+    )
+    model_formats = model_formats or default_formats
 
-    # TODO: DRY
     match src_format:
-        case FileFormat.MCSB:
-            for fmt in model_formats:
-                if converter := MCSB_CONVERTER_MAP.get(fmt):
-                    converter(source, output, model_options, overwrite)
-
-        case FileFormat.MCSA | FileFormat.MCVD:
-            for fmt in model_formats:
-                if converter := MCSA_CONVERTER_MAP.get(fmt):
+        case FileFormat.MCSA | FileFormat.MCSB | FileFormat.MCVD:
+            converter_map = MODEL_CONVERTERS[src_format]
+            for target_fmt in model_formats:
+                if converter := converter_map.get(target_fmt):
                     converter(source, output, model_options, overwrite)
 
         case FileFormat.OL:
