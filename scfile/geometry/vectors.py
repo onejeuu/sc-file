@@ -4,7 +4,7 @@ from typing import Iterator, Self
 
 
 @dataclass
-class VectorBase(ABC):
+class BaseVector(ABC):
     def __iter__(self) -> Iterator[float]:
         return iter(self.__dict__.values())
 
@@ -22,20 +22,20 @@ class VectorBase(ABC):
 
 
 @dataclass
-class Vector2(VectorBase):
+class Vector2(BaseVector):
     u: float = 0.0
     v: float = 0.0
 
 
 @dataclass
-class Vector3(VectorBase):
+class Vector3(BaseVector):
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
 
 
 @dataclass
-class Vector4(VectorBase):
+class Vector4(BaseVector):
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
@@ -43,7 +43,15 @@ class Vector4(VectorBase):
 
 
 @dataclass
-class Polygon(VectorBase):
+class Quaternion(BaseVector):
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    w: float = 1.0
+
+
+@dataclass
+class Polygon(BaseVector):
     a: int = 0
     b: int = 0
     c: int = 0
