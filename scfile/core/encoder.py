@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self
 
+from scfile.core.base import BaseFile
+from scfile.core.io.streams import StructBytesIO
+from scfile.core.types import Content, Options, PathLike
 from scfile.enums import FileMode
-from scfile.io.streams import StructBytesIO
-from scfile.io.types import PathLike
-
-from .base import BaseFile
-from .types import Content, Options
 
 
 class FileEncoder(BaseFile, StructBytesIO, Generic[Content, Options], ABC):

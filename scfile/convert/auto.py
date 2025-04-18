@@ -3,8 +3,8 @@ from typing import Callable, Optional, Sequence, TypeAlias
 
 from scfile import exceptions as exc
 from scfile.core.context import ImageOptions, ModelOptions, TextureOptions
+from scfile.core.types import PathLike
 from scfile.enums import FileFormat
-from scfile.io.types import PathLike
 
 from . import formats
 

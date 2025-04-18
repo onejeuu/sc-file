@@ -4,8 +4,7 @@ from typing import Optional, Type
 from scfile import exceptions as exc
 from scfile.consts import SUPPORTED_SUFFIXES
 from scfile.core import FileDecoder, FileEncoder
-from scfile.core.types import Content, Options
-from scfile.io.types import PathLike
+from scfile.core.types import Content, Options, PathLike
 
 
 def is_supported(source: PathLike) -> bool:

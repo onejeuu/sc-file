@@ -2,7 +2,8 @@ import io
 from pathlib import Path
 
 from scfile import exceptions as exc
-from scfile.io.base import StructIO
+
+from .base import StructIO
 
 
 class StructBytesIO(io.BytesIO, StructIO):
@@ -23,7 +24,7 @@ class StructFileIO(io.FileIO, StructIO):
         self.seek(0, io.SEEK_END)
         file_size = self.tell()
 
-        # return pointer
+        # Return pointer position
         self.seek(current_pos)
         remaining = file_size - current_pos
 

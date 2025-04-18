@@ -1,9 +1,10 @@
 from functools import wraps
 from typing import Callable, Optional, Type
 
+from scfile.convert.base import convert
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.context import ImageOptions, ModelOptions, TextureOptions
-from scfile.core.types import Content, Options
+from scfile.core.types import Content, Options, PathLike
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
@@ -14,9 +15,6 @@ from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
 from scfile.formats.ol.decoder import OlDecoder
 from scfile.formats.png.encoder import PngEncoder
-from scfile.io.types import PathLike
-
-from .base import convert
 
 
 def converter(

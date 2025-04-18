@@ -4,6 +4,7 @@ from scfile import exceptions as exc
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core.context import ModelContent, ModelOptions
 from scfile.core.decoder import FileDecoder
+from scfile.core.io.formats.mcsa import McsaFileIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dae.encoder import DaeEncoder
@@ -13,7 +14,6 @@ from scfile.formats.obj.encoder import ObjEncoder
 from scfile.geometry.anim import AnimationClip, AnimationFrame
 from scfile.geometry.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.geometry.skeleton import SkeletonBone
-from scfile.io.formats.mcsa import McsaFileIO
 
 from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
