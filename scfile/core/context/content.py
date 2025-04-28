@@ -1,7 +1,6 @@
-import dataclasses
 from abc import ABC
 from collections import defaultdict
-from dataclasses import dataclass, field, fields
+from dataclasses import MISSING, dataclass, field, fields
 
 from scfile.geometry.scene import ModelFlags, ModelScene
 
@@ -10,10 +9,10 @@ from scfile.geometry.scene import ModelFlags, ModelScene
 class FileContent(ABC):
     def reset(self):
         for f in fields(self):
-            if f.default_factory is not dataclasses.MISSING:
+            if f.default_factory is not MISSING:
                 setattr(self, f.name, f.default_factory())
 
-            elif f.default is not dataclasses.MISSING:
+            elif f.default is not MISSING:
                 setattr(self, f.name, f.default)
 
             else:
@@ -33,6 +32,10 @@ class ModelContent(FileContent):
     @property
     def skeleton(self):
         return self.scene.skeleton
+
+    @property
+    def animation(self):
+        return self.scene.animation
 
 
 @dataclass

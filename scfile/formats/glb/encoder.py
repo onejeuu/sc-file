@@ -3,6 +3,8 @@ import struct
 from copy import deepcopy
 from typing import Optional
 
+import numpy as np
+
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
@@ -27,6 +29,10 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     @property
     def skeleton_presented(self) -> bool:
         return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
+
+    @property
+    def animation_presented(self) -> bool:
+        return self.skeleton_presented and self.options.parse_animations
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
@@ -92,6 +98,9 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
         if self.skeleton_presented:
             self.create_bones()
 
+        if self.animation_presented:
+            self.create_animation()
+
     def count_nodes(self):
         nodes = list(range(len(self.data.meshes)))
 
@@ -100,10 +109,10 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
         self.ctx["GLTF"]["scenes"][0]["nodes"] = nodes
 
-    def create_meshes(self):
-        def accessor_index() -> int:
-            return len(self.ctx["GLTF"]["accessors"])
+    def accessor_index(self) -> int:
+        return len(self.ctx["GLTF"]["accessors"])
 
+    def create_meshes(self):
         if self.skeleton_presented:
             self.ctx["GLTF"]["skins"] = []
 
@@ -115,43 +124,43 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             primitive = deepcopy(base.PRIMITIVE)
 
             # XYZ Position
-            primitive["attributes"]["POSITION"] = accessor_index()
+            primitive["attributes"]["POSITION"] = self.accessor_index()
             self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
             self.create_accessor(mesh.count.vertices, "VEC3")
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
-                primitive["attributes"]["TEXCOORD_0"] = accessor_index()
+                primitive["attributes"]["TEXCOORD_0"] = self.accessor_index()
                 self.create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self.create_accessor(mesh.count.vertices, "VEC2")
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                primitive["attributes"]["NORMAL"] = accessor_index()
+                primitive["attributes"]["NORMAL"] = self.accessor_index()
                 self.create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
                 self.create_accessor(mesh.count.vertices, "VEC3")
 
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
-                primitive["attributes"]["JOINTS_0"] = accessor_index()
+                primitive["attributes"]["JOINTS_0"] = self.accessor_index()
                 self.create_bufferview(byte_length=mesh.count.vertices * 4 * 1)
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE)
 
                 # Joint Weights
-                primitive["attributes"]["WEIGHTS_0"] = accessor_index()
+                primitive["attributes"]["WEIGHTS_0"] = self.accessor_index()
                 self.create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
                 # Bind Matrix
                 self.ctx["GLTF"]["skins"].append(
-                    dict(name="Armature", inverseBindMatrices=accessor_index(), joints=joints)
+                    dict(name="Armature", inverseBindMatrices=self.accessor_index(), joints=joints)
                 )
                 self.create_bufferview(byte_length=bones_count * 16 * 4, target=None)
                 self.create_accessor(bones_count, "MAT4", ComponentType.FLOAT)
 
             # ABC Polygons
-            primitive["indices"] = accessor_index()
+            primitive["indices"] = self.accessor_index()
             self.create_bufferview(byte_length=mesh.count.polygons * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
             self.create_accessor(mesh.count.polygons * 3, "SCALAR", ComponentType.UINT32)
 
@@ -169,6 +178,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
             self.ctx["GLTF"]["materials"].append({"name": mesh.material, "pbrMetallicRoughness": base.PBR})
 
     def create_bones(self):
+        self.ctx["BONE_INDEXES"] = []
         self.ctx["ROOT_BONE_INDEXES"] = []
 
         node_index_offset = len(self.data.meshes)
@@ -180,6 +190,8 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 "translation": list(bone.position),
             }
 
+            self.ctx["BONE_INDEXES"].append(index)
+
             if bone.is_root:
                 self.ctx["ROOT_BONE_INDEXES"].append(index)
 
@@ -188,6 +200,45 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
+
+    def create_animation(self):
+        # ! WIP
+        for clip in self.data.animation.clips:
+            frames_count = len(clip.frames)
+
+            time_idx = self.accessor_index()
+            self.create_bufferview(byte_length=frames_count * 4)
+            self.create_accessor(frames_count, "SCALAR", ComponentType.FLOAT)
+
+            samplers = []
+            channels = []
+            sampler_idx = 0
+
+            for node_index in self.ctx["BONE_INDEXES"]:
+                translation_idx = self.accessor_index()
+                self.create_bufferview(byte_length=frames_count * 3 * 4)
+                self.create_accessor(frames_count, "VEC3", ComponentType.FLOAT)
+
+                rotation_idx = self.accessor_index()
+                self.create_bufferview(byte_length=frames_count * 4 * 4)
+                self.create_accessor(frames_count, "VEC4", ComponentType.FLOAT)
+
+                samplers.extend(
+                    [
+                        dict(input=time_idx, output=translation_idx, interpolation="LINEAR"),
+                        dict(input=time_idx, output=rotation_idx, interpolation="LINEAR"),
+                    ]
+                )
+
+                channels.extend(
+                    [
+                        dict(sampler=sampler_idx, target=dict(node=node_index, path="translation")),
+                        dict(sampler=sampler_idx + 1, target=dict(node=node_index, path="rotation")),
+                    ]
+                )
+                sampler_idx += 2
+
+            self.ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
 
     def create_bufferview(self, byte_length: int, target: Optional[BufferTarget] = BufferTarget.ARRAY_BUFFER):
         view = {
@@ -216,7 +267,12 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_binary_chunk(self):
         self.add_bin_size()
         self.ctx["BIN_START"] = self.tell()
+
         self.add_meshes()
+
+        if self.animation_presented:
+            self.add_animation()
+
         self.ctx["BIN_END"] = self.tell()
         self.update_bin_size()
 
@@ -259,3 +315,23 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
             # ABC Polygons
             self.write(struct.pack(f"{mesh.count.polygons * 3}{F.U32}", *mesh.get_polygons()))
+
+    def add_animation(self):
+        # ! WIP
+        for clip in self.data.animation.clips:
+            frames_count = len(clip.frames)
+            times = np.arange(frames_count, dtype=np.float32) * clip.rate
+            self.write(times.tobytes())
+
+            for bone_index in range(len(self.data.skeleton.bones)):
+                translations = np.array(
+                    [list(frame.transforms[bone_index].translation) for frame in clip.frames],
+                    dtype=np.float32,
+                )
+                self.write(translations.tobytes())
+
+                rotations = np.array(
+                    [list(frame.transforms[bone_index].rotation) for frame in clip.frames],
+                    dtype=np.float32,
+                )
+                self.write(rotations.tobytes())

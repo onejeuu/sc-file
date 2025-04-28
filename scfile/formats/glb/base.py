@@ -8,6 +8,7 @@ GLTF = {
     "nodes": [],
     "materials": [],
     "meshes": [],
+    "animations": [],
     "accessors": [],
     "bufferViews": [],
     "buffers": [],

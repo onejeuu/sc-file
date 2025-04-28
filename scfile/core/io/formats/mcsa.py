@@ -92,7 +92,28 @@ class McsaFileIO(StructFileIO):
 
         return cast(list[float], data.tolist())
 
+    def readcliptransforms(self) -> Any:
+        # ! WIP
+        size = McsaSize.CLIP_FRAMES
+
+        # Read array
+        data = self.readarray(fmt=F.U16, count=size)
+
+        # Scale values to floats
+        data = data / (Factor.U16 - 1)
+
+        # Round digits
+        data = data.round(McsaModel.ROUND_DIGITS)
+
+        # Reshape to arr[arr[float[4], float[3]]]
+        sub = 3
+        data = [data[:sub].tolist(), data[sub:].tolist()]
+
+        # TODO: fix typing
+        return data  # type: ignore
+
     def readclipframes(self, count: int) -> list[list[list[float]]]:
+        # ! WIP
         size = McsaSize.CLIP_FRAMES
 
         # Read array
@@ -104,9 +125,9 @@ class McsaFileIO(StructFileIO):
         # Round digits
         data = data.round(McsaModel.ROUND_DIGITS)
 
-        # Reshape to arr[arr[float[3], float[4]]]
+        # Reshape to arr[arr[float[4], float[3]]]
         data = data.reshape(-1, size)
-        data = [[block[:3].tolist(), block[3:].tolist()] for block in data]
+        data = [[block[:4].tolist(), block[4:].tolist()] for block in data]
 
         # TODO: fix typing
         return data  # type: ignore
