@@ -2,6 +2,7 @@ import sys
 from typing import Optional
 
 import click
+import lz4.block
 from rich import print
 
 from scfile import convert
@@ -114,6 +115,10 @@ def scfile(
 
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))
+
+            except lz4.block.LZ4BlockError as err:
+                print(Prefix.ERROR, str(err))
+                print(CLI.Text.HDRI_OFF if hdri else CLI.Text.HDRI_ON)
 
             else:
                 print(Prefix.INFO, f"File '{source.name}' converted to '{dest or source.parent}'")

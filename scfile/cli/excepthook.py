@@ -18,7 +18,7 @@ def excepthook(exc_type: type[BaseException], exc_value: BaseException, exc_trac
         traceback.print_exception(exc_type, exc_value, exc_traceback)
         print()
         print(Prefix.EXCEPTION, f"{exc_type.__name__} - {exc_value}")
-        print("[b yellow]This usually means input file is corrupted or invalid. Rarely program bug.[/]")
+        print(CLI.Text.EXCEPTION)
         click.pause(CLI.PAUSE_TEXT)
 
     sys.exit(1)
