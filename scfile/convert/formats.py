@@ -8,12 +8,13 @@ from scfile.core.types import Content, Options, PathLike
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
+from scfile.formats.hdri.decoder import OlCubemapDecoder
 from scfile.formats.mcsa.decoder import McsaDecoder
 from scfile.formats.mcsb.decoder import McsbDecoder
 from scfile.formats.mic.decoder import MicDecoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.formats.ol.decoder import OlCubemapDecoder, OlDecoder
+from scfile.formats.ol.decoder import OlDecoder
 from scfile.formats.png.encoder import PngEncoder
 
 

@@ -5,8 +5,8 @@ from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.exceptions import Ms3dCountsLimit
 from scfile.formats.mcsa.flags import Flag
-from scfile.geometry.mesh import padded
-from scfile.geometry.skeleton import euler_to_quat
+from scfile.structures.mesh import padded
+from scfile.structures.skeleton import euler_to_quat
 
 
 VERSION = 4

@@ -7,7 +7,7 @@ from scfile import exceptions as exc
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.core.io.streams import StructFileIO
 from scfile.enums import StructFormat as F
-from scfile.geometry.mesh import BonesMapping
+from scfile.structures.mesh import BonesMapping
 
 
 # TODO: finally set proper numpy typing

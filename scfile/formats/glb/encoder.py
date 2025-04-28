@@ -11,7 +11,7 @@ from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
-from scfile.geometry.skeleton import euler_to_quat
+from scfile.structures.skeleton import euler_to_quat
 
 from . import base
 from .enums import BufferTarget, ComponentType
