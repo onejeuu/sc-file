@@ -4,7 +4,7 @@ from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
-from scfile.geometry.mesh import ModelMesh
+from scfile.structures.mesh import ModelMesh
 
 
 class TemplateFlags(NamedTuple):

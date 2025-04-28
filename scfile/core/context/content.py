@@ -1,8 +1,13 @@
 from abc import ABC
 from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
+from typing import Generic, TypeVar, cast
 
-from scfile.geometry.scene import ModelFlags, ModelScene
+from scfile.structures.scene import ModelFlags, ModelScene
+from scfile.structures.texture import DefaultTexture, Texture
+
+
+TextureType = TypeVar("TextureType", bound=Texture)
 
 
 @dataclass
@@ -39,28 +44,13 @@ class ModelContent(FileContent):
 
 
 @dataclass
-class TextureContent(FileContent):
+class TextureContent(FileContent, Generic[TextureType]):
     width: int = 0
     height: int = 0
     mipmap_count: int = 0
     fourcc: bytes = field(default_factory=bytes)
-    uncompressed: list[int] = field(default_factory=list)
-    compressed: list[int] = field(default_factory=list)
-    mipmaps: list[bytes] = field(default_factory=list)
-    faces: list[list[bytes]] = field(default_factory=list)
+    texture: TextureType = field(default_factory=lambda: cast(TextureType, DefaultTexture()))
     is_hdri: bool = False
-
-    @property
-    def image(self):
-        if self.is_hdri:
-            return b"".join(b"".join(face) for face in self.faces)
-        return b"".join(self.mipmaps)
-
-    @property
-    def linear_size(self):
-        if self.is_hdri:
-            return self.uncompressed[0][0]  # type: ignore
-        return self.uncompressed[0]
 
 
 @dataclass

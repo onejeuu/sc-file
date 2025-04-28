@@ -1,22 +1,30 @@
+from abc import ABC
+from typing import Generic
+
 import lz4.block
 
 from scfile import exceptions as exc
-from scfile.consts import CubemapFaces, FileSignature
+from scfile.consts import FileSignature
 from scfile.core import FileDecoder
 from scfile.core.context import TextureContent, TextureOptions
+from scfile.core.context.content import TextureType
 from scfile.core.io.formats.ol import OlFileIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
+from scfile.structures.texture import DefaultTexture
 
 from .formats import SUPPORTED_FORMATS
 
 
-class OlDecoder(FileDecoder[TextureContent, TextureOptions], OlFileIO):
+# mro nightmare
+class BaseOlDecoder(FileDecoder[TextureContent[TextureType], TextureOptions], OlFileIO, Generic[TextureType], ABC):
     format = FileFormat.OL
     order = ByteOrder.BIG
     signature = FileSignature.OL
 
+
+class OlDecoder(BaseOlDecoder[DefaultTexture]):
     _content = TextureContent
     _options = TextureOptions
 
@@ -45,39 +53,18 @@ class OlDecoder(FileDecoder[TextureContent, TextureOptions], OlFileIO):
             self.data.fourcc = b"ATI2"
 
     def parse_sizes(self):
-        self.data.uncompressed = self.readsizes(self.data.mipmap_count)
-        self.data.compressed = self.readsizes(self.data.mipmap_count)
+        self.data.texture.uncompressed = self.readsizes(self.data.mipmap_count)
+        self.data.texture.compressed = self.readsizes(self.data.mipmap_count)
 
     def decompress_mipmaps(self):
         for mipmap in range(self.data.mipmap_count):
-            self.data.mipmaps.append(
+            self.data.texture.mipmaps.append(
                 lz4.block.decompress(
-                    self.read(self.data.compressed[mipmap]),
-                    self.data.uncompressed[mipmap],
+                    self.read(self.data.texture.compressed[mipmap]),
+                    self.data.texture.uncompressed[mipmap],
                 )
             )
 
     def parse_image(self):
         self.texture_id = self.reads()
         self.decompress_mipmaps()
-
-
-class OlCubemapDecoder(OlDecoder):
-    def prepare(self):
-        self.data.is_hdri = True
-
-    def parse_sizes(self):
-        self.data.uncompressed = self.readhdrisizes(self.data.mipmap_count)  # type: ignore
-        self.data.compressed = self.readhdrisizes(self.data.mipmap_count)  # type: ignore
-
-    def decompress_mipmaps(self):
-        self.data.faces = [[] for _ in range(CubemapFaces.COUNT)]
-
-        for mipmap in range(self.data.mipmap_count):
-            for face in range(CubemapFaces.COUNT):
-                self.data.faces[face].append(
-                    lz4.block.decompress(
-                        self.read(self.data.compressed[mipmap][face]),  # type: ignore
-                        self.data.uncompressed[mipmap][face],  # type: ignore
-                    )
-                )

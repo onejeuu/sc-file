@@ -11,9 +11,9 @@ from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.geometry.anim import AnimationClip, AnimationFrame, JointTransforms
-from scfile.geometry.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
-from scfile.geometry.skeleton import SkeletonBone
+from scfile.structures.anim import AnimationClip, AnimationFrame, JointTransforms
+from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
+from scfile.structures.skeleton import SkeletonBone
 
 from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS

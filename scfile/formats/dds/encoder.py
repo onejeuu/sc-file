@@ -27,7 +27,7 @@ class DdsEncoder(FileEncoder[TextureContent, TextureOptions]):
         self.add_pixelformat()
         self.add_caps()
 
-        self.write(self.data.image)
+        self.write(self.data.texture.image)
 
     def add_pixelformat(self):
         self.writeb(F.U32, DDS.PF.SIZE)
@@ -75,7 +75,7 @@ class DdsEncoder(FileEncoder[TextureContent, TextureOptions]):
     @property
     def pitch_or_linear_size(self) -> int:
         if self.is_compressed:
-            return self.data.linear_size
+            return self.data.texture.linear_size
         return self.pitch
 
     @property

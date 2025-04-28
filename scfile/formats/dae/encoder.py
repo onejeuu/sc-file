@@ -8,8 +8,8 @@ from scfile.core import FileEncoder
 from scfile.core.context import ModelContent, ModelOptions
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
-from scfile.geometry.mesh import ModelMesh
-from scfile.geometry.skeleton import SkeletonBone, create_transform_matrix
+from scfile.structures.mesh import ModelMesh
+from scfile.structures.skeleton import SkeletonBone, create_transform_matrix
 
 
 DECLARATION = b'<?xml version="1.0" encoding="utf-8"?>\n'
