@@ -40,6 +40,11 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
+    "--animation",
+    help="Parse animation in models (if presented).",
+    is_flag=True,
+)
+@click.option(
     "--hdri",
     help="[STUB] Parse textures as hdri (cubemaps).",
     is_flag=True,
@@ -62,6 +67,7 @@ def scfile(
     output: Optional[types.PathType],
     model_formats: ModelFormats,
     skeleton: bool,
+    animation: bool,
     hdri: bool,
     relative: bool,
     no_overwrite: bool,
@@ -88,7 +94,7 @@ def scfile(
         return
 
     # Prepare options
-    model_options = ModelOptions(parse_skeleton=skeleton)
+    model_options = ModelOptions(parse_skeleton=skeleton, parse_animations=animation)
     texture_options = TextureOptions(is_hdri=hdri)
     image_options = ImageOptions()
     overwrite = not no_overwrite
