@@ -8,7 +8,7 @@ class OlFileIO(StructFileIO):
         return [self.readb(F.U32) for _ in range(mipmap_count)]
 
     def readhdrisizes(self, mipmap_count: int) -> list[list[int]]:
-        return [[self.readb(F.U32) for _ in range(mipmap_count)] for _ in range(CubemapFaces.COUNT)]
+        return [[self.readb(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
 
     def readfourcc(self) -> bytes:
         # Read string and skip last 0x00 byte

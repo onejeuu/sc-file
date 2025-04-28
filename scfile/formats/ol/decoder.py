@@ -1,7 +1,7 @@
 import lz4.block
 
 from scfile import exceptions as exc
-from scfile.consts import FileSignature
+from scfile.consts import CubemapFaces, FileSignature
 from scfile.core import FileDecoder
 from scfile.core.context import TextureContent, TextureOptions
 from scfile.core.io.formats.ol import OlFileIO
@@ -60,3 +60,24 @@ class OlDecoder(FileDecoder[TextureContent, TextureOptions], OlFileIO):
     def parse_image(self):
         self.texture_id = self.reads()
         self.decompress_mipmaps()
+
+
+class OlCubemapDecoder(OlDecoder):
+    def prepare(self):
+        self.data.is_hdri = True
+
+    def parse_sizes(self):
+        self.data.uncompressed = self.readhdrisizes(self.data.mipmap_count)  # type: ignore
+        self.data.compressed = self.readhdrisizes(self.data.mipmap_count)  # type: ignore
+
+    def decompress_mipmaps(self):
+        self.data.faces = [[] for _ in range(CubemapFaces.COUNT)]
+
+        for mipmap in range(self.data.mipmap_count):
+            for face in range(CubemapFaces.COUNT):
+                self.data.faces[face].append(
+                    lz4.block.decompress(
+                        self.read(self.data.compressed[mipmap][face]),  # type: ignore
+                        self.data.uncompressed[mipmap][face],  # type: ignore
+                    )
+                )

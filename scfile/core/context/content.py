@@ -47,14 +47,19 @@ class TextureContent(FileContent):
     uncompressed: list[int] = field(default_factory=list)
     compressed: list[int] = field(default_factory=list)
     mipmaps: list[bytes] = field(default_factory=list)
+    faces: list[list[bytes]] = field(default_factory=list)
     is_hdri: bool = False
 
     @property
     def image(self):
+        if self.is_hdri:
+            return b"".join(b"".join(face) for face in self.faces)
         return b"".join(self.mipmaps)
 
     @property
     def linear_size(self):
+        if self.is_hdri:
+            return self.uncompressed[0][0]  # type: ignore
         return self.uncompressed[0]
 
 

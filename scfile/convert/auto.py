@@ -64,7 +64,10 @@ def auto(
                     converter(source, output, model_options, overwrite)
 
         case FileFormat.OL:
-            formats.ol_to_dds(source, output, texture_options, overwrite)
+            if texture_options and texture_options.is_hdri:
+                formats.ol_hdri_to_dds(source, output, texture_options, overwrite)
+            else:
+                formats.ol_to_dds(source, output, texture_options, overwrite)
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, image_options, overwrite)

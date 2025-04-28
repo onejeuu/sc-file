@@ -13,7 +13,7 @@ from scfile.formats.mcsb.decoder import McsbDecoder
 from scfile.formats.mic.decoder import MicDecoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.formats.ol.decoder import OlDecoder
+from scfile.formats.ol.decoder import OlCubemapDecoder, OlDecoder
 from scfile.formats.png.encoder import PngEncoder
 
 
@@ -85,6 +85,16 @@ def mcsb_to_ms3d(
 
 @converter(OlDecoder, DdsEncoder)
 def ol_to_dds(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[TextureOptions] = None,
+    overwrite: bool = True,
+):
+    pass
+
+
+@converter(OlCubemapDecoder, DdsEncoder)
+def ol_hdri_to_dds(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[TextureOptions] = None,
