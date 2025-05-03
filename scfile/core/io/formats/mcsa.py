@@ -21,7 +21,7 @@ def reshape(data: np.ndarray, size: int) -> list[list[Any]]:
 
 def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np.ndarray, np.ndarray]:
     # Convert local bone ids to skeleton bone ids
-    ids = np.vectorize(bones.get)(ids)
+    ids = np.vectorize(lambda x: bones.get(x, 0))(ids)
 
     # Clean empty ids
     ids[weights == 0.0] = 0
@@ -97,10 +97,10 @@ class McsaFileIO(StructFileIO):
         # ! WIP
         # Read arrays
         rt = self.readarray(fmt=f"{4}{F.I16}", dtype=F.I16)
-        tr = self.readarray(fmt=f"{3}{F.U16}", dtype=F.U16)
+        tr = self.readarray(fmt=f"{3}{F.I16}", dtype=F.I16)
 
         rt = (rt / (Factor.I16)).round(McsaModel.ROUND_DIGITS)
-        tr = (tr / (Factor.U16)).round(McsaModel.ROUND_DIGITS)
+        tr = (tr / (Factor.I16)).round(McsaModel.ROUND_DIGITS)
 
         # TODO: fix typing
         return (rt.tolist(), tr.tolist())  # type: ignore

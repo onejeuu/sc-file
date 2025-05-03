@@ -4,22 +4,22 @@ from .vectors import Quaternion, Vector3
 
 
 @dataclass
-class AnimationFrame:
+class BonesTransforms:
     translation: Vector3 = field(default_factory=Vector3)
     rotation: Quaternion = field(default_factory=Quaternion)
 
 
 @dataclass
-class AnimationTransforms:
-    frames: list[AnimationFrame] = field(default_factory=list)
+class AnimationFrame:
+    transforms: list[BonesTransforms] = field(default_factory=list)
 
 
 @dataclass
 class AnimationClip:
     name: str = "clip"
     rate: float = 0.33
-    frames: int = 0
-    transforms: list[AnimationTransforms] = field(default_factory=list)
+    times: int = 0
+    frames: list[AnimationFrame] = field(default_factory=list)
 
 
 @dataclass

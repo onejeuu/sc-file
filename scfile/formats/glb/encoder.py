@@ -156,7 +156,6 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
                 self.create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
                 # Bind Matrix
-                # TODO: use mesh name?
                 self.ctx["GLTF"]["skins"].append(
                     dict(
                         name="Armature",
@@ -211,21 +210,21 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def create_animation(self):
         for clip in self.data.animation.clips:
             time_idx = self.accessor_index()
-            self.create_bufferview(byte_length=clip.frames * 4, target=None)
-            self.create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT)
+            self.create_bufferview(byte_length=clip.times * 4, target=None)
+            self.create_accessor(clip.times, "SCALAR", ComponentType.FLOAT)
 
+            sampler_idx = 0
             samplers = []
             channels = []
-            sampler_idx = 0
 
             for node_index in self.ctx["BONE_INDEXES"]:
                 translation_idx = self.accessor_index()
-                self.create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
-                self.create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=clip.times * 3 * 4, target=None)
+                self.create_accessor(clip.times, "VEC3", ComponentType.FLOAT)
 
                 rotation_idx = self.accessor_index()
-                self.create_bufferview(byte_length=clip.frames * 4 * 4, target=None)
-                self.create_accessor(clip.frames, "VEC4", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=clip.times * 4 * 4, target=None)
+                self.create_accessor(clip.times, "VEC4", ComponentType.FLOAT)
 
                 samplers.extend(
                     [
@@ -322,18 +321,18 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def add_animation(self):
         for clip in self.data.animation.clips:
-            times = np.arange(clip.frames, dtype=np.float32) * clip.rate
+            times = np.arange(clip.times, dtype=np.float32) * clip.rate
             self.write(times.tobytes())
 
-            for transforms in clip.transforms:
+            for index, bone in enumerate(self.data.skeleton.bones):
                 translations = np.array(
-                    [list(frame.translation) for frame in transforms.frames],
+                    [list(bone.position + frame.transforms[index].translation) for frame in clip.frames],
                     dtype=np.float32,
                 )
                 self.write(translations.tobytes())
 
                 rotation = np.array(
-                    [list(frame.rotation) for frame in transforms.frames],
+                    [list(frame.transforms[index].rotation) for frame in clip.frames],
                     dtype=np.float32,
                 )
                 self.write(rotation.tobytes())

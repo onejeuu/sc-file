@@ -77,7 +77,7 @@ class CLI:
     PAUSE_TEXT = "\nPress Enter to continue or exit..."
 
     class Text:
-        INVALID_FILE = "input file is corrupted or invalid"
+        INVALID_FILE = "input file is invalid or corrupted"
         EXCEPTION = f"[b yellow]This usually means {INVALID_FILE}.[/]"
         HDRI_ON = f"[b yellow]This file is most likely skybox hdri cubemap texture. Try specifying --hdri flag. Otherwise, most likely {INVALID_FILE}.[/]"
         HDRI_OFF = f"[b yellow]This file is most likely IS NOT skybox hdri cubemap texture. Try remove --hdri flag. Otherwise, most likely {INVALID_FILE}.[/]"
