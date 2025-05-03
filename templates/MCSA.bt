@@ -208,21 +208,21 @@ if ( header.flags.SKELETON )
 
 // Model Animations
 
-struct Joint {
+struct Transforms {
     Vec4 rotation <name="Rotation", bgcolor=cGray>;
     Vec3 translation <name="Translation", bgcolor=cWhite>;
 };
 
 struct Frame {
-    Joint joint[skeleton.count];
+    Transforms transforms[framesCount];
 };
 
 typedef struct {
     String name <name="Name">;
-    int framesCount <name="Frames Count", bgcolor=cGreen>;
-    float frameRate <name="Frame Rate", fgcolor=cPurple>;
-    if ( framesCount > 0 )
-        Frame frames[framesCount] <optimize=false>;
+    int framesCount <name="Frames", bgcolor=cGreen>;
+    float frameRate <name="Rate", fgcolor=cPurple>;
+    if ( framesCount > 0 && skeleton.count > 0 )
+        Frame frame[skeleton.count] <optimize=false>;
 } Clip <read=ReadCLIP>;
 
 string ReadCLIP( Clip &clip ) {
