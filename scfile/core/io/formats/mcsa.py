@@ -46,15 +46,14 @@ class McsaFileIO(StructFileIO):
 
         return count
 
-    def readarray(self, fmt: str, count: int) -> NDArray[Any]:
-        data = self.unpack(f"{count}{fmt}")
-        return np.array(data, dtype=np.dtype(fmt))
+    def readarray(self, fmt: str, dtype: str) -> NDArray[Any]:
+        return np.array(self.unpack(fmt), dtype=np.dtype(dtype))
 
     def readdefault(self) -> list[list[float]]:
         size = McsaSize.DEFAULTS
 
         # Read array
-        data = self.readarray(fmt=F.F32, count=size)
+        data = self.readarray(fmt=f"{size}{F.F32}", dtype=F.F32)
 
         # Round digits
         data = data.round(McsaModel.ROUND_DIGITS)
@@ -63,7 +62,7 @@ class McsaFileIO(StructFileIO):
 
     def readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0) -> list[list[float]]:
         # Read array
-        data = self.readarray(fmt=fmt, count=count * size)
+        data = self.readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
 
         # Scale values to floats
         data = data * scale / (factor)
@@ -81,62 +80,36 @@ class McsaFileIO(StructFileIO):
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
-        data = self.readarray(fmt=fmt, count=count * size)
+        data = self.readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
 
         return reshape(data, size)
 
     def readbonedata(self) -> list[float]:
         # TODO: read pos and rot one time
+        size = McsaSize.BONE
+
         # Read array
-        data: NDArray[np.float64] = self.readarray(fmt=F.F32, count=McsaSize.BONE)
+        data = self.readarray(fmt=f"{size}{F.F32}", dtype=F.F32)
 
         return cast(list[float], data.tolist())
 
-    def readcliptransforms(self) -> Any:
+    def readcliptransforms(self) -> tuple[list[float], list[float]]:
         # ! WIP
-        size = McsaSize.CLIP_FRAMES
+        # Read arrays
+        rt = self.readarray(fmt=f"{4}{F.I16}", dtype=F.I16)
+        tr = self.readarray(fmt=f"{3}{F.U16}", dtype=F.U16)
 
-        # Read array
-        data = self.readarray(fmt=F.U16, count=size)
-
-        # Scale values to floats
-        data = data / (Factor.U16 - 1)
-
-        # Round digits
-        data = data.round(McsaModel.ROUND_DIGITS)
-
-        # Reshape to arr[arr[float[4], float[3]]]
-        sub = 3
-        data = [data[:sub].tolist(), data[sub:].tolist()]
+        rt = (rt / (Factor.I16)).round(McsaModel.ROUND_DIGITS)
+        tr = (tr / (Factor.U16)).round(McsaModel.ROUND_DIGITS)
 
         # TODO: fix typing
-        return data  # type: ignore
-
-    def readclipframes(self, count: int) -> list[list[list[float]]]:
-        # ! WIP
-        size = McsaSize.CLIP_FRAMES
-
-        # Read array
-        data = self.readarray(fmt=F.U16, count=count * size)
-
-        # Scale values to floats
-        data = data / (Factor.U16)
-
-        # Round digits
-        data = data.round(McsaModel.ROUND_DIGITS)
-
-        # Reshape to arr[arr[float[4], float[3]]]
-        data = data.reshape(-1, size)
-        data = [[block[:4].tolist(), block[4:].tolist()] for block in data]
-
-        # TODO: fix typing
-        return data  # type: ignore
+        return (rt.tolist(), tr.tolist())  # type: ignore
 
     def readlinkspacked(self, count: int, bones: BonesMapping) -> tuple[list[int], list[float]]:
         size = 4
 
         # Read array
-        data = self.readarray(fmt=F.U8, count=count * size)
+        data = self.readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
 
         # Reshape to vertex[ids[2], weights[2]]
         data = data.reshape(-1, 2, 2)
@@ -151,8 +124,8 @@ class McsaFileIO(StructFileIO):
         size = 4
 
         # Read arrays
-        ids = self.readarray(fmt=F.U8, count=count * size)
-        weights = self.readarray(fmt=F.U8, count=count * size)
+        ids = self.readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
+        weights = self.readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
 
         # Parse Links
         ids, weights = links(ids, weights, bones)

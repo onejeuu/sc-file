@@ -65,5 +65,5 @@ class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
         flags = TemplateFlags(self.data.flags[Flag.TEXTURE], self.data.flags[Flag.NORMALS])
         template = FACES_TEMPLATE[flags]
 
-        self.writeutf8("\n".join([template.format(a=polygon.a, b=polygon.b, c=polygon.c) for polygon in mesh.faces]))
+        self.writeutf8("\n".join([template.format(a=face.a, b=face.b, c=face.c) for face in mesh.faces]))
         self.write(b"\n\n")

@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TypeAlias
 
-from .anim import ModelAnimation
+from .animation import ModelAnimation
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 
