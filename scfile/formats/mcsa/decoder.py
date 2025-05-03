@@ -11,11 +11,7 @@ from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.structures.animation import (
-    AnimationClip,
-    AnimationFrame,
-    AnimationTransforms,
-)
+from scfile.structures.animation import AnimationClip, AnimationFrame, BonesTransforms
 from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.structures.skeleton import SkeletonBone
 
@@ -288,7 +284,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         clip = AnimationClip()
 
         clip.name = self.readstring()
-        clip.frames = self.readb(F.U32)
+        clip.times = self.readb(F.U32)
         clip.rate = self.readb(F.F32)
 
         self.parse_animation_frames(clip)
@@ -296,31 +292,24 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
     def parse_animation_frames(self, clip: AnimationClip):
         # ! WIP
 
-        # print(clip.name)
+        for _ in range(clip.times):
+            frame = AnimationFrame()
 
-        for _ in range(len(self.data.skeleton.bones)):
-            transform = AnimationTransforms()
-
-            # print()
-            # print("transform", _)
-
-            for _ in range(clip.frames):
-                frame = AnimationFrame()
+            for _ in range(len(self.data.skeleton.bones)):
+                transforms = BonesTransforms()
                 (rx, ry, rz, rw), (tx, ty, tz) = self.readcliptransforms()
 
-                # print((rx, ry, rz, rw), (tx, ty, tz))
+                transforms.translation.x = tx
+                transforms.translation.y = ty
+                transforms.translation.z = tz
 
-                frame.translation.x = tx
-                frame.translation.y = ty
-                frame.translation.z = tz
+                transforms.rotation.x = rx
+                transforms.rotation.y = ry
+                transforms.rotation.z = rz
+                transforms.rotation.w = rw
 
-                frame.rotation.x = rx
-                frame.rotation.y = ry
-                frame.rotation.z = rz
-                frame.rotation.w = rw
+                frame.transforms.append(transforms)
 
-                transform.frames.append(frame)
-
-            clip.transforms.append(transform)
+            clip.frames.append(frame)
 
         self.data.animation.clips.append(clip)
