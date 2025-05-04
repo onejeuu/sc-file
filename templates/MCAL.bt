@@ -22,11 +22,9 @@ typedef struct {
         char data[size] <bgcolor=cYellow, optimize=false>;
 } String <read=ReadSTRING>;
 
-//
 string ReadSTRING( String &str ) {
     return exists(str.data) ? str.data : "";
 }
-
 
 // Vectors
 
@@ -42,21 +40,21 @@ float version <name="Version", fgcolor=cRed>;
 
 // Animations
 
-struct Joint {
-    Vec3 position <name="Position", bgcolor=cWhite>;
+struct Transforms {
     Vec4 rotation <name="Rotation", bgcolor=cGray>;
+    Vec3 translation <name="Translation", bgcolor=cWhite>;
 };
 
 struct Frame {
-    Joint joint[animation.bonesCount];
+    Transforms transforms[framesCount];
 };
 
 typedef struct {
     String name <name="Name">;
-    int framesCount <name="Frames Count", bgcolor=cGreen>;
-    float frameRate <name="Frame Rate", fgcolor=cPurple>;
-    if ( framesCount > 0 )
-        Frame frames[framesCount] <optimize=false>;
+    int framesCount <name="Frames", bgcolor=cGreen>;
+    float frameRate <name="Rate", fgcolor=cPurple>;
+    if ( framesCount > 0 && bonesCount > 0 )
+        Frame frame[bonesCount] <optimize=false>;
 } Clip <read=ReadCLIP>;
 
 string ReadCLIP( Clip &clip ) {

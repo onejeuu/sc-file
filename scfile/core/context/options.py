@@ -2,20 +2,22 @@ from abc import ABC
 from dataclasses import dataclass
 
 
-# these are more only decoder options
-# not sure what options will be for encoders
-# but lets use generic name
 @dataclass
 class FileOptions(ABC):
     pass
 
 
-# ? Test Examples
 @dataclass
 class ModelOptions(FileOptions):
     parse_skeleton: bool = False
-    parse_animations: bool = False
+    parse_animation: bool = False
     calculate_tangents: bool = False
+
+
+# TODO
+@dataclass
+class AnimationOptions(FileOptions):
+    pass
 
 
 @dataclass
