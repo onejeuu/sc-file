@@ -46,8 +46,8 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
 
-            if self.options.parse_animations:
-                self.parse_animations()
+            if self.options.parse_animation:
+                self.parse_animation()
 
     def parse_header(self):
         self.parse_version()
@@ -255,41 +255,32 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         parent_id = self.readb(F.U8)
         bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
 
-        self.parse_bone_position(bone)
-        self.parse_bone_rotation(bone)
+        px, py, pz, rx, ry, rz = self.readbone()
+        bone.position.x = px
+        bone.position.y = py
+        bone.position.z = pz
+        bone.rotation.x = rx
+        bone.rotation.y = ry
+        bone.rotation.z = rz
 
         self.data.skeleton.bones.append(bone)
 
-    def parse_bone_position(self, bone: SkeletonBone):
-        x, y, z = self.readbonedata()
-
-        bone.position.x = x
-        bone.position.y = y
-        bone.position.z = z
-
-    def parse_bone_rotation(self, bone: SkeletonBone):
-        x, y, z = self.readbonedata()
-
-        bone.rotation.x = x
-        bone.rotation.y = y
-        bone.rotation.z = z
-
-    def parse_animations(self):
-        animations_count = self.readb(F.U32)
-
-        for _ in range(animations_count):
-            self.parse_animation()
-
     def parse_animation(self):
+        clips_count = self.readb(F.U32)
+
+        for _ in range(clips_count):
+            self.parse_clip()
+
+    def parse_clip(self):
         clip = AnimationClip()
 
         clip.name = self.readstring()
         clip.times = self.readb(F.U32)
         clip.rate = self.readb(F.F32)
 
-        self.parse_animation_frames(clip)
+        self.parse_clip_frames(clip)
 
-    def parse_animation_frames(self, clip: AnimationClip):
+    def parse_clip_frames(self, clip: AnimationClip):
         for _ in range(clip.times):
             frame = AnimationFrame()
 

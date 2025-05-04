@@ -8,6 +8,7 @@ class FileFormat(StrEnum):
     DDS = auto()
     FBX = auto()
     GLB = auto()
+    MCAL = auto()
     MCSA = auto()
     MCSB = auto()
     MCVD = auto()

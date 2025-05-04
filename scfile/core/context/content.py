@@ -3,6 +3,7 @@ from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeVar, cast
 
+from scfile.structures.animation import ModelAnimation
 from scfile.structures.scene import ModelFlags, ModelScene
 from scfile.structures.texture import DefaultTexture, Texture
 
@@ -41,6 +42,15 @@ class ModelContent(FileContent):
     @property
     def animation(self):
         return self.scene.animation
+
+
+@dataclass
+class AnimationContent(FileContent):
+    version: float = 0.0
+    bones_count: int = 0
+    unknown: int = 0
+    clips_count: int = 0
+    animation: ModelAnimation = field(default_factory=ModelAnimation)
 
 
 @dataclass

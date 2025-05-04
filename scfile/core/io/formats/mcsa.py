@@ -84,7 +84,7 @@ class McsaFileIO(StructFileIO):
 
         return reshape(data, size)
 
-    def readbonedata(self) -> list[float]:
+    def readbone(self) -> list[float]:
         # TODO: read pos and rot one time
         size = McsaSize.BONE
 
@@ -94,7 +94,7 @@ class McsaFileIO(StructFileIO):
         return cast(list[float], data.tolist())
 
     def readcliptransforms(self, bones_count: int) -> Any:
-        size = McsaSize.CLIP_FRAMES
+        size = McsaSize.FRAMES
 
         # Read array
         data = self.readarray(fmt=f"{size * bones_count}{F.I16}", dtype=F.I16)

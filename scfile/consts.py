@@ -11,6 +11,7 @@ SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS)
 class FileSignature:
     """File signature for formats (big-endian)."""
 
+    MCAL = b"MCAL"
     MCSA = b"MCSA"
     MIC = b"\x89MIC"
     OL = b"\x0a\x95\x23\xfd"
@@ -64,9 +65,9 @@ class McsaSize:
     NORMALS = 4
     POLYGONS = 3
     COLOR = 4
-    BONE = 3
+    BONE = 6
     DEFAULTS = 3
-    CLIP_FRAMES = 7
+    FRAMES = 7
 
 
 class CLI:

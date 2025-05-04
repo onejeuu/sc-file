@@ -47,7 +47,7 @@ sys.excepthook = excepthook
 )
 @click.option(
     "--hdri",
-    help="[STUB] Parse textures as hdri (cubemaps).",
+    help="Parse all input textures as cubemaps.",
     is_flag=True,
 )
 @click.option(
@@ -95,7 +95,7 @@ def scfile(
         return
 
     # Prepare options
-    model_options = ModelOptions(parse_skeleton=skeleton, parse_animations=animation)
+    model_options = ModelOptions(parse_skeleton=skeleton, parse_animation=animation)
     texture_options = TextureOptions(is_hdri=hdri)
     image_options = ImageOptions()
     overwrite = not no_overwrite
