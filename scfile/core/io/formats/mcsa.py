@@ -93,17 +93,19 @@ class McsaFileIO(StructFileIO):
 
         return cast(list[float], data.tolist())
 
-    def readcliptransforms(self) -> tuple[list[float], list[float]]:
-        # ! WIP
-        # Read arrays
-        rt = self.readarray(fmt=f"{4}{F.I16}", dtype=F.I16)
-        tr = self.readarray(fmt=f"{3}{F.I16}", dtype=F.I16)
+    def readcliptransforms(self, bones_count: int) -> Any:
+        size = McsaSize.CLIP_FRAMES
 
-        rt = (rt / (Factor.I16)).round(McsaModel.ROUND_DIGITS)
-        tr = (tr / (Factor.I16)).round(McsaModel.ROUND_DIGITS)
+        # Read array
+        data = self.readarray(fmt=f"{size * bones_count}{F.I16}", dtype=F.I16)
 
-        # TODO: fix typing
-        return (rt.tolist(), tr.tolist())  # type: ignore
+        # Scale values to floats
+        data = data / (Factor.I16)
+
+        # Round digits
+        data = data.round(McsaModel.ROUND_DIGITS)
+
+        return reshape(data, size)
 
     def readlinkspacked(self, count: int, bones: BonesMapping) -> tuple[list[int], list[float]]:
         size = 4

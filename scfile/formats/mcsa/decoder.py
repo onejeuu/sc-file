@@ -290,23 +290,20 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         self.parse_animation_frames(clip)
 
     def parse_animation_frames(self, clip: AnimationClip):
-        # ! WIP
-
         for _ in range(clip.times):
             frame = AnimationFrame()
 
-            for _ in range(len(self.data.skeleton.bones)):
+            for rx, ry, rz, rw, tx, ty, tz in self.readcliptransforms(len(self.data.skeleton.bones)):
                 transforms = BonesTransforms()
-                (rx, ry, rz, rw), (tx, ty, tz) = self.readcliptransforms()
-
-                transforms.translation.x = tx
-                transforms.translation.y = ty
-                transforms.translation.z = tz
 
                 transforms.rotation.x = rx
                 transforms.rotation.y = ry
                 transforms.rotation.z = rz
                 transforms.rotation.w = rw
+
+                transforms.translation.x = tx
+                transforms.translation.y = ty
+                transforms.translation.z = tz
 
                 frame.transforms.append(transforms)
 
