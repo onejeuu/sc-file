@@ -115,17 +115,31 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.TEXTURE]:
             self.parse_texture(mesh)
 
-        # ! unconfirmed
+        # Vertex bitangents
+        need_bitangents = not self.data.flags[Flag.NORMALS] and self.data.flags[Flag.TANGENTS]
         if self.data.flags[Flag.BITANGENTS]:
-            self.skip_vertices(mesh, size=4)
+            if need_bitangents and self.options.calculate_tangents:
+                self.parse_bitangents(mesh)
+            else:
+                self.skip_vertices(mesh, size=4)
 
         # Vertex normals
         if self.data.flags[Flag.NORMALS]:
             self.parse_normals(mesh)
 
-        # ! unconfirmed
+        # Vertex tangents
+        need_tangents = not self.data.flags[Flag.NORMALS] and self.data.flags[Flag.BITANGENTS]
         if self.data.flags[Flag.TANGENTS]:
-            self.skip_vertices(mesh, size=4)
+            if need_tangents and self.options.calculate_tangents:
+                self.parse_tangents(mesh)
+            else:
+                self.skip_vertices(mesh, size=4)
+
+        # Precalculate vertex normals
+        # ! WIP TODO
+        if need_bitangents and need_tangents and self.options.calculate_tangents:
+            self.data.flags[Flag.NORMALS] = True
+            mesh.calculate_normals()
 
         # Vertex links
         if self.data.flags[Flag.SKELETON]:
@@ -190,6 +204,24 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
             vertex.normals.x = x
             vertex.normals.y = y
             vertex.normals.z = z
+
+    def parse_bitangents(self, mesh: ModelMesh):
+        count = mesh.count.vertices
+        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
+
+        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
+            vertex.bitangents.x = x
+            vertex.bitangents.y = y
+            vertex.bitangents.z = z
+
+    def parse_tangents(self, mesh: ModelMesh):
+        count = mesh.count.vertices
+        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
+
+        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
+            vertex.tangents.x = x
+            vertex.tangents.y = y
+            vertex.tangents.z = z
 
     def parse_links(self, mesh: ModelMesh):
         match mesh.count.max_links:

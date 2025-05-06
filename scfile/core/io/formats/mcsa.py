@@ -29,7 +29,7 @@ def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np
     # Scale, Round
     weights = weights.astype(F.F32) / Factor.U8
     weights = weights.round(McsaModel.ROUND_DIGITS)
-    # TODO: Normalize
+    # TODO: normalize
 
     return (ids, weights)
 
@@ -85,7 +85,6 @@ class McsaFileIO(StructFileIO):
         return reshape(data, size)
 
     def readbone(self) -> list[float]:
-        # TODO: read pos and rot one time
         size = McsaSize.BONE
 
         # Read array
@@ -119,7 +118,6 @@ class McsaFileIO(StructFileIO):
         # Parse Links
         ids, weights = links(data[:, 0, :], data[:, 1, :], bones)
 
-        # TODO: fix typing
         return (ids.tolist(), weights.tolist())  # type: ignore
 
     def readlinksplains(self, count: int, bones: BonesMapping) -> tuple[list[list[int]], list[list[float]]]:
