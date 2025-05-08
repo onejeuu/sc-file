@@ -1,3 +1,7 @@
+"""
+CLI wrapper implementation.
+"""
+
 import sys
 from typing import Optional
 

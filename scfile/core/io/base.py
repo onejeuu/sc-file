@@ -1,3 +1,7 @@
+"""
+Extends IOBase to support struct-based I/O.
+"""
+
 import io
 import struct
 from typing import Any, Optional

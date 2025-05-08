@@ -1,3 +1,7 @@
+"""
+Shared user options between decoder and encoder.
+"""
+
 from abc import ABC
 from dataclasses import dataclass
 

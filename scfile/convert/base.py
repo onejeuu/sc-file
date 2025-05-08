@@ -1,3 +1,7 @@
+"""
+Basic implementation of converting one format to another.
+"""
+
 from pathlib import Path
 from typing import Optional, Type
 

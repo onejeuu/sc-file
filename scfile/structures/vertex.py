@@ -1,3 +1,7 @@
+"""
+Dataclasses for 3D model vertex.
+"""
+
 from dataclasses import dataclass, field
 
 from .vectors import Vector2, Vector3

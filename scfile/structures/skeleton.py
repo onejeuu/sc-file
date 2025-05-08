@@ -1,3 +1,7 @@
+"""
+Dataclasses for 3D model armature.
+"""
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Self
 

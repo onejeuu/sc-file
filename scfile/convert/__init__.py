@@ -1,3 +1,7 @@
+"""
+Utility module. Handles conversion logic between formats.
+"""
+
 from .auto import auto
 from .base import convert, is_supported
 from .formats import (

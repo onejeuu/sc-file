@@ -1,3 +1,7 @@
+"""
+Dataclasses for vectors.
+"""
+
 from abc import ABC
 from dataclasses import dataclass
 from typing import Iterator, Self

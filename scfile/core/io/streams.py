@@ -1,3 +1,7 @@
+"""
+Extends standard IO streams with struct-based I/O support.
+"""
+
 import io
 from pathlib import Path
 

@@ -1,3 +1,7 @@
+"""
+CLI wrapper small utils.
+"""
+
 from collections import defaultdict
 
 import click
