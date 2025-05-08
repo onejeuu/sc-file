@@ -1,3 +1,7 @@
+"""
+Dataclasses for game specific textures.
+"""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 

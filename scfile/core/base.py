@@ -1,3 +1,7 @@
+"""
+Base class for all processable files.
+"""
+
 from abc import ABC
 from typing import Optional
 

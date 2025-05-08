@@ -1,3 +1,7 @@
+"""
+Implement functions to convert one format to another by simplest way.
+"""
+
 from functools import wraps
 from typing import Callable, Optional, Type
 

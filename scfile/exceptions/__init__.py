@@ -1,3 +1,7 @@
+"""
+Exceptions of scfile package.
+"""
+
 from .base import ScFileException
 from .core import FileDecodingError, FileParsingError, FileUnsupportedError
 from .file import (

@@ -1,3 +1,7 @@
+"""
+Custom click exceptions handling.
+"""
+
 import sys
 import traceback
 from typing import Any

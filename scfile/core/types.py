@@ -1,3 +1,7 @@
+"""
+Data types for core classes.
+"""
+
 import os
 import pathlib
 from typing import TypeAlias, TypeVar

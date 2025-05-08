@@ -1,3 +1,7 @@
+"""
+Base class for file decoder (parsing).
+"""
+
 from abc import ABC, abstractmethod
 from typing import Generic, Optional
 

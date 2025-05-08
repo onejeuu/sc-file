@@ -1,3 +1,7 @@
+"""
+Extensions for MCSA file format with custom struct-based I/O methods.
+"""
+
 from typing import Any, cast
 
 import numpy as np

@@ -1,3 +1,7 @@
+"""
+Conversion by input path. Optional output folder, options and preferred formats.
+"""
+
 import pathlib
 from typing import Callable, Optional, Sequence, TypeAlias
 

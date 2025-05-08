@@ -1,3 +1,7 @@
+"""
+Base class for file encoder (serialization).
+"""
+
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self
 

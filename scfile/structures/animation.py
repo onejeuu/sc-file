@@ -1,3 +1,7 @@
+"""
+Dataclasses for skeletal animation (clips/actions).
+"""
+
 from dataclasses import dataclass, field
 
 from .vectors import Quaternion, Vector3

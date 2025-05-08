@@ -1,3 +1,7 @@
+"""
+Dataclasses for 3D model geometry.
+"""
+
 import itertools
 from dataclasses import dataclass, field
 from itertools import chain, islice, repeat

@@ -1,3 +1,7 @@
+"""
+Dataclasses for scene of 3D models.
+"""
+
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TypeAlias

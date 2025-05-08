@@ -1,3 +1,7 @@
+"""
+Data types for CLI wrapper.
+"""
+
 import pathlib
 from typing import Sequence, TypeAlias
 
