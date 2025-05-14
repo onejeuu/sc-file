@@ -13,8 +13,5 @@ class Vertex:
     texture: Vector2 = field(default_factory=Vector2)
     normals: Vector3 = field(default_factory=Vector3)
 
-    bitangents: Vector3 = field(default_factory=Vector3)
-    tangents: Vector3 = field(default_factory=Vector3)
-
     bone_ids: list[int] = field(default_factory=list)
     bone_weights: list[int] = field(default_factory=list)

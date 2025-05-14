@@ -15,13 +15,6 @@ class FileOptions(ABC):
 class ModelOptions(FileOptions):
     parse_skeleton: bool = False
     parse_animation: bool = False
-    calculate_tangents: bool = False
-
-
-# TODO
-@dataclass
-class AnimationOptions(FileOptions):
-    pass
 
 
 @dataclass

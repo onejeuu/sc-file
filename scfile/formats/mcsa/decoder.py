@@ -102,9 +102,12 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         mesh.count.polygons = self.readcount()
         mesh.allocate_geometry()
 
+        # ? Not exported
         if self.data.flags[Flag.TEXTURE]:
             self.data.scene.scale.filtering = self.readb(F.F32)
 
+        # Default origins
+        # ? Not exported
         if self.data.version >= 10.0:
             self.parse_defaults(mesh)
 
@@ -115,38 +118,26 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
         if self.data.flags[Flag.TEXTURE]:
             self.parse_texture(mesh)
 
-        # Vertex bitangents
-        need_bitangents = not self.data.flags[Flag.NORMALS] and self.data.flags[Flag.TANGENTS]
-        if self.data.flags[Flag.BITANGENTS]:
-            if need_bitangents and self.options.calculate_tangents:
-                self.parse_bitangents(mesh)
-            else:
-                self.skip_vertices(mesh, size=4)
+        # ! Data Unconfirmed
+        # ? Not parsed
+        if self.data.flags[Flag.UNKNOWN_B]:
+            self.skip_vertices(mesh, size=4)
 
         # Vertex normals
         if self.data.flags[Flag.NORMALS]:
             self.parse_normals(mesh)
 
-        # Vertex tangents
-        need_tangents = not self.data.flags[Flag.NORMALS] and self.data.flags[Flag.BITANGENTS]
-        if self.data.flags[Flag.TANGENTS]:
-            if need_tangents and self.options.calculate_tangents:
-                self.parse_tangents(mesh)
-            else:
-                self.skip_vertices(mesh, size=4)
-
-        # Precalculate vertex normals
-        # ! WIP TODO
-        if need_bitangents and need_tangents and self.options.calculate_tangents:
-            self.data.flags[Flag.NORMALS] = True
-            mesh.calculate_normals()
+        # ! Data Unconfirmed
+        # ? Not parsed
+        if self.data.flags[Flag.UNKNOWN_A]:
+            self.skip_vertices(mesh, size=4)
 
         # Vertex links
         if self.data.flags[Flag.SKELETON]:
             self.parse_links(mesh)
 
-        # TODO: optional parse and export
         # Vertex colors
+        # ? Not parsed
         if self.data.flags[Flag.COLORS]:
             self.skip_colors(mesh)
 
@@ -204,24 +195,6 @@ class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
             vertex.normals.x = x
             vertex.normals.y = y
             vertex.normals.z = z
-
-    def parse_bitangents(self, mesh: ModelMesh):
-        count = mesh.count.vertices
-        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
-
-        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
-            vertex.bitangents.x = x
-            vertex.bitangents.y = y
-            vertex.bitangents.z = z
-
-    def parse_tangents(self, mesh: ModelMesh):
-        count = mesh.count.vertices
-        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
-
-        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
-            vertex.tangents.x = x
-            vertex.tangents.y = y
-            vertex.tangents.z = z
 
     def parse_links(self, mesh: ModelMesh):
         match mesh.count.max_links:

@@ -51,20 +51,6 @@ class ModelMesh:
         self.vertices = [Vertex() for _ in range(self.count.vertices)]
         self.polygons = [Polygon() for _ in range(self.count.polygons)]
 
-    def calculate_normals(self):
-        # ! WIP TODO
-        for vertex in self.vertices:
-            tx, ty, tz = vertex.tangents
-            bx, by, bz = vertex.bitangents
-
-            nx = ty * bz - tz * by
-            ny = tz * bx - tx * bz
-            nz = tx * by - ty * bx
-
-            vertex.normals.x = nx
-            vertex.normals.y = ny
-            vertex.normals.z = nz
-
     def get_positions(self) -> list[float]:
         return [i for vertex in self.vertices for i in vertex.position]
 

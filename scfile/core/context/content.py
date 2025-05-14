@@ -48,6 +48,9 @@ class ModelContent(FileContent):
         return self.scene.animation
 
 
+# i have no idea how to implement it
+# this requires rewriting entire core
+# to add support for multiple content for single format
 @dataclass
 class AnimationContent(FileContent):
     version: float = 0.0

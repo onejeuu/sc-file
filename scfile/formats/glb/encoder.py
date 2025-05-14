@@ -32,7 +32,7 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     @property
     def animation_presented(self) -> bool:
-        return self.skeleton_presented and self.options.parse_animations
+        return self.skeleton_presented and self.options.parse_animation
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
