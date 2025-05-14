@@ -59,9 +59,9 @@ typedef struct Polygons_int     { uint   a, b, c; };
 // Header Flags
 
 typedef ubyte flag;
-typedef struct Flags4 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS; };
-typedef struct Flags5 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS; };
-typedef struct Flags6 { flag SKELETON,  TEXTURE,  NORMALS,  TANGENTS,  BITANGENTS,  COLORS; };
+typedef struct Flags4 { flag SKELETON,  TEXTURE,  NORMALS,  UNKNOWN_A; };
+typedef struct Flags5 { flag SKELETON,  TEXTURE,  NORMALS,  UNKNOWN_A,  UNKNOWN_B; };
+typedef struct Flags6 { flag SKELETON,  TEXTURE,  NORMALS,  UNKNOWN_A,  UNKNOWN_B,  COLORS; };
 
 
 // Model Header
@@ -144,15 +144,15 @@ typedef struct {
     if ( header.flags.TEXTURE )
         Vec2 textures[counts.vertices] <name="Textures", bgcolor=cRed>;
 
-    if ( header.flags.BITANGENTS )
-        Vec4b _bitangents[counts.vertices] <name="Bitangents", bgcolor=cDkPurple>;
+    if ( header.flags.UNKNOWN_B )
+        Vec4b _unknown_b[counts.vertices] <name="Unknown B", bgcolor=cDkPurple>;
 
     if ( header.flags.NORMALS )
         Vec4b normals[counts.vertices] <name="Normals", bgcolor=cPurple>;
 
     if ( header.version >= 8.0 )
-        if ( header.flags.TANGENTS )
-            Vec4b _tangents[counts.vertices] <name="Tangents", bgcolor=cDkPurple>;
+        if ( header.flags.UNKNOWN_A )
+            Vec4b _unknown_a[counts.vertices] <name="Unknown A", bgcolor=cDkPurple>;
 
     if ( header.flags.SKELETON )
         switch( bones.links ) {

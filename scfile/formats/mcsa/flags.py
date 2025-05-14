@@ -5,8 +5,8 @@ class Flag(IntEnum):
     SKELETON = 0
     TEXTURE = auto()
     NORMALS = auto()
-    TANGENTS = auto()
-    BITANGENTS = auto()
+    UNKNOWN_A = auto()
+    UNKNOWN_B = auto()
     COLORS = auto()
 
 

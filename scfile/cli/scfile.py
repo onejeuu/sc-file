@@ -50,11 +50,6 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
-    "--tangents",
-    help="Calculate normals from bi/tangents (if presented).",
-    is_flag=True,
-)
-@click.option(
     "--hdri",
     help="Parse all input textures as cubemaps.",
     is_flag=True,
@@ -78,7 +73,6 @@ def scfile(
     model_formats: ModelFormats,
     skeleton: bool,
     animation: bool,
-    tangents: bool,
     hdri: bool,
     relative: bool,
     no_overwrite: bool,
@@ -92,8 +86,12 @@ def scfile(
     if not output and relative:
         print(Prefix.WARN, "[b]--relative[/] flag cannot be used without specifying [b]--output[/] option.")
 
+    # Animation flag without skeleton is useless
+    if not skeleton and animation:
+        skeleton = True
+
     # Warn when any specified model format not supports skeletal animation
-    if skeleton and utils.has_no_skeleton_formats(model_formats):
+    if skeleton and model_formats and utils.has_no_skeleton_formats(model_formats):
         target_formats = utils.filter_no_skeleton_formats(model_formats)
         print(Prefix.WARN, f"specified formats [b]({target_formats})[/] doesn't support skeleton and animation.")
 
@@ -105,7 +103,7 @@ def scfile(
         return
 
     # Prepare options
-    model_options = ModelOptions(parse_skeleton=skeleton, parse_animation=animation, calculate_tangents=tangents)
+    model_options = ModelOptions(parse_skeleton=skeleton, parse_animation=animation)
     texture_options = TextureOptions(is_hdri=hdri)
     image_options = ImageOptions()
     overwrite = not no_overwrite
