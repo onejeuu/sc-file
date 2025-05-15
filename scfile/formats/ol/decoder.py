@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic
 
 import lz4.block
@@ -23,11 +23,6 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType], TextureOptions], Ol
     order = ByteOrder.BIG
     signature = FileSignature.OL
 
-
-class OlDecoder(BaseOlDecoder[DefaultTexture]):
-    _content = TextureContent
-    _options = TextureOptions
-
     def to_dds(self):
         return self.convert_to(DdsEncoder)
 
@@ -48,15 +43,31 @@ class OlDecoder(BaseOlDecoder[DefaultTexture]):
         if self.data.fourcc not in SUPPORTED_FORMATS:
             raise exc.OlUnsupportedFourcc(self.path, self.data.fourcc)
 
-        # ? change strange naming
         if self.data.fourcc == b"DXN_XY":
             self.data.fourcc = b"ATI2"
+
+    def parse_image(self):
+        self.texture_id = self.reads()
+        self.parse_mipmaps()
+
+    @abstractmethod
+    def parse_sizes(self):
+        pass
+
+    @abstractmethod
+    def parse_mipmaps(self):
+        pass
+
+
+class OlDecoder(BaseOlDecoder[DefaultTexture]):
+    _content = TextureContent
+    _options = TextureOptions
 
     def parse_sizes(self):
         self.data.texture.uncompressed = self.readsizes(self.data.mipmap_count)
         self.data.texture.compressed = self.readsizes(self.data.mipmap_count)
 
-    def decompress_mipmaps(self):
+    def parse_mipmaps(self):
         for mipmap in range(self.data.mipmap_count):
             self.data.texture.mipmaps.append(
                 lz4.block.decompress(
@@ -64,7 +75,3 @@ class OlDecoder(BaseOlDecoder[DefaultTexture]):
                     self.data.texture.uncompressed[mipmap],
                 )
             )
-
-    def parse_image(self):
-        self.texture_id = self.reads()
-        self.decompress_mipmaps()

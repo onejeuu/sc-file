@@ -86,7 +86,7 @@ def scfile(
     if not output and relative:
         print(Prefix.WARN, "[b]--relative[/] flag cannot be used without specifying [b]--output[/] option.")
 
-    # Animation flag without skeleton is useless
+    # Animation flag is useless without skeleton
     if not skeleton and animation:
         skeleton = True
 
