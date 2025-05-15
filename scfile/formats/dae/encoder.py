@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as etree
-from typing import Optional
 from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
@@ -10,6 +9,8 @@ from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
 from scfile.structures.skeleton import SkeletonBone, create_transform_matrix
+
+from . import utils
 
 
 DECLARATION = b'<?xml version="1.0" encoding="utf-8"?>\n'
@@ -81,57 +82,23 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
             material = SubElement(library, "material", id=f"{mesh.material}-material", name=mesh.material)
             SubElement(material, "instance_effect", url=f"#{mesh.material}-effect")
 
-    def create_source(
-        self,
-        parent: Element,
-        id: str,
-        name: str,
-        data: np.ndarray,
-        tag: str = "float_array",
-        count: Optional[int] = None,
-    ) -> Element:
-        count = count or len(data)
-        source = SubElement(parent, "source", id=f"{id}-{name}")
-        array = SubElement(source, tag, id=f"{id}-{name}-array", count=str(count))
-        array.text = " ".join(map(str, data.flatten()))
-        return source
-
-    def add_source_common(
-        self,
-        source: Element,
-        id: str,
-        name: str,
-        count: int,
-        components: list[str],
-        datatype: str,
-        stride: Optional[int] = None,
-    ):
-        array_id = f"#{id}-{name}-array"
-        stride = stride or len(components)
-
-        common = SubElement(source, "technique_common")
-        accessor = SubElement(common, "accessor", source=array_id, count=str(count), stride=str(stride))
-
-        for component in components:
-            accessor.append(Element("param", name=component, type=datatype))
-
     def add_mesh_sources(self, mesh: ModelMesh, node: Element):
         # XYZ Positions
         pos_data = np.array(mesh.get_positions())
-        pos_source = self.create_source(node, mesh.name, "positions", pos_data)
-        self.add_source_common(pos_source, mesh.name, "positions", len(pos_data), ["X", "Y", "Z"], "float")
+        pos_source = utils.create_source(node, mesh.name, "positions", pos_data)
+        utils.add_accessor(pos_source, mesh.name, "positions", len(pos_data), ["X", "Y", "Z"], "float")
 
         # UV Texture
         if self.data.flags[Flag.TEXTURE]:
             tex_data = np.array(mesh.get_textures())
-            tex_source = self.create_source(node, mesh.name, "texture", tex_data)
-            self.add_source_common(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
+            tex_source = utils.create_source(node, mesh.name, "texture", tex_data)
+            utils.add_accessor(tex_source, mesh.name, "texture", len(tex_data), ["S", "T"], "float")
 
         # XYZ Normals
         if self.data.flags[Flag.NORMALS]:
             norm_data = np.array(mesh.get_normals())
-            norm_source = self.create_source(node, mesh.name, "normals", norm_data)
-            self.add_source_common(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
+            norm_source = utils.create_source(node, mesh.name, "normals", norm_data)
+            utils.add_accessor(norm_source, mesh.name, "normals", len(norm_data), ["X", "Y", "Z"], "float")
 
     def add_triangles(self, mesh: ModelMesh, node: Element):
         vertices = SubElement(node, "vertices", id=f"{mesh.name}-vertices")
@@ -175,18 +142,18 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_controller_sources(self, mesh: ModelMesh, skin: Element):
         # Add joint names
         joint_data = np.array(self.data.skeleton.get_bones_names())
-        joint_source = self.create_source(skin, mesh.name, "joints", joint_data, "Name_array")
-        self.add_source_common(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
+        joint_source = utils.create_source(skin, mesh.name, "joints", joint_data, "Name_array")
+        utils.add_accessor(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
 
         # Add bind poses
         bind_data = self.data.skeleton.inverse_bind_matrices(transpose=False)
-        bind_source = self.create_source(skin, mesh.name, "bindposes", bind_data, count=len(bind_data) * 16)
-        self.add_source_common(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
+        bind_source = utils.create_source(skin, mesh.name, "bindposes", bind_data, count=len(bind_data) * 16)
+        utils.add_accessor(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
         # Add weights
         weight_data = np.array(mesh.get_bone_weights(max_links=mesh.count.max_links))
-        weight_source = self.create_source(skin, mesh.name, "weights", weight_data)
-        self.add_source_common(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
+        weight_source = utils.create_source(skin, mesh.name, "weights", weight_data)
+        utils.add_accessor(weight_source, mesh.name, "weights", len(weight_data), ["WEIGHT"], "float")
 
     def add_joints_and_weights(self, mesh: ModelMesh, skin: Element):
         # Add joints
@@ -217,7 +184,7 @@ class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
 
     def add_armature(self, scene: Element) -> Element:
         node = SubElement(scene, "node", id="armature", name="Armature", type="NODE")
-        # SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+        SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
         for root in self.data.skeleton.roots:
             self.add_bone(node, root)

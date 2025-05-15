@@ -293,31 +293,29 @@ class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
     def add_meshes(self):
         for mesh in self.data.meshes:
             # XYZ Position
-            self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_positions()))
+            self.write(np.array(mesh.get_positions(), dtype=F.F32).tobytes())
 
             # UV Texture
             if self.data.flags[Flag.TEXTURE]:
-                self.write(struct.pack(f"{mesh.count.vertices * 2}{F.F32}", *mesh.get_textures()))
+                self.write(np.array(mesh.get_textures(), dtype=F.F32).tobytes())
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                self.write(struct.pack(f"{mesh.count.vertices * 3}{F.F32}", *mesh.get_normals()))
+                self.write(np.array(mesh.get_normals(), dtype=F.F32).tobytes())
 
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.U8}", *mesh.get_bone_ids(max_links=4)))
+                self.write(np.array(mesh.get_bone_ids(max_links=4), dtype=F.U8).tobytes())
 
                 # Joint Weights
-                self.write(struct.pack(f"{mesh.count.vertices * 4}{F.F32}", *mesh.get_bone_weights(max_links=4)))
+                self.write(np.array(mesh.get_bone_weights(max_links=4), dtype=F.F32).tobytes())
 
                 # Bind Matrix
-                data = self.data.skeleton.inverse_bind_matrices(transpose=True)
-                array = struct.pack(f"{len(self.data.skeleton.bones) * 16}{F.F32}", *data.flatten().tolist())
-                self.write(array)
+                self.write(np.array(self.data.skeleton.inverse_bind_matrices(transpose=True), dtype=F.F32).tobytes())
 
             # ABC Polygons
-            self.write(struct.pack(f"{mesh.count.polygons * 3}{F.U32}", *mesh.get_polygons()))
+            self.write(np.array(mesh.get_polygons(), dtype=F.U32).tobytes())
 
     def add_animation(self):
         for clip in self.data.animation.clips:
