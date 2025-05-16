@@ -10,6 +10,8 @@ from scfile.consts import DefaultModelFormats, ModelFormats
 
 @dataclass
 class UserOptions:
+    """Shared user options between decoder and encoder."""
+
     model_formats: Optional[ModelFormats] = None
     parse_skeleton: bool = False
     parse_animation: bool = False
