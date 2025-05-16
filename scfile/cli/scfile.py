@@ -60,8 +60,8 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
-    "--no-overwrite",
-    help="Do not overwrite an existing file.",
+    "--unique",
+    help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
 )
 @click.version_option(CLI.VERSION)
@@ -75,7 +75,7 @@ def scfile(
     animation: bool,
     hdri: bool,
     relative: bool,
-    no_overwrite: bool,
+    unique: bool,
 ):
     # In case program executed without arguments
     if not paths:
@@ -106,7 +106,7 @@ def scfile(
     model_options = ModelOptions(parse_skeleton=skeleton, parse_animation=animation)
     texture_options = TextureOptions(is_hdri=hdri)
     image_options = ImageOptions()
-    overwrite = not no_overwrite
+    overwrite = not unique
 
     # Iterate over each directory and its list of source files
     for root, sources in files_map.items():
