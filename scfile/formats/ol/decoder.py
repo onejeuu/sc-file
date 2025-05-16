@@ -6,7 +6,7 @@ import lz4.block
 from scfile import exceptions as exc
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder
-from scfile.core.context import TextureContent, TextureOptions
+from scfile.core.context import TextureContent
 from scfile.core.context.content import TextureType
 from scfile.core.io.formats.ol import OlFileIO
 from scfile.enums import ByteOrder, FileFormat
@@ -18,7 +18,7 @@ from .formats import SUPPORTED_FORMATS
 
 
 # mro nightmare
-class BaseOlDecoder(FileDecoder[TextureContent[TextureType], TextureOptions], OlFileIO, Generic[TextureType], ABC):
+class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[TextureType], ABC):
     format = FileFormat.OL
     order = ByteOrder.BIG
     signature = FileSignature.OL
@@ -61,7 +61,6 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType], TextureOptions], Ol
 
 class OlDecoder(BaseOlDecoder[DefaultTexture]):
     _content = TextureContent
-    _options = TextureOptions
 
     def parse_sizes(self):
         self.data.texture.uncompressed = self.readsizes(self.data.mipmap_count)

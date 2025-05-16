@@ -4,7 +4,7 @@ from xml.etree.ElementTree import Element, SubElement
 import numpy as np
 
 from scfile.core import FileEncoder
-from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
@@ -23,10 +23,8 @@ UP_AXIS = "Y_UP"
 DEFAULT_COLOR = "1 1 1 1"
 
 
-class DaeEncoder(FileEncoder[ModelContent, ModelOptions]):
+class DaeEncoder(FileEncoder[ModelContent]):
     format = FileFormat.DAE
-
-    _options = ModelOptions
 
     @property
     def skeleton_presented(self) -> bool:

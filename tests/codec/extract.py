@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import NamedTuple, Optional
 
 from scfile.core import FileDecoder, FileEncoder
-from scfile.core.types import Content, Options
+from scfile.core.types import Content
 
 
 class Results(NamedTuple):
@@ -11,16 +11,16 @@ class Results(NamedTuple):
 
 
 def extract(
-    decoder: type[FileDecoder[Content, Options]],
-    encoder: type[FileEncoder[Content, Options]],
+    decoder: type[FileDecoder[Content]],
+    encoder: type[FileEncoder[Content]],
     assets: Path,
     subdir: Optional[Path] = None,
-    output_filename: str = "output",
+    target: str = "output",
 ) -> Results:
     subdir = subdir or Path()
 
     source_path = assets / subdir / "input"
-    output_path = assets / subdir / output_filename
+    output_path = assets / subdir / target
 
     with decoder(source_path) as dec:
         with dec.convert_to(encoder) as enc:

@@ -2,26 +2,22 @@
 Shared user options between decoder and encoder.
 """
 
-from abc import ABC
 from dataclasses import dataclass
+from typing import Optional
+
+from scfile.consts import DefaultModelFormats, ModelFormats
 
 
 @dataclass
-class FileOptions(ABC):
-    pass
-
-
-@dataclass
-class ModelOptions(FileOptions):
+class UserOptions:
+    model_formats: Optional[ModelFormats] = None
     parse_skeleton: bool = False
     parse_animation: bool = False
+    is_cubemap: bool = False
+    overwrite: bool = True
 
-
-@dataclass
-class TextureOptions(FileOptions):
-    is_hdri: bool = False
-
-
-@dataclass
-class ImageOptions(FileOptions):
-    pass
+    @property
+    def default_model_formats(self):
+        if self.parse_skeleton:
+            DefaultModelFormats.SKELETON
+        return DefaultModelFormats.STANDARD

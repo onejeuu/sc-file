@@ -1,8 +1,10 @@
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Generator
 
 import pytest
+
+from scfile.core.context import UserOptions
 
 
 @pytest.fixture
@@ -12,6 +14,11 @@ def assets(request: Any) -> Path:
 
 
 @pytest.fixture
-def temp():
-    with tempfile.TemporaryDirectory(prefix="scfiletest") as dir:
+def options() -> UserOptions:
+    return UserOptions(overwrite=True)
+
+
+@pytest.fixture
+def temp() -> Generator[Path, Any, None]:
+    with tempfile.TemporaryDirectory(prefix="scfiletest_") as dir:
         yield Path(dir)

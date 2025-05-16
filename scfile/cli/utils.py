@@ -3,29 +3,18 @@ CLI wrapper small utils.
 """
 
 from collections import defaultdict
+from pathlib import Path
 
 import click
 from rich import print
 
-from scfile import convert
-from scfile.consts import CLI
-from scfile.convert.auto import ModelFormats
+from scfile.consts import CLI, SUPPORTED_SUFFIXES, ModelFormats
 from scfile.enums import FileFormat
 
 from . import types
 
 
 MODEL_FORMATS_WITHOUT_SKELETON: ModelFormats = (FileFormat.OBJ,)
-
-
-def has_no_skeleton_formats(model_formats: ModelFormats):
-    """Checks if any model format in the list doesn't support skeletal animation."""
-    return any(model in model_formats for model in MODEL_FORMATS_WITHOUT_SKELETON)
-
-
-def filter_no_skeleton_formats(model_formats: ModelFormats):
-    """Returns string of model formats that do not support skeletal animation."""
-    return ", ".join(filter(lambda model: model in MODEL_FORMATS_WITHOUT_SKELETON, model_formats))
 
 
 def no_args(ctx: click.Context) -> None:
@@ -36,9 +25,24 @@ def no_args(ctx: click.Context) -> None:
     click.pause(CLI.PAUSE_TEXT)
 
 
+def has_no_skeleton_formats(model_formats: ModelFormats):
+    """Checks if any model format doesn't support armature."""
+    return any(model in model_formats for model in MODEL_FORMATS_WITHOUT_SKELETON)
+
+
+def filter_no_skeleton_formats(model_formats: ModelFormats):
+    """Returns string of model formats that doesn't support armature."""
+    return ", ".join(filter(lambda model: model in MODEL_FORMATS_WITHOUT_SKELETON, model_formats))
+
+
+def is_supported(path: Path) -> bool:
+    """Checks that file is supported (by suffix)."""
+    return path.is_file() and path.suffix in SUPPORTED_SUFFIXES
+
+
 def filter_files(files: types.FilesPaths):
     """Filters paths to keep only supported files."""
-    return list(filter(lambda path: path.is_file() and convert.is_supported(path), files))
+    return list(filter(is_supported, files))
 
 
 def paths_to_files_map(paths: types.FilesPaths) -> types.FilesMap:

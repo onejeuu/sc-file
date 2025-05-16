@@ -2,18 +2,14 @@
 Implement functions to convert one format to another by simplest way.
 """
 
-from functools import wraps
-from typing import Callable, Optional, Type
+from typing import Optional
 
-from scfile.convert.base import convert
-from scfile.core import FileDecoder, FileEncoder
-from scfile.core.context import ImageOptions, ModelOptions, TextureOptions
-from scfile.core.types import Content, Options, PathLike
+from scfile.core.context import UserOptions
+from scfile.core.types import PathLike
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.hdri.decoder import OlCubemapDecoder
-from scfile.formats.mcsa.decoder import McsaDecoder
 from scfile.formats.mcsb.decoder import McsbDecoder
 from scfile.formats.mic.decoder import MicDecoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
@@ -21,139 +17,144 @@ from scfile.formats.obj.encoder import ObjEncoder
 from scfile.formats.ol.decoder import OlDecoder
 from scfile.formats.png.encoder import PngEncoder
 
-
-def converter(
-    decoder: Type[FileDecoder[Content, Options]],
-    encoder: Type[FileEncoder[Content, Options]],
-) -> Callable:
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(
-            source: PathLike,
-            output: Optional[PathLike] = None,
-            options: Optional[Options] = None,
-            overwrite: bool = True,
-        ) -> None:
-            convert(
-                decoder=decoder,
-                encoder=encoder,
-                source=source,
-                output=output,
-                options=options,
-                overwrite=overwrite,
-            )
-
-        return wrapper
-
-    return decorator
+from .factory import converter
 
 
 @converter(McsbDecoder, DaeEncoder)
 def mcsb_to_dae(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts model from `.mcsb` to `.dae` format.
+
+    Arguments:
+        source: Path to input `.mcsb` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Model conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `mcsb_to_dae("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
 
 
 @converter(McsbDecoder, ObjEncoder)
 def mcsb_to_obj(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts model from `.mcsb` to `.OBJ` format.
+
+    Arguments:
+        source: Path to input `.mcsb` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Model conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `mcsb_to_obj("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
 
 
 @converter(McsbDecoder, GlbEncoder)
-def mcsb_to_gltf(
+def mcsb_to_glb(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts model from `.mcsb` to `.glb` (gltf) format.
+
+    Arguments:
+        source: Path to input `.mcsb` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Model conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `mcsb_to_glb("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
 
 
 @converter(McsbDecoder, Ms3dEncoder)
 def mcsb_to_ms3d(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts model from `.mcsb` to `.ms3d` format.
+
+    Arguments:
+        source: Path to input `.mcsb` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Model conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `mcsb_to_ms3d("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
 
 
 @converter(OlDecoder, DdsEncoder)
 def ol_to_dds(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[TextureOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts texture from `.ol` to `.dds` format.
+
+    Arguments:
+        source: Path to input `.ol` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Texture conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `ol_to_dds("texture.ol", "path/to/output")`
+    """
 
 
 @converter(OlCubemapDecoder, DdsEncoder)
 def ol_hdri_to_dds(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[TextureOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts cubemap texture from `.ol` to `.dds` format.
+
+    Arguments:
+        source: Path to input `.ol` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Texture conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+
+    Example:
+        `ol_hdri_to_dds("cubemap.ol", "path/to/output")`
+    """
 
 
 @converter(MicDecoder, PngEncoder)
 def mic_to_png(
     source: PathLike,
     output: Optional[PathLike] = None,
-    options: Optional[ImageOptions] = None,
-    overwrite: bool = True,
+    options: Optional[UserOptions] = None,
 ):
-    pass
+    """
+    Converts image from `.mic` to `.png` format.
 
+    Arguments:
+        source: Path to input `.mic` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): Image conversion settings. Default: `None`.
+        overwrite (optional): Overwrite files with same name. Defaults: `True`.
 
-# ? Legacy
-@converter(McsaDecoder, DaeEncoder)
-def mcsa_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
-):
-    pass
-
-
-@converter(McsaDecoder, ObjEncoder)
-def mcsa_to_obj(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
-):
-    pass
-
-
-@converter(McsaDecoder, GlbEncoder)
-def mcsa_to_gltf(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
-):
-    pass
-
-
-@converter(McsaDecoder, Ms3dEncoder)
-def mcsa_to_ms3d(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ModelOptions] = None,
-    overwrite: bool = True,
-):
-    pass
+    Example:
+        `mic_to_png("image.mic", "path/to/output")`
+    """

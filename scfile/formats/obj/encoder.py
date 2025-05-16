@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from scfile.core import FileEncoder
-from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
@@ -20,10 +20,8 @@ FACES_TEMPLATE: dict[TemplateFlags, str] = {
 }
 
 
-class ObjEncoder(FileEncoder[ModelContent, ModelOptions]):
+class ObjEncoder(FileEncoder[ModelContent]):
     format = FileFormat.OBJ
-
-    _options = ModelOptions
 
     def prepare(self):
         self.data.scene.flip_v_textures()

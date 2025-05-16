@@ -7,21 +7,21 @@ from typing import Generic, Optional
 
 from scfile import exceptions as exc
 from scfile.core.base import BaseFile
+from scfile.core.context.options import UserOptions
 from scfile.core.encoder import FileEncoder
 from scfile.core.io.streams import StructFileIO
-from scfile.core.types import Content, Options, PathLike
+from scfile.core.types import Content, PathLike
 from scfile.enums import FileMode
 
 
-class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
+class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
     mode: str = FileMode.READ
 
     _content: type[Content]
-    _options: type[Options]
 
-    def __init__(self, file: PathLike, options: Optional[Options] = None):
+    def __init__(self, file: PathLike, options: Optional[UserOptions] = None):
         self.file = file
-        self.options: Options = options or self._options()
+        self.options: UserOptions = options or UserOptions()
         self.data: Content = self._content()
 
         super().__init__(file=self.file, mode=self.mode)
@@ -40,13 +40,13 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content, Options], ABC):
         self.seek(0)
         return self.data
 
-    def convert_to(self, encoder: type[FileEncoder[Content, Options]]) -> FileEncoder[Content, Options]:
+    def convert_to(self, encoder: type[FileEncoder[Content]]) -> FileEncoder[Content]:
         data = self.decode()
         enc = encoder(data, self.options)
         enc.encode()
         return enc
 
-    def convert(self, encoder: type[FileEncoder[Content, Options]]) -> bytes:
+    def convert(self, encoder: type[FileEncoder[Content]]) -> bytes:
         enc = self.convert_to(encoder)
         content = enc.getvalue()
         enc.close()

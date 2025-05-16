@@ -9,7 +9,7 @@ from typing import Generic, TypeVar, cast
 
 from scfile.structures.animation import ModelAnimation
 from scfile.structures.scene import ModelFlags, ModelScene
-from scfile.structures.texture import DefaultTexture, Texture
+from scfile.structures.texture import CubemapTexture, DefaultTexture, Texture
 
 
 TextureType = TypeVar("TextureType", bound=Texture)
@@ -67,7 +67,10 @@ class TextureContent(FileContent, Generic[TextureType]):
     mipmap_count: int = 0
     fourcc: bytes = field(default_factory=bytes)
     texture: TextureType = field(default_factory=lambda: cast(TextureType, DefaultTexture()))
-    is_hdri: bool = False
+
+    @property
+    def is_cubemap(self):
+        return isinstance(self.texture, CubemapTexture)
 
 
 @dataclass

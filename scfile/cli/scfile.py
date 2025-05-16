@@ -11,10 +11,8 @@ from rich import print
 
 from scfile import convert
 from scfile.cli.enums import Prefix
-from scfile.consts import CLI
-from scfile.convert.auto import ModelFormats
-from scfile.core.context import ModelOptions
-from scfile.core.context.options import ImageOptions, TextureOptions
+from scfile.consts import CLI, ModelFormats
+from scfile.core.context import UserOptions
 from scfile.exceptions.base import ScFileException
 
 from . import types, utils
@@ -50,7 +48,7 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
-    "--hdri",
+    "--cubemap",
     help="Parse all input textures as cubemaps.",
     is_flag=True,
 )
@@ -73,10 +71,12 @@ def scfile(
     model_formats: ModelFormats,
     skeleton: bool,
     animation: bool,
-    hdri: bool,
+    cubemap: bool,
     relative: bool,
     unique: bool,
 ):
+    """CLI wrapper for scfile tool."""
+
     # In case program executed without arguments
     if not paths:
         utils.no_args(ctx)
@@ -103,10 +103,13 @@ def scfile(
         return
 
     # Prepare options
-    model_options = ModelOptions(parse_skeleton=skeleton, parse_animation=animation)
-    texture_options = TextureOptions(is_hdri=hdri)
-    image_options = ImageOptions()
-    overwrite = not unique
+    options = UserOptions(
+        model_formats=model_formats,
+        parse_skeleton=skeleton,
+        parse_animation=animation,
+        is_cubemap=cubemap,
+        overwrite=not unique,
+    )
 
     # Iterate over each directory and its list of source files
     for root, sources in files_map.items():
@@ -119,14 +122,14 @@ def scfile(
 
             # Convert source file
             try:
-                convert.auto(source, dest, model_options, texture_options, image_options, model_formats, overwrite)
+                convert.auto(source, dest, options)
 
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))
 
             except lz4.block.LZ4BlockError as err:
                 print(Prefix.ERROR, str(err))
-                print(CLI.Text.HDRI_OFF if hdri else CLI.Text.HDRI_ON)
+                print(CLI.Text.HDRI_OFF if cubemap else CLI.Text.HDRI_ON)
 
             else:
                 print(Prefix.INFO, f"File '{source.name}' converted to '{dest or source.parent}'")
