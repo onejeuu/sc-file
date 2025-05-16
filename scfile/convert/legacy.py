@@ -62,7 +62,7 @@ def mcsa_to_glb(
     options: Optional[UserOptions] = None,
 ):
     """
-    Converts model from `.mcsa` to `.glb` (gltf) format.
+    Converts model from `.mcsa` to `.glb` format.
 
     Arguments:
         source: Path to input `.mcsa` file.
@@ -71,7 +71,7 @@ def mcsa_to_glb(
         overwrite (optional): Overwrite files with same name. Defaults: `True`.
 
     Example:
-        `mcsa_to_gltf("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
+        `mcsa_to_glb("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
     """
 
 

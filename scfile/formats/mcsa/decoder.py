@@ -32,7 +32,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     def to_obj(self):
         return self.convert_to(ObjEncoder)
 
-    def to_gltf(self):
+    def to_glb(self):
         return self.convert_to(GlbEncoder)
 
     def to_ms3d(self):

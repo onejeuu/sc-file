@@ -38,6 +38,11 @@ sys.excepthook = excepthook
     multiple=True,
 )
 @click.option(
+    "--relative",
+    help="Preserve sources relative directory structure in output (if specified).",
+    is_flag=True,
+)
+@click.option(
     "--skeleton",
     help="Parse armature in models (if presented).",
     is_flag=True,
@@ -53,11 +58,6 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
-    "--relative",
-    help="Preserve sources relative directory structure in output (if specified).",
-    is_flag=True,
-)
-@click.option(
     "--unique",
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
@@ -69,10 +69,10 @@ def scfile(
     paths: types.FilesPaths,
     output: Optional[types.PathType],
     model_formats: ModelFormats,
+    relative: bool,
     skeleton: bool,
     animation: bool,
     cubemap: bool,
-    relative: bool,
     unique: bool,
 ):
     """CLI wrapper for scfile tool."""
