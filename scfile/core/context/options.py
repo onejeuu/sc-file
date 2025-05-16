@@ -13,7 +13,6 @@ class UserOptions:
     model_formats: Optional[ModelFormats] = None
     parse_skeleton: bool = False
     parse_animation: bool = False
-    is_cubemap: bool = False
     overwrite: bool = True
 
     @property

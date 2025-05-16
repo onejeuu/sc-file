@@ -107,7 +107,6 @@ def scfile(
         model_formats=model_formats,
         parse_skeleton=skeleton,
         parse_animation=animation,
-        is_cubemap=cubemap,
         overwrite=not unique,
     )
 
@@ -122,7 +121,7 @@ def scfile(
 
             # Convert source file
             try:
-                convert.auto(source, dest, options)
+                convert.auto(source, dest, options, cubemap)
 
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))

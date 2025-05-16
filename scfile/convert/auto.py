@@ -43,6 +43,7 @@ def auto(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
+    is_cubemap: bool = False,
 ):
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
@@ -59,8 +60,8 @@ def auto(
                     converter(source, output, options)
 
         case FileFormat.OL:
-            if options and options.is_cubemap:
-                formats.ol_hdri_to_dds(source, output, options)
+            if is_cubemap:
+                formats.ol_cubemap_to_dds(source, output, options)
             else:
                 formats.ol_to_dds(source, output, options)
 

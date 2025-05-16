@@ -22,6 +22,7 @@ def convert(
 
     src_path = Path(source)
     out_path = Path(output or source)
+    options = options or UserOptions()
 
     if not src_path.exists() or not src_path.is_file():
         raise exc.FileNotFound(src_path)
@@ -33,7 +34,7 @@ def convert(
         with src.convert_to(encoder=encoder) as out:
             output = out_path.with_suffix(out.suffix)
 
-            if options and not options.overwrite:
+            if not options.overwrite:
                 output = ensure_unique_path(path=output, suffix=out.suffix)
 
             out.save(path=output)

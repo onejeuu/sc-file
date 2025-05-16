@@ -47,7 +47,7 @@ def mcsb_to_obj(
     options: Optional[UserOptions] = None,
 ):
     """
-    Converts model from `.mcsb` to `.OBJ` format.
+    Converts model from `.mcsb` to `.obj` format.
 
     Arguments:
         source: Path to input `.mcsb` file.
@@ -67,7 +67,7 @@ def mcsb_to_glb(
     options: Optional[UserOptions] = None,
 ):
     """
-    Converts model from `.mcsb` to `.glb` (gltf) format.
+    Converts model from `.mcsb` to `.glb` format.
 
     Arguments:
         source: Path to input `.mcsb` file.
@@ -121,7 +121,7 @@ def ol_to_dds(
 
 
 @converter(OlCubemapDecoder, DdsEncoder)
-def ol_hdri_to_dds(
+def ol_cubemap_to_dds(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
@@ -136,7 +136,7 @@ def ol_hdri_to_dds(
         overwrite (optional): Overwrite files with same name. Defaults: `True`.
 
     Example:
-        `ol_hdri_to_dds("cubemap.ol", "path/to/output")`
+        `ol_cubemap_to_dds("cubemap.ol", "path/to/output")`
     """
 
 

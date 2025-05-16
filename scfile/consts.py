@@ -85,8 +85,8 @@ class CLI:
     class Text:
         INVALID_FILE = "input file is invalid or corrupted"
         EXCEPTION = f"[b yellow]This usually means {INVALID_FILE}.[/]"
-        HDRI_ON = f"[b yellow]This file is most likely cubemap texture. Try specifying --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
-        HDRI_OFF = f"[b yellow]This file is most likely IS NOT cubemap texture. Try remove --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
+        HDRI_ON = f"[b yellow]This file appears to be cubemap texture. Try using --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
+        HDRI_OFF = f"[b yellow]This file does NOT appear to be cubemap texture. Try removing --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
 
 
 class OutputFormats:
