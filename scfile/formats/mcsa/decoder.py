@@ -2,7 +2,7 @@ from typing import Any
 
 from scfile import exceptions as exc
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
-from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.context import ModelContent
 from scfile.core.decoder import FileDecoder
 from scfile.core.io.formats.mcsa import McsaFileIO
 from scfile.enums import ByteOrder, FileFormat
@@ -19,13 +19,12 @@ from .flags import Flag
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
-class McsaDecoder(FileDecoder[ModelContent, ModelOptions], McsaFileIO):
+class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     format = FileFormat.MCSA
     order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
 
     _content = ModelContent
-    _options = ModelOptions
 
     def to_dae(self):
         return self.convert_to(DaeEncoder)

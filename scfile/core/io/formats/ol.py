@@ -11,7 +11,7 @@ class OlFileIO(StructFileIO):
     def readsizes(self, mipmap_count: int) -> list[int]:
         return [self.readb(F.U32) for _ in range(mipmap_count)]
 
-    def readhdrisizes(self, mipmap_count: int) -> list[list[int]]:
+    def readsizescubemap(self, mipmap_count: int) -> list[list[int]]:
         return [[self.readb(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
 
     def readfourcc(self) -> bytes:

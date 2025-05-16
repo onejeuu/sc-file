@@ -7,7 +7,7 @@ import numpy as np
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
-from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
@@ -20,11 +20,9 @@ from .enums import BufferTarget, ComponentType
 VERSION = 2
 
 
-class GlbEncoder(FileEncoder[ModelContent, ModelOptions]):
+class GlbEncoder(FileEncoder[ModelContent]):
     format = FileFormat.GLB
     signature = FileSignature.GLTF
-
-    _options = ModelOptions
 
     @property
     def skeleton_presented(self) -> bool:

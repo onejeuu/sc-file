@@ -1,6 +1,6 @@
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder
-from scfile.core.context import ModelContent, ModelOptions
+from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.exceptions import Ms3dCountsLimit
@@ -21,11 +21,9 @@ def fixedlen(name: str) -> bytes:
     return name.encode("utf-8").ljust(32, b"\x00")
 
 
-class Ms3dEncoder(FileEncoder[ModelContent, ModelOptions]):
+class Ms3dEncoder(FileEncoder[ModelContent]):
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
-
-    _options = ModelOptions
 
     @property
     def skeleton_presented(self) -> bool:

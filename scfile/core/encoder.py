@@ -6,21 +6,20 @@ from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self
 
 from scfile.core.base import BaseFile
+from scfile.core.context.options import UserOptions
 from scfile.core.io.streams import StructBytesIO
-from scfile.core.types import Content, Options, PathLike
+from scfile.core.types import Content, PathLike
 from scfile.enums import FileMode
 
 
-class FileEncoder(BaseFile, StructBytesIO, Generic[Content, Options], ABC):
+class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
     @property
     def mode(self) -> str:
         return FileMode.WRITE
 
-    _options: type[Options]
-
-    def __init__(self, data: Content, options: Optional[Options] = None):
+    def __init__(self, data: Content, options: Optional[UserOptions] = None):
         self.data: Content = data
-        self.options: Options = options or self._options()
+        self.options: UserOptions = options or UserOptions()
         self.ctx: dict[str, Any] = {}
 
     def prepare(self) -> None:

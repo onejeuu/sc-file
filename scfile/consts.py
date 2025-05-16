@@ -1,4 +1,9 @@
+from typing import Sequence, TypeAlias
+
 from .enums import FileFormat
+
+
+ModelFormats: TypeAlias = Sequence[FileFormat]
 
 
 SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
@@ -80,8 +85,8 @@ class CLI:
     class Text:
         INVALID_FILE = "input file is invalid or corrupted"
         EXCEPTION = f"[b yellow]This usually means {INVALID_FILE}.[/]"
-        HDRI_ON = f"[b yellow]This file is most likely cubemap texture. Try specifying --hdri flag. Otherwise, most likely {INVALID_FILE}.[/]"
-        HDRI_OFF = f"[b yellow]This file is most likely IS NOT cubemap texture. Try remove --hdri flag. Otherwise, most likely {INVALID_FILE}.[/]"
+        HDRI_ON = f"[b yellow]This file is most likely cubemap texture. Try specifying --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
+        HDRI_OFF = f"[b yellow]This file is most likely IS NOT cubemap texture. Try remove --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
 
 
 class OutputFormats:
@@ -90,3 +95,10 @@ class OutputFormats:
     MODELS = sorted({FileFormat.DAE, FileFormat.MS3D, FileFormat.OBJ, FileFormat.GLB})
     TEXTURES = sorted({FileFormat.DDS})
     IMAGES = sorted({FileFormat.PNG})
+
+
+class DefaultModelFormats:
+    """Default model formats for cases where no preference is specified."""
+
+    STANDARD: ModelFormats = (FileFormat.OBJ,)
+    SKELETON: ModelFormats = (FileFormat.GLB,)

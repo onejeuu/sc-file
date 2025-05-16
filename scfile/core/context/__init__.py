@@ -3,7 +3,7 @@ Shared context between decoder and encoder.
 """
 
 from .content import FileContent, ImageContent, ModelContent, TextureContent
-from .options import FileOptions, ImageOptions, ModelOptions, TextureOptions
+from .options import UserOptions
 
 
 __all__ = (
@@ -11,8 +11,5 @@ __all__ = (
     "ImageContent",
     "ModelContent",
     "TextureContent",
-    "FileOptions",
-    "ImageOptions",
-    "ModelOptions",
-    "TextureOptions",
+    "UserOptions",
 )
