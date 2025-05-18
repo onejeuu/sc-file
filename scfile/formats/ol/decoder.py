@@ -3,18 +3,18 @@ from typing import Generic
 
 import lz4.block
 
-from scfile import exceptions as exc
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder
 from scfile.core.context import TextureContent
 from scfile.core.context.content import TextureType
-from scfile.core.io.formats.ol import OlFileIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.structures.texture import DefaultTexture
 
+from .exceptions import OlUnsupportedFourcc
 from .formats import SUPPORTED_FORMATS
+from .io import OlFileIO
 
 
 # mro nightmare
@@ -41,7 +41,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
         self.data.fourcc = self.readfourcc()
 
         if self.data.fourcc not in SUPPORTED_FORMATS:
-            raise exc.OlUnsupportedFourcc(self.path, self.data.fourcc)
+            raise OlUnsupportedFourcc(self.path, self.data.fourcc)
 
         if self.data.fourcc == b"DXN_XY":
             self.data.fourcc = b"ATI2"

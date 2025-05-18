@@ -9,7 +9,7 @@ import numpy as np
 
 from scfile.consts import McsaModel
 
-from .vectors import Vector3
+from .vectors import Vector3D, Vector4D
 
 
 ROOT = McsaModel.ROOT_BONE_ID
@@ -20,8 +20,8 @@ class SkeletonBone:
     id: int = 0
     name: str = "bone"
     parent_id: int = ROOT
-    position: Vector3 = field(default_factory=Vector3)
-    rotation: Vector3 = field(default_factory=Vector3)
+    position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
     children: List[Self] = field(default_factory=list, repr=False)
 
     @property
@@ -33,9 +33,6 @@ class SkeletonBone:
 class ModelSkeleton:
     bones: List[SkeletonBone] = field(default_factory=list)
     roots: List[SkeletonBone] = field(default_factory=list)
-
-    def get_bones_names(self) -> list[str]:
-        return [b.name for b in self.bones]
 
     def convert_to_local(self) -> None:
         """Update bones positions by their parent bone."""
@@ -76,7 +73,7 @@ class ModelSkeleton:
         global_transforms: list[np.ndarray] = []
 
         for bone in self.bones:
-            local_matrix = create_transform_matrix(bone)
+            local_matrix = create_transform_matrix(bone.position, bone.rotation)
             global_transform = local_matrix if bone.is_root else global_transforms[bone.parent_id] @ local_matrix
             global_transforms.append(global_transform)
 
@@ -86,44 +83,32 @@ class ModelSkeleton:
         global_transforms = self.calculate_global_transforms()
         inverse_matrices = [np.linalg.inv(transform.T if transpose else transform) for transform in global_transforms]
 
-        return np.array(inverse_matrices).round(McsaModel.ROUND_DIGITS)
+        return np.round(inverse_matrices, decimals=McsaModel.DECIMALS)
 
 
-def create_rotation_matrix(rotation: Vector3, homogeneous: bool = False) -> np.ndarray:
-    # Convert to radians
-    rx, ry, rz = (np.radians(angle) for angle in rotation)
+def create_rotation_matrix(rotation: Vector3D) -> np.ndarray:
+    angles = np.radians(rotation)
+    cx, cy, cz = np.cos(angles)
+    sx, sy, sz = np.sin(angles)
 
-    # Rotation matrices for each axis
-    cos_rx, sin_rx = np.cos(rx), np.sin(rx)
-    Rx = np.array([[1, 0, 0], [0, cos_rx, -sin_rx], [0, sin_rx, cos_rx]])
-
-    cos_ry, sin_ry = np.cos(ry), np.sin(ry)
-    Ry = np.array([[cos_ry, 0, sin_ry], [0, 1, 0], [-sin_ry, 0, cos_ry]])
-
-    cos_rz, sin_rz = np.cos(rz), np.sin(rz)
-    Rz = np.array([[cos_rz, -sin_rz, 0], [sin_rz, cos_rz, 0], [0, 0, 1]])
-
-    # General rotation matrix (Z * Y * X)
-    rotation_matrix = Rz @ Ry @ Rx
-
-    # Convert to homogeneous 4x4 matrix
-    if homogeneous:
-        homogeneous_matrix = np.eye(4)
-        homogeneous_matrix[:3, :3] = rotation_matrix
-        return homogeneous_matrix
-
-    return rotation_matrix
+    return np.array(
+        [
+            [cy * cz, -cy * sz, sy],
+            [cx * sz + cz * sx * sy, cx * cz - sx * sy * sz, -cy * sx],
+            [sx * sz - cx * cz * sy, cz * sx + cx * sy * sz, cx * cy],
+        ],
+        dtype=np.float32,
+    )
 
 
-def create_transform_matrix(bone: SkeletonBone) -> np.ndarray:
-    matrix = np.eye(4)
-    matrix[:3, :3] = create_rotation_matrix(bone.rotation, homogeneous=False)
-    matrix[:3, 3] = list(bone.position)
-
+def create_transform_matrix(position: Vector3D, rotation: Vector3D) -> np.ndarray:
+    matrix = np.eye(4, dtype=np.float32)
+    matrix[:3, :3] = create_rotation_matrix(rotation)
+    matrix[:3, 3] = position
     return matrix
 
 
-def euler_to_quat(rotation: Vector3, degrees=True):
+def euler_to_quat(rotation: Vector3D, degrees=True) -> Vector4D:
     x, y, z = rotation
 
     if degrees:
@@ -141,4 +126,4 @@ def euler_to_quat(rotation: Vector3, degrees=True):
     qy = cr * sp * cy + sr * cp * sy
     qz = cr * cp * sy - sr * sp * cy
 
-    return [qx, qy, qz, qw]
+    return np.array([qx, qy, qz, qw])

@@ -17,7 +17,7 @@ SCENE = {"name": "Scene", "nodes": []}
 
 BUFFER = {"byteLength": 0}
 
-PRIMITIVE = {"attributes": {}, "mode": PrimitiveMode.TRIANGLES}
+PRIMITIVE = {"attributes": {}, "mode": PrimitiveMode.TRIANGLES.value}
 
 # R, G, B, A
 COLOR = [0.5, 0.5, 0.5, 1.0]

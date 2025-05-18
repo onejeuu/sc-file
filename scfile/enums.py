@@ -48,6 +48,8 @@ class ByteOrder(StrEnum):
 
 
 class StructFormat(StrEnum):
+    """Native C-type struct format codes."""
+
     BOOL = "?"
     """boolean: `1 byte` [False, True]"""
 
@@ -69,3 +71,24 @@ class StructFormat(StrEnum):
     """float: `half-precision` `2 bytes`"""
     F32 = "f"
     """double: `single-precision` `4 bytes`"""
+
+
+class UnicodeErrors(StrEnum):
+    """Unicode errors handling policy."""
+
+    STRICT = auto()
+    """Raise UnicodeDecodeError on invalid bytes"""
+    IGNORE = auto()
+    """Skip invalid bytes silently"""
+    REPLACE = auto()
+    """Replace invalid bytes with a replacement marker (�)"""
+
+    BACKSLASHREPLACE = BACKSLASH = auto()
+    """Replace with backslash-escaped sequences (\\xHH)"""
+    NAMEREPLACE = NAME = auto()
+    """Replace with \\N{...} escape sequences"""
+    XMLCHARREFREPLACE = XML = auto()
+    """Replace with XML/HTML numeric entities (&#...;)"""
+
+    SURROGATEESCAPE = SURROGATE = auto()
+    """Preserve invalid bytes as surrogate codes"""

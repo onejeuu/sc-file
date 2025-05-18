@@ -20,5 +20,5 @@ class UserOptions:
     @property
     def default_model_formats(self):
         if self.parse_skeleton:
-            DefaultModelFormats.SKELETON
+            return DefaultModelFormats.SKELETON
         return DefaultModelFormats.STANDARD

@@ -1,21 +1,19 @@
-from typing import Any
-
-from scfile import exceptions as exc
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core.context import ModelContent
 from scfile.core.decoder import FileDecoder
-from scfile.core.io.formats.mcsa import McsaFileIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
-from scfile.structures.animation import AnimationClip, AnimationFrame, BonesTransforms
+from scfile.structures.animation import AnimationClip
 from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.structures.skeleton import SkeletonBone
 
+from .exceptions import McsaUnknownLinkCount, McsaUnsupportedVersion
 from .flags import Flag
+from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
 
@@ -45,7 +43,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.SKELETON] and self.options.parse_skeleton:
             self.parse_skeleton()
 
-            if self.options.parse_animation:
+            if self.options.parse_animation and not self.is_eof():
                 self.parse_animation()
 
     def parse_header(self):
@@ -57,65 +55,74 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self.data.version = self.readb(F.F32)
 
         if self.data.version not in SUPPORTED_VERSIONS:
-            raise exc.McsaUnsupportedVersion(self.path, self.data.version)
+            raise McsaUnsupportedVersion(self.path, self.data.version)
 
     def parse_flags(self):
         flags_count = VERSION_FLAGS.get(self.data.version)
 
         if not flags_count:
-            raise exc.McsaUnsupportedVersion(self.path, self.data.version)
+            raise McsaUnsupportedVersion(self.path, self.data.version)
 
         for index in range(flags_count):
             self.data.flags[index] = self.readb(F.BOOL)
 
     def parse_scales(self):
-        self.data.scene.scale.position = self.readb(F.F32)
+        self.data.scale.position = self.readb(F.F32)
 
-        if self.data.flags[Flag.TEXTURE]:
-            self.data.scene.scale.texture = self.readb(F.F32)
+        if self.data.flags[Flag.UV]:
+            self.data.scale.texture = self.readb(F.F32)
 
-        # ! unknown
+        # ! Unknown Scale
         if self.data.flags[Flag.NORMALS] and self.data.version >= 10.0:
-            self.data.scene.scale.normals = self.readb(F.F32)
+            self.data.scale.unknown = self.readb(F.F32)
 
     def parse_meshes(self):
-        meshes_count = self.readb(F.U32)
+        self.data.count.meshes = self.readb(F.I32)
 
-        for _ in range(meshes_count):
-            self.parse_mesh()
+        if self.data.count.meshes > 0:
+            for _ in range(self.data.count.meshes):
+                self.parse_mesh()
 
     def parse_mesh(self):
         mesh = ModelMesh()
 
         # Name & Material
-        mesh.name = self.readstring()
-        mesh.material = self.readstring()
+        mesh.name = self.readutf8()
+        mesh.material = self.readutf8()
 
         # Skeleton bone indexes
         if self.data.flags[Flag.SKELETON]:
-            self.parse_links_count(mesh)
-            self.parse_local_bones(mesh)
+            mesh.count.links = self.readb(F.U8)
+            mesh.count.bones = self.readb(F.U8)
+
+            # Local bones mapping
+            for index in range(mesh.count.bones):
+                mesh.bones[LocalBoneId(index)] = SkeletonBoneId(self.readb(F.U8))
 
         # Geometry counts
         mesh.count.vertices = self.readcount()
         mesh.count.polygons = self.readcount()
-        mesh.allocate_geometry()
 
         # ? Not exported
-        if self.data.flags[Flag.TEXTURE]:
-            self.data.scene.scale.filtering = self.readb(F.F32)
+        if self.data.flags[Flag.UV]:
+            self.data.scale.filtering = self.readb(F.F32)
 
         # Default origins
         # ? Not exported
         if self.data.version >= 10.0:
-            self.parse_defaults(mesh)
+            self.read(4 * 6)
+
+        # Default scale
+        # ? Not exported
+        if self.data.version >= 11.0:
+            self.read(4)
 
         # Geometric vertices
-        self.parse_position(mesh)
+        self.parse_positions(mesh)
 
         # Texture coordinates
-        if self.data.flags[Flag.TEXTURE]:
-            self.parse_texture(mesh)
+        if self.data.flags[Flag.UV]:
+            self.parse_textures(mesh)
 
         # ! Data Unconfirmed
         # ? Not parsed
@@ -138,170 +145,103 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # Vertex colors
         # ? Not parsed
         if self.data.flags[Flag.COLORS]:
-            self.skip_colors(mesh)
+            self.skip_vertices(mesh, size=4)
 
         # Polygon faces
-        self.parse_polygons(mesh)
+        mesh.polygons = self.readpolygons(mesh.count.polygons)
 
         self.data.meshes.append(mesh)
 
-    def parse_links_count(self, mesh: ModelMesh):
-        mesh.count.max_links = self.readb(F.U8)
-        mesh.count.local_bones = self.readb(F.U8)
+    def skip_vertices(self, mesh: ModelMesh, size: int):
+        self.read(mesh.count.vertices * size)
 
-    def parse_local_bones(self, mesh: ModelMesh):
-        for index in range(mesh.count.local_bones):
-            mesh.bones_mapping[LocalBoneId(index)] = SkeletonBoneId(self.readb(F.U8))
+    def parse_positions(self, mesh: ModelMesh):
+        mesh.positions = self.readvertex(
+            dtype=F.F32,
+            fmt=F.I16,
+            factor=Factor.I16,
+            size=McsaSize.POSITIONS,
+            count=mesh.count.vertices,
+            scale=self.data.scale.position,
+        )[:, :3]
 
-    def parse_defaults(self, mesh: ModelMesh):
-        for x, y, z in self.readdefault():
-            mesh.default.rotation.x = x
-            mesh.default.rotation.y = y
-            mesh.default.rotation.z = z
-
-        for x, y, z in self.readdefault():
-            mesh.default.position.x = x
-            mesh.default.position.y = y
-            mesh.default.position.z = z
-
-        if self.data.version >= 11.0:
-            mesh.default.scale = self.readb(F.F32)
-
-    def parse_position(self, mesh: ModelMesh):
-        count = mesh.count.vertices
-        scale = self.data.scene.scale.position
-        xyzw = self.readvertex(F.I16, Factor.I16 + 1, McsaSize.POSITION, count, scale)
-
-        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
-            vertex.position.x = x
-            vertex.position.y = y
-            vertex.position.z = z
-
-    def parse_texture(self, mesh: ModelMesh):
-        count = mesh.count.vertices
-        scale = self.data.scene.scale.texture
-        uv = self.readvertex(F.I16, Factor.I16, McsaSize.TEXTURE, count, scale)
-
-        for vertex, (u, v) in zip(mesh.vertices, uv):
-            vertex.texture.u = u
-            vertex.texture.v = v
+    def parse_textures(self, mesh: ModelMesh):
+        mesh.textures = self.readvertex(
+            dtype=F.F32,
+            fmt=F.I16,
+            factor=Factor.I16,
+            size=McsaSize.TEXTURES,
+            count=mesh.count.vertices,
+            scale=self.data.scale.texture,
+        )
 
     def parse_normals(self, mesh: ModelMesh):
-        count = mesh.count.vertices
-        xyzw = self.readvertex(F.I8, Factor.I8, McsaSize.NORMALS, count)
-
-        for vertex, (x, y, z, _) in zip(mesh.vertices, xyzw):
-            vertex.normals.x = x
-            vertex.normals.y = y
-            vertex.normals.z = z
+        mesh.normals = self.readvertex(
+            dtype=F.F32,
+            fmt=F.I8,
+            factor=Factor.I8,
+            size=McsaSize.NORMALS,
+            count=mesh.count.vertices,
+        )[:, :3]
 
     def parse_links(self, mesh: ModelMesh):
         match mesh.count.max_links:
             case 0:
                 pass
-
             case 1 | 2:
-                if self.options.parse_skeleton:
-                    self.parse_packed_links(mesh)
-                else:
-                    self.skip_vertices(mesh, size=4)
-
+                self.parse_packed_links(mesh)
             case 3 | 4:
-                if self.options.parse_skeleton:
-                    self.parse_plain_links(mesh)
-                else:
-                    self.skip_vertices(mesh, size=8)
-
+                self.parse_plain_links(mesh)
             case _:
-                raise exc.McsaUnknownLinkCount(self.path, mesh.count.max_links)
+                raise McsaUnknownLinkCount(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
-        links = self.readlinkspacked(mesh.count.vertices, mesh.bones_mapping)
-        self.load_links(mesh, links)
+        if self.options.parse_skeleton:
+            links = self.readpackedlinks(mesh.count.vertices, mesh.bones)
+            mesh.links_ids, mesh.links_weights = links
+
+        else:
+            self.skip_vertices(mesh, size=4)
 
     def parse_plain_links(self, mesh: ModelMesh):
-        links = self.readlinksplains(mesh.count.vertices, mesh.bones_mapping)
-        self.load_links(mesh, links)
+        if self.options.parse_skeleton:
+            links = self.readplainlinks(mesh.count.vertices, mesh.bones)
+            mesh.links_ids, mesh.links_weights = links
 
-    def load_links(self, mesh: ModelMesh, links: Any):
-        link_ids, link_weights = links
-
-        for vertex, ids, weights in zip(mesh.vertices, link_ids, link_weights):
-            vertex.bone_ids = ids
-            vertex.bone_weights = weights
-
-    def skip_colors(self, mesh: ModelMesh):
-        self.skip_vertices(mesh, size=4)
-
-    def parse_polygons(self, mesh: ModelMesh):
-        abc = self.readpolygons(mesh.count.polygons)
-
-        for polygon, (a, b, c) in zip(mesh.polygons, abc):
-            polygon.a = a
-            polygon.b = b
-            polygon.c = c
-
-    def skip_vertices(self, mesh: ModelMesh, size: int):
-        self.read(mesh.count.vertices * size)
+        else:
+            self.skip_vertices(mesh, size=8)
 
     def parse_skeleton(self):
-        bones_count = self.readb(F.U8)
+        self.data.count.bones = self.readb(F.U8)
 
-        for index in range(bones_count):
+        for index in range(self.data.count.bones):
             self.parse_bone(index)
 
-    def parse_bone(self, index: int) -> None:
+    def parse_bone(self, index: int):
         bone = SkeletonBone()
 
         bone.id = index
-        bone.name = self.readstring()
+        bone.name = self.readutf8()
 
         parent_id = self.readb(F.U8)
         bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
-
-        px, py, pz, rx, ry, rz = self.readbone()
-        bone.position.x = px
-        bone.position.y = py
-        bone.position.z = pz
-        bone.rotation.x = rx
-        bone.rotation.y = ry
-        bone.rotation.z = rz
+        bone.position, bone.rotation = self.readbone()
 
         self.data.skeleton.bones.append(bone)
 
     def parse_animation(self):
-        clips_count = self.readb(F.U32)
+        self.data.count.clips = self.readb(F.I32)
 
-        for _ in range(clips_count):
-            self.parse_clip()
+        if self.data.count.clips > 0:
+            for _ in range(self.data.count.clips):
+                self.parse_clip()
 
     def parse_clip(self):
         clip = AnimationClip()
 
-        clip.name = self.readstring()
-        clip.times = self.readb(F.U32)
+        clip.name = self.readutf8()
+        clip.frames = self.readb(F.U32)
         clip.rate = self.readb(F.F32)
-
-        self.parse_clip_frames(clip)
-
-    def parse_clip_frames(self, clip: AnimationClip):
-        for _ in range(clip.times):
-            frame = AnimationFrame()
-
-            for rx, ry, rz, rw, tx, ty, tz in self.readcliptransforms(len(self.data.skeleton.bones)):
-                transforms = BonesTransforms()
-
-                transforms.rotation.x = rx
-                transforms.rotation.y = ry
-                transforms.rotation.z = rz
-                transforms.rotation.w = rw
-
-                transforms.translation.x = tx
-                transforms.translation.y = ty
-                transforms.translation.z = tz
-
-                frame.transforms.append(transforms)
-
-            clip.frames.append(frame)
+        clip.transforms = self.readclip(clip.frames, self.data.count.bones)
 
         self.data.animation.clips.append(clip)

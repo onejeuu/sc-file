@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions.core import FileEncodingError, FileUnsupportedError
+from scfile.exceptions import core
 
 
-class Ms3dEncodingError(FileEncodingError):
+class Ms3dEncodingError(core.FileEncodingError):
     """Base exception for ms3d files."""
 
     @property
@@ -12,7 +12,7 @@ class Ms3dEncodingError(FileEncodingError):
 
 
 @dataclass
-class Ms3dCountsLimit(Ms3dEncodingError, FileUnsupportedError):
+class Ms3dCountsLimit(Ms3dEncodingError, core.FileUnsupportedError):
     """Exception occurring when model counts is too big."""
 
     name: str

@@ -35,6 +35,15 @@ class ModelContent(FileContent):
     flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
 
+    # TODO: get rid of this
+    @property
+    def scale(self):
+        return self.scene.scale
+
+    @property
+    def count(self):
+        return self.scene.count
+
     @property
     def meshes(self):
         return self.scene.meshes

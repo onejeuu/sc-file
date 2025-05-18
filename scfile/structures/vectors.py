@@ -1,61 +1,18 @@
 """
-Dataclasses for vectors.
+Annotated numpy vectors.
 """
 
-from abc import ABC
-from dataclasses import dataclass
-from typing import Iterator, Self
+from typing import Annotated
+
+import numpy as np
+from numpy.typing import NDArray
 
 
-@dataclass
-class BaseVector(ABC):
-    def __iter__(self) -> Iterator[float]:
-        return iter(self.__dict__.values())
+Vector2D = Annotated[NDArray[np.float32], (..., 2)]
+Vector3D = Annotated[NDArray[np.float32], (..., 3)]
+Vector4D = Annotated[NDArray[np.float32], (..., 4)]
 
-    def __add__(self: Self, other: Self) -> Self:
-        return self.__class__(*(a + b for a, b in zip(self, other)))
+LinksIds = Annotated[NDArray[np.uint8], (..., 4)]
+LinksWeights = Annotated[NDArray[np.float32], (..., 4)]
 
-    def __sub__(self: Self, other: Self) -> Self:
-        return self.__class__(*(a - b for a, b in zip(self, other)))
-
-    def __rshift__(self: Self, offset: float) -> Self:
-        return self.__class__(*(value + offset for value in self))
-
-    def __lshift__(self: Self, offset: float) -> Self:
-        return self.__class__(*(value - offset for value in self))
-
-
-@dataclass
-class Vector2(BaseVector):
-    u: float = 0.0
-    v: float = 0.0
-
-
-@dataclass
-class Vector3(BaseVector):
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-
-
-@dataclass
-class Vector4(BaseVector):
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    w: float = 0.0
-
-
-@dataclass
-class Quaternion(BaseVector):
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    w: float = 1.0
-
-
-@dataclass
-class Polygon(BaseVector):
-    a: int = 0
-    b: int = 0
-    c: int = 0
+Polygons = Annotated[NDArray[np.uint32], (..., 3)]

@@ -56,7 +56,7 @@ class CubemapFaces:
 class McsaModel:
     """Mcsa model constants."""
 
-    ROUND_DIGITS = 6
+    DECIMALS = 6
     ROOT_BONE_ID = -1
     COUNT_LIMIT = 0x100000
     """There is no known limit. This for case when file was read incorrectly, so as not to overflow memory."""
@@ -65,13 +65,12 @@ class McsaModel:
 class McsaSize:
     """Mcsa data structures elements count."""
 
-    POSITION = 4
-    TEXTURE = 2
+    POSITIONS = 4
+    TEXTURES = 2
     NORMALS = 4
     POLYGONS = 3
-    COLOR = 4
-    BONE = 6
-    DEFAULTS = 3
+    LINKS = 4
+    BONES = 6
     FRAMES = 7
 
 

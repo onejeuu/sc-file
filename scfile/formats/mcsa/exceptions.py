@@ -1,13 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions.core import (
-    FileDecodingError,
-    FileParsingError,
-    FileUnsupportedError,
-)
+from scfile.exceptions import core
 
 
-class McsaDecodingError(FileDecodingError):
+class McsaDecodingError(core.FileDecodingError):
     """Base exception for model files."""
 
     @property
@@ -16,7 +12,7 @@ class McsaDecodingError(FileDecodingError):
 
 
 @dataclass
-class McsaCountsLimit(McsaDecodingError, FileParsingError):
+class McsaCountsLimit(McsaDecodingError, core.FileParsingError):
     """Exception occurring when model counts is not read correctly."""
 
     counts: int
@@ -26,7 +22,7 @@ class McsaCountsLimit(McsaDecodingError, FileParsingError):
 
 
 @dataclass
-class McsaUnknownLinkCount(McsaDecodingError, FileParsingError):
+class McsaUnknownLinkCount(McsaDecodingError, core.FileParsingError):
     """Exception occurring when model skeleton bones have unknown link count."""
 
     link_count: int
@@ -36,7 +32,7 @@ class McsaUnknownLinkCount(McsaDecodingError, FileParsingError):
 
 
 @dataclass
-class McsaUnsupportedVersion(McsaDecodingError, FileUnsupportedError):
+class McsaUnsupportedVersion(McsaDecodingError, core.FileUnsupportedError):
     """Exception occurring when model version unsupported."""
 
     version: float
