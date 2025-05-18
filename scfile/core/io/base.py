@@ -8,43 +8,35 @@ from typing import Any, Optional
 
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
+from scfile.enums import UnicodeErrors
 
 
-DEFAULT_BYTES_ORDER = ByteOrder.LITTLE
-
-
-class StructIOBase(io.IOBase):
-    order: ByteOrder = DEFAULT_BYTES_ORDER
-
-    def _validate_buffer(self, size: int):
-        pass
+class StructIO(io.IOBase):
+    order: ByteOrder = ByteOrder.LITTLE
+    unicode_errors: str = UnicodeErrors.REPLACE
 
     def pack(self, fmt: str, *values: Any) -> bytes:
         return struct.pack(str(fmt), *values)
 
-    def unpack(self, fmt: str) -> tuple[Any]:
+    def unpack(self, fmt: str) -> tuple[Any, ...]:
         size = struct.calcsize(str(fmt))
-        self._validate_buffer(size)
         data = self.read(size)
-
         return struct.unpack(fmt, data)
 
-
-class StructIO(StructIOBase):
     def readb(self, fmt: str, order: Optional[ByteOrder] = None) -> Any:
         order = order or self.order
-
         return self.unpack(f"{order}{fmt}")[0]
 
-    def reads(self, order: Optional[ByteOrder] = None) -> bytes:
+    def reads(self, prefix: str = F.U16, order: Optional[ByteOrder] = None) -> bytes:
         order = order or self.order
-
-        size = self.readb(F.U16, order)
+        size = self.readb(prefix, order)
         return self.unpack(f"{size}s")[0]
+
+    def readutf8(self) -> str:
+        return self.reads().decode("utf-8", errors=self.unicode_errors)
 
     def writeb(self, fmt: str, *values: Any, order: Optional[ByteOrder] = None) -> None:
         order = order or self.order
-
         data = self.pack(f"{order}{fmt}", *values)
         self.write(data)
 
@@ -52,4 +44,4 @@ class StructIO(StructIOBase):
         self.write(bytes(size))
 
     def writeutf8(self, string: str) -> None:
-        self.write(string.encode("utf-8", errors="replace"))
+        self.write(string.encode("utf-8", errors=self.unicode_errors))

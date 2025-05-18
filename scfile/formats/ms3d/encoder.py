@@ -1,12 +1,14 @@
+import numpy as np
+
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
-from scfile.exceptions import Ms3dCountsLimit
 from scfile.formats.mcsa.flags import Flag
-from scfile.structures.mesh import padded
 from scfile.structures.skeleton import euler_to_quat
+
+from .exceptions import Ms3dCountsLimit
 
 
 VERSION = 4
@@ -31,11 +33,12 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
-        self.data.scene.convert_polygons_to_faces()
-        self.data.skeleton.convert_to_local()
+
+        if self.skeleton_presented:
+            self.data.skeleton.convert_to_local()
 
     def serialize(self):
-        self.writeb(F.I32, VERSION)  # version
+        self.writeb(F.I32, VERSION)
         self.add_vertices()
         self.add_triangles()
         self.add_groups()
@@ -44,61 +47,68 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
         self.add_comments()
         self.add_links()
 
-    def add_vertices(self):
+    def add_vertices_count(self):
         count = self.data.scene.total_vertices
         if count > MAX_VERTICES:
             raise Ms3dCountsLimit("vertices", count, MAX_VERTICES)
-        self.writeb(F.U16, count)  # vertices count
+        self.writeb(F.U16, count)
+
+    def add_vertices(self):
+        # vertices count
+        self.add_vertices_count()
 
         # i8 flags, f32 pos[3], i8 bone id, u8 reference count
         fmt = f"{F.I8}{F.F32 * 3}{F.I8}{F.U8}"
 
         reference_count = 0xFF  # ? necessary only for optimization, calculation too expensive
 
-        if self.skeleton_presented:
-            for v in self.data.scene.get_vertices():
-                self.writeb(fmt, 0, *v.position, v.bone_ids[0], reference_count)
+        # TODO: links reshape in decoder
+        for mesh in self.data.meshes:
+            links_ids = mesh.links_ids.astype(F.I8)
+            for index, xyz in enumerate(mesh.positions):
+                bone_id = links_ids[index * 4] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
+                self.writeb(fmt, 0, *xyz, bone_id, reference_count)
 
-        else:
-            for v in self.data.scene.get_vertices():
-                self.writeb(fmt, 0, *v.position, McsaModel.ROOT_BONE_ID, reference_count)
-
-    def add_triangles(self):
+    def add_triangles_count(self):
         count = self.data.scene.total_polygons
         if count > MAX_TRIANGLES:
             raise Ms3dCountsLimit("polygons", count, MAX_TRIANGLES)
-        self.writeb(F.U16, count)  # polygons count
+        self.writeb(F.U16, count)
+
+    def add_triangles(self):
+        # polygons count
+        self.add_triangles_count()
 
         # u16 flags, u16 indices[3]
         # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
         # u8 smoothing group, u8 group index
         fmt = f"{F.U16 * 4}{F.F32 * 15}{F.U8 * 2}"
 
+        offset = 0
         for index, mesh in enumerate(self.data.meshes):
-            for p, f in zip(mesh.polygons, mesh.faces):
-                v1 = mesh.vertices[p.a]
-                v2 = mesh.vertices[p.b]
-                v3 = mesh.vertices[p.c]
-                uv = [v1.texture.u, v2.texture.u, v3.texture.u, v1.texture.v, v2.texture.v, v3.texture.v]
-                self.writeb(fmt, 0, *f, *v1.normals, *v2.normals, *v3.normals, *uv, 1, index)
+            for abc in mesh.polygons:
+                normals = [i for vertex in abc for i in mesh.normals[vertex]]
+                uv = [i for vertex in abc for i in mesh.textures[vertex]]
+                indices = (abc + offset).astype(F.U16)
+
+                self.writeb(fmt, 0, *indices, *normals, *uv, 1, index)
+
+            offset += mesh.count.vertices
 
     def add_groups(self):
         self.writeb(F.U16, len(self.data.meshes))  # groups count
 
         offset = 0
-
         for index, mesh in enumerate(self.data.meshes):
             self.writeb(F.U8, 0)  # flags
             self.write(fixedlen(mesh.name))  # group name
 
-            self.writeb(F.U16, mesh.count.polygons)  # triangles count
-
-            for p in range(len(mesh.polygons)):
-                self.writeb(F.U16, p + offset)  # triangles indexes
-
+            count = mesh.count.polygons
+            self.writeb(F.U16, count)  # triangles count
+            self.writeb(f"{count}{F.U16}", *np.arange(count, dtype=F.U16) + offset)  # indices
             self.writeb(F.I8, index)  # material index
 
-            offset += len(mesh.polygons)
+            offset += count
 
     def add_materials(self):
         self.writeb(F.U16, len(self.data.meshes))  # materials count
@@ -120,7 +130,7 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
     def add_bones(self):
         # f32 fps, f32 frame, f32 framesCount, u16 bonesCount
         fmt = f"{F.F32 * 3}{F.U16}"
-        self.writeb(fmt, 24, 1, 30, len(self.data.skeleton.bones))
+        self.writeb(fmt, 24, 1, 30, self.data.count.bones)
 
         for bone in self.data.skeleton.bones:
             self.writeb(F.U8, 0)  # flags
@@ -130,7 +140,8 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
             parent_name = parent.name if bone.parent_id != McsaModel.ROOT_BONE_ID else ""
             self.write(fixedlen(parent_name))  # parent name
 
-            # f32 rotation[3], f32 position[3], u16 rotation keyframes, u16 keyframes transition
+            # f32 bone rotation[3], f32 bone position[3]
+            # u16 keyframes rotations, u16 keyframes transitions
             fmt = f"{F.F32 * 6}{F.U16 * 2}"
 
             qx, qy, qz, qw = euler_to_quat(bone.rotation)
@@ -144,13 +155,12 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
     def add_links(self):
         self.writeb(F.I32, VERTEX_EXTRA_VERSION)  # vertex extra version
 
-        # i8 boneid[3], u8 weights[3]
+        # i8 ids[3], u8 weights[3]
         fmt = f"{F.I8 * 3}{F.U8 * 3}"
 
+        # TODO: links reshape in decoder
         for mesh in self.data.meshes:
-            for v in mesh.vertices:
-                self.writeb(
-                    fmt,
-                    *padded(v.bone_ids, stop=3, default=0),
-                    *map(lambda w: int(w * 255), padded(v.bone_weights, stop=3, default=0.0)),
-                )
+            links_ids = mesh.links_ids.astype(F.I8).reshape(-1, 4)
+            links_weights = (mesh.links_weights * 255).astype(F.U8).reshape(-1, 4)
+            for ids, weights in zip(links_ids, links_weights):
+                self.writeb(fmt, *ids[:3], *weights[:3])

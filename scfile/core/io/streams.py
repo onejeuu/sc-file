@@ -3,6 +3,7 @@ Extends standard IO streams with struct-based I/O support.
 """
 
 import io
+import struct
 from pathlib import Path
 
 from scfile import exceptions as exc
@@ -23,14 +24,12 @@ class StructFileIO(io.FileIO, StructIO):
     def filesize(self) -> int:
         return self.path.stat().st_size
 
-    def _validate_buffer(self, size: int):
-        current_pos = self.tell()
-        self.seek(0, io.SEEK_END)
-        file_size = self.tell()
+    def is_eof(self) -> bool:
+        return self.filesize <= self.tell()
 
-        # Return pointer position
-        self.seek(current_pos)
-        remaining = file_size - current_pos
+    def unpack(self, fmt: str):
+        try:
+            return super().unpack(fmt)
 
-        if remaining < size:
-            raise exc.FileStructureInvalid(self.path, current_pos)
+        except struct.error as err:
+            raise exc.FileStructureInvalid(self.path, self.tell()) from err

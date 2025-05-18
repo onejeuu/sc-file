@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions.core import FileDecodingError, FileUnsupportedError
+from scfile.exceptions import core
 
 
-class OlDecodingError(FileDecodingError):
+class OlDecodingError(core.FileDecodingError):
     """Base exception for texture files."""
 
     @property
@@ -12,7 +12,7 @@ class OlDecodingError(FileDecodingError):
 
 
 @dataclass
-class OlUnsupportedFourcc(OlDecodingError, FileUnsupportedError):
+class OlUnsupportedFourcc(OlDecodingError, core.FileUnsupportedError):
     """Exception occurring when texture have unsupported or unknown fourcc."""
 
     fourcc: bytes

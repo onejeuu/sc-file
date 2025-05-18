@@ -1,5 +1,4 @@
 import json
-import struct
 from copy import deepcopy
 from typing import Optional
 
@@ -34,8 +33,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
-        self.data.scene.skeleton.convert_to_local()
-        self.data.scene.skeleton.build_hierarchy()
+
+        if self.skeleton_presented:
+            self.data.scene.skeleton.convert_to_local()
+            self.data.scene.skeleton.build_hierarchy()
 
     def serialize(self):
         self.add_header()
@@ -45,15 +46,15 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.update_total_size()
 
     def add_header(self):
-        self.write(struct.pack("<I", VERSION))
+        self.writeb(F.U32, VERSION)
 
         # Total Size Placeholder
         self.ctx["TOTAL_SIZE_POS"] = self.tell()
-        self.write(struct.pack("<I", 0))
+        self.writeb(F.U32, 0)
 
     def update_total_size(self):
         self.seek(self.ctx["TOTAL_SIZE_POS"])
-        self.write(struct.pack("<I", len(self.getvalue())))
+        self.writeb(F.U32, len(self.getvalue()))
 
     def add_json_chunk(self):
         # Serialize gltf json
@@ -65,7 +66,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         padding_length = (4 - (json_length % 4)) % 4
 
         # Write json
-        self.write(struct.pack("<I", json_length + padding_length))
+        self.writeb(F.U32, json_length + padding_length)
         self.write(b"JSON")
         self.write(gltf_bytes)
 
@@ -106,7 +107,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.create_animation()
 
     def count_nodes(self):
-        nodes = list(range(len(self.data.meshes)))
+        nodes = list(range(self.data.count.meshes))
 
         if self.skeleton_presented:
             nodes += self.ctx["ROOT_BONE_INDEXES"]
@@ -118,8 +119,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def create_meshes(self):
         # Calculate joints with offset
-        bones_count = len(self.data.skeleton.bones)
-        joints = [len(self.data.meshes) + j for j in list(range(bones_count))]
+        joints = [len(self.data.meshes) + j for j in list(range(self.data.count.bones))]
 
         for index, mesh in enumerate(self.data.meshes):
             primitive = deepcopy(base.PRIMITIVE)
@@ -130,7 +130,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.create_accessor(mesh.count.vertices, "VEC3")
 
             # UV Texture
-            if self.data.flags[Flag.TEXTURE]:
+            if self.data.flags[Flag.UV]:
                 primitive["attributes"]["TEXCOORD_0"] = self.accessor_index()
                 self.create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self.create_accessor(mesh.count.vertices, "VEC2")
@@ -161,8 +161,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
                         joints=joints,
                     )
                 )
-                self.create_bufferview(byte_length=bones_count * 16 * 4, target=None)
-                self.create_accessor(bones_count, "MAT4", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=self.data.count.bones * 16 * 4, target=None)
+                self.create_accessor(self.data.count.bones, "MAT4", ComponentType.FLOAT)
 
             # ABC Polygons
             primitive["indices"] = self.accessor_index()
@@ -190,8 +190,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
         for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
             node = dict(
                 name=bone.name,
-                translation=list(bone.position),
-                rotation=euler_to_quat(bone.rotation),
+                translation=bone.position.tolist(),
+                rotation=euler_to_quat(bone.rotation).tolist(),
             )
 
             self.ctx["BONE_INDEXES"].append(index)
@@ -208,8 +208,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def create_animation(self):
         for clip in self.data.animation.clips:
             time_idx = self.accessor_index()
-            self.create_bufferview(byte_length=clip.times * 4, target=None)
-            self.create_accessor(clip.times, "SCALAR", ComponentType.FLOAT)
+            self.create_bufferview(byte_length=clip.frames * 4, target=None)
+            self.create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT)
 
             sampler_idx = 0
             samplers = []
@@ -217,12 +217,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             for node_index in self.ctx["BONE_INDEXES"]:
                 translation_idx = self.accessor_index()
-                self.create_bufferview(byte_length=clip.times * 3 * 4, target=None)
-                self.create_accessor(clip.times, "VEC3", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
+                self.create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
 
                 rotation_idx = self.accessor_index()
-                self.create_bufferview(byte_length=clip.times * 4 * 4, target=None)
-                self.create_accessor(clip.times, "VEC4", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=clip.frames * 4 * 4, target=None)
+                self.create_accessor(clip.frames, "VEC4", ComponentType.FLOAT)
 
                 samplers.extend(
                     [
@@ -249,7 +249,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         )
 
         if target:
-            view["target"] = target
+            view["target"] = target.value
 
         self.ctx["GLTF"]["bufferViews"].append(view)
         self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
@@ -259,7 +259,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         accessor = dict(
             bufferView=buffer_view_idx,
             count=count,
-            componentType=component_type,
+            componentType=component_type.value,
             type=accessor_type,
         )
 
@@ -280,55 +280,52 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def add_bin_size(self):
         # BIN Size Placeholder
         self.ctx["BIN_SIZE_POS"] = self.tell()
-        self.write(struct.pack("<I", 0))
+        self.writeb(F.U32, 0)
         self.write(b"BIN\0")
 
     def update_bin_size(self):
         size = self.ctx["BIN_END"] - self.ctx["BIN_START"]
         self.seek(self.ctx["BIN_SIZE_POS"])
-        self.write(struct.pack("<I", size))
+        self.writeb(F.U32, size)
 
     def add_meshes(self):
+        # Skeleton bones bind matrix
+        bind_matrix = self.data.skeleton.inverse_bind_matrices(transpose=True).tobytes()
+
         for mesh in self.data.meshes:
             # XYZ Position
-            self.write(np.array(mesh.get_positions(), dtype=F.F32).tobytes())
+            self.write(mesh.positions.tobytes())
 
             # UV Texture
-            if self.data.flags[Flag.TEXTURE]:
-                self.write(np.array(mesh.get_textures(), dtype=F.F32).tobytes())
+            if self.data.flags[Flag.UV]:
+                self.write(mesh.textures.tobytes())
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
-                self.write(np.array(mesh.get_normals(), dtype=F.F32).tobytes())
+                self.write(mesh.normals.tobytes())
 
             # Bone Links
             if self.skeleton_presented:
                 # Joint Indices
-                self.write(np.array(mesh.get_bone_ids(max_links=4), dtype=F.U8).tobytes())
+                self.write(mesh.links_ids.tobytes())
 
                 # Joint Weights
-                self.write(np.array(mesh.get_bone_weights(max_links=4), dtype=F.F32).tobytes())
+                self.write(mesh.links_weights.tobytes())
 
                 # Bind Matrix
-                self.write(np.array(self.data.skeleton.inverse_bind_matrices(transpose=True), dtype=F.F32).tobytes())
+                self.write(bind_matrix)
 
             # ABC Polygons
-            self.write(np.array(mesh.get_polygons(), dtype=F.U32).tobytes())
+            self.write(mesh.polygons.flatten().tobytes())
 
     def add_animation(self):
         for clip in self.data.animation.clips:
-            times = np.arange(clip.times, dtype=np.float32) * clip.rate
-            self.write(times.tobytes())
+            self.write(clip.times.tobytes())
 
             for index, bone in enumerate(self.data.skeleton.bones):
-                translations = np.array(
-                    [list(bone.position + frame.transforms[index].translation) for frame in clip.frames],
-                    dtype=np.float32,
-                )
-                self.write(translations.tobytes())
+                bone_transforms = clip.transforms[:, index, :]
+                rotations, translations = np.split(bone_transforms, [4], axis=1)
+                translations += bone.position
 
-                rotation = np.array(
-                    [list(frame.transforms[index].rotation) for frame in clip.frames],
-                    dtype=np.float32,
-                )
-                self.write(rotation.tobytes())
+                self.write(translations.tobytes())
+                self.write(rotations.tobytes())

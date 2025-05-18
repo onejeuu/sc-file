@@ -3,7 +3,7 @@ from enum import IntEnum, auto
 
 class Flag(IntEnum):
     SKELETON = 0
-    TEXTURE = auto()
+    UV = auto()
     NORMALS = auto()
     UNKNOWN_A = auto()
     UNKNOWN_B = auto()

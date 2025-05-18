@@ -18,13 +18,22 @@ ModelFlags: TypeAlias = defaultdict[int, bool]
 class SceneScales:
     position: float = 1.0
     texture: float = 1.0
-    normals: float = 1.0
+    unknown: float = 1.0
     filtering: float = 0.1
+
+
+@dataclass
+class SceneCounts:
+    meshes: int = 0
+    bones: int = 0
+    clips: int = 0
 
 
 @dataclass
 class ModelScene:
     scale: SceneScales = field(default_factory=SceneScales)
+    count: SceneCounts = field(default_factory=SceneCounts)
+
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
     animation: ModelAnimation = field(default_factory=ModelAnimation)
@@ -54,23 +63,10 @@ class ModelScene:
             mesh.name = unique_name
             seen_names.add(unique_name)
 
-    def convert_polygons_to_faces(self, start_index: int = 0):
-        """Updates meshes faces indexes."""
-        offset = start_index
-
-        for mesh in self.meshes:
-            mesh.faces = [polygon >> offset for polygon in mesh.polygons]
-            offset += mesh.count.vertices
-
     def invert_v_textures(self):
         for mesh in self.meshes:
-            for vertex in mesh.vertices:
-                vertex.texture.v *= -1
+            mesh.textures[:, 1] *= -1
 
     def flip_v_textures(self):
         for mesh in self.meshes:
-            for vertex in mesh.vertices:
-                vertex.texture.v = 1.0 - vertex.texture.v
-
-    def get_vertices(self):
-        return [v for mesh in self.meshes for v in mesh.vertices]
+            mesh.textures[:, 1] = 1.0 - mesh.textures[:, 1]
