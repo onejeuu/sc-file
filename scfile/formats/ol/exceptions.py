@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from scfile.exceptions import core
+from scfile.exceptions import base, io
 
 
-class OlDecodingError(core.FileDecodingError):
-    """Base exception for texture files."""
+class OlDecodingError(io.FileError, base.ParsingError):
+    """Base exception for OL texture related errors."""
 
     @property
     def prefix(self):
@@ -12,10 +12,10 @@ class OlDecodingError(core.FileDecodingError):
 
 
 @dataclass
-class OlUnsupportedFourcc(OlDecodingError, core.FileUnsupportedError):
-    """Exception occurring when texture have unsupported or unknown fourcc."""
+class OlUnsupportedFourcc(OlDecodingError, base.UnsupportedError):
+    """Raised when texture contains unsupported FOURCC code."""
 
     fourcc: bytes
 
     def __str__(self):
-        return f"{super().__str__()} has unsupported format: {self.fourcc}."
+        return f"{super().__str__()} has unsupported FOURCC (format): {self.fourcc}."

@@ -6,7 +6,7 @@ import io
 import struct
 from pathlib import Path
 
-from scfile import exceptions as exc
+from scfile.exceptions.io import InvalidStructureError
 
 from .base import StructIO
 
@@ -32,4 +32,4 @@ class StructFileIO(io.FileIO, StructIO):
             return super().unpack(fmt)
 
         except struct.error as err:
-            raise exc.FileStructureInvalid(self.path, self.tell()) from err
+            raise InvalidStructureError(self.path, self.tell()) from err

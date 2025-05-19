@@ -1,23 +1,23 @@
 from dataclasses import dataclass
 
-from scfile.exceptions import core
+from scfile.exceptions import base, io
 
 
-class Ms3dEncodingError(core.FileEncodingError):
-    """Base exception for ms3d files."""
+class Ms3dEncodingError(io.BaseIOError, base.EncodingError):
+    """Base exception for MS3D model related errors."""
 
     @property
     def prefix(self):
-        return "MS3D (MilkShape 3D)"
+        return "MS3D Model"
 
 
 @dataclass
-class Ms3dCountsLimit(Ms3dEncodingError, core.FileUnsupportedError):
-    """Exception occurring when model counts is too big."""
+class Ms3dCountsLimit(Ms3dEncodingError, base.UnsupportedError):
+    """Raised when model exceeds format limitations."""
 
-    name: str
-    counts: int
+    type: str
+    count: int
     limit: int
 
-    def __str__(self):
-        return f"{super().__str__()} count of {self.name} exceeds limit ({self.counts:,} > {self.limit:,})."
+    def __str__(self) -> str:
+        return f"{super().__str__()} - {self.type} count exceeds limit: {self.count:,} > {self.limit:,}"

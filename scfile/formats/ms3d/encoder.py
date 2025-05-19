@@ -8,7 +8,7 @@ from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.skeleton import euler_to_quat
 
-from .exceptions import Ms3dCountsLimit
+from .io import Ms3dFileIO
 
 
 VERSION = 4
@@ -23,7 +23,7 @@ def fixedlen(name: str) -> bytes:
     return name.encode("utf-8").ljust(32, b"\x00")
 
 
-class Ms3dEncoder(FileEncoder[ModelContent]):
+class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
 
@@ -47,15 +47,9 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
         self.add_comments()
         self.add_links()
 
-    def add_vertices_count(self):
-        count = self.data.scene.total_vertices
-        if count > MAX_VERTICES:
-            raise Ms3dCountsLimit("vertices", count, MAX_VERTICES)
-        self.writeb(F.U16, count)
-
     def add_vertices(self):
         # vertices count
-        self.add_vertices_count()
+        self.writecount("vertices", self.data.scene.total_vertices, MAX_VERTICES)
 
         # i8 flags, f32 pos[3], i8 bone id, u8 reference count
         fmt = f"{F.I8}{F.F32 * 3}{F.I8}{F.U8}"
@@ -69,15 +63,9 @@ class Ms3dEncoder(FileEncoder[ModelContent]):
                 bone_id = links_ids[index * 4] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
                 self.writeb(fmt, 0, *xyz, bone_id, reference_count)
 
-    def add_triangles_count(self):
-        count = self.data.scene.total_polygons
-        if count > MAX_TRIANGLES:
-            raise Ms3dCountsLimit("polygons", count, MAX_TRIANGLES)
-        self.writeb(F.U16, count)
-
     def add_triangles(self):
         # polygons count
-        self.add_triangles_count()
+        self.writecount("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
 
         # u16 flags, u16 indices[3]
         # f32 normals[3][3], f32 textures u[3], f32 textures v[3]

@@ -5,10 +5,10 @@ Conversion by input path. Optional output folder and options.
 import pathlib
 from typing import Callable, Optional, TypeAlias
 
-from scfile import exceptions as exc
 from scfile.core.context import UserOptions
 from scfile.core.types import PathLike
 from scfile.enums import FileFormat
+from scfile.exceptions.io import UnsupportedFormatError
 
 from . import formats, legacy
 
@@ -69,4 +69,4 @@ def auto(
             formats.mic_to_png(source, output, options)
 
         case _:
-            raise exc.FileSuffixUnsupported(src_path)
+            raise UnsupportedFormatError(src_path)

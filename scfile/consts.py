@@ -58,8 +58,8 @@ class McsaModel:
 
     DECIMALS = 6
     ROOT_BONE_ID = -1
-    COUNT_LIMIT = 0x100000
-    """There is no known limit. This for case when file was read incorrectly, so as not to overflow memory."""
+    GEOMETRY_LIMIT = 1_000_000
+    """Safety limit to prevent memory overflow on corrupted files."""
 
 
 class McsaSize:
