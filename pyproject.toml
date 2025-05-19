@@ -1,6 +1,6 @@
 [project]
 name = "sc-file"
-version = "4.0.0.dev5"
+version = "4.0.0.rc1"
 description = "Utility & Library for decoding stalcraft assets"
 
 requires-python = ">=3.11"
@@ -11,20 +11,20 @@ readme = "README.md"
 license = {text = "MIT"}
 
 dependencies = [
-    "click>=8.1.8",
-    "lz4>=4.4.3",
-    "numpy>=2.2.4",
-    "rich>=13.9.4",
+    "click>=8.2.0",
+    "lz4>=4.4.4",
+    "numpy>=2.2.6",
+    "rich>=14.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pyinstaller>=6.12.0",
+    "pyinstaller>=6.13.0",
     "pytest>=8.3.5",
-    "sphinx>=8.2.3",
     "sphinx-autobuild>=2024.10.3",
-    "sphinx-autodoc-typehints>=3.1.0",
+    "sphinx-autodoc-typehints>=3.2.0",
     "sphinx-book-theme>=1.1.4",
+    "sphinx>=8.2.3",
 ]
 
 [project.urls]
