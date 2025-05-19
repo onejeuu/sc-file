@@ -75,8 +75,6 @@ def scfile(
     cubemap: bool,
     unique: bool,
 ):
-    """CLI wrapper for scfile tool."""
-
     # In case program executed without arguments
     if not paths:
         utils.no_args(ctx)
