@@ -88,10 +88,13 @@ def scfile(
     if not skeleton and animation:
         skeleton = True
 
-    # Warn when any specified model format not supports skeletal animation
-    if skeleton and model_formats and utils.has_no_skeleton_formats(model_formats):
-        target_formats = utils.filter_no_skeleton_formats(model_formats)
-        print(Prefix.WARN, f"specified formats [b]({target_formats})[/] doesn't support skeleton and animation.")
+    # Warn if specified formats has unsupported features
+    if model_formats:
+        if skeleton:
+            utils.check_unsupported_features(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+
+        if animation:
+            utils.check_unsupported_features(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Maps directories to their supported files, using directory as key
     files_map = utils.paths_to_files_map(paths)

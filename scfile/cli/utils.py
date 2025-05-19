@@ -8,13 +8,10 @@ from pathlib import Path
 import click
 from rich import print
 
+from scfile.cli.enums import Prefix
 from scfile.consts import CLI, SUPPORTED_SUFFIXES, ModelFormats
-from scfile.enums import FileFormat
 
 from . import types
-
-
-MODEL_FORMATS_WITHOUT_SKELETON: ModelFormats = (FileFormat.OBJ,)
 
 
 def no_args(ctx: click.Context) -> None:
@@ -25,14 +22,13 @@ def no_args(ctx: click.Context) -> None:
     click.pause(CLI.PAUSE_TEXT)
 
 
-def has_no_skeleton_formats(model_formats: ModelFormats):
-    """Checks if any model format doesn't support armature."""
-    return any(model in model_formats for model in MODEL_FORMATS_WITHOUT_SKELETON)
+def check_unsupported_features(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature_name: str):
+    """Check if user formats contain unsupported features and return matching formats."""
+    matching_formats = [fmt for fmt in user_formats if fmt in unsupported_formats]
 
-
-def filter_no_skeleton_formats(model_formats: ModelFormats):
-    """Returns string of model formats that doesn't support armature."""
-    return ", ".join(filter(lambda model: model in MODEL_FORMATS_WITHOUT_SKELETON, model_formats))
+    if bool(matching_formats):
+        target_formats = ", ".join(matching_formats)
+        print(Prefix.WARN, f"specified formats [b]({target_formats})[/] doesn't support {feature_name}.")
 
 
 def is_supported(path: Path) -> bool:
