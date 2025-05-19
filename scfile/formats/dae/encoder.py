@@ -150,7 +150,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         utils.add_accessor(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
         # Add weights
-        weight_source = utils.create_source(skin, mesh.name, "weights", mesh.links_weights)
+        weight_source = utils.create_source(skin, mesh.name, "weights", mesh.links_weights.flatten())
         utils.add_accessor(weight_source, mesh.name, "weights", len(mesh.links_weights), ["WEIGHT"], "float")
 
     def add_joints_and_weights(self, mesh: ModelMesh, skin: Element):
@@ -166,7 +166,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
         # Add indices
         weight_index = itertools.count()
-        bone_indices = [f"{bone_id} {next(weight_index)}" for bone_id in mesh.links_ids]
+        bone_indices = [f"{bone_id} {next(weight_index)}" for bone_id in mesh.links_ids.flatten()]
 
         SubElement(weights, "vcount").text = " ".join(["4"] * mesh.count.vertices)
         SubElement(weights, "v").text = " ".join(bone_indices)
