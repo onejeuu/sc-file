@@ -81,6 +81,9 @@ class CLI:
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
     PAUSE_TEXT = "\nPress Enter to continue or exit..."
 
+    NON_SKELETAL_FORMATS: ModelFormats = (FileFormat.OBJ,)
+    NON_ANIMATION_FORMATS: ModelFormats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
+
     class Text:
         INVALID_FILE = "input file is invalid or corrupted"
         EXCEPTION = f"[b yellow]This usually means {INVALID_FILE}.[/]"
