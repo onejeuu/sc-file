@@ -1,5 +1,5 @@
 """
-Annotated numpy vectors.
+Numpy vectors annotation.
 """
 
 from typing import Annotated

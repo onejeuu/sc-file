@@ -34,7 +34,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
     def add_meshes(self):
         offset = 1
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             self.writeutf8(f"o {mesh.name}\n")
             self.writeutf8(f"usemtl {mesh.material}\n")
 

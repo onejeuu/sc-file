@@ -107,7 +107,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.create_animation()
 
     def count_nodes(self):
-        nodes = list(range(self.data.count.meshes))
+        nodes = list(range(self.data.scene.count.meshes))
 
         if self.skeleton_presented:
             nodes += self.ctx["ROOT_BONE_INDEXES"]
@@ -119,9 +119,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def create_meshes(self):
         # Calculate joints with offset
-        joints = [len(self.data.meshes) + j for j in list(range(self.data.count.bones))]
+        joints = [len(self.data.scene.meshes) + j for j in list(range(self.data.scene.count.bones))]
 
-        for index, mesh in enumerate(self.data.meshes):
+        for index, mesh in enumerate(self.data.scene.meshes):
             primitive = deepcopy(base.PRIMITIVE)
 
             # XYZ Position
@@ -161,8 +161,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
                         joints=joints,
                     )
                 )
-                self.create_bufferview(byte_length=self.data.count.bones * 16 * 4, target=None)
-                self.create_accessor(self.data.count.bones, "MAT4", ComponentType.FLOAT)
+                self.create_bufferview(byte_length=self.data.scene.count.bones * 16 * 4, target=None)
+                self.create_accessor(self.data.scene.count.bones, "MAT4", ComponentType.FLOAT)
 
             # ABC Polygons
             primitive["indices"] = self.accessor_index()
@@ -185,9 +185,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["BONE_INDEXES"] = []
         self.ctx["ROOT_BONE_INDEXES"] = []
 
-        node_index_offset = len(self.data.meshes)
+        node_index_offset = len(self.data.scene.meshes)
 
-        for index, bone in enumerate(self.data.skeleton.bones, start=node_index_offset):
+        for index, bone in enumerate(self.data.scene.skeleton.bones, start=node_index_offset):
             node = dict(
                 name=bone.name,
                 translation=bone.position.tolist(),
@@ -206,7 +206,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.ctx["GLTF"]["nodes"].append(node)
 
     def create_animation(self):
-        for clip in self.data.animation.clips:
+        for clip in self.data.scene.animation.clips:
             time_idx = self.accessor_index()
             self.create_bufferview(byte_length=clip.frames * 4, target=None)
             self.create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT)
@@ -290,9 +290,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def add_meshes(self):
         # Skeleton bones bind matrix
-        bind_matrix = self.data.skeleton.inverse_bind_matrices(transpose=True).tobytes()
+        bind_matrix = self.data.scene.skeleton.inverse_bind_matrices(transpose=True).tobytes()
 
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             # XYZ Position
             self.write(mesh.positions.tobytes())
 
@@ -319,10 +319,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.write(mesh.polygons.flatten().tobytes())
 
     def add_animation(self):
-        for clip in self.data.animation.clips:
+        for clip in self.data.scene.animation.clips:
             self.write(clip.times.tobytes())
 
-            for index, bone in enumerate(self.data.skeleton.bones):
+            for index, bone in enumerate(self.data.scene.skeleton.bones):
                 bone_transforms = clip.transforms[:, index, :]
                 rotations, translations = np.split(bone_transforms, [4], axis=1)
                 translations += bone.position

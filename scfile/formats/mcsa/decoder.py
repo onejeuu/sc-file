@@ -67,20 +67,20 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self.data.flags[index] = self.readb(F.BOOL)
 
     def parse_scales(self):
-        self.data.scale.position = self.readb(F.F32)
+        self.data.scene.scale.position = self.readb(F.F32)
 
         if self.data.flags[Flag.UV]:
-            self.data.scale.texture = self.readb(F.F32)
+            self.data.scene.scale.texture = self.readb(F.F32)
 
         # ! Unknown Scale
         if self.data.flags[Flag.NORMALS] and self.data.version >= 10.0:
-            self.data.scale.unknown = self.readb(F.F32)
+            self.data.scene.scale.unknown = self.readb(F.F32)
 
     def parse_meshes(self):
-        self.data.count.meshes = self.readb(F.I32)
+        self.data.scene.count.meshes = self.readb(F.I32)
 
-        if self.data.count.meshes > 0:
-            for _ in range(self.data.count.meshes):
+        if self.data.scene.count.meshes > 0:
+            for _ in range(self.data.scene.count.meshes):
                 self.parse_mesh()
 
     def parse_mesh(self):
@@ -105,7 +105,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # ? Not exported
         if self.data.flags[Flag.UV]:
-            self.data.scale.filtering = self.readb(F.F32)
+            self.data.scene.scale.filtering = self.readb(F.F32)
 
         # Default origins
         # ? Not exported
@@ -150,7 +150,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # Polygon faces
         mesh.polygons = self.readpolygons(mesh.count.polygons)
 
-        self.data.meshes.append(mesh)
+        self.data.scene.meshes.append(mesh)
 
     def skip_vertices(self, mesh: ModelMesh, size: int):
         self.read(mesh.count.vertices * size)
@@ -162,7 +162,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             factor=Factor.I16,
             size=McsaSize.POSITIONS,
             count=mesh.count.vertices,
-            scale=self.data.scale.position,
+            scale=self.data.scene.scale.position,
         )[:, :3]
 
     def parse_textures(self, mesh: ModelMesh):
@@ -172,7 +172,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             factor=Factor.I16,
             size=McsaSize.TEXTURES,
             count=mesh.count.vertices,
-            scale=self.data.scale.texture,
+            scale=self.data.scene.scale.texture,
         )
 
     def parse_normals(self, mesh: ModelMesh):
@@ -212,9 +212,9 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self.skip_vertices(mesh, size=8)
 
     def parse_skeleton(self):
-        self.data.count.bones = self.readb(F.U8)
+        self.data.scene.count.bones = self.readb(F.U8)
 
-        for index in range(self.data.count.bones):
+        for index in range(self.data.scene.count.bones):
             self.parse_bone(index)
 
     def parse_bone(self, index: int):
@@ -227,13 +227,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
         bone.position, bone.rotation = self.readbone()
 
-        self.data.skeleton.bones.append(bone)
+        self.data.scene.skeleton.bones.append(bone)
 
     def parse_animation(self):
-        self.data.count.clips = self.readb(F.I32)
+        self.data.scene.count.clips = self.readb(F.I32)
 
-        if self.data.count.clips > 0:
-            for _ in range(self.data.count.clips):
+        if self.data.scene.count.clips > 0:
+            for _ in range(self.data.scene.count.clips):
                 self.parse_clip()
 
     def parse_clip(self):
@@ -242,6 +242,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip.name = self.readutf8()
         clip.frames = self.readb(F.U32)
         clip.rate = self.readb(F.F32)
-        clip.transforms = self.readclip(clip.frames, self.data.count.bones)
+        clip.transforms = self.readclip(clip.frames, self.data.scene.count.bones)
 
-        self.data.animation.clips.append(clip)
+        self.data.scene.animation.clips.append(clip)

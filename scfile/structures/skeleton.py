@@ -12,21 +12,18 @@ from scfile.consts import McsaModel
 from .vectors import Vector3D, Vector4D
 
 
-ROOT = McsaModel.ROOT_BONE_ID
-
-
 @dataclass
 class SkeletonBone:
     id: int = 0
     name: str = "bone"
-    parent_id: int = ROOT
+    parent_id: int = McsaModel.ROOT_BONE_ID
     position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
     rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
     children: List[Self] = field(default_factory=list, repr=False)
 
     @property
     def is_root(self) -> bool:
-        return self.parent_id == ROOT
+        return self.parent_id == McsaModel.ROOT_BONE_ID
 
 
 @dataclass
@@ -43,7 +40,7 @@ class ModelSkeleton:
             parent_id = bone.parent_id
 
             # Update position relative to parent
-            while parent_id > ROOT:
+            while parent_id > McsaModel.ROOT_BONE_ID:
                 parent = bones[parent_id]
                 bone.position -= parent.position
                 parent_id = parent.parent_id
