@@ -53,12 +53,26 @@ class TextureContent(FileContent, Generic[TextureType]):
     width: int = 0
     height: int = 0
     mipmap_count: int = 0
-    fourcc: bytes = field(default_factory=bytes)
+    format: bytes = field(default_factory=bytes)
     texture: TextureType = field(default_factory=lambda: cast(TextureType, DefaultTexture()))
 
     @property
-    def is_cubemap(self):
+    def is_cubemap(self) -> bool:
         return isinstance(self.texture, CubemapTexture)
+
+    @property
+    def is_compressed(self) -> bool:
+        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI2", b"DX10")
+
+    @property
+    def fourcc(self) -> bytes:
+        match self.format:
+            case b"DXN_XY":
+                return b"ATI2"
+            case b"RGBA32F":
+                return b"DX10"
+            case _:
+                return self.format
 
 
 @dataclass

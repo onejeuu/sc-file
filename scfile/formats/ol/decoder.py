@@ -12,7 +12,7 @@ from scfile.enums import StructFormat as F
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.structures.texture import DefaultTexture
 
-from .exceptions import OlUnsupportedFourcc
+from .exceptions import OlFormatUnsupported
 from .formats import SUPPORTED_FORMATS
 from .io import OlFileIO
 
@@ -28,7 +28,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
 
     def parse(self):
         self.parse_header()
-        self.parse_fourcc()
+        self.parse_format()
         self.parse_sizes()
         self.parse_image()
 
@@ -37,14 +37,11 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
         self.data.height = self.readb(F.U32)
         self.data.mipmap_count = self.readb(F.U32)
 
-    def parse_fourcc(self):
-        self.data.fourcc = self.readfourcc()
+    def parse_format(self):
+        self.data.format = self.readformat()
 
-        if self.data.fourcc not in SUPPORTED_FORMATS:
-            raise OlUnsupportedFourcc(self.path, self.data.fourcc)
-
-        if self.data.fourcc == b"DXN_XY":
-            self.data.fourcc = b"ATI2"
+        if self.data.format not in SUPPORTED_FORMATS:
+            raise OlFormatUnsupported(self.path, self.data.format)
 
     def parse_image(self):
         self.texture_id = self.reads()

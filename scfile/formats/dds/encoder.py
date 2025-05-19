@@ -3,6 +3,7 @@ from scfile.core import FileEncoder
 from scfile.core.context import TextureContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
+from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 
 from .header import DDS
 from .mask import BGRA8, RGBA8
@@ -25,14 +26,16 @@ class DdsEncoder(FileEncoder[TextureContent]):
         self.add_pixelformat()
         self.add_caps()
 
+        if self.data.fourcc == b"DX10":
+            self.add_dxgi()
+
         self.write(self.data.texture.image)
 
     def add_pixelformat(self):
         self.writeb(F.U32, DDS.PF.SIZE)
 
-        if self.is_compressed:
+        if self.data.is_compressed:
             self.add_pf_fourcc()
-
         else:
             self.add_pf_rgb()
 
@@ -54,13 +57,12 @@ class DdsEncoder(FileEncoder[TextureContent]):
         self.writeb(F.U32, self.cubemaps)  # Caps2
         self.writenull(size=4 * 3)  # Reserved
 
-    @property
-    def is_compressed(self) -> bool:
-        return self.data.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI2")
+    def add_dxgi(self):
+        self.writeb(f"{5}{F.U32}", DXGIFormat.FLOAT_R32G32B32A32, DXGIDimension.TEXTURE2D, 0, 1, 0)
 
     @property
     def flags(self) -> int:
-        if self.is_compressed:
+        if self.data.is_compressed:
             return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.LINEARSIZE
         return DDS.HEADER.FLAGS | DDS.HEADER.FLAG.PITCH
 
@@ -72,7 +74,7 @@ class DdsEncoder(FileEncoder[TextureContent]):
 
     @property
     def pitch_or_linear_size(self) -> int:
-        if self.is_compressed:
+        if self.data.is_compressed:
             return self.data.texture.linear_size
         return self.pitch
 

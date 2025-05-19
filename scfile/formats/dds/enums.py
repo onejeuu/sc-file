@@ -26,3 +26,15 @@ class CubemapFlag(IntFlag):
     NEGATIVE_Y = NEGY = 0x2000
     POSITIVE_Z = POSZ = 0x4000
     NEGATIVE_Z = NEGZ = 0x8000
+
+
+class DXGIFormat(IntFlag):
+    FLOAT_R32G32B32A32 = 2
+    FLOAT_R32G32B32 = 6
+
+
+class DXGIDimension(IntFlag):
+    BUFFER = 1
+    TEXTURE1D = 2
+    TEXTURE2D = 3
+    TEXTURE3D = 4
