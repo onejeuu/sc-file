@@ -2,14 +2,20 @@
 Extensions for MCSA file format with custom struct-based I/O methods.
 """
 
+from typing import TypeAlias
+
 import numpy as np
 
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.core.io.streams import StructFileIO
 from scfile.enums import StructFormat as F
 from scfile.structures.mesh import BonesMapping
+from scfile.structures.vectors import LinksIds, LinksWeights
 
 from .exceptions import McsaCountsLimit
+
+
+Links: TypeAlias = tuple[LinksIds, LinksWeights]
 
 
 class McsaFileIO(StructFileIO):
@@ -69,7 +75,7 @@ class McsaFileIO(StructFileIO):
 
         return data
 
-    def readpackedlinks(self, count: int, bones: BonesMapping) -> tuple[np.ndarray, np.ndarray]:
+    def readpackedlinks(self, count: int, bones: BonesMapping) -> Links:
         size = McsaSize.LINKS
 
         # Read array
@@ -78,17 +84,15 @@ class McsaFileIO(StructFileIO):
         # Reshape to vertex[ids[2], weights[2]]
         data = data.reshape(-1, 2, 2)
 
-        # TODO: remove unpack, reshape to -1, 4 values
         # Unpack values
         ids, weights = padded(data[:, 0, :]), padded(data[:, 1, :])
 
         return links(ids.flatten(), weights.flatten(), bones)
 
-    def readplainlinks(self, count: int, bones: BonesMapping) -> tuple[np.ndarray, np.ndarray]:
+    def readplainlinks(self, count: int, bones: BonesMapping) -> Links:
         size = McsaSize.LINKS
 
         # Read arrays
-        # TODO: reshape to -1, 4 values
         ids = self.readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
         weights = self.readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
 
@@ -100,7 +104,7 @@ def padded(arr: np.ndarray) -> np.ndarray:
     return np.pad(arr, width, mode="constant")
 
 
-def apply_bones_mapping(ids: np.ndarray, bones: BonesMapping):
+def apply_bones_mapping(ids: np.ndarray, bones: BonesMapping) -> LinksIds:
     max_id = max(bones.keys())
     lookup = np.zeros(max_id + 1, dtype=F.U8)
 
@@ -111,13 +115,13 @@ def apply_bones_mapping(ids: np.ndarray, bones: BonesMapping):
     return lookup[mask]
 
 
-def normalize(weights: np.ndarray) -> np.ndarray:
+def normalize(weights: np.ndarray) -> LinksWeights:
     reshaped = weights.reshape(-1, 4)
     normalized = reshaped / reshaped.sum(axis=1, keepdims=True)
     return normalized.reshape(-1)
 
 
-def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np.ndarray, np.ndarray]:
+def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
     # Convert local bone ids to skeleton bone ids
     ids = apply_bones_mapping(ids, bones)
 
@@ -131,4 +135,4 @@ def links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> tuple[np
     # weights = weights.round(McsaModel.DECIMALS)
     # weights = normalize(weights)
 
-    return (ids.astype(F.U8), weights.astype(F.F32))
+    return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32).reshape(-1, 4))

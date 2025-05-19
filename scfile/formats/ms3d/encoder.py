@@ -56,11 +56,9 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
 
         reference_count = 0xFF  # ? necessary only for optimization, calculation too expensive
 
-        # TODO: links reshape in decoder
         for mesh in self.data.meshes:
-            links_ids = mesh.links_ids.astype(F.I8)
             for index, xyz in enumerate(mesh.positions):
-                bone_id = links_ids[index * 4] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
+                bone_id = mesh.links_ids.astype(F.I8)[index][0] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
                 self.writeb(fmt, 0, *xyz, bone_id, reference_count)
 
     def add_triangles(self):
@@ -146,9 +144,9 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         # i8 ids[3], u8 weights[3]
         fmt = f"{F.I8 * 3}{F.U8 * 3}"
 
-        # TODO: links reshape in decoder
         for mesh in self.data.meshes:
-            links_ids = mesh.links_ids.astype(F.I8).reshape(-1, 4)
-            links_weights = (mesh.links_weights * 255).astype(F.U8).reshape(-1, 4)
+            links_ids = mesh.links_ids.astype(F.I8)
+            links_weights = (mesh.links_weights * 255).astype(F.U8)
+
             for ids, weights in zip(links_ids, links_weights):
                 self.writeb(fmt, *ids[:3], *weights[:3])
