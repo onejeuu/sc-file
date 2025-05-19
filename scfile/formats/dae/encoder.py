@@ -69,7 +69,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def add_effects(self):
         library = SubElement(self.ctx["ROOT"], "library_effects")
 
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             effect = SubElement(library, "effect", id=f"{mesh.material}-effect")
             profile = SubElement(effect, "profile_COMMON")
             technique = SubElement(profile, "technique", sid="common")
@@ -81,7 +81,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def add_materials(self):
         library = SubElement(self.ctx["ROOT"], "library_materials")
 
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             material = SubElement(library, "material", id=f"{mesh.material}-material", name=mesh.material)
             SubElement(material, "instance_effect", url=f"#{mesh.material}-effect")
 
@@ -122,7 +122,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def add_geometries(self):
         library = SubElement(self.ctx["ROOT"], "library_geometries")
 
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             geometry = SubElement(library, "geometry", id=mesh.name, name=mesh.name)
             node = SubElement(geometry, "mesh")
 
@@ -132,7 +132,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def add_controllers(self):
         library = SubElement(self.ctx["ROOT"], "library_controllers")
 
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
             skin = SubElement(controller, "skin", source=f"#{mesh.name}")
             self.add_controller_sources(mesh, skin)
@@ -140,12 +140,12 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
     def add_controller_sources(self, mesh: ModelMesh, skin: Element):
         # Add joint names
-        joint_data = np.array([bone.name for bone in self.data.skeleton.bones])
+        joint_data = np.array([bone.name for bone in self.data.scene.skeleton.bones])
         joint_source = utils.create_source(skin, mesh.name, "joints", joint_data, "Name_array")
         utils.add_accessor(joint_source, mesh.name, "joints", len(joint_data), ["JOINT"], "name")
 
         # Add bind poses
-        bind_data = self.data.skeleton.inverse_bind_matrices(transpose=False)
+        bind_data = self.data.scene.skeleton.inverse_bind_matrices(transpose=False)
         bind_source = utils.create_source(skin, mesh.name, "bindposes", bind_data, count=len(bind_data) * 16)
         utils.add_accessor(bind_source, mesh.name, "bindposes", len(bind_data), ["TRANSFORM"], "float4x4", 16)
 
@@ -187,7 +187,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         node = SubElement(scene, "node", id="armature", name="Armature", type="NODE")
         SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
-        for root in self.data.skeleton.roots:
+        for root in self.data.scene.skeleton.roots:
             self.add_bone(node, root)
 
         return node
@@ -202,11 +202,11 @@ class DaeEncoder(FileEncoder[ModelContent]):
             self.add_bone(joint, child)
 
     def add_mesh_instances(self, parent: Element):
-        for mesh in self.data.meshes:
+        for mesh in self.data.scene.meshes:
             node = SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
 
             if self.skeleton_presented:
-                bone = self.data.skeleton.roots[0]
+                bone = self.data.scene.skeleton.roots[0]
                 instance = SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 SubElement(instance, "skeleton").text = f"#armature-{bone.name}"
             else:
