@@ -74,7 +74,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         for index, mesh in enumerate(self.data.meshes):
             for abc in mesh.polygons:
                 normals = [i for vertex in abc for i in mesh.normals[vertex]]
-                uv = [i for vertex in abc for i in mesh.textures[vertex]]
+                uv = np.concatenate([mesh.textures[abc][:, 0], mesh.textures[abc][:, 1]], dtype=F.F32)
                 indices = (abc + offset).astype(F.U16)
 
                 self.writeb(fmt, 0, *indices, *normals, *uv, 1, index)
