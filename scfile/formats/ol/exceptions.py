@@ -12,10 +12,10 @@ class OlDecodingError(io.FileError, base.ParsingError):
 
 
 @dataclass
-class OlUnsupportedFourcc(OlDecodingError, base.UnsupportedError):
+class OlFormatUnsupported(OlDecodingError, base.UnsupportedError):
     """Raised when texture contains unsupported FOURCC code."""
 
-    fourcc: bytes
+    format: bytes
 
     def __str__(self):
-        return f"{super().__str__()} has unsupported FOURCC (format): {self.fourcc}."
+        return f"{super().__str__()} has unsupported format: {self.format}."

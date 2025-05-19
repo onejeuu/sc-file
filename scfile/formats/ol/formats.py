@@ -4,5 +4,6 @@ SUPPORTED_FORMATS: list[bytes] = [
     b"DXT5",
     b"RGBA8",
     b"BGRA8",
+    b"RGBA32F",
     b"DXN_XY",
 ]
