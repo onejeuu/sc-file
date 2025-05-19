@@ -5,13 +5,13 @@ Base class for file decoder (parsing).
 from abc import ABC, abstractmethod
 from typing import Generic, Optional
 
-from scfile import exceptions as exc
 from scfile.core.base import BaseFile
 from scfile.core.context.options import UserOptions
 from scfile.core.encoder import FileEncoder
 from scfile.core.io.streams import StructFileIO
 from scfile.core.types import Content, PathLike
 from scfile.enums import FileMode
+from scfile.exceptions.io import EmptyFileError, InvalidSignatureError
 
 
 class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
@@ -54,13 +54,13 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
 
     def validate(self) -> None:
         if self.filesize <= len(self.signature or bytes()):
-            raise exc.FileIsEmpty(self.path)
+            raise EmptyFileError(self.path)
 
         if self.signature:
             read = self.read(len(self.signature))
 
             if read != self.signature:
-                raise exc.FileSignatureInvalid(self.path, read, self.signature)
+                raise InvalidSignatureError(self.path, read, self.signature)
 
     def close(self) -> None:
         self.data.reset()

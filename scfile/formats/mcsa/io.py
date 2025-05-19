@@ -13,11 +13,11 @@ from .exceptions import McsaCountsLimit
 
 
 class McsaFileIO(StructFileIO):
-    def readcount(self) -> int:
+    def readcount(self, type: str) -> int:
         count = self.readb(F.U32)
 
-        if count > McsaModel.COUNT_LIMIT:
-            raise McsaCountsLimit(self.path, count)
+        if count > McsaModel.GEOMETRY_LIMIT:
+            raise McsaCountsLimit(self.path, type, count)
 
         return count
 

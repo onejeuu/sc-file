@@ -11,7 +11,7 @@ from scfile.structures.animation import AnimationClip
 from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.structures.skeleton import SkeletonBone
 
-from .exceptions import McsaUnknownLinkCount, McsaUnsupportedVersion
+from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
 from .flags import Flag
 from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
@@ -55,13 +55,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self.data.version = self.readb(F.F32)
 
         if self.data.version not in SUPPORTED_VERSIONS:
-            raise McsaUnsupportedVersion(self.path, self.data.version)
+            raise McsaVersionUnsupported(self.path, self.data.version)
 
     def parse_flags(self):
         flags_count = VERSION_FLAGS.get(self.data.version)
 
         if not flags_count:
-            raise McsaUnsupportedVersion(self.path, self.data.version)
+            raise McsaVersionUnsupported(self.path, self.data.version)
 
         for index in range(flags_count):
             self.data.flags[index] = self.readb(F.BOOL)
@@ -100,8 +100,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
                 mesh.bones[LocalBoneId(index)] = SkeletonBoneId(self.readb(F.U8))
 
         # Geometry counts
-        mesh.count.vertices = self.readcount()
-        mesh.count.polygons = self.readcount()
+        mesh.count.vertices = self.readcount("vertices")
+        mesh.count.polygons = self.readcount("polygons")
 
         # ? Not exported
         if self.data.flags[Flag.UV]:
@@ -193,7 +193,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             case 3 | 4:
                 self.parse_plain_links(mesh)
             case _:
-                raise McsaUnknownLinkCount(self.path, mesh.count.max_links)
+                raise McsaBoneLinksError(self.path, mesh.count.max_links)
 
     def parse_packed_links(self, mesh: ModelMesh):
         if self.options.parse_skeleton:
