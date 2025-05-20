@@ -23,7 +23,7 @@ class McsaCountsLimit(McsaDecodingError, base.ParsingError):
         return (
             f"{super().__str__()} has invalid structure - "
             f"{self.count:,} {self.type} "
-            f"(max reasonable: {McsaModel.GEOMETRY_LIMIT:,})"
+            f"(max reasonable: {McsaModel.GEOMETRY_LIMIT:,})."
         )
 
 

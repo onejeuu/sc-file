@@ -23,10 +23,6 @@ class MeshCounts:
     links: int = 0
     bones: int = 0
 
-    @property
-    def max_links(self) -> int:
-        return {1: 2, 2: 2, 3: 4, 4: 4}.get(self.links, 0)
-
 
 @dataclass
 class ModelMesh:

@@ -22,13 +22,13 @@ def no_args(ctx: click.Context) -> None:
     click.pause(CLI.PAUSE_TEXT)
 
 
-def check_unsupported_features(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature_name: str):
+def check_feature_unsupported(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature_name: str):
     """Check if user formats contain unsupported features and return matching formats."""
-    matching_formats = [fmt for fmt in user_formats if fmt in unsupported_formats]
+    matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 
     if bool(matching_formats):
-        target_formats = ", ".join(matching_formats)
-        print(Prefix.WARN, f"specified formats [b]({target_formats})[/] doesn't support {feature_name}.")
+        suffixes = ", ".join(map(lambda fmt: f".{fmt.value}", matching_formats))
+        print(Prefix.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature_name}.")
 
 
 def is_supported(path: Path) -> bool:

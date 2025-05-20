@@ -185,7 +185,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         )[:, :3]
 
     def parse_links(self, mesh: ModelMesh):
-        match mesh.count.max_links:
+        match mesh.count.links:
             case 0:
                 pass
             case 1 | 2:
@@ -193,7 +193,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             case 3 | 4:
                 self.parse_plain_links(mesh)
             case _:
-                raise McsaBoneLinksError(self.path, mesh.count.max_links)
+                raise McsaBoneLinksError(self.path, mesh.count.links)
 
     def parse_packed_links(self, mesh: ModelMesh):
         if self.options.parse_skeleton:
