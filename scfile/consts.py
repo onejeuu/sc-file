@@ -79,16 +79,12 @@ class CLI:
 
     VERSION = "4.0.0.rc1"
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
-    PAUSE_TEXT = "\nPress Enter to continue or exit..."
+    PAUSE_TEXT = "\nPress Enter to exit..."
 
     NON_SKELETAL_FORMATS: ModelFormats = (FileFormat.OBJ,)
     NON_ANIMATION_FORMATS: ModelFormats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
 
-    class Text:
-        INVALID_FILE = "input file is invalid or corrupted"
-        EXCEPTION = f"[b yellow]This usually means {INVALID_FILE}.[/]"
-        HDRI_ON = f"[b yellow]This file appears to be cubemap texture. Try using --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
-        HDRI_OFF = f"[b yellow]This file does NOT appear to be cubemap texture. Try removing --cubemap flag. Otherwise, most likely {INVALID_FILE}.[/]"
+    EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
 
 
 class OutputFormats:

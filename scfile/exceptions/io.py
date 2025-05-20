@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from scfile.core.types import PathLike
 
@@ -24,7 +25,7 @@ class FileError(BaseIOError):
         return Path(self.file)
 
     def __str__(self):
-        return f'{super().__str__()} "{self.path.as_posix()}"'
+        return f"{super().__str__()} '{self.path.as_posix()}'"
 
 
 @dataclass
@@ -70,7 +71,7 @@ class InvalidSignatureError(FileError):
 class InvalidStructureError(FileError):
     """Raised when file structure is invalid."""
 
-    position: int = 0
+    position: Optional[int] = None
 
     def __str__(self):
-        return f"{super().__str__()} parsing failed at position {self.position}."
+        return f"{super().__str__()} parsing failed{f' at position {self.position}' if self.position else ''}."
