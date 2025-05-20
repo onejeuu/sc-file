@@ -9,7 +9,7 @@ ModelFormats: TypeAlias = Sequence[FileFormat]
 SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
 """Files formats (suffixes without dot) that can be converted."""
 
-SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: f".{fmt}", SUPPORTED_FORMATS))
+SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
 """Files suffixes that can be converted."""
 
 
@@ -78,13 +78,13 @@ class CLI:
     """Command line interface constants."""
 
     VERSION = "4.0.0.rc1"
+
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
-    PAUSE_TEXT = "\nPress Enter to exit..."
+    PAUSE = "\nPress any key to continue or exit..."
+    EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
 
     NON_SKELETAL_FORMATS: ModelFormats = (FileFormat.OBJ,)
     NON_ANIMATION_FORMATS: ModelFormats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
-
-    EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
 
 
 class OutputFormats:

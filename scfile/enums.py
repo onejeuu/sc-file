@@ -19,6 +19,10 @@ class FileFormat(StrEnum):
     PNG = auto()
     TXT = MS3D_ASCII = auto()
 
+    @property
+    def suffix(self):
+        return f".{self.value.lower()}"
+
 
 class FileType(StrEnum):
     """File content type."""
