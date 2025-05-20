@@ -32,8 +32,7 @@ def mcsb_to_dae(
     Arguments:
         source: Path to input `.mcsb` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsb_to_dae("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -52,8 +51,7 @@ def mcsb_to_obj(
     Arguments:
         source: Path to input `.mcsb` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsb_to_obj("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -72,8 +70,7 @@ def mcsb_to_glb(
     Arguments:
         source: Path to input `.mcsb` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsb_to_glb("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -92,8 +89,7 @@ def mcsb_to_ms3d(
     Arguments:
         source: Path to input `.mcsb` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsb_to_ms3d("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -112,8 +108,7 @@ def ol_to_dds(
     Arguments:
         source: Path to input `.ol` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Texture conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `ol_to_dds("texture.ol", "path/to/output")`
@@ -132,8 +127,7 @@ def ol_cubemap_to_dds(
     Arguments:
         source: Path to input `.ol` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Texture conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `ol_cubemap_to_dds("cubemap.ol", "path/to/output")`
@@ -152,8 +146,7 @@ def mic_to_png(
     Arguments:
         source: Path to input `.mic` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Image conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mic_to_png("image.mic", "path/to/output")`

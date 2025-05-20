@@ -27,8 +27,7 @@ def mcsa_to_dae(
     Arguments:
         source: Path to input `.mcsa` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsa_to_dae("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -47,8 +46,7 @@ def mcsa_to_obj(
     Arguments:
         source: Path to input `.mcsa` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsa_to_obj("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -67,8 +65,7 @@ def mcsa_to_glb(
     Arguments:
         source: Path to input `.mcsa` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsa_to_glb("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
@@ -87,8 +84,7 @@ def mcsa_to_ms3d(
     Arguments:
         source: Path to input `.mcsa` file.
         output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): Model conversion settings. Default: `None`.
-        overwrite (optional): Overwrite files with same name. Defaults: `True`.
+        options (optional): User settings. Default: `None`.
 
     Example:
         `mcsa_to_ms3d("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
