@@ -32,4 +32,4 @@ class StructFileIO(io.FileIO, StructIO):
             return super().unpack(fmt)
 
         except struct.error as err:
-            raise InvalidStructureError(self.path, self.tell()) from err
+            raise InvalidStructureError(self.path, position=self.tell()) from err

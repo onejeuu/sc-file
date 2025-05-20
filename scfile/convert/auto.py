@@ -5,10 +5,12 @@ Conversion by input path. Optional output folder and options.
 import pathlib
 from typing import Callable, Optional, TypeAlias
 
+import lz4.block
+
 from scfile.core.context import UserOptions
 from scfile.core.types import PathLike
 from scfile.enums import FileFormat
-from scfile.exceptions.io import UnsupportedFormatError
+from scfile.exceptions.io import InvalidStructureError, UnsupportedFormatError
 
 from . import formats, legacy
 
@@ -16,7 +18,7 @@ from . import formats, legacy
 ModelConverters: TypeAlias = dict[FileFormat, Callable]
 
 
-# TODO: global converter map?
+# TODO: improve this
 
 MCSB_CONVERTERS: ModelConverters = {
     FileFormat.DAE: formats.mcsb_to_dae,
@@ -43,7 +45,6 @@ def auto(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
-    is_cubemap: bool = False,
 ):
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
@@ -60,10 +61,15 @@ def auto(
                     converter(source, output, options)
 
         case FileFormat.OL:
-            if is_cubemap:
-                formats.ol_cubemap_to_dds(source, output, options)
-            else:
+            try:
                 formats.ol_to_dds(source, output, options)
+
+            except lz4.block.LZ4BlockError:
+                try:
+                    formats.ol_cubemap_to_dds(source, output, options)
+
+                except lz4.block.LZ4BlockError as err:
+                    raise InvalidStructureError(source) from err
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)

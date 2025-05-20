@@ -2,11 +2,10 @@
 CLI wrapper implementation.
 """
 
-import sys
+import traceback
 from typing import Optional
 
 import click
-import lz4.block
 from rich import print
 
 from scfile import convert
@@ -17,10 +16,6 @@ from scfile.exceptions.base import ScFileException
 from scfile.exceptions.io import InvalidStructureError
 
 from . import types, utils
-from .excepthook import excepthook
-
-
-sys.excepthook = excepthook
 
 
 @click.command(name="scfile", epilog=CLI.EPILOG)
@@ -54,11 +49,6 @@ sys.excepthook = excepthook
     is_flag=True,
 )
 @click.option(
-    "--cubemap",
-    help="Parse all input textures as cubemaps.",
-    is_flag=True,
-)
-@click.option(
     "--unique",
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
@@ -73,7 +63,6 @@ def scfile(
     relative: bool,
     skeleton: bool,
     animation: bool,
-    cubemap: bool,
     unique: bool,
 ) -> None:
     # In case program executed without arguments
@@ -122,18 +111,20 @@ def scfile(
 
             # Convert source file
             try:
-                convert.auto(source, dest, options, cubemap)
+                convert.auto(source, dest, options)
 
             except InvalidStructureError as err:
-                print(Prefix.ERROR, str(err))
-                print(CLI.Text.EXCEPTION)
+                print(Prefix.ERROR, str(err), CLI.EXCEPTION)
 
             except ScFileException as err:
                 print(Prefix.ERROR, str(err))
 
-            except lz4.block.LZ4BlockError as err:
-                print(Prefix.ERROR, str(err))
-                print(CLI.Text.HDRI_OFF if cubemap else CLI.Text.HDRI_ON)
+            except Exception as err:
+                traceback.print_exception(err)
+                print(Prefix.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
+
+                # TODO: flag to pause on errors
+                # click.pause(CLI.PAUSE_TEXT)
 
             else:
-                print(Prefix.INFO, f"File '{source.name}' converted to '{dest or source.parent}'")
+                print(Prefix.INFO, f"File '{source.name}' converted to '{dest or source.parent}'.")
