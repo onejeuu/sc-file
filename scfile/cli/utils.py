@@ -16,19 +16,17 @@ from . import types
 
 def no_args(ctx: click.Context) -> None:
     """Prints help message when no arguments are provided."""
-    print("[b yellow]No arguments provided. Showing help:[/]")
-    print()
-    click.echo(f"{ctx.get_help()}")
-    click.pause(CLI.PAUSE_TEXT)
+    print(f"{ctx.get_help()}\n\n{Prefix.INVALID} No arguments provided. Showing help.")
+    click.pause(CLI.PAUSE)
 
 
-def check_feature_unsupported(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature_name: str):
+def check_feature_unsupported(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature: str) -> None:
     """Check if user formats contain unsupported features and return matching formats."""
     matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 
     if bool(matching_formats):
         suffixes = ", ".join(map(lambda fmt: f".{fmt.value}", matching_formats))
-        print(Prefix.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature_name}.")
+        print(Prefix.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 
 
 def is_supported(path: Path) -> bool:
@@ -36,7 +34,7 @@ def is_supported(path: Path) -> bool:
     return path.is_file() and path.suffix in SUPPORTED_SUFFIXES
 
 
-def filter_files(files: types.FilesPaths):
+def filter_files(files: types.FilesPaths) -> list[types.PathType]:
     """Filters paths to keep only supported files."""
     return list(filter(is_supported, files))
 
