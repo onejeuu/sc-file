@@ -1,23 +1,10 @@
-from typing import NamedTuple
-
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
 
-
-class TemplateFlags(NamedTuple):
-    uv: bool
-    normals: bool
-
-
-FACES_TEMPLATE: dict[TemplateFlags, str] = {
-    TemplateFlags(True, True): "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}",
-    TemplateFlags(True, False): "f {a}/{a} {b}/{b} {c}/{c}",
-    TemplateFlags(False, True): "f {a}//{a} {b}//{b} {c}//{c}",
-    TemplateFlags(False, False): "f {a} {b} {c}",
-}
+from . import faces
 
 
 class ObjEncoder(FileEncoder[ModelContent]):
@@ -63,8 +50,8 @@ class ObjEncoder(FileEncoder[ModelContent]):
         self.write(b"\n\n")
 
     def _add_polygonal_faces(self, mesh: ModelMesh, offset: int):
-        flags = TemplateFlags(self.data.flags[Flag.UV], self.data.flags[Flag.NORMALS])
-        template = FACES_TEMPLATE[flags]
+        flags = faces.Flags(uv=self.data.flags[Flag.UV], normals=self.data.flags[Flag.NORMALS])
+        template = faces.TEMPLATE[flags]
 
         polygons = mesh.polygons + offset
         self._writeutf8("\n".join([template.format(a=a, b=b, c=c) for a, b, c in polygons]))
