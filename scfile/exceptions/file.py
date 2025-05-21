@@ -1,31 +1,11 @@
+"""
+File validation exceptions.
+"""
+
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Optional
 
-from scfile.core.types import PathLike
-
-from .base import ScFileException
-
-
-class BaseIOError(ScFileException):
-    @property
-    def prefix(self) -> str:
-        return "File"
-
-    def __str__(self):
-        return f"{self.prefix}"
-
-
-@dataclass
-class FileError(BaseIOError):
-    file: PathLike
-
-    @property
-    def path(self):
-        return Path(self.file)
-
-    def __str__(self):
-        return f"{super().__str__()} '{self.path.as_posix()}'"
+from .base import FileError
 
 
 @dataclass

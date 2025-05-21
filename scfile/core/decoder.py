@@ -11,15 +11,33 @@ from scfile.core.encoder import FileEncoder
 from scfile.core.io.streams import StructFileIO
 from scfile.core.types import Content, PathLike
 from scfile.enums import FileMode
-from scfile.exceptions.io import EmptyFileError, InvalidSignatureError
+from scfile.exceptions.file import EmptyFileError, InvalidSignatureError
 
 
 class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
+    """Base class for decoding file content into structured data objects."""
+
     mode: str = FileMode.READ
 
     _content: type[Content]
 
     def __init__(self, file: PathLike, options: Optional[UserOptions] = None):
+        """Initialize file decoder with source file and options.
+
+        Arguments:
+            file: Path to file that will be decoded. Can be any `path-like` object.
+            options (optional): User provided options. If None, default `UserOptions` will be used.
+
+        Initialized:
+            file (`PathLike`): The input file path.
+            options (`UserOptions`): Decoding options (default or user provided).
+            data (`Generic[Content]`): Empty instance of content type for storing decoded data.
+
+        Note:
+            Actual decoding doesn't happen during initialization.
+            Call `decode()` to perform parsing process.
+        """
+
         self.file = file
         self.options: UserOptions = options or UserOptions()
         self.data: Content = self._content()

@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scfile.cli.scfile import scfile
+from scfile.cli import scfile
 
 
 @pytest.fixture

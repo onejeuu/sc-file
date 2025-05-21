@@ -12,6 +12,8 @@ from scfile.enums import UnicodeErrors
 
 
 class StructIO(io.IOBase):
+    """Low-level binary I/O with structured packing/unpacking operations."""
+
     order: ByteOrder = ByteOrder.LITTLE
     unicode_errors: str = UnicodeErrors.REPLACE
 

@@ -1,6 +1,6 @@
 import json
 from copy import deepcopy
-from typing import Optional
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -17,6 +17,10 @@ from .enums import BufferTarget, ComponentType
 
 
 VERSION = 2
+
+Node: TypeAlias = dict[str, Any]
+BufferView: TypeAlias = dict[str, int]
+Accessor: TypeAlias = dict[str, str | int]
 
 
 class GlbEncoder(FileEncoder[ModelContent]):
@@ -79,7 +83,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["BUFFER_VIEW_OFFSET"] = 0
 
         # Create scene
-        scene = deepcopy(base.SCENE)
+        scene: Node = deepcopy(base.SCENE)
         self.ctx["GLTF"]["scenes"].append(scene)
 
         # Create skeleton keys
@@ -119,10 +123,11 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def create_meshes(self):
         # Calculate joints with offset
-        joints = [len(self.data.scene.meshes) + j for j in list(range(self.data.scene.count.bones))]
+        joints_offset = self.data.scene.count.meshes
+        joints: list[int] = list(range(joints_offset, joints_offset + self.data.scene.count.bones))
 
         for index, mesh in enumerate(self.data.scene.meshes):
-            primitive = deepcopy(base.PRIMITIVE)
+            primitive: Node = deepcopy(base.PRIMITIVE)
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = self.accessor_index()
@@ -171,7 +176,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # Create nodes
             primitive["material"] = index
-            node = {"name": mesh.name, "mesh": index}
+            node: Node = {"name": mesh.name, "mesh": index}
 
             if self.skeleton_presented:
                 node["skin"] = index
@@ -188,7 +193,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         node_index_offset = len(self.data.scene.meshes)
 
         for index, bone in enumerate(self.data.scene.skeleton.bones, start=node_index_offset):
-            node = dict(
+            node: Node = dict(
                 name=bone.name,
                 translation=bone.position.tolist(),
                 rotation=euler_to_quat(bone.rotation).tolist(),
@@ -241,8 +246,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             self.ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
 
-    def create_bufferview(self, byte_length: int, target: Optional[BufferTarget] = BufferTarget.ARRAY_BUFFER):
-        view = dict(
+    def create_bufferview(
+        self,
+        byte_length: int,
+        target: Optional[BufferTarget] = BufferTarget.ARRAY_BUFFER,
+    ):
+        view: BufferView = dict(
             buffer=0,
             byteLength=byte_length,
             byteOffset=self.ctx["BUFFER_VIEW_OFFSET"],
@@ -254,9 +263,14 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["GLTF"]["bufferViews"].append(view)
         self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
 
-    def create_accessor(self, count: int, accessor_type: str, component_type: ComponentType = ComponentType.FLOAT):
+    def create_accessor(
+        self,
+        count: int,
+        accessor_type: str,
+        component_type: ComponentType = ComponentType.FLOAT,
+    ):
         buffer_view_idx = len(self.ctx["GLTF"]["bufferViews"]) - 1
-        accessor = dict(
+        accessor: Accessor = dict(
             bufferView=buffer_view_idx,
             count=count,
             componentType=component_type.value,

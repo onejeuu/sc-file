@@ -16,6 +16,8 @@ ModelFlags: TypeAlias = defaultdict[int, bool]
 
 @dataclass
 class SceneScales:
+    """Multiplier values for scene components."""
+
     position: float = 1.0
     texture: float = 1.0
     unknown: float = 1.0
@@ -24,6 +26,8 @@ class SceneScales:
 
 @dataclass
 class SceneCounts:
+    """Quantifying of scene elements."""
+
     meshes: int = 0
     bones: int = 0
     clips: int = 0
@@ -31,6 +35,8 @@ class SceneCounts:
 
 @dataclass
 class ModelScene:
+    """Complete 3D model container with geometry, skeleton and animation."""
+
     scale: SceneScales = field(default_factory=SceneScales)
     count: SceneCounts = field(default_factory=SceneCounts)
 
@@ -47,7 +53,6 @@ class ModelScene:
         return sum(mesh.count.polygons for mesh in self.meshes)
 
     def ensure_unique_names(self):
-        """Updates meshes names, excluding repetitions."""
         seen_names: set[str] = set()
 
         for mesh in self.meshes:

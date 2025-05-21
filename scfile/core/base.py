@@ -11,6 +11,8 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class BaseFile(ABC):
+    """Abstract base class providing interface for encoders/decoders."""
+
     format: FileFormat
     order: ByteOrder = StructIO.order
     signature: Optional[bytes] = None

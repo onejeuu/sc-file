@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 from scfile.consts import McsaModel
-from scfile.exceptions import base, io
+from scfile.exceptions import base
 
 
-class McsaDecodingError(io.FileError, base.DecodingError):
+class McsaDecodingError(base.FileError, base.DecodingError):
     """Base exception for MCSA model related errors."""
 
     @property

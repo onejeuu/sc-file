@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions import base, io
+from scfile.exceptions import base
 
 
-class Ms3dEncodingError(io.BaseIOError, base.EncodingError):
+class Ms3dEncodingError(base.BaseIOError, base.EncodingError):
     """Base exception for MS3D model related errors."""
 
     @property
