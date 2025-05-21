@@ -44,33 +44,40 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
 
         super().__init__(file=self.file, mode=self.mode)
 
-    def prepare(self) -> None:
-        pass
-
-    @abstractmethod
-    def parse(self) -> None:
-        pass
-
-    def decode(self) -> Content:
+    def decode(self, seek: bool = True) -> Content:
+        """Decode file: prepare, validate signature, parse. Returns parsed data."""
         self.prepare()
-        self.validate()
+        self.validate_signature()
         self.parse()
-        self.seek(0)
+        if seek:
+            self.seek(0)
         return self.data
 
     def convert_to(self, encoder: type[FileEncoder[Content]]) -> FileEncoder[Content]:
+        """Decode and convert to encoder. Returns encoder with open buffer (must be closed)."""
         data = self.decode()
         enc = encoder(data, self.options)
         enc.encode()
         return enc
 
     def convert(self, encoder: type[FileEncoder[Content]]) -> bytes:
+        """Decode, convert to encoder and return bytes. Closes encoder automatically."""
         enc = self.convert_to(encoder)
         content = enc.getvalue()
         enc.close()
         return content
 
-    def validate(self) -> None:
+    def prepare(self) -> None:
+        """Perform file preparation before parsing. _(e.g. skip bytes)_."""
+        pass
+
+    @abstractmethod
+    def parse(self) -> None:
+        """Parse file content into `self.data`."""
+        pass
+
+    def validate_signature(self) -> None:
+        """Validate file signature. Raises `EmptyFileError` or `InvalidSignatureError` on failure."""
         if self.filesize <= len(self.signature or bytes()):
             raise EmptyFileError(self.path)
 
@@ -81,5 +88,6 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
                 raise InvalidSignatureError(self.path, read, self.signature)
 
     def close(self) -> None:
+        """Close file buffer and reset data. Same as `FileIO.close()`."""
         self.data.reset()
         super().close()
