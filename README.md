@@ -1,86 +1,102 @@
-# sc-file 4.0 [WIP]
+# sc-file
 
-[![Pypi](https://img.shields.io/pypi/v/sc-file.svg)](https://pypi.org/project/sc-file)
-[![License](https://img.shields.io/github/license/onejeuu/sc-file)](https://opensource.org/licenses/MIT)
-[![Build](https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml)](https://github.com/onejeuu/sc-file/actions/workflows/build.yml)
-[![Issues](https://img.shields.io/github/issues/onejeuu/sc-file)](https://github.com/onejeuu/sc-file/issues)
+<!-- Links -->
 
-> [!CAUTION]
-> Work In Progress. Functionality may be missing or malfunctioning.
+[pypi]: https://pypi.org/project/sc-file
+[license]: https://opensource.org/licenses/MIT
+[build]: https://github.com/onejeuu/sc-file/actions/workflows/build.yml
+[issues]: https://github.com/onejeuu/sc-file/issues
+[releases]: https://github.com/onejeuu/sc-file/releases
+[docs]: https://sc-file.readthedocs.io/en/latest
+[readme-ru]: README-RU.md
 
-[Перевод на русский](README_RU.md)
+<!-- Docs -->
 
-**scfile** is a utility and library designed for decoding and converting STALCRAFT asset files, such as models and textures, into popular formats.
+[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
+[docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
+[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
+[docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
+[docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
+[docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
 
-Supported formats: `.mcsb`, `.mcsa`, `.ol`, `.mic`.
+<!-- Badges -->
 
-Executable utility `scfile.exe` can be downloaded from [Releases page](https://github.com/onejeuu/sc-file/releases) or [compiled from source](https://github.com/onejeuu/sc-file/tree/4.0-dev?tab=readme-ov-file#%EF%B8%8F-build).
+[badge-pypi]: https://img.shields.io/pypi/v/sc-file.svg
+[badge-license]: https://img.shields.io/github/license/onejeuu/sc-file
+[badge-docs]: https://img.shields.io/readthedocs/sc-file
+[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml
+[badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
+[badge-ru]: https://img.shields.io/badge/%D1%8F%D0%B7%D1%8B%D0%BA-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20%F0%9F%87%B7%F0%9F%87%BA-white
 
-❓ [Why reverse encoding into game formats is unsupported?](https://github.com/onejeuu/sc-file/blob/4.0-dev/FAQ.md#q-how-to-encode-files-back-into-game-formats)
+<img src="assets/scfile.svg" alt="scfile" width="128" />
 
-🗂 For answers to other common questions, please refer to [FAQ page](FAQ.md).
+[![Pypi][badge-pypi]][pypi]
+[![License][badge-license]][license]
+[![Docs][badge-docs]][docs]
+[![Build][badge-build]][build]
+[![Issues][badge-issues]][issues]
 
-## 📚 Library
+[![RU][badge-ru]][readme-ru]
 
-### Install
+## Overview
+
+**scfile** is a utility and library designed for decoding and converting STALCRAFT assets files, such as models and textures, into standard formats.
+
+📚 Documentation: [sc-file][docs].
+
+🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`. \
+[More about Game Formats...][docs-formats]
+
+💻 Executable utility `scfile.exe` can be downloaded from [Releases page][releases] or [compiled from source][docs-compile] \
+[More about Usage...][docs-usage]
+
+❓ **Why reverse encoding into game formats is unsupported?** \
+And other common questions are answered on [FAQ page][docs-faq].
+
+## 🛠️ Supported Formats
+
+| Type       | Source                    | Output                          |
+| ---------- | ------------------------- | ------------------------------- |
+| 🧊 Model   | `.mcsb`, `.mcsa`, `.mcvd` | `.obj`, `.glb`, `.dae`, `.ms3d` |
+| 🧱 Texture | `.ol`                     | `.dds`                          |
+| 🖼️ Image   | `.mic`                    | `.png`                          |
+
+[More about Formats Support…][docs-support]
+
+## 🚀 Quick Start
+
+Command example:
+
+```bash
+scfile.exe model.mcsb -F dae --skeleton
+```
+
+[More about Usage...][docs-usage]
+
+## 📖 Library
+
+To install library for coding, use following command:
 
 ```bash
 pip install sc-file -U
 ```
 
-## 📁 Formats
+Simple usage example:
 
-| Type    | Source       | Output                  |
-| ------- | ------------ | ----------------------- |
-| Model   | .mcsb, .mcsa | .obj, .dae, .glb, .ms3d |
-| Texture | .ol          | .dds                    |
-| Image   | .mic         | .png                    |
+```python
+from scfile import convert
+from scfile.core.context import UserOptions
 
-### Models
+convert.mcsb_to_obj(source="path/to/model.mcsb", options=UserOptions(parse_skeleton=True))
+```
 
-- Versions supported: 7.0, 8.0, 10.0, 11.0
+[More details about Library...][docs-library]
 
-### Textures
+## 🤝 Acknowledgments
 
-- Formats supported: DXT1, DXT3, DXT5, RGBA8, BGRA8, DXN_XY
-- Formats unsupported: RGBA32F
-- Some normal map textures can be inverted
-
-## 🛠️ Build
-
-> [!IMPORTANT]
-> Instructions are tailored for the [uv tool](https://github.com/astral-sh/uv).
-
-1. Download project
-
-   ```bash
-   git clone https://github.com/onejeuu/sc-file.git
-   ```
-
-   ```bash
-   cd sc-file
-   ```
-
-2. Recommended to create virtual environment
-
-   ```bash
-   uv venv
-   ```
-
-   ```bash
-   .venv\Scripts\activate
-   ```
-
-3. Install dependencies
-
-   ```bash
-   uv sync
-   ```
-
-4. Run script to compile
-
-   ```bash
-   uv run scripts/build.py
-   ```
-
-   Executable file `scfile.exe` will be created in `/dist` directory.
+- `kommunist2021` – file structure research.
+- `Art3mLapa` – advice, bug reports.
+- `n1kodim` – advice, contribution.
+- `IExploitableMan` – contribution.
+- `Sarioga` – feedback, bug reports.
+- `Hazart` – bug reports.

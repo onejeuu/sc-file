@@ -17,7 +17,6 @@ class FileFormat(StrEnum):
     OBJ = auto()
     OL = auto()
     PNG = auto()
-    TXT = MS3D_ASCII = auto()
 
     @property
     def suffix(self):
