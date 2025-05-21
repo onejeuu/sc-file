@@ -5,8 +5,8 @@ from scfile.formats.mcsa.decoder import McsaDecoder
 
 class McsbDecoder(McsaDecoder):
     def prepare(self):
-        self.skip_hash_prefix()
+        self._skip_hash_prefix()
 
-    def skip_hash_prefix(self):
-        size = self.readb(F.I32, ByteOrder.BIG)
+    def _skip_hash_prefix(self):
+        size = self._readb(F.I32, ByteOrder.BIG)
         self.read(size)

@@ -8,13 +8,13 @@ from scfile.enums import StructFormat as F
 
 
 class OlFileIO(StructFileIO):
-    def readsizes(self, mipmap_count: int) -> list[int]:
-        return [self.readb(F.U32) for _ in range(mipmap_count)]
+    def _readsizes(self, mipmap_count: int) -> list[int]:
+        return [self._readb(F.U32) for _ in range(mipmap_count)]
 
-    def readsizescubemap(self, mipmap_count: int) -> list[list[int]]:
-        return [[self.readb(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
+    def _readsizescubemap(self, mipmap_count: int) -> list[list[int]]:
+        return [[self._readb(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
 
-    def readformat(self) -> bytes:
+    def _readformat(self) -> bytes:
         # Read string and skip last 0x00 byte
         string = self.read(OlString.SIZE)[:-1]
 

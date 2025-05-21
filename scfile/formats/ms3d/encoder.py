@@ -19,10 +19,6 @@ MAX_VERTICES = 0xFFFF
 MAX_TRIANGLES = 0xFFFF
 
 
-def fixedlen(name: str) -> bytes:
-    return name.encode("utf-8").ljust(32, b"\x00")
-
-
 class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
@@ -38,18 +34,18 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
             self.data.scene.skeleton.convert_to_local()
 
     def serialize(self):
-        self.writeb(F.I32, VERSION)
-        self.add_vertices()
-        self.add_triangles()
-        self.add_groups()
-        self.add_materials()
-        self.add_bones()
-        self.add_comments()
-        self.add_links()
+        self._writeb(F.I32, VERSION)
+        self._add_vertices()
+        self._add_triangles()
+        self._add_groups()
+        self._add_materials()
+        self._add_bones()
+        self._add_comments()
+        self._add_links()
 
-    def add_vertices(self):
+    def _add_vertices(self):
         # vertices count
-        self.writecount("vertices", self.data.scene.total_vertices, MAX_VERTICES)
+        self._writecount("vertices", self.data.scene.total_vertices, MAX_VERTICES)
 
         # i8 flags, f32 pos[3], i8 bone id, u8 reference count
         fmt = f"{F.I8}{F.F32 * 3}{F.I8}{F.U8}"
@@ -59,11 +55,11 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         for mesh in self.data.scene.meshes:
             for index, xyz in enumerate(mesh.positions):
                 bone_id = mesh.links_ids.astype(F.I8)[index][0] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
-                self.writeb(fmt, 0, *xyz, bone_id, reference_count)
+                self._writeb(fmt, 0, *xyz, bone_id, reference_count)
 
-    def add_triangles(self):
+    def _add_triangles(self):
         # polygons count
-        self.writecount("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
+        self._writecount("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
 
         # u16 flags, u16 indices[3]
         # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
@@ -77,27 +73,27 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
                 uv = np.concatenate([mesh.textures[abc][:, 0], mesh.textures[abc][:, 1]], dtype=F.F32)
                 indices = (abc + offset).astype(F.U16)
 
-                self.writeb(fmt, 0, *indices, *normals, *uv, 1, index)
+                self._writeb(fmt, 0, *indices, *normals, *uv, 1, index)
 
             offset += mesh.count.vertices
 
-    def add_groups(self):
-        self.writeb(F.U16, len(self.data.scene.meshes))  # groups count
+    def _add_groups(self):
+        self._writeb(F.U16, len(self.data.scene.meshes))  # groups count
 
         offset = 0
         for index, mesh in enumerate(self.data.scene.meshes):
-            self.writeb(F.U8, 0)  # flags
-            self.write(fixedlen(mesh.name))  # group name
+            self._writeb(F.U8, 0)  # flags
+            self._writefixedstring(mesh.name)  # group name
 
             count = mesh.count.polygons
-            self.writeb(F.U16, count)  # triangles count
-            self.writeb(f"{count}{F.U16}", *np.arange(count, dtype=F.U16) + offset)  # indices
-            self.writeb(F.I8, index)  # material index
+            self._writeb(F.U16, count)  # triangles count
+            self._writeb(f"{count}{F.U16}", *np.arange(count, dtype=F.U16) + offset)  # indices
+            self._writeb(F.I8, index)  # material index
 
             offset += count
 
-    def add_materials(self):
-        self.writeb(F.U16, len(self.data.scene.meshes))  # materials count
+    def _add_materials(self):
+        self._writeb(F.U16, len(self.data.scene.meshes))  # materials count
 
         # f32 ambient[4], diffuse[4], specular[4], emissive[4] (RGBA)
         # f32 shininess, f32 transparency, i8 mode
@@ -108,38 +104,38 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         diffuse = (0.8, 0.8, 0.8, 1.0)
 
         for mesh in self.data.scene.meshes:
-            self.write(fixedlen(mesh.material))  # material name
-            self.writeb(fmt, *empty, *diffuse, *empty, *empty, 0.0, 1.0, 1)
-            self.writenull(size=128)  # texture
-            self.writenull(size=128)  # alphamap
+            self._writefixedstring(mesh.material)  # material name
+            self._writeb(fmt, *empty, *diffuse, *empty, *empty, 0.0, 1.0, 1)
+            self._writenull(size=128)  # texture
+            self._writenull(size=128)  # alphamap
 
-    def add_bones(self):
+    def _add_bones(self):
         # f32 fps, f32 frame, f32 framesCount, u16 bonesCount
         fmt = f"{F.F32 * 3}{F.U16}"
-        self.writeb(fmt, 24, 1, 30, self.data.scene.count.bones)
+        self._writeb(fmt, 24, 1, 30, self.data.scene.count.bones)
 
         for bone in self.data.scene.skeleton.bones:
-            self.writeb(F.U8, 0)  # flags
-            self.write(fixedlen(bone.name))  # bone name
+            self._writeb(F.U8, 0)  # flags
+            self._writefixedstring(bone.name)  # bone name
 
             parent = self.data.scene.skeleton.bones[bone.parent_id]
             parent_name = parent.name if bone.parent_id != McsaModel.ROOT_BONE_ID else ""
-            self.write(fixedlen(parent_name))  # parent name
+            self._writefixedstring(parent_name)  # parent name
 
             # f32 bone rotation[3], f32 bone position[3]
             # u16 keyframes rotations, u16 keyframes transitions
             fmt = f"{F.F32 * 6}{F.U16 * 2}"
 
             qx, qy, qz, qw = euler_to_quat(bone.rotation)
-            self.writeb(fmt, qx, qy, qz, *bone.position, 0, 0)
+            self._writeb(fmt, qx, qy, qz, *bone.position, 0, 0)
 
-    def add_comments(self):
-        self.writeb(F.I32, COMMENTS_VERSION)  # comments version
+    def _add_comments(self):
+        self._writeb(F.I32, COMMENTS_VERSION)  # comments version
         fmt = F.U32 * 4  # u32 group, u32 material, u32 joints, u32 model
-        self.writeb(fmt, 0, 0, 0, 0)  # comments count
+        self._writeb(fmt, 0, 0, 0, 0)  # comments count
 
-    def add_links(self):
-        self.writeb(F.I32, VERTEX_EXTRA_VERSION)  # vertex extra version
+    def _add_links(self):
+        self._writeb(F.I32, VERTEX_EXTRA_VERSION)  # vertex extra version
 
         # i8 ids[3], u8 weights[3]
         fmt = f"{F.I8 * 3}{F.U8 * 3}"
@@ -149,4 +145,4 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
             links_weights = (mesh.links_weights * 255).astype(F.U8)
 
             for ids, weights in zip(links_ids, links_weights):
-                self.writeb(fmt, *ids[:3], *weights[:3])
+                self._writeb(fmt, *ids[:3], *weights[:3])

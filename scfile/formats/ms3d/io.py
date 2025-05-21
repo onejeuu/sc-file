@@ -9,7 +9,10 @@ from .exceptions import Ms3dCountsLimit
 
 
 class Ms3dFileIO(StructBytesIO):
-    def writecount(self, type: str, count: int, limit: int) -> None:
+    def _writecount(self, type: str, count: int, limit: int) -> None:
         if count > limit:
             raise Ms3dCountsLimit(type, count, limit)
-        self.writeb(F.U16, count)
+        self._writeb(F.U16, count)
+
+    def _writefixedstring(self, text: str) -> None:
+        self.write(text.encode("utf-8").ljust(32, b"\x00"))
