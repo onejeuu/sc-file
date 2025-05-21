@@ -31,9 +31,9 @@ class StructFileIO(io.FileIO, StructIO):
     def is_eof(self) -> bool:
         return self.filesize <= self.tell()
 
-    def unpack(self, fmt: str):
+    def _unpack(self, fmt: str):
         try:
-            return super().unpack(fmt)
+            return super()._unpack(fmt)
 
         except struct.error as err:
             raise InvalidStructureError(self.path, position=self.tell()) from err

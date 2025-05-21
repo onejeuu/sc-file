@@ -12,11 +12,11 @@ class OlCubemapDecoder(BaseOlDecoder[CubemapTexture]):
     def prepare(self):
         self.data.texture = CubemapTexture()
 
-    def parse_sizes(self):
-        self.data.texture.uncompressed = self.readsizescubemap(self.data.mipmap_count)
-        self.data.texture.compressed = self.readsizescubemap(self.data.mipmap_count)
+    def _parse_sizes(self):
+        self.data.texture.uncompressed = self._readsizescubemap(self.data.mipmap_count)
+        self.data.texture.compressed = self._readsizescubemap(self.data.mipmap_count)
 
-    def parse_mipmaps(self):
+    def _parse_mipmaps(self):
         for mipmap in range(self.data.mipmap_count):
             for face in range(CubemapFaces.COUNT):
                 self.data.texture.faces[face].append(
