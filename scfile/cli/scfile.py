@@ -13,7 +13,7 @@ from scfile.cli.enums import Prefix
 from scfile.consts import CLI, ModelFormats
 from scfile.core.context import UserOptions
 from scfile.exceptions.base import ScFileException
-from scfile.exceptions.io import InvalidStructureError
+from scfile.exceptions.file import InvalidStructureError
 
 from . import types, utils
 
@@ -105,11 +105,11 @@ def scfile(
         for source in sources:
             # Set destination path (relative if enabled)
             subdir = source.relative_to(root.parent).parent
-            output = output / subdir if relative and output else output or source.parent
+            dest = output / subdir if relative and output else output
 
             # Convert source file
             try:
-                convert.auto(source, output, options)
+                convert.auto(source, dest, options)
 
             except InvalidStructureError as err:
                 print(Prefix.ERROR, str(err), CLI.EXCEPTION)
@@ -122,4 +122,6 @@ def scfile(
                 print(Prefix.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
 
             else:
-                print(Prefix.INFO, f"File '{source.relative_to(root).as_posix()}' converted to '{output.as_posix()}'.")
+                src_path = source.relative_to(root)
+                dst_path = dest or source.parent
+                print(Prefix.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")

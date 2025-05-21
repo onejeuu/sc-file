@@ -24,14 +24,14 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     _content = ModelContent
 
-    def to_dae(self):
-        return self.convert_to(DaeEncoder)
-
     def to_obj(self):
         return self.convert_to(ObjEncoder)
 
     def to_glb(self):
         return self.convert_to(GlbEncoder)
+
+    def to_dae(self):
+        return self.convert_to(DaeEncoder)
 
     def to_ms3d(self):
         return self.convert_to(Ms3dEncoder)

@@ -6,16 +6,20 @@ import io
 import struct
 from pathlib import Path
 
-from scfile.exceptions.io import InvalidStructureError
+from scfile.exceptions.file import InvalidStructureError
 
 from .base import StructIO
 
 
 class StructBytesIO(io.BytesIO, StructIO):
+    """In-memory bytes buffer with structured binary operations."""
+
     pass
 
 
 class StructFileIO(io.FileIO, StructIO):
+    """File-based I/O with structured binary operations."""
+
     @property
     def path(self) -> Path:
         return Path(str(self.name))

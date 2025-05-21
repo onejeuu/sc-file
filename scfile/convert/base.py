@@ -8,7 +8,7 @@ from typing import Optional, Type
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.context.options import UserOptions
 from scfile.core.types import Content, PathLike
-from scfile.exceptions.io import FileNotFound
+from scfile.exceptions.file import FileNotFound
 
 
 def convert(

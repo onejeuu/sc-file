@@ -1,5 +1,5 @@
 """
-Conversion by input path. Optional output folder and options.
+Conversion by input path based on file suffix.
 """
 
 import pathlib
@@ -10,7 +10,7 @@ import lz4.block
 from scfile.core.context import UserOptions
 from scfile.core.types import PathLike
 from scfile.enums import FileFormat
-from scfile.exceptions.io import InvalidStructureError, UnsupportedFormatError
+from scfile.exceptions.file import InvalidStructureError, UnsupportedFormatError
 
 from . import formats, legacy
 
@@ -18,26 +18,18 @@ from . import formats, legacy
 ModelConverters: TypeAlias = dict[FileFormat, Callable]
 
 
-# TODO: improve this
-
-MCSB_CONVERTERS: ModelConverters = {
-    FileFormat.DAE: formats.mcsb_to_dae,
+MCSB: ModelConverters = {
     FileFormat.OBJ: formats.mcsb_to_obj,
     FileFormat.GLB: formats.mcsb_to_glb,
+    FileFormat.DAE: formats.mcsb_to_dae,
     FileFormat.MS3D: formats.mcsb_to_ms3d,
 }
 
-MCSA_CONVERTERS: ModelConverters = {
-    FileFormat.DAE: legacy.mcsa_to_dae,
+MCSA: ModelConverters = {
     FileFormat.OBJ: legacy.mcsa_to_obj,
     FileFormat.GLB: legacy.mcsa_to_glb,
+    FileFormat.DAE: legacy.mcsa_to_dae,
     FileFormat.MS3D: legacy.mcsa_to_ms3d,
-}
-
-MODEL_CONVERTERS: dict[FileFormat, ModelConverters] = {
-    FileFormat.MCSB: MCSB_CONVERTERS,
-    FileFormat.MCSA: MCSA_CONVERTERS,
-    FileFormat.MCVD: MCSA_CONVERTERS,
 }
 
 
@@ -46,6 +38,8 @@ def auto(
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
 ):
+    """Automatically convert file between formats based on file suffix."""
+
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
 
@@ -53,12 +47,11 @@ def auto(
     model_formats = options.model_formats or options.default_model_formats
 
     match src_format:
-        case FileFormat.MCSA | FileFormat.MCSB | FileFormat.MCVD:
-            converter_map = MODEL_CONVERTERS[src_format]
-            for fmt in model_formats:
-                # TODO: typehints
-                if converter := converter_map.get(fmt):
-                    converter(source, output, options)
+        case FileFormat.MCSB:
+            map(lambda fmt: MCSB[fmt](source, output, options), model_formats)
+
+        case FileFormat.MCSA | FileFormat.MCVD:
+            map(lambda fmt: MCSA[fmt](source, output, options), model_formats)
 
         case FileFormat.OL:
             try:

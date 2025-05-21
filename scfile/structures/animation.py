@@ -9,6 +9,8 @@ import numpy as np
 
 @dataclass
 class AnimationClip:
+    """Single animation clip with timing and transformation data."""
+
     name: str = "clip"
     rate: float = 0.33
     frames: int = 0
@@ -21,4 +23,6 @@ class AnimationClip:
 
 @dataclass
 class ModelAnimation:
+    """Animation clips container."""
+
     clips: list[AnimationClip] = field(default_factory=list)

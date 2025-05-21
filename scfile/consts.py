@@ -77,7 +77,7 @@ class McsaSize:
 class CLI:
     """Command line interface constants."""
 
-    VERSION = "4.0.0.rc1"
+    VERSION = "4.0.0.rc2"
 
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
     PAUSE = "\nPress any key to continue or exit..."
@@ -90,7 +90,7 @@ class CLI:
 class OutputFormats:
     """Supported output formats for file data types."""
 
-    MODELS = sorted({FileFormat.DAE, FileFormat.MS3D, FileFormat.OBJ, FileFormat.GLB})
+    MODELS = sorted({FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D})
     TEXTURES = sorted({FileFormat.DDS})
     IMAGES = sorted({FileFormat.PNG})
 

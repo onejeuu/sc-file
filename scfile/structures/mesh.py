@@ -10,14 +10,16 @@ import numpy as np
 from .vectors import LinksIds, LinksWeights, Polygons, Vector2D, Vector3D
 
 
-LocalBoneId = NewType("LocalBoneId", int)
-SkeletonBoneId = NewType("SkeletonBoneId", int)
+LocalBoneId = NewType("LocalBoneId", int)  # Bone id within local mesh scope
+SkeletonBoneId = NewType("SkeletonBoneId", int)  # Bone id within skeleton hierarchy
 
-BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]
+BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]  # Mapping between local and skeleton ids
 
 
 @dataclass
 class MeshCounts:
+    """Quantifying of mesh elements."""
+
     vertices: int = 0
     polygons: int = 0
     links: int = 0
@@ -26,6 +28,8 @@ class MeshCounts:
 
 @dataclass
 class ModelMesh:
+    """3D mesh geometry container."""
+
     name: str = "name"
     material: str = "material"
 

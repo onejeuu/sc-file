@@ -14,6 +14,8 @@ from .vectors import Vector3D, Vector4D
 
 @dataclass
 class SkeletonBone:
+    """Single skeleton bone with transform data."""
+
     id: int = 0
     name: str = "bone"
     parent_id: int = McsaModel.ROOT_BONE_ID
@@ -28,11 +30,12 @@ class SkeletonBone:
 
 @dataclass
 class ModelSkeleton:
+    """Skeleton bones container."""
+
     bones: List[SkeletonBone] = field(default_factory=list)
     roots: List[SkeletonBone] = field(default_factory=list)
 
     def convert_to_local(self) -> None:
-        """Update bones positions by their parent bone."""
         parent_id = 0
         bones = self.bones
 
@@ -46,7 +49,6 @@ class ModelSkeleton:
                 parent_id = parent.parent_id
 
     def build_hierarchy(self) -> list[SkeletonBone]:
-        """Fills bones children list."""
         # Create a dictionary to map bone id to bones
         bone_dict: Dict[int, SkeletonBone] = {bone.id: bone for bone in self.bones}
 

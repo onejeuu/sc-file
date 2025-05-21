@@ -3,11 +3,13 @@ import sys
 import click
 from rich import print
 
+from scfile.cli import scfile
 from scfile.cli.enums import Prefix
-from scfile.cli.scfile import scfile
 
 
 def main():
+    """Program entrypoint."""
+
     try:
         scfile(standalone_mode=False)
 

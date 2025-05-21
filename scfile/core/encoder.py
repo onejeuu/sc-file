@@ -13,11 +13,29 @@ from scfile.enums import FileMode
 
 
 class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
+    """Base class for encoding structured data objects into file content."""
+
     @property
     def mode(self) -> str:
         return FileMode.WRITE
 
     def __init__(self, data: Content, options: Optional[UserOptions] = None):
+        """Initialize file encoder with content data and options.
+
+        Arguments:
+            data: Content data to be encoded.
+            options (optional): User provided options. If None, default `UserOptions` will be used.
+
+        Initialized:
+            data (`Generic[Content]`): Content to encode.
+            options (`UserOptions`): Encoding options (default or user provided).
+            ctx (`dict[str, Any]`): Empty context dictionary for processing state.
+
+        Note:
+            Actual encoding doesn't happen during initialization.
+            Call `encode()` to perform serialization process.
+        """
+
         self.data: Content = data
         self.options: UserOptions = options or UserOptions()
         self.ctx: dict[str, Any] = {}

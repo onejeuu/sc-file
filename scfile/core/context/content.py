@@ -7,7 +7,6 @@ from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeVar, cast
 
-from scfile.structures.animation import ModelAnimation
 from scfile.structures.scene import ModelFlags, ModelScene
 from scfile.structures.texture import CubemapTexture, DefaultTexture, Texture
 
@@ -17,6 +16,8 @@ TextureType = TypeVar("TextureType", bound=Texture)
 
 @dataclass
 class FileContent(ABC):
+    """Base dataclass for file content storage."""
+
     def reset(self):
         for f in fields(self):
             if f.default_factory is not MISSING:
@@ -31,25 +32,17 @@ class FileContent(ABC):
 
 @dataclass
 class ModelContent(FileContent):
+    """Model content storage."""
+
     version: float = 0.0
     flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
 
 
-# i have no idea how to implement it
-# this requires rewriting entire core
-# to add support for multiple content for single format
-@dataclass
-class AnimationContent(FileContent):
-    version: float = 0.0
-    bones_count: int = 0
-    unknown: int = 0
-    clips_count: int = 0
-    animation: ModelAnimation = field(default_factory=ModelAnimation)
-
-
 @dataclass
 class TextureContent(FileContent, Generic[TextureType]):
+    """Texture content storage."""
+
     width: int = 0
     height: int = 0
     mipmap_count: int = 0
@@ -77,4 +70,6 @@ class TextureContent(FileContent, Generic[TextureType]):
 
 @dataclass
 class ImageContent(FileContent):
+    """Image content storage."""
+
     image: bytes = field(default_factory=bytes)

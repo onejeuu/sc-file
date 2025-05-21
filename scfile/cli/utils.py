@@ -15,17 +15,17 @@ from . import types
 
 
 def no_args(ctx: click.Context) -> None:
-    """Prints help message when no arguments are provided."""
+    """Prints help message when no arguments provided."""
     print(f"{ctx.get_help()}\n\n{Prefix.INVALID} No arguments provided. Showing help.")
     click.pause(CLI.PAUSE)
 
 
 def check_feature_unsupported(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature: str) -> None:
-    """Check if user formats contain unsupported features and return matching formats."""
+    """Checks that user formats contain unsupported feature."""
     matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 
     if bool(matching_formats):
-        suffixes = ", ".join(map(lambda fmt: f".{fmt.value}", matching_formats))
+        suffixes = ", ".join(map(lambda fmt: fmt.suffix, matching_formats))
         print(Prefix.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 
 
