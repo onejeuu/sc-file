@@ -53,7 +53,7 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
         return self
 
     def prepare(self) -> None:
-        """Perform preparations before serialization. _(e.g. calculations in `self.data`)_."""
+        """Perform preparations before serialization. *(e.g. calculations in content)*."""
         pass
 
     def add_signature(self) -> None:

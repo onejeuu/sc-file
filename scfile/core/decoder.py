@@ -68,7 +68,7 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
         return content
 
     def prepare(self) -> None:
-        """Perform file preparation before parsing. _(e.g. skip bytes)_."""
+        """Perform file preparation before parsing. *(e.g. skip bytes)*."""
         pass
 
     @abstractmethod
