@@ -40,6 +40,9 @@ scfile = "scfile.__main__:main"
 [tool.setuptools]
 packages = { find = { include = ["scfile", "scfile.*"] } }
 
+[tool.ruff.lint]
+ignore = ["E701"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

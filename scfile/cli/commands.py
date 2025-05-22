@@ -35,17 +35,22 @@ from . import types, utils
 )
 @click.option(
     "--relative",
-    help="Preserve sources relative directory structure in output (if specified).",
+    help="Preserve directory structure from source in output.",
+    is_flag=True,
+)
+@click.option(
+    "--parent",
+    help="Use parent directory as starting point in relative directory.",
     is_flag=True,
 )
 @click.option(
     "--skeleton",
-    help="Parse armature in models (if presented).",
+    help="Parse armature in models.",
     is_flag=True,
 )
 @click.option(
     "--animation",
-    help="Parse animation in models (if presented).",
+    help="Parse animation in models.",
     is_flag=True,
 )
 @click.option(
@@ -61,6 +66,7 @@ def scfile(
     output: Optional[types.PathType],
     model_formats: Optional[ModelFormats],
     relative: bool,
+    parent: bool,
     skeleton: bool,
     animation: bool,
     unique: bool,
@@ -73,28 +79,22 @@ def scfile(
     # Formats is empty tuple, need None
     model_formats = model_formats or None
 
+    # Parent flag is useless without relative
+    if parent:
+        relative = relative or True
+
+    # Animation flag is useless without skeleton
+    if animation:
+        skeleton = skeleton or True
+
     # Relative flag is useless without output path
     if relative and not output:
         print(Prefix.WARN, "Flag [b]--relative[/] requires [b]--output[/] option.")
 
-    # Animation flag is useless without skeleton
-    if animation and not skeleton:
-        skeleton = True
-
     # Warn if specified formats has unsupported features
     if model_formats:
-        if skeleton:
-            utils.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
-        if animation:
-            utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
-
-    # TODO improve: lazy iterator
-    # Maps directories to their supported files, using directory as key
-    files_map = utils.paths_to_files_map(paths)
-    if not files_map:
-        print(Prefix.ERROR, "No supported files found in provided arguments.")
-        print(CLI.FORMATS)
-        return
+        if skeleton: utils.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+        if animation: utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Prepare options
     options = UserOptions(
@@ -104,29 +104,29 @@ def scfile(
         overwrite=not unique,
     )
 
-    # TODO improve: subflag for --relative. use relative_to(root) or relative_to(root.parent)
-    # Iterate over each directory and its list of source files
-    for root, sources in files_map.items():
-        for source in sources:
-            # Set destination path (relative if enabled)
-            subdir = source.relative_to(root).parent
-            dest = output / subdir if (relative and output) else output
+    # Iterate over each directory to their supported files
+    for root, source in utils.paths_to_files_map(paths):
+        # Get relative subdir from root
+        subdir = source.relative_to(root.parent if parent else root).parent
 
-            # Convert source file
-            try:
-                convert.auto(source=source, output=dest, options=options)
+        # Use subdir in output path if relative enabled and output specified
+        dest = output / subdir if (relative and output) else output
 
-            except InvalidStructureError as err:
-                print(Prefix.ERROR, str(err), CLI.EXCEPTION)
+        # Convert source file
+        try:
+            convert.auto(source=source, output=dest, options=options)
 
-            except ScFileException as err:
-                print(Prefix.ERROR, str(err))
+        except InvalidStructureError as err:
+            print(Prefix.ERROR, str(err), CLI.EXCEPTION)
 
-            except Exception as err:
-                traceback.print_exception(err)
-                print(Prefix.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
+        except ScFileException as err:
+            print(Prefix.ERROR, str(err))
 
-            else:
-                src_path = source.relative_to(root)
-                dst_path = dest or source.parent
-                print(Prefix.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")
+        except Exception as err:
+            traceback.print_exception(err)
+            print(Prefix.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
+
+        else:
+            src_path = source.relative_to(root)
+            dst_path = dest or source.parent
+            print(Prefix.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")

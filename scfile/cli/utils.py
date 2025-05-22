@@ -2,7 +2,6 @@
 CLI wrapper small utils.
 """
 
-from collections import defaultdict
 from pathlib import Path
 
 import click
@@ -34,28 +33,17 @@ def is_supported(path: Path) -> bool:
     return path.is_file() and path.suffix in SUPPORTED_SUFFIXES
 
 
-def filter_files(files: types.FilesPaths) -> list[types.PathType]:
-    """Filters paths to keep only supported files."""
-    return list(filter(is_supported, files))
-
-
-def paths_to_files_map(paths: types.FilesPaths) -> types.FilesMap:
-    """Maps parent directories to their contained supported files."""
-    files_map: types.FilesMap = defaultdict(list)
-    resolved_symlinks: set[types.PathType] = set()
+def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
+    """Maps parent directories to their supported files."""
 
     for path in paths:
+        path = path.resolve()
+
         if path.is_file():
-            files_map[path.parent].extend(filter_files([path]))
+            if is_supported(path):
+                yield path.parent, path
 
         elif path.is_dir():
-            if path.is_symlink():
-                resolved = path.resolve()
-                if resolved in resolved_symlinks:
-                    continue
-                resolved_symlinks.add(resolved)
-
-            files_map[path].extend(filter_files(list(path.rglob("**/*"))))
-
-    valid_files: types.FilesMap = {key: value for key, value in files_map.items() if value}
-    return valid_files
+            for file in path.rglob("*"):
+                if is_supported(file):
+                    yield path, file
