@@ -39,7 +39,17 @@ def auto(
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
 ):
-    """Automatically convert file between formats based on file suffix."""
+    """
+    Automatically convert file between formats based on file suffix.
+
+    Arguments:
+        source: Path to input file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `auto("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
 
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
