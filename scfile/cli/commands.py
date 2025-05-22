@@ -59,7 +59,7 @@ def scfile(
     ctx: click.Context,
     paths: types.FilesPaths,
     output: Optional[types.PathType],
-    model_formats: ModelFormats,
+    model_formats: Optional[ModelFormats],
     relative: bool,
     skeleton: bool,
     animation: bool,
@@ -69,6 +69,9 @@ def scfile(
     if not paths:
         utils.no_args(ctx)
         return
+
+    # Formats is empty tuple, need None
+    model_formats = model_formats or None
 
     # Relative flag is useless without output path
     if relative and not output:
@@ -109,7 +112,7 @@ def scfile(
 
             # Convert source file
             try:
-                convert.auto(source, dest, options)
+                convert.auto(source=source, output=dest, options=options)
 
             except InvalidStructureError as err:
                 print(Prefix.ERROR, str(err), CLI.EXCEPTION)
