@@ -2,8 +2,8 @@
 Utility module. Handles conversion logic between formats.
 """
 
-from .auto import auto
-from .base import convert
+from . import base, legacy
+from .detect import auto
 from .formats import (
     mcsb_to_dae,
     mcsb_to_glb,
@@ -16,8 +16,9 @@ from .formats import (
 
 
 __all__ = (
+    "base",
+    "legacy",
     "auto",
-    "convert",
     "mcsb_to_dae",
     "mcsb_to_glb",
     "mcsb_to_ms3d",
