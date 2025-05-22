@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any, Generator
@@ -20,5 +21,6 @@ def options() -> UserOptions:
 
 @pytest.fixture
 def temp() -> Generator[Path, Any, None]:
-    with tempfile.TemporaryDirectory(prefix="scfiletest_") as dir:
-        yield Path(dir)
+    path = Path(tempfile.mkdtemp(prefix="scfiletest"))
+    yield path
+    shutil.rmtree(path)
