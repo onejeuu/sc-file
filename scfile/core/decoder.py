@@ -3,7 +3,7 @@ Base class for file decoder (parsing).
 """
 
 from abc import ABC, abstractmethod
-from typing import Generic, Optional
+from typing import Generic, Optional, Type
 
 from scfile.core.base import BaseFile
 from scfile.core.context.options import UserOptions
@@ -53,16 +53,26 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
             self.seek(0)
         return self.data
 
-    def convert_to(self, encoder: type[FileEncoder[Content]]) -> FileEncoder[Content]:
+    def convert_to(
+        self,
+        encoder: Type[FileEncoder[Content]],
+        options: Optional[UserOptions] = None,
+    ) -> FileEncoder[Content]:
         """Decode and convert to encoder. Returns encoder with open buffer (must be closed)."""
+        options = options or self.options
         data = self.decode()
-        enc = encoder(data, self.options)
+        enc = encoder(data, options)
         enc.encode()
         return enc
 
-    def convert(self, encoder: type[FileEncoder[Content]]) -> bytes:
+    def convert(
+        self,
+        encoder: type[FileEncoder[Content]],
+        options: Optional[UserOptions] = None,
+    ) -> bytes:
         """Decode, convert to encoder and return bytes. Closes encoder automatically."""
-        enc = self.convert_to(encoder)
+        options = options or self.options
+        enc = self.convert_to(encoder, options)
         content = enc.getvalue()
         enc.close()
         return content
