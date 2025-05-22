@@ -3,6 +3,7 @@ Conversion by input path based on file suffix.
 """
 
 import pathlib
+from collections import deque
 from typing import Callable, Optional, TypeAlias
 
 import lz4.block
@@ -15,17 +16,17 @@ from scfile.exceptions.file import InvalidStructureError, UnsupportedFormatError
 from . import formats, legacy
 
 
-ModelConverters: TypeAlias = dict[FileFormat, Callable]
+ConvertersMap: TypeAlias = dict[FileFormat, Callable]
 
 
-MCSB: ModelConverters = {
+MCSB: ConvertersMap = {
     FileFormat.OBJ: formats.mcsb_to_obj,
     FileFormat.GLB: formats.mcsb_to_glb,
     FileFormat.DAE: formats.mcsb_to_dae,
     FileFormat.MS3D: formats.mcsb_to_ms3d,
 }
 
-MCSA: ModelConverters = {
+MCSA: ConvertersMap = {
     FileFormat.OBJ: legacy.mcsa_to_obj,
     FileFormat.GLB: legacy.mcsa_to_glb,
     FileFormat.DAE: legacy.mcsa_to_dae,
@@ -48,12 +49,15 @@ def auto(
 
     match src_format:
         case FileFormat.MCSB:
-            map(lambda fmt: MCSB[fmt](source, output, options), model_formats)
+            # Convert MCSB to all requested formats.
+            deque(map(lambda fmt: MCSB[fmt](source, output, options), model_formats), maxlen=0)
 
         case FileFormat.MCSA | FileFormat.MCVD:
-            map(lambda fmt: MCSA[fmt](source, output, options), model_formats)
+            # Convert MCSA to all requested formats.
+            deque(map(lambda fmt: MCSA[fmt](source, output, options), model_formats), maxlen=0)
 
         case FileFormat.OL:
+            # Try standard texture first. Fallback to cubemap on failure.
             try:
                 formats.ol_to_dds(source, output, options)
 

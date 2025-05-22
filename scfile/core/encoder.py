@@ -86,7 +86,6 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
         self.close()
 
     def close(self) -> None:
-        """Close buffer and reset `self.data` and `self.ctx`. Same as `BytesIO.close()`."""
-        self.data.reset()
+        """Close buffer and reset `self.ctx` state. Same as `BytesIO.close()`."""
         self.ctx = {}
         super().close()

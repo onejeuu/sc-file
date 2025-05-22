@@ -88,6 +88,5 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
                 raise InvalidSignatureError(self.path, read, self.signature)
 
     def close(self) -> None:
-        """Close file buffer and reset data. Same as `FileIO.close()`."""
-        self.data.reset()
+        """Close file buffer. Same as `FileIO.close()`."""
         super().close()
