@@ -88,6 +88,7 @@ def scfile(
         if animation:
             utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
+    # TODO improve: lazy iterator
     # Maps directories to their supported files, using directory as key
     files_map = utils.paths_to_files_map(paths)
     if not files_map:
@@ -103,12 +104,13 @@ def scfile(
         overwrite=not unique,
     )
 
+    # TODO improve: subflag for --relative. use relative_to(root) or relative_to(root.parent)
     # Iterate over each directory and its list of source files
     for root, sources in files_map.items():
         for source in sources:
             # Set destination path (relative if enabled)
-            subdir = source.relative_to(root.parent).parent
-            dest = output / subdir if relative and output else output
+            subdir = source.relative_to(root).parent
+            dest = output / subdir if (relative and output) else output
 
             # Convert source file
             try:

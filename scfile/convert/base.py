@@ -18,21 +18,33 @@ def convert(
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
 ) -> None:
-    """Converts file between formats with basic validations."""
+    """
+    Converts file between formats with basic validations.
+
+    Arguments:
+        decoder: Input file decoder class.
+        encoder: Output file encoder class.
+        source: Path to input file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `convert(McsaDecoder, ObjEncoder, "model.mcsb", "path/to/output")`
+    """
 
     src_path = Path(source)
-    out_path = Path(output or source)
+    out_dir = Path(output or src_path.parent)
     options = options or UserOptions()
 
     if not src_path.exists() or not src_path.is_file():
         raise FileNotFound(src_path)
 
-    if not out_path.parent.exists():
-        out_path.parent.mkdir(exist_ok=True, parents=True)
+    if not out_dir.exists():
+        out_dir.mkdir(exist_ok=True, parents=True)
 
     with decoder(file=src_path, options=options) as src:
         with src.convert_to(encoder=encoder) as out:
-            output = out_path.with_suffix(out.suffix)
+            output = out_dir / f"{src_path.stem}{out.suffix}"
 
             if not options.overwrite:
                 output = ensure_unique_path(path=output, suffix=out.suffix)
