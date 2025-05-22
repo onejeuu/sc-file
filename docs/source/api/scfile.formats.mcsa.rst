@@ -5,6 +5,18 @@ MCSA
   :no-members:
   :show-inheritance:
 
+.. code-block:: python
+  :caption: Usage Example
+
+  from scfile.formats.mcsa.decoder import McsaDecoder
+  from scfile.formats.obj.encoder import ObjEncoder
+
+  with McsaDecoder("path/to/model.mcsa") as mcsa:
+    data = mcsa.decode()
+
+    with ObjEncoder(data) as obj:
+      obj.encode().save("output.obj")
+
 Decoder
 ----------------------------------
 

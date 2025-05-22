@@ -5,6 +5,18 @@ MS3D
   :no-members:
   :show-inheritance:
 
+.. code-block:: python
+  :caption: Usage Example
+
+  from scfile.formats.mcsb.decoder import McsbDecoder
+  from scfile.formats.ms3d.encoder import Ms3dEncoder
+
+  with McsbDecoder("path/to/model.mcsb") as mcsb:
+    data = mcsb.decode()
+
+    with Ms3dEncoder(data) as ms3d:
+      ms3d.encode().save("output.ms3d")
+
 Encoder
 ----------------------------------
 
