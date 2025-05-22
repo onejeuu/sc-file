@@ -161,6 +161,3 @@ cython_debug/
 
 # Dependency lock files
 *.lock
-
-# TODO
-/docs/changelog
