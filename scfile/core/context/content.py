@@ -7,6 +7,7 @@ from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeVar, cast
 
+from scfile.enums import FileType
 from scfile.structures.scene import ModelFlags, ModelScene
 from scfile.structures.texture import CubemapTexture, DefaultTexture, Texture
 
@@ -17,6 +18,8 @@ TextureType = TypeVar("TextureType", bound=Texture)
 @dataclass
 class FileContent(ABC):
     """Base dataclass for file content storage."""
+
+    type: FileType
 
     def reset(self):
         for f in fields(self):
@@ -34,6 +37,8 @@ class FileContent(ABC):
 class ModelContent(FileContent):
     """Model content storage."""
 
+    type: FileType = field(default=FileType.MODEL)
+
     version: float = 0.0
     flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
@@ -42,6 +47,8 @@ class ModelContent(FileContent):
 @dataclass
 class TextureContent(FileContent, Generic[TextureType]):
     """Texture content storage."""
+
+    type: FileType = field(default=FileType.TEXTURE)
 
     width: int = 0
     height: int = 0
@@ -71,5 +78,7 @@ class TextureContent(FileContent, Generic[TextureType]):
 @dataclass
 class ImageContent(FileContent):
     """Image content storage."""
+
+    type: FileType = field(default=FileType.IMAGE)
 
     image: bytes = field(default_factory=bytes)
