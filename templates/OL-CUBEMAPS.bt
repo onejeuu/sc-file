@@ -1,10 +1,9 @@
 //------------------------------------------------
-// File: OL.bt
+// File: OL-CUBEMAPS.bt
 // Authors: onejeuu
-// Version: 1.1
+// Version: 1.0
 // Purpose: Parse textures.
 // Category: STALCRAFT
-// File Mask: *.ol
 // ID Bytes: 0A 95 23 FD
 //------------------------------------------------
 
@@ -55,8 +54,8 @@ struct Header {
 // LZ4 Sizes
 
 struct Sizes {
-    uint uncompressed[header.mipmaps] <name="Uncompressed", bgcolor=cGreen>;
-    uint compressed[header.mipmaps] <name="Compressed", bgcolor=cDkGreen>;
+    uint uncompressed[header.mipmaps * 6] <name="Uncompressed", bgcolor=cGreen>;
+    uint compressed[header.mipmaps * 6] <name="Compressed", bgcolor=cDkGreen>;
 } sizes <name="LZ4 Sizes">;
 
 
