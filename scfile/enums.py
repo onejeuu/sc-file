@@ -26,6 +26,7 @@ class FileFormat(StrEnum):
 class FileType(StrEnum):
     """File content type."""
 
+    NONE = auto()
     MODEL = auto()
     TEXTURE = auto()
     IMAGE = auto()
