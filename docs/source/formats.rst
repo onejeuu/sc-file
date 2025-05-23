@@ -28,7 +28,9 @@ Model Formats
        • Used for physics/collision **trace** detection.
   * - ``.mcal``
     - **Animation Library**
-       • Believed to contain first-person animations.
+       • Metadata: frame count, bone count.
+       • Technical skeletal animation transforms (per bone).
+       • Model-specific (requires matching skeleton).
   * - ``.mcws``
     - **World Slice** (`AES Encrypted <https://en.wikipedia.org/wiki/Advanced_Encryption_Standard>`_)
        • Slices of safezone (world as 3D model).
@@ -37,7 +39,7 @@ Model Formats
 
 
 ----------------------------------------
-Textures Formats
+Texture Formats
 ----------------------------------------
 
 ``.ol`` (Object Layer)

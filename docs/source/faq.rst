@@ -15,7 +15,8 @@ Q: How to encode files back into game formats?
 
 2. **Potential cheating issues**: An open reverse encoding feature could significantly simplify creating hacks. This might attract negative attention from game developers and lead to the tool being seen as a cheat making utility, which I aim to avoid.
 
-My goal is to support research and creativity, not create tools that could harm the game community. If you need help with small tasks in game content creation, you can `contact me directly <https://onejeuu.t.me>`_.
+| My goal is to support research and creativity, not to create tools that could harm the game community.
+| If you need assistance with in-game content creation tasks, you can `contact me directly <https://onejeuu.t.me>`_.
 
 
 Q: After game update ``%any_filename%`` no longer decodes!
@@ -30,7 +31,7 @@ Q: Could using this program lead to game ban?
 **Answer:** Use at your own risk.
 
 **Some basic recommendations:**
-  - You **MUST** close both game and launcher before interacting with **ANY** assets files.
+  - You **MUST** close both game and launcher **BEFORE** interacting with any assets files.
   - You **MUST NOT** leave any files or modifications in game assets directory.
   - You **SHOULD** copy required files to separate directory **BEFORE** performing any manipulations.
 
@@ -39,10 +40,10 @@ Q: Could using this program lead to game ban?
 Models & Textures
 ----------------------------------------
 
-Q: What programs can I use to view ``.dds`` textures and their thumbnails?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: What programs support ``.dds`` textures viewing?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Any programs with full support for all ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_) formats.
+**Answer:** Any programs with full support for all `DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_ formats.
 
 **Recommended Viewers:**
   - `XnView <https://xnview.com>`_ (Versatile)
