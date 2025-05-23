@@ -8,18 +8,19 @@ import click
 from rich import print
 
 from scfile.cli.enums import Prefix
-from scfile.consts import CLI, SUPPORTED_SUFFIXES, ModelFormats
+from scfile.consts import CLI, SUPPORTED_SUFFIXES, Formats
 
 from . import types
 
 
 def no_args(ctx: click.Context) -> None:
     """Prints help message when no arguments provided."""
-    print(f"{ctx.get_help()}\n\n{Prefix.INVALID} No arguments provided. Showing help.")
+    click.echo(ctx.get_help())
+    print(f"\n{Prefix.INVALID} No arguments provided. Showing help.")
     click.pause(CLI.PAUSE)
 
 
-def check_feature_unsupported(user_formats: ModelFormats, unsupported_formats: ModelFormats, feature: str) -> None:
+def check_feature_unsupported(user_formats: Formats, unsupported_formats: Formats, feature: str) -> None:
     """Checks that user formats contain unsupported feature."""
     matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 

@@ -10,7 +10,7 @@ from rich import print
 
 from scfile import convert
 from scfile.cli.enums import Prefix
-from scfile.consts import CLI, ModelFormats
+from scfile.consts import CLI, Formats
 from scfile.core.context import UserOptions
 from scfile.exceptions.base import ScFileException
 from scfile.exceptions.file import InvalidStructureError
@@ -28,7 +28,7 @@ from . import types, utils
 )
 @click.option(
     "-F",
-    "--model-formats",
+    "--mdlformat",
     help="Preferred format for models.",
     type=types.Formats,
     multiple=True,
@@ -50,7 +50,7 @@ from . import types, utils
 )
 @click.option(
     "--animation",
-    help="Parse animation in models.",
+    help="Parse builtin clips in models.",
     is_flag=True,
 )
 @click.option(
@@ -64,7 +64,7 @@ def scfile(
     ctx: click.Context,
     paths: types.FilesPaths,
     output: Optional[types.PathType],
-    model_formats: Optional[ModelFormats],
+    mdlformat: Optional[Formats],
     relative: bool,
     parent: bool,
     skeleton: bool,
@@ -76,16 +76,10 @@ def scfile(
         utils.no_args(ctx)
         return
 
-    # Formats is empty tuple, need None
-    model_formats = model_formats or None
-
-    # Parent flag is useless without relative
-    if parent:
-        relative = relative or True
-
-    # Animation flag is useless without skeleton
-    if animation:
-        skeleton = skeleton or True
+    # Normalize options
+    model_formats = mdlformat or None
+    if parent: relative = True
+    if animation: skeleton = True
 
     # Relative flag is useless without output path
     if relative and not output:

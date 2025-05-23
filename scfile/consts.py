@@ -3,7 +3,7 @@ from typing import Sequence, TypeAlias
 from .enums import FileFormat
 
 
-ModelFormats: TypeAlias = Sequence[FileFormat]
+Formats: TypeAlias = Sequence[FileFormat]
 
 
 SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
@@ -83,20 +83,20 @@ class CLI:
     PAUSE = "\nPress any key to continue or exit..."
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
 
-    NON_SKELETAL_FORMATS: ModelFormats = (FileFormat.OBJ,)
-    NON_ANIMATION_FORMATS: ModelFormats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
+    NON_SKELETAL_FORMATS: Formats = (FileFormat.OBJ,)
+    NON_ANIMATION_FORMATS: Formats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
 
 
 class OutputFormats:
     """Supported output formats for file data types."""
 
-    MODELS = sorted({FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D})
-    TEXTURES = sorted({FileFormat.DDS})
-    IMAGES = sorted({FileFormat.PNG})
+    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D,)
+    TEXTURES: Formats = (FileFormat.DDS,)
+    IMAGES: Formats = (FileFormat.PNG,)
 
 
 class DefaultModelFormats:
     """Default model formats for cases where no preference is specified."""
 
-    STANDARD: ModelFormats = (FileFormat.OBJ,)
-    SKELETON: ModelFormats = (FileFormat.GLB,)
+    STANDARD: Formats = (FileFormat.OBJ,)
+    SKELETON: Formats = (FileFormat.GLB,)

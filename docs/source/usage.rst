@@ -19,15 +19,16 @@ Check out arguments and options with ``scfile.exe --help``.
 
     Options:
       -O, --output DIRECTORY  Output results directory.
-      -F, [dae|glb|ms3d|obj]  Preferred format for models.
-      --relative              Preserve sources relative directory structure in output (if specified).
-      --skeleton              Parse armature in models (if presented).
-      --animation             Parse animation in models (if presented).
+      -F, [obj|glb|dae|ms3d]  Preferred format for models.
+      --relative              Preserve directory structure from source in output.
+      --parent                Use parent directory as starting point in relative directory.
+      --skeleton              Parse armature in models.
+      --animation             Parse builtin clips in models.
       --unique                Ensure file saved with unique name, avoiding overwrites.
       --version               Show the version and exit.
       --help                  Show help message and exit.
 
-4. **As Library:**
+1. **As Library:**
 Install release build using ``pip install sc-file`` or any other package manager.
 
 :doc:`More details in API Reference... <api/index>`
@@ -53,7 +54,7 @@ This code takes all ``.mcsb`` files from ``models`` directory, converts them, an
 Output Model Formats
 ----------------------------------------
 
-| Specify ``--model-formats`` / ``-F`` parameter followed by desired format suffix.
+| Specify ``--mdlformat`` / ``-F`` parameter followed by desired format suffix.
 | For example: ``-F obj`` or ``-F dae``.
 
 | To specify multiple formats at once, you need to use parameter multiple times.
