@@ -11,7 +11,7 @@ readme = "README.md"
 license = {text = "MIT"}
 
 dependencies = [
-    "click==8.1.0",
+    "click==8.2.1",
     "lz4>=4.4.4",
     "numpy>=2.2.6",
     "rich>=14.0.0",
