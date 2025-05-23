@@ -19,7 +19,7 @@ TextureType = TypeVar("TextureType", bound=Texture)
 class FileContent(ABC):
     """Base dataclass for file content storage."""
 
-    type: FileType
+    type: FileType = field(default=FileType.NONE)
 
     def reset(self):
         for f in fields(self):
