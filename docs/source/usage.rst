@@ -2,18 +2,18 @@ Usage
 ==================================================
 
 1. **Easiest Way:**
-Use `Drag & Drop <https://en.wikipedia.org/wiki/Drag_and_drop>`_. Just drag and drop files you want convert onto ``scfile.exe``.
-File paths will automatically be taken as arguments and converted. By default, output files are placed in same directory where the program is located.
+   Use `Drag & Drop <https://en.wikipedia.org/wiki/Drag_and_drop>`_. Just drag and drop files you want convert onto ``scfile.exe``.
+   File paths will automatically be taken as arguments and converted. By default, output files are placed in same directory where the program is located.
 
 2. **File Associations:**
-You can set ``scfile.exe`` as the default application for opening model and texture files.
-When a file is "opened" this way, it will automatically be converted to the new format and saved in the same location.
+   You can set ``scfile.exe`` as the default application for opening model and texture files.
+   When a file is "opened" this way, it will automatically be converted to the new format and saved in the same location.
 
 3. **Via Console:**
-``scfile`` is primarily a `CLI <https://en.wikipedia.org/wiki/Command-line_interface>`_. If you're comfortable with the terminal, you'll figure it out fast.
-Check out arguments and options with ``scfile.exe --help``.
+   ``scfile`` is primarily a `CLI <https://en.wikipedia.org/wiki/Command-line_interface>`_. If you're comfortable with the terminal, you'll figure it out fast.
+   Check out arguments and options with ``scfile.exe --help``.
 
-.. code-block:: bash
+   .. code-block:: bash
 
     Usage: scfile [PATHS]... [OPTIONS]
 
@@ -28,26 +28,26 @@ Check out arguments and options with ``scfile.exe --help``.
       --version               Show the version and exit.
       --help                  Show help message and exit.
 
-1. **As Library:**
-Install release build using ``pip install sc-file`` or any other package manager.
+4. **As Library:**
+   Install release build using ``pip install sc-file`` or any other package manager.
 
-:doc:`More details in API Reference... <api/index>`
+   :doc:`More details in API Reference... <api/index>`
 
-.. code-block:: python
-  :caption: Simple code example
+   .. code-block:: python
+    :caption: Simple code example
 
-  from pathlib import Path
-  from scfile import convert
-  from scfile.core.context import ModelOptions
+    from pathlib import Path
+    from scfile import convert
+    from scfile.core.context import ModelOptions
 
-  models = Path("models")
-  output = Path("output")
-  options = ModelOptions(parse_skeleton=True, overwrite=False)
+    models = Path("models")
+    output = Path("output")
+    options = ModelOptions(parse_skeleton=True, overwrite=False)
 
-  for path in models.rglob("*.mcsb"):
-      convert.mcsb_to_obj(source=path, output=output, options=options)
+    for path in models.rglob("*.mcsb"):
+        convert.mcsb_to_obj(source=path, output=output, options=options)
 
-This code takes all ``.mcsb`` files from ``models`` directory, converts them, and dumps into ``output``.
+   This code takes all ``.mcsb`` files from ``models`` directory, converts them, and dumps into ``output``.
 
 
 ----------------------------------------
