@@ -33,6 +33,7 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/onejeuu/sc-file"
 Repository = "https://github.com/onejeuu/sc-file"
+Documentation = "https://sc-file.readthedocs.io"
 
 [project.scripts]
 scfile = "scfile.__main__:main"
