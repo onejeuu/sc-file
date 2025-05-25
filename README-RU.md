@@ -28,7 +28,7 @@
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
 [badge-en]: https://img.shields.io/badge/lang-English%20%F0%9F%87%AC%F0%9F%87%A7-white
 
-<img src="assets/scfile.svg" alt="scfile" width="96" />
+<img src="assets/scfile.svg" alt="icon" width="96" />
 
 [![Pypi][badge-pypi]][pypi]
 [![License][badge-license]][license]
