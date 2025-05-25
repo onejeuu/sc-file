@@ -63,7 +63,7 @@ from . import types, utils
 def scfile(
     ctx: click.Context,
     paths: types.FilesPaths,
-    output: Optional[types.PathType],
+    output: types.OutputDir,
     mdlformat: Optional[Formats],
     relative: bool,
     parent: bool,

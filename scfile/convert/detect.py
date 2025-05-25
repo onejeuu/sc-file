@@ -9,7 +9,7 @@ from typing import Callable, Optional, TypeAlias
 import lz4.block
 
 from scfile.core.context import UserOptions
-from scfile.core.types import PathLike
+from scfile.core.types import OutputDir, PathLike
 from scfile.enums import FileFormat
 from scfile.exceptions.file import InvalidStructureError, UnsupportedFormatError
 
@@ -36,7 +36,7 @@ MCSA: ConvertersMap = {
 
 def auto(
     source: PathLike,
-    output: Optional[PathLike] = None,
+    output: OutputDir = None,
     options: Optional[UserOptions] = None,
 ):
     """
