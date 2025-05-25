@@ -3,6 +3,7 @@ CLI wrapper small utils.
 """
 
 from pathlib import Path
+from typing import Optional
 
 import click
 from rich import print
@@ -36,7 +37,6 @@ def is_supported(path: Path) -> bool:
 
 def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
     """Maps parent directories to their supported files."""
-
     for path in paths:
         path = path.resolve()
 
@@ -48,3 +48,11 @@ def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
             for file in path.rglob("*"):
                 if is_supported(file):
                     yield path, file
+
+
+def output_to_destination(root: Path, source: Path, output: Optional[Path], relative: bool, parent: bool):
+    """Output path with source relative subdirectory appended if relative flag."""
+    if (relative and output):
+        basedir = root.parent if parent else root
+        return output / source.relative_to(basedir).parent
+    return output
