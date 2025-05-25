@@ -13,7 +13,7 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
   * - Suffix
     - Name
     - Skeleton
-    - Animations
+    - Animation
   * - ``.obj``
     - `Wavefront <https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
     - ➖

@@ -1,6 +1,6 @@
 [project]
 name = "sc-file"
-version = "4.0.0"
+version = "4.0.1"
 description = "Utility & Library for decoding stalcraft assets"
 
 requires-python = ">=3.11"
@@ -43,6 +43,10 @@ packages = { find = { include = ["scfile", "scfile.*"] } }
 
 [tool.ruff.lint]
 ignore = ["E701"]
+
+[tool.isort]
+lines_after_imports = 2
+skip = ["__init__.py"]
 
 [build-system]
 requires = ["setuptools"]

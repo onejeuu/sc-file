@@ -9,6 +9,8 @@ Choose appropriate API based on your needs:
 
   .. code-block:: python
 
+    import scfile
+
     scfile.convert.auto("model.mcsa")
     scfile.convert.formats.ol_to_dds("texture.ol")
 
@@ -17,6 +19,8 @@ Choose appropriate API based on your needs:
   Use :mod:`scfile.formats` — low-level access to decoders/encoders.
 
   .. code-block:: python
+
+    from scfile.formats.mcsa.decoder import McsaDecoder
 
     with McsaDecoder("model.mcsa") as mcsa:
       mcsa.to_obj().save("output.obj")
