@@ -100,11 +100,8 @@ def scfile(
 
     # Iterate over each directory to their supported files
     for root, source in utils.paths_to_files_map(paths):
-        # Get relative subdir from root
-        subdir = source.relative_to(root.parent if parent else root).parent
-
-        # Use subdir in output path if relative enabled and output specified
-        dest = output / subdir if (relative and output) else output
+        # Get destination path
+        dest = utils.output_to_destination(root, source, output, relative, parent)
 
         # Convert source file
         try:

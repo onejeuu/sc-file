@@ -34,7 +34,7 @@ def invoke_scfile_command(
     mock_convert: MagicMock,
     args: Optional[Sequence[str]] = None,
     options: Optional[UserOptions] = None,
-) -> None:
+):
     base_args = [str(source), "--output", str(output)]
     if args:
         base_args.extend(args)
@@ -50,7 +50,7 @@ def invoke_scfile_command(
     "name",
     ["model.mcsa", "texture.ol", "cubemap.ol", "image.mic"],
 )
-def test_convert_files(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock, name: str) -> None:
+def test_convert_files(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock, name: str):
     invoke_scfile_command(cli, assets / name, temp, mock_convert)
 
 
@@ -58,11 +58,11 @@ def test_convert_files(cli: CliRunner, assets: Path, temp: Path, mock_convert: M
     "name",
     ["model.mcsa", "texture.ol", "cubemap.ol", "image.mic"],
 )
-def test_output_to_subdirectory(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock, name: str) -> None:
+def test_output_to_subdirectory(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock, name: str):
     invoke_scfile_command(cli, assets / name, temp / "foo" / "bar", mock_convert)
 
 
-def test_model_export_formats(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock) -> None:
+def test_model_export_formats(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock):
     path = assets / "model.mcsa"
     invoke_scfile_command(
         cli,
@@ -74,7 +74,7 @@ def test_model_export_formats(cli: CliRunner, assets: Path, temp: Path, mock_con
     )
 
 
-def test_model_skeleton(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock) -> None:
+def test_model_skeleton(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock):
     path = assets / "model.mcsa"
     invoke_scfile_command(
         cli,
@@ -86,7 +86,7 @@ def test_model_skeleton(cli: CliRunner, assets: Path, temp: Path, mock_convert: 
     )
 
 
-def test_model_animation(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock) -> None:
+def test_model_animation(cli: CliRunner, assets: Path, temp: Path, mock_convert: MagicMock):
     path = assets / "model.mcsa"
     invoke_scfile_command(
         cli,
