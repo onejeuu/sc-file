@@ -3,7 +3,6 @@ CLI wrapper small utils.
 """
 
 from pathlib import Path
-from typing import Optional
 
 import click
 from rich import print
@@ -50,7 +49,7 @@ def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
                     yield path, file
 
 
-def output_to_destination(root: Path, source: Path, output: Optional[Path], relative: bool, parent: bool):
+def output_to_destination(root: Path, source: Path, output: types.OutputDir, relative: bool, parent: bool) -> types.OutputDir:
     """Output path with source relative subdirectory appended if relative flag."""
     if (relative and output):
         basedir = root.parent if parent else root

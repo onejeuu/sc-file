@@ -7,7 +7,7 @@ from typing import Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.context.options import UserOptions
-from scfile.core.types import Content, PathLike
+from scfile.core.types import Content, OutputDir, PathLike
 from scfile.exceptions.file import FileNotFound
 
 
@@ -15,7 +15,7 @@ def convert(
     decoder: Type[FileDecoder[Content]],
     encoder: Type[FileEncoder[Content]],
     source: PathLike,
-    output: Optional[PathLike] = None,
+    output: OutputDir = None,
     options: Optional[UserOptions] = None,
 ) -> None:
     """
