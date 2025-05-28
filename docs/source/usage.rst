@@ -3,11 +3,11 @@ Usage
 
 1. **Easiest Way:**
    Use `Drag & Drop <https://en.wikipedia.org/wiki/Drag_and_drop>`_. Just drag and drop files you want convert onto ``scfile.exe``.
-   File paths will automatically be taken as arguments and converted. By default, output files are placed in same directory where the program is located.
+   File paths will automatically be taken as arguments, converted to new format, and saved in same location.
 
 2. **File Associations:**
    You can set ``scfile.exe`` as the default application for opening model and texture files.
-   When a file is "opened" this way, it will automatically be converted to the new format and saved in the same location.
+   When a file is "opened" this way, it will be automatically converted to new format and saved in same location.
 
 3. **Via Console:**
    ``scfile`` is primarily a `CLI <https://en.wikipedia.org/wiki/Command-line_interface>`_. If you're comfortable with the terminal, you'll figure it out fast.
@@ -133,7 +133,7 @@ Output Directory
 ----------------------------------------
 
 | As mentioned earlier, you can convert entire directories at once.
-| By default, output files are placed in same directory where the program is located.
+| By default, output files saved in same location.
 
 You can specify ``--output`` / ``-O`` parameter to change it.
 ::
@@ -155,6 +155,7 @@ Output Structure
 | To preserve source directory structure, use ``--relative`` flag.
 | Relative path from path argument will be passed as relative path of base ``--output`` directory.
 
+| To use source root directory as starting point in output, use ``--parent`` flag.
 
 Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +166,6 @@ Example
   ./assets/
   ├── armor/model_1.mcsb
   └── items/model_2.mcsb
-
 
 Default
 ^^^^^^^^^^^^^^^^^^^^
@@ -180,7 +180,6 @@ Default
   ├── model_1.mcsb
   └── model_2.mcsb
 
-
 Relative
 ^^^^^^^^^^^^^^^^^^^^
 .. code-block:: bash
@@ -193,3 +192,16 @@ Relative
   ./output/
   ├── armor/model_1.mcsb
   └── items/model_2.mcsb
+
+Parent
+^^^^^^^^^^^^^^^^^^^^
+.. code-block:: bash
+
+    scfile.exe "./assets" --output "./output" --parent
+
+.. code-block:: text
+  :caption: Output
+
+  ./output/
+  ├── assets/armor/model_1.mcsb
+  └── assets/items/model_2.mcsb
