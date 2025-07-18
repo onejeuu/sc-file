@@ -30,15 +30,15 @@ class McsaFileIO(StructFileIO):
     def _readarray(self, fmt: str, dtype: str):
         return np.array(self._unpack(fmt), dtype=np.dtype(dtype))
 
-    def _readvertex(self, dtype: F, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
+    def _readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
         # Read array
         data = self._readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
 
-        # TODO: astype before rescale?
         # Scale values to floats
-        data = data * scale / factor
+        data = data.astype(F.F32) * np.float32(scale / factor)
 
-        return data.astype(dtype).reshape(-1, size)
+        # Reshape to arr[vertex[size]]
+        return data.reshape(-1, size)
 
     def _readpolygons(self, count: int):
         size = McsaSize.POLYGONS
@@ -70,10 +70,8 @@ class McsaFileIO(StructFileIO):
         # Scale values to floats
         data = data.astype(F.F32) / (Factor.I16)
 
-        # Reshape to clip[frames[bones[transforms[4]]]]
-        data = data.reshape(times_count, bones_count, size)
-
-        return data
+        # Reshape to clip[frames[bones[transforms[7]]]]
+        return data.reshape(times_count, bones_count, size)
 
     def _readpackedlinks(self, count: int, bones: BonesMapping) -> Links:
         size = McsaSize.LINKS
@@ -115,12 +113,6 @@ def _apply_bones_mapping(ids: np.ndarray, bones: BonesMapping) -> LinksIds:
     return lookup[mask]
 
 
-def _normalize(weights: np.ndarray) -> LinksWeights:
-    reshaped = weights.reshape(-1, 4)
-    normalized = reshaped / reshaped.sum(axis=1, keepdims=True)
-    return normalized.reshape(-1)
-
-
 def _links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
     # Convert local bone ids to skeleton bone ids
     ids = _apply_bones_mapping(ids, bones)
@@ -130,9 +122,5 @@ def _links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
 
     # Scale, Round, Normalize
     weights = weights.astype(F.F32) / Factor.U8
-
-    # TODO: idk necessary or not
-    # weights = weights.round(McsaModel.DECIMALS)
-    # weights = _normalize(weights)
 
     return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32).reshape(-1, 4))

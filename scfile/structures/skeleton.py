@@ -19,8 +19,10 @@ class SkeletonBone:
     id: int = 0
     name: str = "bone"
     parent_id: int = McsaModel.ROOT_BONE_ID
+
     position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
     rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+
     children: List[Self] = field(default_factory=list, repr=False)
 
     @property
@@ -37,16 +39,15 @@ class ModelSkeleton:
 
     def convert_to_local(self) -> None:
         parent_id = 0
-        bones = self.bones
 
-        for bone in bones:
+        for bone in self.bones:
             parent_id = bone.parent_id
 
             # Update position relative to parent
             while parent_id > McsaModel.ROOT_BONE_ID:
-                parent = bones[parent_id]
-                bone.position -= parent.position
+                parent = self.bones[parent_id]
                 parent_id = parent.parent_id
+                bone.position -= parent.position
 
     def build_hierarchy(self) -> list[SkeletonBone]:
         # Create a dictionary to map bone id to bones
@@ -69,14 +70,14 @@ class ModelSkeleton:
         return roots
 
     def calculate_global_transforms(self) -> list[np.ndarray]:
-        global_transforms: list[np.ndarray] = []
+        transforms: list[np.ndarray] = []
 
         for bone in self.bones:
             local_matrix = create_transform_matrix(bone.position, bone.rotation)
-            global_transform = local_matrix if bone.is_root else global_transforms[bone.parent_id] @ local_matrix
-            global_transforms.append(global_transform)
+            global_matrix = local_matrix if bone.is_root else transforms[bone.parent_id] @ local_matrix
+            transforms.append(global_matrix)
 
-        return global_transforms
+        return transforms
 
     def inverse_bind_matrices(self, transpose: bool) -> np.ndarray:
         global_transforms = self.calculate_global_transforms()

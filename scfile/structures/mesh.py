@@ -27,6 +27,13 @@ class MeshCounts:
 
 
 @dataclass
+class MeshOrigin:
+    position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    scale: float = 0.0
+
+
+@dataclass
 class ModelMesh:
     """3D mesh geometry container."""
 
@@ -34,6 +41,8 @@ class ModelMesh:
     material: str = "material"
 
     count: MeshCounts = field(default_factory=MeshCounts)
+    origin: MeshOrigin = field(default_factory=MeshOrigin)
+
     bones: BonesMapping = field(default_factory=dict)
 
     positions: Vector3D = field(default_factory=lambda: np.empty((0, 3), dtype=np.float32))

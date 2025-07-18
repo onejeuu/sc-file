@@ -77,7 +77,7 @@ class McsaSize:
 class CLI:
     """Command line interface constants."""
 
-    VERSION = "4.0.1"
+    VERSION = "4.0.2"
 
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
     PAUSE = "\nPress any key to continue or exit..."

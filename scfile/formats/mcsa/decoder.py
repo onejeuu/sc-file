@@ -111,14 +111,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self.data.scene.scale.filtering = self._readb(F.F32)
 
         # Default origins
-        # ? Not exported
         if self.data.version >= 10.0:
-            self.read(4 * 6)
+            mesh.origin.rotation = self._readarray(f"{3}{F.F32}", F.F32)
+            mesh.origin.position = self._readarray(f"{3}{F.F32}", F.F32)
 
         # Default scale
-        # ? Not exported
         if self.data.version >= 11.0:
-            self.read(4)
+            mesh.origin.scale = self._readb(F.F32)
 
         # Geometric vertices
         self._parse_positions(mesh)
@@ -157,7 +156,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_positions(self, mesh: ModelMesh):
         mesh.positions = self._readvertex(
-            dtype=F.F32,
             fmt=F.I16,
             factor=Factor.I16,
             size=McsaSize.POSITIONS,
@@ -167,7 +165,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_textures(self, mesh: ModelMesh):
         mesh.textures = self._readvertex(
-            dtype=F.F32,
             fmt=F.I16,
             factor=Factor.I16,
             size=McsaSize.TEXTURES,
@@ -177,7 +174,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_normals(self, mesh: ModelMesh):
         mesh.normals = self._readvertex(
-            dtype=F.F32,
             fmt=F.I8,
             factor=Factor.I8,
             size=McsaSize.NORMALS,

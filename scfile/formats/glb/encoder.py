@@ -106,6 +106,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
         if self.skeleton_presented:
             self._create_bones()
+            self._create_bindmatrix()
 
         if self.animation_presented:
             self._create_animation()
@@ -122,10 +123,6 @@ class GlbEncoder(FileEncoder[ModelContent]):
         return len(self.ctx["GLTF"]["accessors"])
 
     def _create_meshes(self):
-        # Calculate joints with offset
-        joints_offset = self.data.scene.count.meshes
-        joints: list[int] = list(range(joints_offset, joints_offset + self.data.scene.count.bones))
-
         for index, mesh in enumerate(self.data.scene.meshes):
             primitive: Node = deepcopy(base.PRIMITIVE)
 
@@ -158,17 +155,6 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
 
-                # Bind Matrix
-                self.ctx["GLTF"]["skins"].append(
-                    dict(
-                        name="Armature",
-                        inverseBindMatrices=self._accessor_index(),
-                        joints=joints,
-                    )
-                )
-                self._create_bufferview(byte_length=self.data.scene.count.bones * 16 * 4, target=None)
-                self._create_accessor(self.data.scene.count.bones, "MAT4", ComponentType.FLOAT)
-
             # ABC Polygons
             primitive["indices"] = self._accessor_index()
             self._create_bufferview(byte_length=mesh.count.polygons * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
@@ -179,7 +165,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             node: Node = {"name": mesh.name, "mesh": index}
 
             if self.skeleton_presented:
-                node["skin"] = index
+                node["skin"] = 0
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
@@ -190,7 +176,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["BONE_INDEXES"] = []
         self.ctx["ROOT_BONE_INDEXES"] = []
 
-        node_index_offset = len(self.data.scene.meshes)
+        node_index_offset = self.data.scene.count.meshes
 
         for index, bone in enumerate(self.data.scene.skeleton.bones, start=node_index_offset):
             node: Node = dict(
@@ -209,6 +195,17 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
+
+    def _create_bindmatrix(self):
+        self.ctx["GLTF"]["skins"].append(
+            dict(
+                name="Armature",
+                inverseBindMatrices=self._accessor_index(),
+                joints=self.ctx["BONE_INDEXES"],
+            )
+        )
+        self._create_bufferview(byte_length=self.data.scene.count.bones * 16 * 4, target=None)
+        self._create_accessor(self.data.scene.count.bones, "MAT4", ComponentType.FLOAT)
 
     def _create_animation(self):
         for clip in self.data.scene.animation.clips:
@@ -235,7 +232,6 @@ class GlbEncoder(FileEncoder[ModelContent]):
                         dict(input=time_idx, output=rotation_idx, interpolation="LINEAR"),
                     ]
                 )
-
                 channels.extend(
                     [
                         dict(sampler=sampler_idx, target=dict(node=node_index, path="translation")),
@@ -285,6 +281,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
         self._add_meshes()
 
+        if self.skeleton_presented:
+            self._add_bindmatrix()
+
         if self.animation_presented:
             self._add_animation()
 
@@ -303,9 +302,6 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self._writeb(F.U32, size)
 
     def _add_meshes(self):
-        # Skeleton bones bind matrix
-        bind_matrix = self.data.scene.skeleton.inverse_bind_matrices(transpose=True).tobytes()
-
         for mesh in self.data.scene.meshes:
             # XYZ Position
             self.write(mesh.positions.tobytes())
@@ -326,11 +322,13 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 # Joint Weights
                 self.write(mesh.links_weights.tobytes())
 
-                # Bind Matrix
-                self.write(bind_matrix)
-
             # ABC Polygons
             self.write(mesh.polygons.flatten().tobytes())
+
+    def _add_bindmatrix(self):
+        # Skeleton bones bind matrix
+        bind_matrix = self.data.scene.skeleton.inverse_bind_matrices(transpose=True).tobytes()
+        self.write(bind_matrix)
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:
