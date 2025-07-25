@@ -79,9 +79,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     def _parse_meshes(self):
         self.data.scene.count.meshes = self._readb(F.I32)
 
-        if self.data.scene.count.meshes > 0:
-            for _ in range(self.data.scene.count.meshes):
-                self._parse_mesh()
+        for _ in range(self.data.scene.count.meshes):
+            self._parse_mesh()
 
     def _skip_vertices(self, mesh: ModelMesh, size: int):
         self.read(mesh.count.vertices * size)
@@ -219,8 +218,11 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         bone.id = index
         bone.name = self._readutf8()
 
+        # ? Bone is root if parent_id points to itself
+        # ? self-reference would cause invalid recursion
         parent_id = self._readb(F.U8)
         bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
+
         bone.position, bone.rotation = self._readbone()
 
         self.data.scene.skeleton.bones.append(bone)
@@ -228,9 +230,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     def _parse_animation(self):
         self.data.scene.count.clips = self._readb(F.I32)
 
-        if self.data.scene.count.clips > 0:
-            for _ in range(self.data.scene.count.clips):
-                self._parse_clip()
+        for _ in range(self.data.scene.count.clips):
+            self._parse_clip()
 
     def _parse_clip(self):
         clip = AnimationClip()

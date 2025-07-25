@@ -6,7 +6,6 @@ from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
-from scfile.structures.skeleton import euler_to_quat
 
 from .io import Ms3dFileIO
 
@@ -126,7 +125,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
             # u16 keyframes rotations, u16 keyframes transitions
             fmt = f"{F.F32 * 6}{F.U16 * 2}"
 
-            qx, qy, qz, qw = euler_to_quat(bone.rotation)
+            qx, qy, qz, qw = bone.quaternion
             self._writeb(fmt, qx, qy, qz, *bone.position, 0, 0)
 
     def _add_comments(self):

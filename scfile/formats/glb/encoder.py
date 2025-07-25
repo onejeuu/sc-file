@@ -10,7 +10,6 @@ from scfile.core.context import ModelContent
 from scfile.enums import FileFormat
 from scfile.enums import StructFormat as F
 from scfile.formats.mcsa.flags import Flag
-from scfile.structures.skeleton import euler_to_quat
 
 from . import base
 from .enums import BufferTarget, ComponentType
@@ -41,6 +40,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
         if self.skeleton_presented:
             self.data.scene.skeleton.convert_to_local()
             self.data.scene.skeleton.build_hierarchy()
+
+        if self.animation_presented:
+            self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
 
     def serialize(self):
         self._add_header()
@@ -115,7 +117,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         nodes = list(range(self.data.scene.count.meshes))
 
         if self.skeleton_presented:
-            nodes += self.ctx["ROOT_BONE_INDEXES"]
+            nodes += self.ctx["ROOT_INDEXES"]
 
         self.ctx["GLTF"]["scenes"][0]["nodes"] = nodes
 
@@ -129,7 +131,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             # XYZ Position
             primitive["attributes"]["POSITION"] = self._accessor_index()
             self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
-            self._create_accessor(mesh.count.vertices, "VEC3")
+            self._create_accessor(mesh.count.vertices, "VEC3", array=mesh.positions)
 
             # UV Texture
             if self.data.flags[Flag.UV]:
@@ -144,7 +146,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self._create_accessor(mesh.count.vertices, "VEC3")
 
             # Bone Links
-            if self.skeleton_presented:
+            if self.skeleton_presented and mesh.count.links > 0:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 4 * 1)
@@ -164,7 +166,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             primitive["material"] = index
             node: Node = {"name": mesh.name, "mesh": index}
 
-            if self.skeleton_presented:
+            if self.skeleton_presented and mesh.count.links > 0:
                 node["skin"] = 0
 
             # Add to GLTF
@@ -174,7 +176,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _create_bones(self):
         self.ctx["BONE_INDEXES"] = []
-        self.ctx["ROOT_BONE_INDEXES"] = []
+        self.ctx["ROOT_INDEXES"] = []
 
         node_index_offset = self.data.scene.count.meshes
 
@@ -182,13 +184,13 @@ class GlbEncoder(FileEncoder[ModelContent]):
             node: Node = dict(
                 name=bone.name,
                 translation=bone.position.tolist(),
-                rotation=euler_to_quat(bone.rotation).tolist(),
+                rotation=bone.quaternion.tolist(),
             )
 
             self.ctx["BONE_INDEXES"].append(index)
 
             if bone.is_root:
-                self.ctx["ROOT_BONE_INDEXES"].append(index)
+                self.ctx["ROOT_INDEXES"].append(index)
 
             if bone.children:
                 node["children"] = [node_index_offset + child.id for child in bone.children]
@@ -264,6 +266,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         count: int,
         accessor_type: str,
         component_type: ComponentType = ComponentType.FLOAT,
+        array: Optional[np.ndarray] = None,
     ):
         buffer_view_idx = len(self.ctx["GLTF"]["bufferViews"]) - 1
         accessor: Accessor = dict(
@@ -272,6 +275,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
             componentType=component_type.value,
             type=accessor_type,
         )
+
+        if array is not None:
+            accessor["min"] = np.min(array, axis=0).tolist()
+            accessor["max"] = np.max(array, axis=0).tolist()
 
         self.ctx["GLTF"]["accessors"].append(accessor)
 
@@ -334,10 +341,9 @@ class GlbEncoder(FileEncoder[ModelContent]):
         for clip in self.data.scene.animation.clips:
             self.write(clip.times.tobytes())
 
-            for index, bone in enumerate(self.data.scene.skeleton.bones):
-                bone_transforms = clip.transforms[:, index, :]
+            for bone in self.data.scene.skeleton.bones:
+                bone_transforms = clip.transforms[:, bone.id, :]
                 rotations, translations = np.split(bone_transforms, [4], axis=1)
-                translations += bone.position
 
                 self.write(translations.tobytes())
                 self.write(rotations.tobytes())

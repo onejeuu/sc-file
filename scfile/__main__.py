@@ -19,7 +19,7 @@ def main():
     except (KeyboardInterrupt, click.exceptions.Abort):
         print("[yellow]Operation aborted.[/]")
 
-    sys.exit(1)
+    sys.exit()
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ class McsaFileIO(StructFileIO):
     def _readcount(self, type: str) -> int:
         count = self._readb(F.U32)
 
+        # ? Prevent memory overflow
         if count > McsaModel.GEOMETRY_LIMIT:
             raise McsaCountsLimit(self.path, type, count)
 
@@ -37,19 +38,21 @@ class McsaFileIO(StructFileIO):
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(scale / factor)
 
-        # Reshape to arr[vertex[size]]
+        # Reshape to vertex[attribute[size]]
+        # attribute = position[3] / normal[3] / uv[2]
         return data.reshape(-1, size)
 
     def _readpolygons(self, count: int):
         size = McsaSize.POLYGONS
 
-        # Validate that indexes fits into U16 range. Otherwise use U32.
+        # ? Validate that indexes fits into U16 range, otherwise use U32.
         indexes = count * size
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
         data = self._readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
 
+        # Reshape to face[indices[3]]
         return data.astype(F.U32).reshape(-1, size)
 
     def _readbone(self):
@@ -68,9 +71,10 @@ class McsaFileIO(StructFileIO):
         data = self._readarray(fmt=f"{times_count * bones_count * size}{F.I16}", dtype=F.I16)
 
         # Scale values to floats
-        data = data.astype(F.F32) / (Factor.I16)
+        data = data.astype(F.F32) * np.float32(1.0 / Factor.I16)
 
-        # Reshape to clip[frames[bones[transforms[7]]]]
+        # Reshape to clip[frames][bones][transforms[7]]
+        # transforms = [rotation[4], translation[3]]
         return data.reshape(times_count, bones_count, size)
 
     def _readpackedlinks(self, count: int, bones: BonesMapping) -> Links:
@@ -79,10 +83,11 @@ class McsaFileIO(StructFileIO):
         # Read array
         data = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
 
-        # Reshape to vertex[ids[2], weights[2]]
+        # Reshape to vertex[skin[2][2]]
+        # skin = [bone_ids[2], weights[2]]
         data = data.reshape(-1, 2, 2)
 
-        # Unpack values
+        # Unpack and pad values
         ids, weights = _padded(data[:, 0, :]), _padded(data[:, 1, :])
 
         return _links(ids.flatten(), weights.flatten(), bones)
@@ -90,7 +95,7 @@ class McsaFileIO(StructFileIO):
     def _readplainlinks(self, count: int, bones: BonesMapping) -> Links:
         size = McsaSize.LINKS
 
-        # Read arrays
+        # Read arrays: bone_ids[vertex][size], weights[vertex][size]
         ids = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
         weights = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
 
@@ -121,6 +126,7 @@ def _links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
     ids[weights == 0.0] = 0
 
     # Scale, Round, Normalize
-    weights = weights.astype(F.F32) / Factor.U8
+    weights = weights.astype(F.F32) * np.float32(1.0 / Factor.U8)
 
+    # Reshape to vertex[bone_ids[size]], vertex[weights[size]]
     return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32).reshape(-1, 4))
