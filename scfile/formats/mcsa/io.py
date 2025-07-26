@@ -28,12 +28,9 @@ class McsaFileIO(StructFileIO):
 
         return count
 
-    def _readarray(self, fmt: str, dtype: str):
-        return np.array(self._unpack(fmt), dtype=np.dtype(dtype))
-
     def _readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
         # Read array
-        data = self._readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
+        data = self._readarray(fmt, count * size)
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(scale / factor)
@@ -50,7 +47,7 @@ class McsaFileIO(StructFileIO):
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
-        data = self._readarray(fmt=f"{count * size}{fmt}", dtype=fmt)
+        data = self._readarray(fmt, count * size)
 
         # Reshape to face[indices[3]]
         return data.astype(F.U32).reshape(-1, size)
@@ -59,7 +56,7 @@ class McsaFileIO(StructFileIO):
         size = McsaSize.BONES
 
         # Read array
-        data = self._readarray(fmt=f"{size}{F.F32}", dtype=F.F32)
+        data = self._readarray(F.F32, size)
 
         # Reshape to bone[position[3], rotation[3]]
         return data.astype(F.F32).reshape(2, 3)
@@ -68,7 +65,7 @@ class McsaFileIO(StructFileIO):
         size = McsaSize.FRAMES
 
         # Read array
-        data = self._readarray(fmt=f"{times_count * bones_count * size}{F.I16}", dtype=F.I16)
+        data = self._readarray(F.I16, times_count * bones_count * size)
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(1.0 / Factor.I16)
@@ -81,7 +78,7 @@ class McsaFileIO(StructFileIO):
         size = McsaSize.LINKS
 
         # Read array
-        data = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
+        data = self._readarray(F.U8, count * size)
 
         # Reshape to vertex[skin[2][2]]
         # skin = [bone_ids[2], weights[2]]
@@ -96,8 +93,8 @@ class McsaFileIO(StructFileIO):
         size = McsaSize.LINKS
 
         # Read arrays: bone_ids[vertex][size], weights[vertex][size]
-        ids = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
-        weights = self._readarray(fmt=f"{count * size}{F.U8}", dtype=F.U8)
+        ids = self._readarray(F.U8, count * size)
+        weights = self._readarray(F.U8, count * size)
 
         return _links(ids, weights, bones)
 

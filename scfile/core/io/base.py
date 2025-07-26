@@ -6,6 +6,8 @@ import io
 import struct
 from typing import Any, Optional
 
+import numpy as np
+
 from scfile.enums import ByteOrder
 from scfile.enums import StructFormat as F
 from scfile.enums import UnicodeErrors
@@ -24,6 +26,12 @@ class StructIO(io.IOBase):
         size = struct.calcsize(str(fmt))
         data = self.read(size)
         return struct.unpack(fmt, data)
+
+    def _readarray(self, dtype: str, count: int, order: Optional[ByteOrder] = None):
+        order = order or self.order
+        datatype = np.dtype(f"{order}{dtype}")
+        datasize = count * datatype.itemsize
+        return np.frombuffer(self.read(datasize), dtype=datatype, count=count)
 
     def _readb(self, fmt: str, order: Optional[ByteOrder] = None) -> Any:
         order = order or self.order

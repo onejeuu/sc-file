@@ -111,8 +111,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Default origins
         if self.data.version >= 10.0:
-            mesh.origin.rotation = self._readarray(f"{3}{F.F32}", F.F32)
-            mesh.origin.position = self._readarray(f"{3}{F.F32}", F.F32)
+            mesh.origin.rotation = self._readarray(F.F32, 3)
+            mesh.origin.position = self._readarray(F.F32, 3)
 
         # Default scale
         if self.data.version >= 11.0:
