@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: OL-CUBEMAPS.bt
 // Authors: onejeuu
-// Version: 1.0
-// Purpose: Parse textures.
+// Version: 2.0
+// Purpose: Parse cubemap textures.
 // Category: STALCRAFT
 // ID Bytes: 0A 95 23 FD
 //------------------------------------------------
@@ -17,19 +17,14 @@ BigEndian();
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
-    if ( size > 0 )
-        char data[size] <bgcolor=cYellow, optimize=false>;
-} String <read=ReadSTRING>;
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
 
-string ReadSTRING( String &str ) {
-    return exists(str.data) ? str.data : "";
-}
-
-struct FourCC {
+typedef struct {
     char encoded[17];
-};
+} FourCC <read=ReadFourCC>;
 
-string ReadFOURCC( FourCC &fourcc ) {
+string ReadFourCC( FourCC &fourcc ) {
     local ubyte i = 0;
     local string result = "";
     for ( i = 0; i < 16; i++ ) {
@@ -43,19 +38,17 @@ string ReadFOURCC( FourCC &fourcc ) {
 
 char signature[4] <name="Signature", fgcolor=cGreen>;
 
-struct Header {
-    uint width <name="Width", bgcolor=cWhite>;
-    uint height <name="Height", bgcolor=cWhite>;
-    uint mipmaps <name="Mipmaps", bgcolor=cAqua>;
-    FourCC fourcc <name="FourCC", read=ReadFOURCC, bgcolor=cDkYellow>;
-} header <name="Header">;
+uint width <name="Width", bgcolor=cWhite>;
+uint height <name="Height", bgcolor=cWhite>;
+uint mipmapCount <name="Mipmap Count", bgcolor=cAqua>;
+FourCC fourcc <name="FourCC", bgcolor=cDkYellow>;
 
 
 // LZ4 Sizes
 
 struct Sizes {
-    uint uncompressed[header.mipmaps * 6] <name="Uncompressed", bgcolor=cGreen>;
-    uint compressed[header.mipmaps * 6] <name="Compressed", bgcolor=cDkGreen>;
+    uint uncompressed[mipmapCount * 6] <name="Uncompressed", bgcolor=cGreen>;
+    uint compressed[mipmapCount * 6] <name="Compressed", bgcolor=cDkGreen>;
 } sizes <name="LZ4 Sizes">;
 
 
@@ -66,4 +59,4 @@ String texture_id <name="Texture ID">;
 
 // Packed in lz4 mipmaps images
 
-byte imagedata[FileSize() - FTell()] <name="MipMaps", bgcolor=cLtBlue>;
+byte imagedata[FileSize() - FTell()] <name="Mipmaps", bgcolor=cLtBlue>;

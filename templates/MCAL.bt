@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCAL.bt
 // Authors: onejeuu
-// Version: 1.0
+// Version: 2.0
 // Purpose: Parse animations library.
 // Category: STALCRAFT
 // File Mask: *.mcal
@@ -18,18 +18,16 @@ LittleEndian();
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
-    if ( size > 0 )
-        char data[size] <bgcolor=cYellow, optimize=false>;
-} String <read=ReadSTRING>;
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
 
-string ReadSTRING( String &str ) {
-    return exists(str.data) ? str.data : "";
-}
 
 // Vectors
 
-typedef struct Vec3  { short x, y, z; };
-typedef struct Vec4  { short x, y, z, w; };
+float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort
+
+typedef struct { short x, y, z; } Vec3s <read=Str("%f, %f, %f", nS(x), nS(y), nS(z))>;
+typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
 
 
 // Header
@@ -40,31 +38,25 @@ float version <name="Version", fgcolor=cRed>;
 
 // Animations
 
-struct Transforms {
-    Vec4 rotation <name="Rotation", bgcolor=cGray>;
-    Vec3 translation <name="Translation", bgcolor=cWhite>;
+struct BoneTransform {
+    Vec4s rotation <name="Rotation", bgcolor=cGray>;
+    Vec3s translation <name="Translation", bgcolor=cWhite>;
 };
 
-struct Frame {
-    Transforms transforms[framesCount];
+struct KeyFrame {
+    if ( boneCount > 0 ) BoneTransform transforms[boneCount];
 };
 
 typedef struct {
     String name <name="Name">;
-    int framesCount <name="Frames", bgcolor=cGreen>;
-    float frameRate <name="Rate", fgcolor=cPurple>;
-    if ( framesCount > 0 && bonesCount > 0 )
-        Frame frame[bonesCount] <optimize=false>;
-} Clip <read=ReadCLIP>;
-
-string ReadCLIP( Clip &clip ) {
-    return exists(clip.name) ? clip.name.data : "";
-}
+    int frameCount <name="Keyframe Count", bgcolor=cGreen>;
+    float frameInterval <name="Frame Interval", fgcolor=cPurple>;
+    if ( frameCount > 0 ) KeyFrame frame[frameCount] <optimize=false>;
+} Clip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Animation {
-    uint bonesCount <name="Bones Count", bgcolor=cPurple>;
+    uint boneCount <name="Bone Count", bgcolor=cPurple>;
     ubyte unknown <fgcolor=cBlack, comment="Often 64. Maybe some buffer size?">;
-    int clipsCount <name="Clips Count", bgcolor=cBlue>;
-    if ( clipsCount > 0 )
-        Clip clips[clipsCount] <name="Clip", optimize=false>;
+    int  clipCount <name="Clips Count", bgcolor=cBlue>;
+    if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
 } animation <name="Animation">;

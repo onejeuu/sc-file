@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: TEXARR.bt
 // Authors: onejeuu
-// Version: 1.0
+// Version: 2.0
 // Purpose: Parse texture arrays.
 // Category: STALCRAFT
 // File Mask: *.texarr
@@ -16,27 +16,17 @@ BigEndian();
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
-    if ( size > 0 )
-        char data[size] <bgcolor=cYellow, optimize=false>;
-} String <read=ReadSTRING>;
-
-string ReadSTRING( String &str ) {
-    return exists(str.data) ? str.data : "";
-}
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
 
 typedef struct {
     String id;
     uint filesize <bgcolor=cDkGreen>;
     byte image[filesize] <bgcolor=cLtGreen>;
-} Texture <read=ReadTEXTURE>;
-
-string ReadTEXTURE( Texture &texture ) {
-    return exists(texture.id.data) ? texture.id.data : "";
-}
+} Texture <read=(exists(this.id.data) ? this.id.data : "")>;
 
 
 // File
 
-uint texturesCount <bgcolor=cAqua>;
-
-Texture textures[texturesCount] <optimize=false>;
+uint textureCount <bgcolor=cAqua>;
+Texture textures[textureCount] <name="Texture", optimize=false>;

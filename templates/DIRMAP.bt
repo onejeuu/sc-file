@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: DIRMAP.bt
 // Authors: onejeuu
-// Version: 1.1
+// Version: 2.0
 // Purpose: Parse map file of game directory.
 // Category: STALCRAFT
 // File Mask: *.map
@@ -17,21 +17,16 @@ BigEndian();
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
-    if ( size > 0 )
-        char data[size] <bgcolor=cYellow, optimize=false>;
-} Path <read=ReadPATH>;
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
 
-string ReadPATH( Path &path ) {
-    return exists(path.data) ? path.data : "";
-}
-
-
-// Map File
-
-struct Item {
-    Path path <name="Path">;
+typedef struct {
+    String path <name="Path">;
     char sha1[20] <name="Hash", fgcolor=cGreen, bgcolor=cDkGreen>;
-};
+} FileEntry;
 
-uint count <name="Items Count", bgcolor=cPurple>;
-Item item[count] <name="Item", optimize=false>;
+
+// File
+
+uint count <name="Entries Count", bgcolor=cPurple>;
+FileEntry entries[count] <name="File Entries", optimize=false>;
