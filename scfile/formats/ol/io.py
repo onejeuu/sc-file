@@ -4,7 +4,7 @@ Extensions for OL file format with custom struct-based I/O methods.
 
 from scfile.consts import CubemapFaces, OlString
 from scfile.core.io.streams import StructFileIO
-from scfile.enums import StructFormat as F
+from scfile.enums import F
 
 
 class OlFileIO(StructFileIO):

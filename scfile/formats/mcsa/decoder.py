@@ -1,8 +1,7 @@
 from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
 from scfile.core.context import ModelContent
 from scfile.core.decoder import FileDecoder
-from scfile.enums import ByteOrder, FileFormat
-from scfile.enums import StructFormat as F
+from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder

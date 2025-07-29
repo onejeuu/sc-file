@@ -7,8 +7,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileDecoder
 from scfile.core.context import TextureContent
 from scfile.core.context.content import TextureType
-from scfile.enums import ByteOrder, FileFormat
-from scfile.enums import StructFormat as F
+from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.structures.texture import DefaultTexture
 

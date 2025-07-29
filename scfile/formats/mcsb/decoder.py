@@ -1,5 +1,4 @@
-from scfile.enums import ByteOrder
-from scfile.enums import StructFormat as F
+from scfile.enums import ByteOrder, F
 from scfile.formats.mcsa.decoder import McsaDecoder
 
 

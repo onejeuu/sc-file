@@ -3,8 +3,7 @@ import numpy as np
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder
 from scfile.core.context import ModelContent
-from scfile.enums import FileFormat
-from scfile.enums import StructFormat as F
+from scfile.enums import F, FileFormat
 from scfile.formats.mcsa.flags import Flag
 
 from .io import Ms3dFileIO

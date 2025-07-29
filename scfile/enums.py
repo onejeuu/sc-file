@@ -77,6 +77,10 @@ class StructFormat(StrEnum):
     """double: `single-precision` `4 bytes`"""
 
 
+F = StructFormat
+"""StructFormat Alias."""
+
+
 class UnicodeErrors(StrEnum):
     """Unicode errors handling policy."""
 

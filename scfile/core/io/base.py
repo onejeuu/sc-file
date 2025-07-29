@@ -8,9 +8,7 @@ from typing import Any, Optional
 
 import numpy as np
 
-from scfile.enums import ByteOrder
-from scfile.enums import StructFormat as F
-from scfile.enums import UnicodeErrors
+from scfile.enums import ByteOrder, F, UnicodeErrors
 
 
 class StructIO(io.IOBase):

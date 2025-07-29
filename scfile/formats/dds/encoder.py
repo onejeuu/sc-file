@@ -1,8 +1,7 @@
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder
 from scfile.core.context import TextureContent
-from scfile.enums import FileFormat
-from scfile.enums import StructFormat as F
+from scfile.enums import F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 
 from .header import DDS

@@ -3,7 +3,7 @@ Extensions for MS3D file format with custom struct-based I/O methods.
 """
 
 from scfile.core.io.streams import StructBytesIO
-from scfile.enums import StructFormat as F
+from scfile.enums import F
 
 from .exceptions import Ms3dCountsLimit
 

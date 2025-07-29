@@ -8,7 +8,7 @@ import numpy as np
 
 from scfile.consts import Factor, McsaModel, McsaSize
 from scfile.core.io.streams import StructFileIO
-from scfile.enums import StructFormat as F
+from scfile.enums import F
 from scfile.structures.mesh import BonesMapping
 from scfile.structures.vectors import LinksIds, LinksWeights
 
