@@ -67,11 +67,12 @@ def auto(
             deque(map(lambda fmt: MCSA[fmt](source, output, options), model_formats), maxlen=0)
 
         case FileFormat.OL:
-            # Try standard texture first. Fallback to cubemap on failure.
+            # Try standard texture first.
             try:
                 formats.ol_to_dds(source, output, options)
 
             except lz4.block.LZ4BlockError:
+                # Fallback to cubemap on failure.
                 try:
                     formats.ol_cubemap_to_dds(source, output, options)
 
@@ -80,6 +81,9 @@ def auto(
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)
+
+        case FileFormat.TEXARR:
+            formats.texarr_to_zip(source, output, options)
 
         case _:
             raise UnsupportedFormatError(src_path)

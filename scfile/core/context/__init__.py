@@ -2,7 +2,7 @@
 Shared context between decoder and encoder.
 """
 
-from .content import FileContent, ImageContent, ModelContent, TextureContent
+from .content import FileContent, ImageContent, ModelContent, TextureContent, TextureArrayContent
 from .options import UserOptions
 
 
@@ -11,5 +11,6 @@ __all__ = (
     "ImageContent",
     "ModelContent",
     "TextureContent",
+    "TextureArrayContent",
     "UserOptions",
 )

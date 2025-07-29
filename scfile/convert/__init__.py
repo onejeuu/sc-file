@@ -12,6 +12,7 @@ from .formats import (
     ol_to_dds,
     ol_cubemap_to_dds,
     mic_to_png,
+    texarr_to_zip,
 )
 
 
@@ -28,4 +29,5 @@ __all__ = (
     "ol_to_dds",
     "ol_cubemap_to_dds",
     "mic_to_png",
+    "texarr_to_zip",
 )

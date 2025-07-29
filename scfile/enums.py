@@ -17,6 +17,8 @@ class FileFormat(StrEnum):
     OBJ = auto()
     OL = auto()
     PNG = auto()
+    TEXARR = auto()
+    ZIP = auto()
 
     @property
     def suffix(self):
@@ -30,6 +32,7 @@ class FileType(StrEnum):
     MODEL = auto()
     TEXTURE = auto()
     IMAGE = auto()
+    TEXARR = auto()
 
 
 class FileMode(StrEnum):

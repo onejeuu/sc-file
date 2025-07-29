@@ -16,6 +16,8 @@ from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
 from scfile.formats.ol.decoder import OlDecoder
 from scfile.formats.png.encoder import PngEncoder
+from scfile.formats.texarr.decoder import TextureArrayDecoder
+from scfile.formats.zip.encoder import TextureArrayEncoder
 
 from .factory import converter
 
@@ -150,4 +152,23 @@ def mic_to_png(
 
     Example:
         `mic_to_png("image.mic", "path/to/output")`
+    """
+
+
+@converter(TextureArrayDecoder, TextureArrayEncoder)
+def texarr_to_zip(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts image from `.texarr` to `.zip` format.
+
+    Arguments:
+        source: Path to input `.texarr` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `mic_to_png("blockMap.texarr", "path/to/output")`
     """

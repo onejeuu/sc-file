@@ -82,3 +82,13 @@ class ImageContent(FileContent):
     type: FileType = field(default=FileType.IMAGE)
 
     image: bytes = field(default_factory=bytes)
+
+
+@dataclass
+class TextureArrayContent(FileContent):
+    """Texture array storage."""
+
+    type: FileType = field(default=FileType.TEXARR)
+
+    count: int = 0
+    textures: list[tuple[str, bytes]] = field(default_factory=list)

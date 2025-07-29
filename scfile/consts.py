@@ -6,7 +6,14 @@ from .enums import FileFormat
 Formats: TypeAlias = Sequence[FileFormat]
 
 
-SUPPORTED_FORMATS: set[FileFormat] = {FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.MIC, FileFormat.OL}
+SUPPORTED_FORMATS: set[FileFormat] = {
+    FileFormat.MCSA,
+    FileFormat.MCSB,
+    FileFormat.MCVD,
+    FileFormat.MIC,
+    FileFormat.OL,
+    FileFormat.TEXARR,
+}
 """Files formats (suffixes without dot) that can be converted."""
 
 SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
@@ -77,7 +84,7 @@ class McsaSize:
 class CLI:
     """Command line interface constants."""
 
-    VERSION = "4.0.2"
+    VERSION = "4.1.0"
 
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
     PAUSE = "\nPress any key to continue or exit..."
@@ -90,7 +97,7 @@ class CLI:
 class OutputFormats:
     """Supported output formats for file data types."""
 
-    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D,)
+    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D)
     TEXTURES: Formats = (FileFormat.DDS,)
     IMAGES: Formats = (FileFormat.PNG,)
 

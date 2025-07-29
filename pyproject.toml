@@ -1,6 +1,6 @@
 [project]
 name = "sc-file"
-version = "4.0.2"
+version = "4.1.0"
 description = "Utility & Library for decoding stalcraft assets"
 
 requires-python = ">=3.11"
