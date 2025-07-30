@@ -26,7 +26,7 @@
 [badge-docs]: https://img.shields.io/readthedocs/sc-file
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-en]: https://img.shields.io/badge/lang-English%20%F0%9F%87%AC%F0%9F%87%A7-white
+[badge-en]: https://img.shields.io/badge/translate%20to-English%20%F0%9F%87%AC%F0%9F%87%A7-white
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
