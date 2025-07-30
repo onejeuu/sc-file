@@ -1,8 +1,10 @@
 Compile
 ==================================================
 
+.. include:: _links.rst
+
 .. important::
-  This instructions are tailored for `uv tool <https://github.com/astral-sh/uv>`_.
+  This instructions are tailored for `uv tool <UV_>`_.
 
 
 1. Download project

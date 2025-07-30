@@ -44,7 +44,7 @@
 
 📚 Documentation: [sc-file][docs].
 
-🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`. \
+🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [More about Game Formats...][docs-formats]
 
 💻 Executable utility `scfile.exe` can be downloaded from [Releases page][releases] or [compiled from source][docs-compile] \

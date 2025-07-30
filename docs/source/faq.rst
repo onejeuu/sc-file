@@ -1,34 +1,35 @@
 Frequently Asked Questions
 ==================================================
 
+.. include:: _links.rst
 
 ----------------------------------------
-General
+📌 General
 ----------------------------------------
 
 Q: How to encode files back into game formats?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Reverse encoding is intentionally unsupported. While this functionality is technically possible, releasing it publicly could lead to unwanted consequences.
+| **Reverse encoding is unsupported on purpose.**
+| Even though it's possible to create this feature, making it public could cause problems.
 
-1. **Risk of format changes**: If an easy way to modify game files becomes available, it might encourage game developers to complicate or even encrypt game assets.
-
-2. **Potential cheating issues**: An open reverse encoding feature could significantly simplify creating hacks. This might attract negative attention from game developers and lead to the tool being seen as a cheat making utility, which I aim to avoid.
+1. **Formats changes risk**: If modifying game files becomes too easy, developers might start encrypting or complicating their assets.
+2. **Cheating concerns**: Public reverse encoding would make creating hacks much easier, attracting unwanted attention and undermining this tool purpose.
 
 | My goal is to support research and creativity, not to create tools that could harm the game community.
-| If you need assistance with in-game content creation tasks, you can `contact me directly <https://onejeuu.t.me>`_.
+| If you need assistance with in-game content creation tasks, you can `contact me directly <TG_>`_.
 
 
 Q: After game update ``%any_filename%`` no longer decodes!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Format structure may have been updated. Wait for program update. In case of large changes, it might take some time to adapt.
+Format structure may have been updated. Wait for program update. In case of large changes, it might take some time to adapt.
 
 
 Q: Could using this program lead to game ban?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Use at your own risk.
+Use at your own risk.
 
 **Some basic recommendations:**
   - You **MUST** close both game and launcher **BEFORE** interacting with any assets files.
@@ -37,26 +38,26 @@ Q: Could using this program lead to game ban?
 
 
 ----------------------------------------
-Models & Textures
+📤 Output Formats
 ----------------------------------------
 
-Q: What programs support ``.dds`` textures viewing?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: What programs supports ``.dds`` viewing?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Any programs with full support for all `DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_ formats.
+Any programs with full support for all `DirectDraw Surface <DDS_>`_ formats.
 
 **Recommended Viewers:**
-  - `XnView <https://xnview.com>`_ (Versatile)
-  - `WTV <https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml>`_ (Lightweight)
-  - `RenderDoc <https://renderdoc.org/builds>`_ (Analysis)
+  - `XnView <XNVIEW_>`_ (Versatile)
+  - `WTV <WTV_>`_ (Lightweight)
+  - `RenderDoc <RENDERDOC_>`_ (Analysis)
 
 
-Q: Is it possible to convert ``.dds`` textures to ``.png``?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: How to convert ``.dds`` textures to ``.png``?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Yes, but native support is not planned for code simplicity.
+Native support is not planned for code simplicity.
 
-| If needed, convert ``.dds`` to ``.png`` using `ImageMagick <https://imagemagick.org>`_.
+| If needed, convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_.
 | Command example:
 
 .. code-block:: bash
@@ -67,7 +68,7 @@ Q: Is it possible to convert ``.dds`` textures to ``.png``?
 Q: Why model have weird/black textures?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <https://i.ibb.co/mCsHk6R4/alphapvp.png>`_).
+Make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <ALPHAMODE_>`_).
 
 | Some models seem to have mixed-up suffixes in filenames.
 | Make sure that the ``_diff`` texture is actually a Diffuse Map and the ``_spek`` texture is a Specular Map.
@@ -75,16 +76,24 @@ Q: Why model have weird/black textures?
 
 
 ----------------------------------------
-Other Features
+⛔ Unsupported Formats
 ----------------------------------------
 
-Q: How to get character animations (``.mcal``)?
+Q: Why world map cache (``.mdat``) unsupported?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** Right now, it's not possible.
+| Structure resembles `minecraft chunk <MCA_>`_. But this format is too complex and possibly `AES Encrypted <AES_>`_.
 
-| Character animations are stored in ``pack.mcal``
-| But they are technical, each has just few frames, totaling around **~5,000** entries.
+If you figure it out, feel free to contribute to `Pull Requests <https://github.com/onejeuu/sc-file/pulls>`_.
+
+
+Q: Why animations library (``.mcal``) unsupported?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This format is currently unusable due to its fragmented and technical nature.
+
+| For example: character animations stored in ``pack.mcal``.
+| But each has just few frames, totaling around **~5,000** entries.
 
 | Unpacking is pointless, these are just broken-up animation fragments, not usable clips.
 | Also, CLI can't handle them. They need paired model files, breaking current input logic.
@@ -92,17 +101,9 @@ Q: How to get character animations (``.mcal``)?
 *This might change in the future, but for now, there's no clear solution.*
 
 
-Q: How to open other file types (e.g. ``.xeon``)?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: Why json bundle (``.xeon``) unsupported?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Answer:** These files are encrypted using `AES <https://en.wikipedia.org/wiki/Advanced_Encryption_Standard>`_ and cannot be decrypted without the key.
+This format is `AES Encrypted <AES_>`_. This encryption is unbreakable.
 
-If anyone has information about key for assets, it would be nice to know details in `DM <https://onejeuu.t.me>`_.
-
-
-Q: Is it possible to get game map as a model?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Answer:** Theoretically, yes, but this is currently not supported.
-
-If anyone wants to implement a map cache decoder, feel free to contribute to `Pull Requests <https://github.com/onejeuu/sc-file/pulls>`_.
+If you have information about key (password) for game assets, would be nice to know details `in DM <TG_>`_.

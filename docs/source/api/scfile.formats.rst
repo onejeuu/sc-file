@@ -52,3 +52,5 @@ Formats
   scfile.formats.obj
   scfile.formats.ol
   scfile.formats.png
+  scfile.formats.texarr
+  scfile.formats.zip

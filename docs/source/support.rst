@@ -1,6 +1,8 @@
 Formats Support
 ==================================================
 
+.. include:: _links.rst
+
 ----------------------------------------
 ``.mcsa`` / ``.mcsb`` / ``.mcvd``
 ----------------------------------------
@@ -15,19 +17,19 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
     - Skeleton
     - Animation
   * - ``.obj``
-    - `Wavefront <https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
+    - `Wavefront <OBJ_>`_
     - ➖
     - ➖
   * - ``.glb``
-    - `glTF Binary <https://en.wikipedia.org/wiki/GlTF>`_
+    - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
   * - ``.dae``
-    - `Collada <https://en.wikipedia.org/wiki/COLLADA>`_
+    - `Collada <DAE_>`_
     - ✅
     - ❌
   * - ``.ms3d``
-    - `MilkShape 3D <https://developer.valvesoftware.com/wiki/MilkShape_3D>`_
+    - `MilkShape 3D <MS3D_>`_
     - ✅
     - ❌
 
@@ -44,12 +46,12 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 | Supported Formats: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_XY``, ``RGBA32F``
 | Supported Types: ``Texture``, ``Normalmap``, ``Cubemap``
 
-Output Format: ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_)
+Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
 
 **Recommended Viewers:**
-  - `XnView <https://xnview.com>`_ (Versatile)
-  - `WTV <https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml>`_ (Lightweight)
-  - `RenderDoc <https://renderdoc.org/builds>`_ (Analysis)
+  - `XnView <XNVIEW_>`_ (Versatile)
+  - `WTV <WTV_>`_ (Lightweight)
+  - `RenderDoc <RENDERDOC_>`_ (Analysis)
 
 .. list-table:: Known Formats
   :header-rows: 1
@@ -87,20 +89,20 @@ Output Format: ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/Dire
     - ``R32G32B32A32`` (``DX10``)
     - ``None``
 
-`More about Compression... <https://en.wikipedia.org/wiki/S3_Texture_Compression>`_
+`More about Compression... <S3TC_>`_
 
 
 ----------------------------------------
 ``.mic``
 ----------------------------------------
 
-| Absolutely identical to ``.png`` (`Portable Network Graphics <https://en.wikipedia.org/wiki/PNG>`_)
-| Only difference is `file signature <https://en.wikipedia.org/wiki/List_of_file_signatures>`_ *(first 4 bytes)*
+| Absolutely identical to ``.png`` (`Portable Network Graphics <PNG_>`_)
+| Only difference is `file signature <SIG_>`_ *(first 4 bytes)*
 
 
 ----------------------------------------
 ``.texarr``
 ----------------------------------------
 
-| Output Format: ``.zip`` (`ZIP <https://en.wikipedia.org/wiki/ZIP_(file_format)>`_)
-| Textures Format: ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_)
+| Output Format: ``.zip`` (`ZIP <ZIP_>`_)
+| Textures Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)

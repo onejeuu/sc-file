@@ -1,8 +1,10 @@
 Usage
 ==================================================
 
+.. include:: _links.rst
+
 1. **Easiest Way:**
-   Use `Drag & Drop <https://en.wikipedia.org/wiki/Drag_and_drop>`_. Just drag and drop files you want convert onto ``scfile.exe``.
+   Use `Drag & Drop <DND_>`_. Just drag and drop files you want convert onto ``scfile.exe``.
    File paths will automatically be taken as arguments, converted to new format, and saved in same location.
 
 2. **File Associations:**
@@ -10,7 +12,7 @@ Usage
    When a file is "opened" this way, it will be automatically converted to new format and saved in same location.
 
 3. **Via Console:**
-   ``scfile`` is primarily a `CLI <https://en.wikipedia.org/wiki/Command-line_interface>`_. If you're comfortable with the terminal, you'll figure it out fast.
+   ``scfile`` is primarily a `CLI <CLI_>`_. If you're comfortable with the terminal, you'll figure it out fast.
    Check out arguments and options with ``scfile.exe --help``.
 
    .. code-block:: bash
@@ -98,6 +100,7 @@ Model Animation
 | Specify ``--animation`` flag.
 | If skeleton and animation has presented, it will be exported.
 | Output formats with animation support: ``.glb``.
+| `List of files with built-in clips <ANIMSLIST_>`_ (can be outdated).
 
 
 ----------------------------------------
@@ -157,18 +160,15 @@ Output Structure
 
 | To use source root directory as starting point in output, use ``--parent`` flag.
 
-Example
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 .. code-block:: text
-  :caption: Source structure
+  :caption: Example source structure
 
   ./assets/
   ├── armor/model_1.mcsb
   └── items/model_2.mcsb
 
-Default
-^^^^^^^^^^^^^^^^^^^^
+Default Structure
+^^^^^^^^^^^^^^^^^^
 .. code-block:: bash
 
   scfile.exe "./assets" --output "./output"
@@ -180,8 +180,8 @@ Default
   ├── model_1.mcsb
   └── model_2.mcsb
 
-Relative
-^^^^^^^^^^^^^^^^^^^^
+Relative Structure
+^^^^^^^^^^^^^^^^^^^
 .. code-block:: bash
 
     scfile.exe "./assets" --output "./output" --relative
@@ -193,8 +193,8 @@ Relative
   ├── armor/model_1.mcsb
   └── items/model_2.mcsb
 
-Parent
-^^^^^^^^^^^^^^^^^^^^
+Parent Structure
+^^^^^^^^^^^^^^^^^
 .. code-block:: bash
 
     scfile.exe "./assets" --output "./output" --parent
