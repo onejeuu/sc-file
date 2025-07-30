@@ -162,7 +162,7 @@ def texarr_to_zip(
     options: Optional[UserOptions] = None,
 ):
     """
-    Converts image from `.texarr` to `.zip` format.
+    Converts archive from `.texarr` to `.zip` format.
 
     Arguments:
         source: Path to input `.texarr` file.
@@ -170,5 +170,5 @@ def texarr_to_zip(
         options (optional): User settings. Default: `None`.
 
     Example:
-        `mic_to_png("blockMap.texarr", "path/to/output")`
+        `texarr_to_zip("blockMap.texarr", "path/to/output")`
     """
