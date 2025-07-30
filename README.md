@@ -30,11 +30,7 @@
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
-[![Pypi][badge-pypi]][pypi]
-[![License][badge-license]][license]
-[![Docs][badge-docs]][docs]
-[![Build][badge-build]][build]
-[![Issues][badge-issues]][issues]
+[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 [![RU][badge-ru]][readme-ru]
 
@@ -60,6 +56,7 @@ And other common questions are answered on [FAQ page][docs-faq].
 | 🧊 Model   | `.mcsb`, `.mcsa`, `.mcvd` | `.obj`, `.glb`, `.dae`, `.ms3d` |
 | 🧱 Texture | `.ol`                     | `.dds`                          |
 | 🖼️ Image   | `.mic`                    | `.png`                          |
+| 📦 Archive | `.texarr`                 | `.zip`                          |
 
 [More about Formats Support…][docs-support]
 

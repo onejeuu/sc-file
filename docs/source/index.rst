@@ -43,6 +43,9 @@ Overview
   * - 🖼️ Image
     - ``.mic``
     - ``.png``
+  * - 📦 Archive
+    - ``.texarr``
+    - ``.zip``
 
 :doc:`More about Formats Support... <support>`
 
