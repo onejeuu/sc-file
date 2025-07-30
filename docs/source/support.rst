@@ -94,5 +94,13 @@ Output Format: ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/Dire
 ``.mic``
 ----------------------------------------
 
-| Absolutely identical to ``.png`` (`Portable Network Graphics <https://en.wikipedia.org/wiki/PNG>`_).
-| Only difference is `file signature <https://en.wikipedia.org/wiki/List_of_file_signatures>`_ *(first 4 bytes)*.
+| Absolutely identical to ``.png`` (`Portable Network Graphics <https://en.wikipedia.org/wiki/PNG>`_)
+| Only difference is `file signature <https://en.wikipedia.org/wiki/List_of_file_signatures>`_ *(first 4 bytes)*
+
+
+----------------------------------------
+``.texarr``
+----------------------------------------
+
+| Output Format: ``.zip`` (`ZIP <https://en.wikipedia.org/wiki/ZIP_(file_format)>`_)
+| Textures Format: ``.dds`` (`DirectDraw Surface <https://en.wikipedia.org/wiki/DirectDraw_Surface>`_)
