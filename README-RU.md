@@ -30,11 +30,7 @@
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
-[![Pypi][badge-pypi]][pypi]
-[![License][badge-license]][license]
-[![Docs][badge-docs]][docs]
-[![Build][badge-build]][build]
-[![Issues][badge-issues]][issues]
+[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 [![EN][badge-en]][readme-en]
 
@@ -60,6 +56,7 @@
 | 🧊 Модель      | `.mcsb`, `.mcsa`, `.mcvd` | `.obj`, `.glb`, `.dae`, `.ms3d` |
 | 🧱 Текстура    | `.ol`                     | `.dds`                          |
 | 🖼️ Изображение | `.mic`                    | `.png`                          |
+| 📦 Архив       | `.texarr`                 | `.zip`                          |
 
 [Подробнее об поддержке форматов...][docs-support]
 
