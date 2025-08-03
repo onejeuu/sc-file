@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from scfile.structures.skeleton import ModelSkeleton
+from .skeleton import ModelSkeleton
 
 
 @dataclass

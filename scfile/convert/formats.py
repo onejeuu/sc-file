@@ -5,7 +5,6 @@ Implement functions to convert one format to another by simplest way.
 from typing import Optional
 
 from scfile.core.context import UserOptions
-from scfile.core.types import PathLike
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.formats.glb.encoder import GlbEncoder
@@ -18,6 +17,7 @@ from scfile.formats.ol.decoder import OlDecoder
 from scfile.formats.png.encoder import PngEncoder
 from scfile.formats.texarr.decoder import TextureArrayDecoder
 from scfile.formats.zip.encoder import TextureArrayEncoder
+from scfile.types import PathLike
 
 from .factory import converter
 

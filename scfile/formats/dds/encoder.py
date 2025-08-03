@@ -1,14 +1,14 @@
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder
-from scfile.core.context import TextureContent
+from scfile.core import FileEncoder, TextureContent
 from scfile.enums import F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
+from scfile.structures.types import TextureType
 
 from .header import DDS
 from .mask import BGRA8, RGBA8
 
 
-class DdsEncoder(FileEncoder[TextureContent]):
+class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
     format = FileFormat.DDS
     signature = FileSignature.DDS
 

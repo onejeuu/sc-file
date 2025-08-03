@@ -21,16 +21,15 @@ SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS
 
 
 class FileSignature:
-    """File signature for formats (big-endian)."""
+    """File magic number for formats (big-endian)."""
 
-    MCAL = b"MCAL"
     MCSA = b"MCSA"
+    MCAL = b"MCAL"
     MIC = b"\x89MIC"
     OL = b"\x0a\x95\x23\xfd"
 
     DDS = b"DDS "
     PNG = b"\x89PNG"
-    FBX = b"Kaydara FBX Binary\x20\x20\x00\x1a\x00"
     GLTF = b"glTF"
     MS3D = b"MS3D000000"
 
@@ -69,8 +68,8 @@ class McsaModel:
     """Safety limit to prevent memory overflow on corrupted files."""
 
 
-class McsaSize:
-    """Mcsa data structures elements count."""
+class McsaUnits:
+    """Mcsa structures elements count."""
 
     POSITIONS = 4
     TEXTURES = 2

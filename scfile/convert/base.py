@@ -5,10 +5,10 @@ Basic implementation of converting one format to another.
 from pathlib import Path
 from typing import Optional, Type
 
-from scfile.core import FileDecoder, FileEncoder
-from scfile.core.context.options import UserOptions
-from scfile.core.types import Content, OutputDir, PathLike
-from scfile.exceptions.file import FileNotFound
+from scfile import exceptions
+from scfile.core import FileDecoder, FileEncoder, UserOptions
+from scfile.core.types import Content
+from scfile.types import OutputDir, PathLike
 
 
 def convert(
@@ -37,7 +37,7 @@ def convert(
     options = options or UserOptions()
 
     if not src_path.exists() or not src_path.is_file():
-        raise FileNotFound(src_path)
+        raise exceptions.FileNotFound(src_path)
 
     if not out_dir.exists():
         out_dir.mkdir(exist_ok=True, parents=True)

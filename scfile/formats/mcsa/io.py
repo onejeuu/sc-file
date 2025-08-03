@@ -6,8 +6,8 @@ from typing import TypeAlias
 
 import numpy as np
 
-from scfile.consts import Factor, McsaModel, McsaSize
-from scfile.core.io.streams import StructFileIO
+from scfile.consts import Factor, McsaModel, McsaUnits
+from scfile.core.io import StructFileIO
 from scfile.enums import F
 from scfile.structures.mesh import BonesMapping
 from scfile.structures.vectors import LinksIds, LinksWeights
@@ -28,57 +28,57 @@ class McsaFileIO(StructFileIO):
 
         return count
 
-    def _readvertex(self, fmt: str, factor: float, size: int, count: int, scale: float = 1.0):
+    def _readvertex(self, fmt: str, factor: float, units: int, count: int, scale: float = 1.0):
         # Read array
-        data = self._readarray(fmt, count * size)
+        data = self._readarray(fmt, count * units)
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(scale / factor)
 
-        # Reshape to vertex[attribute[size]]
+        # Reshape to vertex[attribute[units]]
         # attribute = position[3] / normal[3] / uv[2]
-        return data.reshape(-1, size)
+        return data.reshape(-1, units)
 
     def _readpolygons(self, count: int):
-        size = McsaSize.POLYGONS
+        units = McsaUnits.POLYGONS
 
         # ? Validate that indexes fits into U16 range, otherwise use U32.
-        indexes = count * size
+        indexes = count * units
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
-        data = self._readarray(fmt, count * size)
+        data = self._readarray(fmt, count * units)
 
         # Reshape to face[indices[3]]
-        return data.astype(F.U32).reshape(-1, size)
+        return data.astype(F.U32).reshape(-1, units)
 
     def _readbone(self):
-        size = McsaSize.BONES
+        units = McsaUnits.BONES
 
         # Read array
-        data = self._readarray(F.F32, size)
+        data = self._readarray(F.F32, units)
 
         # Reshape to bone[position[3], rotation[3]]
         return data.astype(F.F32).reshape(2, 3)
 
     def _readclip(self, times_count: int, bones_count: int):
-        size = McsaSize.FRAMES
+        units = McsaUnits.FRAMES
 
         # Read array
-        data = self._readarray(F.I16, times_count * bones_count * size)
+        data = self._readarray(F.I16, times_count * bones_count * units)
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(1.0 / Factor.I16)
 
         # Reshape to clip[frames][bones][transforms[7]]
         # transforms = [rotation[4], translation[3]]
-        return data.reshape(times_count, bones_count, size)
+        return data.reshape(times_count, bones_count, units)
 
     def _readpackedlinks(self, count: int, bones: BonesMapping) -> Links:
-        size = McsaSize.LINKS
+        units = McsaUnits.LINKS
 
         # Read array
-        data = self._readarray(F.U8, count * size)
+        data = self._readarray(F.U8, count * units)
 
         # Reshape to vertex[skin[2][2]]
         # skin = [bone_ids[2], weights[2]]
@@ -90,11 +90,11 @@ class McsaFileIO(StructFileIO):
         return _links(ids.flatten(), weights.flatten(), bones)
 
     def _readplainlinks(self, count: int, bones: BonesMapping) -> Links:
-        size = McsaSize.LINKS
+        units = McsaUnits.LINKS
 
-        # Read arrays: bone_ids[vertex][size], weights[vertex][size]
-        ids = self._readarray(F.U8, count * size)
-        weights = self._readarray(F.U8, count * size)
+        # Read arrays: bone_ids[vertex][units], weights[vertex][units]
+        ids = self._readarray(F.U8, count * units)
+        weights = self._readarray(F.U8, count * units)
 
         return _links(ids, weights, bones)
 
@@ -125,5 +125,5 @@ def _links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
     # Scale, Round, Normalize
     weights = weights.astype(F.F32) * np.float32(1.0 / Factor.U8)
 
-    # Reshape to vertex[bone_ids[size]], vertex[weights[size]]
+    # Reshape to vertex[bone_ids[units]], vertex[weights[units]]
     return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32).reshape(-1, 4))

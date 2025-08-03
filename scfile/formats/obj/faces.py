@@ -1,4 +1,7 @@
-from typing import NamedTuple
+from typing import NamedTuple, TypeAlias
+
+
+Template: TypeAlias = str
 
 
 class Flags(NamedTuple):
@@ -6,9 +9,9 @@ class Flags(NamedTuple):
     normals: bool
 
 
-TEMPLATE: dict[Flags, str] = {
-    Flags(True, True): "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}",
-    Flags(True, False): "f {a}/{a} {b}/{b} {c}/{c}",
-    Flags(False, True): "f {a}//{a} {b}//{b} {c}//{c}",
-    Flags(False, False): "f {a} {b} {c}",
+TEMPLATE: dict[Flags, Template] = {
+    Flags(uv=True, normals=True): "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}",
+    Flags(uv=True, normals=False): "f {a}/{a} {b}/{b} {c}/{c}",
+    Flags(uv=False, normals=True): "f {a}//{a} {b}//{b} {c}//{c}",
+    Flags(uv=False, normals=False): "f {a} {b} {c}",
 }

@@ -1,5 +1,4 @@
-from scfile.core import FileEncoder
-from scfile.core.context import ModelContent
+from scfile.core import FileEncoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
@@ -21,6 +20,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
     def _add_meshes(self):
         offset = 1
+
         for mesh in self.data.scene.meshes:
             self._writeutf8(f"o {mesh.name}\n")
             self._writeutf8(f"usemtl {mesh.material}\n")
@@ -35,6 +35,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
             self._writeutf8(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh, offset)
+
             offset += mesh.count.vertices
 
     def _add_geometric_vertices(self, mesh: ModelMesh):

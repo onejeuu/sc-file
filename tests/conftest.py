@@ -5,7 +5,7 @@ from typing import Any, Generator
 
 import pytest
 
-from scfile.core.context import UserOptions
+from scfile import UserOptions
 
 
 @pytest.fixture

@@ -1,5 +1,4 @@
-from scfile.core import FileDecoder
-from scfile.core.context import TextureArrayContent
+from scfile.core import FileDecoder, TextureArrayContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.zip.encoder import TextureArrayEncoder
 

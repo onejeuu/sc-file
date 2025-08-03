@@ -7,7 +7,8 @@ from typing import Callable, Optional, Type
 
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.context import UserOptions
-from scfile.core.types import Content, PathLike
+from scfile.core.types import Content
+from scfile.types import PathLike
 
 from .base import convert
 

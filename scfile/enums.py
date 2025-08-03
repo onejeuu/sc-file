@@ -54,11 +54,32 @@ class ByteOrder(StrEnum):
     NETWORK = "!"
 
 
+class UnicodeErrors(StrEnum):
+    """Unicode errors handling policy."""
+
+    STRICT = auto()
+    """Raise UnicodeDecodeError on invalid bytes"""
+    IGNORE = auto()
+    """Skip invalid bytes silently"""
+    REPLACE = auto()
+    """Replace invalid bytes with a replacement marker (�)"""
+
+    BACKSLASHREPLACE = BACKSLASH = auto()
+    """Replace with backslash-escaped sequences (\\xHH)"""
+    NAMEREPLACE = NAME = auto()
+    """Replace with \\N{...} escape sequences"""
+    XMLCHARREFREPLACE = XML = auto()
+    """Replace with XML/HTML numeric entities (&#...;)"""
+
+    SURROGATEESCAPE = SURROGATE = auto()
+    """Preserve invalid bytes as surrogate codes"""
+
+
 class StructFormat(StrEnum):
     """Native C-type struct format codes."""
 
     BOOL = "?"
-    """boolean: `1 byte` [False, True]"""
+    """boolean: `BOOL` `1 byte` [False, True]"""
 
     I8 = "b"
     """signed char: `BYTE` `1 byte` [-128, 127]"""
@@ -84,22 +105,15 @@ F = StructFormat
 """StructFormat Alias."""
 
 
-class UnicodeErrors(StrEnum):
-    """Unicode errors handling policy."""
+class ConsoleLabel(StrEnum):
+    """Colored labels for console output."""
 
-    STRICT = auto()
-    """Raise UnicodeDecodeError on invalid bytes"""
-    IGNORE = auto()
-    """Skip invalid bytes silently"""
-    REPLACE = auto()
-    """Replace invalid bytes with a replacement marker (�)"""
+    INFO = "[b blue]INFO:[/]"
+    WARN = "[b yellow]WARN:[/]"
+    ERROR = "[b red]ERROR:[/]"
+    INVALID = "[b red]INVALID INPUT:[/]"
+    EXCEPTION = "[b red]UNEXPECTED ERROR:[/]"
 
-    BACKSLASHREPLACE = BACKSLASH = auto()
-    """Replace with backslash-escaped sequences (\\xHH)"""
-    NAMEREPLACE = NAME = auto()
-    """Replace with \\N{...} escape sequences"""
-    XMLCHARREFREPLACE = XML = auto()
-    """Replace with XML/HTML numeric entities (&#...;)"""
 
-    SURROGATEESCAPE = SURROGATE = auto()
-    """Preserve invalid bytes as surrogate codes"""
+L = ConsoleLabel
+"""ConsoleLabel Alias."""

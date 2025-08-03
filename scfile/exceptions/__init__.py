@@ -2,10 +2,20 @@
 Exceptions of scfile package.
 """
 
-from . import base, file
-
+from .base import ScFileException, DecodingError, EncodingError, ParsingError, UnsupportedError, BaseIOError, FileError
+from .file import FileNotFound, EmptyFileError, UnsupportedFormatError, InvalidSignatureError, InvalidStructureError
 
 __all__ = (
-    "base",
-    "file",
+    "ScFileException",
+    "DecodingError",
+    "EncodingError",
+    "ParsingError",
+    "UnsupportedError",
+    "BaseIOError",
+    "FileError",
+    "FileNotFound",
+    "EmptyFileError",
+    "UnsupportedFormatError",
+    "InvalidSignatureError",
+    "InvalidStructureError",
 )

@@ -3,13 +3,18 @@ Base class for file encoder (serialization).
 """
 
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, Self
+from typing import Any, Generic, Optional, Self, TypeAlias
 
 from scfile.core.base import BaseFile
-from scfile.core.context.options import UserOptions
-from scfile.core.io.streams import StructBytesIO
-from scfile.core.types import Content, EncoderContext, PathLike
+from scfile.core.context import ModelContent, UserOptions
+from scfile.core.io import StructBytesIO
+from scfile.core.types import Content
 from scfile.enums import FileMode
+from scfile.formats.mcsa.flags import Flag
+from scfile.types import PathLike
+
+
+EncoderContext: TypeAlias = dict[str, Any]
 
 
 class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
@@ -89,3 +94,13 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
         """Close buffer and reset `self.ctx` state. Same as `BytesIO.close()`."""
         self.ctx = {}
         super().close()
+
+    @property
+    def _skeleton_presented(self) -> bool:
+        if isinstance(self.data, ModelContent):
+            return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
+        return False
+
+    @property
+    def _animation_presented(self) -> bool:
+        return self._skeleton_presented and self.options.parse_animation

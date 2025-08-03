@@ -5,7 +5,7 @@ Base exceptions.
 from dataclasses import dataclass
 from pathlib import Path
 
-from scfile.core.types import PathLike
+from scfile.types import PathLike
 
 
 class ScFileException(Exception):

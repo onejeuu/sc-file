@@ -4,8 +4,7 @@ from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
 
-from scfile.core import FileEncoder
-from scfile.core.context import ModelContent
+from scfile.core import FileEncoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.formats.mcsa.flags import Flag
 from scfile.structures.mesh import ModelMesh
@@ -14,10 +13,10 @@ from scfile.structures.skeleton import SkeletonBone, create_transform_matrix
 from . import utils
 
 
-DECLARATION = b'<?xml version="1.0" encoding="utf-8"?>\n'
-
-XMLNS = "http://www.collada.org/2008/03/COLLADASchema"
 VERSION = "1.5.0"
+
+DECLARATION = b'<?xml version="1.0" encoding="utf-8"?>\n'
+XMLNS = "http://www.collada.org/2008/03/COLLADASchema"
 
 UP_AXIS = "Y_UP"
 
@@ -27,17 +26,13 @@ DEFAULT_COLOR = "1 1 1 1"
 class DaeEncoder(FileEncoder[ModelContent]):
     format = FileFormat.DAE
 
-    @property
-    def skeleton_presented(self) -> bool:
-        return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
-
     def prepare(self):
         self.data.scene.ensure_unique_names()
 
         if self.data.flags[Flag.UV]:
             self.data.scene.invert_v_textures()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self.data.scene.skeleton.convert_to_local()
             self.data.scene.skeleton.build_hierarchy()
 
@@ -50,7 +45,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         self._add_materials()
         self._add_geometries()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self._add_controllers()
 
         self._add_scenes()
@@ -173,7 +168,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         library = SubElement(self.ctx["ROOT"], "library_visual_scenes")
         visual_scene = SubElement(library, "visual_scene", id="scene", name="Scene")
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             visual_scene = self._add_armature(visual_scene)
 
         self._add_mesh_instances(visual_scene)
@@ -203,7 +198,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         for mesh in self.data.scene.meshes:
             node = SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
 
-            if self.skeleton_presented:
+            if self._skeleton_presented:
                 bone = self.data.scene.skeleton.roots[0]
                 instance = SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 SubElement(instance, "skeleton").text = f"#armature-{bone.name}"

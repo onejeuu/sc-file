@@ -1,7 +1,7 @@
 import lz4.block
 
 from scfile.consts import CubemapFaces
-from scfile.core.context import TextureContent
+from scfile.core import TextureContent
 from scfile.formats.ol.decoder import BaseOlDecoder
 from scfile.structures.texture import CubemapTexture
 

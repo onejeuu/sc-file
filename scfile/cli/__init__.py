@@ -3,12 +3,11 @@ CLI wrapper module. Responsible for implementation of interaction with internal 
 """
 
 from .commands import scfile
-from . import enums, types, utils
+from . import types, utils
 
 
 __all__ = (
     "scfile",
-    "enums",
     "types",
-    "utils"
+    "utils",
 )

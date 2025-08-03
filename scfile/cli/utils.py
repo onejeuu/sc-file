@@ -7,8 +7,8 @@ from pathlib import Path
 import click
 from rich import print
 
-from scfile.cli.enums import Prefix
 from scfile.consts import CLI, SUPPORTED_SUFFIXES, Formats
+from scfile.enums import L
 
 from . import types
 
@@ -16,7 +16,7 @@ from . import types
 def no_args(ctx: click.Context) -> None:
     """Prints help message when no arguments provided."""
     click.echo(ctx.get_help())
-    print(f"\n{Prefix.INVALID} No arguments provided. Showing help.")
+    print(f"\n{L.INVALID} No arguments provided. Showing help.")
     click.pause(CLI.PAUSE)
 
 
@@ -26,7 +26,7 @@ def check_feature_unsupported(user_formats: Formats, unsupported_formats: Format
 
     if bool(matching_formats):
         suffixes = ", ".join(map(lambda fmt: fmt.suffix, matching_formats))
-        print(Prefix.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
+        print(L.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 
 
 def is_supported(path: Path) -> bool:

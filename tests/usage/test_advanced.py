@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.core.context import ModelContent
+from scfile import ModelContent
 from scfile.formats.mcsa.decoder import McsaDecoder
 from scfile.formats.obj.encoder import ObjEncoder
 

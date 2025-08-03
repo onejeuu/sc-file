@@ -6,6 +6,8 @@ from . import base, decoder, encoder, types, context, io
 from .base import BaseFile
 from .decoder import FileDecoder
 from .encoder import FileEncoder
+from .context.options import UserOptions
+from .context.content import FileContent, ModelContent, TextureContent, ImageContent, TextureArrayContent
 
 
 __all__ = (
@@ -18,4 +20,10 @@ __all__ = (
     "BaseFile",
     "FileDecoder",
     "FileEncoder",
+    "UserOptions",
+    "FileContent",
+    "ModelContent",
+    "TextureContent",
+    "ImageContent",
+    "TextureArrayContent",
 )

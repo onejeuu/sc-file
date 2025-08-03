@@ -1,7 +1,6 @@
 import zipfile
 
-from scfile.core import FileEncoder
-from scfile.core.context import TextureArrayContent
+from scfile.core import FileEncoder, TextureArrayContent
 from scfile.enums import FileFormat
 
 

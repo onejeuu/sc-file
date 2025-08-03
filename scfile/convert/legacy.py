@@ -5,12 +5,12 @@ Implement functions to convert legacy mcsa format to another by simplest way.
 from typing import Optional
 
 from scfile.core.context import UserOptions
-from scfile.core.types import PathLike
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
 from scfile.formats.mcsa.decoder import McsaDecoder
 from scfile.formats.ms3d.encoder import Ms3dEncoder
 from scfile.formats.obj.encoder import ObjEncoder
+from scfile.types import PathLike
 
 from .formats import converter
 

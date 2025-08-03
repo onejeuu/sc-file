@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from scfile.cli.commands import scfile
-from scfile.core.context import UserOptions
+from scfile import UserOptions
+from scfile.cli import scfile
 from scfile.enums import FileFormat
 
 

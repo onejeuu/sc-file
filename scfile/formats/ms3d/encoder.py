@@ -1,10 +1,8 @@
 import numpy as np
 
 from scfile.consts import FileSignature, McsaModel
-from scfile.core import FileEncoder
-from scfile.core.context import ModelContent
+from scfile.core import FileEncoder, ModelContent
 from scfile.enums import F, FileFormat
-from scfile.formats.mcsa.flags import Flag
 
 from .io import Ms3dFileIO
 
@@ -21,14 +19,10 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
 
-    @property
-    def skeleton_presented(self) -> bool:
-        return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
-
     def prepare(self):
         self.data.scene.ensure_unique_names()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self.data.scene.skeleton.convert_to_local()
 
     def serialize(self):
@@ -52,7 +46,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
 
         for mesh in self.data.scene.meshes:
             for index, xyz in enumerate(mesh.positions):
-                bone_id = mesh.links_ids.astype(F.I8)[index][0] if self.skeleton_presented else McsaModel.ROOT_BONE_ID
+                bone_id = mesh.links_ids.astype(F.I8)[index][0] if self._skeleton_presented else McsaModel.ROOT_BONE_ID
                 self._writeb(fmt, 0, *xyz, bone_id, reference_count)
 
     def _add_triangles(self):

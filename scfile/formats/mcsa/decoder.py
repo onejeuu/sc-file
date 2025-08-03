@@ -1,6 +1,5 @@
-from scfile.consts import Factor, FileSignature, McsaModel, McsaSize
-from scfile.core.context import ModelContent
-from scfile.core.decoder import FileDecoder
+from scfile.consts import Factor, FileSignature, McsaModel, McsaUnits
+from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dae.encoder import DaeEncoder
 from scfile.formats.glb.encoder import GlbEncoder
@@ -81,8 +80,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         for _ in range(self.data.scene.count.meshes):
             self._parse_mesh()
 
-    def _skip_vertices(self, mesh: ModelMesh, size: int):
-        self.read(mesh.count.vertices * size)
+    def _skip_vertices(self, mesh: ModelMesh, units: int):
+        self.read(mesh.count.vertices * units)
 
     def _parse_mesh(self):
         mesh = ModelMesh()
@@ -127,7 +126,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ! Data Unconfirmed
         # ? Not parsed
         if self.data.flags[Flag.UNKNOWN_B]:
-            self._skip_vertices(mesh, size=4)
+            self._skip_vertices(mesh, units=4)
 
         # Vertex normals
         if self.data.flags[Flag.NORMALS]:
@@ -136,7 +135,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ! Data Unconfirmed
         # ? Not parsed
         if self.data.flags[Flag.UNKNOWN_A]:
-            self._skip_vertices(mesh, size=4)
+            self._skip_vertices(mesh, units=4)
 
         # Vertex links
         if self.data.flags[Flag.SKELETON]:
@@ -145,7 +144,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # Vertex colors
         # ? Not parsed
         if self.data.flags[Flag.COLORS]:
-            self._skip_vertices(mesh, size=4)
+            self._skip_vertices(mesh, units=4)
 
         # Polygon faces
         mesh.polygons = self._readpolygons(mesh.count.polygons)
@@ -156,7 +155,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.positions = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
-            size=McsaSize.POSITIONS,
+            units=McsaUnits.POSITIONS,
             count=mesh.count.vertices,
             scale=self.data.scene.scale.position,
         )[:, :3]
@@ -165,7 +164,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.textures = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
-            size=McsaSize.TEXTURES,
+            units=McsaUnits.TEXTURES,
             count=mesh.count.vertices,
             scale=self.data.scene.scale.texture,
         )
@@ -174,7 +173,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.normals = self._readvertex(
             fmt=F.I8,
             factor=Factor.I8,
-            size=McsaSize.NORMALS,
+            units=McsaUnits.NORMALS,
             count=mesh.count.vertices,
         )[:, :3]
 
@@ -195,7 +194,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             mesh.links_ids, mesh.links_weights = links
 
         else:
-            self._skip_vertices(mesh, size=4)
+            self._skip_vertices(mesh, units=4)
 
     def _parse_plain_links(self, mesh: ModelMesh):
         if self.options.parse_skeleton:
@@ -203,7 +202,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             mesh.links_ids, mesh.links_weights = links
 
         else:
-            self._skip_vertices(mesh, size=8)
+            self._skip_vertices(mesh, units=8)
 
     def _parse_skeleton(self):
         self.data.scene.count.bones = self._readb(F.U8)

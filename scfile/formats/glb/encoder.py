@@ -5,8 +5,7 @@ from typing import Any, Optional, TypeAlias
 import numpy as np
 
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder
-from scfile.core.context import ModelContent
+from scfile.core import FileEncoder, ModelContent
 from scfile.enums import F, FileFormat
 from scfile.formats.mcsa.flags import Flag
 
@@ -25,22 +24,14 @@ class GlbEncoder(FileEncoder[ModelContent]):
     format = FileFormat.GLB
     signature = FileSignature.GLTF
 
-    @property
-    def skeleton_presented(self) -> bool:
-        return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
-
-    @property
-    def animation_presented(self) -> bool:
-        return self.skeleton_presented and self.options.parse_animation
-
     def prepare(self):
         self.data.scene.ensure_unique_names()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self.data.scene.skeleton.convert_to_local()
             self.data.scene.skeleton.build_hierarchy()
 
-        if self.animation_presented:
+        if self._animation_presented:
             self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
 
     def serialize(self):
@@ -88,10 +79,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["GLTF"]["scenes"].append(scene)
 
         # Create skeleton keys
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self.ctx["GLTF"]["skins"] = []
 
-        if self.animation_presented:
+        if self._animation_presented:
             self.ctx["GLTF"]["animations"] = []
 
         # Create nodes
@@ -105,17 +96,17 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def _create_nodes(self):
         self._create_meshes()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self._create_bones()
             self._create_bindmatrix()
 
-        if self.animation_presented:
+        if self._animation_presented:
             self._create_animation()
 
     def _count_nodes(self):
         nodes = list(range(self.data.scene.count.meshes))
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             nodes += self.ctx["ROOT_INDEXES"]
 
         self.ctx["GLTF"]["scenes"][0]["nodes"] = nodes
@@ -145,7 +136,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self._create_accessor(mesh.count.vertices, "VEC3")
 
             # Bone Links
-            if self.skeleton_presented and mesh.count.links > 0:
+            if self._skeleton_presented and mesh.count.links > 0:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 4 * 1)
@@ -165,7 +156,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             primitive["material"] = index
             node: Node = {"name": mesh.name, "mesh": index}
 
-            if self.skeleton_presented and mesh.count.links > 0:
+            if self._skeleton_presented and mesh.count.links > 0:
                 node["skin"] = 0
 
             # Add to GLTF
@@ -287,10 +278,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
         self._add_meshes()
 
-        if self.skeleton_presented:
+        if self._skeleton_presented:
             self._add_bindmatrix()
 
-        if self.animation_presented:
+        if self._animation_presented:
             self._add_animation()
 
         self.ctx["BIN_END"] = self.tell()
@@ -321,7 +312,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self.write(mesh.normals.tobytes())
 
             # Bone Links
-            if self.skeleton_presented:
+            if self._skeleton_presented:
                 # Joint Indices
                 self.write(mesh.links_ids.tobytes())
 

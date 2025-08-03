@@ -5,14 +5,12 @@ Shared content data between decoder and encoder.
 from abc import ABC
 from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
-from typing import Generic, TypeVar, cast
+from typing import Generic, cast
 
 from scfile.enums import FileType
 from scfile.structures.scene import ModelFlags, ModelScene
-from scfile.structures.texture import CubemapTexture, DefaultTexture, Texture
-
-
-TextureType = TypeVar("TextureType", bound=Texture)
+from scfile.structures.texture import CubemapTexture, DefaultTexture
+from scfile.structures.types import TextureType
 
 
 @dataclass

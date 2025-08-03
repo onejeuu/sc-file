@@ -8,10 +8,10 @@ from typing import Callable, Optional, TypeAlias
 
 import lz4.block
 
-from scfile.core.context import UserOptions
-from scfile.core.types import OutputDir, PathLike
+from scfile import exceptions
+from scfile.core import UserOptions
 from scfile.enums import FileFormat
-from scfile.exceptions.file import InvalidStructureError, UnsupportedFormatError
+from scfile.types import OutputDir, PathLike
 
 from . import formats, legacy
 
@@ -77,7 +77,7 @@ def auto(
                     formats.ol_cubemap_to_dds(source, output, options)
 
                 except lz4.block.LZ4BlockError as err:
-                    raise InvalidStructureError(source) from err
+                    raise exceptions.InvalidStructureError(source) from err
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)
@@ -86,4 +86,4 @@ def auto(
             formats.texarr_to_zip(source, output, options)
 
         case _:
-            raise UnsupportedFormatError(src_path)
+            raise exceptions.UnsupportedFormatError(src_path)

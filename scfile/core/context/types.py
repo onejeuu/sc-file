@@ -1,6 +1,6 @@
 from typing import TypeVar
 
-from scfile.core.context.content import FileContent
+from .content import FileContent
 
 
 Content = TypeVar("Content", bound=FileContent)

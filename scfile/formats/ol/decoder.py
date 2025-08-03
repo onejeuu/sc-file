@@ -4,12 +4,11 @@ from typing import Generic
 import lz4.block
 
 from scfile.consts import FileSignature
-from scfile.core import FileDecoder
-from scfile.core.context import TextureContent
-from scfile.core.context.content import TextureType
+from scfile.core import FileDecoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.encoder import DdsEncoder
 from scfile.structures.texture import DefaultTexture
+from scfile.structures.types import TextureType
 
 from .exceptions import OlFormatUnsupported
 from .formats import SUPPORTED_FORMATS

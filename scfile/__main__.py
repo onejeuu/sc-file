@@ -4,7 +4,7 @@ import click
 from rich import print
 
 from scfile.cli import scfile
-from scfile.cli.enums import Prefix
+from scfile.enums import L
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
         scfile(standalone_mode=False)
 
     except click.ClickException as err:
-        print(Prefix.INVALID, str(err))
+        print(L.INVALID, str(err))
 
     except (KeyboardInterrupt, click.exceptions.Abort):
         print("[yellow]Operation aborted.[/]")

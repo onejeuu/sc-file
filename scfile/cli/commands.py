@@ -8,12 +8,10 @@ from typing import Optional
 import click
 from rich import print
 
-from scfile import convert
-from scfile.cli.enums import Prefix
+from scfile import convert, exceptions
 from scfile.consts import CLI, Formats
-from scfile.core.context import UserOptions
-from scfile.exceptions.base import ScFileException
-from scfile.exceptions.file import InvalidStructureError
+from scfile.core import UserOptions
+from scfile.enums import L
 
 from . import types, utils
 
@@ -83,7 +81,7 @@ def scfile(
 
     # Relative flag is useless without output path
     if relative and not output:
-        print(Prefix.WARN, "Flag [b]--relative[/] requires [b]--output[/] option.")
+        print(L.WARN, "Flag [b]--relative[/] requires [b]--output[/] option.")
 
     # Warn if specified formats has unsupported features
     if model_formats:
@@ -107,17 +105,17 @@ def scfile(
         try:
             convert.auto(source=source, output=dest, options=options)
 
-        except InvalidStructureError as err:
-            print(Prefix.ERROR, str(err), CLI.EXCEPTION)
+        except exceptions.InvalidStructureError as err:
+            print(L.ERROR, str(err), CLI.EXCEPTION)
 
-        except ScFileException as err:
-            print(Prefix.ERROR, str(err))
+        except exceptions.ScFileException as err:
+            print(L.ERROR, str(err))
 
         except Exception as err:
             traceback.print_exception(err)
-            print(Prefix.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
+            print(L.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
 
         else:
             src_path = source.relative_to(root)
             dst_path = dest or source.parent
-            print(Prefix.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")
+            print(L.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")
