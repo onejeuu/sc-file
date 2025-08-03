@@ -12,11 +12,11 @@
 
 <!-- Docs -->
 
-[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
-[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
+[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
+[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
 
 <!-- Badges -->
@@ -36,9 +36,14 @@
 
 ## Overview
 
-**scfile** is a utility and library designed for decoding and converting STALCRAFT assets files, such as models and textures, into standard formats.
+**scfile** is a utility and library for parsing and converting stalcraft assets (such as models and textures), into standard formats.
 
-📚 Documentation: [sc-file][docs].
+_this project is unofficial and not related to stalcraft devs. all trademarks and assets belong to their respective owners._
+
+📚 Documentation: [sc-file][docs] \
+[Usage][docs-usage] / [FAQ][docs-faq] /
+[Game Formats][docs-formats] / [Formats Support][docs-support] /
+[Compile Guide][docs-compile] / [Library API Reference][docs-library]
 
 🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [More about Game Formats...][docs-formats]

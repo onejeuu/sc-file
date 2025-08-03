@@ -47,7 +47,7 @@ Q: What programs supports ``.dds`` viewing?
 Any programs with full support for all `DirectDraw Surface <DDS_>`_ formats.
 
 **Recommended Viewers:**
-  - `XnView <XNVIEW_>`_ (Versatile)
+  - `XnView <XNVIEW_>`_ (Universal)
   - `WTV <WTV_>`_ (Lightweight)
   - `RenderDoc <RENDERDOC_>`_ (Analysis)
 
@@ -58,9 +58,9 @@ Q: How to convert ``.dds`` textures to ``.png``?
 Native support is not planned for code simplicity.
 
 | If needed, convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_.
-| Command example:
 
 .. code-block:: bash
+  :caption: Command Example
 
   magick mogrify -format png *.dds
 

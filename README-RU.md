@@ -12,11 +12,11 @@
 
 <!-- Docs -->
 
-[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
-[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
+[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
+[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
 
 <!-- Badges -->
@@ -36,9 +36,14 @@
 
 ## Overview
 
-**scfile** это утилита и библиотека для декодирования и конвертации файлов ассетов STALCRAFT (например, моделей и текстур) в стандартные форматы.
+**scfile** это утилита и библиотека для парсинга и конвертации ассетов игры stalcraft (например, моделей и текстур) в стандартные форматы.
 
-📚 Документация: [sc-file][docs].
+_этот проект является неофициальным и не имеет отношения к разработчикам stalcraft. все торговые марки и активы принадлежат их соответствующим владельцам._
+
+📚 Документация: [sc-file][docs] \
+[Usage][docs-usage] / [FAQ][docs-faq] /
+[Game Formats][docs-formats] / [Formats Support][docs-support] /
+[Compile Guide][docs-compile] / [Library API Reference][docs-library]
 
 🗂️ Поддерживаемые форматы игры: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [Подробнее об игровых форматах...][docs-formats]

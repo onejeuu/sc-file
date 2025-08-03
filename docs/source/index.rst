@@ -17,7 +17,7 @@ Index
 Overview
 ----------------------------------------
 
-**scfile** is a utility and library designed for decoding and converting STALCRAFT assets files, such as models and textures, into standard formats.
+**scfile** is a utility and library for parsing and converting stalcraft assets (such as models and textures), into standard formats.
 
 | 🗂️ Supported game formats: ``.mcsb``, ``.mcsa``, ``.mcvd``, ``.ol``, ``.mic``, ``.texarr``.
 | :doc:`More about Game Formats... <formats>`

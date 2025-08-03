@@ -49,7 +49,7 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
 
 **Recommended Viewers:**
-  - `XnView <XNVIEW_>`_ (Versatile)
+  - `XnView <XNVIEW_>`_ (Universal)
   - `WTV <WTV_>`_ (Lightweight)
   - `RenderDoc <RENDERDOC_>`_ (Analysis)
 
