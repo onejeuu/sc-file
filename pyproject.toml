@@ -12,22 +12,22 @@ license = {text = "MIT"}
 
 dependencies = [
     "click==8.2.1",
-    "lz4>=4.4.4",
-    "numpy>=2.2.6",
-    "rich>=14.0.0",
+    "lz4==4.4.4",
+    "numpy==2.3.2",
+    "rich==14.1.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pyinstaller>=6.13.0",
-    "pytest>=8.3.5",
+    "pyinstaller==6.14.2",
+    "pytest==8.4.1",
 ]
 
 docs = [
-    "sphinx-autobuild>=2024.10.3",
-    "sphinx-autodoc-typehints>=3.2.0",
-    "sphinx-book-theme>=1.1.4",
-    "sphinx>=8.2.3",
+    "sphinx-autobuild==2024.10.3",
+    "sphinx-autodoc-typehints==3.2.0",
+    "sphinx-book-theme==1.1.4",
+    "sphinx==8.2.3",
 ]
 
 [project.urls]
