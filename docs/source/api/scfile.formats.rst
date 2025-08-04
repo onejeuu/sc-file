@@ -50,21 +50,13 @@ Usage Examples
   with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     # No need to call mcsb.decode()
     # convert_to() creates an encoder and pass decoded data to it
-    with mcsb.convert_to(formats.obj.ObjEncoder) as obj:
-      obj.save("model.obj") # Save and close encoder
+    mcsb.convert_to(formats.obj.ObjEncoder).save("model.obj") # Save and close encoder
 
-.. code-block:: python
-  :caption: Use sugar methods
-
-  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    # Precrated convert_to() variant
+    # Or use precreated sugar methods
     mcsb.to_obj().save("model.obj") # Save and close encoder
 
 .. code-block:: python
   :caption: Use ``encoded()`` method
-
-  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    data = mcsb.decode()
 
   # No need to call obj.encode()
   with formats.obj.ObjEncoder(data).encoded() as obj:
