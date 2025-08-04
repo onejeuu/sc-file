@@ -6,7 +6,6 @@ class FileFormat(StrEnum):
 
     DAE = auto()
     DDS = auto()
-    FBX = auto()
     GLB = auto()
     MCAL = auto()
     MCSA = auto()

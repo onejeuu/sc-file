@@ -5,13 +5,14 @@ Base class for file encoder (serialization).
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self, TypeAlias
 
-from scfile.core.base import BaseFile
-from scfile.core.context import ModelContent, UserOptions
-from scfile.core.io import StructBytesIO
-from scfile.core.types import Content
 from scfile.enums import FileMode
 from scfile.formats.mcsa.flags import Flag
 from scfile.types import PathLike
+
+from .base import BaseFile
+from .context import ModelContent, UserOptions
+from .io import StructBytesIO
+from .types import Content
 
 
 EncoderContext: TypeAlias = dict[str, Any]

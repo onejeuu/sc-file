@@ -5,8 +5,7 @@ Internal factory decorator for convert functions.
 from functools import wraps
 from typing import Callable, Optional, Type
 
-from scfile.core import FileDecoder, FileEncoder
-from scfile.core.context import UserOptions
+from scfile.core import FileDecoder, FileEncoder, UserOptions
 from scfile.core.types import Content
 from scfile.types import PathLike
 

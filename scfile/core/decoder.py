@@ -6,13 +6,14 @@ from abc import ABC, abstractmethod
 from typing import Generic, Optional, Type
 
 from scfile import exceptions
-from scfile.core.base import BaseFile
-from scfile.core.context import UserOptions
-from scfile.core.encoder import FileEncoder
-from scfile.core.io import StructFileIO
-from scfile.core.types import Content
 from scfile.enums import FileMode
 from scfile.types import PathLike
+
+from .base import BaseFile
+from .context import UserOptions
+from .encoder import FileEncoder
+from .io import StructFileIO
+from .types import Content
 
 
 class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):

@@ -5,9 +5,10 @@ Base class for all processable files.
 from abc import ABC
 from typing import Optional
 
-from scfile.core.context import UserOptions
-from scfile.core.io import StructIO
 from scfile.enums import ByteOrder, FileFormat
+
+from .context import UserOptions
+from .io import StructIO
 
 
 class BaseFile(ABC):
