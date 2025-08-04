@@ -58,6 +58,10 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
         self.serialize()
         return self
 
+    def encoded(self) -> Self:
+        """Context manager that automatically encodes data on exit."""
+        return self.encode()
+
     def prepare(self) -> None:
         """Perform preparations before serialization. *(e.g. calculations in content)*."""
         pass

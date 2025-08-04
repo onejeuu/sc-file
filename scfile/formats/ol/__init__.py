@@ -1,11 +1,9 @@
 from .decoder import OlDecoder
-from .exceptions import OlDecodingError, OlFormatUnsupported
-from .formats import SUPPORTED_FORMATS
+from . import exceptions, formats
 
 
 __all__ = (
     "OlDecoder",
-    "OlDecodingError",
-    "OlFormatUnsupported",
-    "SUPPORTED_FORMATS",
+    "exceptions",
+    "formats",
 )

@@ -45,7 +45,7 @@ Usage Examples
     output: bytes = obj.encode().getvalue()  # Returns OBJ bytes
 
 .. code-block:: python
-  :caption: Use ``convert_to`` method
+  :caption: Use ``convert_to()`` method
 
   with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     # No need to call mcsb.decode()
@@ -59,6 +59,16 @@ Usage Examples
   with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     # Precrated convert_to() variant
     mcsb.to_obj().save("model.obj") # Save and close encoder
+
+.. code-block:: python
+  :caption: Use ``encoded()`` method
+
+  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+    data = mcsb.decode()
+
+  # No need to call obj.encode()
+  with formats.obj.ObjEncoder(data).encoded() as obj:
+    obj.save("model.obj") # Save and close encoder
 
 Formats
 ------------------
