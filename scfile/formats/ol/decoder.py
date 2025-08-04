@@ -6,7 +6,6 @@ import lz4.block
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.formats.dds.encoder import DdsEncoder
 from scfile.structures.texture import DefaultTexture
 from scfile.structures.types import TextureType
 
@@ -22,6 +21,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
     signature = FileSignature.OL
 
     def to_dds(self):
+        from scfile.formats.dds.encoder import DdsEncoder
         return self.convert_to(DdsEncoder)
 
     def parse(self):

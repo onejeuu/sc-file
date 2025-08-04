@@ -1,22 +1,16 @@
 DAE
 ==========================
 
-.. automodule:: scfile.formats.dae
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
 .. code-block:: python
   :caption: Usage Example
 
-  from scfile.formats.mcsb.decoder import McsbDecoder
-  from scfile.formats.dae.encoder import DaeEncoder
+  from scfile import formats
 
-  with McsbDecoder("path/to/model.mcsb") as mcsb:
+  with formats.mcsb.McsbDecoder("path/to/model.mcsb") as mcsb:
     data = mcsb.decode()
 
-    with DaeEncoder(data) as dae:
-      dae.encode().save("output.dae")
+  with formats.dae.DaeEncoder(data) as dae:
+    dae.encode().save("output.dae")
 
 Encoder
 ---------------------------------

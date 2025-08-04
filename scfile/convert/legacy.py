@@ -4,37 +4,14 @@ Implement functions to convert legacy mcsa format to another by simplest way.
 
 from typing import Optional
 
-from scfile.core.context import UserOptions
-from scfile.formats.dae.encoder import DaeEncoder
-from scfile.formats.glb.encoder import GlbEncoder
-from scfile.formats.mcsa.decoder import McsaDecoder
-from scfile.formats.ms3d.encoder import Ms3dEncoder
-from scfile.formats.obj.encoder import ObjEncoder
+from scfile import formats
+from scfile.core import UserOptions
 from scfile.types import PathLike
 
 from .formats import converter
 
 
-@converter(McsaDecoder, DaeEncoder)
-def mcsa_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[UserOptions] = None,
-):
-    """
-    Converts model from `.mcsa` to `.dae` format.
-
-    Arguments:
-        source: Path to input `.mcsa` file.
-        output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): User settings. Default: `None`.
-
-    Example:
-        `mcsa_to_dae("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
-    """
-
-
-@converter(McsaDecoder, ObjEncoder)
+@converter(formats.mcsa.McsaDecoder, formats.obj.ObjEncoder)
 def mcsa_to_obj(
     source: PathLike,
     output: Optional[PathLike] = None,
@@ -53,7 +30,7 @@ def mcsa_to_obj(
     """
 
 
-@converter(McsaDecoder, GlbEncoder)
+@converter(formats.mcsa.McsaDecoder, formats.glb.GlbEncoder)
 def mcsa_to_glb(
     source: PathLike,
     output: Optional[PathLike] = None,
@@ -72,7 +49,26 @@ def mcsa_to_glb(
     """
 
 
-@converter(McsaDecoder, Ms3dEncoder)
+@converter(formats.mcsa.McsaDecoder, formats.dae.DaeEncoder)
+def mcsa_to_dae(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts model from `.mcsa` to `.dae` format.
+
+    Arguments:
+        source: Path to input `.mcsa` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `mcsa_to_dae("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
+
+
+@converter(formats.mcsa.McsaDecoder, formats.ms3d.Ms3dEncoder)
 def mcsa_to_ms3d(
     source: PathLike,
     output: Optional[PathLike] = None,

@@ -92,6 +92,10 @@ def test_context_manager_to_xxx(assets: Path, temp: Path):
         obj.save(temp / "model.obj")
         assert obj.closed
 
+        dae = mcsa.to_dae()
+        dae.save(temp / "model.dae")
+        assert dae.closed
+
     assert mcsa.closed
 
 

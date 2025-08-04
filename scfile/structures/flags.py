@@ -1,3 +1,7 @@
+"""
+Enum for 3D scene flags.
+"""
+
 from enum import IntEnum, auto
 
 

@@ -1,21 +1,16 @@
 MS3D
 ===========================
 
-.. automodule:: scfile.formats.ms3d
-  :no-members:
-  :show-inheritance:
-
 .. code-block:: python
   :caption: Usage Example
 
-  from scfile.formats.mcsb.decoder import McsbDecoder
-  from scfile.formats.ms3d.encoder import Ms3dEncoder
+  from scfile import formats
 
-  with McsbDecoder("path/to/model.mcsb") as mcsb:
+  with formats.mcsb.McsbDecoder("path/to/model.mcsb") as mcsb:
     data = mcsb.decode()
 
-    with Ms3dEncoder(data) as ms3d:
-      ms3d.encode().save("output.ms3d")
+  with formats.ms3d.Ms3dEncoder(data) as ms3d:
+    ms3d.encode().save("output.ms3d")
 
 Encoder
 ----------------------------------

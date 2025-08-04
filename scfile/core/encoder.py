@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self, TypeAlias
 
 from scfile.enums import FileMode
-from scfile.formats.mcsa.flags import Flag
+from scfile.structures.flags import Flag
 from scfile.types import PathLike
 
 from .base import BaseFile

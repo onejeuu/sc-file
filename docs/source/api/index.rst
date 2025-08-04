@@ -9,10 +9,11 @@ Choose appropriate API based on your needs:
 
   .. code-block:: python
 
-    import scfile
+    from scfile import convert
 
-    scfile.convert.auto("model.mcsa")
-    scfile.convert.formats.ol_to_dds("texture.ol")
+    convert.auto("model.mcsb") # Auto detect format by file suffix
+    convert.formats.ol_to_dds("texture.ol") # Convert ol to dds
+    convert.formats.mcsb_to_obj("model.mcsb") # Convert mcsb to obj
 
 * **For advanced control** (e.g., custom pipelines):
 
@@ -20,10 +21,11 @@ Choose appropriate API based on your needs:
 
   .. code-block:: python
 
-    from scfile.formats.mcsa.decoder import McsaDecoder
+    from scfile import formats
 
-    with McsaDecoder("model.mcsa") as mcsa:
-      mcsa.to_obj().save("output.obj")
+    # Decode mcsb model, convert to obj and save file
+    with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+      mcsb.to_obj().save("output.obj")
 
 * **For data inspection/modification**:
 

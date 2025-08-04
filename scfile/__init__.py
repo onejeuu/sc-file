@@ -1,5 +1,5 @@
 from . import cli, convert, core, exceptions, formats, structures, consts, enums
-from .core import UserOptions
+from .core.context.options import UserOptions
 
 __all__ = (
     "cli",

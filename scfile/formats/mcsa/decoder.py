@@ -1,16 +1,12 @@
 from scfile.consts import Factor, FileSignature, McsaModel, McsaUnits
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.formats.dae.encoder import DaeEncoder
-from scfile.formats.glb.encoder import GlbEncoder
-from scfile.formats.ms3d.encoder import Ms3dEncoder
-from scfile.formats.obj.encoder import ObjEncoder
 from scfile.structures.animation import AnimationClip
+from scfile.structures.flags import Flag
 from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.structures.skeleton import SkeletonBone
 
 from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
-from .flags import Flag
 from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
 
@@ -23,15 +19,19 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     _content = ModelContent
 
     def to_obj(self):
+        from scfile.formats.obj.encoder import ObjEncoder
         return self.convert_to(ObjEncoder)
 
     def to_glb(self):
+        from scfile.formats.glb.encoder import GlbEncoder
         return self.convert_to(GlbEncoder)
 
     def to_dae(self):
+        from scfile.formats.dae.encoder import DaeEncoder
         return self.convert_to(DaeEncoder)
 
     def to_ms3d(self):
+        from scfile.formats.ms3d.encoder import Ms3dEncoder
         return self.convert_to(Ms3dEncoder)
 
     def parse(self):

@@ -1,6 +1,6 @@
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import FileFormat
-from scfile.formats.mcsa.flags import Flag
+from scfile.structures.flags import Flag
 from scfile.structures.mesh import ModelMesh
 
 from . import faces

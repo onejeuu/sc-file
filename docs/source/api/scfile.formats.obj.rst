@@ -1,21 +1,16 @@
 OBJ
 ==========================
 
-.. automodule:: scfile.formats.obj
-  :no-members:
-  :show-inheritance:
-
 .. code-block:: python
   :caption: Usage Example
 
-  from scfile.formats.mcsb.decoder import McsbDecoder
-  from scfile.formats.obj.encoder import ObjEncoder
+  from scfile import formats
 
-  with McsbDecoder("path/to/model.mcsb") as mcsb:
+  with formats.mcsb.McsbDecoder("path/to/model.mcsb") as mcsb:
     data = mcsb.decode()
 
-    with ObjEncoder(data) as obj:
-      obj.encode().save("output.obj")
+  with formats.obj.ObjEncoder(data) as obj:
+    obj.encode().save("output.obj")
 
 Encoder
 ---------------------------------

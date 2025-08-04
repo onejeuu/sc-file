@@ -7,7 +7,7 @@ import numpy as np
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import F, FileFormat
-from scfile.formats.mcsa.flags import Flag
+from scfile.structures.flags import Flag
 
 from . import base
 from .enums import BufferTarget, ComponentType

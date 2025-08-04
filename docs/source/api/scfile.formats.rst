@@ -6,34 +6,59 @@ Formats
   :show-inheritance:
   :undoc-members:
 
-| The :mod:`scfile.formats` module offers granular control for experienced users.
-| Use decoders/encoders in a context manager (`with` block) for resource safety.
+| This module offers granular control for experienced users.
+| Refer to :mod:`scfile.core` for details on available decoder/encoder methods.
 
-Usage Patterns
+**Base Components:**
+
+- :class:`FileDecoder <scfile.core.decoder.FileDecoder>` - read and parse files into structured data.
+- :class:`FileEncoder <scfile.core.encoder.FileEncoder>` - convert structured data into file formats.
+- :class:`FileContent <scfile.core.context.content.FileContent>` - intermediate data representation.
+
+.. tip::
+
+  Always use decoder/encoder in context manager (``with``) for resource safety.
+
+Usage Examples
 -------------------
 
-**1. Recommended Context Approach**:
+.. code-block:: python
+  :caption: Basic Conversion
+
+  from scfile import formats
+  from scfile.core import ModelContent
+
+  # Decode MCSB model
+  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+    data: ModelContent = mcsb.decode()  # Get parsed data
+
+  # Encode OBJ model
+  with formats.obj.ObjEncoder(data) as obj:
+    obj.encode()           # Write data to buffer
+    obj.save("model.obj")  # Save and close encoder
 
 .. code-block:: python
-  :linenos:
+  :caption: Get encoded bytes instead of saving
 
-  # Single-step conversion using format-specific sugar method
-  with McsaDecoder("model.mcsa") as mcsa:
-    mcsa.to_obj().save("output.obj")  # Сloses encoder buffer
-
-**2. Manual Pipeline**:
+  with formats.obj.ObjEncoder(data) as obj:
+    # You can use encoder methods right on encode() (chaining)
+    output: bytes = obj.encode().getvalue()  # Returns OBJ bytes
 
 .. code-block:: python
-  :linenos:
+  :caption: Use ``convert_to`` method
 
-  # Full control over the conversion process
-  with McsaDecoder("model.mcsa") as mcsa:
-    data = mcsa.decode()  # ModelContent context dataclass
+  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+    # No need to call mcsb.decode()
+    # convert_to() creates an encoder and pass decoded data to it
+    with mcsb.convert_to(formats.obj.ObjEncoder) as obj:
+      obj.save("model.obj") # Save and close encoder
 
-  with ObjEncoder(data) as obj:
-    obj.save("output.obj")  # Or encoder.getvalue() for bytes
+.. code-block:: python
+  :caption: Use sugar methods
 
-For details on available methods, refer to :mod:`scfile.core`.
+  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+    # Precrated convert_to() variant
+    mcsb.to_obj().save("model.obj") # Save and close encoder
 
 Formats
 ------------------

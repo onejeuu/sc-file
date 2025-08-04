@@ -1,21 +1,16 @@
 MIC
 ==========================
 
-.. automodule:: scfile.formats.mic
-  :no-members:
-  :show-inheritance:
-
 .. code-block:: python
   :caption: Usage Example
 
-  from scfile.formats.mic.decoder import MicDecoder
-  from scfile.formats.png.encoder import PngEncoder
+  from scfile import formats
 
-  with MicDecoder("path/to/image.mic") as mic:
+  with formats.mic.MicDecoder("path/to/image.mic") as mic:
     data = mic.decode()
 
-    with PngEncoder(data) as png:
-      png.encode().save("output.png")
+  with formats.png.PngEncoder(data) as png:
+    png.encode().save("output.png")
 
 Decoder
 ---------------------------------

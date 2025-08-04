@@ -1,21 +1,16 @@
 MCSA
 ===========================
 
-.. automodule:: scfile.formats.mcsa
-  :no-members:
-  :show-inheritance:
-
 .. code-block:: python
   :caption: Usage Example
 
-  from scfile.formats.mcsa.decoder import McsaDecoder
-  from scfile.formats.obj.encoder import ObjEncoder
+  from scfile import formats
 
-  with McsaDecoder("path/to/model.mcsa") as mcsa:
+  with formats.mcsa.McsaDecoder("path/to/model.mcsa") as mcsa:
     data = mcsa.decode()
 
-    with ObjEncoder(data) as obj:
-      obj.encode().save("output.obj")
+  with formats.obj.ObjEncoder(data) as obj:
+    obj.encode().save("output.obj")
 
 Decoder
 ----------------------------------
@@ -29,14 +24,6 @@ Exceptions
 -------------------------------------
 
 .. automodule:: scfile.formats.mcsa.exceptions
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-Flags
---------------------------------
-
-.. automodule:: scfile.formats.mcsa.flags
   :members:
   :show-inheritance:
   :undoc-members:

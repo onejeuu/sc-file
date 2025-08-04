@@ -13,6 +13,14 @@ Animation
   :show-inheritance:
   :undoc-members:
 
+Flags
+----------------------------------
+
+.. automodule:: scfile.structures.flags
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
 Mesh
 -----------------------------
 

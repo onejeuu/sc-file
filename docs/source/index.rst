@@ -75,10 +75,16 @@ To install library for coding, use following command:
 .. code-block:: python
   :caption: Simple usage example
 
-  from scfile import convert
-  from scfile.core.context import UserOptions
+  from scfile import UserOptions, convert
 
-  convert.mcsb_to_obj(source="path/to/model.mcsb", options=UserOptions(parse_skeleton=True))
+  # Optional convert settings
+  options = UserOptions(parse_skeleton=True)
+
+  # Specific format to format
+  convert.mcsb_to_obj(source="path/to/model.mcsb", options=options)
+
+  # Or auto detect by file suffix
+  convert.auto(source="path/to/model.mcsb", options=options)
 
 :doc:`More details about Library... <api/index>`
 
