@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions import base
+from scfile import exceptions
 
 
-class OlDecodingError(base.FileError, base.ParsingError):
+class OlDecodingError(exceptions.FileError, exceptions.ParsingError):
     """Base exception for OL texture related errors."""
 
     @property
@@ -12,7 +12,7 @@ class OlDecodingError(base.FileError, base.ParsingError):
 
 
 @dataclass
-class OlFormatUnsupported(OlDecodingError, base.UnsupportedError):
+class OlFormatUnsupported(OlDecodingError, exceptions.UnsupportedError):
     """Raised when texture contains unsupported format."""
 
     format: bytes

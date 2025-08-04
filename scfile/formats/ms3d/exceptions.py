@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from scfile.exceptions import base
+from scfile import exceptions
 
 
-class Ms3dEncodingError(base.BaseIOError, base.EncodingError):
+class Ms3dEncodingError(exceptions.BaseIOError, exceptions.EncodingError):
     """Base exception for MS3D model related errors."""
 
     @property
@@ -12,7 +12,7 @@ class Ms3dEncodingError(base.BaseIOError, base.EncodingError):
 
 
 @dataclass
-class Ms3dCountsLimit(Ms3dEncodingError, base.UnsupportedError):
+class Ms3dCountsLimit(Ms3dEncodingError, exceptions.UnsupportedError):
     """Raised when model exceeds format limitations."""
 
     type: str

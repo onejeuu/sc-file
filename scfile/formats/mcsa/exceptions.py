@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
+from scfile import exceptions
 from scfile.consts import McsaModel
-from scfile.exceptions import base
 
 
-class McsaDecodingError(base.FileError, base.DecodingError):
+class McsaDecodingError(exceptions.FileError, exceptions.DecodingError):
     """Base exception for MCSA model related errors."""
 
     @property
@@ -13,7 +13,7 @@ class McsaDecodingError(base.FileError, base.DecodingError):
 
 
 @dataclass
-class McsaCountsLimit(McsaDecodingError, base.ParsingError):
+class McsaCountsLimit(McsaDecodingError, exceptions.ParsingError):
     """Raised when model exceeds allowed geometry limits (vertices/polygons count)."""
 
     type: str
@@ -28,7 +28,7 @@ class McsaCountsLimit(McsaDecodingError, base.ParsingError):
 
 
 @dataclass
-class McsaBoneLinksError(McsaDecodingError, base.ParsingError):
+class McsaBoneLinksError(McsaDecodingError, exceptions.ParsingError):
     """Raised when mesh contain unexpected/invalid links count."""
 
     links_count: int
@@ -38,7 +38,7 @@ class McsaBoneLinksError(McsaDecodingError, base.ParsingError):
 
 
 @dataclass
-class McsaVersionUnsupported(McsaDecodingError, base.UnsupportedError):
+class McsaVersionUnsupported(McsaDecodingError, exceptions.UnsupportedError):
     """Raised when attempting to parse unsupported model version."""
 
     version: float
