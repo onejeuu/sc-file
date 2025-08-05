@@ -21,42 +21,42 @@ def read_stalcraft_torrent(filename: str) -> Dict[str, Any]:
         data = f.read()
 
     offset = 0
-    // skip signature (8 bytes)
+    # skip signature (8 bytes)
     offset += 8
-    // read comment (UTF)
+    # read comment (UTF)
     comment, offset = read_utf(data, offset)
-    // read tracker count (4 bytes)
+    # read tracker count (4 bytes)
     tracker_count = struct.unpack_from('>I', data, offset)[0]
     offset += 4
-    // read trackers (array of UTF strings)
+    # read trackers (array of UTF strings)
     trackers = []
     for _ in range(tracker_count):
         tracker, offset = read_utf(data, offset)
         trackers.append(tracker)
-    // read reserved string (UTF, empty)
+    # read reserved string (UTF, empty)
     _, offset = read_utf(data, offset)
-    // Read piece length (4 bytes)
+    # Read piece length (4 bytes)
     piece_length = struct.unpack_from('>I', data, offset)[0]
     offset += 4
-    // read torrent name (UTF)
+    # read torrent name (UTF)
     name, offset = read_utf(data, offset)
-    // read file count (4 bytes)
+    # read file count (4 bytes)
     file_count = struct.unpack_from('>I', data, offset)[0]
     offset += 4
-    // read files
+    # read files
     files = []
     for _ in range(file_count):
         file_info, offset = read_torrent_file(data, offset)
         files.append(file_info)
-    // read hash count (4 bytes)
+    # read hash count (4 bytes)
     hash_count = struct.unpack_from('>I', data, offset)[0]
     offset += 4
-    // read piece hashes
+    # read piece hashes
     pieces = data[offset:offset + hash_count * 20]
     if len(pieces) != hash_count * 20:
         raise ValueError(f"Expected {hash_count * 20} bytes for pieces, got {len(pieces)}")
 
-    // Construct Bencode-compatible dictionary
+    # construct Bencode-compatible dictionary
     torrent_dict = {
         'encoding': 'UTF-8',
         'publisher': 'EXBO',
