@@ -102,3 +102,10 @@ Game Formats
 
 | Contains large `JSON`_ structure. `AES Encrypted <AES_>`_.
 | Once encrypted individually ``.eon`` files combined into bundles.
+
+``.torrent.bin`` TORRENT BINary file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Technical file responsible for loading the game via the launcher, the structure is presented as a modified torrent file.
+| When converting the structure into a familiar ``.torrent`` format, it contains executable and technical files of the game.
+| (after convert the file cannot be used in the torrent client, because trackers block access to files, a proxy server may be needed)
