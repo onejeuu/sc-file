@@ -4,7 +4,7 @@
 
 [pypi]: https://pypi.org/project/sc-file
 [license]: https://opensource.org/licenses/MIT
-[build]: https://github.com/onejeuu/sc-file/actions/workflows/build.yml
+[build]: https://github.com/onejeuu/sc-file/actions/workflows/release.yml
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/en/latest
@@ -24,7 +24,7 @@
 [badge-pypi]: https://img.shields.io/pypi/v/sc-file.svg
 [badge-license]: https://img.shields.io/github/license/onejeuu/sc-file
 [badge-docs]: https://img.shields.io/readthedocs/sc-file
-[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/build.yml
+[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
 [badge-ru]: https://img.shields.io/badge/%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%20%D0%BD%D0%B0-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20%F0%9F%87%B7%F0%9F%87%BA-white
 
