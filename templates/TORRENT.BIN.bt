@@ -21,13 +21,13 @@ typedef struct {
 } TorrentFile <read=(exists(path.data) ? path.data : ""), optimize=false>;
 
 typedef struct {
-    char signature[8] <name="Signature", fgcolor=cGreen, bgcolor=cLtGreen>;
-    String comment <name="Comment", fgcolor=cAqua>;
-    uint32 trackerCount <name="Tracker Count", bgcolor=cBlack>;
-    String trackers[trackerCount] <name="Trackers", fgcolor=cBlack, optimize=false>;
+    uint64 totalFilesSize <name="Total Files Size", fgcolor=cAqua, bgcolor=cDkAqua>;
+    String comment <name="Comment", fgcolor=cPurple>;
+    uint32 trackerCount <name="Tracker Count", bgcolor=cLtGreen>;
+    String trackers[trackerCount] <name="Tracker", fgcolor=cLtGreen, optimize=false>;
     String reserved <name="Reserved">;
 
-    uint32 pieceLength <name="Piece Length", fgcolor=cLtRed>;
+    uint32 pieceLength <name="Piece Length", bgcolor=cDkRed, fgcolor=cLtRed>;
     String name <name="Torrent Name">;
     uint32 fileCount <name="File Count", bgcolor=cWhite>;
     TorrentFile files[fileCount] <name="File">;
