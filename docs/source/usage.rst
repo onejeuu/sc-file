@@ -39,17 +39,16 @@ Usage
     :caption: Simple code example
 
     from pathlib import Path
-    from scfile import convert
-    from scfile.core.context import ModelOptions
+    from scfile import UserOptions, convert
 
     models = Path("models")
     output = Path("output")
-    options = ModelOptions(parse_skeleton=True, overwrite=False)
+    options = UserOptions(parse_skeleton=True, overwrite=False)
 
     for path in models.rglob("*.mcsb"):
-        convert.mcsb_to_obj(source=path, output=output, options=options)
+        convert.mcsb_to_glb(source=path, output=output, options=options)
 
-   This code takes all ``.mcsb`` files from ``models`` directory, converts them, and dumps into ``output``.
+   This code takes all ``.mcsb`` files from ``models`` directory, converts them to ``.glb``, and dumps into ``output``.
 
 
 ----------------------------------------
@@ -140,7 +139,7 @@ Output Directory
 
 You can specify ``--output`` / ``-O`` parameter to change it.
 ::
-  scfile.exe "C:/game/assets" --output "F:/output"
+  scfile.exe "C:/game/assets" --output "D:/output"
 
 
 ----------------------------------------

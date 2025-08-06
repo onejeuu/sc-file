@@ -40,5 +40,5 @@
 .. _UV: https://github.com/astral-sh/uv
 
 .. Media Files
-.. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/alphapvp.png
+.. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
 .. _ANIMSLIST: https://github.com/onejeuu/sc-file/blob/master/docs/source/data/anims.rst?plain=1
