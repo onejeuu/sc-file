@@ -103,7 +103,7 @@ convert.auto(source="path/to/model.mcsb", options=options)
 ## 🤝 Acknowledgments
 
 - `kommunist2021` – file structure research.
-- `Art3mLapa` – advice, bug reports.
+- `Art3mLapa` – advice, bug reports, contribution.
 - `n1kodim` – advice, contribution.
 - `IExploitableMan` – contribution.
 - `Sarioga` – feedback, bug reports.
