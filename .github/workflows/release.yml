@@ -9,9 +9,24 @@ permissions:
   contents: write
 
 jobs:
-  build-windows:
-    name: Build Windows
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            name: Linux
+            artifact_name: linux-binary
+            binary_name: scfile_linux_x64
+            cmd: mv dist/scfile scfile_linux_x64 && chmod +x scfile_linux_x64
+          - os: windows-latest
+            name: Windows
+            artifact_name: windows-binary
+            binary_name: scfile_windows_x64.exe
+            cmd: mv dist/scfile.exe scfile_windows_x64.exe
+
+    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -21,24 +36,26 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install UV
+        run: pip install uv
+
       - name: Install Dependencies
-        run: pip install -r requirements.txt
+        run: uv sync
 
       - name: Build Binary
-        run: python scripts/build.py
+        run: uv run scripts/build.py
 
-      - name: Prepare Windows Artifact
+      - name: Prepare Artifact
         shell: bash
-        run: |
-          mv dist/scfile.exe scfile_windows_x64.exe
+        run: ${{ matrix.cmd }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-binary
-          path: scfile_windows_x64.exe
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.binary_name }}
 
-  build-linux:
-    name: Build Linux
+  publish-package:
+    name: Publish PyPi
     runs-on: ubuntu-latest
 
     steps:
@@ -49,43 +66,47 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
+      - name: Install UV
+        run: pip install uv
 
-      - name: Build Binary
-        run: python scripts/build.py
+      - name: Build Package
+        run: uv build -o ./dist/
 
-      - name: Prepare Linux Artifact
-        run: |
-          mv dist/scfile scfile_linux_x64
-          chmod +x scfile_linux_x64
+      - name: Publish Package
+        run: uv publish ./dist/*
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-binary
-          path: scfile_linux_x64
-
-  create-release:
-    name: Publish
+  publish-release:
+    name: Publish GitHub
     runs-on: ubuntu-latest
-    needs: [build-windows, build-linux]
+    needs: [build]
 
     steps:
-      - name: Download Windows Binary
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-binary
           path: artifacts
 
-      - name: Download Linux Binary
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-binary
-          path: artifacts
-
-      - name: Get Current date
+      - name: Get Current Date
         id: date
         run: echo "date=$(date +'%B %d, %Y')" >> $GITHUB_OUTPUT
+
+      - name: Get Previous Tag
+        id: previous
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest" || echo '')
+
+          if [ -n "$response" ]; then
+              prev_tag=$(echo "$response" | jq -r '.tag_name')
+              echo "tag=$prev_tag" >> $GITHUB_OUTPUT
+          else
+              echo "No previous releases found"
+              echo "tag=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -95,11 +116,16 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            🏷 **Version:** `${{ github.ref_name }}`
-            📅 **Date:** `${{ steps.date.outputs.date }}`
+            ## `${{ github.ref_name }}` `${{ steps.date.outputs.date }}`
 
-            **Linux** (x86_64): `scfile_linux_x64`
-            **Windows** (x64): `scfile_windows_x64.exe`
+            ${{ steps.previous.outputs.tag &&
+                format(
+                    '**Full Changelog:** [`{0}...{1}`](https://github.com/{2}/compare/{0}...{1})',
+                    steps.previous.outputs.tag,
+                    github.ref_name,
+                    github.repository
+                ) || ''
+            }}
           files: |
-            artifacts/scfile_windows_x64.exe
-            artifacts/scfile_linux_x64
+            artifacts/windows-binary/scfile_windows_x64.exe
+            artifacts/linux-binary/scfile_linux_x64
