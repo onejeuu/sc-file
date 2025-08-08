@@ -1,3 +1,5 @@
+import numpy as np
+
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.structures.flags import Flag
@@ -38,22 +40,28 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
             offset += mesh.count.vertices
 
+    def _vectorize(self, template: bytes, data: np.ndarray, count: int):
+        return template * count % tuple(data.ravel())
+
     def _add_geometric_vertices(self, mesh: ModelMesh):
-        self._writeutf8("\n".join([f"v {x:.6} {y:.6f} {z:.6f}" for x, y, z in mesh.positions]))
-        self.write(b"\n\n")
+        template = b"v %.6f %.6f %.6f\n"
+        self.write(self._vectorize(template, mesh.positions, mesh.count.vertices))
+        self.write(b"\n")
 
     def _add_texture_coordinates(self, mesh: ModelMesh):
-        self._writeutf8("\n".join([f"vt {u:.6f} {v:.6f}" for u, v in mesh.textures]))
-        self.write(b"\n\n")
+        template = b"vt %.6f %.6f\n"
+        self.write(self._vectorize(template, mesh.textures, mesh.count.vertices))
+        self.write(b"\n")
 
     def _add_vertex_normals(self, mesh: ModelMesh):
-        self._writeutf8("\n".join([f"vn {x:.6f} {y:.6f} {z:.6f}" for x, y, z in mesh.normals]))
-        self.write(b"\n\n")
+        template = b"vn %.6f %.6f %.6f\n"
+        self.write(self._vectorize(template, mesh.normals, mesh.count.vertices))
+        self.write(b"\n")
 
     def _add_polygonal_faces(self, mesh: ModelMesh, offset: int):
         flags = faces.Flags(uv=self.data.flags[Flag.UV], normals=self.data.flags[Flag.NORMALS])
         template = faces.TEMPLATE[flags]
 
         polygons = mesh.polygons + offset
-        self._writeutf8("\n".join([template.format(a=a, b=b, c=c) for a, b, c in polygons]))
+        self._writeutf8("\n".join([template.format(a=a, b=b, c=c) for a, b, c in polygons.tolist()]))
         self.write(b"\n\n")
