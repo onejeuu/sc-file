@@ -52,7 +52,7 @@ Game Formats
 
 | Some `normal maps <NORMALMAP_>`_ textures can be inverted.
 
-| Some textures can be `cube maps <CUBEMAP_>`_.
+| Some textures can be `cube maps <CUBEMAP_>`_. (OLCUBEMAP.bt_)
 | Mainly located in: ``gloomycore/sky``, ``effects/textures``, ``stalker/gui``.
 
 .. list-table:: Texture Suffix Conventions
@@ -108,8 +108,8 @@ Game Formats
 🛠️ Launcher Formats
 ----------------------------------------
 
-``.map`` MAPping hashes (DIRMAP.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``.map`` MAPping hashes (HASHMAP.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Contains SHA-1 hash mappings for game files.
 | Used by launcher for integrity verification.
