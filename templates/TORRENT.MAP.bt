@@ -1,8 +1,8 @@
 //------------------------------------------------
-// File: DIRMAP.bt
+// File: TORRENT.MAP.bt
 // Authors: onejeuu
 // Version: 2.0
-// Purpose: Parse map file of game directory.
+// Purpose: Parse game file hash mapping.
 // Category: STALCRAFT
 // File Mask: *.map
 //------------------------------------------------

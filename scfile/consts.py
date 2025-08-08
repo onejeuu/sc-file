@@ -83,7 +83,7 @@ class McsaUnits:
 class CLI:
     """Command line interface constants."""
 
-    VERSION = "4.1.0"
+    VERSION = "4.1.1"
 
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
     PAUSE = "\nPress any key to continue or exit..."

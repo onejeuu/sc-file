@@ -16,28 +16,35 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
     - Name
     - Skeleton
     - Animation
+    - Speed
   * - ``.obj``
     - `Wavefront <OBJ_>`_
     - ➖
     - ➖
+    - 170ms
   * - ``.glb``
     - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
+    - 8ms
   * - ``.dae``
     - `Collada <DAE_>`_
     - ✅
     - ❌
+    - 180ms
   * - ``.ms3d``
     - `MilkShape 3D <MS3D_>`_
     - ✅
     - ❌
+    - 1120ms
 
 | **Feature:**
 | ✅ Supported
 | ❌ Not supported by scfile
 | ➖ Not supported by format
 
+| Benchmarks were performed using one of the most complex 3D model.
+| Note that average results may vary.
 
 ----------------------------------------
 ``.ol``
@@ -46,7 +53,7 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 | Supported Formats: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_XY``, ``RGBA32F``
 | Supported Types: ``Texture``, ``Normalmap``, ``Cubemap``
 
-Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
+| Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
 
 **Recommended Viewers:**
   - `XnView <XNVIEW_>`_ (Universal)

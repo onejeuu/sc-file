@@ -41,7 +41,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
             offset += mesh.count.vertices
 
     def _vectorize(self, template: bytes, data: np.ndarray, count: int):
-        return template * count % tuple(data.ravel())
+        return (template * count) % tuple(data.flatten().tolist())
 
     def _add_geometric_vertices(self, mesh: ModelMesh):
         template = b"v %.6f %.6f %.6f\n"

@@ -103,9 +103,20 @@ Game Formats
 | Contains large `JSON`_ structure. `AES Encrypted <AES_>`_.
 | Once encrypted individually ``.eon`` files combined into bundles.
 
-``.torrent.bin`` TORRENT BINary file
+
+----------------------------------------
+🛠️ Launcher Formats
+----------------------------------------
+
+``.map`` MAPping hashes (DIRMAP.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Technical file responsible for loading the game via the launcher, the structure is presented as a modified torrent file.
-| When converting the structure into a familiar ``.torrent`` format, it contains executable and technical files of the game.
-| (after convert the file cannot be used in the torrent client, because trackers block access to files, a proxy server may be needed)
+| Contains SHA-1 hash mappings for game files.
+| Used by launcher for integrity verification.
+
+``.torrent.bin`` TORRENT BINary (TORRENT.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
+| Used by game launcher for content delivery.
+| Trackers block unauthorized access (token required).

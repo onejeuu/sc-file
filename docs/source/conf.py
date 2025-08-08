@@ -20,7 +20,7 @@ sys.path.insert(0, PATH.as_posix())
 project = "sc-file"
 copyright = "2025, onejeuu"
 author = "onejeuu"
-release = "4.1.0"
+release = "4.1.1"
 html_title = f"{project} {release}"
 
 

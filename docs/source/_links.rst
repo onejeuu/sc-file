@@ -3,6 +3,8 @@
 .. _MCSA.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt
 .. _OL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/OL.bt
 .. _TEXARR.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TEXARR.bt
+.. _DIRMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/DIRMAP.bt
+.. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.BIN.bt
 
 .. Contacts
 .. _TG: https://onejeuu.t.me
@@ -19,11 +21,12 @@
 .. _DDS: https://en.wikipedia.org/wiki/DirectDraw_Surface
 .. _GLTF: https://en.wikipedia.org/wiki/GlTF
 .. _JSON: https://en.wikipedia.org/wiki/JSON
+.. _MCA: https://minecraft.wiki/w/Chunk_format
 .. _MS3D: https://developer.valvesoftware.com/wiki/MilkShape_3D
 .. _OBJ: https://en.wikipedia.org/wiki/Wavefront_.obj_file
 .. _PNG: https://en.wikipedia.org/wiki/PNG
+.. _TORRENT: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
-.. _MCA: https://minecraft.wiki/w/Chunk_format
 
 .. Wikipedia Graphics
 .. _LZ4: https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)
