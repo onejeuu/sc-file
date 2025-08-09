@@ -38,7 +38,7 @@
 
 ## Overview
 
-**scfile** is a utility and library for parsing and converting stalcraft assets (such as models and textures), into standard formats.
+**scfile** is a utility and library for converting stalcraft assets (such as models and textures), into standard formats.
 
 _this project is unofficial and not related to stalcraft devs. all trademarks and assets belong to their respective owners._
 
