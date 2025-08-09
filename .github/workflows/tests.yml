@@ -1,6 +1,14 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "scfile/**"
+      - "tests/**"
+  pull_request:
+    paths:
+      - "scfile/**"
+      - "tests/**"
 
 jobs:
   tests:
@@ -8,8 +16,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            name: Linux
+          - os: windows-latest
+            name: Windows
 
-    name: Tests for ${{ matrix.os }}
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -19,8 +32,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install UV
+        run: pip install uv
 
-      - name: Run tests
-        run: pytest
+      - name: Install Dependencies
+        run: uv sync
+
+      - name: Run Tests
+        run: uv run pytest
