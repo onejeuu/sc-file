@@ -4,6 +4,7 @@
 
 [pypi]: https://pypi.org/project/sc-file
 [license]: https://opensource.org/licenses/MIT
+[tests]: https://github.com/onejeuu/sc-file/actions/workflows/tests.yml
 [build]: https://github.com/onejeuu/sc-file/actions/workflows/release.yml
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
@@ -24,13 +25,14 @@
 [badge-pypi]: https://img.shields.io/pypi/v/sc-file.svg
 [badge-license]: https://img.shields.io/github/license/onejeuu/sc-file
 [badge-docs]: https://img.shields.io/readthedocs/sc-file
-[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml
+[badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
+[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
 [badge-ru]: https://img.shields.io/badge/%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%20%D0%BD%D0%B0-%F0%9F%87%B7%F0%9F%87%BA%20%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20-0096FF
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
-[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
+[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 [![RU][badge-ru]][readme-ru]
 
@@ -41,9 +43,7 @@
 _this project is unofficial and not related to stalcraft devs. all trademarks and assets belong to their respective owners._
 
 📚 Documentation: [sc-file][docs] \
-[Usage][docs-usage] / [FAQ][docs-faq] /
-[Game Formats][docs-formats] / [Formats Support][docs-support] /
-[Compile Guide][docs-compile] / [Library API Reference][docs-library]
+[Usage][docs-usage] / [FAQ][docs-faq] / [Game Formats][docs-formats] / [Formats Support][docs-support] / [Compile Guide][docs-compile] / [Library API Reference][docs-library]
 
 🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [More about Game Formats...][docs-formats]

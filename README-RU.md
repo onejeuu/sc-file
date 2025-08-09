@@ -4,6 +4,7 @@
 
 [pypi]: https://pypi.org/project/sc-file
 [license]: https://opensource.org/licenses/MIT
+[tests]: https://github.com/onejeuu/sc-file/actions/workflows/tests.yml
 [build]: https://github.com/onejeuu/sc-file/actions/workflows/release.yml
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
@@ -24,13 +25,14 @@
 [badge-pypi]: https://img.shields.io/pypi/v/sc-file.svg
 [badge-license]: https://img.shields.io/github/license/onejeuu/sc-file
 [badge-docs]: https://img.shields.io/readthedocs/sc-file
-[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml
+[badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
+[badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
 [badge-en]: https://img.shields.io/badge/translate%20to-%F0%9F%87%AC%F0%9F%87%A7%20English-0096FF
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
-[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
+[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 [![EN][badge-en]][readme-en]
 
@@ -41,9 +43,7 @@
 _этот проект является неофициальным и не имеет отношения к разработчикам stalcraft. все торговые марки и активы принадлежат их соответствующим владельцам._
 
 📚 Документация: [sc-file][docs] \
-[Usage][docs-usage] / [FAQ][docs-faq] /
-[Game Formats][docs-formats] / [Formats Support][docs-support] /
-[Compile Guide][docs-compile] / [Library API Reference][docs-library]
+[Usage][docs-usage] / [FAQ][docs-faq] / [Game Formats][docs-formats] / [Formats Support][docs-support] / [Compile Guide][docs-compile] / [Library API Reference][docs-library]
 
 🗂️ Поддерживаемые форматы игры: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [Подробнее об игровых форматах...][docs-formats]
