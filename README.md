@@ -42,7 +42,7 @@
 
 _this project is unofficial and not related to stalcraft devs. all trademarks and assets belong to their respective owners._
 
-📚 Documentation: [sc-file][docs] \
+📚 Documentation: [sc-file.readthedocs.io][docs] \
 [Usage][docs-usage] / [FAQ][docs-faq] / [Game Formats][docs-formats] / [Formats Support][docs-support] / [Compile Guide][docs-compile] / [Library API Reference][docs-library]
 
 🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
@@ -58,7 +58,7 @@ And other common questions are answered on [FAQ page][docs-faq].
 
 | Type       | Source                    | Output                          |
 | ---------- | ------------------------- | ------------------------------- |
-| 🧊 Model   | `.mcsb`, `.mcsa`, `.mcvd` | `.obj`, `.glb`, `.dae`, `.ms3d` |
+| 🧊 Model   | `.mcsb`, `.mcsa`, `.mcvd` | `.glb`, `.obj`, `.dae`, `.ms3d` |
 | 🧱 Texture | `.ol`                     | `.dds`                          |
 | 🖼️ Image   | `.mic`                    | `.png`                          |
 | 📦 Archive | `.texarr`                 | `.zip`                          |

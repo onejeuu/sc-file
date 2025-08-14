@@ -17,16 +17,16 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
     - Skeleton
     - Animation
     - Speed
-  * - ``.obj``
-    - `Wavefront <OBJ_>`_
-    - ➖
-    - ➖
-    - 170ms
   * - ``.glb``
     - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
     - 8ms
+  * - ``.obj``
+    - `Wavefront <OBJ_>`_
+    - ➖
+    - ➖
+    - 170ms
   * - ``.dae``
     - `Collada <DAE_>`_
     - ✅

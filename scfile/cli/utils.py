@@ -51,7 +51,7 @@ def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
 
 def output_to_destination(root: Path, source: Path, output: types.OutputDir, relative: bool, parent: bool) -> types.OutputDir:
     """Output path with source relative subdirectory appended if relative flag."""
-    if (relative and output):
+    if relative and output:
         basedir = root.parent if parent else root
         return output / source.relative_to(basedir).parent
     return output
