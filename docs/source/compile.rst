@@ -4,7 +4,7 @@ Compile
 .. include:: _links.rst
 
 .. important::
-  This instructions are tailored for `uv tool <UV_>`_.
+  This instructions are tailored for `astral-sh/uv <UV_>`_.
 
 
 1. Download project
@@ -24,13 +24,13 @@ Compile
 
     uv venv; .venv\Scripts\activate
 
-3. Install dependencies:
+3. Install dependencies
 
   .. code-block:: console
 
     uv sync
 
-4. Run the build script:
+4. Run the build script
 
   .. code-block:: console
 

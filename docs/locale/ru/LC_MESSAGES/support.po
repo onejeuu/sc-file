@@ -1,0 +1,147 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Content-Type: text/plain; charset=utf-8\n"
+
+#: ../../source/support.rst:2 24055d4f22844788a4a7ab4038008cbc
+msgid "Formats Support"
+msgstr "Поддержка Форматов"
+
+#: ../../source/support.rst:8 210ffdefc80446dca5eb6e1763706a67
+msgid "``.mcsa`` / ``.mcsb`` / ``.mcvd``"
+msgstr ""
+
+#: ../../source/support.rst:10 48797af3cf874680890b6b16d2af4de7
+msgid "Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``"
+msgstr "Поддерживаемые версии: ``7.0``, ``8.0``, ``10.0``, ``11.0``"
+
+#: ../../source/support.rst:12 03abd2d89c944ffd8969016d5c0973dd
+msgid "Output Formats"
+msgstr "Выходные Форматы"
+
+#: ../../source/support.rst:15 e0ec9158f1aa4c3494b0b57c7e65ced3
+msgid "Suffix"
+msgstr "Суффикс"
+
+#: ../../source/support.rst:16 83abd562b725414ba1a65729a6c65428
+msgid "Name"
+msgstr "Название"
+
+#: ../../source/support.rst:17 acbe50f1556545c1a1ca978d5c9ace0d
+msgid "Skeleton"
+msgstr "Скелет"
+
+#: ../../source/support.rst:18 72647f6a12a24b20a55a7219bd6e09cc
+msgid "Animation"
+msgstr "Анимации"
+
+#: ../../source/support.rst:19 e1126cbca02c4bf68ed40a8ff483e0a0
+msgid "Speed"
+msgstr "Скорость"
+
+#: ../../source/support.rst:41 6ac9ffbe97424cedb142faeb5efaa3ba
+msgid "**Feature:**"
+msgstr "**Функция:**"
+
+#: ../../source/support.rst:42 d16e3cdca970436cb5fd8facea79022b
+msgid "✅ Supported"
+msgstr "✅ Поддерживается"
+
+#: ../../source/support.rst:43 bb53b76300b743fe85144f6405798fa5
+msgid "❌ Not supported by scfile"
+msgstr "❌ Не поддерживается scfile"
+
+#: ../../source/support.rst:44 1ea177db03924a049281b0129ad128e9
+msgid "➖ Not supported by format"
+msgstr "➖ Не поддерживается форматом"
+
+#: ../../source/support.rst:46 e360e31d443640c7baf78e2b967d29f5
+msgid "Benchmarks were performed using one of the most complex 3D model."
+msgstr "Тестирование скорости экспорта проводилось на одной из самых комплексных 3D-моделей."
+
+#: ../../source/support.rst:47 51466d3fc0b3423d87952c9cd4003e76
+msgid "Note that average results may vary."
+msgstr "Средние результаты могут варьироваться."
+
+#: ../../source/support.rst:51 cec717499b3e47ad92ab192f09def880
+msgid "``.ol``"
+msgstr ""
+
+#: ../../source/support.rst:53 9c5aac9eadd043a28d7c5c15ddfd7158
+msgid ""
+"Supported Formats: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, "
+"``DXN_XY``, ``RGBA32F``"
+msgstr "Поддерживаемые форматы: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_XY``, ``RGBA32F``"
+
+#: ../../source/support.rst:54 970d338411404bbc8fd7e2591b1d5eca
+msgid "Supported Types: ``Texture``, ``Normalmap``, ``Cubemap``"
+msgstr "Поддерживаемые типы: ``Texture``, ``Normalmap``, ``Cubemap``"
+
+#: ../../source/support.rst:56 f5e2ada3a4cc44d39358c795944f2e99
+msgid "Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
+msgstr "Выходной формат: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
+
+#: ../../source/support.rst:58 cbc7096e694247548c08360cc30da7a1
+msgid "**Recommended Viewers:**"
+msgstr "**Программы для просмотра:**"
+
+#: ../../source/support.rst:59 9606ff15db034e518c13dff06a382cd1
+msgid "`XnView <XNVIEW_>`_ (Universal)"
+msgstr "`XnView <XNVIEW_>`_ (Универсальный)"
+
+#: ../../source/support.rst:60 f58fed078b4145cc93e9bd80c64ae356
+msgid "`WTV <WTV_>`_ (Lightweight)"
+msgstr "`WTV <WTV_>`_ (Легковесный)"
+
+#: ../../source/support.rst:61 e72e0a6bbd0649b8abe46735c6a4de53
+msgid "`RenderDoc <RENDERDOC_>`_ (Analysis)"
+msgstr "`RenderDoc <RENDERDOC_>`_ (Анализ)"
+
+#: ../../source/support.rst:63 37589e44f67942ac88f932fc783f2555
+msgid "Known Formats"
+msgstr "Известные Форматы"
+
+#: ../../source/support.rst:66 59a83751d579445bb65b0731729633af
+msgid "Encoded"
+msgstr "Зашифр."
+
+#: ../../source/support.rst:67 eda98ea836c043598f85f94dab36ce56
+msgid "Decoded"
+msgstr "Расшифр."
+
+#: ../../source/support.rst:68 1968ae3f40f84fd8b5b9eadb1bc9bd83
+msgid "Format"
+msgstr "Формат"
+
+#: ../../source/support.rst:69 bcc66a9c93644828ae90fe249d8cfed9
+msgid "Compression"
+msgstr "Сжатие"
+
+#: ../../source/support.rst:99 39abe4fa5afe47ed9d27076328ca11d2
+msgid "`More about Compression... <S3TC_>`_"
+msgstr "`Подробнее об S3TC сжатии... <S3TC_>`_"
+
+#: ../../source/support.rst:104 e47dd23c1c124905ad193e64e34605a5
+msgid "``.mic``"
+msgstr ""
+
+#: ../../source/support.rst:106 98297c64ca144f4097414e310dc8b192
+msgid "Absolutely identical to ``.png`` (`Portable Network Graphics <PNG_>`_)"
+msgstr "Абсолютно идентично ``.png`` (`Portable Network Graphics <PNG_>`_)"
+
+#: ../../source/support.rst:107 64edaac30a384ba2b34668143e5a8cd7
+msgid "Only difference is `file signature <SIG_>`_ *(first 4 bytes)*"
+msgstr "Единственное отличие это `сигнатура файла <SIG_>`_ *(первые 4 байта)*"
+
+#: ../../source/support.rst:112 49a53b24f5934bef89d6db57a3b182d2
+msgid "``.texarr``"
+msgstr ""
+
+#: ../../source/support.rst:114 ea3325d9deb4496f83345010fe0bd7b4
+msgid "Output Format: ``.zip`` (`ZIP <ZIP_>`_)"
+msgstr "Выходной формат: ``.zip`` (`ZIP <ZIP_>`_)"
+
+#: ../../source/support.rst:115 a6abeaccd2de4b9cb91f3a833c0699ab
+msgid "Textures Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
+msgstr "Формат текстур: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
+

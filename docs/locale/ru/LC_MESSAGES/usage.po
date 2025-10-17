@@ -1,0 +1,262 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Content-Type: text/plain; charset=utf-8\n"
+
+#: ../../source/usage.rst:2 31fc6775d3dd41aaa5d23008b0edd9e1
+msgid "Usage"
+msgstr "Использование"
+
+#: ../../source/usage.rst:6 804e7f38d9a14407a439f55c887db5a6
+msgid ""
+"**Easiest Way:** Use `Drag & Drop <DND_>`_. Just drag and drop files you "
+"want convert onto ``scfile.exe``. File paths will automatically be taken "
+"as arguments, converted to new format, and saved in same location."
+msgstr "**Проще всего:** используйте `Drag & Drop <DND_>`_. Просто перетащите файлы, которые хотите конвертировать, на ``scfile.exe``. Пути к файлам будут автоматически приняты в качестве аргументов, конвертированы в новый формат и сохранены в том же месте."
+
+#: ../../source/usage.rst:10 d3c89e7d55b5474fa8238b2f4e585c54
+msgid ""
+"**File Associations:** You can set ``scfile.exe`` as the default "
+"application for opening model and texture files. When a file is "
+"\"opened\" this way, it will be automatically converted to new format and"
+" saved in same location."
+msgstr "**Ассоциации файлов:** Вы можете установить ``scfile.exe`` в качестве приложения по умолчанию для открытия файлов моделей и текстур. Когда файл «открывается» таким образом, он автоматически конвертируется в новый формат и сохраняется в том же месте."
+
+#: ../../source/usage.rst:14 0fddd16e1e5f46d7814529dc8221885d
+msgid ""
+"**Via Console:** ``scfile`` is primarily a `CLI <CLI_>`_. If you're "
+"comfortable with the terminal, you'll figure it out fast. Check out "
+"arguments and options with ``scfile.exe --help``."
+msgstr "**Через консоль:** ``scfile`` это в основном `CLI <CLI_>`_. Если вы хорошо знакомы с терминалом, то быстро разберетесь. Проверьте аргументы и опции с помощью ``scfile.exe --help``."
+
+#: ../../source/usage.rst:33 6f57499b28db4e408afb1ef70e951a4f
+msgid ""
+"**As Library:** Install release build using ``pip install sc-file`` or "
+"any other package manager."
+msgstr "**Как библиотеку:** Установите релизную сборку с помощью ``pip install sc-file`` или любого другого менеджера пакетов."
+
+#: ../../source/usage.rst:36 0d3f45835245430289f1175c140949d0
+msgid ":doc:`More details in API Reference... <api/index>`"
+msgstr ":doc:`Более подробно про API библиотеки... <api/index>`"
+
+#: ../../source/usage.rst:38 73bcff835c7e4edd8f47b255c90135cb
+msgid "Simple code example"
+msgstr "Простой пример кода"
+
+#: ../../source/usage.rst:51 1ec017d5042948bd80bfbf8d406b1d30
+msgid ""
+"This code takes all ``.mcsb`` files from ``models`` directory, converts "
+"them to ``.glb``, and dumps into ``output``."
+msgstr "Этот код берет все файлы ``.mcsb`` из каталога ``/models``, конвертирует их в ``.glb`` и складывает в ``/output``."
+
+#: ../../source/usage.rst:56 2889c6715acc4781ab394e88e091301e
+msgid "Output Model Formats"
+msgstr "Выходные Форматы Моделей"
+
+#: ../../source/usage.rst:58 397cab12333c41e48cdabcbc01ef8edc
+msgid ""
+"Specify ``--mdlformat`` / ``-F`` parameter followed by desired format "
+"suffix."
+msgstr "Укажите параметр ``--mdlformat`` / ``-F``, за которым следует суффикс желаемого формата."
+
+#: ../../source/usage.rst:59 9102ad17f5da4ba5850f2e6a556942aa
+msgid "For example: ``-F obj`` or ``-F dae``."
+msgstr "Например: ``-F obj`` или ``-F dae``."
+
+#: ../../source/usage.rst:61 12fd75c9673a4c089eb125e08589743c
+msgid ""
+"To specify multiple formats at once, you need to use parameter multiple "
+"times."
+msgstr "Чтобы указать сразу несколько форматов, необходимо использовать параметр несколько раз."
+
+#: ../../source/usage.rst:62 87572e179fed4c87b64c29cc727ee450
+msgid "For example: ``scfile.exe model.mcsb -F obj -F dae -F ms3d``"
+msgstr "Например: ``scfile.exe model.mcsb -F obj -F dae -F ms3d``"
+
+#: ../../source/usage.rst:63 37408bed33ee44fda06ff0d17aed4c6d
+msgid ""
+"This command will create three files: ``model.obj``, ``model.dae``, "
+"``model.ms3d``."
+msgstr "Эта команда создаст три файла: ``model.obj``, ``model.dae``, ``model.ms3d``."
+
+#: ../../source/usage.rst:68 94ca1bd80ef447d581b885a1f025e970
+msgid "Default Model Formats"
+msgstr "Стандартные Форматы Моделей"
+
+#: ../../source/usage.rst:70 b685cf4c7979403b915cc3a3be4b2c1c
+msgid "Default Behavior (without ``-F`` parameter):"
+msgstr "Поведение по умолчанию (без параметра ``-F``):"
+
+#: ../../source/usage.rst:71 489e2b12c8d64afa89044316aace90c5
+msgid "Uses ``consts.py::DefaultModelFormats.STANDARD``: ``.obj``."
+msgstr "Использует ``consts.py::DefaultModelFormats.STANDARD``: ``.obj``."
+
+#: ../../source/usage.rst:74 5164d4d51bb34f028932c63413d04f2c
+msgid "If ``--skeleton`` or ``--animation`` is specified:"
+msgstr "Если указан ``--skeleton`` или ``--animation``:"
+
+#: ../../source/usage.rst:75 90edbdb04cc04c51917ee7cf1e9922d3
+msgid "Uses ``consts.py::DefaultModelFormats.SKELETON``: ``.glb``."
+msgstr "Использует ``consts.py::DefaultModelFormats.SKELETON``: ``.glb``."
+
+#: ../../source/usage.rst:77 959fef75f4c54d588353c32cba30e0e0
+msgid "**Two ways to change it:**"
+msgstr "**Два способа изменить это:**"
+
+#: ../../source/usage.rst:79 95174174c88446a7a5dbf33023833a18
+msgid ""
+"**Easiest Way:** Create a shortcut for the ``scfile.exe``. At end of "
+"«Target» field, add desired formats like in examples above."
+msgstr "**Проще всего:** создайте ярлык ``scfile.exe``. В конце поля «Цель» добавьте желаемые форматы, как в примерах выше."
+
+#: ../../source/usage.rst:82 26242b1164824c02a006118943d8f539
+msgid ""
+"**Modify Source Code:** Alternatively, tweak this consts in source code "
+"and :doc:`compile yourself <compile>`."
+msgstr "**Изменение исходного кода:** Измените эти константы в исходном коде и :doc:`скомпилируйте самостоятельно <compile>`."
+
+#: ../../source/usage.rst:88 8a947052ff5b48d0b0c9958090f487ee
+msgid "Model Skeleton"
+msgstr "Скелет Модели"
+
+#: ../../source/usage.rst:90 e27f066ddc55411cb57deda75afe7b70
+msgid "Specify ``--skeleton`` flag."
+msgstr "Укажите флаг ``--skeleton``."
+
+#: ../../source/usage.rst:91 b714eab2467048859c04004175042b71
+msgid "If skeleton has presented, it will be exported."
+msgstr "Если скелет существует, он будет экспортирован."
+
+#: ../../source/usage.rst:92 ef19b4d4f13a44c985461ce2e5786352
+msgid "Output formats with armature support: ``.glb``, ``.dae``, ``.ms3d``."
+msgstr "Выходные форматы с поддержкой скелета: ``.glb``, ``.dae``, ``.ms3d``."
+
+#: ../../source/usage.rst:97 96d805df0d104bff8b2b36c4a7ccd97f
+msgid "Model Animation"
+msgstr "Анимации Модели"
+
+#: ../../source/usage.rst:99 d04a5b3a43a14f61ba9fabf62f870654
+msgid "Specify ``--animation`` flag."
+msgstr "Укажите флаг ``--animation``."
+
+#: ../../source/usage.rst:100 058d06b4f1c04e2caf7747fa54fa8d8f
+msgid "If skeleton and animation has presented, it will be exported."
+msgstr "Если анимации существуют, они будут экспортированы."
+
+#: ../../source/usage.rst:101 0edf7cbf35c8489795725599bc44f908
+msgid "Output formats with animation support: ``.glb``."
+msgstr "Выходные форматы с поддержкой анимации: ``.glb``."
+
+#: ../../source/usage.rst:102 dd7db42fd9864db591e8a5c70e6dc819
+msgid "`List of files with built-in clips <ANIMSLIST_>`_ (can be outdated)."
+msgstr "`Список файлов со встроенными клипами <ANIMSLIST_>`_ (может быть устаревшим)."
+
+#: ../../source/usage.rst:107 5cbca003d33945238e9b4965f3f2e9fb
+msgid "Path Arguments"
+msgstr "Аргументы Путей"
+
+#: ../../source/usage.rst:109 b427b839d5c84cb987da9ce2f944c420
+msgid ""
+"File and directory paths are accepted. Patterns also work. Quotes are "
+"required when paths include spaces."
+msgstr "Допускаются пути к файлам и директориям. Также допускаются паттерны. Если в пути есть пробелы, **необходимо** использовать кавычки."
+
+#: ../../source/usage.rst:112 e469df2a88d94d10914cc1e8d834457f
+msgid "You can use full paths: ::"
+msgstr "Вы можете использовать абсолютные пути: ::"
+
+#: ../../source/usage.rst:116 49f42aac6b4a4cc793ce6b2561d35878
+msgid "Or relative paths: ::"
+msgstr "Или относительные пути: ::"
+
+#: ../../source/usage.rst:120 9f6a5c5b107449b9900a021eee579839
+msgid ""
+"You can specify a directory, only files with supported formats will be "
+"processed: ::"
+msgstr "Вы можете указать директорию, будут обработаны только файлы с поддерживаемыми форматами: ::"
+
+#: ../../source/usage.rst:124 66c1a6f104f448b1bff7d0c60924e2e9
+msgid ""
+"You can also use patterns. Each file matching the pattern will be passed "
+"as a separate argument: ::"
+msgstr "Вы также можете использовать паттерны. Каждый файл, соответствующий паттерну, будет передан в качестве отдельного аргумента: ::"
+
+#: ../../source/usage.rst:128 a8fd9d7583b246bbb0bab45391104bde
+msgid ""
+"You can combine multiple arguments, mixing files, directories, and "
+"patterns. However, use this with caution and ensure you understand the "
+"implications: ::"
+msgstr "Вы можете комбинировать несколько аргументов, смешивая файлы, директории и паттерны. Однако используйте эту функцию с осторожностью и убедитесь, что вы понимаете все последствия: ::"
+
+#: ../../source/usage.rst:135 7b6c122b0af44f0c974ad2760a1d1f68
+msgid "Output Directory"
+msgstr "Каталог Результатов"
+
+#: ../../source/usage.rst:137 d131e04b30784823a2ad06bd92156eba
+msgid "As mentioned earlier, you can convert entire directories at once."
+msgstr "Как упоминалось ранее, вы можете конвертировать сразу целые каталоги."
+
+#: ../../source/usage.rst:138 c12b395c486b456a9b16d2c106d54252
+msgid "By default, output files saved in same location."
+msgstr "По умолчанию выходные файлы сохраняются в том же месте."
+
+#: ../../source/usage.rst:140 0b5c191e1fa54e58ab9c24bd0c27c7a4
+msgid "You can specify ``--output`` / ``-O`` parameter to change it. ::"
+msgstr "Вы можете указать параметр ``--output`` / ``-O``, чтобы изменить его. ::"
+
+#: ../../source/usage.rst:147 42bb4053a3564f84bbc1d02b149fec20
+msgid "Output Overwriting"
+msgstr "Перезапись Файлов"
+
+#: ../../source/usage.rst:149 e558108e5cbf4cec97a6ce5f4ff7f3b9
+msgid "To prevent overwriting files, use ``--unique`` flag."
+msgstr "Чтобы предотвратить перезапись файлов с одинаковым именем, используйте флаг ``--unique``."
+
+#: ../../source/usage.rst:150 aba486fe62b345b5a8c8c060bcaad8a8
+msgid ""
+"Duplicates files will be renamed like ``model (2).obj``, ``model "
+"(3).obj`` and etc."
+msgstr "Дубликаты файлов будут переименованы как ``model (2).obj``, ``model (3).obj`` и т.д."
+
+#: ../../source/usage.rst:155 00c10cad9e86453abd5b939cebabb186
+msgid "Output Structure"
+msgstr "Структура Результатов"
+
+#: ../../source/usage.rst:157 44506f1864b844a581f73fa8d5541136
+msgid "To preserve source directory structure, use ``--relative`` flag."
+msgstr "Чтобы сохранить структуру исходного каталога, используйте флаг ``--relative``."
+
+#: ../../source/usage.rst:158 ee9b60caef5a4b209a64a8951f495cf9
+msgid ""
+"Relative path from path argument will be passed as relative path of base "
+"``--output`` directory."
+msgstr "Относительный путь из аргумента будет передан как относительный путь базового каталога ``--output``."
+
+#: ../../source/usage.rst:160 b98abd0292fb465d9d9a2fd7697bc543
+msgid ""
+"To use source root directory as starting point in output, use "
+"``--parent`` flag."
+msgstr "Чтобы использовать корневой каталог источника в качестве начальной точки в результате, используйте флаг ``--parent``."
+
+#: ../../source/usage.rst:162 843ba207298144db8f13ae5f13381d03
+msgid "Example source structure"
+msgstr "Пример исходной структуры"
+
+#: ../../source/usage.rst:170 3d39f177ddfc4c8db79dea4313fc0874
+msgid "Default Structure"
+msgstr "По умолчанию"
+
+#: ../../source/usage.rst:175 ../../source/usage.rst:188
+#: ../../source/usage.rst:201 008d4df8c8b74ca38c063b9421c59e92
+#: 15230500d2a04067bf4470e8ad829651 e110b295f053435585a8fcb2c5d0712a
+msgid "Output"
+msgstr "Результат"
+
+#: ../../source/usage.rst:183 42b362fecae5436aa50cfe2628da8232
+msgid "Relative Structure"
+msgstr "Относительная структура (``--relative``)"
+
+#: ../../source/usage.rst:196 7469771c0a364b75b19205c5f87c2de7
+msgid "Parent Structure"
+msgstr "Родительская структура (``--parent``)"
+

@@ -163,8 +163,8 @@ Output Structure
   :caption: Example source structure
 
   ./assets/
-  ├── armor/model_1.mcsb
-  └── items/model_2.mcsb
+  ├── armor/albatros.mcsb
+  └── items/vodka.ol
 
 Default Structure
 ^^^^^^^^^^^^^^^^^^
@@ -176,8 +176,8 @@ Default Structure
   :caption: Output
 
   ./output/
-  ├── model_1.mcsb
-  └── model_2.mcsb
+  ├── albatros.obj
+  └── vodka.dds
 
 Relative Structure
 ^^^^^^^^^^^^^^^^^^^
@@ -189,8 +189,8 @@ Relative Structure
   :caption: Output
 
   ./output/
-  ├── armor/model_1.mcsb
-  └── items/model_2.mcsb
+  ├── armor/albatros.obj
+  └── items/vodka.dds
 
 Parent Structure
 ^^^^^^^^^^^^^^^^^
@@ -202,5 +202,5 @@ Parent Structure
   :caption: Output
 
   ./output/
-  ├── assets/armor/model_1.mcsb
-  └── assets/items/model_2.mcsb
+  ├── assets/armor/albatros.obj
+  └── assets/items/vodka.dds

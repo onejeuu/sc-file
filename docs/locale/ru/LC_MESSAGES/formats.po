@@ -1,0 +1,261 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Content-Type: text/plain; charset=utf-8\n"
+
+#: ../../source/formats.rst:2 2efaf374e94147149ed9502a4f99df7a
+msgid "Game Formats"
+msgstr "Игровые Форматы"
+
+#: ../../source/formats.rst:7 247c5a43c59f4fcfb90330c864f3110a
+msgid ""
+"Formats specifications are based on **reverse-engineering efforts** and "
+"may contain inaccuracies. Subject to change."
+msgstr "Спецификации форматов основаны на **обратной инженирии** и могут содержать неточности."
+
+#: ../../source/formats.rst:13 c0872b1463a14ca1bc51123a54560768
+msgid "🧊 Model Formats"
+msgstr "🧊 Модели"
+
+#: ../../source/formats.rst:20 c05c0368047540a882b53c266fd1b508
+msgid "Configuration: Flags, Scales."
+msgstr "Конфигурация: флаги, размеры."
+
+#: ../../source/formats.rst:21 9decb083e428448f91af17d3d7ed516e
+msgid "Geometry: Name, Material, Vertex Position, UVs, Normals, Polygons."
+msgstr "Геометрия: название, материал, вершины, UV, нормали, полигоны."
+
+#: ../../source/formats.rst:22 46f491b2f0ed493d82bbfcc99ddfe96b
+msgid "Optional: Skeleton bones, Animation clips."
+msgstr "Дополнительно: кости скелета, анимационные клипы."
+
+#: ../../source/formats.rst:25 cacdb1a77c044447820a1747e0afbf6d
+msgid "Identical to ``.mcsa`` but with integrity check."
+msgstr "Идентично ``.mcsa``, но с проверкой целостности."
+
+#: ../../source/formats.rst:26 ffbf792329e447e087edd21ee72aa8dd
+msgid "Contains leading hash to prevent tampering."
+msgstr "Содержит хеш для предотвращения замены."
+
+#: ../../source/formats.rst:29 084888dc2beb4c03900f9e0c488f51cd
+msgid "Simplified low-poly geometry."
+msgstr "Упрощенная низкополигональная геометрия."
+
+#: ../../source/formats.rst:30 5a7bf0e2aac648c684210736a4067171
+msgid "Includes animation data."
+msgstr "В основном данные анимации."
+
+#: ../../source/formats.rst:31 062964b3baef4a6c8948918eb8045f2d
+msgid "Used for physics/collision trace detection."
+msgstr "Иногда используется для обнаружения столкновений/физики."
+
+#: ../../source/formats.rst:34 8a94887ef8c8491884bf8fe00cc97927
+msgid "Metadata: frame count, bone count."
+msgstr "Метаданные: количество кадров, количество костей."
+
+#: ../../source/formats.rst:35 afb8f8cc88ab439a918340c977c8be02
+msgid "Technical skeletal animation transforms (per bone)."
+msgstr "Преобразования скелетной анимации."
+
+#: ../../source/formats.rst:36 99df68f3131440e2b6472d51db3d119f
+msgid "Model-specific (requires matching skeleton)."
+msgstr "Специфично для модели (требуется соответствующий скелет)."
+
+#: ../../source/formats.rst:39 e79bf2cbabd540fd87e7207676ce6bd0
+msgid "Slices of safezone (world as 3D model)."
+msgstr "Срезы безопасной зоны (карта мира в виде 3D-модели)."
+
+#: ../../source/formats.rst:40 de7df2ce2e7e41c28271b2b6cf95f424
+msgid "Used in safezone workbench rendering."
+msgstr "Используется в рендеринге безопасной зоны через верстак."
+
+#: ../../source/formats.rst:45 3228777e10a94333b030333aff458483
+msgid "🧱 Texture Formats"
+msgstr "🧱 Текстуры"
+
+#: ../../source/formats.rst:50 fd885be958bb4ddf8255073c9a6725b1
+msgid "Standard ``.dds`` (`DirectDraw Surface <DDS_>`_)."
+msgstr "Стандартный ``.dds`` (`DirectDraw Surface <DDS_>`_)."
+
+#: ../../source/formats.rst:51 135a2e4c87324741903a02ccc0b8311a
+msgid ""
+"Has simplified structure and `mipmaps <MIPMAP_>`_ are compressed using "
+"`LZ4`_."
+msgstr "Имеет упрощенную структуру, а `mipmaps <MIPMAP_>`_ сжимаются с помощью `LZ4`_."
+
+#: ../../source/formats.rst:53 a54c2045a8bc455f8d2a77cd37cfc5ee
+msgid "Some `normal maps <NORMALMAP_>`_ textures can be inverted."
+msgstr "Некоторые текстуры `нормальных карт <NORMALMAP_>`_ могут быть инвертированы."
+
+#: ../../source/formats.rst:55 97dd2529afaf4ec5b4fe306a55581012
+msgid "Some textures can be `cube maps <CUBEMAP_>`_. (OLCUBEMAP.bt_)"
+msgstr "Некоторые текстуры могут быть `кубическими картами <CUBEMAP_>`_. (OLCUBEMAP.bt_)"
+
+#: ../../source/formats.rst:56 f48100aaac3b40c39b4933c4c3d8a1ea
+msgid ""
+"Mainly located in: ``gloomycore/sky``, ``effects/textures``, "
+"``stalker/gui``."
+msgstr "В основном расположены в: ``gloomycore/sky``, ``effects/textures``, ``stalker/gui``."
+
+#: ../../source/formats.rst:58 e59a33caa8e64a98b2e26feed0453750
+msgid "Texture Suffix Conventions"
+msgstr "Конвенция суффиксов"
+
+#: ../../source/formats.rst:61 e696a21801024da1acc9ee61959fdf70
+msgid "Suffix"
+msgstr "Суффикс"
+
+#: ../../source/formats.rst:62 a96a0f4ea96c42a9b2f334675200d6aa
+msgid "Map"
+msgstr "Карта"
+
+#: ../../source/formats.rst:63 0e68e006559f49c7b245137d42d06d63
+msgid "Type"
+msgstr "Тип"
+
+#: ../../source/formats.rst:64 d200d544e35640bdb92a91bdba22f982
+msgid "Purpose"
+msgstr "Назначение"
+
+#: ../../source/formats.rst:65 a605e078d5784a6683548bb0a0b8b53c
+msgid "``_diff``"
+msgstr ""
+
+#: ../../source/formats.rst:66 5ac317e0a6a64cf5b9d7bbaefadd9ac3
+msgid "Diffuse"
+msgstr ""
+
+#: ../../source/formats.rst:67 7ff755f147cc4776a1e5d319d07a5994
+msgid "Base Color / Albedo"
+msgstr ""
+
+#: ../../source/formats.rst:68 03038ee09c70422388afe06724ee4f05
+msgid "Contains raw surface color without lighting or reflections."
+msgstr "Содержит необработанный цвет поверхности без освещения и отражений."
+
+#: ../../source/formats.rst:69 21e4cdbab16046fea8ff89b8589dcafb
+msgid "``_spek``"
+msgstr ""
+
+#: ../../source/formats.rst:70 df6c0b67e8044106897a136f77a95187
+msgid "Specular"
+msgstr ""
+
+#: ../../source/formats.rst:71 f859dd08697740f2826cc81761eeef3f
+msgid "Reflectivity Control"
+msgstr ""
+
+#: ../../source/formats.rst:72 d34293c7713446f4ae453aff63fbe1be
+msgid "Defines intensity and sharpness of highlights/reflections."
+msgstr "Определяет интенсивность и резкость бликов/отражений."
+
+#: ../../source/formats.rst:73 7c66bfe6caa54d77b59d30bc7565bbf3
+msgid "``_nrm``"
+msgstr ""
+
+#: ../../source/formats.rst:74 621c2cf871e34a0c8921f225c04dd5ea
+msgid "Normal"
+msgstr ""
+
+#: ../../source/formats.rst:75 c58911b9e5cd491fb1268969e2acfb33
+msgid "Surface Detail"
+msgstr ""
+
+#: ../../source/formats.rst:76 23d73071f79a47289b972da89f1138d2
+msgid "Simulates small bumps/dents without changing geometry."
+msgstr "Имитирует небольшие вмятины/выпуклости без изменения геометрии."
+
+#: ../../source/formats.rst:77 d1db9a8bce034954ba407c3614f14e49
+msgid "``_emi``"
+msgstr ""
+
+#: ../../source/formats.rst:78 76f22a7d68c44d669de06fade4546c5d
+msgid "Emission"
+msgstr ""
+
+#: ../../source/formats.rst:79 5c5d0e6bf38348e2ae6f30d23b21afeb
+msgid "Self-Illumination"
+msgstr ""
+
+#: ../../source/formats.rst:80 eb5f6fb750eb432bbd60644216ff4120
+msgid "Makes parts glow or emit light independently."
+msgstr "Заставляет детали светиться или излучать свет."
+
+#: ../../source/formats.rst:83 694c72f6c36440d88e2506a3e7b8e2ae
+msgid "``.mic`` Media Image Container"
+msgstr ""
+
+#: ../../source/formats.rst:85 7ce482f087b84284850865b3243a69e6
+msgid "Standard ``.png`` (`Portable Network Graphics <PNG_>`_)."
+msgstr "Стандартный ``.png`` (`Portable Network Graphics <PNG_>`_)."
+
+#: ../../source/formats.rst:86 7b3bf64b0cf243be8d39cc24f652145d
+msgid "Has modified `file signature <SIG_>`_."
+msgstr "Имеет измененную `сигнатуру файла <SIG_>`_."
+
+#: ../../source/formats.rst:87 7f2963f157a34c529f7fbc925a22ca9c
+msgid "Previously used for game `GUI`_."
+msgstr "Ранее использовался для `GUI`_."
+
+#: ../../source/formats.rst:90 12f7d31aac5f49059565d482082f3a31
+msgid "``.texarr`` TEXture ARRay (TEXARR.bt_)"
+msgstr ""
+
+#: ../../source/formats.rst:92 ccfa98d320f048899f2cc93333c2bfd9
+msgid "Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures."
+msgstr "Контейнер для ``.dds`` текстур (`DirectDraw Surface <DDS_>`_)."
+
+#: ../../source/formats.rst:93 3f0396839be24a3db86d18a61dffa3fc
+msgid ""
+"Textures referenced as ``group:path`` (e.g., "
+"``probuilder:general/generic``)."
+msgstr "Текстуры указываются как ``группа:путь`` (например, ``probuilder:general/generic``)."
+
+#: ../../source/formats.rst:98 e960dc0559ee428faa06267299612be3
+msgid "🗂️ Other Formats"
+msgstr "🗂️ Прочее"
+
+#: ../../source/formats.rst:101 732a164935784b19aab4cf95937bcbea
+msgid "``.xeon`` eXtended Encrypted Object Notation"
+msgstr ""
+
+#: ../../source/formats.rst:103 6530ae9e66b646adbfdc134944c20d2d
+msgid "Contains large `JSON`_ structure. `AES Encrypted <AES_>`_."
+msgstr "Содержит большую `JSON`_ структуру. `Зашифровано через AES <AES_>`_."
+
+#: ../../source/formats.rst:104 b9feca539ab14463941576a42427d0bd
+msgid "Once encrypted individually ``.eon`` files combined into bundles."
+msgstr "Отдельно зашифрованные файлы ``.eon`` объединенные в единые пакеты."
+
+#: ../../source/formats.rst:109 8e1fc5e468b2432c9c9649bf960340a0
+msgid "🛠️ Launcher Formats"
+msgstr "🛠️ Лаунчер"
+
+#: ../../source/formats.rst:112 700b0ab971254e63b53428c87bb50c62
+msgid "``.map`` MAPping hashes (HASHMAP.bt_)"
+msgstr ""
+
+#: ../../source/formats.rst:114 99b84e07e430409eba285bd3892d21b8
+msgid "Contains SHA-1 hash mappings for game files."
+msgstr "Содержит маппинг SHA-1 хэшей для файлов игры."
+
+#: ../../source/formats.rst:115 bc81829ce6c34770bfe1eee9d0e2d997
+msgid "Used by launcher for integrity verification."
+msgstr "Используется лаунчером для проверки целостности игры."
+
+#: ../../source/formats.rst:118 e92af870b3844e22af34955eee0168ed
+msgid "``.torrent.bin`` TORRENT BINary (TORRENT.bt_)"
+msgstr ""
+
+#: ../../source/formats.rst:120 23d34510d4b04cc0b506c0b0afc02878
+msgid "Modified ``.torrent`` (`Torrent <TORRENT_>`_) file."
+msgstr "Измененный файл ``.torrent`` (`Torrent <TORRENT_>`_)."
+
+#: ../../source/formats.rst:121 2f54e7178e354a8886c4e29614739f28
+msgid "Used by game launcher for content delivery."
+msgstr "Используется лаунчером для доставки контента."
+
+#: ../../source/formats.rst:122 36dbfad072c74f39b953ee0ce84764ef
+msgid "Trackers block unauthorized access (token required)."
+msgstr "Трекеры блокируют несанкционированный доступ (требуется токен)."
+
