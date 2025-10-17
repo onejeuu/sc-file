@@ -1,6 +1,8 @@
 Index
 ==================================================
 
+.. include:: _links.rst
+
 .. toctree::
   :maxdepth: 1
 
@@ -51,8 +53,13 @@ Overview
 
 
 ----------------------------------------
-🚀 Quick Start
+🚀 Usage
 ----------------------------------------
+
+- Easiest way is `Drag & Drop <DND_>`_. Just drag and drop your files onto ``scfile.exe``.
+- Set scfile.exe as the `default application <DEFAPP_>`_ for the required file types.
+- Via terminal as `CLI <CLI_>`_ for specifying parameters.
+- As `Python library <PYPI_>`_ for complex tasks.
 
 .. code-block:: bash
   :caption: Command example

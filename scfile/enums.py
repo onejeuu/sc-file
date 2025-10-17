@@ -108,6 +108,7 @@ class ConsoleLabel(StrEnum):
     """Colored labels for console output."""
 
     INFO = "[b blue]INFO:[/]"
+    HINT = "[b cyan]HINT:[/]"
     WARN = "[b yellow]WARN:[/]"
     ERROR = "[b red]ERROR:[/]"
     INVALID = "[b red]INVALID INPUT:[/]"

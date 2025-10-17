@@ -9,6 +9,8 @@ from pathlib import Path
 from sphinx.ext import autodoc
 from sphinx.locale import _
 
+import scfile
+
 
 PATH = Path("../../scfile").absolute()
 sys.path.insert(0, PATH.as_posix())
@@ -19,8 +21,10 @@ sys.path.insert(0, PATH.as_posix())
 
 project = "sc-file"
 copyright = "2025, onejeuu"
-author = "onejeuu"
-release = "4.1.1"
+
+author = scfile.__author__
+release = scfile.__version__
+
 html_title = f"{project} {release}"
 
 

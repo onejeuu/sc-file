@@ -16,7 +16,12 @@ from . import types
 def no_args(ctx: click.Context) -> None:
     """Prints help message when no arguments provided."""
     click.echo(ctx.get_help())
-    print(f"\n{L.INVALID} No arguments provided. Showing help.")
+    print(
+        "",
+        f"{L.INVALID} No files paths arguments provided. Showing help.",
+        f"{L.HINT} Next time drag and drop files onto scfile.exe OR use terminal for parameters.",
+        sep="\n"
+    )
     click.pause(CLI.PAUSE)
 
 

@@ -26,21 +26,20 @@ Usage Examples
   :caption: Basic Conversion
 
   from scfile import formats
-  from scfile.core import ModelContent
 
   # Decode MCSB model
   with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    data: ModelContent = mcsb.decode()  # Get parsed data
+    data = mcsb.decode()  # Get parsed data
 
   # Encode OBJ model
-  with formats.obj.ObjEncoder(data) as obj:
+  with formats.obj.ObjEncoder(data=data) as obj:
     obj.encode()           # Write data to buffer
-    obj.save("model.obj")  # Save and close encoder
+    obj.save("model.obj")  # Save to file and close encoder
 
 .. code-block:: python
   :caption: Get encoded bytes instead of saving
 
-  with formats.obj.ObjEncoder(data) as obj:
+  with formats.obj.ObjEncoder(data=data) as obj:
     # You can use encoder methods right on encode() (chaining)
     output: bytes = obj.encode().getvalue()  # Returns OBJ bytes
 
@@ -50,17 +49,10 @@ Usage Examples
   with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     # No need to call mcsb.decode()
     # convert_to() creates an encoder and pass decoded data to it
-    mcsb.convert_to(formats.obj.ObjEncoder).save("model.obj") # Save and close encoder
+    mcsb.convert_to(formats.obj.ObjEncoder).save("model.obj") # Save and close
 
     # Or use precreated sugar methods
-    mcsb.to_obj().save("model.obj") # Save and close encoder
-
-.. code-block:: python
-  :caption: Use ``encoded()`` method
-
-  # No need to call obj.encode()
-  with formats.obj.ObjEncoder(data).encoded() as obj:
-    obj.save("model.obj") # Save and close encoder
+    mcsb.to_obj().save("model.obj") # Save and close
 
 Formats
 ------------------

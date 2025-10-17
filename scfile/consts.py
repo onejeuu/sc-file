@@ -83,11 +83,9 @@ class McsaUnits:
 class CLI:
     """Command line interface constants."""
 
-    VERSION = "4.1.1"
-
     FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
-    PAUSE = "\nPress any key to continue or exit..."
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
+    PAUSE = "\nPress any key to exit..."
 
     NON_SKELETAL_FORMATS: Formats = (FileFormat.OBJ,)
     NON_ANIMATION_FORMATS: Formats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)

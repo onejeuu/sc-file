@@ -11,6 +11,13 @@
 [docs]: https://sc-file.readthedocs.io/en/latest
 [readme-en]: README.md
 
+<!-- Usage -->
+
+[usage-dragndrop]: https://ru.wikipedia.org/wiki/Drag-and-drop
+[usage-defaultapp]: https://support.microsoft.com/ru-ru/windows/e5d82cad-17d1-c53b-3505-f10a32e1894d
+[usage-cli]: https://ru.wikipedia.org/wiki/Интерфейс_командной_строки
+[usage-library]: https://pypi.org/project/sc-file
+
 <!-- Docs -->
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
@@ -28,7 +35,7 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-en]: https://img.shields.io/badge/translate%20to-%F0%9F%87%AC%F0%9F%87%A7%20English-0096FF
+[badge-en]: https://img.shields.io/badge/translate%20to-🇬🇧%20English-0096FF
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
@@ -65,15 +72,20 @@ _этот проект является неофициальным и не им�
 
 [Подробнее об поддержке форматов...][docs-support]
 
-## 🚀 Быстрый Старт
+## 🚀 Использование
 
-Пример команды:
+- **Проще всего использовать [Drag & Drop][usage-dragndrop]**. Просто перетащите нужные файлы на `scfile.exe`.
+- **Указать `scfile.exe` как [приложение по умолчанию][usage-defaultapp]** для нужных типов файлов.
+- **Через терминал как самый обычный [CLI][usage-cli]** для указания параметров.
+- **Как [Python библиотеку][usage-library]** для комплексных задач.
+
+Пример команды для терминала:
 
 ```bash
 scfile.exe model.mcsb -F dae --skeleton
 ```
 
-[Подробнее об использовании...][docs-usage]
+[Подробнее об использовании и параметрах...][docs-usage]
 
 ## 📖 Библиотека
 

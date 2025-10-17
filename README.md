@@ -11,6 +11,13 @@
 [docs]: https://sc-file.readthedocs.io/en/latest
 [readme-ru]: README-RU.md
 
+<!-- Usage -->
+
+[usage-dragndrop]: https://en.wikipedia.org/wiki/Drag_and_drop
+[usage-defaultapp]: https://support.microsoft.com/en-us/windows/e5d82cad-17d1-c53b-3505-f10a32e1894d
+[usage-cli]: https://en.wikipedia.org/wiki/Command-line_interface
+[usage-library]: https://pypi.org/project/sc-file
+
 <!-- Docs -->
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
@@ -28,7 +35,7 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-ru]: https://img.shields.io/badge/%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%20%D0%BD%D0%B0-%F0%9F%87%B7%F0%9F%87%BA%20%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9%20-0096FF
+[badge-ru]: https://img.shields.io/badge/перевод%20на-🇷🇺%20Русский-0096FF
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
@@ -65,7 +72,12 @@ And other common questions are answered on [FAQ page][docs-faq].
 
 [More about Formats Support…][docs-support]
 
-## 🚀 Quick Start
+## 🚀 Usage
+
+- **Easiest way is [Drag & Drop][usage-dragndrop]**. Just drag and drop your files onto `scfile.exe`.
+- **Set scfile.exe as the [default application][usage-defaultapp]** for the required file types.
+- **Via terminal as [CLI][usage-cli]** for specifying parameters.
+- **As [Python library][usage-library]** for complex tasks.
 
 Command example:
 

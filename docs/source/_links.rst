@@ -7,8 +7,13 @@
 .. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.MAP.bt
 .. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.BIN.bt
 
-.. Contacts
-.. _TG: https://onejeuu.t.me
+.. Media Files
+.. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
+.. _ANIMSLIST: https://github.com/onejeuu/sc-file/blob/master/docs/source/data/anims.rst?plain=1
+
+.. Project
+.. _GITHUB: https://github.com/onejeuu/sc-file
+.. _PYPI: https://pypi.org/project/sc-file
 
 .. Wikipedia General
 .. _AES: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
@@ -16,6 +21,7 @@
 .. _DND: https://en.wikipedia.org/wiki/Drag_and_drop
 .. _GUI: https://en.wikipedia.org/wiki/Graphical_user_interface
 .. _SIG: https://en.wikipedia.org/wiki/List_of_file_signatures
+.. _DEFAPP: https://support.microsoft.com/en-us/windows/e5d82cad-17d1-c53b-3505-f10a32e1894d
 
 .. Wikipedia Formats
 .. _DAE: https://en.wikipedia.org/wiki/COLLADA
@@ -43,6 +49,5 @@
 .. _IMAGEMAGICK: https://imagemagick.org
 .. _UV: https://github.com/astral-sh/uv
 
-.. Media Files
-.. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
-.. _ANIMSLIST: https://github.com/onejeuu/sc-file/blob/master/docs/source/data/anims.rst?plain=1
+.. Contacts
+.. _TG: https://onejeuu.t.me

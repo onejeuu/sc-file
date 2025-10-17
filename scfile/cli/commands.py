@@ -8,7 +8,7 @@ from typing import Optional
 import click
 from rich import print
 
-from scfile import convert, exceptions
+from scfile import __version__, convert, exceptions
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
 from scfile.enums import L
@@ -56,7 +56,7 @@ from . import types, utils
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
 )
-@click.version_option(CLI.VERSION)
+@click.version_option(version=__version__)
 @click.pass_context
 def scfile(
     ctx: click.Context,
