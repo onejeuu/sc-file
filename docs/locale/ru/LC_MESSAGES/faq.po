@@ -83,7 +83,7 @@ msgstr "Вы **ДОЛЖНЫ** закрыть игру и лаунчер **ПЕР
 #: ../../source/faq.rst:36 fefa90e4c21e4ddbb9888f16e601d59f
 msgid ""
 "You **MUST NOT** leave any files or modifications in game assets directory."
-msgstr "Вы **НЕ ДОЛЖНЫ** оставлять какие-либо файлы или изменения в каталоге игровых ресурсов."
+msgstr "Вы **НЕ ДОЛЖНЫ** оставлять какие-либо файлы или изменения в каталоге ассетов."
 
 #: ../../source/faq.rst:37 74fa27e8dc344f318c10ad8e4beb4ded
 msgid ""

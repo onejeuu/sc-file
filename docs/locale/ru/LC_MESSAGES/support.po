@@ -127,7 +127,7 @@ msgstr ""
 
 #: ../../source/support.rst:106 98297c64ca144f4097414e310dc8b192
 msgid "Absolutely identical to ``.png`` (`Portable Network Graphics <PNG_>`_)"
-msgstr "Абсолютно идентично ``.png`` (`Portable Network Graphics <PNG_>`_)"
+msgstr "Абсолютно идентичны ``.png`` (`Portable Network Graphics <PNG_>`_)"
 
 #: ../../source/support.rst:107 64edaac30a384ba2b34668143e5a8cd7
 msgid "Only difference is `file signature <SIG_>`_ *(first 4 bytes)*"
