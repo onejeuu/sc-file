@@ -8,7 +8,7 @@
 [build]: https://github.com/onejeuu/sc-file/actions/workflows/release.yml
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
-[docs]: https://sc-file.readthedocs.io/en/latest
+[docs]: https://sc-file.readthedocs.io/ru/latest
 [readme-en]: README.md
 
 <!-- Usage -->
@@ -20,12 +20,12 @@
 
 <!-- Docs -->
 
-[docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
-[docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
-[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
-[docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
-[docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
-[docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
+[docs-usage]: https://sc-file.readthedocs.io/ru/latest/usage.html
+[docs-faq]: https://sc-file.readthedocs.io/ru/latest/faq.html
+[docs-formats]: https://sc-file.readthedocs.io/ru/latest/formats.html
+[docs-support]: https://sc-file.readthedocs.io/ru/latest/support.html
+[docs-compile]: https://sc-file.readthedocs.io/ru/latest/compile.html
+[docs-library]: https://sc-file.readthedocs.io/ru/latest/api/index.html
 
 <!-- Badges -->
 
@@ -50,7 +50,7 @@
 _этот проект является неофициальным и не имеет отношения к разработчикам stalcraft. все торговые марки и активы принадлежат их соответствующим владельцам._
 
 📚 Документация: [sc-file.readthedocs.io][docs] \
-[Usage][docs-usage] / [FAQ][docs-faq] / [Game Formats][docs-formats] / [Formats Support][docs-support] / [Compile Guide][docs-compile] / [Library API Reference][docs-library]
+[Использование][docs-usage] / [FAQ][docs-faq] / [Игровые Форматы][docs-formats] / [Поддержка Форматов][docs-support] / [Компиляция][docs-compile] / [API Библиотеки][docs-library]
 
 🗂️ Поддерживаемые форматы игры: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
 [Подробнее об игровых форматах...][docs-formats]
