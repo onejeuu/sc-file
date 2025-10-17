@@ -43,6 +43,9 @@ scfile = "scfile.__main__:main"
 [tool.setuptools]
 packages = { find = { include = ["scfile", "scfile.*"] } }
 
+[tool.setuptools.dynamic]
+version = {attr = "scfile.__version__"}
+
 [tool.ruff.lint]
 ignore = ["E701"]
 
