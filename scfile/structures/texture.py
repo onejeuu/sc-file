@@ -4,6 +4,7 @@ Dataclasses for game specific textures.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import TypeVar
 
 from scfile.consts import CubemapFaces
 
@@ -21,6 +22,9 @@ class Texture(ABC):
     @abstractmethod
     def linear_size(self) -> int:
         pass
+
+
+TextureType = TypeVar("TextureType", bound=Texture)
 
 
 @dataclass

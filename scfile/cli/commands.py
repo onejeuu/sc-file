@@ -8,12 +8,12 @@ from typing import Optional
 import click
 from rich import print
 
-from scfile import __version__, convert, exceptions
+from scfile import convert, exceptions
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
 from scfile.enums import L
 
-from . import types, utils
+from . import types, utils, version
 
 
 @click.command(name="scfile", epilog=CLI.EPILOG)
@@ -56,7 +56,14 @@ from . import types, utils
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
 )
-@click.version_option(version=__version__)
+@click.option(
+    "--version",
+    help="Show the version and exit.",
+    callback=version.callback,
+    is_flag=True,
+    is_eager=True,
+    expose_value=False,
+)
 @click.pass_context
 def scfile(
     ctx: click.Context,

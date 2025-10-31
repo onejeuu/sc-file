@@ -9,8 +9,7 @@ from typing import Generic, cast
 
 from scfile.enums import FileType
 from scfile.structures.scene import ModelFlags, ModelScene
-from scfile.structures.texture import CubemapTexture, DefaultTexture
-from scfile.structures.types import TextureType
+from scfile.structures.texture import CubemapTexture, DefaultTexture, TextureType
 
 
 @dataclass

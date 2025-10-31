@@ -83,7 +83,7 @@ class McsaUnits:
 class CLI:
     """Command line interface constants."""
 
-    FORMATS = EPILOG = f"Supported formats: {', '.join(sorted(SUPPORTED_SUFFIXES))}"
+    FORMATS = EPILOG = f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}"
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
     PAUSE = "\nPress any key to exit..."
 
@@ -97,6 +97,7 @@ class OutputFormats:
     MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D)
     TEXTURES: Formats = (FileFormat.DDS,)
     IMAGES: Formats = (FileFormat.PNG,)
+    TEXARR: Formats = (FileFormat.ZIP,)
 
 
 class DefaultModelFormats:

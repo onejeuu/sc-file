@@ -2,7 +2,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileEncoder, TextureContent
 from scfile.enums import F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
-from scfile.structures.types import TextureType
+from scfile.structures.texture import TextureType
 
 from .header import DDS
 from .mask import BGRA8, RGBA8

@@ -20,7 +20,7 @@ def no_args(ctx: click.Context) -> None:
         "",
         f"{L.INVALID} No files paths arguments provided. Showing help.",
         f"{L.HINT} Next time drag and drop files onto scfile.exe OR use terminal for parameters.",
-        sep="\n"
+        sep="\n",
     )
     click.pause(CLI.PAUSE)
 

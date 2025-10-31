@@ -1,6 +1,14 @@
-from typing import TypeVar
+import warnings
 
-from scfile.structures.texture import Texture
+from .texture import TextureType
 
 
-TextureType = TypeVar("TextureType", bound=Texture)
+warnings.warn(
+    "Module 'scfile.structures.types' is deprecated and will be removed in the next minor version. "
+    "Please import from 'scfile.structures.texture' instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+__all__ = ["TextureType"]
+__deprecated__ = True

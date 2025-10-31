@@ -6,8 +6,7 @@ import lz4.block
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.texture import DefaultTexture
-from scfile.structures.types import TextureType
+from scfile.structures.texture import DefaultTexture, TextureType
 
 from .exceptions import OlFormatUnsupported
 from .formats import SUPPORTED_FORMATS
