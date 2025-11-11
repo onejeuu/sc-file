@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from scfile.consts import Factor, FileSignature, McsaModel, McsaUnits
+from scfile.consts import Factor, FileSignature, McsaModel
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.animation import AnimationClip
@@ -10,6 +10,7 @@ from scfile.structures.flags import Flag
 from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
 from scfile.structures.skeleton import SkeletonBone
 
+from .consts import McsaUnits
 from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
 from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
