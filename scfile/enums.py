@@ -7,6 +7,7 @@ class FileFormat(StrEnum):
     DAE = auto()
     DDS = auto()
     FBX = auto()
+    EFKMODEL = auto()
     GLB = auto()
     JSON = auto()
     MCAL = auto()

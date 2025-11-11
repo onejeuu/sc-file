@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 __version__ = "4.4.0"
+=======
+__version__ = "5.0.0"
+>>>>>>> 9401e52 (efkmodel decoder (wip))
 __author__ = "onejeuu"
 __license__ = "MIT"
 

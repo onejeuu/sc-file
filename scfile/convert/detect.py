@@ -13,7 +13,37 @@ from scfile.core import UserOptions
 from scfile.enums import FileFormat
 from scfile.types import OutputDir, PathLike
 
+<<<<<<< HEAD
 from . import factory, formats
+=======
+from . import formats, legacy
+
+
+# TODO: i think we need a better solution than ConvertersMap
+ConvertersMap: TypeAlias = dict[FileFormat, Callable]
+
+
+EFKMODEL: ConvertersMap = {
+    FileFormat.OBJ: formats.efkmodel_to_obj,
+    FileFormat.GLB: formats.efkmodel_to_glb,
+    FileFormat.DAE: formats.efkmodel_to_dae,
+    FileFormat.MS3D: formats.efkmodel_to_ms3d,
+}
+
+MCSB: ConvertersMap = {
+    FileFormat.OBJ: formats.mcsb_to_obj,
+    FileFormat.GLB: formats.mcsb_to_glb,
+    FileFormat.DAE: formats.mcsb_to_dae,
+    FileFormat.MS3D: formats.mcsb_to_ms3d,
+}
+
+MCSA: ConvertersMap = {
+    FileFormat.OBJ: legacy.mcsa_to_obj,
+    FileFormat.GLB: legacy.mcsa_to_glb,
+    FileFormat.DAE: legacy.mcsa_to_dae,
+    FileFormat.MS3D: legacy.mcsa_to_ms3d,
+}
+>>>>>>> 66719d2 (efkmodel decoder (wip))
 
 
 def auto(
@@ -49,9 +79,18 @@ def auto(
 
     # Detect format by file suffix
     match src_format:
+<<<<<<< HEAD
         case FileFormat.MCSB | FileFormat.MCSA | FileFormat.MCVD:
             # Get converters mapping from mapping
             converters = factory.converters(src_format)
+=======
+        case FileFormat.EFKMODEL:
+            deque(map(lambda fmt: EFKMODEL[fmt](source, output, options), model_formats), maxlen=0)
+
+        case FileFormat.MCSB:
+            # Convert MCSB to all requested formats.
+            deque(map(lambda fmt: MCSB[fmt](source, output, options), model_formats), maxlen=0)
+>>>>>>> 66719d2 (efkmodel decoder (wip))
 
             # Convert model to all requested formats
             for fmt in model_formats:

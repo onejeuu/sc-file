@@ -2,7 +2,7 @@
 Collection of submodules that implement specific file format decoder/encoder.
 """
 
-from . import dae, dds, glb, hdri, mcsa, mcsb, mcal, fbx, mic, ms3d, obj, ol, png, texarr, zip, nbt, json, mdat
+from . import dae, dds, glb, hdri, mcsa, mcsb, mcal, efkmodel, mic, ms3d, obj, fbx, ol, png, texarr, zip, nbt, json, mdat
 
 
 __all__ = (
@@ -11,18 +11,18 @@ __all__ = (
     "fbx",
     "glb",
     "hdri",
-    "json",
-    "mcal",
     "mcsa",
     "mcsb",
+    "mcal",
+    "efkmodel",
     "mic",
     "ms3d",
-    "nbt",
     "obj",
-    "mdat",
     "ol",
     "png",
     "texarr",
     "zip",
+    "nbt",
+    "json",
     "mdat",
 )
