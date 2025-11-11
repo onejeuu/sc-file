@@ -20,8 +20,8 @@ class SkeletonBone:
     name: str = "bone"
     parent_id: int = McsaModel.ROOT_BONE_ID
 
-    position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
-    rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    position: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
+    rotation: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
 
     children: List[Self] = field(default_factory=list, repr=False)
 

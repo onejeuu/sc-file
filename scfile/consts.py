@@ -7,6 +7,7 @@ Formats: TypeAlias = Sequence[FileFormat]
 
 
 SUPPORTED_FORMATS: set[FileFormat] = {
+    FileFormat.EFKMODEL,
     FileFormat.MCSA,
     FileFormat.MCSB,
     FileFormat.MCVD,
@@ -41,6 +42,8 @@ class Factor:
     U8 = 0xFF
     I16 = 0x7FFF
     U16 = 0xFFFF
+    I32 = 0x7FFFFFFF
+    U32 = 0xFFFFFFFF
 
 
 class OlString:
@@ -66,18 +69,6 @@ class McsaModel:
     ROOT_BONE_ID = -1
     GEOMETRY_LIMIT = 1_000_000
     """Safety limit to prevent memory overflow on corrupted files."""
-
-
-class McsaUnits:
-    """Mcsa structures elements count."""
-
-    POSITIONS = 4
-    TEXTURES = 2
-    NORMALS = 4
-    POLYGONS = 3
-    LINKS = 4
-    BONES = 6
-    FRAMES = 7
 
 
 class CLI:

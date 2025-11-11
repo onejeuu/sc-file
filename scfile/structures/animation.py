@@ -16,7 +16,7 @@ class AnimationClip:
     name: str = "clip"
     frames: int = 0
     rate: float = 0.33
-    transforms: np.ndarray = field(default_factory=lambda: np.empty(0, dtype=np.float32))
+    transforms: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
 
     @property
     def times(self):

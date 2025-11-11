@@ -16,8 +16,16 @@ from scfile.types import OutputDir, PathLike
 from . import formats, legacy
 
 
+# TODO: i think we need a better solution than ConvertersMap
 ConvertersMap: TypeAlias = dict[FileFormat, Callable]
 
+
+EFKMODEL: ConvertersMap = {
+    FileFormat.OBJ: formats.efkmodel_to_obj,
+    FileFormat.GLB: formats.efkmodel_to_glb,
+    FileFormat.DAE: formats.efkmodel_to_dae,
+    FileFormat.MS3D: formats.efkmodel_to_ms3d,
+}
 
 MCSB: ConvertersMap = {
     FileFormat.OBJ: formats.mcsb_to_obj,
@@ -58,6 +66,9 @@ def auto(
     model_formats = options.model_formats or options.default_model_formats
 
     match src_format:
+        case FileFormat.EFKMODEL:
+            deque(map(lambda fmt: EFKMODEL[fmt](source, output, options), model_formats), maxlen=0)
+
         case FileFormat.MCSB:
             # Convert MCSB to all requested formats.
             deque(map(lambda fmt: MCSB[fmt](source, output, options), model_formats), maxlen=0)
