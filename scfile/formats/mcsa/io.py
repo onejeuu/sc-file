@@ -6,12 +6,13 @@ from typing import TypeAlias
 
 import numpy as np
 
-from scfile.consts import Factor, McsaModel, McsaUnits
+from scfile.consts import Factor, McsaModel
 from scfile.core.io import StructFileIO
 from scfile.enums import F
 from scfile.structures.mesh import BonesMapping
 from scfile.structures.vectors import LinksIds, LinksWeights
 
+from .consts import McsaUnits
 from .exceptions import McsaCountsLimit
 
 
