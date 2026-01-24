@@ -53,9 +53,9 @@ typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
 // Header Flags
 
 typedef ubyte Flag;
-typedef struct Flags4 { Flag SKELETON, UV, NORMALS, UNKNOWN_A; };
-typedef struct Flags5 { Flag SKELETON, UV, NORMALS, UNKNOWN_A, UNKNOWN_B; };
-typedef struct Flags6 { Flag SKELETON, UV, NORMALS, UNKNOWN_A, UNKNOWN_B, COLORS; };
+typedef struct Flags4 { Flag SKELETON, UV, NORMALS, UNKNOWN_4; };
+typedef struct Flags5 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5; };
+typedef struct Flags6 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5, UNKNOWN_6; };
 
 
 // File Header
@@ -137,15 +137,15 @@ typedef struct {
         Vec2s textures[vertexCount] <name="Textures", bgcolor=cRed>;
 
     if ( version >= 8.0 )
-        if ( flags.UNKNOWN_B )
-            Vec4b _unknown_b[vertexCount] <name="Unknown", bgcolor=cDkPurple>;
+        if ( flags.UNKNOWN_5 )
+            Vec4b unknown5[vertexCount] <name="Unknown", bgcolor=cDkPurple, hidden=true>;
 
     if ( flags.NORMALS )
         Vec4b normals[vertexCount] <name="Normals", bgcolor=cPurple>;
 
     if ( version >= 7.0 )
-        if ( flags.UNKNOWN_A )
-            Vec4b _unknown_a[vertexCount] <name="Unknown", bgcolor=cDkPurple>;
+        if ( flags.UNKNOWN_4 )
+            Vec4b unknown4[vertexCount] <hidden=true>;
 
     if ( flags.SKELETON )
         switch( skinBind.maxInfluences ) {
@@ -158,8 +158,8 @@ typedef struct {
         }
 
     if ( version >= 10.0 )
-        if ( flags.COLORS )
-            byte _colors[vertexCount * 4] <hidden=true>;
+        if ( flags.UNKNOWN_6 )
+            Vec4b unknown6[vertexCount] <hidden=true>;
 
     if ( triangleCount * 3 < 0x10000 )
         Tri16 triangles[triangleCount] <name="Polygons", bgcolor=cLtBlue>;

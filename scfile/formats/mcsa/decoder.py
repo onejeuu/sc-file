@@ -20,18 +20,22 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def to_obj(self):
         from scfile.formats.obj.encoder import ObjEncoder
+
         return self.convert_to(ObjEncoder)
 
     def to_glb(self):
         from scfile.formats.glb.encoder import GlbEncoder
+
         return self.convert_to(GlbEncoder)
 
     def to_dae(self):
         from scfile.formats.dae.encoder import DaeEncoder
+
         return self.convert_to(DaeEncoder)
 
     def to_ms3d(self):
         from scfile.formats.ms3d.encoder import Ms3dEncoder
+
         return self.convert_to(Ms3dEncoder)
 
     def parse(self):
@@ -125,7 +129,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # ! Data Unconfirmed
         # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_B]:
+        if self.data.flags[Flag.UNKNOWN_5]:
             self._skip_vertices(mesh, units=4)
 
         # Vertex normals
@@ -134,16 +138,16 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # ! Data Unconfirmed
         # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_A]:
+        if self.data.flags[Flag.UNKNOWN_4]:
             self._skip_vertices(mesh, units=4)
 
         # Vertex links
         if self.data.flags[Flag.SKELETON]:
             self._parse_links(mesh)
 
-        # Vertex colors
+        # ! Data Unconfirmed
         # ? Not parsed
-        if self.data.flags[Flag.COLORS]:
+        if self.data.flags[Flag.UNKNOWN_6]:
             self._skip_vertices(mesh, units=4)
 
         # Polygon faces

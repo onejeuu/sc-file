@@ -9,9 +9,9 @@ class Flag(IntEnum):
     SKELETON = 0
     UV = auto()
     NORMALS = auto()
-    UNKNOWN_A = auto()
-    UNKNOWN_B = auto()
-    COLORS = auto()
+    UNKNOWN_4 = auto()
+    UNKNOWN_5 = auto()
+    UNKNOWN_6 = auto()
 
 
 def to_named_dict(flags: dict[int, bool]):
