@@ -7,7 +7,7 @@ from typing import NewType, TypeAlias
 
 import numpy as np
 
-from .vectors import LinksIds, LinksWeights, Polygons, Vector2D, Vector3D
+from .vectors import LinksIds, LinksWeights, Polygons, Vector2D, Vector3D, Vector4D
 
 
 LocalBoneId = NewType("LocalBoneId", int)  # Bone id within local mesh scope
@@ -48,6 +48,7 @@ class ModelMesh:
     positions: Vector3D = field(default_factory=lambda: np.empty((0, 3), dtype=np.float32))
     textures: Vector2D = field(default_factory=lambda: np.empty((0, 2), dtype=np.float32))
     normals: Vector3D = field(default_factory=lambda: np.empty((0, 3), dtype=np.float32))
+    tangents: Vector4D = field(default_factory=lambda: np.empty((0, 4), dtype=np.float32))
 
     links_ids: LinksIds = field(default_factory=lambda: np.empty((0, 4), dtype=np.uint8))
     links_weights: LinksWeights = field(default_factory=lambda: np.empty((0, 4), dtype=np.float32))
