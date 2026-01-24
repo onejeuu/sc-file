@@ -135,6 +135,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC3")
 
+            # XYZW Tangents
+            if self.data.flags[Flag.TANGENTS]:
+                primitive["attributes"]["TANGENT"] = self._accessor_index()
+                self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
+                self._create_accessor(mesh.count.vertices, "VEC4")
+
             # Bone Links
             if self._skeleton_presented and mesh.count.links > 0:
                 # Joint Indices
@@ -310,6 +316,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
                 self.write(mesh.normals.tobytes())
+
+            # XYZW Tangents
+            if self.data.flags[Flag.TANGENTS]:
+                self.write(mesh.tangents.tobytes())
 
             # Bone Links
             if self._skeleton_presented:
