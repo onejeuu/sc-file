@@ -34,6 +34,7 @@
 .. _PNG: https://en.wikipedia.org/wiki/PNG
 .. _TORRENT: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
+.. _NBT: https://minecraft.wiki/w/NBT_format
 
 .. Wikipedia Graphics
 .. _LZ4: https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)
@@ -48,6 +49,7 @@
 .. _RENDERDOC: https://renderdoc.org/builds
 .. _IMAGEMAGICK: https://imagemagick.org
 .. _UV: https://github.com/astral-sh/uv
+.. _NBTE: https://nbtexplorer.org
 
 .. Contacts
 .. _TG: https://onejeuu.t.me

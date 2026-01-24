@@ -154,7 +154,7 @@ Game Formats
 ----------------------------------------
 
 | A series of ``.tar.gz`` archives, each containing a single uncompressed file with the same base name.
-| The inner file uses **NBT** (`Named Binary Tag <https://minecraft.wiki/w/NBT_format>`_) format and can be viewed/edited with tools like `NBT Explorer <https://nbtexplorer.org/>`_.
+| The inner file uses **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_.
 
 .. list-table::
   :header-rows: 1
