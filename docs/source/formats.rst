@@ -161,8 +161,10 @@ Game Formats
 
   * - Filename
     - Purpose
+    - Keys (examples)
   * - ``prefs``
     - **UI read state cache**. Tracks seen articles, experiences, tutorial prompts, and ads.
+    - ``seenArticleLinks[], seenExperiences[], hasSeen*``
 
 
 Per-Character Configs
@@ -176,15 +178,22 @@ Per-Character Configs
 
   * - Filename
     - Purpose
+    - Keys (examples)
   * - ``common``
-    - **General settings and UI states**: Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
+    - **General settings and UI states**. Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
+    - ``trashedItems[], caseLastOpenCount[], complaintsData{reportedCharnames[], reportedHacks[], ...}, seenFrontlineIntros``
   * - ``sd0``
-    - **Incoming friend requests**: Contains a list of pending requests for UI.
+    - **Incoming friend requests**. Contains a list of pending requests for UI.
+    - ``requests[]``
   * - ``sd1``
     - **Recent interactions** (last 200 players). Stores usernames, faction IDs, and interaction type for the "Recently Interacted" UI.
+    - ``interacts[{allianceId, type, username}]``
   * - ``sd2``
-    - **Notifications history** (last 100 popups). Stores message content, read status, icons, sounds, and expiration timestamps.
+    - **Notifications history** (last 100 popups). Stores message content, read status, and dynamic ``payload`` (varies by notification type).
+    - ``notifications[{isRead, receivedMoment, notification{channel_id, payload}}]``
   * - ``sd3``
     - **Store (donate shop) view history**. Tracks observed shop offers.
+    - ``observedOffers[]``
   * - ``sd4``
     - **Profile customization UI state**. Tracks last seen versions of backgrounds, patterns, stickers, and tags.
+    - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
