@@ -120,3 +120,71 @@ Game Formats
 | Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
 | Used by game launcher for content delivery.
 | Trackers block unauthorized access (token required).
+
+
+----------------------------------------
+⚙️ Config Formats
+----------------------------------------
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Format
+    - Purpose
+  * - ``display``
+    - Text
+    - Selected display/monitor ID
+  * - ``keybindings``
+    - JSON
+    - Keyboard control mappings
+  * - ``options.json``
+    - JSON
+    - Game settings (graphics, audio, gameplay)
+  * - ``quests.json``
+    - JSON
+    - Quest visibility toggles
+  * - ``waypoints.cfg``
+    - JSON
+    - Custom map markers
+
+
+----------------------------------------
+🗃️ Archived NBT Configs
+----------------------------------------
+
+| A series of ``.tar.gz`` archives, each containing a single uncompressed file with the same base name.
+| The inner file uses **NBT** (`Named Binary Tag <https://minecraft.wiki/w/NBT_format>`_) format and can be viewed/edited with tools like `NBT Explorer <https://nbtexplorer.org/>`_.
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Purpose
+  * - ``prefs``
+    - **UI read state cache**. Tracks seen articles, experiences, tutorial prompts, and ads.
+
+
+Per-Character Configs
+^^^^^^^^^^^^^^^^^^^^^^
+
+| Located in ``/config/%CharacterName%/``.
+| Files prefixed with ``sd`` (**Synced Data**) contain synchronized player state cached locally.
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Purpose
+  * - ``common``
+    - **General settings and UI states**: Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
+  * - ``sd0``
+    - **Incoming friend requests**: Contains a list of pending requests for UI.
+  * - ``sd1``
+    - **Recent interactions** (last 200 players). Stores usernames, faction IDs, and interaction type for the "Recently Interacted" UI.
+  * - ``sd2``
+    - **Notifications history** (last 100 popups). Stores message content, read status, icons, sounds, and expiration timestamps.
+  * - ``sd3``
+    - **Store (donate shop) view history**. Tracks observed shop offers.
+  * - ``sd4``
+    - **Profile customization UI state**. Tracks last seen versions of backgrounds, patterns, stickers, and tags.
