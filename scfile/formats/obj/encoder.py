@@ -32,7 +32,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
             if self.data.flags[Flag.UV]:
                 self._add_texture_coordinates(mesh)
 
-            if self.data.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS] or self.data.flags[Flag.TANGENTS]:
                 self._add_vertex_normals(mesh)
 
             self._writeutf8(f"g {mesh.name}\n")

@@ -10,6 +10,7 @@ class Flag(IntEnum):
     UV = auto()
     NORMALS = auto()
     UNKNOWN_4 = auto()
+    TANGENTS = auto()
     UNKNOWN_5 = auto()
     UNKNOWN_6 = auto()
 

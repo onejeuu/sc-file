@@ -53,9 +53,9 @@ typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
 // Header Flags
 
 typedef ubyte Flag;
-typedef struct Flags4 { Flag SKELETON, UV, NORMALS, UNKNOWN_4; };
-typedef struct Flags5 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5; };
-typedef struct Flags6 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5, UNKNOWN_6; };
+typedef struct Flags4 { Flag SKELETON, UV, NORMALS, TANGENTS; };
+typedef struct Flags5 { Flag SKELETON, UV, NORMALS, TANGENTS, UNKNOWN_5; };
+typedef struct Flags6 { Flag SKELETON, UV, NORMALS, TANGENTS, UNKNOWN_5, UNKNOWN_6; };
 
 
 // File Header
@@ -149,6 +149,9 @@ typedef struct {
     if ( version >= 7.0 )
         if ( flags.UNKNOWN_4 )
             Vec4b unknown_4[vertexCount]; // ? bitangents
+
+        if ( flags.TANGENTS )
+            Vec4b tangents[vertexCount] <name="Tangents", bgcolor=cDkPurple>;
 
     if ( flags.SKELETON )
         switch( skinBind.maxInfluences ) {
