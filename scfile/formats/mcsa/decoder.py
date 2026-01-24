@@ -116,35 +116,34 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.version >= 11.0:
             mesh.origin.scale = self._readb(F.F32)
 
-        # Geometric vertices
+        # Vertices geometric
         self._parse_positions(mesh)
 
-        # Texture coordinates
+        # Vertices texture coordinates
         if self.data.flags[Flag.UV]:
             self._parse_textures(mesh)
 
-        # ! Data Unconfirmed
+        # ! Unknown data
         # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_B]:
-            self._skip_vertices(mesh, units=4)
+        if self.data.flags[Flag.UNKNOWN_5]:
+            self._skip_vertices(mesh, units=McsaUnits.UNKNOWN_5)
 
-        # Vertex normals
+        # Vertices normals
         if self.data.flags[Flag.NORMALS]:
             self._parse_normals(mesh)
 
-        # ! Data Unconfirmed
-        # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_A]:
-            self._skip_vertices(mesh, units=4)
+        # Vertices tangents
+        if self.data.flags[Flag.TANGENTS]:
+            self._parse_tangents(mesh)
 
-        # Vertex links
+        # Vertices links
         if self.data.flags[Flag.SKELETON]:
             self._parse_links(mesh)
 
-        # Vertex colors
+        # ! Unknown data
         # ? Not parsed
-        if self.data.flags[Flag.COLORS]:
-            self._skip_vertices(mesh, units=4)
+        if self.data.flags[Flag.UNKNOWN_6]:
+            self._skip_vertices(mesh, units=McsaUnits.UNKNOWN_6)
 
         # Polygon faces
         mesh.polygons = self._readpolygons(mesh.count.polygons)
@@ -176,6 +175,14 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             units=McsaUnits.NORMALS,
             count=mesh.count.vertices,
         )[:, :3]
+
+    def _parse_tangents(self, mesh: ModelMesh):
+        mesh.tangents = self._readvertex(
+            fmt=F.I8,
+            factor=Factor.I8,
+            units=McsaUnits.TANGENTS,
+            count=mesh.count.vertices,
+        )
 
     def _parse_links(self, mesh: ModelMesh):
         match mesh.count.links:

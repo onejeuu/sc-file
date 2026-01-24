@@ -74,6 +74,10 @@ class McsaUnits:
     POSITIONS = 4
     TEXTURES = 2
     NORMALS = 4
+    TANGENTS = 4
+    UNKNOWN_5 = 4
+    UNKNOWN_6 = 4
+
     POLYGONS = 3
     LINKS = 4
     BONES = 6
