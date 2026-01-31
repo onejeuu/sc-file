@@ -161,3 +161,22 @@ def texarr_to_zip(
     Example:
         `texarr_to_zip("blockMap.texarr", "path/to/output")`
     """
+
+
+@converter(formats.nbt.NbtDecoder, formats.json.JsonEncoder)
+def nbt_to_json(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts data from `NBT` to `.json` format.
+
+    Arguments:
+        source: Path to input `NBT` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `nbt_to_json("itemnames.dat", "path/to/output")`
+    """

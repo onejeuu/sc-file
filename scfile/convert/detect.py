@@ -9,6 +9,7 @@ from typing import Callable, Optional, TypeAlias
 import lz4.block
 
 from scfile import exceptions
+from scfile.consts import NBT_FILENAMES
 from scfile.core import UserOptions
 from scfile.enums import FileFormat
 from scfile.types import OutputDir, PathLike
@@ -38,7 +39,7 @@ def auto(
     source: PathLike,
     output: OutputDir = None,
     options: Optional[UserOptions] = None,
-):
+) -> None:
     """
     Automatically convert file between formats based on file suffix.
 
@@ -57,6 +58,7 @@ def auto(
     options = options or UserOptions()
     model_formats = options.model_formats or options.default_model_formats
 
+    # Detect format by file suffix
     match src_format:
         case FileFormat.MCSB:
             # Convert MCSB to all requested formats.
@@ -86,4 +88,9 @@ def auto(
             formats.texarr_to_zip(source, output, options)
 
         case _:
+            # Detect nbt by file name
+            if src_path.name in NBT_FILENAMES:
+                formats.nbt_to_json(source, output, options)
+                return
+
             raise exceptions.UnsupportedFormatError(src_path)

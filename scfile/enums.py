@@ -7,18 +7,20 @@ class FileFormat(StrEnum):
     DAE = auto()
     DDS = auto()
     GLB = auto()
+    JSON = auto()
     MCAL = auto()
     MCSA = auto()
     MCSB = auto()
     MCVD = auto()
     MIC = auto()
     MS3D = auto()
+    NBT = auto()
     OBJ = auto()
     OL = auto()
     PNG = auto()
     TEXARR = auto()
     ZIP = auto()
-    NBT = auto()
+    ITEMNAMES = "dat"  # NBT
 
     @property
     def suffix(self):

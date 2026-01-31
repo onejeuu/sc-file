@@ -33,7 +33,7 @@ class NbtDecoder(FileDecoder[NbtContent], StructFileIO):
         data = self.read()
 
         try:
-            # Gzip is standart nbt compression
+            # Gzip is standard nbt compression
             data = gzip.decompress(data)
 
         except Exception:

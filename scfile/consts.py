@@ -13,11 +13,15 @@ SUPPORTED_FORMATS: set[FileFormat] = {
     FileFormat.MIC,
     FileFormat.OL,
     FileFormat.TEXARR,
+    FileFormat.ITEMNAMES,
 }
 """Files formats (suffixes without dot) that can be converted."""
 
 SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
 """Files suffixes that can be converted."""
+
+NBT_FILENAMES: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd2", "sd3", "sd4"}
+"""Files names that can be converted."""
 
 
 class FileSignature:

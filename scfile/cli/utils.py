@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 from rich import print
 
-from scfile.consts import CLI, SUPPORTED_SUFFIXES, Formats
+from scfile.consts import CLI, NBT_FILENAMES, SUPPORTED_SUFFIXES, Formats
 from scfile.enums import L
 
 from . import types
@@ -36,7 +36,7 @@ def check_feature_unsupported(user_formats: Formats, unsupported_formats: Format
 
 def is_supported(path: Path) -> bool:
     """Checks that file is supported (by suffix)."""
-    return path.is_file() and path.suffix in SUPPORTED_SUFFIXES
+    return path.is_file() and (path.suffix in SUPPORTED_SUFFIXES or path.name in NBT_FILENAMES)
 
 
 def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
