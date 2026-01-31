@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
 from scfile.core import FileDecoder, FileEncoder
 from scfile.core.types import Content
@@ -14,19 +14,14 @@ def extract(
     decoder: type[FileDecoder[Content]],
     encoder: type[FileEncoder[Content]],
     assets: Path,
-    subdir: Optional[Path] = None,
-    target: str = "output",
+    source: str = "input",
+    output: str = "output",
 ) -> Results:
-    subdir = subdir or Path()
-
-    source_path = assets / subdir / "input"
-    output_path = assets / subdir / target
-
-    with decoder(source_path) as dec:
+    with decoder(assets / source) as dec:
         with dec.convert_to(encoder) as enc:
             converted = enc.getvalue()
 
-    with open(output_path, "rb") as fp:
+    with open(assets / output, "rb") as fp:
         expected = fp.read()
 
     return Results(converted, expected)

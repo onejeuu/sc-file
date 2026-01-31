@@ -16,6 +16,9 @@ def test_convert_formats(assets: Path, temp: Path, options: UserOptions):
 
     convert.formats.texarr_to_zip(assets / "blocks.texarr", temp, options)
 
+    convert.formats.nbt_to_json(assets / "itemnames.dat", temp, options)
+    convert.formats.nbt_to_json(assets / "common", temp, options)
+
 
 def test_convert_auto(assets: Path, temp: Path, options: UserOptions):
     convert.auto(assets / "model.mcsa", temp, options)
@@ -23,3 +26,5 @@ def test_convert_auto(assets: Path, temp: Path, options: UserOptions):
     convert.auto(assets / "cubemap.ol", temp, options)
     convert.auto(assets / "image.mic", temp, options)
     convert.auto(assets / "blocks.texarr", temp, options)
+    convert.auto(assets / "itemnames.dat", temp, options)
+    convert.auto(assets / "common", temp, options)

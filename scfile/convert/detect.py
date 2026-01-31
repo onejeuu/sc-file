@@ -87,6 +87,9 @@ def auto(
         case FileFormat.TEXARR:
             formats.texarr_to_zip(source, output, options)
 
+        case FileFormat.NBT:
+            formats.nbt_to_json(source, output, options)
+
         case _:
             # Detect nbt by file name
             if src_path.name in NBT_FILENAMES:

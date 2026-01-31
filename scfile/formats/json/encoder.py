@@ -9,6 +9,6 @@ class JsonEncoder(FileEncoder[NbtContent]):
     format = FileFormat.JSON
 
     def serialize(self):
-        data = json.dumps(self.data.value, ensure_ascii=False, indent=2)
+        data = json.dumps(self.data.value, default=str, ensure_ascii=False, indent=2)
         data = data.encode()
         self.write(data)
