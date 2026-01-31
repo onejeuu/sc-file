@@ -3,10 +3,12 @@ name: Tests
 on:
   push:
     paths:
+      - "pyproject.toml"
       - "scfile/**"
       - "tests/**"
   pull_request:
     paths:
+      - "pyproject.toml"
       - "scfile/**"
       - "tests/**"
 
