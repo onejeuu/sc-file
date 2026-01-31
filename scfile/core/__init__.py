@@ -7,7 +7,7 @@ from .base import BaseFile
 from .decoder import FileDecoder
 from .encoder import FileEncoder
 from .context.options import UserOptions
-from .context.content import FileContent, ModelContent, TextureContent, ImageContent, TextureArrayContent
+from .context.content import FileContent, ModelContent, TextureContent, ImageContent, TextureArrayContent, NbtContent
 
 
 __all__ = (
@@ -26,4 +26,5 @@ __all__ = (
     "TextureContent",
     "ImageContent",
     "TextureArrayContent",
+    "NbtContent",
 )

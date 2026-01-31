@@ -5,7 +5,7 @@ Shared content data between decoder and encoder.
 from abc import ABC
 from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
-from typing import Generic, cast
+from typing import Any, Generic, cast
 
 from scfile.enums import FileType
 from scfile.structures.scene import ModelFlags, ModelScene
@@ -89,3 +89,10 @@ class TextureArrayContent(FileContent):
 
     count: int = 0
     textures: list[tuple[str, bytes]] = field(default_factory=list)
+
+
+@dataclass
+class NbtContent(FileContent):
+    type: FileType = field(default=FileType.NBT)
+
+    data: dict[str, Any] = field(default_factory=dict)

@@ -18,6 +18,7 @@ class FileFormat(StrEnum):
     PNG = auto()
     TEXARR = auto()
     ZIP = auto()
+    NBT = auto()
 
     @property
     def suffix(self):
@@ -32,6 +33,7 @@ class FileType(StrEnum):
     TEXTURE = auto()
     IMAGE = auto()
     TEXARR = auto()
+    NBT = auto()
 
 
 class FileMode(StrEnum):
@@ -86,6 +88,8 @@ class StructFormat(StrEnum):
     """signed short: `WORD` `2 bytes` [-32768, 32767]"""
     I32 = "i"
     """signed int: `DWORD` `4 bytes` [-2147483648, 2147483647]"""
+    I64 = "q"
+    """signed long long: `QWORD` `8 bytes` [-9223372036854775808, 9223372036854775807]"""
 
     U8 = "B"
     """unsigned char: `BYTE` `1 byte` [0, 255]"""
@@ -93,11 +97,15 @@ class StructFormat(StrEnum):
     """unsigned short: `WORD` `2 bytes` [0, 65535]"""
     U32 = "I"
     """unsigned int: `DWORD` `4 bytes` [0, 4294967295]"""
+    U64 = "Q"
+    """unsigned long long: `QWORD` `8 bytes` [0, 18446744073709551615]"""
 
     F16 = "e"
     """float: `half-precision` `2 bytes`"""
     F32 = "f"
     """double: `single-precision` `4 bytes`"""
+    F64 = "d"
+    """double: `double-precision` `8 bytes`"""
 
 
 F = StructFormat
