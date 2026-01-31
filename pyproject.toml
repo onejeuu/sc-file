@@ -16,13 +16,11 @@ dependencies = [
     "lz4>=4.4.0,<5.0.0",
     "numpy>=2.3.0,<3.0.0",
     "rich>=14.1.0,<15.0.0",
+    "zstandard>=0.25.0",
 ]
 
 [dependency-groups]
-dev = [
-    "pyinstaller>=6.15.0,<7.0.0",
-    "pytest>=8.4.0,<9.0.0",
-]
+dev = ["pyinstaller>=6.15.0,<7.0.0", "pytest>=8.4.0,<9.0.0"]
 
 docs = [
     "sphinx>=8.2.3,<9.0.0",
@@ -44,7 +42,7 @@ scfile = "scfile.__main__:main"
 packages = { find = { include = ["scfile", "scfile.*"] } }
 
 [tool.setuptools.dynamic]
-version = {attr = "scfile.__version__"}
+version = { attr = "scfile.__version__" }
 
 [tool.ruff.lint]
 ignore = ["E701"]
