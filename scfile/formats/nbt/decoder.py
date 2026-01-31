@@ -3,7 +3,7 @@ import gzip
 import zstandard as zstd
 
 from scfile.core import FileDecoder, NbtContent
-from scfile.core.io.streams import StructFileIO
+from scfile.core.io import StructFileIO
 from scfile.enums import ByteOrder, FileFormat
 
 from .enums import Tag
@@ -27,7 +27,7 @@ class NbtDecoder(FileDecoder[NbtContent], StructFileIO):
             return
 
         _ = stream._readutf8()  # Skip name
-        self.data = stream._parse_tag(tag)
+        self.data.value = stream._parse_tag(tag)
 
     def _decompress(self):
         data = self.read()

@@ -1,17 +1,20 @@
-from typing import Any
+from typing import Callable, TypeAlias
 
-from scfile.core.io.streams import StructBytesIO
+from scfile.core.context.content import NbtValue
+from scfile.core.io import StructBytesIO
 from scfile.enums import ByteOrder, F
 
 from .enums import Tag
 
 
-# TODO: rename others StructBytesIO methods style
+Handler: TypeAlias = Callable[[], NbtValue]
+
+
 class NbtBytesIO(StructBytesIO):
     order: ByteOrder = ByteOrder.BIG
 
-    def _parse_tag(self, tag: Tag) -> Any:
-        handlers = {
+    def _parse_tag(self, tag: Tag) -> NbtValue:
+        handlers: dict[Tag, Handler] = {
             Tag.END: lambda: None,
             Tag.BYTE: lambda: self._readb(F.I8),
             Tag.SHORT: lambda: self._readb(F.I16),
@@ -35,7 +38,7 @@ class NbtBytesIO(StructBytesIO):
         length = self._readb(F.I32)
         return self.read(length)
 
-    def _read_list(self) -> list:
+    def _read_list(self) -> list[NbtValue]:
         tag = self._read_tag()
         length = self._readb(F.I32)
         return [self._parse_tag(tag) for _ in range(length)]
@@ -48,12 +51,12 @@ class NbtBytesIO(StructBytesIO):
         length = self._readb(F.I32)
         return [self._readb(F.I64) for _ in range(length)]
 
-    def _read_compound(self) -> dict[str, Any]:
+    def _read_compound(self) -> dict[str, NbtValue]:
         data = {}
         while True:
             tag = self._read_tag()
             if tag == Tag.END:
                 break
-            name = self._readutf8()
-            data[name] = self._parse_tag(tag)
+            key = self._readutf8()
+            data[key] = self._parse_tag(tag)
         return data
