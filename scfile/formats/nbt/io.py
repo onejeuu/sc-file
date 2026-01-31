@@ -1,4 +1,4 @@
-from typing import Callable, TypeAlias
+from typing import Callable, ClassVar, Self
 
 from scfile.core.context.content import NbtValue
 from scfile.core.io import StructBytesIO
@@ -7,29 +7,27 @@ from scfile.enums import ByteOrder, F
 from .enums import Tag
 
 
-Handler: TypeAlias = Callable[[], NbtValue]
-
-
 class NbtBytesIO(StructBytesIO):
     order: ByteOrder = ByteOrder.BIG
 
+    _HANDLERS: ClassVar[dict[Tag, Callable[[Self], NbtValue]]] = {
+        Tag.END: lambda _: None,
+        Tag.BYTE: lambda s: s._readb(F.I8),
+        Tag.SHORT: lambda s: s._readb(F.I16),
+        Tag.INT: lambda s: s._readb(F.I32),
+        Tag.LONG: lambda s: s._readb(F.I64),
+        Tag.FLOAT: lambda s: s._readb(F.F32),
+        Tag.DOUBLE: lambda s: s._readb(F.F64),
+        Tag.BYTE_ARRAY: lambda s: s._read_byte_array(),
+        Tag.STRING: lambda s: s._readutf8(),
+        Tag.LIST: lambda s: s._read_list(),
+        Tag.COMPOUND: lambda s: s._read_compound(),
+        Tag.INT_ARRAY: lambda s: s._read_int_array(),
+        Tag.LONG_ARRAY: lambda s: s._read_long_array(),
+    }
+
     def _parse_tag(self, tag: Tag) -> NbtValue:
-        handlers: dict[Tag, Handler] = {
-            Tag.END: lambda: None,
-            Tag.BYTE: lambda: self._readb(F.I8),
-            Tag.SHORT: lambda: self._readb(F.I16),
-            Tag.INT: lambda: self._readb(F.I32),
-            Tag.LONG: lambda: self._readb(F.I64),
-            Tag.FLOAT: lambda: self._readb(F.F32),
-            Tag.DOUBLE: lambda: self._readb(F.F64),
-            Tag.BYTE_ARRAY: self._read_byte_array,
-            Tag.STRING: self._readutf8,
-            Tag.LIST: self._read_list,
-            Tag.COMPOUND: self._read_compound,
-            Tag.INT_ARRAY: self._read_int_array,
-            Tag.LONG_ARRAY: self._read_long_array,
-        }
-        return handlers[tag]()
+        return self._HANDLERS[tag](self)
 
     def _read_tag(self) -> Tag:
         return Tag(self._readb(F.I8))
