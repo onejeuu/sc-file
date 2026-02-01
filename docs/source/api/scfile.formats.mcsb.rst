@@ -1,4 +1,4 @@
-MCSB
+🧊 MCSB
 ===========================
 
 .. code-block:: python

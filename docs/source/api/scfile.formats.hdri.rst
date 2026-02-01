@@ -1,4 +1,4 @@
-HDRI
+🧱 OL (CUBEMAP)
 ===========================
 
 .. code-block:: python

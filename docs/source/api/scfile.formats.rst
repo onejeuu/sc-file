@@ -60,18 +60,18 @@ Formats
 .. toctree::
   :maxdepth: 2
 
-  scfile.formats.dae
-  scfile.formats.dds
-  scfile.formats.glb
-  scfile.formats.hdri
-  scfile.formats.json
   scfile.formats.mcsa
   scfile.formats.mcsb
-  scfile.formats.mic
-  scfile.formats.ms3d
-  scfile.formats.nbt
   scfile.formats.obj
+  scfile.formats.glb
+  scfile.formats.dae
+  scfile.formats.ms3d
   scfile.formats.ol
+  scfile.formats.hdri
+  scfile.formats.dds
+  scfile.formats.mic
   scfile.formats.png
   scfile.formats.texarr
   scfile.formats.zip
+  scfile.formats.nbt
+  scfile.formats.json

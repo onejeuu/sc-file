@@ -1,4 +1,4 @@
-JSON
+⚙️ JSON
 ===========================
 
 .. code-block:: python

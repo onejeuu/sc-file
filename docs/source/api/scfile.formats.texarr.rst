@@ -1,4 +1,4 @@
-TEXARR
+📦 TEXARR
 =============================
 
 .. code-block:: python

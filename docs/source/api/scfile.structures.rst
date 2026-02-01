@@ -5,15 +5,7 @@ Structures
   :no-members:
   :show-inheritance:
 
-Animation
-----------------------------------
-
-.. automodule:: scfile.structures.animation
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-Flags
+🧮 Flags
 ----------------------------------
 
 .. automodule:: scfile.structures.flags
@@ -21,15 +13,7 @@ Flags
   :show-inheritance:
   :undoc-members:
 
-Mesh
------------------------------
-
-.. automodule:: scfile.structures.mesh
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-Scene
+🏞️ Scene
 ------------------------------
 
 .. automodule:: scfile.structures.scene
@@ -37,7 +21,15 @@ Scene
   :show-inheritance:
   :undoc-members:
 
-Skeleton
+🕸️ Mesh
+-----------------------------
+
+.. automodule:: scfile.structures.mesh
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+🦴 Skeleton
 ---------------------------------
 
 .. automodule:: scfile.structures.skeleton
@@ -45,7 +37,15 @@ Skeleton
   :show-inheritance:
   :undoc-members:
 
-Texture
+🎬 Animation
+----------------------------------
+
+.. automodule:: scfile.structures.animation
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+🧱 Texture
 --------------------------------
 
 .. automodule:: scfile.structures.texture
