@@ -16,6 +16,10 @@ class NbtDecoder(FileDecoder[NbtContent], StructFileIO):
 
     _content = NbtContent
 
+    def to_json(self):
+        from scfile.formats.json.encoder import JsonEncoder
+        return self.convert_to(JsonEncoder)
+
     def parse(self):
         data = self._decompress()
 

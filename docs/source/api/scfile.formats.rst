@@ -64,10 +64,12 @@ Formats
   scfile.formats.dds
   scfile.formats.glb
   scfile.formats.hdri
+  scfile.formats.json
   scfile.formats.mcsa
   scfile.formats.mcsb
   scfile.formats.mic
   scfile.formats.ms3d
+  scfile.formats.nbt
   scfile.formats.obj
   scfile.formats.ol
   scfile.formats.png
