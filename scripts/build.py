@@ -23,6 +23,14 @@ def build():
             "--specpath",
             SPECPATH,
             "--onefile",
+            # Fix for rich library Unicode support in compiled executable
+            # PyInstaller doesnt automatically detect these submodules
+            "--hidden-import",
+            "rich._unicode_data.unicode17-0-0",  # Unicode 17.0.0 data tables
+            "--hidden-import",
+            "rich._unicode_data",  # Unicode data module
+            "--collect-data",
+            "rich",  # Package data files
         ]
     )
 
