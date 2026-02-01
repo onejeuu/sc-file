@@ -89,6 +89,7 @@ class CLI:
     """Command line interface constants."""
 
     FORMATS = EPILOG = f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}"
+    NBT = f"Supported NBTs: {sorted(NBT_FILENAMES)}"
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
     PAUSE = "\nPress any key to exit..."
 

@@ -17,6 +17,7 @@ def callback(ctx: click.Context, param: click.Parameter, value: bool):
 
     print(f"scfile, version {__version__} {version_to_emoji(__version__)}")
     print(CLI.FORMATS)
+    print(CLI.NBT)
 
     ctx.exit()
 
