@@ -1,4 +1,4 @@
-Library
+Library API
 ==================================================
 
 Choose appropriate API based on your needs:

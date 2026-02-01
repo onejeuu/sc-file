@@ -2,6 +2,7 @@
 
 <!-- Links -->
 
+[readme-ru]: README-RU.md
 [pypi]: https://pypi.org/project/sc-file
 [license]: https://opensource.org/licenses/MIT
 [tests]: https://github.com/onejeuu/sc-file/actions/workflows/tests.yml
@@ -9,20 +10,18 @@
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/en/latest
-[readme-ru]: README-RU.md
+[contact]: https://onejeuu.t.me
 
 <!-- Usage -->
 
 [usage-dragndrop]: https://en.wikipedia.org/wiki/Drag_and_drop
 [usage-defaultapp]: https://support.microsoft.com/en-us/windows/e5d82cad-17d1-c53b-3505-f10a32e1894d
 [usage-cli]: https://en.wikipedia.org/wiki/Command-line_interface
-[usage-library]: https://pypi.org/project/sc-file
 
 <!-- Docs -->
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
-[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
 [docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
@@ -35,88 +34,127 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-ru]: https://img.shields.io/badge/перевод%20на-🇷🇺%20Русский-0096FF
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
 [![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
-[![RU][badge-ru]][readme-ru]
+🇬🇧 **English** | 🇷🇺 [Русский][readme-ru]
 
 ## Overview
 
-**scfile** is a utility and library for converting stalcraft assets (such as models and textures), into standard formats.
+**scfile** is a utility and library for converting proprietary Stalcraft assets formats to standard ones.
 
-_this project is unofficial and not related to stalcraft devs. all trademarks and assets belong to their respective owners._
+> This is an **unofficial** project and is **not affiliated** with EXBO.
 
-📚 Documentation: [sc-file.readthedocs.io][docs] \
-[Usage][docs-usage] / [FAQ][docs-faq] / [Game Formats][docs-formats] / [Formats Support][docs-support] / [Compile Guide][docs-compile] / [Library API Reference][docs-library]
+## ✨ Supported Formats
 
-🗂️ Supported game formats: `.mcsb`, `.mcsa`, `.mcvd`, `.ol`, `.mic`, `.texarr`. \
-[More about Game Formats...][docs-formats]
+| Type           | Game formats            | →   | Standard formats             |
+| -------------- | ----------------------- | --- | ---------------------------- |
+| 🧊 **Model**   | `.mcsb` `.mcsa` `.mcvd` | →   | `.glb` `.obj` `.dae` `.ms3d` |
+| 🧱 **Texture** | `.ol`                   | →   | `.dds`                       |
+| 🖼️ **Image**   | `.mic`                  | →   | `.png`                       |
+| 📦 **Archive** | `.texarr`               | →   | `.zip`                       |
+| ⚙️ **Data**    | `NBT`\*                 | →   | `.json`                      |
 
-💻 Executable utility `scfile.exe` can be downloaded from [Releases page][releases] or [compiled from source][docs-compile] \
-[More about Usage...][docs-usage]
+\* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
-❓ **Why reverse encoding into game formats is unsupported?** \
-And other common questions are answered on [FAQ page][docs-faq].
+> [!IMPORTANT]  
+> **Reverse conversion (`standard` → `game`) is not available.**  
+> 📚 [See FAQ for details →][docs-faq]
 
-## 🛠️ Supported Formats
+</br>
 
-| Type       | Source                    | Output                          |
-| ---------- | ------------------------- | ------------------------------- |
-| 🧊 Model   | `.mcsb`, `.mcsa`, `.mcvd` | `.glb`, `.obj`, `.dae`, `.ms3d` |
-| 🧱 Texture | `.ol`                     | `.dds`                          |
-| 🖼️ Image   | `.mic`                    | `.png`                          |
-| 📦 Archive | `.texarr`                 | `.zip`                          |
+> [!TIP]  
+> 📚 [Detailed formats support →][docs-support]
 
-[More about Formats Support…][docs-support]
+## 🚀 Quick Start
 
-## 🚀 Usage
+> **_Three ways to get started:_** download, install, or compile.
 
-- **Easiest way is [Drag & Drop][usage-dragndrop]**. Just drag and drop your files onto `scfile.exe`.
-- **Set scfile.exe as the [default application][usage-defaultapp]** for the required file types.
-- **Via terminal as [CLI][usage-cli]** for specifying parameters.
-- **As [Python library][usage-library]** for complex tasks.
+### 1. 💻 Download executable
 
-Command example:
+Standalone `scfile.exe` available on [Releases page][releases].  
+_No Python required._
+
+**Usage:**
+
+- 📥 **Drag & Drop**: drag file onto `scfile.exe`  
+   _[What is drag and drop?][usage-dragndrop]_
+- 🖱️ **Open With**: set as default app for supported formats  
+   _[How to set default app (Windows)?][usage-defaultapp]_
+- 📟 **Command Line**: `scfile.exe --help`  
+   _[What is command line interface?][usage-cli]_  
+   _Example:_ `scfile.exe model.mcsb -F glb --skeleton`  
+   _Options: `-F` picks model format, `--skeleton` extracts armature._
+
+### 2. 🐍 Install Python package
+
+**Install:**
 
 ```bash
-scfile.exe model.mcsb -F dae --skeleton
+pip install sc-file
 ```
 
-[More about Usage...][docs-usage]
+**Usage:**
+
+- 📖 **Python library**: [See Library section](#-library)
+- 📟 **CLI via package**: `scfile --help`
+
+### 3. 🔧 Compile from source
+
+Build from source code using the [compile guide][docs-compile].  
+_For developers, contributors, or custom builds._
+
+</br>
+
+> [!TIP]  
+> 📚 [Usage guide and CLI options →][docs-usage]
 
 ## 📖 Library
 
-To install library for coding, use following command:
+**Install latest version:**
 
 ```bash
 pip install sc-file -U
 ```
 
-Simple usage example:
+**Usage example:**
 
-```python
-from scfile import UserOptions, convert
+```py
+from scfile import convert, formats, UserOptions
 
-# Optional convert settings
-options = UserOptions(parse_skeleton=True)
+# Simple conversion (auto detect format by file suffix)
+# User options to control parsing and export settings
+convert.auto("model.mcsb", options=UserOptions(parse_skeleton=True))
 
-# Specific format to format
-convert.mcsb_to_obj(source="path/to/model.mcsb", options=options)
+# Advanced control (manual decoding and data inspection)
+# Context manager ensures proper resource cleanup
+with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+    # Access parsed scene data: meshes, bones
+    scene = mcsb.decode().scene
+    print(f"Model total vertices: {sum(m.count.vertices for m in scene.meshes)}")
 
-# Or auto detect by file suffix
-convert.auto(source="path/to/model.mcsb", options=options)
+    # Export to a specific standard format
+    mcsb.to_obj().save("output.obj")
 ```
 
-[More details about Library...][docs-library]
+</br>
+
+> [!TIP]  
+> 📚 [Complete Library API reference →][docs-library]
+
+## 🔗 Links
+
+- `📚` **Documentation:** [sc-file.readthedocs.io][docs] (usage, cli params, formats, api)
+- `❓` **Questions?** Check [FAQ][docs-faq] or [contact me][contact]
+- `🐛` **Found a bug?** [Open an issue][issues]
+- `💻` **Download executable:** [Latest release][releases]
+- `🔧` **Compile from source:** [Build guide][docs-compile]
 
 ## 🤝 Acknowledgments
 
-- `kommunist2021` – file structure research.
-- `Art3mLapa` – advice, bug reports, contribution.
-- `n1kodim` – advice, contribution.
-- `IExploitableMan` – contribution.
-- `Sarioga` – feedback, bug reports.
-- `Hazart` – bug reports.
+`kommunist2021` · `Art3mLapa` · `n1kodim`  
+`IExploitableMan` · `Sarioga` · `Hazart`
+
+Thanks to everyone who reported issues, shared findings, or contributed ideas.
