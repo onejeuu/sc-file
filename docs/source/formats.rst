@@ -126,8 +126,7 @@
 🗃️ NBT Formats
 ----------------------------------------
 
-| **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_.
-| Can be raw, but in game uses ``GZIP`` or ``ZSTD`` compression.
+Uncompressed **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_. Can be raw, but in game uses ``GZIP`` or ``ZSTD`` compression.
 
 Assets
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -138,11 +137,9 @@ Assets
   * - Filename
     - Compression
     - Purpose
-    - Keys (examples)
   * - ``stalker/itemnames.dat``
     - ``GZIP``
-    - **Quests items**.
-    - ``None``
+    - **Quests items descriptions**.
 
 
 Configs
@@ -212,7 +209,7 @@ Per-Character Configs
     - Purpose
   * - ``display``
     - Text
-    - Selected display/monitor ID
+    - Selected display ID
   * - ``keybindings``
     - JSON
     - Keyboard control mappings

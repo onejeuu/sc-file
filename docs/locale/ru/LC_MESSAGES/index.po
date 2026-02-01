@@ -1,157 +1,221 @@
+
 msgid ""
 msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-02-01 15:15+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:2 f663414d6b8d4cb7a3f8e7836c212b5b
+#: ../../index.rst:2
 msgid "Index"
 msgstr "Индекс"
 
-#: ../../source/index.rst:20 37cc1bf2a7354e3fb4c294c9f3508032
+#: ../../index.rst:20
 msgid "Overview"
 msgstr "Обзор"
 
-#: ../../source/index.rst:22 cf374ff3af98456d9c2a6229418eaa79
+#: ../../index.rst:22
 msgid ""
-"**scfile** is a utility and library for parsing and converting stalcraft "
-"assets (such as models and textures), into standard formats."
-msgstr "**scfile** это утилита и библиотека для конвертации ассетов игры stalcraft (например, моделей и текстур) в стандартные форматы."
+"**scfile** is a utility and library for converting proprietary Stalcraft "
+"assets formats to standard ones."
+msgstr ""
+"**scfile** это утилита и библиотека для конвертации проприетарных форматов "
+"ассетов игры Stalcraft в стандартные."
 
-#: ../../source/index.rst:24 15daca57efa34087b0fd7f0d52003571
-msgid ""
-"🗂️ Supported game formats: ``.mcsb``, ``.mcsa``, ``.mcvd``, ``.ol``, "
-"``.mic``, ``.texarr``."
-msgstr "🗂️ Поддерживаемые форматы игры: ``.mcsb``, ``.mcsa``, ``.mcvd``, ``.ol``, ``.mic``, ``.texarr``."
+#: ../../index.rst:24
+msgid "This is an **unofficial** project and is **not affiliated** with EXBO."
+msgstr "Данный проект является **неофициальным** и **не аффилирован** с EXBO."
 
-#: ../../source/index.rst:25 d214762f4b1c424e9ac4a4bae257c850
-msgid ":doc:`More about Game Formats... <formats>`"
-msgstr ":doc:`Подробнее об игровых форматах... <formats>`"
+#: ../../index.rst:27
+msgid "✨ Supported Formats"
+msgstr "✨ Поддерживаемые форматы"
 
-#: ../../source/index.rst:27 56abf1c0c3ad44728e6864ec25290dc2
-msgid ""
-"💻 Executable utility ``scfile.exe`` can be downloaded from `Releases page"
-" <https://github.com/onejeuu/sc-file/releases>`_ or :doc:`compiled from "
-"source <compile>`."
-msgstr "💻 Исполняемый файл ``scfile.exe`` можно скачать на `странице Releases <https://github.com/onejeuu/sc-file/releases>`_ или :doc:`скомпилировать самому <compile>`."
-
-#: ../../source/index.rst:28 ../../source/index.rst:69
-#: 535a285fcd994b5b99a00ff483d588e0 5cb88b0003594dc790afdad1c9d0107d
-msgid ":doc:`More about Usage... <usage>`"
-msgstr ":doc:`Подробнее об использовании... <usage>`"
-
-#: ../../source/index.rst:30 3ac801915d7e4393ac3f05ffa2fac2fa
-msgid "❓ **Why reverse encoding into game formats is unsupported?**"
-msgstr "❓ **Почему кодирование обратно в игровые форматы не поддерживается?**"
-
-#: ../../source/index.rst:31 78281ecab26e476cb428368be4ba7a95
-msgid "And other common questions are answered on :doc:`FAQ page <faq>`."
-msgstr "И другие часто задаваемые вопросы отвечены на :doc:`странице FAQ <faq>`."
-
-#: ../../source/index.rst:33 d8a07ce6cea944748087db27a7a0380f
-msgid "🛠️ Supported Formats"
-msgstr "🛠️ Поддерживаемые форматы"
-
-#: ../../source/index.rst:36 fb853446b7c8448194386d6beda929e9
+#: ../../index.rst:30
 msgid "Type"
 msgstr "Тип"
 
-#: ../../source/index.rst:37 b64092273425441d85a3466efda475e2
-msgid "Source"
-msgstr "Исходный формат"
+#: ../../index.rst:31
+msgid "Game formats"
+msgstr "Игровые форматы"
 
-#: ../../source/index.rst:38 b114689d15904fff89a7b4a6be5c1cf6
-msgid "Output"
-msgstr "Выходной формат"
+#: ../../index.rst:32
+msgid "Standard formats"
+msgstr "Стандартные форматы "
 
-#: ../../source/index.rst:39 79b79988873c49a8abbbff21f9544091
-msgid "🧊 Model"
-msgstr "🧊 Модель"
+#: ../../index.rst:33
+msgid "🧊 **Model**"
+msgstr "🧊 **Модель**"
 
-#: ../../source/index.rst:42 397c2a65900d475d95e2793aeee3f91d
-msgid "🧱 Texture"
-msgstr "🧱 Текстура"
+#: ../../index.rst:36
+msgid "🧱 **Texture**"
+msgstr "🧱 **Текстура**"
 
-#: ../../source/index.rst:45 54aafc12e70f4a52b192576b2536c8d2
-msgid "🖼️ Image"
-msgstr "🖼️ Изображение"
+#: ../../index.rst:39
+msgid "🖼️ **Image**"
+msgstr "🖼️ **Изображение**"
 
-#: ../../source/index.rst:48 a0185ccaf58340c38bc4446e10f2e7b5
-msgid "📦 Archive"
-msgstr "📦 Архив"
+#: ../../index.rst:42
+msgid "📦 **Archive**"
+msgstr "📦 **Архив**"
 
-#: ../../source/index.rst:52 8dec239b2087445088297e46a747b35d
-msgid ":doc:`More about Formats Support... <support>`"
-msgstr ":doc:`Подробнее об поддержке форматов... <support>`"
+#: ../../index.rst:45
+msgid "⚙️ **Data**"
+msgstr "⚙️ **Данные**"
 
-#: ../../source/index.rst:57 bd0025a7d8c74581bd4ee4a6098b66f4
-msgid "🚀 Usage"
-msgstr "🚀 Использование"
-
-#: ../../source/index.rst:59 680dd83ec7a44af793b9bf7b6f89db9d
+#: ../../index.rst:49
 msgid ""
-"Easiest way is `Drag & Drop <DND_>`_. Just drag and drop your files onto "
-"``scfile.exe``."
-msgstr "Проще всего использовать `Drag & Drop <DND_>`_. Просто перетащите нужные файлы на ``scfile.exe``."
+"\\* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, "
+"``sd0``, etc.)"
+msgstr "\\* ``NBT`` Относится к специфичным файлам (``itemnames.dat``, ``prefs``, ``sd0`` и т.д.)"
 
-#: ../../source/index.rst:60 801fbaff1c41453bb776f70e47625cfb
+#: ../../index.rst
+msgid "**Reverse conversion** (``standard`` → ``game``) **is not available.**"
+msgstr "**Обратная конвертация** (``стандартный`` → ``игровой``) **недоступна.**"
+
+#: ../../index.rst
+msgid "📚 :doc:`See FAQ for details → <faq>`"
+msgstr "📚 :doc:`Подробности в FAQ → <faq>`"
+
+#: ../../index.rst:60
+msgid "📚 :doc:`Detailed formats support → <support>`"
+msgstr "📚 :doc:`Детальная информация о поддержке форматов → <support>`"
+
+#: ../../index.rst:65
+msgid "🚀 Quick Start"
+msgstr "🚀 Быстрый старт"
+
+#: ../../index.rst:67
+msgid "**Three ways to get started:** download, install, or compile."
+msgstr "**Три способа начать:** скачать, установить или скомпилировать."
+
+#: ../../index.rst:70
+msgid "1. 💻 Download executable"
+msgstr "1. 💻 Скачать исполняемый файл"
+
+#: ../../index.rst:72
 msgid ""
-"Set scfile.exe as the `default application <DEFAPP_>`_ for the required "
-"file types."
-msgstr "Указать ``scfile.exe`` как `приложение по умолчанию <DEFAPP_>`_ для нужных типов файлов."
+"Standalone ``scfile.exe`` available on `Releases page "
+"<https://github.com/onejeuu/sc-file/releases>`_"
+msgstr ""
+"Standalone ``scfile.exe`` доступен на `странице Releases <https://github.com/onejeuu/sc-file/releases>`_"
 
-#: ../../source/index.rst:61 ba042cabcfae4a1fa8109f787a94d5c2
-msgid "Via terminal as `CLI <CLI_>`_ for specifying parameters."
-msgstr "Через терминал как самый обычный `CLI <CLI_>`_ для указания параметров."
+#: ../../index.rst:73
+msgid "*No Python required.*"
+msgstr "*Не требует установки Python.*"
 
-#: ../../source/index.rst:62 412a6908738147a2afbfaf27d4cd97f7
-msgid "As `Python library <PYPI_>`_ for complex tasks."
-msgstr "Как `Python библиотеку <PYPI_>`_ для комплексных задач."
+#: ../../index.rst:75 ../../index.rst:96
+msgid "**Usage:**"
+msgstr "**Использование:**"
 
-#: ../../source/index.rst:64 71f17656cf1c454e8ab18bd850ee59fb
-msgid "Command example"
-msgstr "Пример команды для терминала"
+#: ../../index.rst:77
+msgid "📥 **Drag & Drop**: drag file onto ``scfile.exe``"
+msgstr "📥 **Drag & Drop**: перетащите файл на ``scfile.exe``"
 
-#: ../../source/index.rst:74 00763b45d68243b8ae4602acda68c952
+#: ../../index.rst:78
+msgid "`What is drag and drop? <DND_>`_"
+msgstr "`Что такое drag and drop? <DND_>`_"
+
+#: ../../index.rst:79
+msgid "🖱️ **Open With**: set as default app for supported formats"
+msgstr "🖱️ **Открыть с помощью**: установите приложением по умолчанию для поддерживаемых форматов"
+
+#: ../../index.rst:80
+msgid "`How to set default app (Windows)? <DEFAPP_>`_"
+msgstr "`Как установить приложение по умолчанию (Windows)? <DEFAPP_>`_"
+
+#: ../../index.rst:81
+msgid "📟 **Command Line**: ``scfile.exe --help``"
+msgstr "📟 **Командная строка**: ``scfile.exe --help``"
+
+#: ../../index.rst
+msgid "`What is command line interface? <CLI_>`_"
+msgstr "`Что такое командный интерфейс? <CLI_>`_"
+
+#: ../../index.rst
+msgid "*Example:* ``scfile.exe model.mcsb -F glb --skeleton``"
+msgstr "*Пример:* ``scfile.exe model.mcsb -F glb --skeleton``"
+
+#: ../../index.rst
+msgid "*Options:* ``-F`` *picks model format,* ``--skeleton`` *extracts armature.*"
+msgstr "*Опции:* ``-F`` *выбирает формат модели,* ``--skeleton`` *извлекает скелет и кости.*"
+
+#: ../../index.rst:87
+msgid "2. 🐍 Install Python package"
+msgstr "2. 🐍 Установить Python пакет"
+
+#: ../../index.rst:89
+msgid "**Install:**"
+msgstr "**Установка:**"
+
+#: ../../index.rst:98
+msgid "📖 **Python library**: *See Library section*"
+msgstr "📖 **Python библиотека**: *См. раздел Библиотека*"
+
+#: ../../index.rst:99
+msgid "📟 **CLI via package**: ``scfile --help``"
+msgstr "📟 **CLI через пакет**: ``scfile --help``"
+
+#: ../../index.rst:102
+msgid "3. 🔧 Compile from source"
+msgstr "3. 🔧 Скомпилировать из исходников"
+
+#: ../../index.rst:104
+msgid "Build from source code using the :doc:`compile guide <compile>`."
+msgstr "Соберите из исходного кода, используя :doc:`руководство по сборке <compile>`."
+
+#: ../../index.rst:105
+msgid "*For developers, contributors, or custom builds.*"
+msgstr "*Для разработчиков, контрибьюторов или пользовательских сборок.*"
+
+#: ../../index.rst:110
 msgid "📖 Library"
 msgstr "📖 Библиотека"
 
-#: ../../source/index.rst:76 d2e7c282103e40ef9c7439f748a30d3d
-msgid "To install library for coding, use following command:"
-msgstr "Чтобы установить библиотеку для разработки, используйте команду:"
+#: ../../index.rst:112
+msgid "**Install latest version:**"
+msgstr "**Установите последнюю версию:**"
 
-#: ../../source/index.rst:82 92614046e11e4dc18e06cd7c7b686629
-msgid "Simple usage example"
-msgstr "Простой пример использования:"
+#: ../../index.rst:119
+msgid "Usage example"
+msgstr "**Пример использования:**"
 
-#: ../../source/index.rst:96 fb317e696ccd49b89ea66a2adcb51f55
-msgid ":doc:`More details about Library... <api/index>`"
-msgstr ":doc:`Подробнее об библиотеке... <api/index>`"
+#: ../../index.rst:141
+msgid "📚 :doc:`Complete Library API reference → <api/index>`"
+msgstr "📚 :doc:`Полное описание API библиотеки → <api/index>`"
 
-#: ../../source/index.rst:101 f50b79b8f855478a97c3eba749b99684
+#: ../../index.rst:146
+msgid "🔗 Links"
+msgstr "🔗 Ссылки"
+
+#: ../../index.rst:148
+msgid "``❓`` **Questions?** Check :doc:`FAQ <faq>` or `contact me <TG_>`_"
+msgstr "``❓`` **Есть вопросы?** Ознакомьтесь с :doc:`FAQ <faq>` или `свяжитесь со мной <TG_>`_"
+
+#: ../../index.rst:149
+msgid "``🐛`` **Found a bug?** `Open an issue <ISSUES_>`_"
+msgstr "``🐛`` **Нашли баг?** `Создайте issue <ISSUES_>`_"
+
+#: ../../index.rst:150
+msgid "``💻`` **Download executable:** `Latest release <RELEASES_>`_"
+msgstr "``💻`` **Скачать исполняемый файл:** `Последний релиз <RELEASES_>`_"
+
+#: ../../index.rst:151
+msgid "``🔧`` **Compile from source:** :doc:`Build guide <compile>`"
+msgstr "``🔧`` **Скомпилировать из исходников:** :doc:`Руководство по сборке <compile>`"
+
+#: ../../index.rst:156
 msgid "🤝 Acknowledgments"
 msgstr "🤝 Благодарности"
 
-#: ../../source/index.rst:103 c53d840342004bb59ae686a7bcc36c3a
-msgid "``kommunist2021`` – file structure research."
-msgstr "``kommunist2021`` - разбор структуры файлов."
-
-#: ../../source/index.rst:104 0aa53001d23f4c92a9874f97e3c189ce
-msgid "``Art3mLapa`` – advice, bug reports, contribution."
-msgstr "``Art3mLapa`` - советы, багрепорт, вклад в проект."
-
-#: ../../source/index.rst:105 a74950a5113b429ca2c69d611cef6589
-msgid "``n1kodim`` – advice, contribution."
-msgstr "``n1kodim`` - советы, вклад в проект."
-
-#: ../../source/index.rst:106 d624e06eab97425d929a9a14d0ae9953
-msgid "``IExploitableMan`` – contribution."
-msgstr "``IExploitableMan``- вклад в проект."
-
-#: ../../source/index.rst:107 ea31b2744b6e4adf8648f07d873be518
-msgid "``Sarioga`` – feedback, bug reports."
-msgstr "``Sarioga`` - фидбек, багрепорт."
-
-#: ../../source/index.rst:108 5efebb449c8f4f34a4f2370ac1f20a3e
-msgid "``Hazart`` – bug reports."
-msgstr "``Hazart`` - багрепорт."
-
+#: ../../index.rst:161
+msgid "Thanks to everyone who reported issues, shared findings, or contributed ideas."
+msgstr "Спасибо всем, кто сообщал об ошибках, делился находками или вносил идеи."

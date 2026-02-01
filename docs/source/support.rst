@@ -55,11 +55,6 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 
 | Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
 
-**Recommended Viewers:**
-  - `XnView <XNVIEW_>`_ (Universal)
-  - `WTV <WTV_>`_ (Lightweight)
-  - `RenderDoc <RENDERDOC_>`_ (Analysis)
-
 .. list-table:: Known Formats
   :header-rows: 1
 
@@ -103,7 +98,7 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 ``.mic``
 ----------------------------------------
 
-| Absolutely identical to ``.png`` (`Portable Network Graphics <PNG_>`_)
+| Format: ``.png`` (`Portable Network Graphics <PNG_>`_)
 | Only difference is `file signature <SIG_>`_ *(first 4 bytes)*
 
 

@@ -55,7 +55,7 @@ Overview
   | 📚 :doc:`See FAQ for details → <faq>`
 
 
-.. tip::
+.. seealso::
 
   📚 :doc:`Detailed formats support → <support>`
 
@@ -136,7 +136,7 @@ Overview
     mcsb.to_obj().save("output.obj")
 
 
-.. tip::
+.. seealso::
 
   📚 :doc:`Complete Library API reference → <api/index>`
 

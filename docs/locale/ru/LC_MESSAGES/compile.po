@@ -1,32 +1,45 @@
+
 msgid ""
 msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-02-01 15:15+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
-#: ../../source/compile.rst:2 864328c651ce45348202ec92ea05cb61
-msgid "Compile"
-msgstr "Компиляция"
+#: ../../compile.rst:2
+msgid "🔧 Compile"
+msgstr "🔧 Компиляция"
 
-#: ../../source/compile.rst:7 0b6f1678c9fe4abb8142d546924f7dd2
+#: ../../compile.rst:7
 msgid "This instructions are tailored for `astral-sh/uv <UV_>`_."
 msgstr "Эти инструкции предназначены для `astral-sh/uv <UV_>`_."
 
-#: ../../source/compile.rst:10 ccbb32ac21a34df9823c2d982381b8a6
+#: ../../compile.rst:10
 msgid "Download project"
 msgstr "Скачайте проект"
 
-#: ../../source/compile.rst:21 9e36eccaed9449ada9310e194593f0c9
+#: ../../compile.rst:21
 msgid "Recommended to create virtual environment"
 msgstr "Рекомендовано создать виртуальную среду"
 
-#: ../../source/compile.rst:27 4045d8acf5404b0d81d2f1edef630cbd
+#: ../../compile.rst:27
 msgid "Install dependencies"
 msgstr "Установите зависимости"
 
-#: ../../source/compile.rst:33 d6913570e857471a8dbd5517dddde27b
+#: ../../compile.rst:33
 msgid "Run the build script"
 msgstr "Запустите скрипт сборки"
 
-#: ../../source/compile.rst:39 0d3247c53dbb4cfc9bcae96790b4db63
+#: ../../compile.rst:39
 msgid "Executable file ``scfile.exe`` will be created in ``/dist`` directory."
 msgstr "Исполняемый файл ``scfile.exe`` будет создан в директории ``/dist``."
+
