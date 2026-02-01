@@ -1,4 +1,4 @@
-Game Formats
+🎮 Game Formats
 ==================================================
 
 .. include:: _links.rst
@@ -123,6 +123,84 @@ Game Formats
 
 
 ----------------------------------------
+🗃️ NBT Formats
+----------------------------------------
+
+| **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_.
+| Can be raw, but in game uses ``GZIP`` or ``ZSTD`` compression.
+
+Assets
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Compression
+    - Purpose
+    - Keys (examples)
+  * - ``stalker/itemnames.dat``
+    - ``GZIP``
+    - **Quests items**.
+    - ``None``
+
+
+Configs
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Compression
+    - Purpose
+    - Keys (examples)
+  * - ``prefs``
+    - ``ZSTD``
+    - **UI read state cache**. Tracks seen articles, experiences, tutorial prompts, and ads.
+    - ``seenArticleLinks[], seenExperiences[], hasSeen*``
+
+
+Per-Character Configs
+^^^^^^^^^^^^^^^^^^^^^^
+
+| Located in ``/config/%CharacterName%/``.
+| Files prefixed with ``sd`` (**Synced Data**) contain synchronized player state cached locally.
+
+.. list-table::
+  :header-rows: 1
+
+  * - Filename
+    - Compression
+    - Purpose
+    - Keys (examples)
+  * - ``common``
+    - ``ZSTD``
+    - **General settings and UI states**. Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
+    - ``trashedItems[], caseLastOpenCount[], complaintsData{reportedCharnames[], reportedHacks[], ...}, seenFrontlineIntros``
+  * - ``sd0``
+    - ``ZSTD``
+    - **Incoming friend requests**. Contains a list of pending requests for UI.
+    - ``requests[]``
+  * - ``sd1``
+    - ``ZSTD``
+    - **Recent interactions** (last 200 players). Stores usernames, faction IDs, and interaction type for the "Recently Interacted" UI.
+    - ``interacts[{allianceId, type, username}]``
+  * - ``sd2``
+    - ``ZSTD``
+    - **Notifications history** (last 100 popups). Stores message content, read status, and dynamic ``payload`` (varies by notification type).
+    - ``notifications[{isRead, receivedMoment, notification{channel_id, payload}}]``
+  * - ``sd3``
+    - ``ZSTD``
+    - **Store (donate shop) view history**. Tracks observed shop offers.
+    - ``observedOffers[]``
+  * - ``sd4``
+    - ``ZSTD``
+    - **Profile customization UI state**. Tracks last seen versions of backgrounds, patterns, stickers, and tags.
+    - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
+
+
+----------------------------------------
 ⚙️ Config Formats
 ----------------------------------------
 
@@ -147,53 +225,3 @@ Game Formats
   * - ``waypoints.cfg``
     - JSON
     - Custom map markers
-
-
-----------------------------------------
-🗃️ Archived NBT Configs
-----------------------------------------
-
-| A series of ``.tar.gz`` archives, each containing a single uncompressed file with the same base name.
-| The inner file uses **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_.
-
-.. list-table::
-  :header-rows: 1
-
-  * - Filename
-    - Purpose
-    - Keys (examples)
-  * - ``prefs``
-    - **UI read state cache**. Tracks seen articles, experiences, tutorial prompts, and ads.
-    - ``seenArticleLinks[], seenExperiences[], hasSeen*``
-
-
-Per-Character Configs
-^^^^^^^^^^^^^^^^^^^^^^
-
-| Located in ``/config/%CharacterName%/``.
-| Files prefixed with ``sd`` (**Synced Data**) contain synchronized player state cached locally.
-
-.. list-table::
-  :header-rows: 1
-
-  * - Filename
-    - Purpose
-    - Keys (examples)
-  * - ``common``
-    - **General settings and UI states**. Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
-    - ``trashedItems[], caseLastOpenCount[], complaintsData{reportedCharnames[], reportedHacks[], ...}, seenFrontlineIntros``
-  * - ``sd0``
-    - **Incoming friend requests**. Contains a list of pending requests for UI.
-    - ``requests[]``
-  * - ``sd1``
-    - **Recent interactions** (last 200 players). Stores usernames, faction IDs, and interaction type for the "Recently Interacted" UI.
-    - ``interacts[{allianceId, type, username}]``
-  * - ``sd2``
-    - **Notifications history** (last 100 popups). Stores message content, read status, and dynamic ``payload`` (varies by notification type).
-    - ``notifications[{isRead, receivedMoment, notification{channel_id, payload}}]``
-  * - ``sd3``
-    - **Store (donate shop) view history**. Tracks observed shop offers.
-    - ``observedOffers[]``
-  * - ``sd4``
-    - **Profile customization UI state**. Tracks last seen versions of backgrounds, patterns, stickers, and tags.
-    - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``

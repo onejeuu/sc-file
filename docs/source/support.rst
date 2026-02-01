@@ -1,4 +1,4 @@
-Formats Support
+✨ Formats Support
 ==================================================
 
 .. include:: _links.rst
@@ -113,3 +113,13 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
 
 | Output Format: ``.zip`` (`ZIP <ZIP_>`_)
 | Textures Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
+
+
+----------------------------------------
+``NBT``
+----------------------------------------
+
+| Format: `Named Binary Tag <NBT_>`_
+| Supported Types: ``RAW``, ``GZIP``, ``ZSTD``
+| Supported Files: ``assets/stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0``, ``config/%Name%/sd1``, ``config/%Name%/sd2``, ``config/%Name%/sd3``, ``config/%Name%/sd4``
+| Output Format: ``.json`` (`JavaScript Object Notation <JSON_>`_)

@@ -13,6 +13,8 @@
 
 .. Project
 .. _GITHUB: https://github.com/onejeuu/sc-file
+.. _ISSUES: https://github.com/onejeuu/sc-file/issues
+.. _RELEASES: https://github.com/onejeuu/sc-file/releases
 .. _PYPI: https://pypi.org/project/sc-file
 
 .. Wikipedia General

@@ -1,4 +1,4 @@
-Library API
+📖 Library
 ==================================================
 
 Choose appropriate API based on your needs:
