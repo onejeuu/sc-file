@@ -1,0 +1,49 @@
+//------------------------------------------------
+// File: MDAT.bt
+// Authors: onejeuu, DeTTK
+// Version: 1.0
+// Purpose: Parse world geometry.
+// Category: STALCRAFT
+// File Mask: *.mdat
+//------------------------------------------------
+
+local uint32 SIZE = 32*32;
+
+BigEndian();
+
+typedef struct {
+    int32 x1; // ? (offset? index?)
+    int32 x2; // ? (counter? [1,2,3])
+    GUID uuid <fgcolor=cLtBlue>; // uuidv4
+} Metadata;
+
+typedef struct {
+    int32 size <fgcolor=cAqua>; // header+data size
+    int32 c1; // ?
+    int32 c2; // ?
+    int32 uncompressed_size <fgcolor=cLtGreen>;
+    int32 compressed_size <fgcolor=cDkGreen>; // data size
+
+    // ZSTD compressed data
+    char data[compressed_size] <bgcolor=cDkGreen>;
+    // тут почему то хвост бывает из данных, непонятно откуда
+
+    // padding
+    local uint _current = FTell();
+    local uint _aligned = (_current + 0xFFF) & ~0xFFF;
+    local uint _padding = _aligned - _current;
+
+    if(_padding > 0) {
+        char padding[_padding] <bgcolor=cGray, hidden=true>;
+    }
+} Chunk;
+
+// metadata
+Metadata metadata[SIZE];
+
+// terrain chunks
+local uint _counter;
+while(_counter < SIZE & !FEof()) {
+    Chunk chunk;
+    _counter++;
+}
