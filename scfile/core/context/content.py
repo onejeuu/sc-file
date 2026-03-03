@@ -5,8 +5,10 @@ Shared content data between decoder and encoder.
 from abc import ABC
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeAlias, cast
+from uuid import UUID
 
 from scfile.enums import FileType
+from scfile.structures.region import RegionChunk
 from scfile.structures.scene import ModelFlags, ModelScene
 from scfile.structures.texture import CubemapTexture, DefaultTexture, TextureType
 
@@ -98,3 +100,14 @@ class NbtContent(FileContent):
     type: FileType = field(default=FileType.NBT)
 
     value: NbtValue = None
+
+
+@dataclass
+class RegionContent(FileContent):
+    type: FileType = field(default=FileType.REGION)
+
+    x1: list[int] = field(default_factory=list)
+    x2: list[int] = field(default_factory=list)
+    uuid: list[UUID] = field(default_factory=list)
+
+    chunks: list[RegionChunk] = field(default_factory=list)

@@ -12,6 +12,7 @@ class FileFormat(StrEnum):
     MCSA = auto()
     MCSB = auto()
     MCVD = auto()
+    MDAT = auto()
     MIC = auto()
     MS3D = auto()
     NBT = auto()
@@ -36,6 +37,7 @@ class FileType(StrEnum):
     IMAGE = auto()
     TEXARR = auto()
     NBT = auto()
+    REGION = auto()
 
 
 class FileMode(StrEnum):
