@@ -163,7 +163,7 @@ cython_debug/
 # Dependency lock files
 *.lock
 
-# Local test
+# Local tests
 test.py
 temp.py
 test/
