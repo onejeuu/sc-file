@@ -49,6 +49,25 @@ def mcsb_to_glb(
     """
 
 
+@converter(formats.mcsb.McsbDecoder, formats.fbx.FbxEncoder)
+def mcsb_to_fbx(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts model from `.mcsb` to `.fbx` format.
+
+    Arguments:
+        source: Path to input `.mcsb` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `mcsb_to_fbx("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
+
+
 @converter(formats.mcsb.McsbDecoder, formats.dae.DaeEncoder)
 def mcsb_to_dae(
     source: PathLike,
