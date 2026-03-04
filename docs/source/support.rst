@@ -7,7 +7,7 @@
 ``.mcsa`` / ``.mcsb`` / ``.mcvd``
 ----------------------------------------
 
-Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``
+Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``, ``12.0``
 
 .. list-table:: Output Formats
   :header-rows: 1
