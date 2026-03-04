@@ -70,6 +70,7 @@ switch( version ) {
         Flags5 flags <name="Flags", fgcolor=cAqua>; break;
     case 10.0:
     case 11.0:
+    case 12.0:
         Flags6 flags <name="Flags", fgcolor=cAqua>; break;
     default:
         Warning("ERROR: File version '%g' is unsupported.\n", version);
@@ -124,6 +125,8 @@ typedef struct {
         SkinBinding skinBind <name="Skin", bgcolor=cWhite>;
 
     uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
+    if ( version >= 12.0 )
+        byte unknown_count;
     uint triangleCount <name="Polygon Count", bgcolor=cLtGreen>;
 
     if ( flags.UV )
@@ -138,14 +141,14 @@ typedef struct {
 
     if ( version >= 8.0 )
         if ( flags.UNKNOWN_5 )
-            Vec4b unknown5[vertexCount] <name="Unknown", bgcolor=cDkPurple, hidden=true>;
+            Vec4b unknown_5[vertexCount] <bgcolor=cDkPurple>; // ? tangents
 
     if ( flags.NORMALS )
         Vec4b normals[vertexCount] <name="Normals", bgcolor=cPurple>;
 
     if ( version >= 7.0 )
         if ( flags.UNKNOWN_4 )
-            Vec4b unknown4[vertexCount] <hidden=true>;
+            Vec4b unknown_4[vertexCount]; // ? bitangents
 
     if ( flags.SKELETON )
         switch( skinBind.maxInfluences ) {

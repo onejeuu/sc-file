@@ -162,3 +162,8 @@ cython_debug/
 
 # Dependency lock files
 *.lock
+
+# Local test
+test.py
+temp.py
+test/

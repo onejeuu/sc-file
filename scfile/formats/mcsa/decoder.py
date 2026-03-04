@@ -105,6 +105,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Geometry counts
         mesh.count.vertices = self._readcount("vertices")
+        if self.data.version >= 12.0:
+            self.read(1)  # ? skip unknown count
         mesh.count.polygons = self._readcount("polygons")
 
         # ? Not exported
