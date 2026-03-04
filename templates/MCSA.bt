@@ -126,6 +126,7 @@ typedef struct {
     uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
     if ( version >= 12.0 )
         ubyte unknownCount;
+
     uint triangleCount <name="Polygon Count", bgcolor=cLtGreen>;
 
     if ( flags.UV )

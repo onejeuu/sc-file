@@ -104,7 +104,7 @@ class CLI:
 class OutputFormats:
     """Supported output formats for file data types."""
 
-    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.DAE, FileFormat.MS3D)
+    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
     TEXTURES: Formats = (FileFormat.DDS,)
     IMAGES: Formats = (FileFormat.PNG,)
     TEXARR: Formats = (FileFormat.ZIP,)
