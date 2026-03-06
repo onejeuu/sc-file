@@ -1,5 +1,4 @@
 from enum import IntEnum
-from typing import Any
 
 import numpy as np
 
@@ -7,6 +6,7 @@ from scfile.core.context.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.flags import Flag
+from scfile.structures.mesh import ModelMesh
 
 
 FBX_VERSION = 7400
@@ -56,10 +56,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
     def _write_top_nodes(self):
         # FBXHeaderExtension
         self._start_node(b"FBXHeaderExtension")
-        self._write_property(self._fbx_time(0))
-        self._write_property(self._fbx_time(0))
-        self._start_node(b"Creator")
-        self._write_property("FBX Python Encoder")
+        self._start_node(b"Creator", [b"onejeuu/sc-file"])
         self._end_node()
         self._end_node()
 
@@ -81,8 +78,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
             (b"TimeMode", 11),
         ]
         for name, value in settings:
-            self._start_node(name)
-            self._write_property(value)
+            self._start_node(name, [value])
             self._end_node()
         self._end_node()
 
@@ -95,8 +91,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self._start_node(b"Property", [b"SourceFile", b"KString", b"", b""])
         self._end_node()  # Property
         self._end_node()  # Properties60
-        self._start_node(b"RootNode")
-        self._write_property(0)
+        self._start_node(b"RootNode", [0])
         self._end_node()  # RootNode
         self._end_node()  # Document
         self._end_node()  # Documents
@@ -107,16 +102,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Definitions
         self._start_node(b"Definitions")
-        self._start_node(b"Version")
-        self._write_property(100)
+        self._start_node(b"Version", [100])
         self._end_node()
-        self._start_node(b"Count")
-        self._write_property(len(self.data.scene.meshes))
+        self._start_node(b"Count", [len(self.data.scene.meshes)])
         self._end_node()
         for mesh in self.data.scene.meshes:
             self._start_node(b"ObjectType", [b"Model"])
-            self._start_node(b"Count")
-            self._write_property(1)
+            self._start_node(b"Count", [1])
             self._end_node()
             self._start_node(b"PropertyTemplate", [b"FbxNode"])
             self._start_node(b"Properties70")
@@ -152,14 +144,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self._end_node()
         self._end_node()
 
-    def _write_mesh(self, mesh):
+    def _write_mesh(self, mesh: ModelMesh):
         mesh_id = self._next_id()
         self.ctx["OBJECT_IDS"][mesh.name] = mesh_id
 
         # Model node
         self._start_node(b"Model", [mesh_id, mesh.name.encode(), b"Mesh"])
-        self._start_node(b"Version")
-        self._write_property(232)
+        self._start_node(b"Version", [232])
         self._end_node()
         self._start_node(b"Properties70")
         props = [
@@ -172,8 +163,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self._end_node()
         self._end_node()  # Properties70
         if self.data.flags[Flag.UV]:
-            self._start_node(b"MultiLayer")
-            self._write_property(0)
+            self._start_node(b"MultiLayer", [0])
             self._end_node()
         self._start_node(b"MultiTake")
         self._end_node()
@@ -182,18 +172,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
         # Geometry node
         geom_id = self._next_id()
         self._start_node(b"Geometry", [geom_id, f"{mesh.name}Geometry".encode(), b"Mesh"])
-        self._start_node(b"Version")
-        self._write_property(124)
+        self._start_node(b"Version", [124])
         self._end_node()
-        self._start_node(b"Vertices")
-        self._write_property(mesh.positions.flatten())
+        self._start_node(b"Vertices", mesh.positions.flatten().tolist())
         self._end_node()
-        self._start_node(b"PolygonVertexIndex")
-        indices = self._fbx_polygon_indices(mesh.polygons)
-        self._write_property(indices)
+        self._start_node(b"PolygonVertexIndex", self._fbx_polygon_indices(mesh.polygons).tolist())
         self._end_node()
-        self._start_node(b"Edges")
-        self._write_property(np.array([], dtype=np.int32))
+        self._start_node(b"Edges", [])
         self._end_node()
         if self.data.flags[Flag.NORMALS]:
             self._write_layer_normals(mesh)
@@ -204,88 +189,63 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
 
-    def _write_layer_normals(self, mesh):
+    def _write_layer_normals(self, mesh: ModelMesh):
         self._start_node(b"LayerElementNormal", [0])
-        self._start_node(b"Version")
-        self._write_property(101)
+        self._start_node(b"Version", [101])
         self._end_node()
-        self._start_node(b"Name")
-        self._write_property("")
+        self._start_node(b"Name", [b""])
         self._end_node()
-        self._start_node(b"MappingInformationType")
-        self._write_property("ByPolygonVertex")
+        self._start_node(b"MappingInformationType", [b"ByPolygonVertex"])
         self._end_node()
-        self._start_node(b"ReferenceInformationType")
-        self._write_property("Direct")
+        self._start_node(b"ReferenceInformationType", [b"Direct"])
         self._end_node()
-        self._start_node(b"Normals")
-        self._write_property(mesh.normals.flatten())
+        self._start_node(b"Normals", mesh.normals.flatten().tolist())
         self._end_node()
         self._end_node()
 
-    def _write_layer_uvs(self, mesh):
+    def _write_layer_uvs(self, mesh: ModelMesh):
         self._start_node(b"LayerElementUV", [0])
-        self._start_node(b"Version")
-        self._write_property(101)
+        self._start_node(b"Version", [101])
         self._end_node()
-        self._start_node(b"Name")
-        self._write_property("map1")
+        self._start_node(b"Name", [b"map1"])
         self._end_node()
-        self._start_node(b"MappingInformationType")
-        self._write_property("ByPolygonVertex")
+        self._start_node(b"MappingInformationType", [b"ByPolygonVertex"])
         self._end_node()
-        self._start_node(b"ReferenceInformationType")
-        self._write_property("IndexToDirect")
+        self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
         self._end_node()
-        self._start_node(b"UV")
-        self._write_property(mesh.textures.flatten())
+        self._start_node(b"UV", mesh.textures.flatten().tolist())
         self._end_node()
-        self._start_node(b"UVIndex")
-        indices = np.arange(mesh.count.polygons * 3, dtype=np.int32)
-        self._write_property(indices)
+        self._start_node(b"UVIndex", np.arange(mesh.count.polygons * 3, dtype=np.int32).tolist())
         self._end_node()
         self._end_node()
 
     def _write_layer_materials(self, mesh):
         self._start_node(b"LayerElementMaterial", [0])
-        self._start_node(b"Version")
-        self._write_property(101)
+        self._start_node(b"Version", [101])
         self._end_node()
-        self._start_node(b"Name")
-        self._write_property("")
+        self._start_node(b"Name", [b""])
         self._end_node()
-        self._start_node(b"MappingInformationType")
-        self._write_property("AllSame")
+        self._start_node(b"MappingInformationType", [b"AllSame"])
         self._end_node()
-        self._start_node(b"ReferenceInformationType")
-        self._write_property("IndexToDirect")
+        self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
         self._end_node()
-        self._start_node(b"Materials")
-        self._write_property(np.array([0], dtype=np.int32))
+        self._start_node(b"Materials", [0])
         self._end_node()
         self._end_node()
 
     def _write_footer(self):
-        self._writeb(F.U32, 0)  # NULL node
+        self.write(b"\x00" * 500)  # NULL node # TODO: count depth
 
-    # Core node handling
     def _start_node(self, name: bytes, properties: list | None = None):
         # Save position for endOffset
         node_start = len(self.getvalue())
-        self.ctx["NODES"].append({"start": node_start, "name": name})
+        self.ctx["NODES"].append({"start": node_start, "props": []})
+        # TODO: count depth
 
-        # Write placeholder endOffset (4 bytes)
-        self._writeb(F.U32, 0)
-
-        # Write propsNum (4 bytes)
-        num_props = len(properties) if properties else 0
-        self._writeb(F.U32, num_props)
-
-        # Save position for propsLen
-        props_len_pos = len(self.getvalue())
-
-        # Write placeholder propsLen (4 bytes)
-        self._writeb(F.U32, 0)
+        # Write placeholders
+        self._writeb(F.U32, 0)  # endOffset
+        self._writeb(F.U32, 0)  # propsNum
+        self._writeb(F.U32, 0)  # propsLen
 
         # Write nameLen (1 byte) and name
         self._writeb(F.U8, len(name))
@@ -293,19 +253,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Remember where properties start
         props_start = len(self.getvalue())
+        self.ctx["NODES"][-1]["props_start"] = props_start
 
-        # Write properties
+        # Write properties and count them
         if properties:
             for prop in properties:
                 self._write_property(prop)
-
-        # Calculate and write propsLen
-        props_end = len(self.getvalue())
-        props_size = props_end - props_start
-
-        self.seek(props_len_pos)
-        self._writeb(F.U32, props_size)
-        self.seek(props_end)
+                self.ctx["NODES"][-1]["props"].append(prop)
 
     def _end_node(self):
         node = self.ctx["NODES"].pop()
@@ -314,6 +268,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
         # Update endOffset
         self.seek(node["start"])
         self._writeb(F.U32, end_pos)
+        self._writeb(F.U32, len(node["props"]))
+        self._writeb(F.U32, end_pos - node["props_start"])
+
         self.seek(end_pos)
 
     # Property writers

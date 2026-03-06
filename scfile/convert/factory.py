@@ -21,7 +21,7 @@ _REGISTRY: ConverterRegistry = defaultdict(dict)
 
 
 def converters(src_format: str) -> ConverterMap:
-    return _REGISTRY.get(src_format.lstrip("."), {})
+    return deepcopy(_REGISTRY.get(src_format.lower().lstrip("."), {}))
 
 
 def registry() -> ConverterRegistry:
