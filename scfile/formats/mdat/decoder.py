@@ -11,11 +11,6 @@ from scfile.structures.region import RegionChunk
 
 
 SIZE = 32 * 32
-LIMIT = 0x10000
-
-
-def pad(data: bytes) -> bytes:
-    return data[:25600].ljust(LIMIT, b"\x00")
 
 
 class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
@@ -35,6 +30,9 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
             if x1[index] == 0:
                 continue
 
+            offset = x1[index] * 0x1000
+            self.seek(offset)
+
             # header
             size, h1, h2, uncsize, csize = self._readarray("I", 5).tolist()
 
@@ -42,10 +40,10 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
             compressed = self.read(csize)
             decompressed = dctx.decompress(compressed)
 
-            chunks.append(RegionChunk(index, h1, h2, pad(decompressed)))
+            chunks.append(RegionChunk(index, decompressed))
 
             # padding
-            self.seek((self.tell() + 0xFFF) & ~0xFFF)
+            # self.seek((self.tell() + 0xFFF) & ~0xFFF)
 
         self.data.x1 = x1.tolist()
         self.data.x2 = x2.tolist()
