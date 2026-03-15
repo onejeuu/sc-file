@@ -46,6 +46,8 @@ typedef struct { byte  x, y, z, w; } Vec4b <read=Str("%f, %f, %f, %f", nB(x), nB
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
 typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, w)>;
 
+typedef struct { ubyte r, g, b, a; } RGBA <read=Str("%d, %d, %d, %d", r, g, b, a)>;
+
 typedef struct { ushort a, b, c; } Tri16 <read=Str("%d, %d, %d", a, b, c)>;
 typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
 
@@ -53,10 +55,9 @@ typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
 // Header Flags
 
 typedef ubyte Flag;
-typedef struct Flags4 { Flag SKELETON, UV, NORMALS, TANGENTS; };
-typedef struct Flags5 { Flag SKELETON, UV, NORMALS, TANGENTS, UNKNOWN_5; };
-typedef struct Flags6 { Flag SKELETON, UV, NORMALS, TANGENTS, UNKNOWN_5, UNKNOWN_6; };
-
+typedef struct FlagsV7 { Flag SKELETON, UV, NORMALS, COLORS; };
+typedef struct FlagsV8 { Flag SKELETON, UV, NORMALS, TANGENTS, COLORS; };
+typedef struct FlagsV9 { Flag SKELETON, UV, UV2, NORMALS, TANGENTS, COLORS; };
 
 // File Header
 
@@ -65,13 +66,13 @@ float version <name="Version", fgcolor=cRed>;
 
 switch( version ) {
     case 7.0:
-        Flags4 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV7 flags <name="Flags", fgcolor=cAqua>; break;
     case 8.0:
-        Flags5 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV8 flags <name="Flags", fgcolor=cAqua>; break;
     case 10.0:
     case 11.0:
     case 12.0:
-        Flags6 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV9 flags <name="Flags", fgcolor=cAqua>; break;
     default:
         Warning("ERROR: File version '%g' is unsupported.\n", version);
         Exit(-1);
@@ -83,9 +84,9 @@ struct Scales {
     if ( flags.UV )
         float uv <name="UV">;
 
-    if ( version >= 10.0 )
-        if ( flags.NORMALS )
-            float unknown <name="Unknown">;
+    if ( version >= 9.0 )
+        if ( flags.UV2 )
+            float uv2 <name="UV2">;
 } scales <name="Scales">;
 
 
@@ -108,14 +109,12 @@ typedef struct {
 } SkinArrays;
 
 typedef struct {
-    if ( version >= 10.0 ) {
-        Vec3f rotation <name="Rotation">;
-        Vec3f position <name="Position">;
-    }
+    if ( version >= 10.0 )
+        float minX, minY, minZ, maxX, maxY, maxZ;
 
     if ( version >= 11.0 )
-        float unknown <name="Unknown">;
-} MeshPivot;
+        float radius;
+} BoundingBox;
 
 typedef struct {
     String name <name="Name">;
@@ -126,32 +125,33 @@ typedef struct {
 
     uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
     if ( version >= 12.0 )
-        byte unknown_count;
+        ubyte unknownCount;
     uint triangleCount <name="Polygon Count", bgcolor=cLtGreen>;
 
     if ( flags.UV )
         float textureFilter <name="Texture Filtering">;
 
-    MeshPivot pivot <name="Pivot">;
+    if ( version >= 10.0 )
+        BoundingBox bounds <name="Bounds">;
 
     Vec4s positions[vertexCount] <name="Positions", bgcolor=cGreen>;
 
     if ( flags.UV )
-        Vec2s textures[vertexCount] <name="Textures", bgcolor=cRed>;
+        Vec2s textures[vertexCount] <name="UV", bgcolor=cRed>;
 
-    if ( version >= 8.0 )
-        if ( flags.UNKNOWN_5 )
-            Vec4b unknown_5[vertexCount] <bgcolor=cDkPurple>; // ? tangents
+    if ( version >= 9.0 )
+        if ( flags.UV2 )
+            Vec2s uv2[vertexCount] <name="UV2", bgcolor=cDkRed>;
 
     if ( flags.NORMALS )
         Vec4b normals[vertexCount] <name="Normals", bgcolor=cPurple>;
 
-    if ( version >= 7.0 )
-        if ( flags.UNKNOWN_4 )
-            Vec4b unknown_4[vertexCount]; // ? bitangents
-
+    if ( version >= 8.0 )
         if ( flags.TANGENTS )
             Vec4b tangents[vertexCount] <name="Tangents", bgcolor=cDkPurple>;
+
+    if ( flags.COLORS )
+        RGBA colors[vertexCount] <name="Colors">;
 
     if ( flags.SKELETON )
         switch( skinBind.maxInfluences ) {
@@ -162,10 +162,6 @@ typedef struct {
             case 4:
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
-
-    if ( version >= 10.0 )
-        if ( flags.UNKNOWN_6 )
-            Vec4b unknown6[vertexCount] <hidden=true>;
 
     if ( triangleCount * 3 < 0x10000 )
         Tri16 triangles[triangleCount] <name="Polygons", bgcolor=cLtBlue>;

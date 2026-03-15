@@ -103,7 +103,7 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
     @property
     def _skeleton_presented(self) -> bool:
         if isinstance(self.data, ModelContent):
-            return self.data.flags[Flag.SKELETON] and self.options.parse_skeleton
+            return self.data.flags.get(Flag.SKELETON, False) and self.options.parse_skeleton
         return False
 
     @property
