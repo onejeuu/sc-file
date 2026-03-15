@@ -1,3 +1,5 @@
+import numpy as np
+
 from scfile.consts import Factor, FileSignature, McsaModel, McsaUnits
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -8,7 +10,7 @@ from scfile.structures.skeleton import SkeletonBone
 
 from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
 from .io import McsaFileIO
-from .versions import SUPPORTED_VERSIONS, VERSION_FLAGS
+from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
 
 class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
@@ -42,7 +44,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self._parse_header()
         self._parse_meshes()
 
-        if self.data.flags[Flag.SKELETON] and self.options.parse_skeleton:
+        if self.data.flags.get(Flag.SKELETON) and self.options.parse_skeleton:
             self._parse_skeleton()
 
             if self.options.parse_animation and not self.is_eof():
@@ -60,23 +62,19 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             raise McsaVersionUnsupported(self.path, self.data.version)
 
     def _parse_flags(self):
-        flags_count = VERSION_FLAGS.get(self.data.version)
+        latest = max(VERSION_MAP.keys())
+        mapping = VERSION_MAP.get(self.data.version, VERSION_MAP[latest])
 
-        if not flags_count:
-            raise McsaVersionUnsupported(self.path, self.data.version)
-
-        for index in range(flags_count):
-            self.data.flags[index] = self._readb(F.BOOL)
+        self.data.flags = {flag: bool(self._readb(F.BOOL)) for flag in mapping}
 
     def _parse_scales(self):
         self.data.scene.scale.position = self._readb(F.F32)
 
-        if self.data.flags[Flag.UV]:
-            self.data.scene.scale.texture = self._readb(F.F32)
+        if self.data.flags.get(Flag.UV):
+            self.data.scene.scale.uv = self._readb(F.F32)
 
-        # ! Unknown Scale
-        if self.data.flags[Flag.NORMALS] and self.data.version >= 10.0:
-            self.data.scene.scale.unknown = self._readb(F.F32)
+        if self.data.flags.get(Flag.UV2):
+            self.data.scene.scale.uv2 = self._readb(F.F32)
 
     def _parse_meshes(self):
         self.data.scene.count.meshes = self._readb(F.I32)
@@ -95,7 +93,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.material = self._readutf8()
 
         # Skeleton bone indexes
-        if self.data.flags[Flag.SKELETON]:
+        if self.data.flags.get(Flag.SKELETON):
             mesh.count.links = self._readb(F.U8)
             mesh.count.bones = self._readb(F.U8)
 
@@ -110,46 +108,46 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.count.polygons = self._readcount("polygons")
 
         # ? Not exported
-        if self.data.flags[Flag.UV]:
+        if self.data.flags.get(Flag.UV):
             self.data.scene.scale.filtering = self._readb(F.F32)
 
         # Default origins
         if self.data.version >= 10.0:
-            mesh.origin.rotation = self._readarray(F.F32, 3)
-            mesh.origin.position = self._readarray(F.F32, 3)
+            mesh.bounds.min = self._readarray(F.F32, 3)
+            mesh.bounds.max = self._readarray(F.F32, 3)
 
         # Default scale
         if self.data.version >= 11.0:
-            mesh.origin.scale = self._readb(F.F32)
+            mesh.bounds.radius = self._readb(F.F32)
 
         # Vertices geometric
         self._parse_positions(mesh)
 
         # Vertices texture coordinates
-        if self.data.flags[Flag.UV]:
+        if self.data.flags.get(Flag.UV):
             self._parse_textures(mesh)
 
-        # ! Unknown data
         # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_5]:
+        # Vertices texture coordinates (2)
+        if self.data.flags.get(Flag.UV2):
             self._skip_vertices(mesh, units=4)
 
         # Vertices normals
-        if self.data.flags[Flag.NORMALS]:
+        if self.data.flags.get(Flag.NORMALS):
             self._parse_normals(mesh)
 
         # Vertices tangents
-        if self.data.flags[Flag.TANGENTS]:
+        if self.data.flags.get(Flag.TANGENTS):
             self._parse_tangents(mesh)
 
-        # Vertices links
-        if self.data.flags[Flag.SKELETON]:
-            self._parse_links(mesh)
-
-        # ! Data Unconfirmed
         # ? Not parsed
-        if self.data.flags[Flag.UNKNOWN_6]:
+        # Vertices rgba colors
+        if self.data.flags.get(Flag.COLORS):
             self._skip_vertices(mesh, units=4)
+
+        # Vertices bones links
+        if self.data.flags.get(Flag.SKELETON):
+            self._parse_links(mesh)
 
         # Polygon faces
         mesh.polygons = self._readpolygons(mesh.count.polygons)
@@ -171,7 +169,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             factor=Factor.I16,
             units=McsaUnits.TEXTURES,
             count=mesh.count.vertices,
-            scale=self.data.scene.scale.texture,
+            scale=self.data.scene.scale.uv,
         )
 
     def _parse_normals(self, mesh: ModelMesh):
@@ -183,12 +181,17 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         )[:, :3]
 
     def _parse_tangents(self, mesh: ModelMesh):
-        mesh.tangents = self._readvertex(
+        tangents = self._readvertex(
             fmt=F.I8,
             factor=Factor.I8,
             units=McsaUnits.TANGENTS,
             count=mesh.count.vertices,
         )
+
+        w = tangents[:, 3]
+        tangents[:, 3] = np.where(w >= 0, 1.0, -1.0)
+
+        mesh.tangents = tangents
 
     def _parse_links(self, mesh: ModelMesh):
         match mesh.count.links:

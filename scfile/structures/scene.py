@@ -2,16 +2,16 @@
 Dataclasses for scene of 3D models.
 """
 
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import TypeAlias
 
 from .animation import ModelAnimation
+from .flags import Flag
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 
 
-ModelFlags: TypeAlias = defaultdict[int, bool]
+ModelFlags: TypeAlias = dict[Flag, bool]
 
 
 @dataclass
@@ -19,8 +19,8 @@ class SceneScales:
     """Multiplier values for scene components."""
 
     position: float = 1.0
-    texture: float = 1.0
-    unknown: float = 1.0
+    uv: float = 1.0
+    uv2: float = 1.0
     filtering: float = 0.1
 
 
