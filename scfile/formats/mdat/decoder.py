@@ -1,6 +1,5 @@
 from uuid import UUID
 
-import numpy as np
 import zstandard as zstd
 
 from scfile.core.context.content import RegionContent
@@ -10,7 +9,8 @@ from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.region import RegionChunk
 
 
-SIZE = 32 * 32
+CHUNKS_COUNT = 32 * 32  # 1024
+SECTION_SIZE = 16 * 16 * 16  # 4096
 
 
 class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
@@ -20,13 +20,13 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
     _content = RegionContent
 
     def parse(self):
-        table = [(self._readb(F.I32), self._readb(F.I32), UUID(bytes=self.read(16))) for _ in range(SIZE)]
-        x1, x2, uuids = map(np.array, zip(*table))
+        table = [(self._readb(F.I32), self._readb(F.I32), UUID(bytes=self.read(16))) for _ in range(CHUNKS_COUNT)]
+        x1, x2, uuids = map(list, zip(*table))
 
         dctx = zstd.ZstdDecompressor()
         chunks: list[RegionChunk] = []
 
-        for index in range(SIZE):
+        for index in range(CHUNKS_COUNT):
             if x1[index] == 0:
                 continue
 
@@ -34,18 +34,20 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
             self.seek(offset)
 
             # header
-            size, h1, h2, uncsize, csize = self._readarray("I", 5).tolist()
+            h1, h2, h3, h4, compressed_size = self._readarray("I", 5).tolist()
 
-            # data
-            compressed = self.read(csize)
+            # read raw data
+            compressed = self.read(compressed_size)
             decompressed = dctx.decompress(compressed)
 
-            chunks.append(RegionChunk(index, decompressed))
+            # split data
+            sections = bin(h2).count("1")
+            buffer = sections * SECTION_SIZE
+            terrain, remain = decompressed[:buffer], decompressed[buffer:]
 
-            # padding
-            # self.seek((self.tell() + 0xFFF) & ~0xFFF)
+            chunks.append(RegionChunk(index, terrain, remain))
 
-        self.data.x1 = x1.tolist()
-        self.data.x2 = x2.tolist()
-        self.data.uuid = uuids.tolist()
+        self.data.x1 = x1
+        self.data.x2 = x2
+        self.data.uuid = uuids
         self.data.chunks = chunks
