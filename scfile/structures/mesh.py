@@ -27,10 +27,10 @@ class MeshCounts:
 
 
 @dataclass
-class MeshOrigin:
-    position: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
-    rotation: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
-    scale: float = 0.0
+class BoundingBox:
+    min: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    max: Vector3D = field(default_factory=lambda: np.empty(3, dtype=np.float32))
+    radius: float = 0.0
 
 
 @dataclass
@@ -41,7 +41,7 @@ class ModelMesh:
     material: str = "material"
 
     count: MeshCounts = field(default_factory=MeshCounts)
-    origin: MeshOrigin = field(default_factory=MeshOrigin)
+    bounds: BoundingBox = field(default_factory=BoundingBox)
     quads: bool = False
 
     bones: BonesMapping = field(default_factory=dict)
