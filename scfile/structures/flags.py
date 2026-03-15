@@ -5,7 +5,7 @@ Enum for 3D scene flags.
 from enum import StrEnum, auto
 
 
-class Flag(StrEnum):
+class FlagKey(StrEnum):
     SKELETON = auto()
     UV = auto()
     UV2 = auto()
@@ -15,5 +15,4 @@ class Flag(StrEnum):
 
 
 
-def to_named_dict(flags: dict[int, bool]):
-    return {Flag(key).name: value for key, value in flags.items()}
+Flag = FlagKey
