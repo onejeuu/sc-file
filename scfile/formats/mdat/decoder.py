@@ -41,9 +41,10 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
             decompressed = dctx.decompress(compressed)
 
             # split data
+            # !!! TODO: use bitmask position, not just count
             sections = bin(h2).count("1")
-            buffer = sections * SECTION_SIZE
-            terrain, remain = decompressed[:buffer], decompressed[buffer:]
+            boundary = sections * SECTION_SIZE
+            terrain, remain = decompressed[:boundary], decompressed[boundary:]
 
             chunks.append(RegionChunk(index, terrain, remain))
 
