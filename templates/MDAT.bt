@@ -12,17 +12,17 @@ local uint32 SIZE = 32*32;
 BigEndian();
 
 typedef struct {
-    int32 x1; // offset
-    int32 x2; // ? (counter? [1,2,3,N])
-    GUID uuid <fgcolor=cLtBlue>; // uuidv4
+    int32 offsets;
+    int32 counts;
+    GUID uuid <fgcolor=cLtBlue>;
 } Metadata;
 
 typedef struct {
-    int32 h1 // ? unknown size
-    int32 h2; // num_sections bitmask
-    int32 h3; // ? section_type bitmask
-    int32 h4 // ? unknown size
-    int32 compressed_size <fgcolor=cDkGreen>; // compressed data size
+    int32 full_size;
+    int32 sections_mask;
+    int32 add_mask;
+    int32 fixed_size;
+    int32 compressed_size <fgcolor=cDkGreen>;
 
     // ZSTD compressed data
     char data[compressed_size] <bgcolor=cDkGreen>;
