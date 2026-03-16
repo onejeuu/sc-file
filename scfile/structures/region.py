@@ -4,5 +4,12 @@ from dataclasses import dataclass
 @dataclass
 class RegionChunk:
     index: int
-    data: bytes  # ? terrain
-    remain: bytes
+
+    sections_mask: int
+    add_mask: int
+
+    blocks: bytes
+    meta: bytes
+    light: bytes
+    add: bytes
+    extra: bytes

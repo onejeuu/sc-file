@@ -107,8 +107,8 @@ class NbtContent(FileContent):
 class RegionContent(FileContent):
     type: FileType = field(default=FileType.REGION)
 
-    x1: list[int] = field(default_factory=list)
-    x2: list[int] = field(default_factory=list)
+    offsets: list[int] = field(default_factory=list)
+    counts: list[int] = field(default_factory=list)
     uuid: list[UUID] = field(default_factory=list)
 
     chunks: list[RegionChunk] = field(default_factory=list)
