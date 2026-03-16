@@ -1,3 +1,4 @@
+from io import BytesIO
 from uuid import UUID
 
 import zstandard as zstd
@@ -10,7 +11,9 @@ from scfile.structures.region import RegionChunk
 
 
 CHUNKS_COUNT = 32 * 32  # 1024
+
 SECTION_SIZE = 16 * 16 * 16  # 4096
+NIBBLE_SIZE = 16 * 16 * 8  # 2048
 
 
 class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
@@ -21,34 +24,50 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
 
     def parse(self):
         table = [(self._readb(F.I32), self._readb(F.I32), UUID(bytes=self.read(16))) for _ in range(CHUNKS_COUNT)]
-        x1, x2, uuids = map(list, zip(*table))
+        offsets, counts, uuids = map(list, zip(*table))
 
         dctx = zstd.ZstdDecompressor()
         chunks: list[RegionChunk] = []
 
         for index in range(CHUNKS_COUNT):
-            if x1[index] == 0:
+            if offsets[index] == 0:
                 continue
 
-            offset = x1[index] * 0x1000
+            offset = offsets[index] * SECTION_SIZE
             self.seek(offset)
 
             # header
-            h1, h2, h3, h4, compressed_size = self._readarray("I", 5).tolist()
+            full_size, sections_mask, add_mask, fixed_size, compressed_size = self._readarray("I", 5).tolist()
 
             # read raw data
             compressed = self.read(compressed_size)
             decompressed = dctx.decompress(compressed)
 
             # split data
-            # !!! TODO: use bitmask position, not just count
-            sections = bin(h2).count("1")
-            boundary = sections * SECTION_SIZE
-            terrain, remain = decompressed[:boundary], decompressed[boundary:]
+            sections_count = bin(sections_mask).count("1")
+            add_count = bin(add_mask).count("1")
 
-            chunks.append(RegionChunk(index, terrain, remain))
+            buffer = BytesIO(decompressed)
+            blocks = buffer.read(sections_count * SECTION_SIZE)
+            meta = buffer.read(sections_count * NIBBLE_SIZE)
+            light = buffer.read(sections_count * NIBBLE_SIZE * 2)
+            add = buffer.read(add_count * NIBBLE_SIZE)
+            extra = buffer.read()
 
-        self.data.x1 = x1
-        self.data.x2 = x2
+            chunks.append(
+                RegionChunk(
+                    index=index,
+                    sections_mask=sections_mask,
+                    add_mask=add_mask,
+                    blocks=blocks,
+                    meta=meta,
+                    light=light,
+                    add=add,
+                    extra=extra,
+                )
+            )
+
+        self.data.offsets = offsets
+        self.data.counts = counts
         self.data.uuid = uuids
         self.data.chunks = chunks
