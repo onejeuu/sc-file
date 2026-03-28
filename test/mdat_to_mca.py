@@ -124,8 +124,8 @@ def chunk_nbt(cx: int, cz: int, chunk: RegionChunk) -> bytes:
             "Level",
             nbt_int("xPos", cx),
             nbt_int("zPos", cz),
-            _DUMMY_PAYLOAD,
             lst("Sections", 0x0A, *[section_payload(y, blocks) for y, blocks in sections.items()]),
+            _DUMMY_PAYLOAD,
         ),
     )
 
@@ -145,7 +145,7 @@ def build_mca(out: Path, region: RegionContent, rx: int = 0, rz: int = 0) -> Non
 
         chunks.append((lx, lz, data))
 
-    # Location & Timestamp
+    # location & timestamp
     loc = np.zeros(SECTION_SIZE, dtype=np.uint8)
     ts = np.zeros(SECTION_SIZE, dtype=np.uint8)
 
@@ -153,8 +153,8 @@ def build_mca(out: Path, region: RegionContent, rx: int = 0, rz: int = 0) -> Non
     offsets: list[tuple[int, int]] = []
 
     for lx, lz, data in chunks:
-        sc = math.ceil((len(data) + 5) / SECTION_SIZE)  # Section size
-        i4 = (lx + lz * 32) * 4  # Location table entry
+        sc = math.ceil((len(data) + 5) / SECTION_SIZE)  # section size
+        i4 = (lx + lz * 32) * 4  # location table entry
 
         # pack offsets
         loc[i4] = (off >> 16) & 0xFF
