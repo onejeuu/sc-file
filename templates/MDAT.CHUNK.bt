@@ -1,0 +1,47 @@
+//------------------------------------------------
+// File: MDAT.CHUNK.bt
+// Authors: onejeuu, DeTTK
+// Version: 1.0
+// Purpose: Parse raw chunk
+// Category: STALCRAFT
+// File Mask: *.chunk
+//------------------------------------------------
+
+BigEndian();
+
+local int SECTION_SIZE = 16 * 16 * 16;  // 4096
+local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
+
+typedef struct {
+    int32 full_size;
+    int32 sections_mask <format=binary>;
+    int32 add_mask      <format=binary>;
+    int32 fixed_size;
+} ChunkHeader;
+
+ChunkHeader header;
+
+local int sections_count = 0;
+local int add_count = 0;
+local int i;
+for (i = 0; i < 16; i++) {
+    if ((header.sections_mask >> i) & 1) sections_count++;
+    if ((header.add_mask      >> i) & 1) add_count++;
+}
+
+typedef struct { uchar data[SECTION_SIZE]; } BlockSection;
+typedef struct { uchar data[NIBBLE_SIZE];  } NibbleSection;
+
+BlockSection  blocks[sections_count]      <optimize=false, bgcolor=cLtGreen>;
+NibbleSection meta[sections_count]        <optimize=false, bgcolor=cLtBlue>;
+NibbleSection block_light[sections_count] <optimize=false, bgcolor=cGray>;
+NibbleSection sky_light[sections_count*2]   <optimize=false, bgcolor=cDkGray>;
+
+if (add_count > 0) {
+    NibbleSection add[add_count] <optimize=false, bgcolor=cDkYellow>;
+}
+
+local int extra_size = FileSize() - FTell();
+if (extra_size > 0) {
+    uchar extra[extra_size] <bgcolor=cDkGreen>;
+}
