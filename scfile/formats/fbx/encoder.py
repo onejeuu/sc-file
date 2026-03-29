@@ -186,8 +186,73 @@ class FbxEncoder(FileEncoder[ModelContent]):
                 pass
             with self._node(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)]):
                 pass
-            with self._node(b"Edges", [mesh.polygons.flatten().astype(np.int32)]):
+            with self._node(b"Edges", []):
                 pass
+
+            indexes = mesh.polygons.flatten().astype(np.int32)
+
+            if self.data.flags[Flag.NORMALS]:
+                with self._node(b"LayerElementNormal", [0]):
+                    with self._node(b"Version", [101]):
+                        pass
+                    with self._node(b"Name", [b""]):
+                        pass
+                    with self._node(b"MappingInformationType", [b"ByControlPoint"]):
+                        pass
+                    with self._node(b"ReferenceInformationType", [b"Direct"]):
+                        pass
+                    with self._node(b"Normals", [mesh.normals.flatten().astype(np.float64)]):
+                        pass
+                    with self._node(b"NormalsIndex", [indexes]):
+                        pass
+
+            if self.data.flags[Flag.UV]:
+                with self._node(b"LayerElementUV", [0]):
+                    with self._node(b"Version", [101]):
+                        pass
+                    with self._node(b"Name", [b"UVMap"]):
+                        pass
+                    with self._node(b"MappingInformationType", [b"ByControlPoint"]):
+                        pass
+                    with self._node(b"ReferenceInformationType", [b"Direct"]):
+                        pass
+                    with self._node(b"UV", [mesh.textures.flatten().astype(np.float64)]):
+                        pass
+                    with self._node(b"UVIndex", [indexes]):
+                        pass
+
+            with self._node(b"LayerElementMaterial", [0]):
+                with self._node(b"Version", [101]):
+                    pass
+                with self._node(b"Name", [b""]):
+                    pass
+                with self._node(b"MappingInformationType", [b"AllSame"]):
+                    pass
+                with self._node(b"ReferenceInformationType", [b"Direct"]):
+                    pass
+                with self._node(b"Materials", [np.array([0], dtype=np.int32)]):
+                    pass
+
+            with self._node(b"Layer", [0]):
+                with self._node(b"Version", [100]):
+                    pass
+                with self._node(b"LayerElement"):
+                    with self._node(b"Type", [b"LayerElementMaterial"]):
+                        pass
+                    with self._node(b"TypedIndex", [0]):
+                        pass
+
+                if self.data.flags[Flag.NORMALS]:
+                    with self._node(b"Type", [b"LayerElementNormal"]):
+                        pass
+                    with self._node(b"TypedIndex", [0]):
+                        pass
+
+                if self.data.flags[Flag.UV]:
+                    with self._node(b"Type", [b"LayerElementUV"]):
+                        pass
+                    with self._node(b"TypedIndex", [0]):
+                        pass
 
         self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
 
