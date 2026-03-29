@@ -48,6 +48,10 @@ Overview
 
 \* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, ``sd0``, etc.)
 
+.. seealso::
+
+  📚 :doc:`Detailed formats support → <support>`
+
 
 .. important::
 
@@ -55,18 +59,13 @@ Overview
   | 📚 :doc:`See FAQ for details → <faq>`
 
 
-.. seealso::
-
-  📚 :doc:`Detailed formats support → <support>`
-
-
 ----------------------------------------
-🚀 Quick Start
+🚀 Installation
 ----------------------------------------
 
   **Three ways to get started:** download, install, or compile.
 
-1. 💻 Download executable
+💻 Download executable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Standalone ``scfile.exe`` available on `Releases page <https://github.com/onejeuu/sc-file/releases>`_
@@ -81,9 +80,9 @@ Overview
 - 📟 **Command Line**: ``scfile.exe --help``
    | `What is command line interface? <CLI_>`_
    | *Example:* ``scfile.exe model.mcsb -F glb --skeleton``
-   | *Options:* ``-F`` *picks model format,* ``--skeleton`` *extracts armature.*
+   | *Options:* ``-F`` *picks model format,* ``--skeleton`` *extracts model armature.*
 
-2. 🐍 Install Python package
+🐍 Install Python package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Install:**
@@ -98,7 +97,7 @@ Overview
 - 📖 **Python library**: *See Library section*
 - 📟 **CLI via package**: ``scfile --help``
 
-3. 🔧 Compile from source
+🔧 Compile from source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Build from source code using the :doc:`compile guide <compile>`.
@@ -156,6 +155,6 @@ Overview
 ----------------------------------------
 
 | ``kommunist2021`` · ``Art3mLapa`` · ``n1kodim``
-| ``IExploitableMan`` · ``Sarioga`` · ``Hazart``
+| ``IExploitableMan`` · ``tuneyadecc`` · ``Hazart``
 
 Thanks to everyone who reported issues, shared findings, or contributed ideas.

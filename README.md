@@ -59,20 +59,20 @@
 
 \* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
+> [!TIP]  
+> 📚 [Detailed formats support →][docs-support]
+
+</br>
+
 > [!IMPORTANT]  
 > **Reverse conversion (`standard` → `game`) is not available.**  
 > 📚 [See FAQ for details →][docs-faq]
 
-</br>
+## 🚀 Installation
 
-> [!TIP]  
-> 📚 [Detailed formats support →][docs-support]
+> **Three ways to get started:** download, install, or compile.
 
-## 🚀 Quick Start
-
-> **_Three ways to get started:_** download, install, or compile.
-
-### 1. 💻 Download executable
+### 💻 Download executable
 
 Standalone `scfile.exe` available on [Releases page][releases].  
 _No Python required._
@@ -86,9 +86,9 @@ _No Python required._
 - 📟 **Command Line**: `scfile.exe --help`  
    _[What is command line interface?][usage-cli]_  
    _Example:_ `scfile.exe model.mcsb -F glb --skeleton`  
-   _Options: `-F` picks model format, `--skeleton` extracts armature._
+   _Options: `-F` picks model format, `--skeleton` extracts model armature._
 
-### 2. 🐍 Install Python package
+### 🐍 Install Python package
 
 **Install:**
 
@@ -101,7 +101,7 @@ pip install sc-file
 - 📖 **Python library**: [See Library section](#-library)
 - 📟 **CLI via package**: `scfile --help`
 
-### 3. 🔧 Compile from source
+### 🔧 Compile from source
 
 Build from source code using the [compile guide][docs-compile].  
 _For developers, contributors, or custom builds._
@@ -146,7 +146,7 @@ with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
 
 ## 🔗 Links
 
-- `📚` **Documentation:** [sc-file.readthedocs.io][docs] (usage, cli params, formats, api)
+- `📚` **Documentation:** [sc-file.readthedocs.io][docs]
 - `❓` **Questions?** Check [FAQ][docs-faq] or [contact me][contact]
 - `🐛` **Found a bug?** [Open an issue][issues]
 - `💻` **Download executable:** [Latest release][releases]
@@ -155,6 +155,6 @@ with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
 ## 🤝 Acknowledgments
 
 `kommunist2021` · `Art3mLapa` · `n1kodim`  
-`IExploitableMan` · `Sarioga` · `Hazart`
+`IExploitableMan` · `tuneyadecc` · `Hazart`
 
 Thanks to everyone who reported issues, shared findings, or contributed ideas.
