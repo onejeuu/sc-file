@@ -189,57 +189,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
             with self._node(b"Edges", [mesh.polygons.flatten().astype(np.int32)]):
                 pass
 
-            if self.data.flags[Flag.NORMALS]:
-                pass
-
-            if self.data.flags[Flag.UV]:
-                pass
-
         self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
-
-    def _write_layer_normals(self, mesh: ModelMesh):
-        self._start_node(b"LayerElementNormal", [0])
-        self._start_node(b"Version", [101])
-        self._end_node()
-        self._start_node(b"Name", [b""])
-        self._end_node()
-        self._start_node(b"MappingInformationType", [b"ByPolygonVertex"])
-        self._end_node()
-        self._start_node(b"ReferenceInformationType", [b"Direct"])
-        self._end_node()
-        self._start_node(b"Normals", [mesh.normals.flatten().astype(np.float64)])
-        self._end_node()
-        self._end_node()
-
-    def _write_layer_uvs(self, mesh: ModelMesh):
-        self._start_node(b"LayerElementUV", [0])
-        self._start_node(b"Version", [101])
-        self._end_node()
-        self._start_node(b"Name", [b"map1"])
-        self._end_node()
-        self._start_node(b"MappingInformationType", [b"ByPolygonVertex"])
-        self._end_node()
-        self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
-        self._end_node()
-        self._start_node(b"UV", [mesh.textures.flatten().astype(np.float64)])
-        self._end_node()
-        self._start_node(b"UVIndex", [np.arange(mesh.count.polygons * 3, dtype=np.int32)])
-        self._end_node()
-        self._end_node()
-
-    def _write_layer_materials(self, mesh):
-        self._start_node(b"LayerElementMaterial", [0])
-        self._start_node(b"Version", [101])
-        self._end_node()
-        self._start_node(b"Name", [b""])
-        self._end_node()
-        self._start_node(b"MappingInformationType", [b"AllSame"])
-        self._end_node()
-        self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
-        self._end_node()
-        self._start_node(b"Materials", [np.array([0], dtype=np.int32)])
-        self._end_node()
-        self._end_node()
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
