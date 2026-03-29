@@ -1,7 +1,9 @@
+from contextlib import contextmanager
 from enum import IntEnum
 
 import numpy as np
 
+from scfile import __version__
 from scfile.core.context.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.enums import ByteOrder, F, FileFormat
@@ -9,9 +11,13 @@ from scfile.structures.flags import Flag
 from scfile.structures.mesh import ModelMesh
 
 
-FBX_VERSION = 7400
-FBX_HEADER = b"Kaydara FBX Binary  \x00\x1a\x00"
-FBX_FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
+class FBX:
+    VERSION = 7400
+    HEADER_VERSION = 1003
+    HEADER = b"Kaydara FBX Binary  \x00\x1a\x00"
+    FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
+    NULL_NODE = b"\x00" * 13
+    CREATOR = b"onejeuu/sc-file v" + __version__.encode()
 
 
 class PropertyType(IntEnum):
@@ -47,145 +53,147 @@ class FbxEncoder(FileEncoder[ModelContent]):
     def serialize(self):
         self._write_header()
         self._write_top_nodes()
-        self._write_footer()
+        self.write(FBX.NULL_NODE)
 
     def _write_header(self):
-        self.write(b"Kaydara FBX Binary  \x00\x1a\x00")
-        self._writeb(F.U32, 7400)
+        self.write(FBX.HEADER)
+        self._writeb(F.U32, FBX.VERSION)
 
     def _write_top_nodes(self):
-        # FBXHeaderExtension
-        self._start_node(b"FBXHeaderExtension")
-        self._start_node(b"Creator", [b"onejeuu/sc-file"])
-        self._end_node()
-        self._end_node()
+        # FBX Header Extension
+        with self._node(b"FBXHeaderExtension", root=True):
+            with self._node(b"FBXHeaderVersion", [FBX.HEADER_VERSION]):
+                pass
+            with self._node(b"FBXVersion", [FBX.VERSION]):
+                pass
+            with self._node(b"Creator", [FBX.CREATOR]):
+                pass
 
-        # GlobalSettings
-        self._start_node(b"GlobalSettings")
-        settings = [
-            (b"UpAxis", 1),
-            (b"UpAxisSign", 1),
-            (b"FrontAxis", 2),
-            (b"FrontAxisSign", 1),
-            (b"CoordAxis", 0),
-            (b"CoordAxisSign", 1),
-            (b"OriginalUpAxis", 1),
-            (b"OriginalUpAxisSign", 1),
-            (b"UnitScaleFactor", 1.0),
-            (b"OriginalUnitScaleFactor", 1.0),
-            (b"TimeSpanStart", 0),
-            (b"TimeSpanStop", 0),
-            (b"TimeMode", 11),
-        ]
-        for name, value in settings:
-            self._start_node(name, [value])
-            self._end_node()
-        self._end_node()
+        # Global Settings
+        with self._node(b"GlobalSettings", root=True):
+            with self._node(b"Version", [1000]):
+                pass
+            with self._node(b"Properties70"):
+                settings = [
+                    (b"UpAxis", b"int", b"Integer", b"", 1),
+                    (b"UpAxisSign", b"int", b"Integer", b"", 1),
+                    (b"FrontAxis", b"int", b"Integer", b"", 2),
+                    (b"FrontAxisSign", b"int", b"Integer", b"", 1),
+                    (b"CoordAxis", b"int", b"Integer", b"", 0),
+                    (b"CoordAxisSign", b"int", b"Integer", b"", 1),
+                    (b"UnitScaleFactor", b"double", b"Number", b"", 1.0),
+                    (b"TimeMode", b"enum", b"", b"", 11),
+                    (b"TimeSpanStart", b"KTime", b"Time", b"", 0),
+                    (b"TimeSpanStop", b"KTime", b"Time", b"", 0),
+                ]
+                for props in settings:
+                    with self._node(b"P", list(props)):
+                        pass
 
         # Documents
-        self._start_node(b"Documents")
-        doc_id = self._next_id()
-        self.ctx["ROOT_DOC"] = doc_id
-        self._start_node(b"Document", [doc_id, b"", b"Scene"])
-        self._start_node(b"Properties60")
-        self._start_node(b"Property", [b"SourceFile", b"KString", b"", b""])
-        self._end_node()  # Property
-        self._end_node()  # Properties60
-        self._start_node(b"RootNode", [0])
-        self._end_node()  # RootNode
-        self._end_node()  # Document
-        self._end_node()  # Documents
+        with self._node(b"Documents", root=True):
+            doc_id = self._next_id()
+            self.ctx["ROOT_DOC"] = doc_id
+
+            with self._node(b"Count", [1]):
+                pass
+            with self._node(b"Document", [doc_id, b"Scene", b"Scene"]):
+                with self._node(b"Properties70"):
+                    with self._node(b"P", [b"SourceObject", b"object", b"", b""]):
+                        pass
+
+                with self._node(b"RootNode", [0]):
+                    pass
 
         # References
-        self._start_node(b"References")
-        self._end_node()
+        with self._node(b"References", root=True):
+            pass
 
         # Definitions
-        self._start_node(b"Definitions")
-        self._start_node(b"Version", [100])
-        self._end_node()
-        self._start_node(b"Count", [len(self.data.scene.meshes)])
-        self._end_node()
-        for mesh in self.data.scene.meshes:
-            self._start_node(b"ObjectType", [b"Model"])
-            self._start_node(b"Count", [1])
-            self._end_node()
-            self._start_node(b"PropertyTemplate", [b"FbxNode"])
-            self._start_node(b"Properties70")
-            templates = [
-                (b"QuaternionInterpolate", b"int", b"", 0),
-                (b"Visibility", b"bool", b"A+", 1),
-                (b"InheritType", b"enum", b"", 1),
-            ]
-            for name, type_name, flags, value in templates:
-                self._start_node(b"P", [name, type_name, flags, value])
-                self._end_node()
-            self._end_node()  # Properties70
-            self._end_node()  # PropertyTemplate
-            self._end_node()  # ObjectType
-        self._end_node()  # Definitions
+        with self._node(b"Definitions", root=True):
+            with self._node(b"Version", [100]):
+                pass
+
+            with self._node(b"Count", [len(self.data.scene.meshes)]):
+                pass
+
+            for mesh in self.data.scene.meshes:
+                with self._node(b"ObjectType", [b"Model"]):
+                    with self._node(b"Count", [1]):
+                        pass
+
+                    with self._node(b"PropertyTemplate", [b"FbxNode"]):
+                        with self._node(b"Properties70"):
+                            props = [
+                                (b"Visibility", b"Visibility", b"", b"A", 1.0),
+                            ]
+                            for prop in props:
+                                with self._node(b"P", list(prop)):
+                                    pass
 
         # Objects
-        self._start_node(b"Objects")
-        for mesh in self.data.scene.meshes:
-            self._write_mesh(mesh)
-        self._end_node()
+        with self._node(b"Objects", root=True):
+            for mesh in self.data.scene.meshes:
+                self._write_mesh(mesh)
 
         # Connections
-        self._start_node(b"Connections")
-        self._start_node(b"C", [b"OO", 0, self.ctx["ROOT_DOC"], b"RootNode"])
-        self._end_node()
-        for mesh in self.data.scene.meshes:
-            mesh_id = self.ctx["OBJECT_IDS"][mesh.name]
-            geom_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"]
-            self._start_node(b"C", [b"OO", geom_id, mesh_id, b"Geometry"])
-            self._end_node()
-            self._start_node(b"C", [b"OO", mesh_id, 0, b"Model"])
-            self._end_node()
-        self._end_node()
+        with self._node(b"Connections", root=True):
+            for mesh in self.data.scene.meshes:
+                mesh_id = self.ctx["OBJECT_IDS"][mesh.name]
+                geom_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"]
+                with self._node(b"C", [b"OO", mesh_id, np.int64(0)]):
+                    pass
+                with self._node(b"C", [b"OO", geom_id, mesh_id]):
+                    pass
 
     def _write_mesh(self, mesh: ModelMesh):
         mesh_id = self._next_id()
         self.ctx["OBJECT_IDS"][mesh.name] = mesh_id
 
-        # Model node
-        self._start_node(b"Model", [mesh_id, mesh.name.encode(), b"Mesh"])
-        self._start_node(b"Version", [232])
-        self._end_node()
-        self._start_node(b"Properties70")
-        props = [
-            (b"GeometricTranslation", b"Lcl Translation", b"A+", (0.0, 0.0, 0.0)),
-            (b"GeometricRotation", b"Lcl Rotation", b"A+", (0.0, 0.0, 0.0)),
-            (b"GeometricScaling", b"Lcl Scaling", b"A+", (1.0, 1.0, 1.0)),
-        ]
-        for name, label, flags, value in props:
-            self._start_node(b"P", [name, label, flags, value])
-            self._end_node()
-        self._end_node()  # Properties70
-        if self.data.flags[Flag.UV]:
-            self._start_node(b"MultiLayer", [0])
-            self._end_node()
-        self._start_node(b"MultiTake")
-        self._end_node()
-        self._end_node()  # Model
+        model_name = mesh.name.encode() + b"\x00\x01" + b"Model"
+        with self._node(b"Model", [mesh_id, model_name, b"Mesh"]):
+            with self._node(b"Version", [232]):
+                pass
+
+            with self._node(b"Properties70"):
+                # TODO: scaling size
+                props = [
+                    (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", 0.0, 0.0, 0.0),
+                    (b"Lcl Scaling", b"Lcl Scaling", b"", b"A", 100.0, 100.0, 100.0),
+                    (b"DefaultAttributeIndex", b"int", b"Integer", b"", 0),
+                    (b"InheritType", b"enum", b"", b"", 1),
+                ]
+                for prop in props:
+                    with self._node(b"P", list(prop)):
+                        pass
+
+            with self._node(b"MultiTake", [0]):
+                pass
+
+            if self.data.flags[Flag.UV]:
+                with self._node(b"MultiLayer", [0]):
+                    pass
 
         # Geometry node
         geom_id = self._next_id()
-        self._start_node(b"Geometry", [geom_id, f"{mesh.name}Geometry".encode(), b"Mesh"])
-        self._start_node(b"Version", [124])
-        self._end_node()
-        self._start_node(b"Vertices", mesh.positions.flatten().tolist())
-        self._end_node()
-        self._start_node(b"PolygonVertexIndex", self._fbx_polygon_indices(mesh.polygons).tolist())
-        self._end_node()
-        self._start_node(b"Edges", [])
-        self._end_node()
-        if self.data.flags[Flag.NORMALS]:
-            self._write_layer_normals(mesh)
-        if self.data.flags[Flag.UV]:
-            self._write_layer_uvs(mesh)
-        self._write_layer_materials(mesh)
-        self._end_node()  # Geometry
+        geom_name = mesh.name.encode() + b"\x00\x01" + b"Geometry"
+        with self._node(b"Geometry", [geom_id, geom_name, b"Mesh"]):
+            with self._node(b"Properties70"):
+                pass
+            with self._node(b"GeometryVersion", [124]):
+                pass
+            with self._node(b"Vertices", [mesh.positions.flatten().astype(np.float64)]):
+                pass
+            with self._node(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)]):
+                pass
+            with self._node(b"Edges", [mesh.polygons.flatten().astype(np.int32)]):
+                pass
+
+            if self.data.flags[Flag.NORMALS]:
+                pass
+
+            if self.data.flags[Flag.UV]:
+                pass
 
         self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
 
@@ -199,7 +207,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self._end_node()
         self._start_node(b"ReferenceInformationType", [b"Direct"])
         self._end_node()
-        self._start_node(b"Normals", mesh.normals.flatten().tolist())
+        self._start_node(b"Normals", [mesh.normals.flatten().astype(np.float64)])
         self._end_node()
         self._end_node()
 
@@ -213,9 +221,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self._end_node()
         self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
         self._end_node()
-        self._start_node(b"UV", mesh.textures.flatten().tolist())
+        self._start_node(b"UV", [mesh.textures.flatten().astype(np.float64)])
         self._end_node()
-        self._start_node(b"UVIndex", np.arange(mesh.count.polygons * 3, dtype=np.int32).tolist())
+        self._start_node(b"UVIndex", [np.arange(mesh.count.polygons * 3, dtype=np.int32)])
         self._end_node()
         self._end_node()
 
@@ -229,48 +237,57 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self._end_node()
         self._start_node(b"ReferenceInformationType", [b"IndexToDirect"])
         self._end_node()
-        self._start_node(b"Materials", [0])
+        self._start_node(b"Materials", [np.array([0], dtype=np.int32)])
         self._end_node()
         self._end_node()
 
-    def _write_footer(self):
-        self.write(b"\x00" * 500)  # NULL node # TODO: count depth
+    @contextmanager
+    def _node(self, name: bytes, properties: list | None = None, root: bool = False):
+        if self.ctx["NODES"]:
+            self.ctx["NODES"][-1]["children"] = True
 
-    def _start_node(self, name: bytes, properties: list | None = None):
-        # Save position for endOffset
+        self._start_node(name, properties, root)
+
+        try:
+            yield
+        finally:
+            self._end_node()
+
+    def _start_node(self, name: bytes, properties: list | None = None, root: bool = False):
+        properties = properties or []
         node_start = len(self.getvalue())
-        self.ctx["NODES"].append({"start": node_start, "props": []})
-        # TODO: count depth
 
-        # Write placeholders
+        # Placeholder header
         self._writeb(F.U32, 0)  # endOffset
-        self._writeb(F.U32, 0)  # propsNum
-        self._writeb(F.U32, 0)  # propsLen
-
-        # Write nameLen (1 byte) and name
+        self._writeb(F.U32, 0)  # numProperties
+        self._writeb(F.U32, 0)  # propertyListLen
         self._writeb(F.U8, len(name))
         self.write(name)
 
-        # Remember where properties start
+        # Properties
         props_start = len(self.getvalue())
-        self.ctx["NODES"][-1]["props_start"] = props_start
+        prop_count = 0
+        for prop in properties:
+            self._write_property(prop)
+            prop_count += 1
 
-        # Write properties and count them
-        if properties:
-            for prop in properties:
-                self._write_property(prop)
-                self.ctx["NODES"][-1]["props"].append(prop)
+        prop_len = len(self.getvalue()) - props_start
+
+        self.ctx["NODES"].append(dict(start=node_start, prop_count=prop_count, prop_len=prop_len, root=root, children=False))
 
     def _end_node(self):
         node = self.ctx["NODES"].pop()
+
+        if node["root"] or node["children"]:
+            self.write(FBX.NULL_NODE)
+
         end_pos = len(self.getvalue())
 
-        # Update endOffset
+        # Update node header
         self.seek(node["start"])
         self._writeb(F.U32, end_pos)
-        self._writeb(F.U32, len(node["props"]))
-        self._writeb(F.U32, end_pos - node["props_start"])
-
+        self._writeb(F.U32, node["prop_count"])
+        self._writeb(F.U32, node["prop_len"])
         self.seek(end_pos)
 
     # Property writers
@@ -281,12 +298,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
             return
 
         if isinstance(value, int):
-            if -0x8000 <= value <= 0x7FFF:
-                self._writeb(F.U8, ord("Y"))
-                self._writeb(F.I16, value)
-            else:
-                self._writeb(F.U8, ord("I"))
-                self._writeb(F.I32, value)
+            self._writeb(F.U8, ord("I"))
+            self._writeb(F.I32, value)
+            return
+
+        if isinstance(value, np.integer):
+            self._writeb(F.U8, ord("L"))
+            self._writeb(F.I64, int(value))
             return
 
         if isinstance(value, float):
@@ -306,11 +324,11 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self._write_array_property(value)
             return
 
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list):
             self._write_array_property(np.array(value, dtype=np.float64))
             return
 
-        raise TypeError(f"Unsupported property type: {type(value)}")
+        raise TypeError(f"Unsupported property type: {type(value)}!!!")
 
     def _write_array_property(self, arr: np.ndarray):
         if arr.dtype == np.float64:
@@ -331,9 +349,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         self._write_array_property(arr.astype(np.float64))
 
-    def _next_id(self) -> int:
+    def _next_id(self) -> np.int64:
         self.ctx["NEXT_ID"] += 1
-        return self.ctx["NEXT_ID"]
+        return np.int64(self.ctx["NEXT_ID"])
 
     def _fbx_time(self, seconds: float) -> int:
         return int(seconds * 46186158000)
