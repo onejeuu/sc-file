@@ -141,9 +141,12 @@ class FbxEncoder(FileEncoder[ModelContent]):
             for mesh in self.data.scene.meshes:
                 mesh_id = self.ctx["OBJECT_IDS"][mesh.name]
                 geom_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"]
+                mat_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_mat"]
                 with self._node(b"C", [b"OO", mesh_id, np.int64(0)]):
                     pass
                 with self._node(b"C", [b"OO", geom_id, mesh_id]):
+                    pass
+                with self._node(b"C", [b"OO", mat_id, mesh_id]):
                     pass
 
     def _write_mesh(self, mesh: ModelMesh):
@@ -176,8 +179,11 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Geometry node
         geom_id = self._next_id()
-        geom_name = mesh.name.encode() + b"\x00\x01" + b"Geometry"
-        with self._node(b"Geometry", [geom_id, geom_name, b"Mesh"]):
+        geometry_name = mesh.name.encode() + b"\x00\x01" + b"Geometry"
+
+        indexes = mesh.polygons.flatten().astype(np.int32)
+
+        with self._node(b"Geometry", [geom_id, geometry_name, b"Mesh"]):
             with self._node(b"Properties70"):
                 pass
             with self._node(b"GeometryVersion", [124]):
@@ -189,7 +195,17 @@ class FbxEncoder(FileEncoder[ModelContent]):
             with self._node(b"Edges", []):
                 pass
 
-            indexes = mesh.polygons.flatten().astype(np.int32)
+            with self._node(b"LayerElementMaterial", [0]):
+                with self._node(b"Version", [101]):
+                    pass
+                with self._node(b"Name", [b""]):
+                    pass
+                with self._node(b"MappingInformationType", [b"AllSame"]):
+                    pass
+                with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
+                    pass
+                with self._node(b"Materials", [np.array([0], dtype=np.int32)]):
+                    pass
 
             if self.data.flags[Flag.NORMALS]:
                 with self._node(b"LayerElementNormal", [0]):
@@ -197,9 +213,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
                         pass
                     with self._node(b"Name", [b""]):
                         pass
-                    with self._node(b"MappingInformationType", [b"ByControlPoint"]):
+                    with self._node(b"MappingInformationType", [b"ByPolygonVertex"]):
                         pass
-                    with self._node(b"ReferenceInformationType", [b"Direct"]):
+                    with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
                         pass
                     with self._node(b"Normals", [mesh.normals.flatten().astype(np.float64)]):
                         pass
@@ -212,49 +228,66 @@ class FbxEncoder(FileEncoder[ModelContent]):
                         pass
                     with self._node(b"Name", [b"UVMap"]):
                         pass
-                    with self._node(b"MappingInformationType", [b"ByControlPoint"]):
+                    with self._node(b"MappingInformationType", [b"ByPolygonVertex"]):
                         pass
-                    with self._node(b"ReferenceInformationType", [b"Direct"]):
+                    with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
                         pass
                     with self._node(b"UV", [mesh.textures.flatten().astype(np.float64)]):
                         pass
                     with self._node(b"UVIndex", [indexes]):
                         pass
 
-            with self._node(b"LayerElementMaterial", [0]):
-                with self._node(b"Version", [101]):
-                    pass
-                with self._node(b"Name", [b""]):
-                    pass
-                with self._node(b"MappingInformationType", [b"AllSame"]):
-                    pass
-                with self._node(b"ReferenceInformationType", [b"Direct"]):
-                    pass
-                with self._node(b"Materials", [np.array([0], dtype=np.int32)]):
-                    pass
-
             with self._node(b"Layer", [0]):
                 with self._node(b"Version", [100]):
                     pass
-                with self._node(b"LayerElement"):
-                    with self._node(b"Type", [b"LayerElementMaterial"]):
+
+                with self._node(b"LayerElement", []):
+                    with self._node(b"Type", [b"Material"]):
                         pass
                     with self._node(b"TypedIndex", [0]):
                         pass
 
                 if self.data.flags[Flag.NORMALS]:
-                    with self._node(b"Type", [b"LayerElementNormal"]):
-                        pass
-                    with self._node(b"TypedIndex", [0]):
-                        pass
+                    with self._node(b"LayerElement", []):
+                        with self._node(b"Type", [b"Normal"]):
+                            pass
+                        with self._node(b"TypedIndex", [0]):
+                            pass
 
                 if self.data.flags[Flag.UV]:
-                    with self._node(b"Type", [b"LayerElementUV"]):
-                        pass
-                    with self._node(b"TypedIndex", [0]):
-                        pass
+                    with self._node(b"LayerElement", []):
+                        with self._node(b"Type", [b"UV"]):
+                            pass
+                        with self._node(b"TypedIndex", [0]):
+                            pass
 
         self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
+
+        mat_id = self._next_id()
+        material_name = mesh.material.encode() + b"\x00\x01" + b"Material"
+        with self._node(b"Material", [mat_id, material_name, b""]):
+            with self._node(b"Version", [102]):
+                pass
+            with self._node(b"Properties70"):
+                props = [
+                    (b"DiffuseColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+                    (b"EmissiveColor", b"Color", b"", b"A", 1.0, 1.0, 1.0),
+                    (b"EmissiveFactor", b"Number", b"", b"A", 0.0),
+                    (b"AmbientColor", b"Color", b"", b"A", 0.05, 0.05, 0.05),
+                    (b"AmbientFactor", b"Number", b"", b"A", 0.0),
+                    (b"BumpFactor", b"double", b"Number", b"", 0.0),
+                    (b"SpecularColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+                    (b"SpecularFactor", b"Number", b"", b"A", 0.0),
+                    (b"Shininess", b"Number", b"", b"A", 0.0),
+                    (b"ShininessExponent", b"Number", b"", b"A", 0.0),
+                    (b"ReflectionColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+                    (b"ReflectionFactor", b"Number", b"", b"A", 0.0),
+                ]
+                for prop in props:
+                    with self._node(b"P", list(prop)):
+                        pass
+
+        self.ctx["OBJECT_IDS"][f"{mesh.name}_mat"] = mat_id
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
