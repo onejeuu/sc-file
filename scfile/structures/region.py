@@ -17,7 +17,7 @@ class RegionChunk:
     header: ChunkHeader
 
     blocks: bytes
-    meta: bytes
-    light: bytes
-    add: bytes
-    extra: bytes
+    # meta: bytes
+    # light: bytes
+    # add: bytes
+    # extra: bytes
