@@ -45,14 +45,14 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
 
             # split data
             sections_count = bin(blocks_mask).count("1")
-            add_count = bin(add_mask).count("1")
+            # add_count = bin(add_mask).count("1")
 
             buffer = BytesIO(decompressed)
             blocks = buffer.read(sections_count * SECTION_SIZE)
-            meta = buffer.read(sections_count * NIBBLE_SIZE)
-            light = buffer.read(sections_count * NIBBLE_SIZE * 3)
-            add = buffer.read(add_count * NIBBLE_SIZE)
-            extra = buffer.read()
+            # meta = buffer.read(sections_count * NIBBLE_SIZE)
+            # light = buffer.read(sections_count * NIBBLE_SIZE * 3)
+            # add = buffer.read(add_count * NIBBLE_SIZE)
+            # extra = buffer.read()
 
             chunks.append(
                 RegionChunk(
@@ -65,10 +65,6 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
                         compressed_size,
                     ),
                     blocks=blocks,
-                    meta=meta,
-                    light=light,
-                    add=add,
-                    extra=extra,
                 )
             )
 
