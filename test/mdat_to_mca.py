@@ -1,4 +1,5 @@
 import argparse
+import json
 import math
 import os
 import struct
@@ -13,148 +14,155 @@ import numpy as np
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
+from scfile.formats.mdat.decoder import NIBBLE_SIZE, SECTION_SIZE
 from scfile.structures.region import RegionChunk
 
 
 HEIGHT = 256
-SECTION_SIZE = 16 * 16 * 16  # 4096
-CURRENT_TIME = int(time.time())
+
+SECTION_COUNT = 16
+SECTION = SECTION_SIZE
+
+_CURRENT_TIME = int(time.time())
+_TIME_BYTES = struct.pack(">I", _CURRENT_TIME)
 
 RegionKey: TypeAlias = tuple[int, int]
 
 
-def nbt(tag: int, name: str, payload: bytes) -> bytes:
-    n = name.encode()
-    return bytes([tag]) + struct.pack(">H", len(n)) + n + payload
+def nbt(tag: int, name: bytes, payload: bytes) -> bytes:
+    return bytes([tag]) + struct.pack(">H", len(name)) + name + payload
 
 
-def compound(name: str, *children: bytes) -> bytes:
+def compound(name: bytes, *children: bytes) -> bytes:
     return nbt(0x0A, name, b"".join(children) + b"\x00")
 
 
-def lst(name: str, typ: int, *items: bytes) -> bytes:
+def lst(name: bytes, typ: int, *items: bytes) -> bytes:
     return nbt(0x09, name, struct.pack(">bi", typ, len(items)) + b"".join(items))
 
 
-def nbt_byte(name: str, v: int) -> bytes:
+def nbt_byte(name: bytes, v: int) -> bytes:
     return nbt(0x01, name, struct.pack(">b", v))
 
 
-def nbt_int(name: str, v: int) -> bytes:
+def nbt_int(name: bytes, v: int) -> bytes:
     return nbt(0x03, name, struct.pack(">i", v))
 
 
-def nbt_long(name: str, v: int) -> bytes:
+def nbt_long(name: bytes, v: int) -> bytes:
     return nbt(0x04, name, struct.pack(">q", v))
 
 
-def nbt_ba(name: str, d: bytes) -> bytes:
+def nbt_ba(name: bytes, d: bytes) -> bytes:
     return nbt(0x07, name, struct.pack(">i", len(d)) + d)
 
 
-def nbt_ia(name: str, a: tuple) -> bytes:
+def nbt_ia(name: bytes, a: tuple) -> bytes:
     return nbt(0x0B, name, struct.pack(f">i{len(a)}i", len(a), *a))
 
 
-_MAPPING = {
-    101: 1,
-    198: 1,
-    27: 1,
-    28: 1,
-    66: 1,
-    158: 1,
-    194: 35,
-    178: 166,
-}
-
-_IDS_OLD = np.array(list(_MAPPING.keys()), dtype=np.uint8)
-_IDS_NEW = np.array(list(_MAPPING.values()), dtype=np.uint8)
-_LOOKUP = np.arange(256, dtype=np.uint8)
-_LOOKUP[_IDS_OLD] = _IDS_NEW
-
-
-def terrain_to_sections_raw(data: bytes) -> dict[int, bytes]:
-    data = data.ljust(0x10000, b"\x00")
-    return {y: data[y * SECTION_SIZE : y * SECTION_SIZE + SECTION_SIZE] for y in range(16)}
-
-
-def terrain_to_sections(data: bytes) -> dict[int, bytes]:
-    data = data.ljust(0x10000, b"\x00")
-    arr = np.frombuffer(data, dtype=np.uint8)
-    data = _LOOKUP[arr].tobytes()
-
-    return {y: data[y * SECTION_SIZE : y * SECTION_SIZE + SECTION_SIZE] for y in range(16)}
-
-
-_VERSION = nbt_int("DataVersion", 1343)
+_VERSION = nbt_int(b"DataVersion", 1343)
 
 _DUMMY_PAYLOAD = (
-    nbt_long("LastUpdate", CURRENT_TIME)
-    + nbt_byte("TerrainPopulated", 1)
-    + nbt_byte("LightPopulated", 1)
-    + nbt_byte("V", 1)
-    + nbt_long("InhabitedTime", 6000)
-    + nbt_ia("HeightMap", tuple([6] * HEIGHT))
-    + nbt_ba("Biomes", b"\x01" * HEIGHT)
-    + lst("Entities", 0x0A)
-    + lst("TileEntities", 0x0A)
-    + lst("TileTicks", 0x0A)
+    nbt_long(b"LastUpdate", _CURRENT_TIME)
+    + nbt_byte(b"TerrainPopulated", 1)
+    + nbt_byte(b"LightPopulated", 1)
+    + nbt_byte(b"V", 1)
+    + nbt_long(b"InhabitedTime", 6000)
+    + nbt_ia(b"HeightMap", tuple([6] * HEIGHT))
+    + nbt_ba(b"Biomes", b"\x01" * HEIGHT)
+    + lst(b"Entities", 0x0A)
+    + lst(b"TileEntities", 0x0A)
+    + lst(b"TileTicks", 0x0A)
 )
 
 _DUMMY_SECTIONS_PAYLOAD = (
-    nbt_ba("Data", bytes(2048))
-    + nbt_ba("BlockLight", bytes(2048))
-    + nbt_ba("SkyLight", b"\xff" * 2048)
-    + nbt_ba("Add", bytes(2048))
+    nbt_ba(b"Data", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"BlockLight", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"Add", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"SkyLight", b"\xff" * NIBBLE_SIZE)
     + b"\x00"
 )
 
 
+Sections: TypeAlias = dict[int, bytes]
+
+
+def data_to_sections(data: bytes, mask: int, size: int) -> Sections:
+    sections: Sections = {}
+
+    present = [y for y in range(16) if (mask >> y) & 1]
+    for idx, y in enumerate(present):
+        sections[y] = data[idx * size : (idx + 1) * size]
+
+    return sections
+
+
 def section_payload(y: int, blocks: bytes) -> bytes:
-    return nbt_byte("Y", y) + nbt_ba("Blocks", blocks) + _DUMMY_SECTIONS_PAYLOAD
+    return nbt_byte(b"Y", y) + nbt_ba(b"Blocks", blocks) + _DUMMY_SECTIONS_PAYLOAD
+
+
+def build_blocks_mapping(mapping: dict[int, int]) -> bytes:
+    table = list(range(256))
+
+    for old, new in mapping.items():
+        table[old] = new
+
+    return bytes(table)
+
+
+def parse_blocks_mapping(path: Path | str) -> dict[int, int]:
+    return {int(k): int(v) for k, v in json.loads(Path(path).read_text()).items()}
+
+
+_ROOT = Path(__file__).parent
+_BLOCKS_MAPPING = build_blocks_mapping(parse_blocks_mapping(_ROOT / "blocks.json"))
 
 
 def chunk_nbt(cx: int, cz: int, chunk: RegionChunk) -> bytes:
-    sections = terrain_to_sections(chunk.blocks)
+    blocks = chunk.blocks.translate(_BLOCKS_MAPPING)
+    blocks = data_to_sections(blocks, chunk.header.blocks_mask, SECTION_SIZE)
+    sections = [section_payload(y, blocks[y]) for y in blocks.keys()]
 
     return compound(
-        "",
+        b"",
         _VERSION,
         compound(
-            "Level",
-            nbt_int("xPos", cx),
-            nbt_int("zPos", cz),
-            lst("Sections", 0x0A, *[section_payload(y, blocks) for y, blocks in sections.items()]),
+            b"Level",
+            nbt_int(b"xPos", cx),
+            nbt_int(b"zPos", cz),
+            lst(b"Sections", 0x0A, *sections),
             _DUMMY_PAYLOAD,
         ),
     )
 
 
-def build_mca(out: Path, region: RegionContent, rx: int = 0, rz: int = 0) -> None:
+def build_mca(out: Path | None, region: RegionContent, rx: int = 0, rz: int = 0) -> None:
     chunks: list[tuple[int, int, bytes]] = []
 
     for chunk in region.chunks:
         index = chunk.index
-
         lx = index % 32
         lz = index // 32
         cx = rx * 32 + lx
         cz = rz * 32 + lz
 
-        data = zlib.compress(chunk_nbt(cx, cz, chunk))
+        # Path(f"test/chunk/{lx}.{lz}.chunk").write_bytes(chunk.header.to_bytes() + chunk.data)
+
+        data = zlib.compress(chunk_nbt(cx, cz, chunk), level=3)
 
         chunks.append((lx, lz, data))
 
-    # location & timestamp
-    loc = np.zeros(SECTION_SIZE, dtype=np.uint8)
-    ts = np.zeros(SECTION_SIZE, dtype=np.uint8)
+    # Location и Timestamp таблица
+    loc = np.zeros(SECTION, dtype=np.uint8)
+    ts = np.zeros(SECTION, dtype=np.uint8)
 
     off = 2
     offsets: list[tuple[int, int]] = []
 
     for lx, lz, data in chunks:
-        sc = math.ceil((len(data) + 5) / SECTION_SIZE)  # section size
-        i4 = (lx + lz * 32) * 4  # location table entry
+        sc = math.ceil((len(data) + 5) / SECTION)  # Sector size
+        i4 = (lx + lz * 32) * 4  # Location table entry
 
         # pack offsets
         loc[i4] = (off >> 16) & 0xFF
@@ -163,21 +171,22 @@ def build_mca(out: Path, region: RegionContent, rx: int = 0, rz: int = 0) -> Non
         loc[i4 + 3] = sc
 
         # pack times
-        ts_bytes = struct.pack(">I", CURRENT_TIME)
+        ts_bytes = _TIME_BYTES
         ts[i4 : i4 + 4] = np.frombuffer(ts_bytes, dtype=np.uint8)
 
         offsets.append((off, sc))
         off += sc
 
-    with open(out, "wb") as fp:
-        fp.write(loc.tobytes())
-        fp.write(ts.tobytes())
+    if out:
+        with open(out, "wb") as fp:
+            fp.write(loc.tobytes())
+            fp.write(ts.tobytes())
 
-        for (chunk_off, sc), (lx, lz, data) in zip(offsets, chunks):
-            fp.seek(chunk_off * SECTION_SIZE)
-            blob = struct.pack(">I", len(data) + 1) + b"\x02" + data
-            padded = blob + b"\x00" * (sc * SECTION_SIZE - len(blob))
-            fp.write(padded)
+            for (chunk_off, sc), (lx, lz, data) in zip(offsets, chunks):
+                fp.seek(chunk_off * SECTION)
+                blob = struct.pack(">I", len(data) + 1) + b"\x02" + data
+                padded = blob + b"\x00" * (sc * SECTION - len(blob))
+                fp.write(padded)
 
 
 def merge(item: tuple[RegionKey, list[Path]], output: Path) -> None:
