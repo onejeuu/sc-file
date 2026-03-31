@@ -182,36 +182,40 @@ def texarr_to_zip(
     """
 
 
-<<<<<<< HEAD
 @converter(formats.nbt.NbtDecoder, formats.json.JsonEncoder)
 def nbt_to_json(
-=======
-@converter(formats.efkmodel.EfkmodelDecoder, formats.obj.ObjEncoder)
-def efkmodel_to_obj(
->>>>>>> 007bb09 (efkmodel decoder (wip))
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[UserOptions] = None,
 ):
     """
-<<<<<<< HEAD
     Converts data from `NBT` to `.json` format.
 
     Arguments:
         source: Path to input `NBT` file.
-=======
-    Converts model from `.efkmodel` to `.obj` format.
-
-    Arguments:
-        source: Path to input `.efkmodel` file.
->>>>>>> 007bb09 (efkmodel decoder (wip))
         output (optional): Path to output directory. Defaults: `Same directory as source`.
         options (optional): User settings. Default: `None`.
 
     Example:
-<<<<<<< HEAD
         `nbt_to_json("itemnames.dat", "path/to/output")`
-=======
+    """
+
+
+@converter(formats.efkmodel.EfkmodelDecoder, formats.obj.ObjEncoder)
+def efkmodel_to_obj(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts model from `.efkmodel` to `.obj` format.
+
+    Arguments:
+        source: Path to input `.efkmodel` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
         `efkmodel_to_obj("model.efkmodel", "path/to/output")`
     """
 
@@ -270,5 +274,4 @@ def efkmodel_to_ms3d(
 
     Example:
         `efkmodel_to_ms3d("model.efkmodel", "path/to/output")`
->>>>>>> 007bb09 (efkmodel decoder (wip))
     """
