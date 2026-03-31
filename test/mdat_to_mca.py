@@ -1,7 +1,5 @@
 import argparse
-import json
 import os
-import re
 import struct
 import time
 import zlib
@@ -10,60 +8,70 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TypeAlias
 
+from mdat_blocks import BLOCKS_MAPPING
 from profiler import profiler
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
-from scfile.formats.mdat.decoder import NIBBLE_SIZE, SECTION_SIZE
+from scfile.formats.nbt.enums import Tag
 from scfile.structures.region import RegionChunk
 
 
 HEIGHT = 256
-
 SECTION_COUNT = 16
-SECTION = SECTION_SIZE
-
-_CURRENT_TIME = int(time.time())
-_TIMESTAMPS = struct.pack(">I", _CURRENT_TIME) * 1024
 
 RegionKey: TypeAlias = tuple[int, int]
 
 
-def nbt(tag: int, name: bytes, payload: bytes) -> bytes:
-    return bytes([tag]) + struct.pack(">H", len(name)) + name + payload
+def nbt(tag: int, name: bytes) -> bytes:
+    return bytes([tag]) + struct.pack(">H", len(name)) + name
 
 
 def compound(name: bytes, *children: bytes) -> bytes:
-    return nbt(0x0A, name, b"".join(children) + b"\x00")
+    return nbt(Tag.COMPOUND, name) + b"".join(children) + b"\x00"
 
 
-def lst(name: bytes, typ: int, *items: bytes) -> bytes:
-    return nbt(0x09, name, struct.pack(">bi", typ, len(items)) + b"".join(items))
+def lst(name: bytes, type: int, *v: bytes) -> bytes:
+    return nbt(Tag.LIST, name) + struct.pack(">bi", type, len(v)) + b"".join(v)
 
 
 def nbt_byte(name: bytes, v: int) -> bytes:
-    return nbt(0x01, name, struct.pack(">b", v))
+    return nbt(Tag.BYTE, name) + struct.pack(">b", v)
 
 
 def nbt_int(name: bytes, v: int) -> bytes:
-    return nbt(0x03, name, struct.pack(">i", v))
+    return nbt(Tag.INT, name) + struct.pack(">i", v)
 
 
 def nbt_long(name: bytes, v: int) -> bytes:
-    return nbt(0x04, name, struct.pack(">q", v))
+    return nbt(Tag.LONG, name) + struct.pack(">q", v)
 
 
-def nbt_ba(name: bytes, d: bytes) -> bytes:
-    return nbt(0x07, name, struct.pack(">i", len(d)) + d)
+def nbt_ba(name: bytes, v: bytes) -> bytes:
+    return nbt(Tag.BYTE_ARRAY, name) + struct.pack(">i", len(v)) + v
 
 
-def nbt_ia(name: bytes, a: tuple) -> bytes:
-    return nbt(0x0B, name, struct.pack(f">i{len(a)}i", len(a), *a))
+def nbt_ia(name: bytes, arr: tuple[int, ...]) -> bytes:
+    return nbt(Tag.INT_ARRAY, name) + struct.pack(f">i{len(arr)}i", len(arr), *arr)
 
+
+_CURRENT_TIME = int(time.time())
+_TIMESTAMPS = struct.pack(">I", _CURRENT_TIME) * 1024
+
+_ROOT_COMPOUND = nbt(Tag.COMPOUND, b"")
+_LEVEL_HEAD = nbt(Tag.COMPOUND, b"Level")
+_XPOS_HEAD = nbt(Tag.INT, b"xPos")
+_ZPOS_HEAD = nbt(Tag.INT, b"zPos")
+_SECTIONS_HEAD = nbt(Tag.LIST, b"Sections")
+_Y_HEAD = nbt(Tag.BYTE, b"Y")
+_BLOCKS_HEAD = nbt(Tag.BYTE_ARRAY, b"Blocks")
+
+_SECTION_SIZE = struct.pack(">i", 4096)
+_Y_PACKED = [struct.pack(">b", y) for y in range(16)]
 
 _VERSION = nbt_int(b"DataVersion", 1343)
 
-_DUMMY_PAYLOAD = (
+_PAYLOAD_CHUNK = (
     nbt_long(b"LastUpdate", _CURRENT_TIME)
     + nbt_byte(b"TerrainPopulated", 1)
     + nbt_byte(b"LightPopulated", 1)
@@ -76,70 +84,42 @@ _DUMMY_PAYLOAD = (
     + lst(b"TileTicks", 0x0A)
 )
 
-_DUMMY_SECTIONS_PAYLOAD = (
-    nbt_ba(b"Data", bytes(NIBBLE_SIZE))
-    + nbt_ba(b"BlockLight", bytes(NIBBLE_SIZE))
-    + nbt_ba(b"Add", bytes(NIBBLE_SIZE))
-    + nbt_ba(b"SkyLight", b"\xff" * NIBBLE_SIZE)
+_PAYLOAD_SECTION = (
+    nbt_ba(b"Data", bytes(2048))
+    + nbt_ba(b"BlockLight", bytes(2048))
+    + nbt_ba(b"Add", bytes(2048))
+    + nbt_ba(b"SkyLight", b"\xff" * 2048)
     + b"\x00"
 )
 
 
-Sections: TypeAlias = dict[int, bytes]
+def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
+    blocks = chunk.blocks if raw else chunk.blocks.translate(BLOCKS_MAPPING)
+    mask = chunk.header.blocks_mask
 
-
-def data_to_sections(data: bytes, mask: int, size: int) -> Sections:
-    sections: Sections = {}
+    sections: list[bytes] = []
 
     present = [y for y in range(16) if (mask >> y) & 1]
     for idx, y in enumerate(present):
-        sections[y] = data[idx * size : (idx + 1) * size]
+        section = blocks[idx * 4096 : (idx + 1) * 4096]
+        sections.append(b"".join([_Y_HEAD, _Y_PACKED[y], _BLOCKS_HEAD, _SECTION_SIZE, section, _PAYLOAD_SECTION]))
 
-    return sections
-
-
-def section_payload(y: int, blocks: bytes) -> bytes:
-    return nbt_byte(b"Y", y) + nbt_ba(b"Blocks", blocks) + _DUMMY_SECTIONS_PAYLOAD
-
-
-def build_blocks_mapping(mapping: dict[int, int]) -> bytes:
-    table = list(range(256))
-
-    for old, new in mapping.items():
-        table[old] = new
-
-    return bytes(table)
-
-
-def parse_blocks_mapping(path: Path | str) -> dict[int, int]:
-    data = Path(path).read_text()
-    data = re.sub(r"//.*", "", data)
-    return {int(k): int(v) for k, v in json.loads(data).items()}
-
-
-_ROOT = Path(__file__).parent
-_BLOCKS_MAPPING = build_blocks_mapping(parse_blocks_mapping(_ROOT / "blocks.json"))
-
-
-def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
-    blocks = chunk.blocks
-
-    if not raw:
-        blocks = chunk.blocks.translate(_BLOCKS_MAPPING)
-
-    blocks = data_to_sections(blocks, chunk.header.blocks_mask, SECTION_SIZE)
-    sections = [section_payload(y, blocks[y]) for y in blocks.keys()]
-
-    return compound(
-        b"",
-        _VERSION,
-        compound(
-            b"Level",
-            nbt_int(b"xPos", cx),
-            nbt_int(b"zPos", cz),
-            lst(b"Sections", 0x0A, *sections),
-            _DUMMY_PAYLOAD,
-        ),
+    return b"".join(
+        [
+            _ROOT_COMPOUND,
+            _VERSION,
+            _LEVEL_HEAD,
+            _XPOS_HEAD,
+            struct.pack(">i", cx),
+            _ZPOS_HEAD,
+            struct.pack(">i", cz),
+            _SECTIONS_HEAD,
+            b"\x0a",
+            struct.pack(">i", len(sections)),
+            b"".join(sections),
+            _PAYLOAD_SECTION,
+            b"\x00",
+        ]
     )
 
 
