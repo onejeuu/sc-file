@@ -124,19 +124,19 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self._create_accessor(mesh.count.vertices, "VEC3", array=mesh.positions)
 
             # UV Texture
-            if self.data.flags[Flag.UV]:
+            if self.data.flags.get(Flag.UV):
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC2")
 
             # XYZ Normals
-            if self.data.flags[Flag.NORMALS]:
+            if self.data.flags.get(Flag.NORMALS):
                 primitive["attributes"]["NORMAL"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC3")
 
             # XYZW Tangents
-            if self.data.flags[Flag.TANGENTS]:
+            if self.data.flags.get(Flag.TANGENTS):
                 primitive["attributes"]["TANGENT"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC4")
@@ -310,15 +310,15 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.write(mesh.positions.tobytes())
 
             # UV Texture
-            if self.data.flags[Flag.UV]:
+            if self.data.flags.get(Flag.UV):
                 self.write(mesh.textures.tobytes())
 
             # XYZ Normals
-            if self.data.flags[Flag.NORMALS]:
+            if self.data.flags.get(Flag.NORMALS):
                 self.write(mesh.normals.tobytes())
 
             # XYZW Tangents
-            if self.data.flags[Flag.TANGENTS]:
+            if self.data.flags.get(Flag.TANGENTS):
                 self.write(mesh.tangents.tobytes())
 
             # Bone Links

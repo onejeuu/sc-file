@@ -79,5 +79,8 @@ def auto(
         case FileFormat.NBT:
             formats.nbt_to_json(source, output, options)
 
+        case FileFormat.MDAT:
+            formats.mdat_to_mca(source, output, options)
+
         case _:
             raise exceptions.UnsupportedFormatError(src_path)

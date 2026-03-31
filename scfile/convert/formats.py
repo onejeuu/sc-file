@@ -275,3 +275,22 @@ def efkmodel_to_ms3d(
     Example:
         `efkmodel_to_ms3d("model.efkmodel", "path/to/output")`
     """
+
+
+@converter(formats.mdat.MdatDecoder, formats.mca.McaEncoder)
+def mdat_to_mca(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts world region from `.mdat` to `.mca` format.
+
+    Arguments:
+        source: Path to input `.mdat` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `mdat_to_mca("model.efkmodel", "path/to/output")`
+    """

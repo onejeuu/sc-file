@@ -1,0 +1,110 @@
+import os
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import TypeAlias
+
+import click
+from rich import print
+
+from scfile import formats
+from scfile.cli import types
+from scfile.core.context.content import RegionContent
+from scfile.core.context.options import UserOptions
+from scfile.enums import CliCommand, L
+
+from . import scfile
+
+
+RegionKey: TypeAlias = tuple[int, int]
+
+
+def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions) -> None:
+    (rx, rz), paths = item
+
+    merged = RegionContent()
+    seen: set[int] = set()
+
+    for path in paths:
+        try:
+            with formats.mdat.MdatDecoder(file=path, options=options) as mdat:
+                region = mdat.decode()
+
+            for chunk in region.chunks:
+                if chunk.index not in seen:
+                    merged.chunks.append(chunk)
+                    seen.add(chunk.index)
+
+        except Exception as err:
+            print(L.ERROR, f"{path.name} - {err}")
+
+    merged.rx = rx
+    merged.rz = rz
+    filename = f"r.{rx}.{rz}.mca"
+
+    with formats.mca.McaEncoder(data=merged, options=options) as mca:
+        mca.encode()
+        mca.save(output / filename)
+
+    print(L.INFO, f"{filename} merged {len(merged.chunks)} chunks")
+
+
+@scfile.command(name=CliCommand.MAPCACHE)
+@click.argument("SOURCE", type=types.MapCache, nargs=1)
+@click.option(
+    "-O",
+    "--output",
+    help="Output results directory.",
+    type=types.Output,
+)
+@click.option(
+    "-W",
+    "--workers",
+    type=int,
+    default=None,
+    help="Number of worker threads (default: CPU count)",
+)
+@click.option(
+    "--raw",
+    is_flag=True,
+    help="Raw blocks without lookup",
+)
+def mapcache_command(
+    source: Path,
+    output: types.OutputDir,
+    workers: int | None,
+    raw: bool,
+) -> None:
+    if not output and "map_cache/5.0" in source.as_posix():
+        output = source.with_name(f"{source.name}_mca")
+        output.mkdir(parents=True, exist_ok=True)
+
+    if not output:
+        raise Exception("no output")  # TODO
+
+    mdats = [path for path in source.rglob("*.mdat") if path.stat().st_size > 0 and ".bck" not in str(path)]
+    if not mdats:
+        print(L.ERROR, f"No MDAT files found in {source}")
+        return
+
+    regions: dict[RegionKey, list[Path]] = defaultdict(list)
+    for path in mdats:
+        rx, rz = map(int, path.stem.lstrip("reg.").split("."))
+        regions[(rx, rz)].append(path)
+
+    if not regions:
+        print(L.ERROR, f"No valid regions found in {source}")
+        return
+
+    print(L.INFO, f"Found {len(regions)} unique regions")
+
+    options = UserOptions(parse_region_raw=raw)
+
+    if workers is not None and workers <= 0:
+        for item in regions.items():
+            merge(item, output, options)
+
+    else:
+        max_workers = (workers or os.cpu_count() or 4) * 2
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            executor.map(lambda item: merge(item, output, options), regions.items())

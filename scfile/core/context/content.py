@@ -106,6 +106,9 @@ class NbtContent(FileContent):
 class RegionContent(FileContent):
     type: FileType = field(default=FileType.REGION)
 
+    rx: int = 0
+    rz: int = 0
+
     offsets: list[int] = field(default_factory=list)
     counts: list[int] = field(default_factory=list)
     uuid: list[UUID] = field(default_factory=list)

@@ -1,7 +1,3 @@
-"""
-CLI wrapper implementation.
-"""
-
 import traceback
 from typing import Optional
 
@@ -9,14 +5,15 @@ import click
 from rich import print
 
 from scfile import convert, exceptions
+from scfile.cli import types, utils, version
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
-from scfile.enums import L
+from scfile.enums import CliCommand, L
 
-from . import types, utils, version
+from . import scfile
 
 
-@click.command(name="scfile", epilog=CLI.EPILOG)
+@scfile.command(name=CliCommand.CONVERT)
 @click.argument("PATHS", type=types.Files, nargs=-1)
 @click.option(
     "-O",
@@ -65,7 +62,7 @@ from . import types, utils, version
     expose_value=False,
 )
 @click.pass_context
-def scfile(
+def convert_command(
     ctx: click.Context,
     paths: types.FilesPaths,
     output: types.OutputDir,
