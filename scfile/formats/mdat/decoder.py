@@ -1,6 +1,3 @@
-from io import BytesIO
-from uuid import UUID
-
 import zstandard as zstd
 
 from scfile.core.context.content import RegionContent
@@ -23,21 +20,21 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
     _content = RegionContent
 
     def parse(self):
-        table = [(self._readb(F.I32), self._readb(F.I32), UUID(bytes=self.read(16))) for _ in range(CHUNKS_COUNT)]
+        table = [(self._readb(F.I32), self._readb(F.I32), self.read(16)) for _ in range(CHUNKS_COUNT)]
         offsets, counts, uuids = map(list, zip(*table))
 
         dctx = zstd.ZstdDecompressor()
         chunks: list[RegionChunk] = []
 
         for index in range(CHUNKS_COUNT):
-            if offsets[index] == 0:
+            offset = offsets[index]
+            if offset == 0:
                 continue
 
-            offset = offsets[index] * SECTION_SIZE
-            self.seek(offset)
+            self.seek(offset * SECTION_SIZE)
 
             # header
-            full_size, blocks_mask, add_mask, fixed_size, compressed_size = self._readarray("I", 5).tolist()
+            full_size, blocks_mask, add_mask, fixed_size, compressed_size = self._readarray(F.U32, 5).tolist()
 
             # read raw data
             compressed = self.read(compressed_size)
@@ -45,10 +42,11 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
 
             # split data
             sections_count = bin(blocks_mask).count("1")
-            # add_count = bin(add_mask).count("1")
+            blocks = decompressed[: sections_count * SECTION_SIZE]
 
-            buffer = BytesIO(decompressed)
-            blocks = buffer.read(sections_count * SECTION_SIZE)
+            # add_count = bin(add_mask).count("1")
+            # buffer = BytesIO(decompressed)
+            # blocks = buffer.read(sections_count * SECTION_SIZE)
             # meta = buffer.read(sections_count * NIBBLE_SIZE)
             # light = buffer.read(sections_count * NIBBLE_SIZE * 3)
             # add = buffer.read(add_count * NIBBLE_SIZE)
@@ -70,5 +68,5 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
 
         self.data.offsets = offsets
         self.data.counts = counts
-        self.data.uuid = uuids
+        # self.data.uuid = uuids
         self.data.chunks = chunks
