@@ -2,71 +2,104 @@ import argparse
 import json
 import os
 import re
+import struct
 import time
 import zlib
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from struct import pack
 from typing import TypeAlias
 
 from profiler import profiler
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
-from scfile.formats.nbt.enums import Tag
+from scfile.formats.mdat.decoder import NIBBLE_SIZE, SECTION_SIZE
 from scfile.structures.region import RegionChunk
 
 
 HEIGHT = 256
+
 SECTION_COUNT = 16
+SECTION = SECTION_SIZE
 
 _CURRENT_TIME = int(time.time())
-_TIMESTAMPS = pack(">I", _CURRENT_TIME) * 1024
+_TIMESTAMPS = struct.pack(">I", _CURRENT_TIME) * 1024
 
 RegionKey: TypeAlias = tuple[int, int]
 
 
-def _tag(tag_type: int, name: bytes) -> bytes:
-    return bytes([tag_type]) + pack(">H", len(name)) + name
+def nbt(tag: int, name: bytes, payload: bytes) -> bytes:
+    return bytes([tag]) + struct.pack(">H", len(name)) + name + payload
 
 
-_VERSION = _tag(Tag.INT, b"DataVersion") + pack(">i", 1343)  # Anvil 1.12.2
-_LEVEL_HEAD = _tag(Tag.COMPOUND, b"Level")
-_XPOS_HEAD = _tag(Tag.INT, b"xPos")
-_ZPOS_HEAD = _tag(Tag.INT, b"zPos")
-_SECTIONS_HEAD = _tag(Tag.LIST, b"Sections")
-_Y_HEAD = _tag(Tag.BYTE, b"Y")
-_BLOCKS_HEAD = _tag(Tag.BYTE_ARRAY, b"Blocks")
-_END = b"\x00"
-
-_Y_PACKED = [pack(">b", y) for y in range(SECTION_COUNT)]
+def compound(name: bytes, *children: bytes) -> bytes:
+    return nbt(0x0A, name, b"".join(children) + b"\x00")
 
 
-_DUMMY_CHUNK_PAYLOAD = b"".join(
-    [
-        _tag(Tag.LONG, b"LastUpdate") + pack(">q", _CURRENT_TIME),
-        _tag(Tag.BYTE, b"TerrainPopulated") + pack(">b", 1),
-        _tag(Tag.BYTE, b"LightPopulated") + pack(">b", 1),
-        _tag(Tag.BYTE, b"V") + pack(">b", 1),
-        _tag(Tag.LONG, b"InhabitedTime") + pack(">q", 6000),
-        _tag(Tag.INT_ARRAY, b"HeightMap") + pack(">i", HEIGHT) + pack(f">{HEIGHT}i", *([6] * HEIGHT)),
-        _tag(Tag.BYTE_ARRAY, b"Biomes") + pack(">i", HEIGHT) + (b"\x01" * HEIGHT),
-        _tag(Tag.LIST, b"Entities") + pack(">b", Tag.COMPOUND) + pack(">i", 0),
-        _tag(Tag.LIST, b"TileEntities") + pack(">b", Tag.COMPOUND) + pack(">i", 0),
-        _tag(Tag.LIST, b"TileTicks") + pack(">b", Tag.COMPOUND) + pack(">i", 0),
-    ]
+def lst(name: bytes, typ: int, *items: bytes) -> bytes:
+    return nbt(0x09, name, struct.pack(">bi", typ, len(items)) + b"".join(items))
+
+
+def nbt_byte(name: bytes, v: int) -> bytes:
+    return nbt(0x01, name, struct.pack(">b", v))
+
+
+def nbt_int(name: bytes, v: int) -> bytes:
+    return nbt(0x03, name, struct.pack(">i", v))
+
+
+def nbt_long(name: bytes, v: int) -> bytes:
+    return nbt(0x04, name, struct.pack(">q", v))
+
+
+def nbt_ba(name: bytes, d: bytes) -> bytes:
+    return nbt(0x07, name, struct.pack(">i", len(d)) + d)
+
+
+def nbt_ia(name: bytes, a: tuple) -> bytes:
+    return nbt(0x0B, name, struct.pack(f">i{len(a)}i", len(a), *a))
+
+
+_VERSION = nbt_int(b"DataVersion", 1343)
+
+_DUMMY_PAYLOAD = (
+    nbt_long(b"LastUpdate", _CURRENT_TIME)
+    + nbt_byte(b"TerrainPopulated", 1)
+    + nbt_byte(b"LightPopulated", 1)
+    + nbt_byte(b"V", 1)
+    + nbt_long(b"InhabitedTime", 6000)
+    + nbt_ia(b"HeightMap", tuple([6] * HEIGHT))
+    + nbt_ba(b"Biomes", b"\x01" * HEIGHT)
+    + lst(b"Entities", 0x0A)
+    + lst(b"TileEntities", 0x0A)
+    + lst(b"TileTicks", 0x0A)
 )
 
-_DUMMY_SECTIONS_PAYLOAD = b"".join(
-    [
-        _tag(Tag.BYTE_ARRAY, b"Data") + pack(">i", 2048) + bytes(2048),
-        _tag(Tag.BYTE_ARRAY, b"BlockLight") + pack(">i", 2048) + bytes(2048),
-        _tag(Tag.BYTE_ARRAY, b"Add") + pack(">i", 2048) + bytes(2048),
-        _tag(Tag.BYTE_ARRAY, b"SkyLight") + pack(">i", 2048) + (b"\xff" * 2048),
-        _END,
-    ]
+_DUMMY_SECTIONS_PAYLOAD = (
+    nbt_ba(b"Data", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"BlockLight", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"Add", bytes(NIBBLE_SIZE))
+    + nbt_ba(b"SkyLight", b"\xff" * NIBBLE_SIZE)
+    + b"\x00"
 )
+
+
+Sections: TypeAlias = dict[int, bytes]
+
+
+def data_to_sections(data: bytes, mask: int, size: int) -> Sections:
+    sections: Sections = {}
+
+    present = [y for y in range(16) if (mask >> y) & 1]
+    for idx, y in enumerate(present):
+        sections[y] = data[idx * size : (idx + 1) * size]
+
+    return sections
+
+
+def section_payload(y: int, blocks: bytes) -> bytes:
+    return nbt_byte(b"Y", y) + nbt_ba(b"Blocks", blocks) + _DUMMY_SECTIONS_PAYLOAD
 
 
 def build_blocks_mapping(mapping: dict[int, int]) -> bytes:
@@ -89,32 +122,24 @@ _BLOCKS_MAPPING = build_blocks_mapping(parse_blocks_mapping(_ROOT / "blocks.json
 
 
 def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
-    blocks = chunk.blocks if raw else chunk.blocks.translate(_BLOCKS_MAPPING)
-    mask = chunk.header.blocks_mask
+    blocks = chunk.blocks
 
-    present = [y for y in range(16) if (mask >> y) & 1]
-    sections: list[bytes] = []
+    if not raw:
+        blocks = chunk.blocks.translate(_BLOCKS_MAPPING)
 
-    for idx, y in enumerate(present):
-        section = blocks[idx * 4096 : (idx + 1) * 4096]
-        sections.append(_Y_HEAD + _Y_PACKED[y] + _BLOCKS_HEAD + section + _DUMMY_SECTIONS_PAYLOAD)
+    blocks = data_to_sections(blocks, chunk.header.blocks_mask, SECTION_SIZE)
+    sections = [section_payload(y, blocks[y]) for y in blocks.keys()]
 
-    return b"".join(
-        [
-            b"\x0a\x00\x00",  # compound tag
-            _VERSION,
-            _LEVEL_HEAD,
-            _XPOS_HEAD,
-            pack(">i", cx),
-            _ZPOS_HEAD,
-            pack(">i", cz),
-            _SECTIONS_HEAD,
-            b"\x0a",
-            pack(">i", len(sections)),
-            b"".join(sections),
-            _DUMMY_CHUNK_PAYLOAD,
-            _END,
-        ]
+    return compound(
+        b"",
+        _VERSION,
+        compound(
+            b"Level",
+            nbt_int(b"xPos", cx),
+            nbt_int(b"zPos", cz),
+            lst(b"Sections", 0x0A, *sections),
+            _DUMMY_PAYLOAD,
+        ),
     )
 
 
@@ -132,7 +157,7 @@ def build_mca(out: Path | None, region: RegionContent, rx: int = 0, rz: int = 0,
         compression_type = b"\x02"
         compressed_data = zlib.compress(chunk_nbt(cx, cz, chunk, raw), level=3)
 
-        data = pack(">I", len(compressed_data) + len(compression_type)) + compression_type + compressed_data
+        data = struct.pack(">I", len(compressed_data) + len(compression_type)) + compression_type + compressed_data
 
         total_bytes = len(data)
         sectors_needed = (total_bytes + 4096 - 1) // 4096
