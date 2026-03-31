@@ -6,10 +6,11 @@ class FileFormat(StrEnum):
 
     DAE = auto()
     DDS = auto()
-    FBX = auto()
     EFKMODEL = auto()
+    FBX = auto()
     GLB = auto()
     JSON = auto()
+    MCA = auto()
     MCAL = auto()
     MCSA = auto()
     MCSB = auto()
@@ -131,3 +132,8 @@ class ConsoleLabel(StrEnum):
 
 L = ConsoleLabel
 """ConsoleLabel Alias."""
+
+
+class CliCommand(StrEnum):
+    CONVERT = auto()
+    MAPCACHE = auto()

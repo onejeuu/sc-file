@@ -14,7 +14,7 @@ NIBBLE_SIZE = 16 * 16 * 8  # 2048
 
 
 class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
-    format = FileFormat.NBT
+    format = FileFormat.MDAT
     order = ByteOrder.BIG
 
     _content = RegionContent

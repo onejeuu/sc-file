@@ -25,7 +25,7 @@ def converters(src_format: str) -> ConverterMap:
 
 
 def registry() -> ConverterRegistry:
-    return deepcopy(_REGISTRY)
+    return deepcopy(dict(_REGISTRY))
 
 
 def converter(
