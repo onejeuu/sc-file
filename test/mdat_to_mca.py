@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import TypeAlias
 
 from mdat_blocks import BLOCKS_MAPPING
-from profiler import profiler
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
@@ -180,7 +179,6 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, raw: bool = False) -
     print(f"{filename}: {len(merged.chunks)} chunks")
 
 
-@profiler
 def main() -> None:
     parser = argparse.ArgumentParser(description="Convert MDAT to MCA (1.12.2) format")
     parser.add_argument("source", type=Path, help="Source directory with MDAT files")
