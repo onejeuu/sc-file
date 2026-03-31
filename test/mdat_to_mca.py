@@ -1,7 +1,7 @@
 import argparse
 import json
-import math
 import os
+import re
 import struct
 import time
 import zlib
@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TypeAlias
 
 import numpy as np
+from profiler import profiler
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
@@ -24,7 +25,7 @@ SECTION_COUNT = 16
 SECTION = SECTION_SIZE
 
 _CURRENT_TIME = int(time.time())
-_TIME_BYTES = struct.pack(">I", _CURRENT_TIME)
+_TIMESTAMPS = struct.pack(">I", _CURRENT_TIME) * 1024
 
 RegionKey: TypeAlias = tuple[int, int]
 
@@ -112,15 +113,21 @@ def build_blocks_mapping(mapping: dict[int, int]) -> bytes:
 
 
 def parse_blocks_mapping(path: Path | str) -> dict[int, int]:
-    return {int(k): int(v) for k, v in json.loads(Path(path).read_text()).items()}
+    data = Path(path).read_text()
+    data = re.sub(r"//.*", "", data)
+    return {int(k): int(v) for k, v in json.loads(data).items()}
 
 
 _ROOT = Path(__file__).parent
 _BLOCKS_MAPPING = build_blocks_mapping(parse_blocks_mapping(_ROOT / "blocks.json"))
 
 
-def chunk_nbt(cx: int, cz: int, chunk: RegionChunk) -> bytes:
-    blocks = chunk.blocks.translate(_BLOCKS_MAPPING)
+def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
+    blocks = chunk.blocks
+
+    if not raw:
+        blocks = chunk.blocks.translate(_BLOCKS_MAPPING)
+
     blocks = data_to_sections(blocks, chunk.header.blocks_mask, SECTION_SIZE)
     sections = [section_payload(y, blocks[y]) for y in blocks.keys()]
 
@@ -137,59 +144,42 @@ def chunk_nbt(cx: int, cz: int, chunk: RegionChunk) -> bytes:
     )
 
 
-def build_mca(out: Path | None, region: RegionContent, rx: int = 0, rz: int = 0) -> None:
+def build_mca(out: Path | None, region: RegionContent, rx: int = 0, rz: int = 0, raw: bool = False) -> None:
+    locations = np.zeros(SECTION, dtype=np.uint8)
     chunks: list[tuple[int, int, bytes]] = []
 
+    next_sector = 2
+
     for chunk in region.chunks:
-        index = chunk.index
-        lx = index % 32
-        lz = index // 32
+        lx = chunk.index % 32
+        lz = chunk.index // 32
         cx = rx * 32 + lx
         cz = rz * 32 + lz
 
-        # Path(f"test/chunk/{lx}.{lz}.chunk").write_bytes(chunk.header.to_bytes() + chunk.data)
+        data = chunk_nbt(cx, cz, chunk, raw)
+        data = zlib.compress(data, level=3)
 
-        data = zlib.compress(chunk_nbt(cx, cz, chunk), level=3)
+        sectors = (len(data) + 5 + SECTION - 1) // SECTION
 
-        chunks.append((lx, lz, data))
+        idx = (lx + lz * 32) * 4
+        locations[idx : idx + 4] = [next_sector >> 16, (next_sector >> 8) & 0xFF, next_sector & 0xFF, sectors]
 
-    # Location и Timestamp таблица
-    loc = np.zeros(SECTION, dtype=np.uint8)
-    ts = np.zeros(SECTION, dtype=np.uint8)
-
-    off = 2
-    offsets: list[tuple[int, int]] = []
-
-    for lx, lz, data in chunks:
-        sc = math.ceil((len(data) + 5) / SECTION)  # Sector size
-        i4 = (lx + lz * 32) * 4  # Location table entry
-
-        # pack offsets
-        loc[i4] = (off >> 16) & 0xFF
-        loc[i4 + 1] = (off >> 8) & 0xFF
-        loc[i4 + 2] = off & 0xFF
-        loc[i4 + 3] = sc
-
-        # pack times
-        ts_bytes = _TIME_BYTES
-        ts[i4 : i4 + 4] = np.frombuffer(ts_bytes, dtype=np.uint8)
-
-        offsets.append((off, sc))
-        off += sc
+        chunks.append((next_sector, sectors, data))
+        next_sector += sectors
 
     if out:
         with open(out, "wb") as fp:
-            fp.write(loc.tobytes())
-            fp.write(ts.tobytes())
+            fp.write(locations.tobytes())
+            fp.write(_TIMESTAMPS)
 
-            for (chunk_off, sc), (lx, lz, data) in zip(offsets, chunks):
-                fp.seek(chunk_off * SECTION)
-                blob = struct.pack(">I", len(data) + 1) + b"\x02" + data
-                padded = blob + b"\x00" * (sc * SECTION - len(blob))
-                fp.write(padded)
+            for sector, sectors, data in chunks:
+                fp.seek(sector * SECTION)
+                header = struct.pack(">I", len(data) + 1) + b"\x02"
+                fp.write(header + data)
+                fp.write(b"\x00" * (sectors * SECTION - len(header) - len(data)))
 
 
-def merge(item: tuple[RegionKey, list[Path]], output: Path) -> None:
+def merge(item: tuple[RegionKey, list[Path]], output: Path, raw: bool = False) -> None:
     (rx, rz), paths = item
 
     merged = RegionContent()
@@ -209,15 +199,17 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path) -> None:
             print(f"ERROR: {path.name}: {err}")
 
     filename = f"r.{rx}.{rz}.mca"
-    build_mca(output / filename, region=merged, rx=rx, rz=rz)
+    build_mca(output / filename, region=merged, rx=rx, rz=rz, raw=raw)
     print(f"{filename}: {len(merged.chunks)} chunks")
 
 
+@profiler
 def main() -> None:
     parser = argparse.ArgumentParser(description="Convert MDAT to MCA (1.12.2) format")
     parser.add_argument("source", type=Path, help="Source directory with MDAT files")
     parser.add_argument("output", type=Path, help="Output directory for MCA files")
     parser.add_argument("-w", "--workers", type=int, default=None, help="Number of worker threads (default: CPU count)")
+    parser.add_argument("--raw", action="store_true", help="Raw blocks without lookup")
 
     args = parser.parse_args()
 
@@ -237,9 +229,14 @@ def main() -> None:
 
     print(f"Found {len(regions)} unique regions")
 
-    max_workers = (args.workers or os.cpu_count() or 4) * 2
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        executor.map(lambda item: merge(item, output), regions.items())
+    if args.workers is not None and args.workers <= 0:
+        for item in regions.items():
+            merge(item, args.output, args.raw)
+
+    else:
+        max_workers = (args.workers or os.cpu_count() or 4) * 2
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            executor.map(lambda item: merge(item, output, args.raw), regions.items())
 
     print("Done.")
 
