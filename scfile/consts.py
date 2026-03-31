@@ -15,6 +15,7 @@ SUPPORTED_FORMATS: set[FileFormat] = {
     FileFormat.OL,
     FileFormat.TEXARR,
     FileFormat.NBT,
+    FileFormat.MDAT,
     FileFormat.ITEMNAMES,
 }
 """Files formats (suffixes without dot) that can be converted."""
