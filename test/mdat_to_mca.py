@@ -10,19 +10,16 @@ from pathlib import Path
 from struct import pack
 from typing import TypeAlias
 
-import numpy as np
 from profiler import profiler
 
 from scfile import formats
 from scfile.core.context.content import RegionContent
-from scfile.formats.mdat.decoder import NIBBLE_SIZE, SECTION_SIZE
 from scfile.formats.nbt.enums import Tag
 from scfile.structures.region import RegionChunk
 
 
 HEIGHT = 256
 SECTION_COUNT = 16
-
 
 _CURRENT_TIME = int(time.time())
 _TIMESTAMPS = pack(">I", _CURRENT_TIME) * 1024
@@ -34,20 +31,19 @@ def _tag(tag_type: int, name: bytes) -> bytes:
     return bytes([tag_type]) + pack(">H", len(name)) + name
 
 
+_VERSION = _tag(Tag.INT, b"DataVersion") + pack(">i", 1343)  # Anvil 1.12.2
 _LEVEL_HEAD = _tag(Tag.COMPOUND, b"Level")
 _XPOS_HEAD = _tag(Tag.INT, b"xPos")
 _ZPOS_HEAD = _tag(Tag.INT, b"zPos")
 _SECTIONS_HEAD = _tag(Tag.LIST, b"Sections")
-_VERSION = _tag(Tag.INT, b"DataVersion") + pack(">i", 1343)  # Anvil 1.12.2
-
-_Y_HEADER = _tag(Tag.BYTE, b"Y")
-_BLOCKS_HEADER = _tag(Tag.BYTE_ARRAY, b"Blocks")
-_Y_PACKED = [pack(">b", y) for y in range(SECTION_COUNT)]
-
+_Y_HEAD = _tag(Tag.BYTE, b"Y")
+_BLOCKS_HEAD = _tag(Tag.BYTE_ARRAY, b"Blocks")
 _END = b"\x00"
 
+_Y_PACKED = [pack(">b", y) for y in range(SECTION_COUNT)]
 
-_DUMMY_PAYLOAD = b"".join(
+
+_DUMMY_CHUNK_PAYLOAD = b"".join(
     [
         _tag(Tag.LONG, b"LastUpdate") + pack(">q", _CURRENT_TIME),
         _tag(Tag.BYTE, b"TerrainPopulated") + pack(">b", 1),
@@ -64,10 +60,10 @@ _DUMMY_PAYLOAD = b"".join(
 
 _DUMMY_SECTIONS_PAYLOAD = b"".join(
     [
-        _tag(Tag.BYTE_ARRAY, b"Data") + pack(">i", NIBBLE_SIZE) + bytes(NIBBLE_SIZE),
-        _tag(Tag.BYTE_ARRAY, b"BlockLight") + pack(">i", NIBBLE_SIZE) + bytes(NIBBLE_SIZE),
-        _tag(Tag.BYTE_ARRAY, b"Add") + pack(">i", NIBBLE_SIZE) + bytes(NIBBLE_SIZE),
-        _tag(Tag.BYTE_ARRAY, b"SkyLight") + pack(">i", NIBBLE_SIZE) + (b"\xff" * NIBBLE_SIZE),
+        _tag(Tag.BYTE_ARRAY, b"Data") + pack(">i", 2048) + bytes(2048),
+        _tag(Tag.BYTE_ARRAY, b"BlockLight") + pack(">i", 2048) + bytes(2048),
+        _tag(Tag.BYTE_ARRAY, b"Add") + pack(">i", 2048) + bytes(2048),
+        _tag(Tag.BYTE_ARRAY, b"SkyLight") + pack(">i", 2048) + (b"\xff" * 2048),
         _END,
     ]
 )
@@ -100,8 +96,8 @@ def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
     sections: list[bytes] = []
 
     for idx, y in enumerate(present):
-        section = blocks[idx * SECTION_SIZE : (idx + 1) * SECTION_SIZE]
-        sections.append(_Y_HEADER + _Y_PACKED[y] + _BLOCKS_HEADER + section + _DUMMY_SECTIONS_PAYLOAD)
+        section = blocks[idx * 4096 : (idx + 1) * 4096]
+        sections.append(_Y_HEAD + _Y_PACKED[y] + _BLOCKS_HEAD + section + _DUMMY_SECTIONS_PAYLOAD)
 
     return b"".join(
         [
@@ -115,46 +111,44 @@ def chunk_nbt(cx: int, cz: int, chunk: RegionChunk, raw: bool = False) -> bytes:
             _SECTIONS_HEAD,
             b"\x0a",
             pack(">i", len(sections)),
-            *sections,
-            _DUMMY_PAYLOAD,
-            b"\x00\x00",
+            b"".join(sections),
+            _DUMMY_CHUNK_PAYLOAD,
+            _END,
         ]
     )
 
 
 def build_mca(out: Path | None, region: RegionContent, rx: int = 0, rz: int = 0, raw: bool = False) -> None:
-    locations = np.zeros(SECTION_SIZE, dtype=np.uint8)
-    chunks: list[tuple[int, int, bytes]] = []
+    locations = bytearray(4096)
+    timestamps = _TIMESTAMPS
 
-    next_sector = 2
+    payload = [locations, timestamps]
+    current_sector = len(payload)
 
     for chunk in region.chunks:
-        lx = chunk.index % 32
-        lz = chunk.index // 32
-        cx = rx * 32 + lx
-        cz = rz * 32 + lz
+        lx, lz = chunk.index % 32, chunk.index // 32
+        cx, cz = rx * 32 + lx, rz * 32 + lz
 
-        data = chunk_nbt(cx, cz, chunk, raw)
-        data = zlib.compress(data, level=3)
+        compression_type = b"\x02"
+        compressed_data = zlib.compress(chunk_nbt(cx, cz, chunk, raw), level=3)
 
-        sectors = (len(data) + 5 + SECTION_SIZE - 1) // SECTION_SIZE
+        data = pack(">I", len(compressed_data) + len(compression_type)) + compression_type + compressed_data
+
+        total_bytes = len(data)
+        sectors_needed = (total_bytes + 4096 - 1) // 4096
 
         idx = (lx + lz * 32) * 4
-        locations[idx : idx + 4] = [next_sector >> 16, (next_sector >> 8) & 0xFF, next_sector & 0xFF, sectors]
+        locations[idx : idx + 4] = ((current_sector << 8) | sectors_needed).to_bytes(4, "big")
 
-        chunks.append((next_sector, sectors, data))
-        next_sector += sectors
+        payload.append(data)
+
+        padding = (sectors_needed * 4096) - total_bytes
+        payload.append(b"\x00" * padding)
+
+        current_sector += sectors_needed
 
     if out:
-        with open(out, "wb") as fp:
-            fp.write(locations.tobytes())
-            fp.write(_TIMESTAMPS)
-
-            for sector, sectors, data in chunks:
-                fp.seek(sector * SECTION_SIZE)
-                header = pack(">I", len(data) + 1) + b"\x02"
-                fp.write(header + data)
-                fp.write(b"\x00" * (sectors * SECTION_SIZE - len(header) - len(data)))
+        out.write_bytes(b"".join(payload))
 
 
 def merge(item: tuple[RegionKey, list[Path]], output: Path, raw: bool = False) -> None:
