@@ -11,24 +11,26 @@ BLOCKS: dict[int, int] = {
     27: 1,  # power rail -> stone
     28: 1,  # detector rail -> stone
     66: 1,  # rail -> stone
-    77: 1,  # button -> stone
-    143: 1,  # button -> stone
+    77: 1,  # stone button -> stone
+    143: 1,  # wood button -> stone
     223: 1,  # yellow shulker -> stone
     230: 1,  # blue shulker -> stone
     39: 1,  # mushroom -> stone
     40: 1,  # red mushroom -> stone
     149: 1,  # comporator (off) -> stone
     150: 1,  # comporator (on) -> stone
-    128: 5,  # sandstone stairs -> oak
     54: 3,  # chest -> dirt
     146: 3,  # trap chest -> dirt
-    99: 5,  # mushroom block -> oak
-    179: 9,  # red standstone -> water
+    128: 4,  # sandstone stairs -> cobblestone
+    99: 4,  # mushroom block -> cobblestone
+    179: 9,  # red sandstone -> water
     198: 35,  # end rod -> wool
     61: 35,  # furnace (off) -> wool
     62: 35,  # furnace (on) -> wool
     193: 35,  # spruce door -> wool
     194: 35,  # birch door -> wool
+    181: 49,  # double red sandstone slab -> obsidian
+    202: 49,  # purpur pillar -> obsidian
     250: 45,  # black glazed -> bricks
     247: 32,  # brown glazed -> deadbush
     249: 32,  # red glazed -> deadbush
@@ -36,7 +38,7 @@ BLOCKS: dict[int, int] = {
     211: 32,  # command block (chain) -> deadbush
     227: 37,  # light gray shulker -> dandelion
     133: 37,  # emerald -> dandelion
-    225: 37,  # gray shulker -> dandelion
+    225: 37,  # pink shulker -> dandelion
     226: 37,  # gray shulker -> dandelion
     243: 37,  # light gray glazed -> dandelion
     244: 37,  # cyan glazed -> dandelion
@@ -60,7 +62,7 @@ BLOCKS: dict[int, int] = {
     122: 38,  # dragon egg -> poppy
     116: 38,  # enchantment table -> poppy
     123: 38,  # redstone lamp -> poppy
-    189: 98,  # red sandstone -> stone bricks
+    189: 98,  # birch fence -> stone bricks
     182: 98,  # red sandstone slab -> stone bricks
     236: 106,  # orange glazed -> vines
     237: 106,  # magenta glazed -> vines
