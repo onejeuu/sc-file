@@ -1,0 +1,7 @@
+line-length = 120
+
+[lint]
+ignore = ["E701"]
+
+[lint.isort]
+lines-after-imports = 2
