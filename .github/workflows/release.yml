@@ -49,6 +49,7 @@ jobs:
   publish-package:
     name: Publish PyPi
     runs-on: ubuntu-latest
+    if: ${{ !(contains(github.ref_name, '-dev') || contains(github.ref_name, '-rc') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta')) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -86,7 +87,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          prerelease: ${{ contains(github.ref_name, '-dev') || contains(github.ref_name, '-rc') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') }}
           name: Release ${{ github.ref_name }}
           body: |
             ## `${{ github.ref_name }}` `${{ steps.date.outputs.date }}`
