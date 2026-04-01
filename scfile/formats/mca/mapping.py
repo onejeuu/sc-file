@@ -1,77 +1,115 @@
 BLOCKS: dict[int, int] = {
-    178: 166,  # daylight -> barrier
-    127: 0,  # cocoa -> air
-    90: 0,  # nether portal -> air
-    119: 0,  # end portal -> air
-    141: 0,  # carrot -> air
-    255: 0,  # structure block -> air
-    88: 0,  # soul sand -> air (light)
-    89: 0,  # glowstone -> air (light)
-    101: 1,  # iron bars -> stone
-    27: 1,  # power rail -> stone
-    28: 1,  # detector rail -> stone
-    66: 1,  # rail -> stone
-    77: 1,  # stone button -> stone
-    143: 1,  # wood button -> stone
-    223: 1,  # yellow shulker -> stone
-    230: 1,  # blue shulker -> stone
-    39: 1,  # mushroom -> stone
-    40: 1,  # red mushroom -> stone
-    149: 1,  # comporator (off) -> stone
-    150: 1,  # comporator (on) -> stone
-    54: 3,  # chest -> dirt
-    146: 3,  # trap chest -> dirt
-    128: 4,  # sandstone stairs -> cobblestone
-    99: 4,  # mushroom block -> cobblestone
-    179: 9,  # red sandstone -> water
-    198: 35,  # end rod -> wool
-    61: 35,  # furnace (off) -> wool
-    62: 35,  # furnace (on) -> wool
-    193: 35,  # spruce door -> wool
-    194: 35,  # birch door -> wool
-    181: 49,  # double red sandstone slab -> obsidian
-    202: 49,  # purpur pillar -> obsidian
-    250: 45,  # black glazed -> bricks
-    247: 32,  # brown glazed -> deadbush
-    249: 32,  # red glazed -> deadbush
-    210: 32,  # command block (repeat) -> deadbush
-    211: 32,  # command block (chain) -> deadbush
-    227: 37,  # light gray shulker -> dandelion
-    133: 37,  # emerald -> dandelion
-    225: 37,  # pink shulker -> dandelion
-    226: 37,  # gray shulker -> dandelion
-    243: 37,  # light gray glazed -> dandelion
-    244: 37,  # cyan glazed -> dandelion
-    245: 37,  # purple glazed -> dandelion
-    246: 37,  # blue glazed -> dandelion
-    248: 37,  # green glazed -> dandelion
-    117: 37,  # brewing stand -> dandelion
-    213: 37,  # magma -> dandelion
-    121: 37,  # endstone -> dandelion
-    132: 37,  # tripline -> dandelion
-    212: 37,  # forsted ice -> dandelion
-    241: 37,  # pink glazed -> dandelion
-    252: 37,  # white powder -> dandelion
-    216: 37,  # bone block -> dandelion
-    115: 38,  # wart -> poppy
-    214: 38,  # wart block -> poppy
-    215: 38,  # red nether bricks -> poppy
-    240: 38,  # lime glazed -> poppy
-    242: 38,  # gray glazed -> poppy
-    118: 38,  # cauldron -> poppy
-    122: 38,  # dragon egg -> poppy
-    116: 38,  # enchantment table -> poppy
-    123: 38,  # redstone lamp -> poppy
-    189: 98,  # birch fence -> stone bricks
-    182: 98,  # red sandstone slab -> stone bricks
-    236: 106,  # orange glazed -> vines
-    237: 106,  # magenta glazed -> vines
-    238: 106,  # light blue glazed -> vines
-    239: 106,  # yellow glazed -> vines
-    180: 126,  # red sandstone stairs -> slab
-    114: 126,  # nether stairs -> slab
-    111: 126,  # lily pad -> slab
-    251: 159,  # white concrete -> clay
+    # Barrier
+    178: 166,  # daylight sensor
+    # Air
+    88: 0,  # soul sand -> (light)
+    89: 0,  # glowstone -> (light)
+    39: 0,  # mushroom -> (therma?)
+    117: 0,  # brewing stand
+    180: 0,  # red sandstone stairs -> slab
+    114: 0,  # nether stairs -> slab
+    111: 0,  # lily pad -> slab
+    40: 0,  # red mushroom
+    127: 0,  # cocoa
+    251: 0,  # white concrete
+    255: 0,  # structure block
+    223: 0,  # yellow shulker
+    113: 0,  # nether fence
+    123: 0,  # lamp (off)
+    124: 0,  # lamp (on)
+    193: 0,  # spruce door
+    129: 0,  # emerald ore
+    # Stone
+    183: 1,  # spruce
+    101: 1,  # iron bars
+    203: 1,  # purpur stairs
+    27: 1,  # power rail
+    90: 1,  # nether portal
+    119: 1,  # end portal
+    # Grass
+    141: 2,  # carrots
+    # Dirt
+    143: 3,  # wood button
+    142: 3,  # potatos
+    54: 3,  # chest
+    146: 3,  # trap chest
+    # Cobblestone
+    149: 4,  # comporator (off)
+    128: 4,  # sandstone stairs
+    28: 4,  # detector rail
+    # Planks
+    99: 5,  # mushroom block
+    # Water
+    179: 9,  # red sandstone
+    # Wool
+    198: 35,  # end rod
+    62: 35,  # furnace (on)
+    # Bricks
+    250: 45,  # black glazed
+    # Obsidian
+    181: 49,  # double red sandstone slab
+    201: 49,  # purpur block
+    202: 49,  # purpur pillar
+    230: 49,  # blue shulker
+    53: 49,  # oak stairs
+    61: 49,  # furnace (off)
+    50: 49,  # torch
+    # Diamond
+    66: 57,  # rail
+    # Ladder
+    109: 65,  # stone bricks stairs
+    # Netherrack
+    194: 87,  # birch door
+    # Grass Deadbush
+    132: 32,  # tripline
+    133: 32,  # emerald
+    214: 32,  # wart block
+    226: 32,  # gray shulker
+    244: 32,  # cyan glazed
+    248: 32,  # green glazed
+    # Grass Dandelion
+    213: 37,  # magma
+    216: 37,  # bone block
+    225: 37,  # pink shulker
+    227: 37,  # light gray shulker
+    245: 37,  # purple glazed
+    246: 37,  # blue glazed
+    252: 37,  # white powder
+    # Grass Poppy
+    116: 38,  # enchantment table
+    118: 38,  # cauldron
+    121: 38,  # endstone
+    122: 38,  # dragon egg
+    210: 38,  # command block (repeat)
+    211: 38,  # command block (chain)
+    240: 38,  # lime glazed
+    241: 38,  # pink glazed
+    242: 38,  # gray glazed
+    247: 38,  # brown glazed
+    # Grass Canes
+    212: 83,  # forsted ice
+    215: 83,  # red nether bricks
+    221: 83,  # magenta shulker
+    222: 83,  # magenta shulker
+    228: 83,  # cyan shulker
+    229: 83,  # shulker
+    249: 83,  # red glazed
+    # Grass Mushroom
+    243: 39,  # light gray glazed
+    # Vines
+    236: 106,  # orange glazed
+    237: 106,  # magenta glazed
+    238: 106,  # light blue glazed
+    239: 106,  # yellow glazed
+    # Nether Bricks
+    182: 112,  # red sandstone slab
+    # Gates -> Fences
+    107: 85,  # oak
+    189: 113,  # birch fence
+    184: 189,  # birch
+    185: 190,  # jungle
+    186: 191,  # dark oak
+    187: 192,  # acacia
 }
 
 
