@@ -75,12 +75,15 @@ def mapcache_command(
     workers: int | None,
     raw: bool,
 ) -> None:
-    if not output and "map_cache/5.0" in source.as_posix():
-        output = source.with_name(f"{source.name}_mca")
-        output.mkdir(parents=True, exist_ok=True)
+    print(
+        L.WARN,
+        "[b yellow]MDAT decoder is EXPERIMENTAL. Blocks representation is NOT accurate. "
+        "Expect broken visuals up close. Full compatibility is unlikely.[/]",
+    )
 
     if not output:
-        raise Exception("no output")  # TODO
+        output = source.with_name(f"{source.name}_mca")
+        output.mkdir(parents=True, exist_ok=True)
 
     mdats = [path for path in source.rglob("*.mdat") if path.stat().st_size > 0 and ".bck" not in str(path)]
     if not mdats:
