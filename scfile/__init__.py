@@ -1,4 +1,4 @@
-__version__ = "5.0.0"
+__version__ = "5.0.0-dev.1"
 __author__ = "onejeuu"
 __license__ = "MIT"
 

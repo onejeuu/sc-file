@@ -154,7 +154,7 @@ with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
 
 ## 🤝 Acknowledgments
 
-`kommunist2021` · `Art3mLapa` · `n1kodim`  
+`kommunist2021` · `Art3mLapa` · `n1kodim` · `TeamDima` · `BoJIwEbHuK7`  
 `IExploitableMan` · `tuneyadecc` · `Hazart`
 
 Thanks to everyone who reported issues, shared findings, or contributed ideas.
