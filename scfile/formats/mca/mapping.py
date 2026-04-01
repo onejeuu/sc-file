@@ -4,38 +4,42 @@ BLOCKS: dict[int, int] = {
     # Air
     88: 0,  # soul sand -> (light)
     89: 0,  # glowstone -> (light)
-    39: 0,  # mushroom -> (therma?)
-    117: 0,  # brewing stand
-    180: 0,  # red sandstone stairs -> slab
-    114: 0,  # nether stairs -> slab
     111: 0,  # lily pad -> slab
-    40: 0,  # red mushroom
-    127: 0,  # cocoa
-    251: 0,  # white concrete
-    255: 0,  # structure block
-    223: 0,  # yellow shulker
     113: 0,  # nether fence
+    114: 0,  # nether stairs -> slab
+    115: 0,  # wart
+    117: 0,  # brewing stand
+    118: 0,  # cauldron
     123: 0,  # lamp (off)
     124: 0,  # lamp (on)
-    193: 0,  # spruce door
+    127: 0,  # cocoa
     129: 0,  # emerald ore
+    180: 0,  # red sandstone stairs -> slab
+    193: 0,  # spruce door
+    223: 0,  # yellow shulker
+    251: 0,  # white concrete
+    255: 0,  # structure block
+    39: 0,  # mushroom
+    40: 0,  # red mushroom
     # Stone
-    183: 1,  # spruce
     101: 1,  # iron bars
+    119: 1,  # end portal
+    183: 1,  # spruce
     203: 1,  # purpur stairs
     27: 1,  # power rail
     90: 1,  # nether portal
-    119: 1,  # end portal
     # Grass
     141: 2,  # carrots
     # Dirt
-    143: 3,  # wood button
     142: 3,  # potatos
-    54: 3,  # chest
+    143: 3,  # wood button
     146: 3,  # trap chest
+    54: 3,  # chest
     # Cobblestone
-    149: 4,  # comporator (off)
     128: 4,  # sandstone stairs
+    149: 4,  # comporator (off)
+    200: 4,  # chorus
+    205: 4,  # purpur slab
     28: 4,  # detector rail
     # Planks
     99: 5,  # mushroom block
@@ -51,15 +55,17 @@ BLOCKS: dict[int, int] = {
     201: 49,  # purpur block
     202: 49,  # purpur pillar
     230: 49,  # blue shulker
+    50: 49,  # torch
     53: 49,  # oak stairs
     61: 49,  # furnace (off)
-    50: 49,  # torch
     # Diamond
     66: 57,  # rail
     # Ladder
     109: 65,  # stone bricks stairs
     # Netherrack
     194: 87,  # birch door
+    # Nether Bricks
+    182: 112,  # red sandstone slab
     # Grass Deadbush
     132: 32,  # tripline
     133: 32,  # emerald
@@ -77,7 +83,6 @@ BLOCKS: dict[int, int] = {
     252: 37,  # white powder
     # Grass Poppy
     116: 38,  # enchantment table
-    118: 38,  # cauldron
     121: 38,  # endstone
     122: 38,  # dragon egg
     210: 38,  # command block (repeat)
@@ -86,6 +91,8 @@ BLOCKS: dict[int, int] = {
     241: 38,  # pink glazed
     242: 38,  # gray glazed
     247: 38,  # brown glazed
+    # Grass Mushroom
+    243: 39,  # light gray glazed
     # Grass Canes
     212: 83,  # forsted ice
     215: 83,  # red nether bricks
@@ -94,15 +101,11 @@ BLOCKS: dict[int, int] = {
     228: 83,  # cyan shulker
     229: 83,  # shulker
     249: 83,  # red glazed
-    # Grass Mushroom
-    243: 39,  # light gray glazed
-    # Vines
+    # Grass Vines
     236: 106,  # orange glazed
     237: 106,  # magenta glazed
     238: 106,  # light blue glazed
     239: 106,  # yellow glazed
-    # Nether Bricks
-    182: 112,  # red sandstone slab
     # Gates -> Fences
     107: 85,  # oak
     189: 113,  # birch fence
