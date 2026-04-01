@@ -4,23 +4,17 @@ BLOCKS: dict[int, int] = {
     # Air
     88: 0,  # soul sand -> (light)
     89: 0,  # glowstone -> (light)
-    111: 0,  # lily pad -> slab
+    111: 0,  # lily pad
     113: 0,  # nether fence
-    114: 0,  # nether stairs -> slab
-    115: 0,  # wart
+    114: 0,  # nether stairs
     117: 0,  # brewing stand
-    118: 0,  # cauldron
-    123: 0,  # lamp (off)
-    124: 0,  # lamp (on)
     127: 0,  # cocoa
-    129: 0,  # emerald ore
-    180: 0,  # red sandstone stairs -> slab
-    193: 0,  # spruce door
-    223: 0,  # yellow shulker
     251: 0,  # white concrete
     255: 0,  # structure block
     39: 0,  # mushroom
     40: 0,  # red mushroom
+    115: 0,  # wart
+    118: 0,  # cauldron
     # Stone
     101: 1,  # iron bars
     119: 1,  # end portal
@@ -38,8 +32,10 @@ BLOCKS: dict[int, int] = {
     # Cobblestone
     128: 4,  # sandstone stairs
     149: 4,  # comporator (off)
+    180: 4,  # red sandstone stairs
     200: 4,  # chorus
     205: 4,  # purpur slab
+    223: 4,  # yellow shulker
     28: 4,  # detector rail
     # Planks
     99: 5,  # mushroom block
@@ -64,6 +60,8 @@ BLOCKS: dict[int, int] = {
     109: 65,  # stone bricks stairs
     # Netherrack
     194: 87,  # birch door
+    # Iron Bars
+    193: 101,  # spruce door
     # Nether Bricks
     182: 112,  # red sandstone slab
     # Grass Deadbush
@@ -81,7 +79,10 @@ BLOCKS: dict[int, int] = {
     245: 37,  # purple glazed
     246: 37,  # blue glazed
     252: 37,  # white powder
+    124: 37,  # lamp (on)
     # Grass Poppy
+    129: 38,  # emerald ore
+    123: 38,  # lamp (off)
     116: 38,  # enchantment table
     121: 38,  # endstone
     122: 38,  # dragon egg
