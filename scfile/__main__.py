@@ -13,7 +13,7 @@ def normalize():
 
     default_command = CliCommand.CONVERT
 
-    if args and Path(args[0]).as_posix().endswith("map_cache/5.0"):
+    if args and "map_cache" in Path(args[0]).as_posix():
         default_command = CliCommand.MAPCACHE
 
     elif not args or args[0] not in scfile.commands.keys():
