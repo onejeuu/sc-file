@@ -3,6 +3,7 @@ Shared content data between decoder and encoder.
 """
 
 from abc import ABC
+from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeAlias, cast
 from uuid import UUID
@@ -41,7 +42,7 @@ class ModelContent(FileContent):
     type: FileType = field(default=FileType.MODEL)
 
     version: float = 0.0
-    flags: ModelFlags = field(default_factory=dict)
+    flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
     scene: ModelScene = field(default_factory=ModelScene)
 
 
