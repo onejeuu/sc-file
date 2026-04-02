@@ -5,7 +5,7 @@ from scfile.structures.mesh import ModelMesh
 
 
 class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
-    format = FileFormat.MCSA
+    format = FileFormat.EFKMODEL
     order = ByteOrder.LITTLE
 
     _content = ModelContent
