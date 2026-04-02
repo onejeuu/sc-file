@@ -49,7 +49,7 @@ def auto(
 
     # Detect format by file suffix
     match src_format:
-        case FileFormat.MCSB | FileFormat.MCSA | FileFormat.MCVD:
+        case FileFormat.MCSB | FileFormat.MCSA | FileFormat.MCVD | FileFormat.EFKMODEL:
             # Get converters mapping from mapping
             converters = factory.converters(src_format)
 
