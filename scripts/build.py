@@ -23,6 +23,9 @@ def build():
             "--specpath",
             SPECPATH,
             "--onefile",
+            # Add icon to binary data
+            "--add-data",
+            f"{ICON}:assets",
             # Fix for rich library Unicode support in compiled executable
             # PyInstaller doesnt automatically detect these submodules
             "--hidden-import",
