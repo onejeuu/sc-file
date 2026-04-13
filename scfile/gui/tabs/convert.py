@@ -23,11 +23,6 @@ from scfile.gui.consts import Styles
 from scfile.gui.worker import ConvertWorker, OutputConfig
 
 
-def _format_display_text(fmt: dict) -> str:
-    icons = [consts.FEATURE_ICONS[key] for key in consts.FEATURE_ICONS if fmt.get(key)]
-    return f"{fmt['name']} {' '.join(icons)}".strip()
-
-
 class ConverterTab(QWidget):
     def __init__(self):
         super().__init__()
@@ -90,14 +85,16 @@ class ConverterTab(QWidget):
             if ft.id == "models":
                 fmt_box = QHBoxLayout()
                 self.fmt_combo = QComboBox()
-                for f in consts.FORMATS:
-                    self.fmt_combo.addItem(_format_display_text(f), f)
+
+                for fmt in consts.MODEL_FORMATS:
+                    self.fmt_combo.addItem(str(fmt), fmt)
+
                 self.fmt_combo.currentIndexChanged.connect(self._update_feature_availability)
                 fmt_box.addWidget(self.fmt_combo)
                 sub_layout.addLayout(fmt_box)
 
-            for feat_id, feat_label in ft.features.items():
-                cb_feat = QCheckBox(feat_label)
+            for feat_id, feat_title in ft.feature_map.items():
+                cb_feat = QCheckBox(feat_title)
                 cb_feat.setStyleSheet(Styles.CHECKBOX)
                 sub_layout.addWidget(cb_feat)
                 self.feature_widgets[feat_id] = cb_feat
@@ -232,21 +229,21 @@ class ConverterTab(QWidget):
         self._thread.start()
 
     def _update_feature_availability(self):
-        fmt_data = self.fmt_combo.currentData()
-        for fid, w in self.feature_widgets.items():
-            ok = fmt_data.get(fid, True)
-            w.setEnabled(ok)
-            if not ok:
-                w.setChecked(False)
+        fmt = self.fmt_combo.currentData()
+        if not fmt:
+            return
+
+        for fid, widget in self.feature_widgets.items():
+            is_supported = any(f.id == fid for f in fmt.features)
+
+            widget.setEnabled(is_supported)
+            if not is_supported:
+                widget.setChecked(False)
 
     def _update_convert_button_state(self):
         ok = self.file_list.count() > 0
         self.convert_btn.setEnabled(ok)
-
-    def _browse_output_path(self):
-        d = QFileDialog.getExistingDirectory(self, "Выход")
-        if d:
-            self.path_edit.setText(d)
+        self.convert_btn.setToolTip("" if ok else "Добавьте источники для конвертации")
 
     def _open_file_dialog(self):
         fs, _ = QFileDialog.getOpenFileNames(self, "Файлы")
@@ -257,3 +254,8 @@ class ConverterTab(QWidget):
         d = QFileDialog.getExistingDirectory(self, "Папка")
         if d:
             self.file_list.add_paths([d])
+
+    def _browse_output_path(self):
+        d = QFileDialog.getExistingDirectory(self, "Папка результатов")
+        if d:
+            self.path_edit.setText(d)

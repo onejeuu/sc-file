@@ -1,39 +1,60 @@
-from typing import NamedTuple
+from dataclasses import dataclass, field
 
 from scfile.consts import NBT_FILENAMES
 
 
-FEATURE_ICONS = {
-    "skeleton": "🦴",
-    "animation": "🌀",
-}
+@dataclass
+class Feature:
+    id: str
+    label: str
+    icon: str
+
+    @property
+    def title(self) -> str:
+        return f"{self.icon} {self.label}"
 
 
-class FileType(NamedTuple):
+class F:
+    SKELETON = Feature("skeleton", "Скелет", "🦴")
+    ANIMATION = Feature("animation", "Анимация", "🌀")
+
+
+@dataclass
+class FileType:
     id: str
     label: str
     suffixes: list[str]
-    features: dict[str, str] = {}
+    features: list[Feature] = field(default_factory=list)
+
+    @property
+    def feature_map(self) -> dict[str, str]:
+        return {f.id: f.title for f in self.features}
 
 
-FILE_TYPES = [
-    FileType(
-        "models",
-        "🧊 Модели",
-        [".mcsa", ".mcsb", ".mcvd"],
-        features={"skeleton": "🦴 Скелет", "animation": "🌀 Анимация"},
-    ),
-    FileType("textures", "🧱 Текстуры", [".ol"]),
-    FileType("images", "🖼 Изображения", [".mic"]),
-    FileType("texarr", "🗃️ Массив текстур", [".texarr"]),
-    FileType("nbt", "⚙️ NBT Данные", list(sorted(NBT_FILENAMES))),
+FILE_TYPES: list[FileType] = [
+    FileType("models", "🧊 Модели", suffixes=[".mcsa", ".mcsb", ".mcvd"], features=[F.SKELETON, F.ANIMATION]),
+    FileType("textures", "🧱 Текстуры", suffixes=[".ol"]),
+    FileType("images", "🖼 Изображения", suffixes=[".mic"]),
+    FileType("texarr", "🗃️ Массив текстур", suffixes=[".texarr"]),
+    FileType("nbt", "⚙️ NBT Данные", suffixes=list(sorted(NBT_FILENAMES))),
 ]
 
-FORMATS = [
-    {"name": "OBJ", "skeleton": False, "animation": False},
-    {"name": "GLB", "skeleton": True, "animation": True},
-    {"name": "DAE", "skeleton": True, "animation": False},
-    {"name": "MS3D", "skeleton": True, "animation": False},
+
+@dataclass
+class ModelFormat:
+    name: str
+    features: list[Feature] = field(default_factory=list)
+
+    def __str__(self) -> str:
+        icons = " ".join(f.icon for f in self.features)
+        return f"{self.name} {icons}".strip()
+
+
+MODEL_FORMATS = [
+    ModelFormat("OBJ"),
+    ModelFormat("GLB", features=[F.SKELETON, F.ANIMATION]),
+    ModelFormat("DAE", features=[F.SKELETON]),
+    ModelFormat("MS3D", features=[F.SKELETON]),
 ]
 
 
