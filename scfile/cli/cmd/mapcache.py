@@ -8,7 +8,7 @@ import click
 from rich import print
 
 from scfile import formats
-from scfile.cli import types
+from scfile.cli import types, version
 from scfile.core.context.content import RegionContent
 from scfile.core.context.options import UserOptions
 from scfile.enums import CliCommand, L
@@ -50,7 +50,11 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
 
 
 @scfile.command(name=CliCommand.MAPCACHE)
-@click.argument("SOURCE", type=types.MapCache, nargs=1)
+@click.argument(
+    "SOURCE",
+    type=types.MapCacheDir,
+    nargs=1,
+)
 @click.option(
     "-O",
     "--output",
@@ -69,8 +73,16 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
     is_flag=True,
     help="Raw blocks without lookup",
 )
+@click.option(
+    "--version",
+    help="Show the version and exit.",
+    callback=version.callback,
+    is_flag=True,
+    is_eager=True,
+    expose_value=False,
+)
 def mapcache_command(
-    source: Path,
+    source: types.PathType,
     output: types.OutputDir,
     workers: int | None,
     raw: bool,

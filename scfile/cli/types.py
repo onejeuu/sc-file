@@ -20,4 +20,5 @@ Files = click.Path(path_type=PathType, dir_okay=True, file_okay=True, exists=Tru
 Output = click.Path(path_type=PathType, dir_okay=True, file_okay=False)
 Formats = click.Choice(list(OutputFormats.MODELS), case_sensitive=False)
 
-MapCache = click.Path(path_type=PathType, dir_okay=True, file_okay=False, exists=True, resolve_path=True)
+MapCacheDir = click.Path(path_type=PathType, dir_okay=True, file_okay=False, exists=True, resolve_path=True)
+RetargetPath = click.Path(path_type=PathType, dir_okay=False, file_okay=True, exists=True, resolve_path=True)
