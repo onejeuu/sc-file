@@ -63,7 +63,6 @@ class Colors:
     CARD = "#2b2b2b"
     BACKGROUND = "#1a1a1a"
     TEXT = "#abb2bf"
-    DIMMED = "#5c6370"
 
 
 class Styles:
@@ -73,7 +72,7 @@ class Styles:
         QCheckBox::indicator:checked {{ background: {Colors.ACCENT}; border: 1px solid {Colors.ACCENT}; }}
         QCheckBox::indicator:unchecked:hover {{ border: 1px solid {Colors.ACCENT}; }}
         QCheckBox:disabled {{ color: #555; }}
-        QCheckBox::indicator:disabled {{ background: #1a1a1a; border: 1px solid #333; }}
+        QCheckBox::indicator:disabled {{ background: {Colors.BACKGROUND}; border: 1px solid #333; }}
     """
 
     RADIO = f"""
@@ -103,7 +102,7 @@ class Styles:
 
     INPUT = f"""
         QLineEdit {{
-            background: {Colors.CARD}; color: {Colors.DIMMED};
+            background: {Colors.BACKGROUND}; color: {Colors.TEXT};
             border: 1px solid #555; padding: 4px;
         }}
         QLineEdit:disabled {{ background: #222; color: #555; border: 1px solid #333; }}

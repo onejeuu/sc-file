@@ -115,15 +115,17 @@ class ConverterTab(QWidget):
         self.right_column.addWidget(output_label)
 
         self.mode_group = QButtonGroup(self)
+
         self.radio_same_dir = QRadioButton("В папку с оригинальным файлом")
         self.radio_same_dir.setStyleSheet(Styles.RADIO)
         self.radio_same_dir.setChecked(True)
         self.mode_group.addButton(self.radio_same_dir)
         self.right_column.addWidget(self.radio_same_dir)
 
-        custom_path_line = QHBoxLayout()
-        custom_path_line.setContentsMargins(0, 0, 0, 0)
-        custom_path_line.setSpacing(8)
+        self.path_row_widget = QWidget()
+        path_row_layout = QHBoxLayout(self.path_row_widget)
+        path_row_layout.setContentsMargins(0, 0, 0, 0)
+        path_row_layout.setSpacing(8)
 
         self.radio_custom_dir = QRadioButton("")
         self.radio_custom_dir.setFixedWidth(16)
@@ -132,16 +134,19 @@ class ConverterTab(QWidget):
 
         self.path_edit = QLineEdit()
         self.path_edit.setPlaceholderText("Укажите путь...")
-        self.path_edit.setStyleSheet("background: #1a1a1a; color: #abb2bf; border: 1px solid #555; padding: 4px;")
+        self.path_edit.setStyleSheet(Styles.INPUT)
 
         self.browse_btn = QPushButton("...")
         self.browse_btn.setFixedWidth(30)
         self.browse_btn.clicked.connect(self._browse_output_path)
 
-        custom_path_line.addWidget(self.radio_custom_dir)
-        custom_path_line.addWidget(self.path_edit)
-        custom_path_line.addWidget(self.browse_btn)
-        self.right_column.addLayout(custom_path_line)
+        self.path_row_widget.mousePressEvent = lambda e: self.radio_custom_dir.setChecked(True)
+
+        path_row_layout.addWidget(self.radio_custom_dir)
+        path_row_layout.addWidget(self.path_edit)
+        path_row_layout.addWidget(self.browse_btn)
+
+        self.right_column.addWidget(self.path_row_widget)
 
         self.structure_container = QWidget()
         structure_layout = QVBoxLayout(self.structure_container)
