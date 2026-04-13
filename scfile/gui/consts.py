@@ -48,7 +48,7 @@ class ModelFormat:
 
     def __str__(self) -> str:
         icons = " ".join(f.icon for f in self.features)
-        return f"{self.id} {icons}".strip()
+        return f"{self.id.upper()} {icons}".strip()
 
 
 MODEL_FORMATS = [
