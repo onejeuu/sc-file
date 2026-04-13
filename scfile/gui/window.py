@@ -30,13 +30,12 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QMenu,
-    QPlainTextEdit,
     QPushButton,
     QRadioButton,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
+from rich import print
 
 from scfile import __version__
 from scfile.consts import NBT_FILENAMES
@@ -182,8 +181,6 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         outer_layout = QVBoxLayout(central_widget)
-
-        self.splitter = QSplitter(Qt.Orientation.Vertical)
 
         content_pane = QWidget()
         main_content_layout = QHBoxLayout(content_pane)
@@ -352,21 +349,6 @@ class MainWindow(QMainWindow):
         main_content_layout.addLayout(left_column, stretch=2)
         main_content_layout.addLayout(right_column, stretch=1)
 
-        self.log_console = QPlainTextEdit()
-        self.log_console.setReadOnly(True)
-        self.log_console.setStyleSheet("""
-            QPlainTextEdit {
-                background: #1a1a1a; color: #98c379;
-                font-family: Consolas, monospace; font-size: 12px;
-                border: 1px solid #333;
-            }
-        """)
-
-        self.splitter.addWidget(content_pane)
-        self.splitter.addWidget(self.log_console)
-        self.splitter.setStretchFactor(0, 4)
-        self.splitter.setStretchFactor(1, 1)
-
         self.convert_btn = QPushButton("КОНВЕРТИРОВАТЬ")
         self.convert_btn.setMinimumHeight(50)
         self.convert_btn.setStyleSheet("""
@@ -376,7 +358,7 @@ class MainWindow(QMainWindow):
         """)
         self.convert_btn.clicked.connect(self._convert)
 
-        outer_layout.addWidget(self.splitter)
+        outer_layout.addWidget(content_pane, 1)
         outer_layout.addWidget(self.convert_btn)
 
         self._update_convert_button_state()
@@ -412,7 +394,6 @@ class MainWindow(QMainWindow):
         paths = [self.file_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.file_list.count())]
         paths = [Path(p) for p in paths]
 
-        self.log_console.clear()
         self.convert_btn.setEnabled(False)
 
         self._thread = QThread()
@@ -420,7 +401,6 @@ class MainWindow(QMainWindow):
         self._worker.moveToThread(self._thread)
 
         self._thread.started.connect(self._worker.run)
-        self._worker.logs.connect(self.log_console.appendPlainText)
         self._worker.finished.connect(self._thread.quit)
         self._worker.finished.connect(lambda: self.convert_btn.setEnabled(True))
         self._thread.start()
@@ -454,6 +434,7 @@ class MainWindow(QMainWindow):
 
 
 def run():
+    print("[b green]Starting gui...[/]")
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     window = MainWindow()

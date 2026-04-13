@@ -124,6 +124,7 @@ class ConsoleLabel(StrEnum):
 
     INFO = "[b blue]INFO:[/]"
     HINT = "[b cyan]HINT:[/]"
+    DONE = "[b green]DONE:[/]"
     WARN = "[b yellow]WARN:[/]"
     ERROR = "[b red]ERROR:[/]"
     INVALID = "[b red]INVALID INPUT:[/]"

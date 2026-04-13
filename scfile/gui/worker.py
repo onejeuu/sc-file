@@ -3,12 +3,14 @@ from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QObject, Signal
+from rich import print
 
 from scfile import convert, exceptions
 from scfile.cli import utils
 from scfile.cli.types import FilesPaths
 from scfile.consts import CLI
 from scfile.core.context.options import UserOptions
+from scfile.enums import L
 
 
 @dataclass
@@ -19,8 +21,6 @@ class OutputConfig:
 
 
 class ConvertWorker(QObject):
-    logs = Signal(str)
-    progress = Signal(int, int)
     finished = Signal()
 
     def __init__(
@@ -55,17 +55,17 @@ class ConvertWorker(QObject):
                     convert.auto(source=source, output=dest, options=self._options)
 
                 except exceptions.InvalidStructureError as err:
-                    self.logs.emit(f"ERROR: {str(err)} {CLI.EXCEPTION}")
+                    print(f"{L.ERROR} {str(err)} {CLI.EXCEPTION}")
 
                 except exceptions.ScFileException as err:
-                    self.logs.emit(f"ERROR: {str(err)}")
+                    print(f"{L.ERROR} {str(err)}")
 
                 except Exception as err:
-                    self.logs.emit(f"UNEXPECTED ERROR: {repr(err)}")
+                    print(f"{L.EXCEPTION} {str(err)}")
 
                 else:
-                    self.logs.emit(f"DONE: {source.as_posix()}")
+                    print(f"{L.DONE} '{source.as_posix()}'")
 
         finally:
-            self.logs.emit("DONE: CONVERT")
+            print(f"{L.DONE} CONVERTING\n")
             self.finished.emit()
