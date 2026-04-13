@@ -28,19 +28,19 @@ class ConvertWorker(QObject):
         sources: FilesPaths,
         options: UserOptions,
         output: OutputConfig,
-        filter: Callable[[Path], bool],
+        predicate: Callable[[Path], bool],
     ):
         super().__init__()
         self._sources = sources
         self._options = options
         self._output = output
-        self._filter = filter
+        self._predicate = predicate
         self._is_running = True
 
     def run(self):
         try:
             for root, source in utils.paths_to_files_map(self._sources):
-                if not self._filter(source):
+                if not self._predicate(source):
                     continue
 
                 try:

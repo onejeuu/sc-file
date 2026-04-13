@@ -15,11 +15,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.consts import NBT_FILENAMES
 from scfile.core.context.options import UserOptions
 from scfile.gui import consts
 from scfile.gui.components import FileListWidget
-from scfile.gui.consts import Styles
+from scfile.gui.consts import FT, Styles
 from scfile.gui.worker import ConvertWorker, OutputConfig
 
 
@@ -193,45 +192,50 @@ class ConverterTab(QWidget):
         self.structure_container.setEnabled(is_custom)
 
     def _convert(self) -> None:
-        allowed_exts = set()
-        nbt_names = set()
+        allowed = self._get_activated_suffixes()
+        fmt: consts.ModelFormat = self.fmt_combo.currentData()
 
-        if self.type_checkboxes["nbt"].isChecked():
-            nbt_names = set(NBT_FILENAMES)
+        def predicate(path: Path) -> bool:
+            return (path.suffix.lower() in allowed) or (path.name in consts.NBT_FILENAMES)
 
-        for ft in consts.FILE_TYPES:
-            if ft.id != "nbt" and self.type_checkboxes[ft.id].isChecked():
-                allowed_exts.update(ft.suffixes)
-
-        def checker(p: Path) -> bool:
-            return (p.name in nbt_names) or (p.suffix.lower() in allowed_exts)
-
-        fmt = self.fmt_combo.currentData()
         options = UserOptions(
-            model_formats=[fmt.name] if fmt else None,
-            parse_skeleton=self.feature_widgets["skeleton"].isChecked(),
-            parse_animation=self.feature_widgets["animation"].isChecked(),
+            model_formats=[fmt.id] if fmt else None,
+            parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
+            parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
             overwrite=True,
         )
+
         output = OutputConfig(
-            path=None if self.radio_same_dir.isChecked() else Path(self.path_edit.text()),
+            path=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
             relative=self.radio_tree.isChecked(),
             parent=False,
         )
 
-        paths = [self.file_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.file_list.count())]
-        paths = [Path(p) for p in paths]
-
-        self.convert_btn.setEnabled(False)
+        paths = [Path(self.file_list.item(i).data(Qt.ItemDataRole.UserRole)) for i in range(self.file_list.count())]
 
         self._thread = QThread()
-        self._worker = ConvertWorker(paths, options, output, checker)
-        self._worker.moveToThread(self._thread)
+        self._worker = ConvertWorker(paths, options, output, predicate)
 
-        self._thread.started.connect(self._worker.run)
-        self._worker.finished.connect(self._thread.quit)
-        self._worker.finished.connect(lambda: self.convert_btn.setEnabled(True))
-        self._thread.start()
+        def start_converting_thread():
+            self._worker.moveToThread(self._thread)
+
+            self._thread.started.connect(self._worker.run)
+            self._worker.finished.connect(self._thread.quit)
+            self._worker.finished.connect(lambda: self.convert_btn.setEnabled(True))
+
+            self._thread.finished.connect(self._thread.deleteLater)
+            self._worker.finished.connect(self._worker.deleteLater)
+
+            self._thread.start()
+
+        start_converting_thread()
+
+    def _get_activated_suffixes(self) -> set[str]:
+        suffixes = set()
+        for ft in consts.FILE_TYPES:
+            if self.type_checkboxes[ft.id].isChecked():
+                suffixes.update(ft.suffixes)
+        return suffixes
 
     def _update_feature_availability(self):
         fmt = self.fmt_combo.currentData()

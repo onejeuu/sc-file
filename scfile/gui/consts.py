@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from scfile.consts import NBT_FILENAMES
+from scfile.enums import FileFormat
 
 
 @dataclass
@@ -14,7 +15,7 @@ class Feature:
         return f"{self.icon} {self.label}"
 
 
-class F:
+class FT:
     SKELETON = Feature("skeleton", "Скелет", "🦴")
     ANIMATION = Feature("animation", "Анимация", "🌀")
 
@@ -32,7 +33,7 @@ class FileType:
 
 
 FILE_TYPES: list[FileType] = [
-    FileType("models", "🧊 Модели", suffixes=[".mcsa", ".mcsb", ".mcvd"], features=[F.SKELETON, F.ANIMATION]),
+    FileType("models", "🧊 Модели", suffixes=[".mcsa", ".mcsb", ".mcvd"], features=[FT.SKELETON, FT.ANIMATION]),
     FileType("textures", "🧱 Текстуры", suffixes=[".ol"]),
     FileType("images", "🖼 Изображения", suffixes=[".mic"]),
     FileType("texarr", "🗃️ Массив текстур", suffixes=[".texarr"]),
@@ -42,19 +43,19 @@ FILE_TYPES: list[FileType] = [
 
 @dataclass
 class ModelFormat:
-    name: str
+    id: FileFormat
     features: list[Feature] = field(default_factory=list)
 
     def __str__(self) -> str:
         icons = " ".join(f.icon for f in self.features)
-        return f"{self.name} {icons}".strip()
+        return f"{self.id} {icons}".strip()
 
 
 MODEL_FORMATS = [
-    ModelFormat("OBJ"),
-    ModelFormat("GLB", features=[F.SKELETON, F.ANIMATION]),
-    ModelFormat("DAE", features=[F.SKELETON]),
-    ModelFormat("MS3D", features=[F.SKELETON]),
+    ModelFormat(FileFormat.OBJ),
+    ModelFormat(FileFormat.GLB, features=[FT.SKELETON, FT.ANIMATION]),
+    ModelFormat(FileFormat.DAE, features=[FT.SKELETON]),
+    ModelFormat(FileFormat.MS3D, features=[FT.SKELETON]),
 ]
 
 
