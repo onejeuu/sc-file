@@ -208,7 +208,7 @@ class ConverterTab(QWidget):
 
         fmt = self.fmt_combo.currentData()
         options = UserOptions(
-            model_formats=[fmt["name"].lower()] if fmt else None,
+            model_formats=[fmt.name] if fmt else None,
             parse_skeleton=self.feature_widgets["skeleton"].isChecked(),
             parse_animation=self.feature_widgets["animation"].isChecked(),
             overwrite=True,
