@@ -39,7 +39,15 @@ class ConvertWorker(QObject):
 
     def run(self):
         try:
+            for source in self._sources:
+                if not source.exists():
+                    print(f"{L.ERROR} Source not found '{source.as_posix()}'")
+
             for root, source in utils.paths_to_files_map(self._sources):
+                if not self._is_running:
+                    print(f"{L.INFO} Aborted\n")
+                    break
+
                 if not self._predicate(source):
                     continue
 
@@ -67,5 +75,5 @@ class ConvertWorker(QObject):
                     print(f"{L.DONE} '{source.as_posix()}'")
 
         finally:
-            print(f"{L.DONE} CONVERTING\n")
+            print(f"{L.DONE} Converting\n")
             self.finished.emit()
