@@ -29,6 +29,9 @@ def is_supported(path: Path) -> bool:
 def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
     """Maps parent directories to their supported files."""
     for path in paths:
+        if not path.exists():
+            continue
+
         path = path.resolve()
 
         if path.is_file():
