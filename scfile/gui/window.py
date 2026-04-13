@@ -1,8 +1,9 @@
 import os
 import sys
+from pathlib import Path
 from typing import NamedTuple
 
-from PySide6.QtCore import QFileInfo, Qt
+from PySide6.QtCore import QFileInfo, Qt, QThread
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -29,16 +30,20 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QMenu,
+    QPlainTextEdit,
     QPushButton,
     QRadioButton,
+    QSplitter,
     QVBoxLayout,
     QWidget,
 )
 
 from scfile import __version__
 from scfile.consts import NBT_FILENAMES
+from scfile.core.context.options import UserOptions
 
 from . import utils
+from .worker import ConvertWorker, OutputConfig
 
 
 FEATURE_ICONS = {
@@ -170,15 +175,19 @@ class FileListWidget(QListWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(f"scfile {__version__}")
-        self.resize(1000, 700)
         self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
+        self.setWindowTitle(f"scfile {__version__}")
+        self.resize(1000, 750)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         outer_layout = QVBoxLayout(central_widget)
 
-        main_content_layout = QHBoxLayout()
+        self.splitter = QSplitter(Qt.Orientation.Vertical)
+
+        content_pane = QWidget()
+        main_content_layout = QHBoxLayout(content_pane)
+        main_content_layout.setContentsMargins(0, 0, 0, 0)
 
         left_column = QVBoxLayout()
         header_layout = QHBoxLayout()
@@ -206,7 +215,7 @@ class MainWindow(QMainWindow):
 
         right_column = QVBoxLayout()
         right_label = QLabel("Настройки")
-        right_label.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 10px;")
+        right_label.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 5px;")
         right_column.addWidget(right_label)
 
         checkbox_style = """
@@ -217,7 +226,6 @@ class MainWindow(QMainWindow):
             QCheckBox:disabled { color: #555; }
             QCheckBox::indicator:disabled { background: #1a1a1a; border: 1px solid #333; }
         """
-
         radio_style = """
             QRadioButton { color: #abb2bf; spacing: 8px; font-size: 11px; }
             QRadioButton::indicator { width: 14px; height: 14px; border-radius: 7px; border: 1px solid #555; background: #2b2b2b; }
@@ -226,38 +234,30 @@ class MainWindow(QMainWindow):
         """
 
         self.feature_widgets = {}
+        self.type_checkboxes = {}
 
         for ft in FILE_TYPES:
             group_widget = QWidget()
             group_layout = QVBoxLayout(group_widget)
-            group_layout.setContentsMargins(0, 0, 0, 4)
-            group_layout.setSpacing(2)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(0)
 
             cb_type = QCheckBox(ft.label)
             cb_type.setStyleSheet(checkbox_style + "QCheckBox { font-weight: bold; }")
             cb_type.setChecked(True)
-
-            suffix_label = QLabel(", ".join(ft.suffixes))
-            suffix_label.setWordWrap(True)
-            suffix_label.setStyleSheet("color: #5c6370; font-size: 10px; margin-left: 26px;")
-
-            group_layout.addWidget(cb_type)
-            group_layout.addWidget(suffix_label)
+            self.type_checkboxes[ft.id] = cb_type
 
             sub_options = QWidget()
             sub_layout = QVBoxLayout(sub_options)
-            sub_layout.setContentsMargins(26, 5, 0, 12)
-            sub_layout.setSpacing(4)
+            sub_layout.setContentsMargins(26, 4, 0, 8)
+            sub_layout.setSpacing(2)
 
             if ft.id == "models":
                 fmt_box = QHBoxLayout()
-                fmt_label = QLabel("Формат:")
-                fmt_label.setStyleSheet("color: #abb2bf; font-size: 11px;")
                 self.fmt_combo = QComboBox()
                 for f in FORMATS:
                     self.fmt_combo.addItem(get_format_display_text(f), f)
                 self.fmt_combo.currentIndexChanged.connect(self._update_feature_availability)
-                fmt_box.addWidget(fmt_label)
                 fmt_box.addWidget(self.fmt_combo)
                 sub_layout.addLayout(fmt_box)
 
@@ -268,111 +268,189 @@ class MainWindow(QMainWindow):
                 self.feature_widgets[feat_id] = cb_feat
 
             cb_type.toggled.connect(sub_options.setEnabled)
+            group_layout.addWidget(cb_type)
+
+            suffix_label = QLabel(", ".join(ft.suffixes))
+            suffix_label.setStyleSheet("color: #5c6370; font-size: 10px; margin-left: 26px;")
+            group_layout.addWidget(suffix_label)
+
+            group_layout.addWidget(sub_options)
             right_column.addWidget(group_widget)
-            right_column.addWidget(sub_options)
 
         right_column.addSpacing(10)
         output_label = QLabel("Путь сохранения")
         output_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #abb2bf;")
         right_column.addWidget(output_label)
 
-        self.out_same_dir = QCheckBox("В папку с оригиналом")
-        self.out_same_dir.setStyleSheet(checkbox_style)
-        self.out_same_dir.setChecked(True)
-        right_column.addWidget(self.out_same_dir)
+        self.mode_group = QButtonGroup(self)
 
-        self.custom_path_widget = QWidget()
-        custom_path_layout = QVBoxLayout(self.custom_path_widget)
-        custom_path_layout.setContentsMargins(26, 0, 0, 0)
+        self.radio_same_dir = QRadioButton("В папку с оригинальным файлом")
+        self.radio_same_dir.setStyleSheet(radio_style)
+        self.radio_same_dir.setChecked(True)
+        self.mode_group.addButton(self.radio_same_dir)
+        right_column.addWidget(self.radio_same_dir)
 
-        path_input_layout = QHBoxLayout()
+        custom_path_line = QHBoxLayout()
+        custom_path_line.setContentsMargins(0, 0, 0, 0)
+        custom_path_line.setSpacing(8)
+
+        self.radio_custom_dir = QRadioButton("")
+        self.radio_custom_dir.setFixedWidth(16)
+        self.radio_custom_dir.setStyleSheet(radio_style)
+        self.mode_group.addButton(self.radio_custom_dir)
+
         self.path_edit = QLineEdit()
         self.path_edit.setPlaceholderText("Укажите путь...")
         self.path_edit.setStyleSheet("""
             QLineEdit {
-                background: #1a1a1a;
-                color: #abb2bf;
-                border: 1px solid #555;
-                padding: 4px;
+                background: #1a1a1a; color: #abb2bf;
+                border: 1px solid #555; padding: 4px;
             }
-            QLineEdit:disabled {
-                background: #222;
-                color: #555;
-                border: 1px solid #333;
-            }
+            QLineEdit:disabled { background: #222; color: #555; border: 1px solid #333; }
         """)
 
         self.browse_btn = QPushButton("...")
         self.browse_btn.setFixedWidth(30)
         self.browse_btn.clicked.connect(self._browse_output_path)
 
-        path_input_layout.addWidget(self.path_edit)
-        path_input_layout.addWidget(self.browse_btn)
-        custom_path_layout.addLayout(path_input_layout)
+        custom_path_line.addWidget(self.radio_custom_dir)
+        custom_path_line.addWidget(self.path_edit)
+        custom_path_line.addWidget(self.browse_btn)
+        right_column.addLayout(custom_path_line)
 
-        self.structure_group = QButtonGroup(self)
+        self.structure_container = QWidget()
+        structure_layout = QVBoxLayout(self.structure_container)
+        structure_layout.setContentsMargins(26, 0, 0, 0)
+        structure_layout.setSpacing(4)
+
         self.radio_flat = QRadioButton("В одну папку")
         self.radio_tree = QRadioButton("Сохранять структуру подпапок")
         self.radio_flat.setStyleSheet(radio_style)
         self.radio_tree.setStyleSheet(radio_style)
         self.radio_flat.setChecked(True)
 
-        self.structure_group.addButton(self.radio_flat)
-        self.structure_group.addButton(self.radio_tree)
+        structure_group = QButtonGroup(self)
+        structure_group.addButton(self.radio_flat)
+        structure_group.addButton(self.radio_tree)
 
-        custom_path_layout.addWidget(self.radio_flat)
-        custom_path_layout.addWidget(self.radio_tree)
+        structure_layout.addWidget(self.radio_flat)
+        structure_layout.addWidget(self.radio_tree)
+        right_column.addWidget(self.structure_container)
 
-        right_column.addWidget(self.custom_path_widget)
-        self.out_same_dir.toggled.connect(lambda checked: self.custom_path_widget.setEnabled(not checked))
-        self.custom_path_widget.setEnabled(False)
+        def sync_ui():
+            is_custom = self.radio_custom_dir.isChecked()
+            self.path_edit.setEnabled(is_custom)
+            self.browse_btn.setEnabled(is_custom)
+            self.structure_container.setEnabled(is_custom)
+
+        self.radio_same_dir.toggled.connect(sync_ui)
+        self.radio_custom_dir.toggled.connect(sync_ui)
+        sync_ui()
 
         right_column.addStretch()
 
         main_content_layout.addLayout(left_column, stretch=2)
         main_content_layout.addLayout(right_column, stretch=1)
 
-        self.convert_btn = QPushButton("КОНВЕРТИРОВАТЬ")
-        self.convert_btn.setMinimumHeight(60)
-        self.convert_btn.setStyleSheet("""
-            QPushButton { background-color: #FFD666; color: black; font-weight: bold; border: none; font-size: 16px; }
-            QPushButton:hover { background-color: #ffe08a; }
-            QPushButton:disabled { background-color: #444; color: #888; }
+        self.log_console = QPlainTextEdit()
+        self.log_console.setReadOnly(True)
+        self.log_console.setStyleSheet("""
+            QPlainTextEdit {
+                background: #1a1a1a; color: #98c379;
+                font-family: Consolas, monospace; font-size: 12px;
+                border: 1px solid #333;
+            }
         """)
 
-        outer_layout.addLayout(main_content_layout)
+        self.splitter.addWidget(content_pane)
+        self.splitter.addWidget(self.log_console)
+        self.splitter.setStretchFactor(0, 4)
+        self.splitter.setStretchFactor(1, 1)
+
+        self.convert_btn = QPushButton("КОНВЕРТИРОВАТЬ")
+        self.convert_btn.setMinimumHeight(50)
+        self.convert_btn.setStyleSheet("""
+            QPushButton { background: #FFD666; color: black; font-weight: bold; font-size: 15px; border: none; }
+            QPushButton:hover { background: #ffe08a; }
+            QPushButton:disabled { background: #444; color: #888; }
+        """)
+        self.convert_btn.clicked.connect(self._convert)
+
+        outer_layout.addWidget(self.splitter)
         outer_layout.addWidget(self.convert_btn)
 
         self._update_convert_button_state()
         self._update_feature_availability()
 
+    def _convert(self) -> None:
+        allowed_exts = set()
+        nbt_names = set()
+
+        if self.type_checkboxes["nbt"].isChecked():
+            nbt_names = set(NBT_FILENAMES)
+
+        for ft in FILE_TYPES:
+            if ft.id != "nbt" and self.type_checkboxes[ft.id].isChecked():
+                allowed_exts.update(ft.suffixes)
+
+        def checker(p: Path) -> bool:
+            return (p.name in nbt_names) or (p.suffix.lower() in allowed_exts)
+
+        fmt = self.fmt_combo.currentData()
+        options = UserOptions(
+            model_formats=[fmt["name"].lower()] if fmt else None,
+            parse_skeleton=self.feature_widgets["skeleton"].isChecked(),
+            parse_animation=self.feature_widgets["animation"].isChecked(),
+            overwrite=True,
+        )
+        output = OutputConfig(
+            path=None if self.radio_same_dir.isChecked() else Path(self.path_edit.text()),
+            relative=self.radio_tree.isChecked(),
+            parent=False,
+        )
+
+        paths = [self.file_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.file_list.count())]
+        paths = [Path(p) for p in paths]
+
+        self.log_console.clear()
+        self.convert_btn.setEnabled(False)
+
+        self._thread = QThread()
+        self._worker = ConvertWorker(paths, options, output, checker)
+        self._worker.moveToThread(self._thread)
+
+        self._thread.started.connect(self._worker.run)
+        self._worker.logs.connect(self.log_console.appendPlainText)
+        self._worker.finished.connect(self._thread.quit)
+        self._worker.finished.connect(lambda: self.convert_btn.setEnabled(True))
+        self._thread.start()
+
     def _update_feature_availability(self):
         fmt_data = self.fmt_combo.currentData()
-        for feat_id, widget in self.feature_widgets.items():
-            is_supported = fmt_data.get(feat_id, True)
-            widget.setEnabled(is_supported)
-            if not is_supported:
-                widget.setChecked(False)
+        for fid, w in self.feature_widgets.items():
+            ok = fmt_data.get(fid, True)
+            w.setEnabled(ok)
+            if not ok:
+                w.setChecked(False)
 
     def _update_convert_button_state(self):
-        has_files = self.file_list.count() > 0
-        self.convert_btn.setEnabled(has_files)
-        self.convert_btn.setToolTip("" if has_files else "Выберите файлы для конвертации")
+        ok = self.file_list.count() > 0
+        self.convert_btn.setEnabled(ok)
 
     def _browse_output_path(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку выхода")
-        if directory:
-            self.path_edit.setText(directory)
+        d = QFileDialog.getExistingDirectory(self, "Выход")
+        if d:
+            self.path_edit.setText(d)
 
     def _open_file_dialog(self):
-        files, _ = QFileDialog.getOpenFileNames(self, "Выберите файлы")
-        if files:
-            self.file_list.add_paths(files)
+        fs, _ = QFileDialog.getOpenFileNames(self, "Файлы")
+        if fs:
+            self.file_list.add_paths(fs)
 
     def _open_directory_dialog(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
-        if directory:
-            self.file_list.add_paths([directory])
+        d = QFileDialog.getExistingDirectory(self, "Папка")
+        if d:
+            self.file_list.add_paths([d])
 
 
 def run():
