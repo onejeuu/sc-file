@@ -61,9 +61,7 @@ from . import scfile
     is_eager=True,
     expose_value=False,
 )
-@click.pass_context
 def convert_command(
-    ctx: click.Context,
     paths: types.FilesPaths,
     output: types.OutputDir,
     mdlformat: Optional[Formats],
@@ -73,15 +71,12 @@ def convert_command(
     animation: bool,
     unique: bool,
 ) -> None:
-    # In case program executed without arguments
-    if not paths:
-        utils.no_args(ctx)
-        return
-
     # Normalize options
     model_formats = mdlformat or None
-    if parent: relative = True
-    if animation: skeleton = True
+    if parent:
+        relative = True
+    if animation:
+        skeleton = True
 
     # Relative flag is useless without output path
     if relative and not output:
@@ -89,8 +84,10 @@ def convert_command(
 
     # Warn if specified formats has unsupported features
     if model_formats:
-        if skeleton: utils.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
-        if animation: utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
+        if skeleton:
+            utils.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+        if animation:
+            utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Prepare options
     options = UserOptions(

@@ -4,11 +4,16 @@ from pathlib import Path
 import click
 from rich import print
 
+from scfile import gui
 from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
 def normalize():
+    if len(sys.argv) == 1:
+        gui.window.run()
+        return
+
     args = sys.argv[1:]
 
     default_command = CliCommand.CONVERT
@@ -29,9 +34,8 @@ def normalize():
 def main():
     """Program entrypoint."""
 
-    normalize()
-
     try:
+        normalize()
         scfile(standalone_mode=False)
 
     except click.ClickException as err:

@@ -4,25 +4,12 @@ CLI wrapper small utils.
 
 from pathlib import Path
 
-import click
 from rich import print
 
-from scfile.consts import CLI, NBT_FILENAMES, SUPPORTED_SUFFIXES, Formats
+from scfile.consts import NBT_FILENAMES, SUPPORTED_SUFFIXES, Formats
 from scfile.enums import L
 
 from . import types
-
-
-def no_args(ctx: click.Context) -> None:
-    """Prints help message when no arguments provided."""
-    click.echo(ctx.get_help())
-    print(
-        "",
-        f"{L.INVALID} No files paths arguments provided. Showing help.",
-        f"{L.HINT} Next time drag and drop files onto scfile.exe OR use terminal for parameters.",
-        sep="\n",
-    )
-    click.pause(CLI.PAUSE)
 
 
 def check_feature_unsupported(user_formats: Formats, unsupported_formats: Formats, feature: str) -> None:
@@ -54,7 +41,9 @@ def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
                     yield path, file
 
 
-def output_to_destination(root: Path, source: Path, output: types.OutputDir, relative: bool, parent: bool) -> types.OutputDir:
+def output_to_destination(
+    root: Path, source: Path, output: types.OutputDir, relative: bool, parent: bool
+) -> types.OutputDir:
     """Output path with source relative subdirectory appended if relative flag."""
     if relative and output:
         basedir = root.parent if parent else root
