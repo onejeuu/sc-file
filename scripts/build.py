@@ -34,6 +34,17 @@ def build():
             "rich._unicode_data",  # Unicode data module
             "--collect-data",
             "rich",  # Package data files
+            # Exclude unused pyqt modules
+            "--exclude-module",
+            "PySide6.QtNetwork",
+            "--exclude-module",
+            "PySide6.QtTextToSpeech",
+            "--exclude-module",
+            "PySide6.QtWebEngineCore",
+            "--exclude-module",
+            "PySide6.QtPdf",
+            "--exclude-module",
+            "PySide6.QtSql",
         ]
     )
 

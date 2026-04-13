@@ -9,12 +9,15 @@ from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
-def normalize():
+def setup_command():
     if len(sys.argv) == 1:
         gui.window.run()
         return
 
     args = sys.argv[1:]
+
+    if "--help" in args:
+        return
 
     default_command = CliCommand.CONVERT
 
@@ -35,7 +38,7 @@ def main():
     """Program entrypoint."""
 
     try:
-        normalize()
+        setup_command()
         scfile(standalone_mode=False)
 
     except click.ClickException as err:
