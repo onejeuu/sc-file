@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
 
 from scfile import __version__
 
-from . import utils
-from .styles import Styles
+from .shared import utils
+from .shared.styles import Styles
 from .tabs.convert import ConverterTab
 
 
