@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from PySide6.QtCore import QFileInfo, Qt
 from PySide6.QtGui import (
@@ -23,6 +24,15 @@ from .strings import Strings
 from .styles import Styles
 
 
+_ENV_STUB = "."
+_ENV_MAPPING = {
+    Path(os.environ.get("APPDATA", _ENV_STUB)): "%APPDATA%",
+    Path(os.environ.get("LOCALAPPDATA", _ENV_STUB)): "%LOCALAPPDATA%",
+    Path.home(): "~",
+}
+_ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists()}
+
+
 class FileListWidget(QListWidget):
     def __init__(self):
         super().__init__()
@@ -32,29 +42,30 @@ class FileListWidget(QListWidget):
         self.setStyleSheet(Styles.LIST)
         self.icon_provider = QFileIconProvider()
 
-    def _normalize_path(self, path: str) -> str:
-        path = os.path.normpath(path)
-        mapping = {"APPDATA": "%APPDATA%", "LOCALAPPDATA": "%LOCALAPPDATA%", "USERPROFILE": "~"}
-        for env_key, alias in mapping.items():
-            env_val = os.environ.get(env_key)
-            if env_val and path.startswith(env_val):
-                return path.replace(env_val, alias, 1)
-        return path
+    def _normalize_path(self, source: str) -> str:
+        path = Path(source).resolve()
 
-    def add_paths(self, paths: list[str]):
-        for path in paths:
-            if not path:
+        for env, alias in _ENV_MAPPING.items():
+            if env != Path(_ENV_STUB) and path.is_relative_to(env):
+                relative = path.relative_to(env)
+                return (Path(alias) / relative).as_posix()
+
+        return path.as_posix()
+
+    def add_sources(self, sources: list[str]):
+        for source in sources:
+            if not source:
                 continue
 
-            normalized = self._normalize_path(path)
+            normalized = self._normalize_path(source)
 
             existing = self.findItems(normalized, Qt.MatchFlag.MatchExactly)
             if existing:
                 continue
 
             item = QListWidgetItem(normalized)
-            item.setData(Qt.ItemDataRole.UserRole, path)
-            item.setIcon(self.icon_provider.icon(QFileInfo(path)))
+            item.setData(Qt.ItemDataRole.UserRole, source)
+            item.setIcon(self.icon_provider.icon(QFileInfo(source)))
             self.addItem(item)
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -85,8 +96,7 @@ class FileListWidget(QListWidget):
             event.acceptProposedAction()
 
     def dropEvent(self, event: QDropEvent):
-        paths = [url.toLocalFile() for url in event.mimeData().urls()]
-        self.add_paths(paths)
+        self.add_sources([url.toLocalFile() for url in event.mimeData().urls()])
         event.acceptProposedAction()
 
     def paintEvent(self, event):
