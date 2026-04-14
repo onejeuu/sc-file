@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QRadioButton,
+    QStyledItemDelegate,
     QVBoxLayout,
     QWidget,
 )
@@ -123,6 +124,10 @@ class ConverterTab(QWidget):
             # Models output format
             if kind.id == "models":
                 self.fmt_combo = QComboBox()
+
+                self.fmt_combo.setStyleSheet(Styles.COMBO)
+                self.fmt_combo.setItemDelegate(QStyledItemDelegate())
+                self.fmt_combo.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
                 for fmt in consts.MODEL_FORMATS:
                     self.fmt_combo.addItem(str(fmt), fmt)
