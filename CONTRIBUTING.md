@@ -2,17 +2,11 @@
 
 On large PRs open an issue first. A quick discussion upfront avoids wasted effort on both sides.
 
-**Target branch:** `dev` or a dedicated feature branch.
+**Target branch:** `dev` or a dedicated `feat/` branch.
 
 ## 🚫 Out of scope
 
-**The following will not be accepted, regardless of implementation quality:**
-
-- **Graphical user interfaces.** This project is a core library. Any GUI belongs to a separate tool that depends on this package, not within the package itself. If you need one, fork the project or build your own tool on top of it.
-
-- **Reverse conversion back to game formats.** The project is intentionally unidirectional. This is an explicit design choice, not a missing feature.
-
----
+**Reverse conversion back to game formats will not be accepted, regardless of implementation quality**. The project is intentionally unidirectional. This is an explicit design choice, not a missing feature.
 
 ## 📋 Code standards
 
