@@ -26,7 +26,7 @@ class Strings:
         "btn_add_folder": {"EN": "+ Folder", "RU": "+ Папка"},
         "btn_convert": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
         "opt_output_default": {"EN": "Same folder as original", "RU": "Рядом с оригинальным файлом"},
-        "opt_output_flat": {"EN": "Flat folder", "RU": "В одну папку"},
+        "opt_output_flat": {"EN": "Single flat folder", "RU": "В одну плоскую папку"},
         "opt_output_tree": {"EN": "Keep subfolder structure", "RU": "Сохранять структуру подпапок"},
         "placeholder_path": {"EN": "Specify path...", "RU": "Укажите путь..."},
         "cb_unique_names": {"EN": "Create copies on name collision", "RU": "Создавать копии при совпадении имен"},
