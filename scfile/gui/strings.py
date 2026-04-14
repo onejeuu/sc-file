@@ -35,6 +35,7 @@ class Strings:
             "RU": "Добавлять порядковый номер к названию файла вместо его перезаписи",
         },
         "tooltip_no_sources": {"EN": "Add sources to convert", "RU": "Добавьте источники для конвертации"},
+        "tooltip_invalid_output": {"EN": "Specify a valid output directory", "RU": "Укажите корректный путь сохранения"},
         "dialog_files": {"EN": "Files", "RU": "Файлы"},
         "dialog_folder": {"EN": "Folder", "RU": "Папка"},
         "dialog_output": {"EN": "Output Directory", "RU": "Папка результатов"},
