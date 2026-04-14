@@ -75,7 +75,7 @@ class ConverterTab(QWidget):
 
     def _setup_right_column(self):
         title = QLabel("Настройки")
-        title.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 5px;")
+        title.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 6px;")
         self.right_column.addWidget(title)
 
         # File types groups
@@ -86,9 +86,8 @@ class ConverterTab(QWidget):
         # Output path
         self.right_column.addSpacing(10)
         self._build_output_path_section()
-
-        # Custom output structure
         self._build_structure_section()
+        self._build_output_overwrite()
 
         self.right_column.addStretch()
 
@@ -141,7 +140,7 @@ class ConverterTab(QWidget):
 
             # Suffixes hint
             suffix_hint = QLabel(", ".join(ft.suffixes))
-            suffix_hint.setStyleSheet("color: #5c6370; font-size: 10px; margin-left: 26px;")
+            suffix_hint.setStyleSheet(Styles.HINT)
 
             layout.addWidget(suffix_hint)
             layout.addWidget(sub_options)
@@ -186,6 +185,7 @@ class ConverterTab(QWidget):
         # Autoselect radio button
         self.path_row_widget.mousePressEvent = lambda e: self.radio_custom_dir.setChecked(True)
 
+        # Add to layout
         path_layout.addWidget(self.radio_custom_dir)
         path_layout.addWidget(self.path_edit)
         path_layout.addWidget(self.browse_btn)
@@ -202,6 +202,7 @@ class ConverterTab(QWidget):
         layout.setContentsMargins(26, 0, 0, 0)
         layout.setSpacing(4)
 
+        # Flat or structured output
         self.radio_flat = QRadioButton("В одну папку")
         self.radio_tree = QRadioButton("Сохранять структуру подпапок")
         self.radio_flat.setStyleSheet(Styles.RADIO)
@@ -212,9 +213,33 @@ class ConverterTab(QWidget):
         s_group.addButton(self.radio_flat)
         s_group.addButton(self.radio_tree)
 
+        # Add to layout
         layout.addWidget(self.radio_flat)
         layout.addWidget(self.radio_tree)
+
         self.right_column.addWidget(self.structure_container)
+
+    def _build_output_overwrite(self):
+        group = QWidget()
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+
+        # Checkbox
+        self.cb_unique_names = QCheckBox("Создавать копии при совпадении имен")
+        self.cb_unique_names.setStyleSheet(Styles.CHECKBOX)
+        self.cb_unique_names.setChecked(False)
+
+        # Hint
+        overwrite_hint = QLabel("Добавлять порядковый номер к названию файла вместо его перезаписи")
+        overwrite_hint.setStyleSheet(Styles.HINT)
+
+        # Add to layout
+        layout.addWidget(self.cb_unique_names)
+        layout.addWidget(overwrite_hint)
+
+        self.right_column.addSpacing(10)
+        self.right_column.addWidget(group)
 
     def _sync_output_ui(self):
         is_custom = self.radio_custom_dir.isChecked()
@@ -233,7 +258,7 @@ class ConverterTab(QWidget):
             model_formats=[fmt.id] if fmt else None,
             parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
             parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
-            overwrite=True,
+            overwrite=not self.cb_unique_names.isChecked(),
         )
 
         output = OutputConfig(
