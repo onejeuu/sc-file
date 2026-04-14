@@ -5,11 +5,13 @@ import PyInstaller.__main__
 
 NAME = "scfile"
 
-ROOT = Path(__file__).parent.parent.absolute()
+SCRIPTS = Path(__file__).parent.absolute()
+ROOT = SCRIPTS.parent
 
 ENTRYPOINT = str(ROOT / "scfile" / "__main__.py")
 ICON = str(ROOT / "assets" / "scfile.ico")
 SPECPATH = str(ROOT / "build")
+HOOKS = str(SCRIPTS / "hooks")
 
 
 def build():
@@ -22,29 +24,12 @@ def build():
             NAME,
             "--specpath",
             SPECPATH,
+            "--additional-hooks-dir",
+            HOOKS,
             "--onefile",
             # Add icon to binary data
             "--add-data",
             f"{ICON}:assets",
-            # Fix for rich library Unicode support in compiled executable
-            # PyInstaller doesnt automatically detect these submodules
-            "--hidden-import",
-            "rich._unicode_data.unicode17-0-0",  # Unicode 17.0.0 data tables
-            "--hidden-import",
-            "rich._unicode_data",  # Unicode data module
-            "--collect-data",
-            "rich",  # Package data files
-            # Exclude unused pyqt modules
-            "--exclude-module",
-            "PySide6.QtNetwork",
-            "--exclude-module",
-            "PySide6.QtTextToSpeech",
-            "--exclude-module",
-            "PySide6.QtWebEngineCore",
-            "--exclude-module",
-            "PySide6.QtPdf",
-            "--exclude-module",
-            "PySide6.QtSql",
         ]
     )
 
