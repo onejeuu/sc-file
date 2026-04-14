@@ -19,7 +19,8 @@ from PySide6.QtWidgets import (
     QMenu,
 )
 
-from scfile.gui.consts import Styles
+from .strings import Strings
+from .styles import Styles
 
 
 class FileListWidget(QListWidget):
@@ -66,7 +67,7 @@ class FileListWidget(QListWidget):
         item = self.itemAt(event.pos())
         if item:
             menu = QMenu(self)
-            remove_action = QAction("Удалить из списка", self)
+            remove_action = QAction(Strings.get("action_remove"), self)
             remove_action.triggered.connect(self.remove_selected)
             menu.addAction(remove_action)
             menu.exec(event.globalPos())
@@ -94,6 +95,4 @@ class FileListWidget(QListWidget):
             painter = QPainter(self.viewport())
             painter.setPen(QColor("#5c6370"))
             painter.setFont(QFont("Segoe UI", 12))
-
-            hint_text = "Добавьте файлы/папки кнопками выше\nили перетащите их сюда (drag & drop)"
-            painter.drawText(self.viewport().rect(), Qt.AlignmentFlag.AlignCenter, hint_text)
+            painter.drawText(self.viewport().rect(), Qt.AlignmentFlag.AlignCenter, Strings.get("drop_hint"))
