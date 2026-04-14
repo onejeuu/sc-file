@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
@@ -9,15 +8,8 @@ from scfile import convert, exceptions
 from scfile.cli import utils
 from scfile.cli.types import FilesPaths
 from scfile.consts import CLI
-from scfile.core.context.options import UserOptions
+from scfile.core import UserOptions
 from scfile.enums import L
-
-
-@dataclass
-class OutputConfig:
-    path: Path | None
-    relative: bool
-    parent: bool
 
 
 class ConvertWorker(QObject):
@@ -27,20 +19,22 @@ class ConvertWorker(QObject):
         self,
         sources: FilesPaths,
         options: UserOptions,
-        output: OutputConfig,
+        output: Path | None,
+        relative: bool,
         predicate: Callable[[Path], bool],
     ):
         super().__init__()
         self._sources = sources
         self._options = options
         self._output = output
+        self._relative = relative
         self._predicate = predicate
         self._is_running = True
 
     def run(self):
         try:
-            if self._output.path:
-                self._output.path.mkdir(exist_ok=True, parents=True)
+            if self._output:
+                self._output.mkdir(exist_ok=True, parents=True)
 
             for source in self._sources:
                 if not source.exists():
@@ -58,9 +52,9 @@ class ConvertWorker(QObject):
                     dest = utils.output_to_destination(
                         root,
                         source,
-                        self._output.path,
-                        self._output.relative,
-                        self._output.parent,
+                        self._output,
+                        self._relative,
+                        parent=False,
                     )
 
                     convert.auto(source=source, output=dest, options=self._options)

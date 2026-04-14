@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (
     QMenu,
 )
 
-from .strings import Strings
-from .styles import Styles
+from scfile.gui.shared.strings import Strings
+from scfile.gui.shared.styles import Styles
 
 
 _ENV_STUB = "."

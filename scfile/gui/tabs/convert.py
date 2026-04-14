@@ -17,12 +17,12 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.core.context.options import UserOptions
-from scfile.gui import consts
-from scfile.gui.components import FileListWidget
-from scfile.gui.consts import FT
-from scfile.gui.strings import Strings
-from scfile.gui.styles import Styles
-from scfile.gui.worker import ConvertWorker, OutputConfig
+from scfile.gui.shared import consts
+from scfile.gui.shared.consts import FT
+from scfile.gui.shared.strings import Strings
+from scfile.gui.shared.styles import Styles
+from scfile.gui.widgets import FileListWidget
+from scfile.gui.workers.convert import ConvertWorker
 
 
 class ConverterTab(QWidget):
@@ -116,6 +116,7 @@ class ConverterTab(QWidget):
             cb_type.setStyleSheet(Styles.CHECKBOX)
             cb_type.setCursor(Qt.CursorShape.PointingHandCursor)
             cb_type.setChecked(True)
+
             self.type_checkboxes[kind.id] = cb_type
 
             # Sub options
@@ -280,16 +281,13 @@ class ConverterTab(QWidget):
             overwrite=not self.cb_unique_names.isChecked(),
         )
 
-        output = OutputConfig(
-            path=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
-            relative=self.radio_tree.isChecked(),
-            parent=False,
-        )
+        output = Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None
+        relative = self.radio_tree.isChecked()
 
         paths = [Path(self.file_list.item(i).data(Qt.ItemDataRole.UserRole)) for i in range(self.file_list.count())]
 
         self._thread = QThread()
-        self._worker = ConvertWorker(paths, options, output, predicate)
+        self._worker = ConvertWorker(paths, options, output, relative, predicate)
 
         def start_converting_thread():
             self._worker.moveToThread(self._thread)
@@ -345,17 +343,20 @@ class ConverterTab(QWidget):
                 widget.setChecked(False)
 
     def _update_convert_button_state(self):
-        has_files = self.file_list.count() > 0
+        has_sources = self.file_list.count() > 0
         output_valid = self._is_output_valid()
-        is_okay = has_files and output_valid
+        is_okay = has_sources and output_valid
 
         checks = {
-            not has_files: Strings.get("tooltip_no_sources"),
+            not has_sources: Strings.get("tooltip_no_sources"),
             not output_valid: Strings.get("tooltip_invalid_output"),
         }
 
         tooltip = checks.get(True, "")
 
+        text = Strings.get("btn_convert")
+
+        self.convert_btn.setText(text)
         self.convert_btn.setEnabled(is_okay)
         self.convert_btn.setToolTip(tooltip)
         self.convert_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
