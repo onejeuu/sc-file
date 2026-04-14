@@ -26,10 +26,9 @@ def build():
             SPECPATH,
             "--additional-hooks-dir",
             HOOKS,
-            "--onefile",
-            # Add icon to binary data
             "--add-data",
             f"{ICON}:assets",
+            "--onefile",
         ]
     )
 
