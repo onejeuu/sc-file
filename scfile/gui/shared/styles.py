@@ -56,4 +56,7 @@ class Styles:
         QLineEdit:disabled, QLineEdit:read-only {{ background: #222; color: #555; border: 1px solid #333; }}
     """
 
+    TITLE = """font-weight: bold; font-size: 16px;"""
+    LABEL = """font-weight: bold; font-size: 14px;"""
+
     HINT = """color: #5c6370; font-size: 10px; margin-left: 24px;"""
