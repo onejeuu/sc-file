@@ -34,6 +34,6 @@
 
   .. code-block:: console
 
-    uv run scripts/build.py
+    uv run --group build scripts/build.py
 
   Executable file ``scfile.exe`` will be created in ``/dist`` directory.

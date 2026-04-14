@@ -33,7 +33,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Run Tests
-        run: uv run pytest
+        run: uv run --group dev pytest
 
   tests-windows:
     name: Windows
@@ -48,4 +48,4 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Run Tests
-        run: uv run pytest
+        run: uv run --group dev pytest

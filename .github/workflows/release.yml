@@ -35,7 +35,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Build Binary
-        run: uv run scripts/build.py
+        run: uv run --group build scripts/build.py
 
       - name: Prepare Artifact
         shell: bash
