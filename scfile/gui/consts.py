@@ -108,3 +108,5 @@ class Styles:
         }}
         QLineEdit:disabled {{ background: #222; color: #555; border: 1px solid #333; }}
     """
+
+    HINT = """color: #5c6370; font-size: 10px; margin-left: 24px;"""
