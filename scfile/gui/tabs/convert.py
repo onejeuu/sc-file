@@ -200,8 +200,9 @@ class ConverterTab(QWidget):
         self.right_column.addWidget(self.path_row_widget)
 
         # Sync state
-        self.radio_same_dir.toggled.connect(self._sync_output_ui)
-        self.radio_custom_dir.toggled.connect(self._sync_output_ui)
+        self.path_edit.textChanged.connect(self._handle_output_change)
+        self.radio_same_dir.toggled.connect(self._handle_output_change)
+        self.radio_custom_dir.toggled.connect(self._handle_output_change)
 
     def _build_structure_section(self):
         self.structure_container = QWidget()
@@ -300,6 +301,26 @@ class ConverterTab(QWidget):
                 suffixes.update(ft.suffixes)
         return suffixes
 
+    def _is_output_valid(self) -> bool:
+        if self.radio_same_dir.isChecked():
+            return True
+
+        path = self.path_edit.text().strip()
+        return bool(path) and not Path(path).is_file()
+
+    def _update_path_style(self):
+        if not self.radio_custom_dir.isChecked():
+            self.path_edit.setStyleSheet(Styles.INPUT)
+            return
+
+        border_color = "#555" if self._is_output_valid() else "#e06c75"
+        self.path_edit.setStyleSheet(f"{Styles.INPUT} QLineEdit {{ border-color: {border_color}; }}")
+
+    def _handle_output_change(self):
+        self._sync_output_ui()
+        self._update_path_style()
+        self._update_convert_button_state()
+
     def _update_feature_availability(self):
         fmt = self.fmt_combo.currentData()
         if not fmt:
@@ -313,9 +334,19 @@ class ConverterTab(QWidget):
                 widget.setChecked(False)
 
     def _update_convert_button_state(self):
-        ok = self.file_list.count() > 0
-        self.convert_btn.setEnabled(ok)
-        self.convert_btn.setToolTip("" if ok else Strings.get("tooltip_no_sources"))
+        has_files = self.file_list.count() > 0
+        output_valid = self._is_output_valid()
+        is_okay = has_files and output_valid
+
+        checks = {
+            not has_files: Strings.get("tooltip_no_sources"),
+            not output_valid: Strings.get("tooltip_invalid_output"),
+        }
+
+        tooltip = checks.get(True, "")
+
+        self.convert_btn.setEnabled(is_okay)
+        self.convert_btn.setToolTip(tooltip)
 
     def _open_file_dialog(self):
         fs, _ = QFileDialog.getOpenFileNames(self, Strings.get("dialog_files"))

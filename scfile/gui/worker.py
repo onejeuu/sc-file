@@ -39,6 +39,9 @@ class ConvertWorker(QObject):
 
     def run(self):
         try:
+            if self._output.path:
+                self._output.path.mkdir(exist_ok=True, parents=True)
+
             for source in self._sources:
                 if not source.exists():
                     print(f"{L.ERROR} Source not found '{source.as_posix()}'")
