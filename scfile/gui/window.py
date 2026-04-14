@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
     def _setup_ui(self):
         self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
         self.setWindowTitle(f"scfile {__version__}")
-        self.resize(1000, 750)
+        self.resize(1000, 700)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -42,6 +42,8 @@ class MainWindow(QMainWindow):
 def run():
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+
     window = MainWindow()
     window.show()
+
     sys.exit(app.exec())
