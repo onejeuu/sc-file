@@ -6,6 +6,18 @@ class Colors:
 
 
 class Styles:
+    WINDOW = f"""
+        QMainWindow, QDialog, QWidget {{
+            background-color: {Colors.BACKGROUND}; 
+            color: {Colors.TEXT};
+            font-family: "Segoe UI", sans-serif;
+        }}
+        QLabel {{
+            color: {Colors.TEXT};
+            background: transparent;
+        }}
+    """
+
     CHECKBOX = f"""
         QCheckBox {{ color: {Colors.TEXT}; spacing: 8px; }}
         QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid #555; background: {Colors.CARD}; }}
@@ -32,6 +44,33 @@ class Styles:
         }}
         QListWidget::item {{ padding: 3px 5px; }}
         QListWidget::item:selected {{ background: #3e4451; color: #ffffff; }}
+    """
+
+    COMBO = f"""
+        QComboBox {{
+            background: {Colors.CARD};
+            border: 1px solid #555;
+            padding: 2px 10px;
+        }}
+        QComboBox::drop-down {{
+            border: none;
+            background: transparent;
+        }}
+        QComboBox QAbstractItemView {{
+            background: {Colors.CARD};
+            color: {Colors.TEXT};
+            border: 1px solid #555;
+            outline: none;
+        }}
+        QComboBox QAbstractItemView::item {{
+            min-height: 20px;
+            padding-left: 10px;
+            border: none;
+        }}
+        QComboBox QAbstractItemView::item:selected {{
+            background-color: #3d4455;
+            color: white;
+        }}
     """
 
     CONVERT = f"""
