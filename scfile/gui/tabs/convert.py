@@ -57,9 +57,11 @@ class ConverterTab(QWidget):
 
         btn_box = QHBoxLayout()
         add_file_btn = QPushButton(Strings.get("btn_add_files"))
-        add_dir_btn = QPushButton(Strings.get("btn_add_folder"))
-
+        add_file_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         add_file_btn.clicked.connect(self._open_file_dialog)
+
+        add_dir_btn = QPushButton(Strings.get("btn_add_folder"))
+        add_dir_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         add_dir_btn.clicked.connect(self._open_directory_dialog)
 
         btn_box.addWidget(add_file_btn)
@@ -112,6 +114,7 @@ class ConverterTab(QWidget):
             # Group toggle
             cb_type = QCheckBox(kind.title)
             cb_type.setStyleSheet(Styles.CHECKBOX)
+            cb_type.setCursor(Qt.CursorShape.PointingHandCursor)
             cb_type.setChecked(True)
             self.type_checkboxes[kind.id] = cb_type
 
@@ -124,8 +127,8 @@ class ConverterTab(QWidget):
             # Models output format
             if kind.id == "models":
                 self.fmt_combo = QComboBox()
-
                 self.fmt_combo.setStyleSheet(Styles.COMBO)
+                self.fmt_combo.setCursor(Qt.CursorShape.PointingHandCursor)
                 self.fmt_combo.setItemDelegate(QStyledItemDelegate())
                 self.fmt_combo.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -139,6 +142,7 @@ class ConverterTab(QWidget):
             for feat_id, feat_title in kind.feature_map.items():
                 cb_feat = QCheckBox(feat_title)
                 cb_feat.setStyleSheet(Styles.CHECKBOX)
+                cb_feat.setCursor(Qt.CursorShape.PointingHandCursor)
                 sub_layout.addWidget(cb_feat)
                 self.feature_widgets[feat_id] = cb_feat
 
@@ -163,6 +167,7 @@ class ConverterTab(QWidget):
         # Default output radio button
         self.radio_same_dir = QRadioButton(Strings.get("opt_output_default"))
         self.radio_same_dir.setStyleSheet(Styles.RADIO)
+        self.radio_same_dir.setCursor(Qt.CursorShape.PointingHandCursor)
         self.mode_group.addButton(self.radio_same_dir)
         self.right_column.addWidget(self.radio_same_dir)
 
@@ -175,6 +180,7 @@ class ConverterTab(QWidget):
         # Custom output radio button
         self.radio_custom_dir = QRadioButton("")
         self.radio_custom_dir.setStyleSheet(Styles.RADIO)
+        self.radio_custom_dir.setCursor(Qt.CursorShape.PointingHandCursor)
         self.radio_custom_dir.setChecked(True)
         self.mode_group.addButton(self.radio_custom_dir)
 
@@ -186,7 +192,9 @@ class ConverterTab(QWidget):
 
         # Custom output path browse
         self.browse_btn = QPushButton("...")
+        self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedWidth(30)
+        self.browse_btn.setFixedHeight(30)
         self.browse_btn.clicked.connect(self._browse_output_path)
 
         # Autoselect radio button
@@ -211,9 +219,12 @@ class ConverterTab(QWidget):
 
         # Flat or structured output
         self.radio_tree = QRadioButton(Strings.get("opt_output_tree"))
-        self.radio_flat = QRadioButton(Strings.get("opt_output_flat"))
         self.radio_tree.setStyleSheet(Styles.RADIO)
+        self.radio_tree.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        self.radio_flat = QRadioButton(Strings.get("opt_output_flat"))
         self.radio_flat.setStyleSheet(Styles.RADIO)
+        self.radio_flat.setCursor(Qt.CursorShape.PointingHandCursor)
         self.radio_tree.setChecked(True)
 
         s_group = QButtonGroup(self)
@@ -235,6 +246,7 @@ class ConverterTab(QWidget):
         # Checkbox
         self.cb_unique_names = QCheckBox(Strings.get("cb_unique_names"))
         self.cb_unique_names.setStyleSheet(Styles.CHECKBOX)
+        self.cb_unique_names.setCursor(Qt.CursorShape.PointingHandCursor)
         self.cb_unique_names.setChecked(False)
 
         # Hint
@@ -346,6 +358,7 @@ class ConverterTab(QWidget):
 
         self.convert_btn.setEnabled(is_okay)
         self.convert_btn.setToolTip(tooltip)
+        self.convert_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
 
     def _open_file_dialog(self):
         fs, _ = QFileDialog.getOpenFileNames(self, Strings.get("dialog_files"))
