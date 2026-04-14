@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from scfile import __version__
 
 from . import utils
+from .styles import Styles
 from .tabs.convert import ConverterTab
 
 
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
     def _setup_ui(self):
         self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
         self.setWindowTitle(f"scfile {__version__}")
+        self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 700)
 
         self.central_widget = QWidget()
