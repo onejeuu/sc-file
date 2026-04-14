@@ -53,7 +53,7 @@ class ConverterTab(QWidget):
         header = QHBoxLayout()
 
         title = QLabel(Strings.get("label_sources"))
-        title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        title.setStyleSheet(Styles.TITLE)
 
         btn_box = QHBoxLayout()
         add_file_btn = QPushButton(Strings.get("btn_add_files"))
@@ -80,7 +80,7 @@ class ConverterTab(QWidget):
 
     def _setup_right_column(self):
         title = QLabel(Strings.get("label_settings"))
-        title.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 6px;")
+        title.setStyleSheet(f"{Styles.TITLE} margin-bottom: 6px;")
         self.right_column.addWidget(title)
 
         # File types groups
@@ -160,7 +160,7 @@ class ConverterTab(QWidget):
 
     def _build_output_path_section(self):
         lbl = QLabel(Strings.get("label_output_path"))
-        lbl.setStyleSheet("font-weight: bold; font-size: 13px; color: #abb2bf;")
+        lbl.setStyleSheet(Styles.LABEL)
         self.right_column.addWidget(lbl)
 
         self.mode_group = QButtonGroup(self)
