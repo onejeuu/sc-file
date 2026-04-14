@@ -18,7 +18,9 @@ from PySide6.QtWidgets import (
 from scfile.core.context.options import UserOptions
 from scfile.gui import consts
 from scfile.gui.components import FileListWidget
-from scfile.gui.consts import FT, Styles
+from scfile.gui.consts import FT
+from scfile.gui.strings import Strings
+from scfile.gui.styles import Styles
 from scfile.gui.worker import ConvertWorker, OutputConfig
 
 
@@ -49,12 +51,12 @@ class ConverterTab(QWidget):
     def _setup_left_column(self):
         header = QHBoxLayout()
 
-        title = QLabel("Источники")
+        title = QLabel(Strings.get("label_sources"))
         title.setStyleSheet("font-weight: bold; font-size: 14px;")
 
         btn_box = QHBoxLayout()
-        add_file_btn = QPushButton("+ Файлы")
-        add_dir_btn = QPushButton("+ Папка")
+        add_file_btn = QPushButton(Strings.get("btn_add_files"))
+        add_dir_btn = QPushButton(Strings.get("btn_add_folder"))
 
         add_file_btn.clicked.connect(self._open_file_dialog)
         add_dir_btn.clicked.connect(self._open_directory_dialog)
@@ -74,7 +76,7 @@ class ConverterTab(QWidget):
         self.left_column.addWidget(self.file_list, 1)
 
     def _setup_right_column(self):
-        title = QLabel("Настройки")
+        title = QLabel(Strings.get("label_settings"))
         title.setStyleSheet("font-weight: bold; font-size: 14px; margin-bottom: 6px;")
         self.right_column.addWidget(title)
 
@@ -92,14 +94,14 @@ class ConverterTab(QWidget):
         self.right_column.addStretch()
 
         # Convert button
-        self.convert_btn = QPushButton("КОНВЕРТИРОВАТЬ")
+        self.convert_btn = QPushButton(Strings.get("btn_convert"))
         self.convert_btn.setMinimumHeight(50)
         self.convert_btn.setStyleSheet(Styles.CONVERT)
         self.convert_btn.clicked.connect(self._convert)
         self.right_column.addWidget(self.convert_btn)
 
     def _build_file_type_settings(self):
-        for ft in consts.FILE_TYPES:
+        for kind in consts.FILE_KINDS:
             # Group container
             group = QWidget()
             layout = QVBoxLayout(group)
@@ -107,10 +109,10 @@ class ConverterTab(QWidget):
             layout.setSpacing(0)
 
             # Group toggle
-            cb_type = QCheckBox(ft.label)
+            cb_type = QCheckBox(kind.title)
             cb_type.setStyleSheet(Styles.CHECKBOX)
             cb_type.setChecked(True)
-            self.type_checkboxes[ft.id] = cb_type
+            self.type_checkboxes[kind.id] = cb_type
 
             # Sub options
             sub_options = QWidget()
@@ -119,7 +121,7 @@ class ConverterTab(QWidget):
             sub_layout.setSpacing(2)
 
             # Models output format
-            if ft.id == "models":
+            if kind.id == "models":
                 self.fmt_combo = QComboBox()
 
                 for fmt in consts.MODEL_FORMATS:
@@ -129,7 +131,7 @@ class ConverterTab(QWidget):
                 sub_layout.addWidget(self.fmt_combo)
 
             # Feature specific checkboxes
-            for feat_id, feat_title in ft.feature_map.items():
+            for feat_id, feat_title in kind.feature_map.items():
                 cb_feat = QCheckBox(feat_title)
                 cb_feat.setStyleSheet(Styles.CHECKBOX)
                 sub_layout.addWidget(cb_feat)
@@ -139,7 +141,7 @@ class ConverterTab(QWidget):
             layout.addWidget(cb_type)
 
             # Suffixes hint
-            suffix_hint = QLabel(", ".join(ft.suffixes))
+            suffix_hint = QLabel(", ".join(kind.suffixes))
             suffix_hint.setStyleSheet(Styles.HINT)
 
             layout.addWidget(suffix_hint)
@@ -147,14 +149,14 @@ class ConverterTab(QWidget):
             self.right_column.addWidget(group)
 
     def _build_output_path_section(self):
-        lbl = QLabel("Путь сохранения")
+        lbl = QLabel(Strings.get("label_output_path"))
         lbl.setStyleSheet("font-weight: bold; font-size: 13px; color: #abb2bf;")
         self.right_column.addWidget(lbl)
 
         self.mode_group = QButtonGroup(self)
 
         # Default output radio button
-        self.radio_same_dir = QRadioButton("В папку с оригинальным файлом")
+        self.radio_same_dir = QRadioButton(Strings.get("opt_output_default"))
         self.radio_same_dir.setStyleSheet(Styles.RADIO)
         self.radio_same_dir.setChecked(True)
         self.mode_group.addButton(self.radio_same_dir)
@@ -174,7 +176,7 @@ class ConverterTab(QWidget):
 
         # Custom output path input
         self.path_edit = QLineEdit()
-        self.path_edit.setPlaceholderText("Укажите путь...")
+        self.path_edit.setPlaceholderText(Strings.get("placeholder_path"))
         self.path_edit.setStyleSheet(Styles.INPUT)
 
         # Custom output path browse
@@ -203,8 +205,8 @@ class ConverterTab(QWidget):
         layout.setSpacing(4)
 
         # Flat or structured output
-        self.radio_flat = QRadioButton("В одну папку")
-        self.radio_tree = QRadioButton("Сохранять структуру подпапок")
+        self.radio_flat = QRadioButton(Strings.get("opt_output_flat"))
+        self.radio_tree = QRadioButton(Strings.get("opt_output_tree"))
         self.radio_flat.setStyleSheet(Styles.RADIO)
         self.radio_tree.setStyleSheet(Styles.RADIO)
         self.radio_flat.setChecked(True)
@@ -226,12 +228,12 @@ class ConverterTab(QWidget):
         layout.setSpacing(2)
 
         # Checkbox
-        self.cb_unique_names = QCheckBox("Создавать копии при совпадении имен")
+        self.cb_unique_names = QCheckBox(Strings.get("cb_unique_names"))
         self.cb_unique_names.setStyleSheet(Styles.CHECKBOX)
         self.cb_unique_names.setChecked(False)
 
         # Hint
-        overwrite_hint = QLabel("Добавлять порядковый номер к названию файла вместо его перезаписи")
+        overwrite_hint = QLabel(Strings.get("hint_unique_names"))
         overwrite_hint.setStyleSheet(Styles.HINT)
 
         # Add to layout
@@ -288,7 +290,7 @@ class ConverterTab(QWidget):
 
     def _get_activated_suffixes(self) -> set[str]:
         suffixes = set()
-        for ft in consts.FILE_TYPES:
+        for ft in consts.FILE_KINDS:
             if self.type_checkboxes[ft.id].isChecked():
                 suffixes.update(ft.suffixes)
         return suffixes
@@ -308,19 +310,19 @@ class ConverterTab(QWidget):
     def _update_convert_button_state(self):
         ok = self.file_list.count() > 0
         self.convert_btn.setEnabled(ok)
-        self.convert_btn.setToolTip("" if ok else "Добавьте источники для конвертации")
+        self.convert_btn.setToolTip("" if ok else Strings.get("tooltip_no_sources"))
 
     def _open_file_dialog(self):
-        fs, _ = QFileDialog.getOpenFileNames(self, "Файлы")
+        fs, _ = QFileDialog.getOpenFileNames(self, Strings.get("dialog_files"))
         if fs:
             self.file_list.add_paths(fs)
 
     def _open_directory_dialog(self):
-        d = QFileDialog.getExistingDirectory(self, "Папка")
+        d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_folder"))
         if d:
             self.file_list.add_paths([d])
 
     def _browse_output_path(self):
-        d = QFileDialog.getExistingDirectory(self, "Папка результатов")
+        d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_output"))
         if d:
             self.path_edit.setText(d)
