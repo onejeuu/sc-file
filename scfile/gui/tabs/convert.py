@@ -351,12 +351,12 @@ class ConverterTab(QWidget):
     def _open_file_dialog(self):
         fs, _ = QFileDialog.getOpenFileNames(self, Strings.get("dialog_files"))
         if fs:
-            self.file_list.add_paths(fs)
+            self.file_list.add_sources(fs)
 
     def _open_directory_dialog(self):
         d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_folder"))
         if d:
-            self.file_list.add_paths([d])
+            self.file_list.add_sources([d])
 
     def _browse_output_path(self):
         d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_output"))
