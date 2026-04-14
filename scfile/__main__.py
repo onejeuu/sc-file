@@ -4,14 +4,15 @@ from pathlib import Path
 import click
 from rich import print
 
-from scfile import gui
 from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
 def setup_command():
     if len(sys.argv) == 1:
-        gui.window.run()
+        from scfile.gui import window
+
+        window.run()
         return
 
     args = sys.argv[1:]
