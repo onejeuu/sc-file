@@ -154,7 +154,7 @@ Overview
 🤝 Acknowledgments
 ----------------------------------------
 
-| ``kommunist2021`` · ``Art3mLapa`` · ``n1kodim`` · ``TeamDima`` · ``BoJIwEbHuK7``
+| ``kommunist2021`` · ``Art3mLapa`` · ``n1kodim`` · ``TeamDima`` · ``BoJIwEbNuK7``
 | ``IExploitableMan`` · ``tuneyadecc`` · ``Hazart``
 
 Thanks to everyone who reported issues, shared findings, or contributed ideas.

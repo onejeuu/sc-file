@@ -163,7 +163,6 @@ class ConverterTab(QWidget):
         # Default output radio button
         self.radio_same_dir = QRadioButton(Strings.get("opt_output_default"))
         self.radio_same_dir.setStyleSheet(Styles.RADIO)
-        self.radio_same_dir.setChecked(True)
         self.mode_group.addButton(self.radio_same_dir)
         self.right_column.addWidget(self.radio_same_dir)
 
@@ -175,14 +174,15 @@ class ConverterTab(QWidget):
 
         # Custom output radio button
         self.radio_custom_dir = QRadioButton("")
-        self.radio_custom_dir.setFixedWidth(16)
         self.radio_custom_dir.setStyleSheet(Styles.RADIO)
+        self.radio_custom_dir.setChecked(True)
         self.mode_group.addButton(self.radio_custom_dir)
 
         # Custom output path input
         self.path_edit = QLineEdit()
         self.path_edit.setPlaceholderText(Strings.get("placeholder_path"))
         self.path_edit.setStyleSheet(Styles.INPUT)
+        self.path_edit.setText(consts.DEFAULT_OUTPUT.as_posix())
 
         # Custom output path browse
         self.browse_btn = QPushButton("...")
@@ -196,7 +196,6 @@ class ConverterTab(QWidget):
         path_layout.addWidget(self.radio_custom_dir)
         path_layout.addWidget(self.path_edit)
         path_layout.addWidget(self.browse_btn)
-
         self.right_column.addWidget(self.path_row_widget)
 
         # Sync state
@@ -211,19 +210,19 @@ class ConverterTab(QWidget):
         layout.setSpacing(4)
 
         # Flat or structured output
-        self.radio_flat = QRadioButton(Strings.get("opt_output_flat"))
         self.radio_tree = QRadioButton(Strings.get("opt_output_tree"))
-        self.radio_flat.setStyleSheet(Styles.RADIO)
+        self.radio_flat = QRadioButton(Strings.get("opt_output_flat"))
         self.radio_tree.setStyleSheet(Styles.RADIO)
-        self.radio_flat.setChecked(True)
+        self.radio_flat.setStyleSheet(Styles.RADIO)
+        self.radio_tree.setChecked(True)
 
         s_group = QButtonGroup(self)
-        s_group.addButton(self.radio_flat)
         s_group.addButton(self.radio_tree)
+        s_group.addButton(self.radio_flat)
 
         # Add to layout
-        layout.addWidget(self.radio_flat)
         layout.addWidget(self.radio_tree)
+        layout.addWidget(self.radio_flat)
 
         self.right_column.addWidget(self.structure_container)
 
