@@ -1,9 +1,13 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from scfile.consts import NBT_FILENAMES
 from scfile.enums import FileFormat
 
 from .strings import Strings
+
+
+DEFAULT_OUTPUT = Path.home() / "scfile" / "export"
 
 
 @dataclass
