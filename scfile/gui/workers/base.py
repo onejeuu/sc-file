@@ -10,6 +10,7 @@ class WorkerMeta(ABCMeta, type(QObject)):
 class Worker(QObject, metaclass=WorkerMeta):
     finished = Signal()
     error = Signal(str)
+    log = Signal(str)
 
     @abstractmethod
     def run(self) -> None:
