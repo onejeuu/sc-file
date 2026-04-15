@@ -50,7 +50,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
     def _add_texture_coordinates(self, mesh: ModelMesh):
         template = b"vt %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.textures, mesh.count.vertices))
+        self.write(self._vectorize(template, mesh.uv1, mesh.count.vertices))
         self.write(b"\n")
 
     def _add_vertex_normals(self, mesh: ModelMesh):

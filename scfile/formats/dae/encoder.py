@@ -85,8 +85,8 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
         # UV Texture
         if self.data.flags[Flag.UV]:
-            tex_source = utils.create_source(node, mesh.name, "texture", mesh.textures)
-            utils.add_accessor(tex_source, mesh.name, "texture", len(mesh.textures), ["S", "T"], "float")
+            tex_source = utils.create_source(node, mesh.name, "texture", mesh.uv1)
+            utils.add_accessor(tex_source, mesh.name, "texture", len(mesh.uv1), ["S", "T"], "float")
 
         # XYZ Normals
         if self.data.flags[Flag.NORMALS]:

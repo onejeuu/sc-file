@@ -24,6 +24,7 @@ class Feature:
 class FT:
     SKELETON = Feature("skeleton", "🦴", Strings.get("feat_skeleton"))
     ANIMATION = Feature("animation", "🌀", Strings.get("feat_animation"))
+    UV2 = Feature("uv2", "💡", Strings.get("feat_uv2"))
 
 
 @dataclass
@@ -49,7 +50,7 @@ FILE_KINDS: list[FileKind] = [
         "🧊",
         Strings.get("fmt_models"),
         suffixes=[".mcsa", ".mcsb", ".mcvd"],
-        features=[FT.SKELETON, FT.ANIMATION],
+        features=[FT.SKELETON, FT.ANIMATION, FT.UV2],
     ),
     FileKind(
         "textures",
@@ -90,7 +91,7 @@ class ModelFormat:
 
 MODEL_FORMATS = [
     ModelFormat(FileFormat.OBJ),
-    ModelFormat(FileFormat.GLB, features=[FT.SKELETON, FT.ANIMATION]),
+    ModelFormat(FileFormat.GLB, features=[FT.SKELETON, FT.ANIMATION, FT.UV2]),
     ModelFormat(FileFormat.DAE, features=[FT.SKELETON]),
     ModelFormat(FileFormat.MS3D, features=[FT.SKELETON]),
 ]
