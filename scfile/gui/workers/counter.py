@@ -23,9 +23,13 @@ class CountWorker(Worker):
 
     def run(self) -> None:
         count = 0
+        thread = self.thread()
 
         try:
             for source in self.sources:
+                if thread and thread.isInterruptionRequested():
+                    return
+
                 if os.path.isfile(source):
                     count += self.predicate(source)
                 else:
