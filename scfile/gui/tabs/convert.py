@@ -309,6 +309,7 @@ class ConverterTab(QWidget):
                 model_formats=[fmt.id] if fmt else None,
                 parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
                 parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
+                parse_uv2=self.feature_widgets[FT.UV2.id].isChecked(),
                 overwrite=not self.cb_unique_names.isChecked(),
             ),
             output=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
@@ -365,8 +366,7 @@ class ConverterTab(QWidget):
             is_supported = any(f.id == fid for f in fmt.features)
 
             widget.setEnabled(is_supported)
-            if not is_supported:
-                widget.setChecked(False)
+            widget.setChecked(is_supported)
 
     def _get_warnings(self):
         warns: list[str] = []

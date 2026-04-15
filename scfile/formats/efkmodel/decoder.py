@@ -25,7 +25,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
             data = self._readarray(F.F32, mesh.count.vertices * 15).reshape((mesh.count.vertices, 15))
             mesh.positions = data[:, 0:3]
             mesh.normals = data[:, 3:6]
-            mesh.textures = data[:, 12:14]
+            mesh.uv1 = data[:, 12:14]
 
             # Read polygons data
             mesh.count.polygons = self._readcount("polygons")

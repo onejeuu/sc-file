@@ -138,11 +138,11 @@ typedef struct {
     Vec4s positions[vertexCount] <name="Positions", bgcolor=cGreen>;
 
     if ( flags.UV )
-        Vec2s textures[vertexCount] <name="UV", bgcolor=cRed>;
+        Vec2s uv1[vertexCount] <name="UV1 (ATLAS)", bgcolor=cRed>;
 
     if ( version >= 9.0 )
         if ( flags.UV2 )
-            Vec2s uv2[vertexCount] <name="UV2", bgcolor=cDkRed>;
+            Vec2s uv2[vertexCount] <name="UV2 (AO)", bgcolor=cDkRed>;
 
     if ( flags.NORMALS )
         Vec4b normals[vertexCount] <name="Normals", bgcolor=cPurple>;

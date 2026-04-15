@@ -5,6 +5,8 @@ Dataclasses for scene of 3D models.
 from dataclasses import dataclass, field
 from typing import TypeAlias
 
+import numpy as np
+
 from .animation import ModelAnimation
 from .flags import Flag
 from .mesh import ModelMesh
@@ -70,8 +72,22 @@ class ModelScene:
 
     def invert_v_textures(self):
         for mesh in self.meshes:
-            mesh.textures[:, 1] *= -1
+            mesh.uv1[:, 1] *= -1
+            mesh.uv2[:, 1] *= -1
 
     def flip_v_textures(self):
         for mesh in self.meshes:
-            mesh.textures[:, 1] = 1.0 - mesh.textures[:, 1]
+            mesh.uv1[:, 1] = 1.0 - mesh.uv1[:, 1]
+            mesh.uv2[:, 1] = 1.0 - mesh.uv2[:, 1]
+
+    def normalize_vectors(self):
+        for mesh in self.meshes:
+            if mesh.normals is not None and mesh.normals.size > 0:
+                norm = np.linalg.norm(mesh.normals, axis=1, keepdims=True)
+                mesh.normals = np.divide(mesh.normals, norm, out=np.zeros_like(mesh.normals), where=norm != 0)
+
+            if mesh.tangents is not None and mesh.tangents.size > 0:
+                xyz = mesh.tangents[:, :3]
+                norm = np.linalg.norm(xyz, axis=1, keepdims=True)
+                normalized_xyz = np.divide(xyz, norm, out=np.zeros_like(xyz), where=norm != 0)
+                mesh.tangents[:, :3] = normalized_xyz

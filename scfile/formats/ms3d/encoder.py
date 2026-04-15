@@ -54,7 +54,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         self._writecount("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
 
         # u16 flags, u16 indices[3]
-        # f32 normals[3][3], f32 textures u[3], f32 textures v[3]
+        # f32 normals[3][3], f32 uv1 u[3], f32 uv1 v[3]
         # u8 smoothing group, u8 group index
         fmt = f"{F.U16 * 4}{F.F32 * 15}{F.U8 * 2}"
 
@@ -62,7 +62,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         for index, mesh in enumerate(self.data.scene.meshes):
             for abc in mesh.polygons:
                 normals = [i for vertex in abc for i in mesh.normals[vertex]]
-                uv = np.concatenate([mesh.textures[abc][:, 0], mesh.textures[abc][:, 1]], dtype=F.F32)
+                uv = np.concatenate([mesh.uv1[abc][:, 0], mesh.uv1[abc][:, 1]], dtype=F.F32)
                 indices = (abc + offset).astype(F.U16)
 
                 self._writeb(fmt, 0, *indices, *normals, *uv, 1, index)

@@ -232,7 +232,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
                         pass
                     with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
                         pass
-                    with self._node(b"UV", [mesh.textures.flatten().astype(np.float64)]):
+                    with self._node(b"UV", [mesh.uv1.flatten().astype(np.float64)]):
                         pass
                     with self._node(b"UVIndex", [indexes]):
                         pass
@@ -321,7 +321,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         prop_len = len(self.getvalue()) - props_start
 
-        self.ctx["NODES"].append(dict(start=node_start, prop_count=prop_count, prop_len=prop_len, root=root, children=False))
+        self.ctx["NODES"].append(
+            dict(start=node_start, prop_count=prop_count, prop_len=prop_len, root=root, children=False)
+        )
 
     def _end_node(self):
         node = self.ctx["NODES"].pop()

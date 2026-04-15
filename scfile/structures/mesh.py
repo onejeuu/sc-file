@@ -46,7 +46,8 @@ class ModelMesh:
     bones: BonesMapping = field(default_factory=dict)
 
     positions: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
-    textures: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
+    uv1: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
+    uv2: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
     normals: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
     tangents: Vector4D = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
 

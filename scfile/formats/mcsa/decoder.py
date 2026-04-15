@@ -126,12 +126,14 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Vertices texture coordinates
         if self.data.flags.get(Flag.UV):
-            self._parse_textures(mesh)
+            self._parse_uv1(mesh)
 
-        # ? Not parsed
         # Vertices texture coordinates (2)
         if self.data.flags.get(Flag.UV2):
-            self._skip_vertices(mesh, units=4)
+            if self.options.parse_uv2:
+                self._parse_uv2(mesh)
+            else:
+                self._skip_vertices(mesh, units=4)
 
         # Vertices normals
         if self.data.flags.get(Flag.NORMALS):
@@ -164,13 +166,22 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             scale=self.data.scene.scale.position,
         )[:, :3]
 
-    def _parse_textures(self, mesh: ModelMesh):
-        mesh.textures = self._readvertex(
+    def _parse_uv1(self, mesh: ModelMesh):
+        mesh.uv1 = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
             units=McsaUnits.TEXTURES,
             count=mesh.count.vertices,
             scale=self.data.scene.scale.uv,
+        )
+
+    def _parse_uv2(self, mesh: ModelMesh):
+        mesh.uv2 = self._readvertex(
+            fmt=F.I16,
+            factor=Factor.I16,
+            units=McsaUnits.TEXTURES,
+            count=mesh.count.vertices,
+            scale=self.data.scene.scale.uv2,
         )
 
     def _parse_normals(self, mesh: ModelMesh):

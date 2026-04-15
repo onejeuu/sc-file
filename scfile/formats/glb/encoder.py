@@ -26,6 +26,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
+        self.data.scene.normalize_vectors()
 
         if self._skeleton_presented:
             self.data.scene.skeleton.convert_to_local()
@@ -126,6 +127,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
             # UV Texture
             if self.data.flags.get(Flag.UV):
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
+                self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
+                self._create_accessor(mesh.count.vertices, "VEC2")
+
+            # UV Texture (2)
+            if self.options.parse_uv2 and self.data.flags.get(Flag.UV2):
+                primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC2")
 
@@ -311,7 +318,11 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # UV Texture
             if self.data.flags.get(Flag.UV):
-                self.write(mesh.textures.tobytes())
+                self.write(mesh.uv1.tobytes())
+
+            # UV Texture (2)
+            if self.options.parse_uv2 and self.data.flags.get(Flag.UV2):
+                self.write(mesh.uv2.tobytes())
 
             # XYZ Normals
             if self.data.flags.get(Flag.NORMALS):
