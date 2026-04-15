@@ -24,12 +24,33 @@ from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import FileListWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
+from scfile.gui.workers.counter import CountController
 
 
 class ConverterTab(QWidget):
     def __init__(self):
         super().__init__()
+        self._setup_counter()
         self._setup_ui()
+        self._refresh_count()
+
+    def _setup_counter(self):
+        # Create counter controller
+        self.count_controller = CountController()
+        self.count_controller.changed.connect(self._on_count_changed)
+
+    def _on_count_changed(self, status_text: str, count: int, is_counting: bool):
+        base_text = Strings.get("btn_convert")
+        self.convert_btn.setText(f"{base_text} ({status_text})")
+        self._update_convert_button()
+
+    def _refresh_count(self):
+        allowed = tuple(self._get_activated_suffixes())
+
+        self.count_controller.refresh(
+            sources=self._get_current_sources(),
+            predicate=lambda path: path.lower().endswith(allowed),
+        )
 
     def _setup_ui(self):
         self.main_content_layout = QHBoxLayout(self)
@@ -47,7 +68,7 @@ class ConverterTab(QWidget):
 
         # Update state
         self._sync_output_ui()
-        self._update_convert_button_state()
+        self._update_convert_button()
         self._update_feature_availability()
 
     def _setup_left_column(self):
@@ -73,8 +94,11 @@ class ConverterTab(QWidget):
         header.addLayout(btn_box)
 
         self.file_list = FileListWidget()
-        self.file_list.model().rowsInserted.connect(self._update_convert_button_state)
-        self.file_list.model().rowsRemoved.connect(self._update_convert_button_state)
+        self.file_list.model().rowsInserted.connect(self._update_convert_button)
+        self.file_list.model().rowsRemoved.connect(self._update_convert_button)
+
+        self.file_list.model().rowsInserted.connect(self._refresh_count)
+        self.file_list.model().rowsRemoved.connect(self._refresh_count)
 
         self.left_column.addLayout(header)
         self.left_column.addWidget(self.file_list, 1)
@@ -117,6 +141,7 @@ class ConverterTab(QWidget):
             cb_type.setStyleSheet(Styles.CHECKBOX)
             cb_type.setCursor(Qt.CursorShape.PointingHandCursor)
             cb_type.setChecked(True)
+            cb_type.toggled.connect(self._refresh_count)
 
             self.type_checkboxes[kind.id] = cb_type
 
@@ -284,7 +309,7 @@ class ConverterTab(QWidget):
             predicate=lambda path: (path.suffix.lower() in allowed) or (path.name in consts.NBT_FILENAMES),
         )
 
-        paths = [Path(self.file_list.item(i).data(Qt.ItemDataRole.UserRole)) for i in range(self.file_list.count())]
+        paths = [Path(s) for s in self._get_current_sources()]
 
         self._convert_dispatcher = ConvertDispatcher(paths, context)
         self._convert_thread = workers.execute(
@@ -300,6 +325,9 @@ class ConverterTab(QWidget):
             if self.type_checkboxes[ft.id].isChecked():
                 suffixes.update(ft.suffixes)
         return suffixes
+
+    def _get_current_sources(self) -> list[str]:
+        return [self.file_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.file_list.count())]
 
     def _is_output_valid(self) -> bool:
         if self.radio_same_dir.isChecked():
@@ -319,7 +347,7 @@ class ConverterTab(QWidget):
     def _handle_output_change(self):
         self._sync_output_ui()
         self._update_path_style()
-        self._update_convert_button_state()
+        self._update_convert_button()
 
     def _update_feature_availability(self):
         fmt = self.fmt_combo.currentData()
@@ -333,21 +361,20 @@ class ConverterTab(QWidget):
             if not is_supported:
                 widget.setChecked(False)
 
-    def _update_convert_button_state(self):
+    def _update_convert_button(self):
         has_sources = self.file_list.count() > 0
+        has_targets = self.count_controller.count > 0
         output_valid = self._is_output_valid()
-        is_okay = has_sources and output_valid
+        is_okay = has_sources and has_targets and output_valid
 
         checks = {
-            not has_sources: Strings.get("tooltip_no_sources"),
-            not output_valid: Strings.get("tooltip_invalid_output"),
+            has_targets: Strings.get("tooltip_no_targets"),
+            has_sources: Strings.get("tooltip_no_sources"),
+            output_valid: Strings.get("tooltip_invalid_output"),
         }
 
-        tooltip = checks.get(True, "")
+        tooltip = checks.get(False, "")
 
-        text = Strings.get("btn_convert")
-
-        self.convert_btn.setText(text)
         self.convert_btn.setEnabled(is_okay)
         self.convert_btn.setToolTip(tooltip)
         self.convert_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
@@ -366,3 +393,9 @@ class ConverterTab(QWidget):
         d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_output"))
         if d:
             self.path_edit.setText(d)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_F5:
+            self._refresh_count()
+
+        super().keyPressEvent(event)

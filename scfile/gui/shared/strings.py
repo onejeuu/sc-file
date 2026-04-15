@@ -35,6 +35,10 @@ class Strings:
             "RU": "Добавлять порядковый номер к названию файла вместо его перезаписи",
         },
         "tooltip_no_sources": {"EN": "Add sources to convert", "RU": "Добавьте источники для конвертации"},
+        "tooltip_no_targets": {
+            "EN": "No valid files found in sources",
+            "RU": "В источниках не найдено подходящих файлов",
+        },
         "tooltip_invalid_output": {
             "EN": "Specify a valid output directory",
             "RU": "Укажите корректный путь сохранения",
