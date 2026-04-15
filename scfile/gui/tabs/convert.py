@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThread
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
@@ -17,12 +17,13 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.core.context.options import UserOptions
+from scfile.gui import workers
 from scfile.gui.shared import consts
 from scfile.gui.shared.consts import FT
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import FileListWidget
-from scfile.gui.workers.convert import ConvertWorker
+from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
 
 
 class ConverterTab(QWidget):
@@ -271,37 +272,27 @@ class ConverterTab(QWidget):
         allowed = self._get_activated_suffixes()
         fmt: consts.ModelFormat = self.fmt_combo.currentData()
 
-        def predicate(path: Path) -> bool:
-            return (path.suffix.lower() in allowed) or (path.name in consts.NBT_FILENAMES)
-
-        options = UserOptions(
-            model_formats=[fmt.id] if fmt else None,
-            parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
-            parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
-            overwrite=not self.cb_unique_names.isChecked(),
+        context = ConvertContext(
+            options=UserOptions(
+                model_formats=[fmt.id] if fmt else None,
+                parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
+                parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
+                overwrite=not self.cb_unique_names.isChecked(),
+            ),
+            output=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
+            relative=self.radio_tree.isChecked(),
+            predicate=lambda path: (path.suffix.lower() in allowed) or (path.name in consts.NBT_FILENAMES),
         )
-
-        output = Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None
-        relative = self.radio_tree.isChecked()
 
         paths = [Path(self.file_list.item(i).data(Qt.ItemDataRole.UserRole)) for i in range(self.file_list.count())]
 
-        self._thread = QThread()
-        self._worker = ConvertWorker(paths, options, output, relative, predicate)
+        self._convert_dispatcher = ConvertDispatcher(paths, context)
+        self._convert_thread = workers.execute(
+            self._convert_dispatcher,
+            on_done=lambda: self.convert_btn.setEnabled(True),
+        )
 
-        def start_converting_thread():
-            self._worker.moveToThread(self._thread)
-
-            self._thread.started.connect(self._worker.run)
-            self._worker.finished.connect(self._thread.quit)
-            self._worker.finished.connect(lambda: self.convert_btn.setEnabled(True))
-
-            self._thread.finished.connect(self._thread.deleteLater)
-            self._worker.finished.connect(self._worker.deleteLater)
-
-            self._thread.start()
-
-        start_converting_thread()
+        self.convert_btn.setEnabled(False)
 
     def _get_activated_suffixes(self) -> set[str]:
         suffixes = set()
