@@ -43,6 +43,14 @@ class Strings:
             "EN": "Specify a valid output directory",
             "RU": "Укажите корректный путь сохранения",
         },
+        "warn_game_dir": {
+            "EN": "Output path is within the game directory",
+            "RU": "Путь сохранения находится внутри директории игры",
+        },
+        "warn_path_collision": {
+            "EN": "Output directory is the same as one of the sources",
+            "RU": "Путь сохранения совпадает с одним из источников",
+        },
         "dialog_files": {"EN": "Files", "RU": "Файлы"},
         "dialog_folder": {"EN": "Folder", "RU": "Папка"},
         "dialog_output": {"EN": "Output Directory", "RU": "Папка результатов"},

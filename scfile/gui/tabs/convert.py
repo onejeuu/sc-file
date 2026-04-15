@@ -42,7 +42,7 @@ class ConverterTab(QWidget):
     def _on_count_changed(self, status_text: str, count: int, is_counting: bool):
         base_text = Strings.get("btn_convert")
         self.convert_btn.setText(f"{base_text} ({status_text})")
-        self._update_convert_button()
+        self._sync_state()
 
     def _refresh_count(self):
         allowed = tuple(self._get_activated_suffixes())
@@ -68,8 +68,8 @@ class ConverterTab(QWidget):
 
         # Update state
         self._sync_output_ui()
-        self._update_convert_button()
-        self._update_feature_availability()
+        self._sync_state()
+        self._sync_feature_availability()
 
     def _setup_left_column(self):
         header = QHBoxLayout()
@@ -94,8 +94,8 @@ class ConverterTab(QWidget):
         header.addLayout(btn_box)
 
         self.file_list = FileListWidget()
-        self.file_list.model().rowsInserted.connect(self._update_convert_button)
-        self.file_list.model().rowsRemoved.connect(self._update_convert_button)
+        self.file_list.model().rowsInserted.connect(self._sync_state)
+        self.file_list.model().rowsRemoved.connect(self._sync_state)
 
         self.file_list.model().rowsInserted.connect(self._refresh_count)
         self.file_list.model().rowsRemoved.connect(self._refresh_count)
@@ -120,6 +120,13 @@ class ConverterTab(QWidget):
         self._build_output_overwrite()
 
         self.right_column.addStretch()
+
+        # Warnings label
+        self.warning_label = QLabel()
+        self.warning_label.setStyleSheet(Styles.WARNING)
+        self.warning_label.setWordWrap(True)
+        self.warning_label.hide()
+        self.right_column.addWidget(self.warning_label)
 
         # Convert button
         self.convert_btn = QPushButton(Strings.get("btn_convert"))
@@ -162,7 +169,7 @@ class ConverterTab(QWidget):
                 for fmt in consts.MODEL_FORMATS:
                     self.fmt_combo.addItem(str(fmt), fmt)
 
-                self.fmt_combo.currentIndexChanged.connect(self._update_feature_availability)
+                self.fmt_combo.currentIndexChanged.connect(self._sync_feature_availability)
                 sub_layout.addWidget(self.fmt_combo)
 
             # Feature specific checkboxes
@@ -347,9 +354,9 @@ class ConverterTab(QWidget):
     def _handle_output_change(self):
         self._sync_output_ui()
         self._update_path_style()
-        self._update_convert_button()
+        self._sync_state()
 
-    def _update_feature_availability(self):
+    def _sync_feature_availability(self):
         fmt = self.fmt_combo.currentData()
         if not fmt:
             return
@@ -361,7 +368,36 @@ class ConverterTab(QWidget):
             if not is_supported:
                 widget.setChecked(False)
 
-    def _update_convert_button(self):
+    def _get_warnings(self):
+        warns: list[str] = []
+        is_custom = self.radio_custom_dir.isChecked()
+        output = Path(self.path_edit.text().strip())
+
+        sources = [Path(s) for s in self._get_current_sources()]
+        targets = [output] if (is_custom and output) else sources
+
+        if any("modassets/assets" in target.as_posix().lower() for target in targets):
+            warns.append(Strings.get("warn_game_dir"))
+
+        if is_custom and output:
+            for source in sources:
+                if output == source or output.is_relative_to(source):
+                    warns.append(Strings.get("warn_path_collision"))
+                    break
+
+        return warns
+
+    def _sync_warnings(self):
+        warns = self._get_warnings()
+
+        if not warns:
+            self.warning_label.hide()
+            return
+
+        self.warning_label.setText("\n".join([f"⚠️ {w}" for w in warns]))
+        self.warning_label.show()
+
+    def _sync_convert_button(self):
         has_sources = self.file_list.count() > 0
         has_targets = self.count_controller.count > 0
         output_valid = self._is_output_valid()
@@ -378,6 +414,10 @@ class ConverterTab(QWidget):
         self.convert_btn.setEnabled(is_okay)
         self.convert_btn.setToolTip(tooltip)
         self.convert_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
+
+    def _sync_state(self):
+        self._sync_warnings()
+        self._sync_convert_button()
 
     def _open_file_dialog(self):
         fs, _ = QFileDialog.getOpenFileNames(self, Strings.get("dialog_files"))
