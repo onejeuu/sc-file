@@ -128,27 +128,16 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # Vertices geometric
         self._parse_positions(mesh)
 
-<<<<<<< HEAD
         # Texture coordinates (Atlas)
         if self.data.flags[Flag.UV]:
-            self._parse_textures(mesh)
-
-        # ? Not parsed
-        # Texture coordinates (AO)
-        if self.data.flags[Flag.UV2]:
-            self._skip_vertices(mesh, units=4)
-=======
-        # Vertices texture coordinates
-        if self.data.flags.get(Flag.UV):
             self._parse_uv1(mesh)
 
-        # Vertices texture coordinates (2)
+        # Texture coordinates (AO)
         if self.data.flags.get(Flag.UV2):
             if self.options.parse_uv2:
                 self._parse_uv2(mesh)
             else:
                 self._skip_vertices(mesh, units=4)
->>>>>>> acb611c (parse uvmap2)
 
         # Vertices normals
         if self.data.flags[Flag.NORMALS]:
