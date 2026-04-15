@@ -56,6 +56,7 @@ class Strings:
         "dialog_output": {"EN": "Output Directory", "RU": "Папка результатов"},
         "feat_skeleton": {"EN": "Skeleton", "RU": "Скелет"},
         "feat_animation": {"EN": "Animation", "RU": "Анимация"},
+        "feat_uv2": {"EN": "UVMap2", "RU": "UVMap2"},
         "fmt_models": {"EN": "Models", "RU": "Модели"},
         "fmt_textures": {"EN": "Textures", "RU": "Текстуры"},
         "fmt_images": {"EN": "Images", "RU": "Изображения"},
