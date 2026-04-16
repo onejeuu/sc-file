@@ -41,10 +41,16 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
     merged.rx = rx
     merged.rz = rz
     filename = f"r.{rx}.{rz}.mca"
+    target = output / filename
+
+    if target.exists():
+        backup = target.with_suffix(".mca.bck")
+        if not backup.exists():
+            backup.rename(backup)
 
     with formats.mca.McaEncoder(data=merged, options=options) as mca:
         mca.encode()
-        mca.save(output / filename)
+        mca.save(target)
 
     print(L.INFO, f"{filename} merged {len(merged.chunks)} chunks")
 

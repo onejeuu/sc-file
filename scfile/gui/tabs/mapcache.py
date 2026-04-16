@@ -3,11 +3,14 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
+from scfile.core.context.options import UserOptions
+from scfile.gui import workers
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets.option import OptionWidget
 from scfile.gui.widgets.path_input import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
+from scfile.gui.workers.mapcache import MapCacheWorker
 
 
 DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_cache/5.0"
@@ -146,6 +149,7 @@ class MapCacheTab(QWidget):
         self.merge_btn.setStyleSheet(Styles.BUTTON)
         self.merge_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.merge_btn.setEnabled(False)
+        self.merge_btn.clicked.connect(self._merge)
         self.main_layout.addWidget(self.merge_btn)
 
         self._update_ui_state()
@@ -174,6 +178,19 @@ class MapCacheTab(QWidget):
 
         self.main_layout.addSpacing(10)
         self.main_layout.addWidget(self.options_group)
+
+    def _merge(self):
+        source = Path(self.source_input.text().strip())
+        output = Path(self.output_input.text().strip())
+        options = UserOptions(parse_region_raw=self.cb_raw_blocks.isChecked())
+
+        self.merge_btn.setEnabled(False)
+
+        self._merge_worker = MapCacheWorker(source, output, options)
+        self._merge_thread = workers.execute(
+            self._merge_worker,
+            on_done=lambda: self.merge_btn.setEnabled(True),
+        )
 
     def _handle_source_change(self):
         path = Path(self.source_input.text().strip())
