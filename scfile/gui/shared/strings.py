@@ -66,6 +66,14 @@ class Strings:
             "EN": "Output directory is the same as one of the sources.",
             "RU": "Путь сохранения совпадает с одним из источников.",
         },
+        "warn_not_minecraft_world": {
+            "EN": "No Minecraft world data found at the specified path.",
+            "RU": "По указанному пути не найдены данные мира Minecraft.",
+        },
+        "warn_regions_overwrite": {
+            "EN": 'Regions in world "{world}" will be overwritten!',
+            "RU": 'Регионы в мире "{world}" будут перезаписаны!',
+        },
         "warn_mdat_experimental": {
             "EN": "Decoder is experimental and designed for basic geometry preview.\nFull environment replication and accurate block states are not planned.",
             "RU": "Декодер работает в экспериментальном режиме и предназначен для просмотра базовой геометрии.\nПолное воссоздание окружения и состояний блоков не планируется.",
