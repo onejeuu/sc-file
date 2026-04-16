@@ -63,6 +63,10 @@ class Strings:
             "EN": "No .mdat files found in the specified directory",
             "RU": "В указанной папке не найдены файлы .mdat",
         },
+        "tooltip_path_browse": {
+            "EN": "LMB: Select directory\nRMB: Open in Explorer",
+            "RU": "ЛКМ: Выбрать папку\nПКМ: Открыть в проводнике",
+        },
         "warn_game_dir": {
             "EN": "Output path is within the game directory.",
             "RU": "Путь сохранения находится внутри директории игры.",
