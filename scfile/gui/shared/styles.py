@@ -93,4 +93,5 @@ class Styles:
     LABEL = "font-weight: bold; font-size: 14px;"
 
     HINT = f"color: {Colors.TEXT.dark}; font-size: 10px; margin-left: 24px;"
+    MAPCACHE = f"color: {Colors.TEXT.dark}; font-size: 12px;"
     WARNING = f"font-weight: medium; color: {Colors.WARNING}; font-size: 12px; line-height: 120%;"
