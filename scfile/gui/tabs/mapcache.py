@@ -49,6 +49,16 @@ def resolve_mapcache_path(path: Path) -> Path:
     return path
 
 
+def resolve_output_path(path: Path) -> Path:
+    if path.name == "region" and (path.parent / "level.dat").exists():
+        return path
+
+    if (path / "level.dat").exists():
+        return path / "region"
+
+    return path
+
+
 class MapCacheTab(QWidget):
     def __init__(self):
         super().__init__()
@@ -58,6 +68,33 @@ class MapCacheTab(QWidget):
         self._setup_ui()
 
     def _setup_warnings(self):
+        def is_minecraft_world(path: Path) -> bool:
+            return (path / "level.dat").exists()
+
+        def check_not_world():
+            if not self._is_output_set():
+                return None
+            out_path = Path(self.output_input.text())
+
+            is_region = out_path.name == "region"
+            has_level = is_minecraft_world(out_path.parent) if is_region else is_minecraft_world(out_path)
+
+            if not (is_region and has_level):
+                return Strings.get("warn_not_minecraft_world")
+            return None
+
+        def check_overwrite():
+            if not self._is_output_set():
+                return None
+            out_path = Path(self.output_input.text())
+
+            if out_path.exists() and any(out_path.glob("*.mca")):
+                world_name = out_path.parent.name if out_path.name == "region" else out_path.name
+                return Strings.get("warn_regions_overwrite").format(world=world_name)
+            return None
+
+        self.warnings.add_rule(check_not_world)
+        self.warnings.add_rule(check_overwrite)
         self.warnings.add_rule(lambda: Strings.get("warn_mdat_experimental"))
 
     def _setup_ui(self):
@@ -85,7 +122,7 @@ class MapCacheTab(QWidget):
             placeholder=".minecraft/saves/{world}/regions",
             caption=Strings.get("dialog_mapcache_output"),
         )
-        self.output_input.changed.connect(self._update_ui_state)
+        self.output_input.changed.connect(self._handle_output_change)
 
         self.main_layout.addWidget(source_label)
         self.main_layout.addWidget(self.source_input)
@@ -141,14 +178,28 @@ class MapCacheTab(QWidget):
 
         self._update_ui_state()
 
+    def _handle_output_change(self):
+        path = Path(self.output_input.text().strip())
+
+        if path.exists():
+            resolved = resolve_output_path(path)
+
+            if resolved.as_posix() != path.as_posix():
+                self.output_input.setText(resolved.as_posix())
+
+        self._update_ui_state()
+
+    def _is_output_set(self) -> bool:
+        return bool(self.output_input.text().strip())
+
     def _update_ui_state(self):
         self.warnings.update_state()
 
-        source = Path(self.source_input.text().strip())
-        output = Path(self.output_input.text().strip())
+        source = self.source_input.text().strip()
+        output = self.output_input.text().strip()
 
-        source_ok = is_mapcache_dir(source)
-        output_ok = not output.is_file()
+        source_ok = bool(source) and is_mapcache_dir(Path(source))
+        output_ok = bool(output) and not Path(output).is_file()
         is_okay = source_ok and output_ok
 
         checks = {
