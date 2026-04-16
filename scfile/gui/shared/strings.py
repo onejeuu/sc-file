@@ -30,7 +30,7 @@ class Strings:
         "btn_add_files": {"EN": "+ Files", "RU": "+ Файлы"},
         "btn_add_folder": {"EN": "+ Folder", "RU": "+ Папка"},
         "btn_convert": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
-        "btn_merge_regions": {"EN": "MERGE", "RU": "ОБЪЕДИНИТЬ"},
+        "btn_merge_regions": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
         "opt_output_default": {"EN": "Same folder as original", "RU": "Рядом с оригинальным файлом"},
         "opt_output_flat": {"EN": "Single flat folder", "RU": "В одну плоскую папку"},
         "opt_output_tree": {"EN": "Keep subfolder structure", "RU": "Сохранять структуру подпапок"},
@@ -44,7 +44,7 @@ class Strings:
         },
         "hint_raw_blocks": {
             "EN": "Literal interpretation of block IDs instead of lookup table replacement",
-            "RU": "Буквальная интерпретация айди блоков вместо их замены по lookup таблице",
+            "RU": "Буквальная интерпретация айди блоков вместо замены по lookup таблице",
         },
         "hint_auto_resolve": {
             "EN": "Automatically complete the path to the data storage directory",
@@ -59,9 +59,9 @@ class Strings:
             "EN": "Specify a valid output directory",
             "RU": "Укажите корректный путь сохранения",
         },
-        "tooltip_bad_mapcache_output": {
-            "EN": "No .mdat files found in the specified directory.",
-            "RU": "В указанной папке не найдены файлы .mdat.",
+        "tooltip_bad_mapcache_source": {
+            "EN": "No .mdat files found in the specified directory",
+            "RU": "В указанной папке не найдены файлы .mdat",
         },
         "warn_game_dir": {
             "EN": "Output path is within the game directory.",
@@ -79,9 +79,9 @@ class Strings:
             "EN": 'Regions in world "{world}" will be overwritten!',
             "RU": 'Регионы в мире "{world}" будут перезаписаны!',
         },
-        "warn_mdat_experimental": {
-            "EN": "Decoder is experimental and designed for basic geometry preview.\nFull environment replication and accurate block states are not planned.",
-            "RU": "Декодер работает в экспериментальном режиме и предназначен для просмотра базовой геометрии.\nПолное воссоздание окружения и состояний блоков не планируется.",
+        "info_mdat_context": {
+            "EN": "Format: Anvil 1343 (Minecraft 1.12.2+).\nExperimental decoder designed for basic geometry preview.\nFull environment replication or accurate block states are not planned.",
+            "RU": "Формат: Anvil 1343 (Minecraft 1.12.2+).\nЭкспериментальный декодер для просмотра базовой геометрии.\nПолное воссоздание окружения и состояний блоков не планируется.",
         },
         "dialog_files": {"EN": "Files", "RU": "Файлы"},
         "dialog_folder": {"EN": "Folder", "RU": "Папка"},
