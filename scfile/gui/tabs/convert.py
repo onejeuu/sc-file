@@ -41,9 +41,9 @@ class ConverterTab(QWidget):
         self.count_controller = CountController()
         self.count_controller.changed.connect(self._on_count_changed)
 
-    def _on_count_changed(self, status_text: str, count: int, is_counting: bool):
+    def _on_count_changed(self, text: str, count: int, is_counting: bool):
         base_text = Strings.get("btn_convert")
-        self.convert_btn.setText(f"{base_text} ({status_text})")
+        self.convert_btn.setText(f"{base_text} ({text})")
         self._sync_state()
 
     def _refresh_count(self):
@@ -59,27 +59,24 @@ class ConverterTab(QWidget):
 
         def check_game_dir():
             custom = self.radio_custom_dir.isChecked()
+            samedir = self.radio_same_dir.isChecked()
             output = Path(self.path_edit.text().strip())
-
             sources = [Path(s) for s in self._get_current_sources()]
             targets = [output] if (custom and output) else sources
 
-            for target in targets:
-                if "modassets/assets" in target.as_posix().lower():
-                    return Strings.get("warn_game_dir")
-            return None
+            gamedir_in_targets = any(["modassets/assets" in path.as_posix() for path in targets])
+
+            if gamedir_in_targets or (samedir and self.count_controller.gamedir):
+                return Strings.get("warn_game_dir")
 
         def check_collision():
             custom = self.radio_custom_dir.isChecked()
             output = Path(self.path_edit.text().strip())
-            if not (custom and output):
-                return None
-
-            sources = [Path(s) for s in self._get_current_sources()]
-            for source in sources:
-                if output == source or output.is_relative_to(source):
-                    return Strings.get("warn_path_collision")
-            return None
+            if custom and output:
+                sources = [Path(s) for s in self._get_current_sources()]
+                for source in sources:
+                    if output == source or output.is_relative_to(source):
+                        return Strings.get("warn_path_collision")
 
         self.warnings.add_rule(check_game_dir)
         self.warnings.add_rule(check_collision)
