@@ -46,7 +46,7 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
     if target.exists():
         backup = target.with_suffix(".mca.bck")
         if not backup.exists():
-            backup.rename(backup)
+            target.rename(backup)
 
     with formats.mca.McaEncoder(data=merged, options=options) as mca:
         mca.encode()
