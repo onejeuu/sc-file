@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (
 )
 
 from scfile import __version__
-from scfile.gui.tabs.retarget import RetargetTab
 
 from .shared import utils
 from .shared.strings import Strings
@@ -23,7 +22,7 @@ from .tabs.mapcache import MapCacheTab
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.tabs: dict[int, tuple[QWidget, tuple[int, int]]] = {}
+        self.tabs: dict[int, QWidget] = {}
         self._setup_ui()
 
     def _setup_ui(self):
@@ -45,21 +44,13 @@ class MainWindow(QMainWindow):
 
         self.content_stack = QStackedWidget()
 
-        # TODO: resize
         self._add_tab(
             name=Strings.get("tab_converter"),
             widget=ConverterTab(),
-            size=(1000, 720),
         )
         self._add_tab(
             name=Strings.get("tab_mapcache"),
             widget=MapCacheTab(),
-            size=(1000, 480),
-        )
-        self._add_tab(
-            name=Strings.get("tab_retarget"),
-            widget=RetargetTab(),
-            size=(1000, 500),
         )
 
         self.main_layout.addWidget(self.tab_bar)
@@ -67,14 +58,13 @@ class MainWindow(QMainWindow):
 
         self._on_tab_changed(0)
 
-    def _add_tab(self, name: str, widget: QWidget, size: tuple[int, int]):
+    def _add_tab(self, name: str, widget: QWidget):
         index = self.tab_bar.addTab(name)
         self.content_stack.addWidget(widget)
-        self.tabs[index] = (widget, size)
+        self.tabs[index] = widget
 
     def _on_tab_changed(self, index: int):
-        if data := self.tabs.get(index):
-            widget, (w, h) = data
+        if widget := self.tabs.get(index):
             self.content_stack.setCurrentWidget(widget)
 
 

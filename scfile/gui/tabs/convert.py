@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QPushButton,
     QRadioButton,
     QStyledItemDelegate,
@@ -23,6 +22,7 @@ from scfile.gui.shared.consts import FT
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import FileListWidget
+from scfile.gui.widgets.path_input import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
 from scfile.gui.workers.counter import CountController
@@ -60,7 +60,7 @@ class ConverterTab(QWidget):
         def check_game_dir():
             custom = self.radio_custom_dir.isChecked()
             samedir = self.radio_same_dir.isChecked()
-            output = Path(self.path_edit.text().strip())
+            output = Path(self.output_path.text().strip())
             sources = [Path(s) for s in self._get_current_sources()]
             targets = [output] if (custom and output) else sources
 
@@ -71,7 +71,7 @@ class ConverterTab(QWidget):
 
         def check_collision():
             custom = self.radio_custom_dir.isChecked()
-            output = Path(self.path_edit.text().strip())
+            output = Path(self.output_path.text().strip())
             if custom and output:
                 sources = [Path(s) for s in self._get_current_sources()]
                 for source in sources:
@@ -244,29 +244,22 @@ class ConverterTab(QWidget):
         self.mode_group.addButton(self.radio_custom_dir)
 
         # Custom output path input
-        self.path_edit = QLineEdit()
-        self.path_edit.setPlaceholderText(Strings.get("placeholder_path"))
-        self.path_edit.setStyleSheet(Styles.INPUT)
-        self.path_edit.setText(consts.DEFAULT_OUTPUT.as_posix())
-
-        # Custom output path browse
-        self.browse_btn = QPushButton("...")
-        self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.browse_btn.setFixedWidth(30)
-        self.browse_btn.setFixedHeight(30)
-        self.browse_btn.clicked.connect(self._browse_output_path)
+        self.output_path = PathInputWidget(
+            placeholder=Strings.get("placeholder_path"),
+            caption=Strings.get("dialog_output"),
+        )
+        self.output_path.setText(consts.DEFAULT_OUTPUT.as_posix())
 
         # Autoselect radio button
         self.path_row_widget.mousePressEvent = lambda e: self.radio_custom_dir.setChecked(True)
 
         # Add to layout
         path_layout.addWidget(self.radio_custom_dir)
-        path_layout.addWidget(self.path_edit)
-        path_layout.addWidget(self.browse_btn)
+        path_layout.addWidget(self.output_path)
         self.right_column.addWidget(self.path_row_widget)
 
         # Sync state
-        self.path_edit.textChanged.connect(self._handle_output_change)
+        self.output_path.textChanged.connect(self._handle_output_change)
         self.radio_same_dir.toggled.connect(self._handle_output_change)
         self.radio_custom_dir.toggled.connect(self._handle_output_change)
 
@@ -321,8 +314,7 @@ class ConverterTab(QWidget):
 
     def _sync_output_ui(self):
         is_custom = self.radio_custom_dir.isChecked()
-        self.path_edit.setEnabled(is_custom)
-        self.browse_btn.setEnabled(is_custom)
+        self.output_path.setEnabled(is_custom)
         self.structure_container.setEnabled(is_custom)
 
     def _convert(self) -> None:
@@ -336,7 +328,7 @@ class ConverterTab(QWidget):
                 parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
                 overwrite=not self.cb_unique_names.isChecked(),
             ),
-            output=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
+            output=Path(self.output_path.text()) if self.radio_custom_dir.isChecked() else None,
             relative=self.radio_tree.isChecked(),
             predicate=lambda path: (path.suffix.lower() in allowed) or (path.name in consts.NBT_FILENAMES),
         )
@@ -365,21 +357,11 @@ class ConverterTab(QWidget):
         if self.radio_same_dir.isChecked():
             return True
 
-        path = self.path_edit.text().strip()
+        path = self.output_path.text().strip()
         return bool(path) and not Path(path).is_file()
-
-    def _update_path_style(self):
-        if not self.radio_custom_dir.isChecked():
-            self.path_edit.setStyleSheet(Styles.INPUT)
-            return
-
-        # TODO: styles classes
-        border_color = "#555" if self._is_output_valid() else "#e06c75"
-        self.path_edit.setStyleSheet(f"{Styles.INPUT} QLineEdit {{ border-color: {border_color}; }}")
 
     def _handle_output_change(self):
         self._sync_output_ui()
-        self._update_path_style()
         self._sync_state()
 
     def _sync_feature_availability(self):
@@ -424,11 +406,6 @@ class ConverterTab(QWidget):
         d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_folder"))
         if d:
             self.file_list.add_sources([d])
-
-    def _browse_output_path(self):
-        d = QFileDialog.getExistingDirectory(self, Strings.get("dialog_output"))
-        if d:
-            self.path_edit.setText(d)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F5:
