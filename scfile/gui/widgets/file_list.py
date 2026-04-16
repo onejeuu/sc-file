@@ -40,6 +40,7 @@ class FileListWidget(QListWidget):
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setStyleSheet(Styles.LIST)
+        self.setMinimumWidth(320)
         self.icon_provider = QFileIconProvider()
 
     def _normalize_path(self, source: str) -> str:

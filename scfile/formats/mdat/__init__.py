@@ -1,3 +1,7 @@
+"""
+Co-author: [TeamDima](https://github.com/DeTTK)
+"""
+
 from .decoder import MdatDecoder
 
 
