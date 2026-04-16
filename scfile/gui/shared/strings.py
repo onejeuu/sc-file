@@ -14,9 +14,9 @@ class Strings:
     LANG: Lang = _get_lang()
 
     DATA: dict[str, dict[Lang, str]] = {
-        "tab_converter": {"EN": "Converter", "RU": "Конвертер"},
+        "tab_converter": {"EN": "Converter", "RU": "Конвертер файлов"},
         "tab_mapcache": {"EN": "Map Cache", "RU": "Кэш карты"},
-        "tab_retarget": {"EN": "Retarget", "RU": "Ретаргет"},
+        "tab_retarget": {"EN": "Retarget", "RU": "Ретаргет анимаций"},
         "action_remove": {"EN": "Remove from list", "RU": "Удалить из списка"},
         "drop_hint": {
             "EN": "Add files/folders with buttons above\nor drag & drop them here",
@@ -54,6 +54,10 @@ class Strings:
             "EN": "Specify a valid output directory",
             "RU": "Укажите корректный путь сохранения",
         },
+        "tooltip_bad_mapcache_output": {
+            "EN": "No .mdat files found in the specified directory.",
+            "RU": "В указанной папке не найдены файлы .mdat.",
+        },
         "warn_game_dir": {
             "EN": "Output path is within the game directory.",
             "RU": "Путь сохранения находится внутри директории игры.",
@@ -69,8 +73,8 @@ class Strings:
         "dialog_files": {"EN": "Files", "RU": "Файлы"},
         "dialog_folder": {"EN": "Folder", "RU": "Папка"},
         "dialog_output": {"EN": "Output Directory", "RU": "Папка результатов"},
-        "dialog_mapcache_source": {"EN": "Stalcraft Cache", "RU": "Сталкрафт Кэш"},
-        "dialog_mapcache_output": {"EN": "Minecraft regions", "RU": "Майнкрафт регионы"},
+        "dialog_mapcache_source": {"EN": "Stalcraft map cache", "RU": "Сталкрафт кэш карты"},
+        "dialog_mapcache_output": {"EN": "Minecraft regions", "RU": "Майнкрафта регионы"},
         "feat_skeleton": {"EN": "Skeleton", "RU": "Скелет"},
         "feat_animation": {"EN": "Animation", "RU": "Анимация"},
         "feat_uv2": {"EN": "UVMap2", "RU": "UVMap2"},

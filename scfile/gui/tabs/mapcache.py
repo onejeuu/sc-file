@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.gui.shared.strings import Strings
-from scfile.gui.shared.styles import Colors, Styles
+from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets.path_input import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
 
@@ -13,29 +13,38 @@ DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_c
 
 
 def is_mapcache_dir(path: Path) -> bool:
-    return (
-        path.exists()
-        and not path.is_file()
-        and path.name == "5.0"
-        and path.parent.name == "map_cache"
-        and any(path.rglob("*.mdat"))
-    )
+    if not (path.exists() and path.is_dir()):
+        return False
+
+    if any(path.glob("*.mdat")):
+        return True
+
+    if path.name == "5.0" and path.parent.name == "map_cache":
+        if any(path.glob("*/*.mdat")):
+            return True
+
+    return False
 
 
 def resolve_mapcache_path(path: Path) -> Path:
     if is_mapcache_dir(path):
         return path
 
-    candidates = [Path("runtime/stalcraft/map_cache/5.0"), Path("map_cache/5.0")]
+    for required in ["EXBO/runtime/stalcraft/map_cache/5.0", "stalcraft/map_cache/5.0"]:
+        required = Path(required)
 
-    for rel in candidates:
-        target = path / rel
+        target = path / required
         if is_mapcache_dir(target):
             return target
 
-    for parent in path.parents:
-        if is_mapcache_dir(parent):
-            return parent
+        candidate = required
+        while candidate.parts:
+            if path.match(f"*{candidate}"):
+                target = path / required.relative_to(candidate)
+                if is_mapcache_dir(target):
+                    return target
+                break
+            candidate = candidate.parent
 
     return path
 
@@ -49,21 +58,7 @@ class MapCacheTab(QWidget):
         self._setup_ui()
 
     def _setup_warnings(self):
-        def check_source():
-            path = Path(self.source_input.text().strip())
-            if path.as_posix() and not is_mapcache_dir(path):
-                return Strings.get("warn_bad_mapcache_source")
-            return None
-
-        def check_output():
-            path = Path(self.output_input.text().strip())
-            if path.as_posix() and path.is_file():
-                return Strings.get("warn_bad_mapcache_output")
-            return None
-
         self.warnings.add_rule(lambda: Strings.get("warn_mdat_experimental"))
-        self.warnings.add_rule(check_source)
-        self.warnings.add_rule(check_output)
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
@@ -80,10 +75,8 @@ class MapCacheTab(QWidget):
 
         if is_mapcache_dir(DEFAULT_CACHE_PATH):
             self.source_input.setText(DEFAULT_CACHE_PATH.as_posix())
-            self.source_input.setStyleSheet(f"{Styles.INPUT} QLineEdit {{ border-color: #555; }}")
 
         self.source_input.changed.connect(self._handle_source_change)
-        self.source_input.changed.connect(self._update_ui_state)
 
         output_label = QLabel(Strings.get("label_mapcache_output"))
         output_label.setStyleSheet(Styles.LABEL)
@@ -138,32 +131,28 @@ class MapCacheTab(QWidget):
         self.main_layout.addWidget(group)
 
     def _handle_source_change(self):
-        text = self.source_input.text().strip()
-        if not text:
-            return
+        path = Path(self.source_input.text().strip())
 
-        path = Path(text)
         if path.exists():
             resolved = resolve_mapcache_path(path)
-            self.source_input.setText(resolved.as_posix())
 
-            # TODO: styles classes
-            is_valid = is_mapcache_dir(resolved)
-            border = "#555" if is_valid else Colors.ACCENT
-            self.source_input.setStyleSheet(f"{Styles.INPUT} QLineEdit {{ border-color: {border}; }}")
+            if resolved.as_posix() != path.as_posix():
+                self.source_input.setText(resolved.as_posix())
+
+        self._update_ui_state()
 
     def _update_ui_state(self):
         self.warnings.update_state()
 
-        source_text = self.source_input.text().strip()
-        output_text = self.output_input.text().strip()
+        source = Path(self.source_input.text().strip())
+        output = Path(self.output_input.text().strip())
 
-        source_ok = is_mapcache_dir(Path(source_text))
-        output_ok = bool(output_text) and not Path(output_text).is_file()
+        source_ok = is_mapcache_dir(source)
+        output_ok = not output.is_file()
         is_okay = source_ok and output_ok
 
         checks = {
-            output_ok: Strings.get("tooltip_bad_mapcache_output"),
+            output_ok: Strings.get("tooltip_invalid_output"),
             source_ok: Strings.get("tooltip_bad_mapcache_source"),
         }
 
