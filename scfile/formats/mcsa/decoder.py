@@ -134,10 +134,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Texture coordinates (AO)
         if self.data.flags.get(Flag.UV2):
-            if self.options.parse_uv2:
-                self._parse_uv2(mesh)
-            else:
-                self._skip_vertices(mesh, units=4)
+            self._parse_uv2(mesh)
 
         # Vertices normals
         if self.data.flags[Flag.NORMALS]:

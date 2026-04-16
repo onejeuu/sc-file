@@ -79,7 +79,7 @@ class ConvertDispatcher(Worker):
                     source,
                     self.context.output,
                     self.context.relative,
-                    parent=False,
+                    self.context.relative,
                 )
 
                 task = ConvertTask(source, dest, self.context)
