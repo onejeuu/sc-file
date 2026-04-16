@@ -49,11 +49,6 @@ from . import scfile
     is_flag=True,
 )
 @click.option(
-    "--uv2",
-    help="Parse uvmap2 in models.",
-    is_flag=True,
-)
-@click.option(
     "--unique",
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
@@ -74,7 +69,6 @@ def convert_command(
     parent: bool,
     skeleton: bool,
     animation: bool,
-    uv2: bool,
     unique: bool,
 ) -> None:
     # Normalize options
@@ -100,7 +94,6 @@ def convert_command(
         model_formats=model_formats,
         parse_skeleton=skeleton,
         parse_animation=animation,
-        parse_uv2=uv2,
         overwrite=not unique,
     )
 

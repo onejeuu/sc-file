@@ -131,7 +131,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self._create_accessor(mesh.count.vertices, "VEC2")
 
             # UV Texture (2)
-            if self.options.parse_uv2 and self.data.flags.get(Flag.UV2):
+            if self.data.flags.get(Flag.UV2):
                 primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC2")
@@ -321,7 +321,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self.write(mesh.uv1.tobytes())
 
             # UV Texture (2)
-            if self.options.parse_uv2 and self.data.flags.get(Flag.UV2):
+            if self.data.flags.get(Flag.UV2):
                 self.write(mesh.uv2.tobytes())
 
             # XYZ Normals

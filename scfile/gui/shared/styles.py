@@ -72,7 +72,7 @@ class Styles:
         QComboBox QAbstractItemView::item:hover {{ background: {Colors.CARD.light}; }}
     """
 
-    CONVERT = f"""
+    BUTTON = f"""
         QPushButton {{ background: {Colors.ACCENT}; color: black; font-weight: bold; font-size: 15px; border: none; }}
         QPushButton:hover {{ background: {Colors.ACCENT.lighter}; }}
         QPushButton:disabled {{ background: {Colors.CARD.light}; color: {Colors.TEXT.dark}; }}

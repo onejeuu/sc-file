@@ -23,6 +23,7 @@ from .tabs.mapcache import MapCacheTab
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.tabs: dict[int, tuple[QWidget, tuple[int, int]]] = {}
         self._setup_ui()
 
     def _setup_ui(self):
@@ -40,26 +41,41 @@ class MainWindow(QMainWindow):
         self.tab_bar = QTabBar()
         self.tab_bar.setStyleSheet(Styles.TAB)
         self.tab_bar.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.tab_bar.addTab(Strings.get("tab_converter"))
-        self.tab_bar.addTab(Strings.get("tab_mapcache"))
-        self.tab_bar.addTab(Strings.get("tab_retarget"))
         self.tab_bar.currentChanged.connect(self._on_tab_changed)
 
         self.content_stack = QStackedWidget()
 
-        self.converter_tab = ConverterTab()
-        self.mapcache_tab = MapCacheTab()
-        self.retarget_tab = RetargetTab()
-
-        self.content_stack.addWidget(self.converter_tab)
-        self.content_stack.addWidget(self.mapcache_tab)
-        self.content_stack.addWidget(self.retarget_tab)
+        # TODO: resize
+        self._add_tab(
+            name=Strings.get("tab_converter"),
+            widget=ConverterTab(),
+            size=(1000, 720),
+        )
+        self._add_tab(
+            name=Strings.get("tab_mapcache"),
+            widget=MapCacheTab(),
+            size=(1000, 480),
+        )
+        self._add_tab(
+            name=Strings.get("tab_retarget"),
+            widget=RetargetTab(),
+            size=(1000, 500),
+        )
 
         self.main_layout.addWidget(self.tab_bar)
         self.main_layout.addWidget(self.content_stack)
 
+        self._on_tab_changed(0)
+
+    def _add_tab(self, name: str, widget: QWidget, size: tuple[int, int]):
+        index = self.tab_bar.addTab(name)
+        self.content_stack.addWidget(widget)
+        self.tabs[index] = (widget, size)
+
     def _on_tab_changed(self, index: int):
-        self.content_stack.setCurrentIndex(index)
+        if data := self.tabs.get(index):
+            widget, (w, h) = data
+            self.content_stack.setCurrentWidget(widget)
 
 
 def run():

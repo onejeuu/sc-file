@@ -23,6 +23,7 @@ from scfile.gui.shared.consts import FT
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import FileListWidget
+from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
 from scfile.gui.workers.counter import CountController
 
@@ -31,6 +32,7 @@ class ConverterTab(QWidget):
     def __init__(self):
         super().__init__()
         self._setup_counter()
+        self._setup_warning()
         self._setup_ui()
         self._refresh_count()
 
@@ -51,6 +53,36 @@ class ConverterTab(QWidget):
             sources=self._get_current_sources(),
             predicate=lambda path: path.lower().endswith(allowed),
         )
+
+    def _setup_warning(self):
+        self.warnings = WarningsWidget()
+
+        def check_game_dir():
+            custom = self.radio_custom_dir.isChecked()
+            output = Path(self.path_edit.text().strip())
+
+            sources = [Path(s) for s in self._get_current_sources()]
+            targets = [output] if (custom and output) else sources
+
+            for target in targets:
+                if "modassets/assets" in target.as_posix().lower():
+                    return Strings.get("warn_game_dir")
+            return None
+
+        def check_collision():
+            custom = self.radio_custom_dir.isChecked()
+            output = Path(self.path_edit.text().strip())
+            if not (custom and output):
+                return None
+
+            sources = [Path(s) for s in self._get_current_sources()]
+            for source in sources:
+                if output == source or output.is_relative_to(source):
+                    return Strings.get("warn_path_collision")
+            return None
+
+        self.warnings.add_rule(check_game_dir)
+        self.warnings.add_rule(check_collision)
 
     def _setup_ui(self):
         self.main_content_layout = QHBoxLayout(self)
@@ -121,17 +153,13 @@ class ConverterTab(QWidget):
 
         self.right_column.addStretch()
 
-        # Warnings label
-        self.warning_label = QLabel()
-        self.warning_label.setStyleSheet(Styles.WARNING)
-        self.warning_label.setWordWrap(True)
-        self.warning_label.hide()
-        self.right_column.addWidget(self.warning_label)
+        # Warnings
+        self.right_column.addWidget(self.warnings)
 
         # Convert button
         self.convert_btn = QPushButton(Strings.get("btn_convert"))
         self.convert_btn.setMinimumHeight(50)
-        self.convert_btn.setStyleSheet(Styles.CONVERT)
+        self.convert_btn.setStyleSheet(Styles.BUTTON)
         self.convert_btn.clicked.connect(self._convert)
         self.right_column.addWidget(self.convert_btn)
 
@@ -309,7 +337,6 @@ class ConverterTab(QWidget):
                 model_formats=[fmt.id] if fmt else None,
                 parse_skeleton=self.feature_widgets[FT.SKELETON.id].isChecked(),
                 parse_animation=self.feature_widgets[FT.ANIMATION.id].isChecked(),
-                parse_uv2=self.feature_widgets[FT.UV2.id].isChecked(),
                 overwrite=not self.cb_unique_names.isChecked(),
             ),
             output=Path(self.path_edit.text()) if self.radio_custom_dir.isChecked() else None,
@@ -349,6 +376,7 @@ class ConverterTab(QWidget):
             self.path_edit.setStyleSheet(Styles.INPUT)
             return
 
+        # TODO: styles classes
         border_color = "#555" if self._is_output_valid() else "#e06c75"
         self.path_edit.setStyleSheet(f"{Styles.INPUT} QLineEdit {{ border-color: {border_color}; }}")
 
@@ -367,35 +395,6 @@ class ConverterTab(QWidget):
 
             widget.setEnabled(is_supported)
             widget.setChecked(is_supported)
-
-    def _get_warnings(self):
-        warns: list[str] = []
-        is_custom = self.radio_custom_dir.isChecked()
-        output = Path(self.path_edit.text().strip())
-
-        sources = [Path(s) for s in self._get_current_sources()]
-        targets = [output] if (is_custom and output) else sources
-
-        if any("modassets/assets" in target.as_posix().lower() for target in targets):
-            warns.append(Strings.get("warn_game_dir"))
-
-        if is_custom and output:
-            for source in sources:
-                if output == source or output.is_relative_to(source):
-                    warns.append(Strings.get("warn_path_collision"))
-                    break
-
-        return warns
-
-    def _sync_warnings(self):
-        warns = self._get_warnings()
-
-        if not warns:
-            self.warning_label.hide()
-            return
-
-        self.warning_label.setText("\n".join([f"⚠️ {w}" for w in warns]))
-        self.warning_label.show()
 
     def _sync_convert_button(self):
         has_sources = self.file_list.count() > 0
@@ -416,7 +415,7 @@ class ConverterTab(QWidget):
         self.convert_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
 
     def _sync_state(self):
-        self._sync_warnings()
+        self.warnings.update_state()
         self._sync_convert_button()
 
     def _open_file_dialog(self):

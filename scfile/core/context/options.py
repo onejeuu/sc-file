@@ -15,7 +15,6 @@ class UserOptions:
     model_formats: Optional[Formats] = None
     parse_skeleton: bool = False
     parse_animation: bool = False
-    parse_uv2: bool = False
     parse_region_raw: bool = False
     overwrite: bool = True
 

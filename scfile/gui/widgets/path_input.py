@@ -1,0 +1,43 @@
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
+
+from scfile.gui.shared.styles import Styles
+
+
+class PathInputWidget(QWidget):
+    changed = Signal(str)
+
+    def __init__(self, placeholder: str, caption: str, parent=None):
+        super().__init__(parent)
+        self.caption = caption
+        self._setup_ui(placeholder)
+
+    def _setup_ui(self, placeholder):
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        self.line_edit = QLineEdit()
+        self.line_edit.setPlaceholderText(placeholder)
+        self.line_edit.setStyleSheet(Styles.INPUT)
+        self.line_edit.editingFinished.connect(lambda: self.changed.emit(self.line_edit.text()))
+
+        self.browse_btn = QPushButton("...")
+        self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.browse_btn.setFixedSize(30, 30)
+        self.browse_btn.clicked.connect(self._browse)
+
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.browse_btn)
+
+    def _browse(self):
+        directory = QFileDialog.getExistingDirectory(self, self.caption)
+        if directory:
+            self.line_edit.setText(directory)
+            self.changed.emit(directory)
+
+    def text(self) -> str:
+        return self.line_edit.text()
+
+    def setText(self, text: str):
+        self.line_edit.setText(text)
