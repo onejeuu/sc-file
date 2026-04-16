@@ -65,6 +65,7 @@ class MapCacheTab(QWidget):
         super().__init__()
         self.warnings = WarningsWidget()
 
+        # TODO: mdats counter?
         self._setup_warnings()
         self._setup_ui()
 
@@ -96,7 +97,6 @@ class MapCacheTab(QWidget):
 
         self.warnings.add_rule(check_not_world)
         self.warnings.add_rule(check_overwrite)
-        self.warnings.add_rule(lambda: Strings.get("warn_mdat_experimental"))
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
@@ -135,6 +135,11 @@ class MapCacheTab(QWidget):
 
         self.main_layout.addStretch()
         self.main_layout.addWidget(self.warnings)
+
+        self.info_label = QLabel(Strings.get("info_mdat_context"))
+        self.info_label.setStyleSheet(Styles.MAPCACHE)
+        self.info_label.setWordWrap(True)
+        self.main_layout.addWidget(self.info_label)
 
         self.merge_btn = QPushButton(Strings.get("btn_merge_regions"))
         self.merge_btn.setFixedHeight(50)
