@@ -37,6 +37,7 @@ class Strings:
         "placeholder_path": {"EN": "Specify path...", "RU": "Укажите путь..."},
         "cb_unique_names": {"EN": "Create copies on name collision", "RU": "Создавать копии при совпадении имен"},
         "cb_raw_blocks": {"EN": "Raw blocks", "RU": "Raw blocks"},
+        "cb_auto_resolve": {"EN": "Auto-resolve paths", "RU": "Автоматическое исправление путей"},
         "hint_unique_names": {
             "EN": "Add a sequence number to the filename instead of overwriting it",
             "RU": "Добавлять порядковый номер к названию файла вместо его перезаписи",
@@ -44,6 +45,10 @@ class Strings:
         "hint_raw_blocks": {
             "EN": "Literal interpretation of block IDs instead of lookup table replacement",
             "RU": "Буквальная интерпретация айди блоков вместо их замены по lookup таблице",
+        },
+        "hint_auto_resolve": {
+            "EN": "Automatically complete the path to the data storage directory",
+            "RU": "Автоматическое достраивание пути до директории с данными",
         },
         "tooltip_no_sources": {"EN": "Add sources to convert", "RU": "Добавьте источники для конвертации"},
         "tooltip_no_targets": {
