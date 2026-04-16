@@ -47,14 +47,14 @@ class MainWindow(QMainWindow):
 
         # TODO: resize
         self._add_tab(
-            name=Strings.get("tab_mapcache"),
-            widget=MapCacheTab(),
-            size=(1000, 480),
-        )
-        self._add_tab(
             name=Strings.get("tab_converter"),
             widget=ConverterTab(),
             size=(1000, 720),
+        )
+        self._add_tab(
+            name=Strings.get("tab_mapcache"),
+            widget=MapCacheTab(),
+            size=(1000, 480),
         )
         self._add_tab(
             name=Strings.get("tab_retarget"),
