@@ -14,6 +14,9 @@ class Strings:
     LANG: Lang = _get_lang()
 
     DATA: dict[str, dict[Lang, str]] = {
+        "tab_converter": {"EN": "Converter", "RU": "Конвертер"},
+        "tab_mapcache": {"EN": "Map Cache", "RU": "Кэш карты"},
+        "tab_retarget": {"EN": "Retarget", "RU": "Ретаргет"},
         "action_remove": {"EN": "Remove from list", "RU": "Удалить из списка"},
         "drop_hint": {
             "EN": "Add files/folders with buttons above\nor drag & drop them here",
