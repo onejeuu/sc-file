@@ -1,10 +1,11 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QCheckBox, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
+from scfile.gui.widgets.option import OptionWidget
 from scfile.gui.widgets.path_input import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
 
@@ -130,7 +131,7 @@ class MapCacheTab(QWidget):
         self.main_layout.addWidget(output_label)
         self.main_layout.addWidget(self.output_input)
 
-        self._build_raw_blocks()
+        self._build_options()
 
         self.main_layout.addStretch()
         self.main_layout.addWidget(self.warnings)
@@ -144,33 +145,35 @@ class MapCacheTab(QWidget):
 
         self._update_ui_state()
 
-    def _build_raw_blocks(self):
-        group = QWidget()
-        layout = QVBoxLayout(group)
+    def _build_options(self):
+        self.options_group = QWidget()
+        layout = QVBoxLayout(self.options_group)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(2)
+        layout.setSpacing(10)
 
-        # Checkbox
-        self.cb_raw_blocks = QCheckBox(Strings.get("cb_raw_blocks"))
-        self.cb_raw_blocks.setStyleSheet(Styles.CHECKBOX)
-        self.cb_raw_blocks.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.cb_raw_blocks.setChecked(False)
+        self.cb_auto_resolve = OptionWidget(
+            text=Strings.get("cb_auto_resolve"),
+            hint=Strings.get("hint_auto_resolve"),
+            checked=True,
+        )
+        self.cb_auto_resolve.changed.connect(self._handle_autoresolve)
 
-        # Hint
-        hint_raw_blocks = QLabel(Strings.get("hint_raw_blocks"))
-        hint_raw_blocks.setStyleSheet(Styles.HINT)
+        self.cb_raw_blocks = OptionWidget(
+            text=Strings.get("cb_raw_blocks"),
+            hint=Strings.get("hint_raw_blocks"),
+            checked=False,
+        )
 
-        # Add to layout
+        layout.addWidget(self.cb_auto_resolve)
         layout.addWidget(self.cb_raw_blocks)
-        layout.addWidget(hint_raw_blocks)
 
         self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(group)
+        self.main_layout.addWidget(self.options_group)
 
     def _handle_source_change(self):
         path = Path(self.source_input.text().strip())
 
-        if path.exists():
+        if self.cb_auto_resolve.isChecked() and path.exists():
             resolved = resolve_mapcache_path(path)
 
             if resolved.as_posix() != path.as_posix():
@@ -181,13 +184,17 @@ class MapCacheTab(QWidget):
     def _handle_output_change(self):
         path = Path(self.output_input.text().strip())
 
-        if path.exists():
+        if self.cb_auto_resolve.isChecked() and path.exists():
             resolved = resolve_output_path(path)
 
             if resolved.as_posix() != path.as_posix():
                 self.output_input.setText(resolved.as_posix())
 
         self._update_ui_state()
+
+    def _handle_autoresolve(self):
+        self._handle_source_change()
+        self._handle_output_change()
 
     def _is_output_set(self) -> bool:
         return bool(self.output_input.text().strip())
