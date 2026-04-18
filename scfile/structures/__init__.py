@@ -2,15 +2,11 @@
 Internal data handler module. Provides dataclass-based structures representation.
 """
 
-from . import animation, flags, mesh, scene, skeleton, texture, vectors
+from . import models, regions, textures
 
 
 __all__ = (
-    "animation",
-    "flags",
-    "mesh",
-    "scene",
-    "skeleton",
-    "texture",
-    "vectors",
+    "models",
+    "regions",
+    "textures",
 )

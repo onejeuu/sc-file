@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Self, TypeAlias
 
 from scfile.enums import FileMode
-from scfile.structures.flags import Flag
+from scfile.structures.models import Flag
 from scfile.types import PathLike
 
 from .base import BaseFile
@@ -108,4 +108,6 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
 
     @property
     def _animation_presented(self) -> bool:
-        return self._skeleton_presented and self.options.parse_animation
+        if isinstance(self.data, ModelContent):
+            return self._skeleton_presented and self.options.parse_animation
+        return False

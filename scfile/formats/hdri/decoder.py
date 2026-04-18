@@ -3,7 +3,7 @@ import lz4.block
 from scfile.consts import CubemapFaces
 from scfile.core import TextureContent
 from scfile.formats.ol.decoder import BaseOlDecoder
-from scfile.structures.texture import CubemapTexture
+from scfile.structures.textures import CubemapTexture
 
 
 class OlCubemapDecoder(BaseOlDecoder[CubemapTexture]):

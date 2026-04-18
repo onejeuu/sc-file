@@ -7,7 +7,7 @@ from scfile.core.encoder import FileEncoder
 from scfile.core.io.streams import StructBytesIO
 from scfile.enums import ByteOrder, FileFormat
 from scfile.formats.nbt.enums import Tag
-from scfile.structures.region import RegionChunk
+from scfile.structures.regions import RegionChunk
 
 from . import nbt
 from .mapping import BLOCKS_MAPPING
