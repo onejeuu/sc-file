@@ -1,4 +1,9 @@
+from typing import Any, TypeAlias
+
 from scfile import __version__
+
+
+Props: TypeAlias = list[tuple[Any, ...]]
 
 
 class FBX:
@@ -11,4 +16,37 @@ class FBX:
 
 
 class DEFAULT:
-    pass
+    SETTINGS: Props = [
+        (b"UpAxis", b"int", b"Integer", b"", 1),
+        (b"UpAxisSign", b"int", b"Integer", b"", 1),
+        (b"FrontAxis", b"int", b"Integer", b"", 2),
+        (b"FrontAxisSign", b"int", b"Integer", b"", 1),
+        (b"CoordAxis", b"int", b"Integer", b"", 0),
+        (b"CoordAxisSign", b"int", b"Integer", b"", 1),
+        (b"UnitScaleFactor", b"double", b"Number", b"", 100.0),
+        (b"TimeMode", b"enum", b"", b"", 11),
+        (b"TimeSpanStart", b"KTime", b"Time", b"", 0),
+        (b"TimeSpanStop", b"KTime", b"Time", b"", 0),
+    ]
+
+    MESH: Props = [
+        (b"Lcl Translation", b"Lcl Translation", b"", b"A", 0.0, 0.0, 0.0),
+        (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", 0.0, 0.0, 0.0),
+        (b"DefaultAttributeIndex", b"int", b"Integer", b"", 0),
+        (b"InheritType", b"enum", b"", b"", 1),
+    ]
+
+    MATERIAL: Props = [
+        (b"DiffuseColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+        (b"EmissiveColor", b"Color", b"", b"A", 1.0, 1.0, 1.0),
+        (b"EmissiveFactor", b"Number", b"", b"A", 0.0),
+        (b"AmbientColor", b"Color", b"", b"A", 0.05, 0.05, 0.05),
+        (b"AmbientFactor", b"Number", b"", b"A", 0.0),
+        (b"BumpFactor", b"double", b"Number", b"", 0.0),
+        (b"SpecularColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+        (b"SpecularFactor", b"Number", b"", b"A", 0.0),
+        (b"Shininess", b"Number", b"", b"A", 0.0),
+        (b"ShininessExponent", b"Number", b"", b"A", 0.0),
+        (b"ReflectionColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
+        (b"ReflectionFactor", b"Number", b"", b"A", 0.0),
+    ]
