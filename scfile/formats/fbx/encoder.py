@@ -250,18 +250,21 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
             self._leaf(b"Version", [101])
             self._leaf(b"Link_DeformAcuracy", [50.0])
 
-        global_transforms = self.data.scene.skeleton.calculate_global_transforms()
+        bindpose = self.data.scene.skeleton.calculate_global_transforms()
 
-        for local_id, global_id in mesh.bones.items():
+        for global_id in mesh.bones.values():
             bone = self.data.scene.skeleton.bones[global_id]
 
-            row_idx, col_idx = np.where(mesh.links_ids == local_id)
-
+            row_idx, col_idx = np.where(mesh.links_ids == global_id)
             if row_idx.size == 0:
                 continue
 
-            indices = row_idx.astype(np.int32)
-            weights = mesh.links_weights[row_idx, col_idx].astype(np.float64)
+            rows, inverse = np.unique(row_idx, return_inverse=True)
+            weights = np.zeros(len(rows), dtype=np.float64)
+            np.add.at(weights, inverse, mesh.links_weights[row_idx, col_idx])
+
+            indices = rows.astype(np.int32)
+            weights = weights.astype(np.float64)
 
             cluster_id = self._next_id()
             self.ctx["MESHES"][mesh.name][f"cluster_{global_id}"] = cluster_id
@@ -273,7 +276,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
                 self._leaf(b"Weights", [weights])
 
                 mesh_transform = np.eye(4, dtype=np.float64).flatten().tolist()
-                bone_transform = global_transforms[global_id].flatten().astype(np.float64).tolist()
+                bone_transform = bindpose[global_id].T.flatten().astype(np.float64).tolist()
 
                 self._leaf(b"Transform", [mesh_transform])
                 self._leaf(b"TransformLink", [bone_transform])
