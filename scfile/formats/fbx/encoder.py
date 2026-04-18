@@ -9,7 +9,8 @@ from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag
 
-from .consts import FBX
+from .consts import DEFAULT, FBX, Props
+from .enums import PropertyType
 
 
 class FbxEncoder(FileEncoder[ModelContent]):
@@ -27,9 +28,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self.data.scene.flip_v_textures()
 
         self.ctx["NODES"] = []
-        self.ctx["IDS"] = defaultdict(dict)
         self.ctx["BONES"] = defaultdict(dict)
         self.ctx["MESHES"] = defaultdict(lambda: defaultdict(dict))
+        self.ctx["ROOT_ID"] = 0
         self.ctx["NEXT_ID"] = 0
 
     def serialize(self):
@@ -44,48 +45,24 @@ class FbxEncoder(FileEncoder[ModelContent]):
     def _write_top_nodes(self):
         # FBX Header Extension
         with self._node(b"FBXHeaderExtension", root=True):
-            with self._node(b"FBXHeaderVersion", [FBX.HEADER_VERSION]):
-                pass
-            with self._node(b"FBXVersion", [FBX.VERSION]):
-                pass
-            with self._node(b"Creator", [FBX.CREATOR]):
-                pass
+            self._leaf(b"FBXHeaderVersion", [FBX.HEADER_VERSION])
+            self._leaf(b"FBXVersion", [FBX.VERSION])
+            self._leaf(b"Creator", [FBX.CREATOR])
 
         # Global Settings
         with self._node(b"GlobalSettings", root=True):
-            with self._node(b"Version", [1000]):
-                pass
-            with self._node(b"Properties70"):
-                settings = [
-                    (b"UpAxis", b"int", b"Integer", b"", 1),
-                    (b"UpAxisSign", b"int", b"Integer", b"", 1),
-                    (b"FrontAxis", b"int", b"Integer", b"", 2),
-                    (b"FrontAxisSign", b"int", b"Integer", b"", 1),
-                    (b"CoordAxis", b"int", b"Integer", b"", 0),
-                    (b"CoordAxisSign", b"int", b"Integer", b"", 1),
-                    (b"UnitScaleFactor", b"double", b"Number", b"", 100.0),
-                    (b"TimeMode", b"enum", b"", b"", 11),
-                    (b"TimeSpanStart", b"KTime", b"Time", b"", 0),
-                    (b"TimeSpanStop", b"KTime", b"Time", b"", 0),
-                ]
-                for props in settings:
-                    with self._node(b"P", list(props)):
-                        pass
+            self._leaf(b"Version", [1000])
+            self._props70(DEFAULT.SETTINGS)
 
         # Documents
         with self._node(b"Documents", root=True):
             doc_id = self._next_id()
-            self.ctx["IDS"]["document"] = doc_id
 
-            with self._node(b"Count", [1]):
-                pass
+            self._leaf(b"Count", [1])
+
             with self._node(b"Document", [doc_id, b"Scene", b"Scene"]):
-                with self._node(b"Properties70"):
-                    with self._node(b"P", [b"SourceObject", b"object", b"", b""]):
-                        pass
-
-                with self._node(b"RootNode", [0]):
-                    pass
+                self._props70([(b"SourceObject", b"object", b"", b"")])
+                self._leaf(b"RootNode", [0])
 
         # References
         with self._node(b"References", root=True):
@@ -93,25 +70,15 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Definitions
         with self._node(b"Definitions", root=True):
-            with self._node(b"Version", [100]):
-                pass
-
-            with self._node(b"Count", [len(self.data.scene.meshes)]):
-                pass
+            self._leaf(b"Version", [100])
+            self._leaf(b"Count", [len(self.data.scene.meshes)])
 
             for mesh in self.data.scene.meshes:
                 with self._node(b"ObjectType", [b"Model"]):
-                    with self._node(b"Count", [1]):
-                        pass
+                    self._leaf(b"Count", [1])
 
                     with self._node(b"PropertyTemplate", [b"FbxNode"]):
-                        with self._node(b"Properties70"):
-                            props = [
-                                (b"Visibility", b"Visibility", b"", b"A", 1.0),
-                            ]
-                            for prop in props:
-                                with self._node(b"P", list(prop)):
-                                    pass
+                        self._props70([(b"Visibility", b"Visibility", b"", b"A", 1.0)])
 
         # Objects
         with self._node(b"Objects", root=True):
@@ -129,55 +96,46 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Connections
         with self._node(b"Connections", root=True):
-            root_id = np.int64(self.ctx["IDS"]["root"])
+            root_id = np.int64(self.ctx["ROOT_ID"])
 
             if self._skeleton_presented:
-                with self._node(b"C", [b"OO", root_id, np.int64(0)]):
-                    pass
+                self._leaf(b"C", [b"OO", root_id, np.int64(0)])
 
                 for bone in self.data.scene.skeleton.bones:
                     child_id = self.ctx["BONES"][bone.name]
                     parent_name = self.data.scene.skeleton.bones[bone.parent_id].name
                     parent_id = root_id if bone.is_root else self.ctx["BONES"][parent_name]
 
-                    with self._node(b"C", [b"OO", child_id, parent_id]):
-                        pass
+                    self._leaf(b"C", [b"OO", child_id, parent_id])
 
             for mesh in self.data.scene.meshes:
                 ids = self.ctx["MESHES"][mesh.name]
 
-                with self._node(b"C", [b"OO", ids["mesh"], root_id]):
-                    pass
-                with self._node(b"C", [b"OO", ids["geometry"], ids["mesh"]]):
-                    pass
-                with self._node(b"C", [b"OO", ids["material"], ids["mesh"]]):
-                    pass
+                self._leaf(b"C", [b"OO", ids["mesh"], root_id])
+                self._leaf(b"C", [b"OO", ids["geometry"], ids["mesh"]])
+                self._leaf(b"C", [b"OO", ids["material"], ids["mesh"]])
+
                 if self._skeleton_presented:
-                    with self._node(b"C", [b"OO", ids["skin"], ids["geometry"]]):
-                        pass
+                    self._leaf(b"C", [b"OO", ids["skin"], ids["geometry"]])
 
                     for global_id in mesh.bones.values():
                         cluster_id = ids.get(f"cluster_{global_id}")
                         if not cluster_id:
                             continue
 
-                        with self._node(b"C", [b"OO", cluster_id, ids["skin"]]):
-                            pass
-
                         bone_name = self.data.scene.skeleton.bones[global_id].name
                         bone_id = self.ctx["BONES"][bone_name]
-                        with self._node(b"C", [b"OO", bone_id, cluster_id]):
-                            pass
+
+                        self._leaf(b"C", [b"OO", cluster_id, ids["skin"]])
+                        self._leaf(b"C", [b"OO", bone_id, cluster_id])
 
     def _write_armature(self):
         armature_id = self._next_id()
-        self.ctx["IDS"]["root"] = armature_id
+        self.ctx["ROOT_ID"] = armature_id
 
         root_name = b"Armature\x00\x01Model"
         with self._node(b"Model", [armature_id, root_name, b"Null"]):
-            with self._node(b"Properties70"):
-                with self._node(b"P", [b"InheritType", b"enum", b"", b"", 1]):
-                    pass
+            self._props70([(b"InheritType", b"enum", b"", b"", 1)])
 
     def _write_bone(self, bone: S.SkeletonBone):
         fbx_id = self._next_id()
@@ -185,15 +143,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         bone_name = bone.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, bone_name, b"LimbNode"]):
-            with self._node(b"Properties70"):
-                props = [
+            self._props70(
+                [
                     (b"Lcl Translation", b"Lcl Translation", b"", b"A", *bone.position.tolist()),
                     (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", *bone.rotation.tolist()),
                     (b"InheritType", b"enum", b"", b"", 1),
                 ]
-                for prop in props:
-                    with self._node(b"P", list(prop)):
-                        pass
+            )
 
     def _write_mesh(self, mesh: S.ModelMesh):
         fbx_id = self._next_id()
@@ -201,26 +157,10 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         model_name = mesh.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, model_name, b"Mesh"]):
-            with self._node(b"Version", [232]):
-                pass
-
-            with self._node(b"Properties70"):
-                props = [
-                    (b"Lcl Translation", b"Lcl Translation", b"", b"A", 0.0, 0.0, 0.0),
-                    (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", 0.0, 0.0, 0.0),
-                    (b"DefaultAttributeIndex", b"int", b"Integer", b"", 0),
-                    (b"InheritType", b"enum", b"", b"", 1),
-                ]
-                for prop in props:
-                    with self._node(b"P", list(prop)):
-                        pass
-
-            with self._node(b"MultiTake", [0]):
-                pass
-
-            if self.data.flags[Flag.UV]:
-                with self._node(b"MultiLayer", [0]):
-                    pass
+            self._leaf(b"Version", [232])
+            self._leaf(b"MultiTake", [0])
+            self._leaf(b"MultiLayer", [0])
+            self._props70(DEFAULT.MESH)
 
         # Geometry node
         geom_id = self._next_id()
@@ -229,108 +169,61 @@ class FbxEncoder(FileEncoder[ModelContent]):
         indexes = mesh.polygons.flatten().astype(np.int32)
 
         with self._node(b"Geometry", [geom_id, geometry_name, b"Mesh"]):
-            with self._node(b"Properties70"):
-                pass
-            with self._node(b"GeometryVersion", [124]):
-                pass
-            with self._node(b"Vertices", [mesh.positions.flatten().astype(np.float64)]):
-                pass
-            with self._node(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)]):
-                pass
-            with self._node(b"Edges", []):
-                pass
+            self._leaf(b"Properties70")
+            self._leaf(b"GeometryVersion", [124])
+            self._leaf(b"Vertices", [mesh.positions.flatten().astype(np.float64)])
+            self._leaf(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)])
+            self._leaf(b"Edges", [])
 
             with self._node(b"LayerElementMaterial", [0]):
-                with self._node(b"Version", [101]):
-                    pass
-                with self._node(b"Name", [b""]):
-                    pass
-                with self._node(b"MappingInformationType", [b"AllSame"]):
-                    pass
-                with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
-                    pass
-                with self._node(b"Materials", [np.array([0], dtype=np.int32)]):
-                    pass
+                self._leaf(b"Version", [101])
+                self._leaf(b"Name", [b""])
+                self._leaf(b"MappingInformationType", [b"AllSame"])
+                self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
+                self._leaf(b"Materials", [np.array([0], dtype=np.int32)])
 
             if self.data.flags[Flag.NORMALS]:
                 with self._node(b"LayerElementNormal", [0]):
-                    with self._node(b"Version", [101]):
-                        pass
-                    with self._node(b"Name", [b""]):
-                        pass
-                    with self._node(b"MappingInformationType", [b"ByPolygonVertex"]):
-                        pass
-                    with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
-                        pass
-                    with self._node(b"Normals", [mesh.normals.flatten().astype(np.float64)]):
-                        pass
-                    with self._node(b"NormalsIndex", [indexes]):
-                        pass
+                    self._leaf(b"Version", [101])
+                    self._leaf(b"Name", [b""])
+                    self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
+                    self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
+                    self._leaf(b"Normals", [mesh.normals.flatten().astype(np.float64)])
+                    self._leaf(b"NormalsIndex", [indexes])
 
             if self.data.flags[Flag.UV]:
                 with self._node(b"LayerElementUV", [0]):
-                    with self._node(b"Version", [101]):
-                        pass
-                    with self._node(b"Name", [b"UVMap"]):
-                        pass
-                    with self._node(b"MappingInformationType", [b"ByPolygonVertex"]):
-                        pass
-                    with self._node(b"ReferenceInformationType", [b"IndexToDirect"]):
-                        pass
-                    with self._node(b"UV", [mesh.uv1.flatten().astype(np.float64)]):
-                        pass
-                    with self._node(b"UVIndex", [indexes]):
-                        pass
+                    self._leaf(b"Version", [101])
+                    self._leaf(b"Name", [b"UVMap"])
+                    self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
+                    self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
+                    self._leaf(b"UV", [mesh.uv1.flatten().astype(np.float64)])
+                    self._leaf(b"UVIndex", [indexes])
 
             with self._node(b"Layer", [0]):
-                with self._node(b"Version", [100]):
-                    pass
+                self._leaf(b"Version", [100])
 
                 with self._node(b"LayerElement", []):
-                    with self._node(b"Type", [b"Material"]):
-                        pass
-                    with self._node(b"TypedIndex", [0]):
-                        pass
+                    self._leaf(b"Type", [b"Material"])
+                    self._leaf(b"TypedIndex", [0])
 
                 if self.data.flags[Flag.NORMALS]:
                     with self._node(b"LayerElement", []):
-                        with self._node(b"Type", [b"Normal"]):
-                            pass
-                        with self._node(b"TypedIndex", [0]):
-                            pass
+                        self._leaf(b"Type", [b"Normal"])
+                        self._leaf(b"TypedIndex", [0])
 
                 if self.data.flags[Flag.UV]:
                     with self._node(b"LayerElement", []):
-                        with self._node(b"Type", [b"UV"]):
-                            pass
-                        with self._node(b"TypedIndex", [0]):
-                            pass
+                        self._leaf(b"Type", [b"UV"])
+                        self._leaf(b"TypedIndex", [0])
 
         self.ctx["MESHES"][mesh.name]["geometry"] = geom_id
 
         mat_id = self._next_id()
         material_name = mesh.material.encode() + b"\x00\x01" + b"Material"
         with self._node(b"Material", [mat_id, material_name, b""]):
-            with self._node(b"Version", [102]):
-                pass
-            with self._node(b"Properties70"):
-                props = [
-                    (b"DiffuseColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
-                    (b"EmissiveColor", b"Color", b"", b"A", 1.0, 1.0, 1.0),
-                    (b"EmissiveFactor", b"Number", b"", b"A", 0.0),
-                    (b"AmbientColor", b"Color", b"", b"A", 0.05, 0.05, 0.05),
-                    (b"AmbientFactor", b"Number", b"", b"A", 0.0),
-                    (b"BumpFactor", b"double", b"Number", b"", 0.0),
-                    (b"SpecularColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
-                    (b"SpecularFactor", b"Number", b"", b"A", 0.0),
-                    (b"Shininess", b"Number", b"", b"A", 0.0),
-                    (b"ShininessExponent", b"Number", b"", b"A", 0.0),
-                    (b"ReflectionColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
-                    (b"ReflectionFactor", b"Number", b"", b"A", 0.0),
-                ]
-                for prop in props:
-                    with self._node(b"P", list(prop)):
-                        pass
+            self._leaf(b"Version", [102])
+            self._props70(DEFAULT.MATERIAL)
 
         self.ctx["MESHES"][mesh.name]["material"] = mat_id
 
@@ -340,10 +233,8 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         skin_name = mesh.name.encode() + b"\x00\x01Deformer"
         with self._node(b"Deformer", [skin_id, skin_name, b"Skin"]):
-            with self._node(b"Version", [101]):
-                pass
-            with self._node(b"Link_DeformAcuracy", [50.0]):
-                pass
+            self._leaf(b"Version", [101])
+            self._leaf(b"Link_DeformAcuracy", [50.0])
 
         global_transforms = self.data.scene.skeleton.calculate_global_transforms()
 
@@ -363,20 +254,15 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
             cluster_name = bone.name.encode() + b"\x00\x01SubDeformer"
             with self._node(b"Deformer", [cluster_id, cluster_name, b"Cluster"]):
-                with self._node(b"Version", [100]):
-                    pass
-                with self._node(b"Indexes", [indices]):
-                    pass
-                with self._node(b"Weights", [weights]):
-                    pass
+                self._leaf(b"Version", [100])
+                self._leaf(b"Indexes", [indices])
+                self._leaf(b"Weights", [weights])
 
                 mesh_transform = np.eye(4, dtype=np.float64).flatten().tolist()
                 bone_transform = global_transforms[global_id].flatten().astype(np.float64).tolist()
 
-                with self._node(b"Transform", [mesh_transform]):
-                    pass
-                with self._node(b"TransformLink", [bone_transform]):
-                    pass
+                self._leaf(b"Transform", [mesh_transform])
+                self._leaf(b"TransformLink", [bone_transform])
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
@@ -389,6 +275,16 @@ class FbxEncoder(FileEncoder[ModelContent]):
             yield
         finally:
             self._end_node()
+
+    def _leaf(self, name: bytes, properties: list | None = None, root: bool = False):
+        with self._node(name=name, properties=properties, root=root):
+            pass
+
+    def _props70(self, props: Props):
+        with self._node(b"Properties70"):
+            for prop in props:
+                with self._node(b"P", list(prop)):
+                    pass
 
     def _start_node(self, name: bytes, properties: list | None = None, root: bool = False):
         properties = properties or []
@@ -436,31 +332,32 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self.seek(end_pos)
 
     # Property writers
+    # TODO: move to IO
     def _write_property(self, value):
         if isinstance(value, bool):
-            self._writeb(F.U8, ord("C"))
+            self._writeb(F.U8, PropertyType.BOOL)
             self._writeb(F.U8, 1 if value else 0)
             return
 
         if isinstance(value, int):
-            self._writeb(F.U8, ord("I"))
+            self._writeb(F.U8, PropertyType.INT32)
             self._writeb(F.I32, value)
             return
 
         if isinstance(value, np.integer):
-            self._writeb(F.U8, ord("L"))
+            self._writeb(F.U8, PropertyType.INT64)
             self._writeb(F.I64, int(value))
             return
 
         if isinstance(value, (float, np.floating)):
-            self._writeb(F.U8, ord("D"))
+            self._writeb(F.U8, PropertyType.DOUBLE)
             self._writeb(F.F64, value)
             return
 
         if isinstance(value, (bytes, str)):
             if isinstance(value, str):
                 value = value.encode("utf-8")
-            self._writeb(F.U8, ord("S"))
+            self._writeb(F.U8, PropertyType.STRING)
             self._writeb(F.U32, len(value))
             self.write(value)
             return
@@ -475,9 +372,10 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         raise TypeError(f"Unsupported property type: {type(value)}!!!")
 
+    # TODO: move to IO
     def _write_array_property(self, arr: np.ndarray):
         if arr.dtype == np.float64:
-            self._writeb(F.U8, ord("d"))
+            self._writeb(F.U8, PropertyType.ARRAY_DOUBLE)
             self._writeb(F.U32, len(arr))
             self._writeb(F.U32, 0)  # encoding
             self._writeb(F.U32, len(arr) * 8)  # compressedLen
@@ -485,7 +383,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
             return
 
         if arr.dtype == np.int32:
-            self._writeb(F.U8, ord("i"))
+            self._writeb(F.U8, PropertyType.ARRAY_INT32)
             self._writeb(F.U32, len(arr))
             self._writeb(F.U32, 0)  # encoding
             self._writeb(F.U32, len(arr) * 4)  # compressedLen
@@ -498,6 +396,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self.ctx["NEXT_ID"] += 1
         return np.int64(self.ctx["NEXT_ID"])
 
+    # TODO: move to IO
     def _fbx_time(self, seconds: float) -> int:
         return int(seconds * 46186158000)
 
