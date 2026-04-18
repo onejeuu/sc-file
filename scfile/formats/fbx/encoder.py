@@ -9,6 +9,7 @@ from scfile.core.encoder import FileEncoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.flags import Flag
 from scfile.structures.mesh import ModelMesh
+from scfile.structures.skeleton import SkeletonBone
 
 
 class FBX:
@@ -43,12 +44,17 @@ class FbxEncoder(FileEncoder[ModelContent]):
     def prepare(self):
         self.data.scene.ensure_unique_names()
 
+        if self._skeleton_presented:
+            self.data.scene.skeleton.convert_to_local()
+            self.data.scene.skeleton.build_hierarchy()
+
         if self.data.flags[Flag.UV]:
             self.data.scene.flip_v_textures()
 
         self.ctx["NODES"] = []
         self.ctx["OBJECT_IDS"] = {}
         self.ctx["NEXT_ID"] = 0
+        self.ctx["ROOT_ID"] = 0
 
     def serialize(self):
         self._write_header()
@@ -81,7 +87,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
                     (b"FrontAxisSign", b"int", b"Integer", b"", 1),
                     (b"CoordAxis", b"int", b"Integer", b"", 0),
                     (b"CoordAxisSign", b"int", b"Integer", b"", 1),
-                    (b"UnitScaleFactor", b"double", b"Number", b"", 1.0),
+                    (b"UnitScaleFactor", b"double", b"Number", b"", 100.0),
                     (b"TimeMode", b"enum", b"", b"", 11),
                     (b"TimeSpanStart", b"KTime", b"Time", b"", 0),
                     (b"TimeSpanStop", b"KTime", b"Time", b"", 0),
@@ -133,36 +139,81 @@ class FbxEncoder(FileEncoder[ModelContent]):
 
         # Objects
         with self._node(b"Objects", root=True):
+            if self._skeleton_presented:
+                self._write_armature()
+
+                for bone in self.data.scene.skeleton.bones:
+                    self._write_bone(bone)
+
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
 
         # Connections
         with self._node(b"Connections", root=True):
+            root_id = np.int64(self.ctx["ROOT_ID"])
+
+            with self._node(b"C", [b"OO", root_id, np.int64(0)]):
+                pass
+
+            if self._skeleton_presented:
+                for bone in self.data.scene.skeleton.bones:
+                    child_id = self.ctx["OBJECT_IDS"][bone.name]
+                    parent_name = self.data.scene.skeleton.bones[bone.parent_id].name
+                    parent_id = root_id if bone.is_root else self.ctx["OBJECT_IDS"][parent_name]
+
+                    with self._node(b"C", [b"OO", child_id, parent_id]):
+                        pass
+
             for mesh in self.data.scene.meshes:
                 mesh_id = self.ctx["OBJECT_IDS"][mesh.name]
                 geom_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"]
                 mat_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_mat"]
-                with self._node(b"C", [b"OO", mesh_id, np.int64(0)]):
+                with self._node(b"C", [b"OO", mesh_id, root_id]):
                     pass
                 with self._node(b"C", [b"OO", geom_id, mesh_id]):
                     pass
                 with self._node(b"C", [b"OO", mat_id, mesh_id]):
                     pass
 
+    def _write_armature(self):
+        armature_id = self._next_id()
+        self.ctx["ROOT_ID"] = armature_id
+
+        root_name = b"Armature\x00\x01Model"
+        with self._node(b"Model", [armature_id, root_name, b"Null"]):
+            with self._node(b"Properties70"):
+                with self._node(b"P", [b"InheritType", b"enum", b"", b"", 1]):
+                    pass
+
+    def _write_bone(self, bone: SkeletonBone):
+        fbx_id = self._next_id()
+        self.ctx["OBJECT_IDS"][bone.name] = fbx_id
+
+        bone_name = bone.name.encode() + b"\x00\x01" + b"Model"
+        with self._node(b"Model", [fbx_id, bone_name, b"LimbNode"]):
+            with self._node(b"Properties70"):
+                props = [
+                    (b"Lcl Translation", b"Lcl Translation", b"", b"A", *bone.position.tolist()),
+                    (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", *bone.rotation.tolist()),
+                    (b"InheritType", b"enum", b"", b"", 1),
+                ]
+                for prop in props:
+                    with self._node(b"P", list(prop)):
+                        pass
+
     def _write_mesh(self, mesh: ModelMesh):
-        mesh_id = self._next_id()
-        self.ctx["OBJECT_IDS"][mesh.name] = mesh_id
+        fbx_id = self._next_id()
+        self.ctx["OBJECT_IDS"][mesh.name] = fbx_id
 
         model_name = mesh.name.encode() + b"\x00\x01" + b"Model"
-        with self._node(b"Model", [mesh_id, model_name, b"Mesh"]):
+        with self._node(b"Model", [fbx_id, model_name, b"Mesh"]):
             with self._node(b"Version", [232]):
                 pass
 
             with self._node(b"Properties70"):
-                # TODO: scaling size
                 props = [
+                    (b"Lcl Translation", b"Lcl Translation", b"", b"A", 0.0, 0.0, 0.0),
                     (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", 0.0, 0.0, 0.0),
-                    (b"Lcl Scaling", b"Lcl Scaling", b"", b"A", 100.0, 100.0, 100.0),
                     (b"DefaultAttributeIndex", b"int", b"Integer", b"", 0),
                     (b"InheritType", b"enum", b"", b"", 1),
                 ]
@@ -357,7 +408,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self._writeb(F.I64, int(value))
             return
 
-        if isinstance(value, float):
+        if isinstance(value, (float, np.floating)):
             self._writeb(F.U8, ord("D"))
             self._writeb(F.F64, value)
             return
