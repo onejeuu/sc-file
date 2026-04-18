@@ -2,21 +2,15 @@
 Extensions for MCSA file format with custom struct-based I/O methods.
 """
 
-from typing import TypeAlias
-
 import numpy as np
 
 from scfile.consts import Factor, McsaModel
 from scfile.core.io import StructFileIO
 from scfile.enums import F
-from scfile.structures.mesh import BonesMapping
-from scfile.structures.vectors import LinksIds, LinksWeights
+from scfile.structures import models as S
 
 from .consts import McsaUnits
 from .exceptions import McsaCountsLimit
-
-
-Links: TypeAlias = tuple[LinksIds, LinksWeights]
 
 
 class McsaFileIO(StructFileIO):
@@ -75,7 +69,7 @@ class McsaFileIO(StructFileIO):
         # transforms = [rotation[4], translation[3]]
         return data.reshape(times_count, bones_count, units)
 
-    def _readpackedlinks(self, count: int, bones: BonesMapping) -> Links:
+    def _readpackedlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
         units = McsaUnits.LINKS
 
         # Read array
@@ -90,7 +84,7 @@ class McsaFileIO(StructFileIO):
 
         return _links(ids.flatten(), weights.flatten(), bones)
 
-    def _readplainlinks(self, count: int, bones: BonesMapping) -> Links:
+    def _readplainlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
         units = McsaUnits.LINKS
 
         # Read arrays: bone_ids[vertex][units], weights[vertex][units]
@@ -105,7 +99,7 @@ def _padded(arr: np.ndarray) -> np.ndarray:
     return np.pad(arr, width, mode="constant")
 
 
-def _apply_bones_mapping(ids: np.ndarray, bones: BonesMapping) -> LinksIds:
+def _apply_bones_mapping(ids: np.ndarray, bones: S.BonesMapping) -> S.LinksIds:
     max_id = max(bones.keys())
     lookup = np.zeros(max_id + 1, dtype=F.U8)
 
@@ -116,7 +110,7 @@ def _apply_bones_mapping(ids: np.ndarray, bones: BonesMapping) -> LinksIds:
     return lookup[mask]
 
 
-def _links(ids: np.ndarray, weights: np.ndarray, bones: BonesMapping) -> Links:
+def _links(ids: np.ndarray, weights: np.ndarray, bones: S.BonesMapping) -> S.Links:
     # Convert local bone ids to skeleton bone ids
     ids = _apply_bones_mapping(ids, bones)
 

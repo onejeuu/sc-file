@@ -1,7 +1,7 @@
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.mcsa.io import McsaFileIO
-from scfile.structures.mesh import ModelMesh
+from scfile.structures import models as S
 
 
 class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
@@ -18,7 +18,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
         self._readb(F.I32)  # ? Animation count
 
         for _ in range(self.data.scene.count.meshes):
-            mesh = ModelMesh()
+            mesh = S.ModelMesh()
 
             # Read vertex data
             mesh.count.vertices = self._readcount("vertices")

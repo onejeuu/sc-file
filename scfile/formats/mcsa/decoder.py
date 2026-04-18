@@ -3,10 +3,8 @@ import numpy as np
 from scfile.consts import Factor, FileSignature, McsaModel
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.animation import AnimationClip
-from scfile.structures.flags import Flag
-from scfile.structures.mesh import LocalBoneId, ModelMesh, SkeletonBoneId
-from scfile.structures.skeleton import SkeletonBone
+from scfile.structures import models as S
+from scfile.structures.models import Flag
 
 from .consts import McsaUnits
 from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
@@ -83,11 +81,11 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         for _ in range(self.data.scene.count.meshes):
             self._parse_mesh()
 
-    def _skip_vertices(self, mesh: ModelMesh, units: int):
+    def _skip_vertices(self, mesh: S.ModelMesh, units: int):
         self.read(mesh.count.vertices * units)
 
     def _parse_mesh(self):
-        mesh = ModelMesh()
+        mesh = S.ModelMesh()
 
         # Name & Material
         mesh.name = self._readutf8()
@@ -100,7 +98,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
             # Local bones mapping
             for index in range(mesh.count.bones):
-                mesh.bones[LocalBoneId(index)] = SkeletonBoneId(self._readb(F.U8))
+                mesh.bones[S.LocalBoneId(index)] = S.SkeletonBoneId(self._readb(F.U8))
 
         # Geometry counts
         mesh.count.vertices = self._readcount("vertices")
@@ -154,7 +152,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         self.data.scene.meshes.append(mesh)
 
-    def _parse_positions(self, mesh: ModelMesh):
+    def _parse_positions(self, mesh: S.ModelMesh):
         mesh.positions = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
@@ -163,7 +161,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             scale=self.data.scene.scale.position,
         )[:, :3]
 
-    def _parse_uv1(self, mesh: ModelMesh):
+    def _parse_uv1(self, mesh: S.ModelMesh):
         mesh.uv1 = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
@@ -172,7 +170,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             scale=self.data.scene.scale.uv,
         )
 
-    def _parse_uv2(self, mesh: ModelMesh):
+    def _parse_uv2(self, mesh: S.ModelMesh):
         mesh.uv2 = self._readvertex(
             fmt=F.I16,
             factor=Factor.I16,
@@ -181,7 +179,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             scale=self.data.scene.scale.uv2,
         )
 
-    def _parse_normals(self, mesh: ModelMesh):
+    def _parse_normals(self, mesh: S.ModelMesh):
         mesh.normals = self._readvertex(
             fmt=F.I8,
             factor=Factor.I8,
@@ -189,7 +187,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             count=mesh.count.vertices,
         )[:, :3]
 
-    def _parse_tangents(self, mesh: ModelMesh):
+    def _parse_tangents(self, mesh: S.ModelMesh):
         tangents = self._readvertex(
             fmt=F.I8,
             factor=Factor.I8,
@@ -202,7 +200,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         mesh.tangents = tangents
 
-    def _parse_links(self, mesh: ModelMesh):
+    def _parse_links(self, mesh: S.ModelMesh):
         match mesh.count.links:
             case 0:
                 pass
@@ -213,7 +211,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             case _:
                 raise McsaBoneLinksError(self.path, mesh.count.links)
 
-    def _parse_packed_links(self, mesh: ModelMesh):
+    def _parse_packed_links(self, mesh: S.ModelMesh):
         if self.options.parse_skeleton:
             links = self._readpackedlinks(mesh.count.vertices, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
@@ -221,7 +219,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         else:
             self._skip_vertices(mesh, units=4)
 
-    def _parse_plain_links(self, mesh: ModelMesh):
+    def _parse_plain_links(self, mesh: S.ModelMesh):
         if self.options.parse_skeleton:
             links = self._readplainlinks(mesh.count.vertices, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
@@ -236,7 +234,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._parse_bone(index)
 
     def _parse_bone(self, index: int):
-        bone = SkeletonBone()
+        bone = S.SkeletonBone()
 
         bone.id = index
         bone.name = self._readutf8()
@@ -257,7 +255,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._parse_clip()
 
     def _parse_clip(self):
-        clip = AnimationClip()
+        clip = S.AnimationClip()
 
         clip.name = self._readutf8()
         clip.frames = self._readb(F.U32)

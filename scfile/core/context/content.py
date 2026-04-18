@@ -9,9 +9,9 @@ from typing import Generic, TypeAlias, cast
 from uuid import UUID
 
 from scfile.enums import FileType
-from scfile.structures.region import RegionChunk
-from scfile.structures.scene import ModelFlags, ModelScene
-from scfile.structures.texture import CubemapTexture, DefaultTexture, TextureType
+from scfile.structures.models import ModelFlags, ModelScene
+from scfile.structures.regions import RegionChunk
+from scfile.structures.textures import CubemapTexture, DefaultTexture, TextureType
 
 
 NbtValue: TypeAlias = None | int | float | bytes | str | list[int] | list["NbtValue"] | dict[str, "NbtValue"]

@@ -1,40 +1,15 @@
+from collections import defaultdict
 from contextlib import contextmanager
-from enum import IntEnum
 
 import numpy as np
 
-from scfile import __version__
 from scfile.core.context.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.flags import Flag
-from scfile.structures.mesh import ModelMesh
-from scfile.structures.skeleton import SkeletonBone
+from scfile.structures import models as S
+from scfile.structures.models import Flag
 
-
-class FBX:
-    VERSION = 7400
-    HEADER_VERSION = 1003
-    HEADER = b"Kaydara FBX Binary  \x00\x1a\x00"
-    FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
-    NULL_NODE = b"\x00" * 13
-    CREATOR = b"onejeuu/sc-file v" + __version__.encode()
-
-
-class PropertyType(IntEnum):
-    INT16 = ord("Y")
-    BOOL = ord("C")
-    INT32 = ord("I")
-    FLOAT = ord("F")
-    DOUBLE = ord("D")
-    INT64 = ord("L")
-    STRING = ord("S")
-    RAW = ord("R")
-    ARRAY_DOUBLE = ord("d")
-    ARRAY_INT32 = ord("i")
-    ARRAY_INT64 = ord("l")
-    ARRAY_FLOAT = ord("f")
-    ARRAY_BOOL = ord("b")
+from .consts import FBX
 
 
 class FbxEncoder(FileEncoder[ModelContent]):
@@ -52,9 +27,10 @@ class FbxEncoder(FileEncoder[ModelContent]):
             self.data.scene.flip_v_textures()
 
         self.ctx["NODES"] = []
-        self.ctx["OBJECT_IDS"] = {}
+        self.ctx["IDS"] = defaultdict(dict)
+        self.ctx["BONES"] = defaultdict(dict)
+        self.ctx["MESHES"] = defaultdict(lambda: defaultdict(dict))
         self.ctx["NEXT_ID"] = 0
-        self.ctx["ROOT_ID"] = 0
 
     def serialize(self):
         self._write_header()
@@ -99,7 +75,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
         # Documents
         with self._node(b"Documents", root=True):
             doc_id = self._next_id()
-            self.ctx["ROOT_DOC"] = doc_id
+            self.ctx["IDS"]["document"] = doc_id
 
             with self._node(b"Count", [1]):
                 pass
@@ -145,39 +121,57 @@ class FbxEncoder(FileEncoder[ModelContent]):
                 for bone in self.data.scene.skeleton.bones:
                     self._write_bone(bone)
 
+                for mesh in self.data.scene.meshes:
+                    self._write_mesh_skinning(mesh)
+
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
 
         # Connections
         with self._node(b"Connections", root=True):
-            root_id = np.int64(self.ctx["ROOT_ID"])
-
-            with self._node(b"C", [b"OO", root_id, np.int64(0)]):
-                pass
+            root_id = np.int64(self.ctx["IDS"]["root"])
 
             if self._skeleton_presented:
+                with self._node(b"C", [b"OO", root_id, np.int64(0)]):
+                    pass
+
                 for bone in self.data.scene.skeleton.bones:
-                    child_id = self.ctx["OBJECT_IDS"][bone.name]
+                    child_id = self.ctx["BONES"][bone.name]
                     parent_name = self.data.scene.skeleton.bones[bone.parent_id].name
-                    parent_id = root_id if bone.is_root else self.ctx["OBJECT_IDS"][parent_name]
+                    parent_id = root_id if bone.is_root else self.ctx["BONES"][parent_name]
 
                     with self._node(b"C", [b"OO", child_id, parent_id]):
                         pass
 
             for mesh in self.data.scene.meshes:
-                mesh_id = self.ctx["OBJECT_IDS"][mesh.name]
-                geom_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"]
-                mat_id = self.ctx["OBJECT_IDS"][f"{mesh.name}_mat"]
-                with self._node(b"C", [b"OO", mesh_id, root_id]):
+                ids = self.ctx["MESHES"][mesh.name]
+
+                with self._node(b"C", [b"OO", ids["mesh"], root_id]):
                     pass
-                with self._node(b"C", [b"OO", geom_id, mesh_id]):
+                with self._node(b"C", [b"OO", ids["geometry"], ids["mesh"]]):
                     pass
-                with self._node(b"C", [b"OO", mat_id, mesh_id]):
+                with self._node(b"C", [b"OO", ids["material"], ids["mesh"]]):
                     pass
+                if self._skeleton_presented:
+                    with self._node(b"C", [b"OO", ids["skin"], ids["geometry"]]):
+                        pass
+
+                    for global_id in mesh.bones.values():
+                        cluster_id = ids.get(f"cluster_{global_id}")
+                        if not cluster_id:
+                            continue
+
+                        with self._node(b"C", [b"OO", cluster_id, ids["skin"]]):
+                            pass
+
+                        bone_name = self.data.scene.skeleton.bones[global_id].name
+                        bone_id = self.ctx["BONES"][bone_name]
+                        with self._node(b"C", [b"OO", bone_id, cluster_id]):
+                            pass
 
     def _write_armature(self):
         armature_id = self._next_id()
-        self.ctx["ROOT_ID"] = armature_id
+        self.ctx["IDS"]["root"] = armature_id
 
         root_name = b"Armature\x00\x01Model"
         with self._node(b"Model", [armature_id, root_name, b"Null"]):
@@ -185,9 +179,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
                 with self._node(b"P", [b"InheritType", b"enum", b"", b"", 1]):
                     pass
 
-    def _write_bone(self, bone: SkeletonBone):
+    def _write_bone(self, bone: S.SkeletonBone):
         fbx_id = self._next_id()
-        self.ctx["OBJECT_IDS"][bone.name] = fbx_id
+        self.ctx["BONES"][bone.name] = fbx_id
 
         bone_name = bone.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, bone_name, b"LimbNode"]):
@@ -201,9 +195,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
                     with self._node(b"P", list(prop)):
                         pass
 
-    def _write_mesh(self, mesh: ModelMesh):
+    def _write_mesh(self, mesh: S.ModelMesh):
         fbx_id = self._next_id()
-        self.ctx["OBJECT_IDS"][mesh.name] = fbx_id
+        self.ctx["MESHES"][mesh.name]["mesh"] = fbx_id
 
         model_name = mesh.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, model_name, b"Mesh"]):
@@ -312,7 +306,7 @@ class FbxEncoder(FileEncoder[ModelContent]):
                         with self._node(b"TypedIndex", [0]):
                             pass
 
-        self.ctx["OBJECT_IDS"][f"{mesh.name}_geom"] = geom_id
+        self.ctx["MESHES"][mesh.name]["geometry"] = geom_id
 
         mat_id = self._next_id()
         material_name = mesh.material.encode() + b"\x00\x01" + b"Material"
@@ -338,7 +332,51 @@ class FbxEncoder(FileEncoder[ModelContent]):
                     with self._node(b"P", list(prop)):
                         pass
 
-        self.ctx["OBJECT_IDS"][f"{mesh.name}_mat"] = mat_id
+        self.ctx["MESHES"][mesh.name]["material"] = mat_id
+
+    def _write_mesh_skinning(self, mesh: S.ModelMesh):
+        skin_id = self._next_id()
+        self.ctx["MESHES"][mesh.name]["skin"] = skin_id
+
+        skin_name = mesh.name.encode() + b"\x00\x01Deformer"
+        with self._node(b"Deformer", [skin_id, skin_name, b"Skin"]):
+            with self._node(b"Version", [101]):
+                pass
+            with self._node(b"Link_DeformAcuracy", [50.0]):
+                pass
+
+        global_transforms = self.data.scene.skeleton.calculate_global_transforms()
+
+        for local_id, global_id in mesh.bones.items():
+            bone = self.data.scene.skeleton.bones[global_id]
+
+            row_idx, col_idx = np.where(mesh.links_ids == local_id)
+
+            if row_idx.size == 0:
+                continue
+
+            indices = row_idx.astype(np.int32)
+            weights = mesh.links_weights[row_idx, col_idx].astype(np.float64)
+
+            cluster_id = self._next_id()
+            self.ctx["MESHES"][mesh.name][f"cluster_{global_id}"] = cluster_id
+
+            cluster_name = bone.name.encode() + b"\x00\x01SubDeformer"
+            with self._node(b"Deformer", [cluster_id, cluster_name, b"Cluster"]):
+                with self._node(b"Version", [100]):
+                    pass
+                with self._node(b"Indexes", [indices]):
+                    pass
+                with self._node(b"Weights", [weights]):
+                    pass
+
+                mesh_transform = np.eye(4, dtype=np.float64).flatten().tolist()
+                bone_transform = global_transforms[global_id].flatten().astype(np.float64).tolist()
+
+                with self._node(b"Transform", [mesh_transform]):
+                    pass
+                with self._node(b"TransformLink", [bone_transform]):
+                    pass
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
@@ -373,7 +411,13 @@ class FbxEncoder(FileEncoder[ModelContent]):
         prop_len = len(self.getvalue()) - props_start
 
         self.ctx["NODES"].append(
-            dict(start=node_start, prop_count=prop_count, prop_len=prop_len, root=root, children=False)
+            dict(
+                start=node_start,
+                prop_count=prop_count,
+                prop_len=prop_len,
+                root=root,
+                children=False,
+            )
         )
 
     def _end_node(self):
