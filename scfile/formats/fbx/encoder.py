@@ -10,10 +10,10 @@ from scfile.structures import models as S
 from scfile.structures.models import Flag
 
 from .consts import DEFAULT, FBX, Props
-from .enums import PropertyType
+from .io import FbxFileIO
 
 
-class FbxEncoder(FileEncoder[ModelContent]):
+class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
 
@@ -182,15 +182,6 @@ class FbxEncoder(FileEncoder[ModelContent]):
                 self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
                 self._leaf(b"Materials", [np.array([0], dtype=np.int32)])
 
-            if self.data.flags[Flag.NORMALS]:
-                with self._node(b"LayerElementNormal", [0]):
-                    self._leaf(b"Version", [101])
-                    self._leaf(b"Name", [b""])
-                    self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
-                    self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
-                    self._leaf(b"Normals", [mesh.normals.flatten().astype(np.float64)])
-                    self._leaf(b"NormalsIndex", [indexes])
-
             if self.data.flags[Flag.UV]:
                 with self._node(b"LayerElementUV", [0]):
                     self._leaf(b"Version", [101])
@@ -200,6 +191,24 @@ class FbxEncoder(FileEncoder[ModelContent]):
                     self._leaf(b"UV", [mesh.uv1.flatten().astype(np.float64)])
                     self._leaf(b"UVIndex", [indexes])
 
+            if self.data.flags[Flag.UV2]:
+                with self._node(b"LayerElementUV", [0]):
+                    self._leaf(b"Version", [101])
+                    self._leaf(b"Name", [b"UVMap_2"])
+                    self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
+                    self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
+                    self._leaf(b"UV", [mesh.uv2.flatten().astype(np.float64)])
+                    self._leaf(b"UVIndex", [indexes])
+
+            if self.data.flags[Flag.NORMALS]:
+                with self._node(b"LayerElementNormal", [0]):
+                    self._leaf(b"Version", [101])
+                    self._leaf(b"Name", [b""])
+                    self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
+                    self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
+                    self._leaf(b"Normals", [mesh.normals.flatten().astype(np.float64)])
+                    self._leaf(b"NormalsIndex", [indexes])
+
             with self._node(b"Layer", [0]):
                 self._leaf(b"Version", [100])
 
@@ -207,14 +216,19 @@ class FbxEncoder(FileEncoder[ModelContent]):
                     self._leaf(b"Type", [b"Material"])
                     self._leaf(b"TypedIndex", [0])
 
-                if self.data.flags[Flag.NORMALS]:
-                    with self._node(b"LayerElement", []):
-                        self._leaf(b"Type", [b"Normal"])
-                        self._leaf(b"TypedIndex", [0])
-
                 if self.data.flags[Flag.UV]:
                     with self._node(b"LayerElement", []):
                         self._leaf(b"Type", [b"UV"])
+                        self._leaf(b"TypedIndex", [0])
+
+                if self.data.flags[Flag.UV2]:
+                    with self._node(b"LayerElement", []):
+                        self._leaf(b"Type", [b"UV"])
+                        self._leaf(b"TypedIndex", [1])
+
+                if self.data.flags[Flag.NORMALS]:
+                    with self._node(b"LayerElement", []):
+                        self._leaf(b"Type", [b"Normal"])
                         self._leaf(b"TypedIndex", [0])
 
         self.ctx["MESHES"][mesh.name]["geometry"] = geom_id
@@ -331,74 +345,9 @@ class FbxEncoder(FileEncoder[ModelContent]):
         self._writeb(F.U32, node["prop_len"])
         self.seek(end_pos)
 
-    # Property writers
-    # TODO: move to IO
-    def _write_property(self, value):
-        if isinstance(value, bool):
-            self._writeb(F.U8, PropertyType.BOOL)
-            self._writeb(F.U8, 1 if value else 0)
-            return
-
-        if isinstance(value, int):
-            self._writeb(F.U8, PropertyType.INT32)
-            self._writeb(F.I32, value)
-            return
-
-        if isinstance(value, np.integer):
-            self._writeb(F.U8, PropertyType.INT64)
-            self._writeb(F.I64, int(value))
-            return
-
-        if isinstance(value, (float, np.floating)):
-            self._writeb(F.U8, PropertyType.DOUBLE)
-            self._writeb(F.F64, value)
-            return
-
-        if isinstance(value, (bytes, str)):
-            if isinstance(value, str):
-                value = value.encode("utf-8")
-            self._writeb(F.U8, PropertyType.STRING)
-            self._writeb(F.U32, len(value))
-            self.write(value)
-            return
-
-        if isinstance(value, np.ndarray):
-            self._write_array_property(value)
-            return
-
-        if isinstance(value, list):
-            self._write_array_property(np.array(value, dtype=np.float64))
-            return
-
-        raise TypeError(f"Unsupported property type: {type(value)}!!!")
-
-    # TODO: move to IO
-    def _write_array_property(self, arr: np.ndarray):
-        if arr.dtype == np.float64:
-            self._writeb(F.U8, PropertyType.ARRAY_DOUBLE)
-            self._writeb(F.U32, len(arr))
-            self._writeb(F.U32, 0)  # encoding
-            self._writeb(F.U32, len(arr) * 8)  # compressedLen
-            self.write(arr.tobytes())
-            return
-
-        if arr.dtype == np.int32:
-            self._writeb(F.U8, PropertyType.ARRAY_INT32)
-            self._writeb(F.U32, len(arr))
-            self._writeb(F.U32, 0)  # encoding
-            self._writeb(F.U32, len(arr) * 4)  # compressedLen
-            self.write(arr.tobytes())
-            return
-
-        self._write_array_property(arr.astype(np.float64))
-
     def _next_id(self) -> np.int64:
         self.ctx["NEXT_ID"] += 1
         return np.int64(self.ctx["NEXT_ID"])
-
-    # TODO: move to IO
-    def _fbx_time(self, seconds: float) -> int:
-        return int(seconds * 46186158000)
 
     def _fbx_polygon_indices(self, polygons: np.ndarray) -> np.ndarray:
         indices = polygons.flatten().astype(np.int32)
