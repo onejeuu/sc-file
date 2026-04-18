@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from scfile.structures.flags import Flag
+from scfile.structures.models import Flag
 
 
 Version: TypeAlias = float

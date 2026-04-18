@@ -4,7 +4,7 @@ from scfile.core.context.content import RegionContent
 from scfile.core.decoder import FileDecoder
 from scfile.core.io.streams import StructFileIO
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.region import ChunkHeader, RegionChunk
+from scfile.structures import regions as S
 
 
 CHUNKS_COUNT = 32 * 32  # 1024
@@ -24,7 +24,7 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
         offsets, counts, uuids = map(list, zip(*table))
 
         dctx = zstd.ZstdDecompressor()
-        chunks: list[RegionChunk] = []
+        chunks: list[S.RegionChunk] = []
 
         for index in range(CHUNKS_COUNT):
             offset = offsets[index]
@@ -53,9 +53,9 @@ class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
             # extra = buffer.read()
 
             chunks.append(
-                RegionChunk(
+                S.RegionChunk(
                     index=index,
-                    header=ChunkHeader(
+                    header=S.ChunkHeader(
                         full_size,
                         blocks_mask,
                         add_mask,

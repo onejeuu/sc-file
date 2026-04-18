@@ -3,7 +3,7 @@ from scfile.core.context.content import ModelContent
 from scfile.core.decoder import FileDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.mcsa.io import McsaFileIO
-from scfile.structures.animation import AnimationClip
+from scfile.structures import models as S
 
 
 class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
@@ -29,7 +29,7 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._parse_clip()
 
     def _parse_clip(self):
-        clip = AnimationClip()
+        clip = S.AnimationClip()
 
         clip.name = self._readutf8()
         clip.frames = self._readb(F.U32)
