@@ -41,14 +41,14 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
     def serialize(self):
         self._write_header()
-        self._write_top_nodes()
+        self._write_nodes()
         self.write(FBX.NULL_NODE)
 
     def _write_header(self):
         self.write(FBX.HEADER)
         self._writeb(F.U32, FBX.VERSION)
 
-    def _write_top_nodes(self):
+    def _write_nodes(self):
         # FBX Header Extension
         with self._node(b"FBXHeaderExtension", root=True):
             self._leaf(b"FBXHeaderVersion", [FBX.HEADER_VERSION])

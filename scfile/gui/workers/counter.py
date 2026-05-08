@@ -88,5 +88,5 @@ class CountController(QObject):
         self.count = count
         self.gamedir = gamedir
         self.is_counting = is_counting
-        text = "..." if is_counting else str(count)
+        text = "..." if is_counting else f"{count:,}"
         self.changed.emit(text, count, is_counting)
