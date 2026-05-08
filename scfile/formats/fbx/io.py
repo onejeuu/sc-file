@@ -50,8 +50,24 @@ class FbxFileIO(StructBytesIO):
         raise TypeError(f"Unsupported property type: {type(value)}!!!")
 
     def _write_array_property(self, arr: np.ndarray):
+        if arr.dtype == np.float32:
+            self._writeb(F.U8, PropertyType.ARRAY_FLOAT)
+            self._writeb(F.U32, len(arr))
+            self._writeb(F.U32, 0)  # encoding
+            self._writeb(F.U32, len(arr) * 4)  # compressedLen
+            self.write(arr.tobytes())
+            return
+
         if arr.dtype == np.float64:
             self._writeb(F.U8, PropertyType.ARRAY_DOUBLE)
+            self._writeb(F.U32, len(arr))
+            self._writeb(F.U32, 0)  # encoding
+            self._writeb(F.U32, len(arr) * 8)  # compressedLen
+            self.write(arr.tobytes())
+            return
+
+        if arr.dtype == np.int64:
+            self._writeb(F.U8, PropertyType.ARRAY_INT64)
             self._writeb(F.U32, len(arr))
             self._writeb(F.U32, 0)  # encoding
             self._writeb(F.U32, len(arr) * 8)  # compressedLen
@@ -66,7 +82,5 @@ class FbxFileIO(StructBytesIO):
             self.write(arr.tobytes())
             return
 
-        self._write_array_property(arr.astype(np.float64))
-
-    def _fbx_time(self, seconds: float) -> int:
-        return int(seconds * 46186158000)
+        # TODO: typings
+        raise TypeError(f"Unsupported array type: {type(arr)}!!!")

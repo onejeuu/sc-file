@@ -20,16 +20,22 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
     def prepare(self):
         self.data.scene.ensure_unique_names()
 
-        if self._skeleton_presented:
-            self.data.scene.skeleton.convert_to_local()
-            self.data.scene.skeleton.build_hierarchy()
-
         if self.data.flags[Flag.UV]:
             self.data.scene.flip_v_textures()
 
+        if self._skeleton_presented:
+            self.data.scene.skeleton.convert_to_local()
+            self.data.scene.skeleton.build_hierarchy()
+            self.ctx["BINDPOSE"] = self.data.scene.skeleton.calculate_global_transforms()
+
+        if self._animation_presented:
+            self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
+            self.data.scene.animation.convert_to_euler()
+
         self.ctx["NODES"] = []
-        self.ctx["BONES"] = defaultdict(dict)
-        self.ctx["MESHES"] = defaultdict(lambda: defaultdict(dict))
+        self.ctx["CLIPS"] = []
+        self.ctx["BONES"] = {}
+        self.ctx["MESHES"] = defaultdict(dict)
         self.ctx["ROOT_ID"] = 0
         self.ctx["NEXT_ID"] = 0
 
@@ -88,11 +94,16 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
                 for bone in self.data.scene.skeleton.bones:
                     self._write_bone(bone)
 
+                self._write_bindpose()
+
                 for mesh in self.data.scene.meshes:
                     self._write_mesh_skinning(mesh)
 
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
+
+            if self._animation_presented:
+                self._write_animation()
 
         # Connections
         with self._node(b"Connections", root=True):
@@ -129,6 +140,13 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
                         self._leaf(b"C", [b"OO", cluster_id, ids["skin"]])
                         self._leaf(b"C", [b"OO", bone_id, cluster_id])
 
+            if self._animation_presented:
+                for clip in self.ctx.get("CLIPS", []):
+                    if len(clip) == 2:
+                        self._leaf(b"C", [b"OO", np.int64(clip[0]), np.int64(clip[1])])
+                    else:
+                        self._leaf(b"C", [b"OP", np.int64(clip[0]), np.int64(clip[1]), clip[2]])
+
     def _write_armature(self):
         armature_id = self._next_id()
         self.ctx["ROOT_ID"] = armature_id
@@ -143,10 +161,12 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
         bone_name = bone.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, bone_name, b"LimbNode"]):
+            self._leaf(b"Version", [232])
             self._props70(
                 [
                     (b"Lcl Translation", b"Lcl Translation", b"", b"A", *bone.position.tolist()),
                     (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", *bone.rotation.tolist()),
+                    (b"RotationOrder", b"enum", b"", b"", 0),
                     (b"InheritType", b"enum", b"", b"", 1),
                 ]
             )
@@ -250,8 +270,6 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
             self._leaf(b"Version", [101])
             self._leaf(b"Link_DeformAcuracy", [50.0])
 
-        bindpose = self.data.scene.skeleton.calculate_global_transforms()
-
         for global_id in mesh.bones.values():
             bone = self.data.scene.skeleton.bones[global_id]
 
@@ -266,20 +284,110 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
             indices = rows.astype(np.int32)
             weights = weights.astype(np.float64)
 
+            bindpose = self.ctx["BINDPOSE"][bone.id].astype(np.float64)
+            transform = np.eye(4, dtype=np.float64).flatten().tolist()
+            transform_link = bindpose.T.flatten().tolist()
+
             cluster_id = self._next_id()
             self.ctx["MESHES"][mesh.name][f"cluster_{global_id}"] = cluster_id
 
             cluster_name = bone.name.encode() + b"\x00\x01SubDeformer"
             with self._node(b"Deformer", [cluster_id, cluster_name, b"Cluster"]):
                 self._leaf(b"Version", [100])
+                self._leaf(b"UserData", [b"", b""])
                 self._leaf(b"Indexes", [indices])
                 self._leaf(b"Weights", [weights])
+                self._leaf(b"Transform", [transform])
+                self._leaf(b"TransformLink", [transform_link])
 
-                mesh_transform = np.eye(4, dtype=np.float64).flatten().tolist()
-                bone_transform = bindpose[global_id].T.flatten().astype(np.float64).tolist()
+    def _write_bindpose(self):
+        pose_id = self._next_id()
 
-                self._leaf(b"Transform", [mesh_transform])
-                self._leaf(b"TransformLink", [bone_transform])
+        pose_name = b"Pose\x00\x01Pose"
+
+        bones = self.data.scene.skeleton.bones
+
+        with self._node(b"Pose", [pose_id, pose_name, b"BindPose"]):
+            self._leaf(b"Type", [b"BindPose"])
+            self._leaf(b"Version", [100])
+            self._leaf(b"NbPoseNodes", [len(bones) + 1])
+
+            armature_id = self.ctx["ROOT_ID"]
+            identity = np.eye(4, dtype=np.float64).flatten().tolist()
+            with self._node(b"PoseNode"):
+                self._leaf(b"Node", [np.int64(armature_id)])
+                self._leaf(b"Matrix", [identity])
+
+            for bone in bones:
+                bone_id = self.ctx["BONES"][bone.name]
+                matrix = self.ctx["BINDPOSE"][bone.id].T.flatten().astype(np.float64).tolist()
+                with self._node(b"PoseNode"):
+                    self._leaf(b"Node", [np.int64(bone_id)])
+                    self._leaf(b"Matrix", [matrix])
+
+    def _write_animation(self):
+        for clip in self.data.scene.animation.clips:
+            stack_id = self._next_id()
+            stack_name = clip.name.encode() + b"\x00\x01AnimationStack"
+            with self._node(b"AnimationStack", [stack_id, stack_name, b""]):
+                self._leaf(b"Properties70", [])
+
+            layer_id = self._next_id()
+            layer_name = b"BaseLayer\x00\x01AnimationLayer"
+            self._leaf(b"AnimationLayer", [layer_id, layer_name, b""])
+
+            self.ctx["CLIPS"].append((layer_id, stack_id))
+
+            times = (clip.times * 46186158000).astype(np.int64)
+            flags = np.full(len(times), 0x218, dtype=np.int32)
+            attr_data = np.zeros(4, dtype=np.float32)
+            attr_count = np.array([len(times)], dtype=np.int32)
+
+            for bone in self.data.scene.skeleton.bones:
+                transforms = clip.transforms[:, bone.id, :]
+                rotations = transforms[:, 0:3].astype(np.float32)
+                translations = transforms[:, 4:7].astype(np.float32)
+
+                bone_id = self.ctx["BONES"][bone.name]
+
+                t_node_id = self._next_id()
+                t_node_name = b"T\x00\x01AnimationCurveNode"
+                with self._node(b"AnimationCurveNode", [t_node_id, t_node_name, b""]):
+                    self._props70(DEFAULT.CURVE)
+
+                r_node_id = self._next_id()
+                r_node_name = b"R\x00\x01AnimationCurveNode"
+                with self._node(b"AnimationCurveNode", [r_node_id, r_node_name, b""]):
+                    self._props70(DEFAULT.CURVE)
+
+                for i, axis in enumerate([b"d|X", b"d|Y", b"d|Z"]):
+                    curve_id = self._next_id()
+                    with self._node(b"AnimationCurve", [curve_id, b"\x00\x01AnimationCurve", b""]):
+                        self._leaf(b"Default", [0.0])
+                        self._leaf(b"KeyVer", [4008])
+                        self._leaf(b"KeyTime", [times])
+                        self._leaf(b"KeyValueFloat", [translations[:, i]])
+                        self._leaf(b"KeyAttrFlags", [flags])
+                        self._leaf(b"KeyAttrDataFloat", [attr_data])
+                        self._leaf(b"KeyAttrRefCount", [attr_count])
+                    self.ctx["CLIPS"].append((curve_id, t_node_id, axis))
+
+                for i, axis in enumerate([b"d|X", b"d|Y", b"d|Z"]):
+                    curve_id = self._next_id()
+                    with self._node(b"AnimationCurve", [curve_id, b"\x00\x01AnimationCurve", b""]):
+                        self._leaf(b"Default", [0.0])
+                        self._leaf(b"KeyVer", [4008])
+                        self._leaf(b"KeyTime", [times])
+                        self._leaf(b"KeyValueFloat", [rotations[:, i]])
+                        self._leaf(b"KeyAttrFlags", [flags])
+                        self._leaf(b"KeyAttrDataFloat", [attr_data])
+                        self._leaf(b"KeyAttrRefCount", [attr_count])
+                    self.ctx["CLIPS"].append((curve_id, r_node_id, axis))
+
+                self.ctx["CLIPS"].append((t_node_id, bone_id, b"Lcl Translation"))
+                self.ctx["CLIPS"].append((r_node_id, bone_id, b"Lcl Rotation"))
+                self.ctx["CLIPS"].append((layer_id, t_node_id))
+                self.ctx["CLIPS"].append((layer_id, r_node_id))
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
@@ -305,7 +413,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
     def _start_node(self, name: bytes, properties: list | None = None, root: bool = False):
         properties = properties or []
-        node_start = len(self.getvalue())
+        node_start = self.tell()
 
         # Placeholder header
         self._writeb(F.U32, 0)  # endOffset
@@ -315,13 +423,13 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
         self.write(name)
 
         # Properties
-        props_start = len(self.getvalue())
+        props_start = self.tell()
         prop_count = 0
         for prop in properties:
             self._write_property(prop)
             prop_count += 1
 
-        prop_len = len(self.getvalue()) - props_start
+        prop_len = self.tell() - props_start
 
         self.ctx["NODES"].append(
             dict(
@@ -339,7 +447,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
         if node["root"] or node["children"]:
             self.write(FBX.NULL_NODE)
 
-        end_pos = len(self.getvalue())
+        end_pos = self.tell()
 
         # Update node header
         self.seek(node["start"])
