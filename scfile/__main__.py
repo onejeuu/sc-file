@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 import click
 from rich import print
@@ -9,30 +8,35 @@ from scfile.enums import CliCommand, L
 
 
 def setup_command():
-    if len(sys.argv) == 1:
+    user_args = sys.argv[1:]
+
+    # Run GUI if no arguments are provided
+    if not user_args:
         from scfile.gui import window
 
-        window.run()
+        return window.run()
+
+    # Show default help
+    if "--help" in user_args:
         return
 
-    args = sys.argv[1:]
+    # Backfill command if missing
+    if command := _default_command(user_args):
+        sys.argv.insert(1, command)
 
-    if "--help" in args:
-        return
 
-    default_command = CliCommand.CONVERT
+def _default_command(args: list[str]):
+    first_arg = args[0]
 
-    if args and "map_cache" in Path(args[0]).as_posix():
-        default_command = CliCommand.MAPCACHE
+    # Map cache override
+    if "map_cache" in first_arg:
+        return CliCommand.MAPCACHE
 
-    elif not args or args[0] not in scfile.commands.keys():
-        default_command = CliCommand.CONVERT
+    # Use existing command if valid
+    if first_arg in scfile.commands:
+        return None
 
-    else:
-        default_command = None
-
-    if default_command:
-        sys.argv.insert(1, default_command)
+    return CliCommand.CONVERT  # Fallback
 
 
 def main():

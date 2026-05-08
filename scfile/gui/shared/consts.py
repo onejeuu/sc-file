@@ -22,8 +22,8 @@ class Feature:
 
 
 class FT:
-    SKELETON = Feature("skeleton", "🦴", Strings.get("feat_skeleton"))
-    ANIMATION = Feature("animation", "🌀", Strings.get("feat_animation"))
+    SKELETON = Feature(id="skeleton", icon="🦴", label=Strings.get("feat_skeleton"))
+    ANIMATION = Feature(id="animation", icon="🌀", label=Strings.get("feat_animation"))
 
 
 @dataclass
@@ -45,34 +45,34 @@ class FileKind:
 
 FILE_KINDS: list[FileKind] = [
     FileKind(
-        "models",
-        "🧊",
-        Strings.get("fmt_models"),
-        suffixes=[".mcsa", ".mcsb", ".mcvd"],
+        id="models",
+        icon="🧊",
+        label=Strings.get("fmt_models"),
+        suffixes=[".mcsa", ".mcsb", ".mcvd", ".efkmodel"],
         features=[FT.SKELETON, FT.ANIMATION],
     ),
     FileKind(
-        "textures",
-        "🧱",
-        Strings.get("fmt_textures"),
+        id="textures",
+        icon="🧱",
+        label=Strings.get("fmt_textures"),
         suffixes=[".ol"],
     ),
     FileKind(
-        "images",
-        "🖼",
-        Strings.get("fmt_images"),
+        id="images",
+        icon="🖼",
+        label=Strings.get("fmt_images"),
         suffixes=[".mic"],
     ),
     FileKind(
-        "texarr",
-        "🗃️",
-        Strings.get("fmt_texarr"),
+        id="texarr",
+        icon="🗃️",
+        label=Strings.get("fmt_texarr"),
         suffixes=[".texarr"],
     ),
     FileKind(
-        "nbt",
-        "⚙️",
-        Strings.get("fmt_nbt"),
+        id="nbt",
+        icon="⚙️",
+        label=Strings.get("fmt_nbt"),
         suffixes=list(sorted(NBT_FILENAMES)),
     ),
 ]
