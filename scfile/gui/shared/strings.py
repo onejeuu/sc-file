@@ -85,7 +85,7 @@ class Strings:
         },
         "info_mdat_context": {
             "EN": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview.\nFull environment replication or accurate block states are not planned.",
-            "RU": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.\nПолное воссоздание окружения и состояний блоков не планируется.",
+            "RU": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.\nПолное воссоздание окружения и состояний блоков НЕ планируется.",
         },
         "dialog_files": {"EN": "Files", "RU": "Файлы"},
         "dialog_folder": {"EN": "Folder", "RU": "Папка"},

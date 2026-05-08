@@ -377,7 +377,7 @@ class ConverterTab(QWidget):
 
     def _sync_convert_button(self):
         has_sources = self.file_list.count() > 0
-        has_targets = self.count_controller.count > 0
+        has_targets = self.count_controller.is_counting or self.count_controller.count > 0
         output_valid = self._is_output_valid()
         is_okay = has_sources and has_targets and output_valid
 

@@ -91,7 +91,7 @@ class ModelFormat:
 MODEL_FORMATS = [
     ModelFormat(FileFormat.OBJ),
     ModelFormat(FileFormat.GLB, features=[FT.SKELETON, FT.ANIMATION]),
-    ModelFormat(FileFormat.FBX),
+    ModelFormat(FileFormat.FBX, features=[FT.SKELETON]),
     ModelFormat(FileFormat.DAE, features=[FT.SKELETON]),
     ModelFormat(FileFormat.MS3D, features=[FT.SKELETON]),
 ]
