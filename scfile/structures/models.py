@@ -216,6 +216,18 @@ class ModelAnimation:
             for bone in skeleton.bones:
                 clip.transforms[:, bone.id, 4:7] += bone.position
 
+    def convert_to_euler(self):
+        for clip in self.clips:
+            quats = clip.transforms[:, :, 0:4]
+            x, y, z, w = quats[..., 0], quats[..., 1], quats[..., 2], quats[..., 3]
+
+            roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y))
+            sinp = 2 * (w * y - z * x)
+            pitch = np.where(np.abs(sinp) >= 1, np.sign(sinp) * np.pi / 2, np.arcsin(sinp))
+            yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
+
+            clip.transforms[:, :, 0:3] = np.degrees(np.stack([roll, pitch, yaw], axis=-1))
+
 
 @dataclass
 class SceneScales:

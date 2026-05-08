@@ -50,3 +50,9 @@ class DEFAULT:
         (b"ReflectionColor", b"Color", b"", b"A", 0.8, 0.8, 0.8),
         (b"ReflectionFactor", b"Number", b"", b"A", 0.0),
     ]
+
+    CURVE: Props = [
+        (b"d|X", b"Number", b"", b"A", 0.0),
+        (b"d|Y", b"Number", b"", b"A", 0.0),
+        (b"d|Z", b"Number", b"", b"A", 0.0),
+    ]
