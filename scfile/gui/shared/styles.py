@@ -29,7 +29,7 @@ class Colors(StrEnum):
 
 class Styles:
     WINDOW = f"""
-        QMainWindow, QDialog, QWidget {{ background: {Colors.BACKGROUND};  color: {Colors.TEXT}; font-family: "Segoe UI", sans-serif; }}
+        QMainWindow, QDialog, QWidget {{ background: {Colors.BACKGROUND}; color: {Colors.TEXT}; font-family: "Segoe UI", sans-serif; }}
         QLabel {{ background: transparent; color: {Colors.TEXT}; }}
     """
 
@@ -90,6 +90,7 @@ class Styles:
     """
 
     LINK = f"""color: {Colors.TEXT.dark}; font-size: 12px;"""
+    LINK_HOVER = f"""color: {Colors.ACCENT}; font-size: 12px;"""
 
     TITLE = "font-weight: bold; font-size: 16px;"
     LABEL = "font-weight: bold; font-size: 14px;"

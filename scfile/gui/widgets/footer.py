@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from scfile import __version__
 from scfile.gui.shared import utils
-from scfile.gui.shared.styles import Colors, Styles
+from scfile.gui.shared.styles import Styles
 
 
 class LinkLabel(QWidget):
@@ -35,13 +35,13 @@ class LinkLabel(QWidget):
         self.text_label = QLabel(text)
         layout.addWidget(self.text_label)
 
-    def enterEvent(self, event):
-        self.setStyleSheet(f"color: {Colors.ACCENT};")
-        super().enterEvent(event)
-
     def leaveEvent(self, event):
         self.setStyleSheet(Styles.LINK)
         super().leaveEvent(event)
+
+    def enterEvent(self, event):
+        self.setStyleSheet(Styles.LINK_HOVER)
+        super().enterEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
