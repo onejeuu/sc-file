@@ -89,6 +89,8 @@ class Styles:
         QTabBar::tab:hover {{ background: {Colors.CARD.darker}; }}
     """
 
+    LINK = f"""color: {Colors.TEXT.dark}; font-size: 12px;"""
+
     TITLE = "font-weight: bold; font-size: 16px;"
     LABEL = "font-weight: bold; font-size: 14px;"
 
