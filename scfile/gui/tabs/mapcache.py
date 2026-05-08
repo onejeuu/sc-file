@@ -103,7 +103,7 @@ class MapCacheTab(QWidget):
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        self.main_layout.setContentsMargins(10, 5, 10, 5)
         self.main_layout.setSpacing(5)
 
         source_label = QLabel(Strings.get("label_mapcache_source"))

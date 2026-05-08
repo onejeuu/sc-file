@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile import __version__
+from scfile.gui.widgets.footer import FooterWidget
 
 from .shared import utils
 from .shared.strings import Strings
@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
 
     def _setup_ui(self):
         self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
-        self.setWindowTitle(f"scfile {__version__}")
+        self.setWindowTitle("scfile")
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 700)
 
@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
 
         self.main_layout.addWidget(self.tab_bar)
         self.main_layout.addWidget(self.content_stack)
+        self.main_layout.addWidget(FooterWidget())
 
         self._on_tab_changed(0)
 

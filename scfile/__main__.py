@@ -1,4 +1,5 @@
 import sys
+from typing import Never
 
 import click
 from rich import print
@@ -7,43 +8,43 @@ from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
-def setup_command():
-    user_args = sys.argv[1:]
+def ensure_command() -> None:
+    args = sys.argv[1:]
 
-    # Run GUI if no arguments are provided
-    if not user_args:
+    # Run GUI if no arguments
+    if not args:
         from scfile.gui import window
 
         return window.run()
 
     # Show default help
-    if "--help" in user_args:
+    if "--help" in args:
         return
 
     # Backfill command if missing
-    if command := _default_command(user_args):
+    if command := _default_command(args):
         sys.argv.insert(1, command)
 
 
-def _default_command(args: list[str]):
+def _default_command(args: list[str]) -> CliCommand | None:
     first_arg = args[0]
 
-    # Map cache override
-    if "map_cache" in first_arg:
-        return CliCommand.MAPCACHE
-
-    # Use existing command if valid
+    # Use explicit command
     if first_arg in scfile.commands:
         return None
+
+    # Use map cache if path detected
+    if "map_cache" in first_arg:
+        return CliCommand.MAPCACHE
 
     return CliCommand.CONVERT  # Fallback
 
 
-def main():
+def main() -> Never:
     """Program entrypoint."""
 
     try:
-        setup_command()
+        ensure_command()
         scfile(standalone_mode=False)
 
     except click.ClickException as err:

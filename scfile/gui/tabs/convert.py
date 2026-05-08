@@ -83,7 +83,7 @@ class ConverterTab(QWidget):
 
     def _setup_ui(self):
         self.main_content_layout = QHBoxLayout(self)
-        self.main_content_layout.setContentsMargins(10, 10, 10, 10)
+        self.main_content_layout.setContentsMargins(10, 5, 10, 5)
 
         # Create columns
         self.left_column = QVBoxLayout()
@@ -234,7 +234,7 @@ class ConverterTab(QWidget):
         self.path_row_widget = QWidget()
         path_layout = QHBoxLayout(self.path_row_widget)
         path_layout.setContentsMargins(0, 0, 0, 0)
-        path_layout.setSpacing(8)
+        path_layout.setSpacing(0)
 
         # Custom output radio button
         self.radio_custom_dir = QRadioButton("")
@@ -266,8 +266,8 @@ class ConverterTab(QWidget):
     def _build_structure_section(self):
         self.structure_container = QWidget()
         layout = QVBoxLayout(self.structure_container)
-        layout.setContentsMargins(26, 0, 0, 0)
-        layout.setSpacing(4)
+        layout.setContentsMargins(25, 0, 0, 0)
+        layout.setSpacing(5)
 
         # Flat or structured output
         self.radio_tree = QRadioButton(Strings.get("opt_output_tree"))
