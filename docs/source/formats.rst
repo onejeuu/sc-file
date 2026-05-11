@@ -36,8 +36,7 @@
        • Model-specific (requires matching skeleton).
   * - ``.mcws``
     - **World Slice** (`AES Encrypted <AES_>`_)
-       • Slices of safezone (world as 3D model).
-       • Used in safezone workbench rendering.
+       • Slices of safezone (single world chunk).
 
 
 ----------------------------------------

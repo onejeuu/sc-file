@@ -80,36 +80,3 @@ Make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <ALP
 | Some models seem to have mixed-up suffixes in filenames.
 | Make sure that the ``_diff`` texture is actually a Diffuse Map and the ``_spek`` texture is a Specular Map.
 | :doc:`More about Suffix Conventions... <formats>`
-
-
-----------------------------------------
-⛔ Unsupported Formats
-----------------------------------------
-
-Q: Why animations library (``.mcal``) unsupported?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This format is currently unusable due to its fragmented and technical nature.
-
-| For example: character animations stored in ``pack.mcal``.
-| But each has just few frames, totaling around **~5,000** entries.
-
-| Unpacking is pointless, these are just broken-up animation fragments, not usable clips.
-| Also, CLI can't handle them. They need paired model files, breaking current input logic.
-
-*This might change in the future, but for now, there's no clear solution.*
-
-
-Q: Why world map cache (``.mdat``) unsupported?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Structure resembles `minecraft chunk <MCA_>`_. But this format is too complex and possibly `AES Encrypted <AES_>`_.
-| If you figure it out, feel free to contribute to `Pull Requests <https://github.com/onejeuu/sc-file/pulls>`_.
-
-
-Q: Why json bundle (``.xeon``) unsupported?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This format is `AES Encrypted <AES_>`_. This encryption is unbreakable.
-
-If you have information about key (password) for game assets, would be nice to know details `in DM <TG_>`_.
