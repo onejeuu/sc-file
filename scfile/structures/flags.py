@@ -2,16 +2,16 @@
 Enum for 3D scene flags.
 """
 
-from enum import IntEnum, auto
+from enum import StrEnum, auto
 
 
-class Flag(IntEnum):
-    SKELETON = 0
+class Flag(StrEnum):
+    SKELETON = auto()
     UV = auto()
+    UV2 = auto()
     NORMALS = auto()
-    UNKNOWN_4 = auto()
-    UNKNOWN_5 = auto()
-    UNKNOWN_6 = auto()
+    TANGENTS = auto()
+    COLORS = auto()
 
 
 def to_named_dict(flags: dict[int, bool]):
