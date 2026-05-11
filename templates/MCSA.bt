@@ -138,7 +138,7 @@ typedef struct {
     uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
 
     if ( version >= 12.0 )
-        bool polygonsQuads <name="Polygon Quads", bgcolor=cLtGreen>;
+        bool polygonQuads <name="Polygon Quads", bgcolor=cLtGreen>;
 
     uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
 
@@ -177,17 +177,15 @@ typedef struct {
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
 
-    local int polygons32bit = (polygonCount * (polygonsQuads ? 4 : 3) >= 0x10000);
-
-    if ( polygonsQuads )
-    {
-        if ( polygons32bit ) {
-            Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
-        } else {
-            Quad16 polygons[polygonCount] <name="Polygons", comment="Q16", bgcolor=cLtBlue>;
-        }
+    if ( version >= 12.0 ) {
+        if ( polygonQuads )
+            if ( polygonCount * 4 >= 0x10000) {
+                Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
+            } else {
+                Quad16 polygons[polygonCount] <name="Polygons", comment="Q16", bgcolor=cLtBlue>;
+            }
     } else {
-        if ( polygons32bit ) {
+        if ( polygonCount * 3 >= 0x10000) {
             Tri32 polygons[polygonCount] <name="Polygons", comment="T32", bgcolor=cLtBlue>;
         } else {
             Tri16 polygons[polygonCount] <name="Polygons", comment="T16", bgcolor=cLtBlue>;
