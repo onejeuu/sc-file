@@ -42,6 +42,7 @@ class ModelMesh:
 
     count: MeshCounts = field(default_factory=MeshCounts)
     origin: MeshOrigin = field(default_factory=MeshOrigin)
+    quads: bool = False
 
     bones: BonesMapping = field(default_factory=dict)
 

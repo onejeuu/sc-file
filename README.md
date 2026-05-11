@@ -59,7 +59,6 @@
 
 \* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
-> [!TIP]  
 > 📚 [Detailed formats support →][docs-support]
 
 </br>
@@ -70,7 +69,8 @@
 
 ## 🚀 Installation
 
-> **Three ways to get started:** download, install, or compile.
+> **Three ways to get started:** download, install, or compile.  
+> 📚 [Usage guide and CLI options →][docs-usage]
 
 ### 💻 Download executable
 
@@ -106,11 +106,6 @@ pip install sc-file
 Build from source code using the [compile guide][docs-compile].  
 _For developers, contributors, or custom builds._
 
-</br>
-
-> [!TIP]  
-> 📚 [Usage guide and CLI options →][docs-usage]
-
 ## 📖 Library
 
 **Install latest version:**
@@ -139,9 +134,6 @@ with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     mcsb.to_obj().save("output.obj")
 ```
 
-</br>
-
-> [!TIP]  
 > 📚 [Complete Library API reference →][docs-library]
 
 ## 🔗 Links
@@ -154,7 +146,7 @@ with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
 
 ## 🤝 Acknowledgments
 
-`kommunist2021` · `Art3mLapa` · `n1kodim`  
+`kommunist2021` · `Art3mLapa` · `n1kodim` · `TeamDima` · `BoJIwEbNuK7`  
 `IExploitableMan` · `tuneyadecc` · `Hazart`
 
 Thanks to everyone who reported issues, shared findings, or contributed ideas.

@@ -105,8 +105,10 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Geometry counts
         mesh.count.vertices = self._readcount("vertices")
+
         if self.data.version >= 12.0:
-            self.read(1)  # ? skip unknown count
+            mesh.quads = self._readb(F.BOOL)
+
         mesh.count.polygons = self._readcount("polygons")
 
         # ? Not exported
@@ -153,7 +155,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._skip_vertices(mesh, units=4)
 
         # Polygon faces
-        mesh.polygons = self._readpolygons(mesh.count.polygons)
+        mesh.polygons = self._readpolygons(mesh.count.polygons, mesh.quads)
 
         self.data.scene.meshes.append(mesh)
 

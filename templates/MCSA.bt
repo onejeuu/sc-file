@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 2.0
+// Version: 3.0
 // Purpose: Parse model scenes.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcsb,*.mcvd
@@ -24,6 +24,14 @@ if ( ext == ".mcsb" ) {
 LittleEndian();
 
 
+// Boolean
+
+typedef enum <ubyte> {
+    False = 0,
+    True = 1
+} bool;
+
+
 // Length Prefixed String
 
 typedef struct {
@@ -34,8 +42,8 @@ typedef struct {
 
 // Vectors
 
-float nB(byte  i) { return (float)i / 127.0f; }   // NormalizeByte
-float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort
+float nB(byte  i) { return (float)i / 127.0f; }   // NormalizeByte (Dequantization)
+float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort (Dequantization)
 
 typedef struct { short u, v; } Vec2s <read=Str("%f, %f", nS(u), nS(v))>;
 
@@ -46,16 +54,21 @@ typedef struct { byte  x, y, z, w; } Vec4b <read=Str("%f, %f, %f, %f", nB(x), nB
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
 typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, w)>;
 
+typedef struct { ubyte r, g, b, a; } RGBA <read=Str("%d, %d, %d, %d", r, g, b, a)>;
+
 typedef struct { ushort a, b, c; } Tri16 <read=Str("%d, %d, %d", a, b, c)>;
 typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
+
+typedef struct { ushort a, b, c, d; } Quad16 <read=Str("%d, %d, %d, %d", a, b, c, d)>;
+typedef struct { uint   a, b, c, d; } Quad32 <read=Str("%d, %d, %d, %d", a, b, c, d)>;
 
 
 // Header Flags
 
-typedef ubyte Flag;
-typedef struct Flags4 { Flag SKELETON, UV, NORMALS, UNKNOWN_4; };
-typedef struct Flags5 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5; };
-typedef struct Flags6 { Flag SKELETON, UV, NORMALS, UNKNOWN_4, UNKNOWN_5, UNKNOWN_6; };
+typedef bool Flag;
+typedef struct FlagsV7 { Flag SKELETON, UV, NORMALS, COLORS; };
+typedef struct FlagsV8 { Flag SKELETON, UV, NORMALS, TANGENTS, COLORS; };
+typedef struct FlagsV9 { Flag SKELETON, UV, UV2, NORMALS, TANGENTS, COLORS; };
 
 
 // File Header
@@ -65,13 +78,13 @@ float version <name="Version", fgcolor=cRed>;
 
 switch( version ) {
     case 7.0:
-        Flags4 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV7 flags <name="Flags", fgcolor=cAqua>; break;
     case 8.0:
-        Flags5 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV8 flags <name="Flags", fgcolor=cAqua>; break;
     case 10.0:
     case 11.0:
     case 12.0:
-        Flags6 flags <name="Flags", fgcolor=cAqua>; break;
+        FlagsV9 flags <name="Flags", fgcolor=cAqua>; break;
     default:
         Warning("ERROR: File version '%g' is unsupported.\n", version);
         Exit(-1);
@@ -83,9 +96,9 @@ struct Scales {
     if ( flags.UV )
         float uv <name="UV">;
 
-    if ( version >= 10.0 )
-        if ( flags.NORMALS )
-            float unknown <name="Unknown">;
+    if ( version >= 9.0 )
+        if ( flags.UV2 )
+            float uv2 <name="UV2">;
 } scales <name="Scales">;
 
 
@@ -108,14 +121,12 @@ typedef struct {
 } SkinArrays;
 
 typedef struct {
-    if ( version >= 10.0 ) {
-        Vec3f rotation <name="Rotation">;
-        Vec3f position <name="Position">;
-    }
+    if ( version >= 10.0 )
+        float minX, minY, minZ, maxX, maxY, maxZ;
 
     if ( version >= 11.0 )
-        float unknown <name="Unknown">;
-} MeshPivot;
+        float radius;
+} BoundingBox;
 
 typedef struct {
     String name <name="Name">;
@@ -125,30 +136,36 @@ typedef struct {
         SkinBinding skinBind <name="Skin", bgcolor=cWhite>;
 
     uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
+
     if ( version >= 12.0 )
-        byte unknown_count;
-    uint triangleCount <name="Polygon Count", bgcolor=cLtGreen>;
+        bool polygonsQuads <name="Polygon Quads", bgcolor=cLtGreen>;
+
+    uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
 
     if ( flags.UV )
         float textureFilter <name="Texture Filtering">;
 
-    MeshPivot pivot <name="Pivot">;
+    if ( version >= 10.0 )
+        BoundingBox bounds <name="Bounds">;
 
     Vec4s positions[vertexCount] <name="Positions", bgcolor=cGreen>;
 
     if ( flags.UV )
-        Vec2s textures[vertexCount] <name="Textures", bgcolor=cRed>;
+        Vec2s uv1[vertexCount] <name="UV1", comment="ATLAS", bgcolor=cRed>;
 
-    if ( version >= 8.0 )
-        if ( flags.UNKNOWN_5 )
-            Vec4b unknown_5[vertexCount] <bgcolor=cDkPurple>; // ? tangents
+    if ( version >= 9.0 )
+        if ( flags.UV2 )
+            Vec2s uv2[vertexCount] <name="UV2", comment="AO", bgcolor=cDkRed>;
 
     if ( flags.NORMALS )
         Vec4b normals[vertexCount] <name="Normals", bgcolor=cPurple>;
 
-    if ( version >= 7.0 )
-        if ( flags.UNKNOWN_4 )
-            Vec4b unknown_4[vertexCount]; // ? bitangents
+    if ( version >= 8.0 )
+        if ( flags.TANGENTS )
+            Vec4b tangents[vertexCount] <name="Tangents", bgcolor=cDkPurple>;
+
+    if ( flags.COLORS )
+        RGBA colors[vertexCount] <name="Colors">;
 
     if ( flags.SKELETON )
         switch( skinBind.maxInfluences ) {
@@ -160,14 +177,22 @@ typedef struct {
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
 
-    if ( version >= 10.0 )
-        if ( flags.UNKNOWN_6 )
-            Vec4b unknown6[vertexCount] <hidden=true>;
+    local int polygons32bit = (polygonCount * (polygonsQuads ? 4 : 3) >= 0x10000);
 
-    if ( triangleCount * 3 < 0x10000 )
-        Tri16 triangles[triangleCount] <name="Polygons", bgcolor=cLtBlue>;
-    else
-        Tri32 triangles[triangleCount] <name="Polygons", bgcolor=cLtBlue>;
+    if ( polygonsQuads )
+    {
+        if ( polygons32bit ) {
+            Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
+        } else {
+            Quad16 polygons[polygonCount] <name="Polygons", comment="Q16", bgcolor=cLtBlue>;
+        }
+    } else {
+        if ( polygons32bit ) {
+            Tri32 polygons[polygonCount] <name="Polygons", comment="T32", bgcolor=cLtBlue>;
+        } else {
+            Tri16 polygons[polygonCount] <name="Polygons", comment="T16", bgcolor=cLtBlue>;
+        }
+    }
 } Mesh <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Model {
@@ -209,6 +234,7 @@ typedef struct {
     float frameInterval <name="Frame Interval", fgcolor=cPurple>;
     if ( frameCount > 0 ) KeyFrame frame[frameCount] <optimize=false>;
 } Clip <read=(exists(this.name.data) ? this.name.data : "")>;
+
 
 // Not sure where exactly marked that file contains animation.
 // Perhaps its indicated from outside.

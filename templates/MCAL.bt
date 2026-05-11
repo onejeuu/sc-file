@@ -24,7 +24,7 @@ typedef struct {
 
 // Vectors
 
-float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort
+float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort (Dequantization)
 
 typedef struct { short x, y, z; } Vec3s <read=Str("%f, %f, %f", nS(x), nS(y), nS(z))>;
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;

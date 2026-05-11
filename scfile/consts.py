@@ -79,7 +79,8 @@ class McsaUnits:
     POSITIONS = 4
     TEXTURES = 2
     NORMALS = 4
-    POLYGONS = 3
+    TRIANGLES = 3
+    QUADS = 4
     LINKS = 4
     BONES = 6
     FRAMES = 7

@@ -39,8 +39,8 @@ class McsaFileIO(StructFileIO):
         # attribute = position[3] / normal[3] / uv[2]
         return data.reshape(-1, units)
 
-    def _readpolygons(self, count: int):
-        units = McsaUnits.POLYGONS
+    def _readpolygons(self, count: int, quads: bool = False):
+        units = McsaUnits.QUADS if quads else McsaUnits.TRIANGLES
 
         # ? Validate that indexes fits into U16 range, otherwise use U32.
         indexes = count * units
@@ -48,6 +48,13 @@ class McsaFileIO(StructFileIO):
 
         # Read array
         data = self._readarray(fmt, count * units)
+
+        # Reshape to face[indices[3]]
+        if quads:
+          data = data.reshape(-1, McsaUnits.QUADS)
+          tri1 = data[:, [0, 1, 2]]
+          tri2 = data[:, [0, 2, 3]]
+          return np.concatenate([tri1, tri2]).astype(F.U32)
 
         # Reshape to face[indices[3]]
         return data.astype(F.U32).reshape(-1, units)
