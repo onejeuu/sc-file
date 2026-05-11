@@ -9,7 +9,8 @@ SCRIPTS = Path(__file__).parent.absolute()
 ROOT = SCRIPTS.parent
 
 ENTRYPOINT = str(ROOT / "scfile" / "__main__.py")
-ICON = str(ROOT / "assets" / "scfile.ico")
+FAVICON = str(ROOT / "assets" / "scfile.ico")
+ASSETS = str(ROOT / "scfile" / "gui" / "assets")
 SPECPATH = str(ROOT / "build")
 HOOKS = str(SCRIPTS / "hooks")
 
@@ -19,7 +20,7 @@ def build():
         [
             ENTRYPOINT,
             "-i",
-            ICON,
+            FAVICON,
             "--name",
             NAME,
             "--specpath",
@@ -27,7 +28,9 @@ def build():
             "--additional-hooks-dir",
             HOOKS,
             "--add-data",
-            f"{ICON}:assets",
+            f"{FAVICON}:assets",
+            "--add-data",
+            f"{ASSETS}:assets",
             "--onefile",
         ]
     )
