@@ -65,6 +65,9 @@ class MapCacheWorker(Worker):
                 self.finished.emit()
                 return
 
+            if not self.output.exists():
+                self.output.mkdir(parents=True, exist_ok=True)
+
             regions: dict[RegionKey, list[Path]] = defaultdict(list)
             for path in mdats:
                 rx, rz = map(int, path.stem.lstrip("reg.").split("."))
@@ -87,4 +90,4 @@ class MapCacheWorker(Worker):
 
         finally:
             self.finished.emit()
-            logger.done("Merging")
+            logger.done("Merging\n")

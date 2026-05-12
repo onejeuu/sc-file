@@ -92,7 +92,7 @@ class Styles:
     LINK = f"""color: {Colors.TEXT.dark}; font-size: 12px;"""
     LINK_HOVER = f"""color: {Colors.ACCENT}; font-size: 12px;"""
 
-    TITLE = "font-weight: bold; font-size: 16px;"
+    TITLE = "font-weight: bold; font-size: 16px; margin-bottom: 4px;"
     LABEL = "font-weight: bold; font-size: 14px;"
 
     HINT = f"color: {Colors.TEXT.dark}; font-size: 10px; margin-left: 24px;"

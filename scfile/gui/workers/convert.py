@@ -95,4 +95,4 @@ class ConvertDispatcher(Worker):
         finally:
             self.pool.waitForDone()
             self.finished.emit()
-            logger.done("Converting")
+            logger.done("Converting\n")

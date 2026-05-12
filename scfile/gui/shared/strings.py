@@ -105,3 +105,6 @@ class Strings:
     @classmethod
     def get(cls, key: str) -> str:
         return cls.DATA.get(key, {}).get(cls.LANG, key)
+
+
+Str = Strings

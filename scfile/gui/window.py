@@ -23,9 +23,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.tabs: dict[int, QWidget] = {}
-        self._setup_ui()
+        self._build_ui()
 
-    def _setup_ui(self):
+    def _build_ui(self):
         self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
         self.setWindowTitle("scfile")
         self.setStyleSheet(Styles.WINDOW)
