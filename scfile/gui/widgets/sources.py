@@ -25,9 +25,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.gui.shared import utils
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Colors, Styles
+from scfile.utils import files
 
 
 _ENV_STUB = "."
@@ -127,7 +127,7 @@ class SourcesWidget(QListWidget):
         self.placeholder_icon = QLabel()
         aspect = Qt.AspectRatioMode.KeepAspectRatio
         mode = Qt.TransformationMode.SmoothTransformation
-        raw_pixmap = QPixmap(str(utils.get_resource("assets/upload.png")))
+        raw_pixmap = QPixmap(str(files.get_resource("assets/upload.png")))
         raw_pixmap = raw_pixmap.scaled(64, 64, aspect, mode)
 
         tinted = QPixmap(raw_pixmap.size())

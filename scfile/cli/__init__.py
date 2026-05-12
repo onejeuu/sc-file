@@ -2,14 +2,13 @@
 CLI wrapper module. Responsible for implementation of interaction with internal core.
 """
 
-from .cmd import scfile, mapcache, convert
-from . import types, utils
+from . import params
+from .cmd import convert, mapcache, scfile
 
 
 __all__ = (
     "scfile",
     "mapcache",
     "convert",
-    "types",
-    "utils",
+    "params",
 )

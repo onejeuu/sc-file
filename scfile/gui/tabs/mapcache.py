@@ -7,9 +7,7 @@ from scfile.core.context.options import UserOptions
 from scfile.gui import workers
 from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets.option import OptionWidget
-from scfile.gui.widgets.path_input import PathInputWidget
-from scfile.gui.widgets.warnings import WarningsWidget
+from scfile.gui.widgets import OptionWidget, PathInputWidget, WarningsWidget
 from scfile.gui.workers.mapcache import MapCacheWorker
 
 

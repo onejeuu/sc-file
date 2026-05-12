@@ -1,17 +1,17 @@
 import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 from typing import Callable, TypeAlias
 
 import click
 from rich import print
 
-from scfile import formats
-from scfile.cli import types, version
+from scfile import formats, types
+from scfile.cli import params
 from scfile.core.context.content import RegionContent
 from scfile.core.context.options import UserOptions
 from scfile.enums import CliCommand, L
+from scfile.utils import version
 
 from . import scfile
 
@@ -22,8 +22,8 @@ LogCallback = Callable[[str], None]
 
 # TODO: refactor me
 def merge(
-    item: tuple[RegionKey, list[Path]],
-    output: Path,
+    item: tuple[RegionKey, list[types.Path]],
+    output: types.Path,
     options: UserOptions,
     on_done: LogCallback | None = None,
     on_error: LogCallback | None = None,
@@ -70,14 +70,14 @@ def merge(
 @scfile.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",
-    type=types.MapCacheDir,
+    type=params.MapCacheDir,
     nargs=1,
 )
 @click.option(
     "-O",
     "--output",
     help="Output results directory.",
-    type=types.Output,
+    type=params.Output,
 )
 @click.option(
     "-W",
@@ -100,7 +100,7 @@ def merge(
     expose_value=False,
 )
 def mapcache_command(
-    source: types.PathType,
+    source: types.Path,
     output: types.OutputDir,
     workers: int | None,
     raw: bool,
@@ -120,7 +120,7 @@ def mapcache_command(
         print(L.ERROR, f"No MDAT files found in {source}")
         return
 
-    regions: dict[RegionKey, list[Path]] = defaultdict(list)
+    regions: dict[RegionKey, list[types.Path]] = defaultdict(list)
     for path in mdats:
         rx, rz = map(int, path.stem.lstrip("reg.").split("."))
         regions[(rx, rz)].append(path)
