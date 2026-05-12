@@ -8,7 +8,11 @@ from scfile.consts import NBT_FILENAMES, SUPPORTED_SUFFIXES, Formats
 from scfile.enums import L
 
 
-def check_feature_unsupported(user_formats: Formats, unsupported_formats: Formats, feature: str) -> None:
+def check_feature_unsupported(
+    user_formats: Formats,
+    unsupported_formats: Formats,
+    feature: str,
+) -> None:
     """Checks that user formats contain unsupported feature."""
     matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 
@@ -17,23 +21,32 @@ def check_feature_unsupported(user_formats: Formats, unsupported_formats: Format
         print(L.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 
 
-def is_supported(path: Path) -> bool:
+def is_supported(
+    path: types.Path,
+) -> bool:
     """Checks that file is supported (by suffix)."""
     return path.is_file() and (path.suffix in SUPPORTED_SUFFIXES or path.name in NBT_FILENAMES)
 
 
-def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
+def clean_source_paths(
+    sources: types.FilesSources,
+) -> list[types.Path]:
+    resolved = sorted({Path(src).resolve() for src in sources if Path(src).exists()})
+    clean = []
+    for path in resolved:
+        if not any(path.is_relative_to(root) for root in clean):
+            clean.append(path)
+    return clean
+
+
+def paths_to_files_map(
+    paths: types.FilesPaths,
+) -> types.FilesIter:
     """Maps parent directories to their supported files."""
-    for path in paths:
-        if not path.exists():
-            continue
-
-        path = path.resolve()
-
+    for path in clean_source_paths(paths):
         if path.is_file():
             if is_supported(path):
                 yield path.parent, path
-
         elif path.is_dir():
             for file in path.rglob("*"):
                 if is_supported(file):
@@ -41,7 +54,11 @@ def paths_to_files_map(paths: types.FilesPaths) -> types.FilesIter:
 
 
 def output_to_destination(
-    root: Path, source: Path, output: types.OutputDir, relative: bool, parent: bool
+    root: types.Path,
+    source: types.Path,
+    output: types.OutputDir,
+    relative: bool,
+    parent: bool,
 ) -> types.OutputDir:
     """Output path with source relative subdirectory appended if relative flag."""
     if relative and output:
@@ -50,7 +67,9 @@ def output_to_destination(
     return output
 
 
-def get_resource(path: Path | str) -> Path:
+def get_resource(
+    path: types.PathLike,
+) -> types.Path:
     meipass = getattr(sys, "_MEIPASS", None)
 
     if meipass:
