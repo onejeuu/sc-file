@@ -1,15 +1,45 @@
 import os
+import traceback
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from rich import print
+from PySide6.QtCore import QRunnable, QThreadPool
 
-from scfile.cli.cmd.mapcache import RegionKey, merge
+from scfile.cli.cmd import mapcache
+from scfile.cli.cmd.mapcache import RegionKey
 from scfile.core.context.options import UserOptions
-from scfile.enums import L
 
 from .base import Worker
+from .logs import logger
+
+
+class MergeRegionTask(QRunnable):
+    def __init__(
+        self,
+        key: RegionKey,
+        paths: list[Path],
+        output: Path,
+        options: UserOptions,
+    ):
+        super().__init__()
+        self.key = key
+        self.paths = paths
+        self.output = output
+        self.options = options
+
+    def run(self):
+        try:
+            mapcache.merge(
+                (self.key, self.paths),
+                self.output,
+                self.options,
+                on_done=logger.done,
+                on_error=logger.error,
+            )
+
+        except Exception as err:
+            logger.error(f"Region ({self.key}): {repr(err)}")
+            logger.message.emit(traceback.format_exc())
 
 
 class MapCacheWorker(Worker):
@@ -31,7 +61,7 @@ class MapCacheWorker(Worker):
             ]
 
             if not mdats:
-                print(L.ERROR, f"No MDAT files found in '{self.source}'")
+                logger.error(f"No MDAT files found in '{self.source}'")
                 self.finished.emit()
                 return
 
@@ -40,19 +70,21 @@ class MapCacheWorker(Worker):
                 rx, rz = map(int, path.stem.lstrip("reg.").split("."))
                 regions[(rx, rz)].append(path)
 
-            print(L.INFO, f"Found {len(regions)} unique regions")
-            print(L.INFO, "Starting merge")
+            logger.info(f"Found {len(regions)} unique regions")
+            logger.info("Starting merging...")
 
-            # TODO: custom slider?
-            max_workers = os.cpu_count() or 4
+            pool = QThreadPool()
+            pool.setMaxThreadCount((os.cpu_count() or 4) * 2)
+            for key, paths in regions.items():
+                task = MergeRegionTask(key, paths, self.output, self.options)
+                pool.start(task)
 
-            # TODO: move to QThreadPool and QRunnable?
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                list(executor.map(lambda item: merge(item, self.output, self.options), regions.items()))
-
-            print(L.DONE, "Merge")
-            self.finished.emit()
+            pool.waitForDone()
 
         except Exception as err:
-            print(L.ERROR, repr(err))
+            logger.exception(repr(err))
+            logger.message.emit(traceback.format_exc())
+
+        finally:
             self.finished.emit()
+            logger.done("Merging")
