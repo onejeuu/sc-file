@@ -12,27 +12,25 @@ Predicate: TypeAlias = Callable[[str], bool]
 
 
 class CountWorker(Worker):
-    status = Signal(int, bool)
+    status = Signal(int, int, bool)
 
     def __init__(
         self,
+        request_id: int,
         sources: list[str],
         predicate: Predicate,
     ):
         super().__init__()
+        self.request_id = request_id
         self.sources = sources
         self.predicate = predicate
 
     def run(self) -> None:
         count = 0
         gamedir = False
-        thread = self.thread()
 
         try:
             for source in self.sources:
-                if thread and thread.isInterruptionRequested():
-                    return
-
                 if "modassets/assets" in source:
                     gamedir = True
 
@@ -41,15 +39,12 @@ class CountWorker(Worker):
 
                 else:
                     for root, _, files in os.walk(source):
-                        if thread and thread.isInterruptionRequested():
-                            return
-
                         if "modassets/assets" in root.replace("\\", "/"):
                             gamedir = True
 
                         count += sum(self.predicate(file) for file in files)
 
-            self.status.emit(count, gamedir)
+            self.status.emit(self.request_id, count, gamedir)
 
         except Exception as err:
             logger.exception(repr(err))
@@ -68,8 +63,8 @@ class CountController(QObject):
         self._gamedir = False
         self._busy = False
 
+        self._request_id = 0
         self._worker = None
-        self._thread = None
 
     @property
     def count(self) -> int:
@@ -84,23 +79,22 @@ class CountController(QObject):
         return self._busy
 
     def refresh(self, sources: list[str], predicate: Predicate):
+        self._request_id += 1
+        request_id = self._request_id
+
         if not sources:
             self._apply(count=0, gamedir=False, busy=False)
             return
 
-        self._cancel()
         self._apply(count=0, gamedir=False, busy=True)
 
-        self._worker = CountWorker(sources=sources, predicate=predicate)
+        self._worker = CountWorker(request_id=request_id, sources=sources, predicate=predicate)
         self._worker.status.connect(self._on_done)
-        self._thread = execute(self._worker)
+        execute(self._worker)
 
-    def _cancel(self):
-        if self._thread and self._thread.isRunning():
-            self._thread.requestInterruption()
-
-    def _on_done(self, count: int, gamedir: bool):
-        self._apply(count=count, gamedir=gamedir, busy=False)
+    def _on_done(self, request_id: int, count: int, gamedir: bool):
+        if request_id == self._request_id:
+            self._apply(count=count, gamedir=gamedir, busy=False)
 
     def _apply(self, count: int, gamedir: bool, busy: bool):
         self._count = count

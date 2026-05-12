@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.core.context.options import UserOptions
 from scfile.gui import workers
-from scfile.gui.shared.strings import Strings
+from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets.option import OptionWidget
 from scfile.gui.widgets.path_input import PathInputWidget
@@ -16,7 +16,7 @@ from scfile.gui.workers.mapcache import MapCacheWorker
 DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_cache/5.0"
 
 
-def is_mapcache_dir(path: Path) -> bool:
+def is_mapcache(path: Path) -> bool:
     if not (path.exists() and path.is_dir()):
         return False
 
@@ -30,22 +30,26 @@ def is_mapcache_dir(path: Path) -> bool:
     return False
 
 
+def is_minecraft(path: Path) -> bool:
+    return (path / "level.dat").exists()
+
+
 def resolve_mapcache_path(path: Path) -> Path:
-    if is_mapcache_dir(path):
+    if is_mapcache(path):
         return path
 
     for required in ["EXBO/runtime/stalcraft/map_cache/5.0", "stalcraft/map_cache/5.0"]:
         required = Path(required)
 
         target = path / required
-        if is_mapcache_dir(target):
+        if is_mapcache(target):
             return target
 
         candidate = required
         while candidate.parts:
             if path.match(f"*{candidate}"):
                 target = path / required.relative_to(candidate)
-                if is_mapcache_dir(target):
+                if is_mapcache(target):
                     return target
                 break
             candidate = candidate.parent
@@ -66,178 +70,169 @@ def resolve_output_path(path: Path) -> Path:
 class MapCacheTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.warnings = WarningsWidget()
 
         # TODO: f5 support, mdats counter?
         self._setup_warnings()
-        self._setup_ui()
+        self._build_ui()
 
     def _setup_warnings(self):
-        def is_minecraft_world(path: Path) -> bool:
-            return (path / "level.dat").exists()
+        self.warnings = WarningsWidget()
+        self.warnings.add_rule(self._warn_not_minecraft_world)
+        self.warnings.add_rule(self._warn_overwrite)
 
-        def check_not_world():
-            if not self._is_output_set():
-                return None
-            out_path = Path(self.output_input.text())
+    def _warn_not_minecraft_world(self):
+        if not bool(self.output.text().strip()):
+            return
 
-            is_region = out_path.name == "region"
-            has_level = is_minecraft_world(out_path.parent) if is_region else is_minecraft_world(out_path)
+        output = Path(self.output.text())
+        is_region = output.name == "region"
+        has_level = is_minecraft(output.parent) if is_region else is_minecraft(output)
 
-            if not (is_region and has_level):
-                return Strings.get("warn_not_minecraft_world")
-            return None
+        if not (is_region and has_level):
+            return Str.get("warn_not_minecraft_world")
 
-        def check_overwrite():
-            if not self._is_output_set():
-                return None
-            out_path = Path(self.output_input.text())
+    def _warn_overwrite(self):
+        if not bool(self.output.text().strip()):
+            return
 
-            if out_path.exists() and any(out_path.glob("*.mca")):
-                world_name = out_path.parent.name if out_path.name == "region" else out_path.name
-                return Strings.get("warn_regions_overwrite").format(world=world_name)
-            return None
+        output = Path(self.output.text())
+        is_region = output.name == "region"
 
-        self.warnings.add_rule(check_not_world)
-        self.warnings.add_rule(check_overwrite)
+        if output.exists() and any(output.glob("*.mca")):
+            world_name = output.parent.name if is_region else output.name
+            return Str.get("warn_regions_overwrite").format(world=world_name)
 
-    def _setup_ui(self):
-        self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(10, 5, 10, 5)
-        self.main_layout.setSpacing(5)
+    def _build_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setSpacing(10)
 
-        source_label = QLabel(Strings.get("label_mapcache_source"))
+        source_label = QLabel(Str.get("label_mapcache_source"))
         source_label.setStyleSheet(Styles.LABEL)
 
-        self.source_input = PathInputWidget(
+        self.source = PathInputWidget(
             placeholder="stalcraft/map_cache/5.0",
-            caption=Strings.get("dialog_mapcache_source"),
+            caption=Str.get("dialog_mapcache_source"),
         )
 
-        if is_mapcache_dir(DEFAULT_CACHE_PATH):
-            self.source_input.setText(DEFAULT_CACHE_PATH.as_posix())
+        if is_mapcache(DEFAULT_CACHE_PATH):
+            self.source.setText(DEFAULT_CACHE_PATH.as_posix())
 
-        self.source_input.changed.connect(self._handle_source_change)
+        self.source.changed.connect(self._on_source_changed)
 
-        output_label = QLabel(Strings.get("label_mapcache_output"))
+        output_label = QLabel(Str.get("label_mapcache_output"))
         output_label.setStyleSheet(Styles.LABEL)
 
-        self.output_input = PathInputWidget(
+        self.output = PathInputWidget(
             placeholder=".minecraft/saves/{world}/regions",
-            caption=Strings.get("dialog_mapcache_output"),
+            caption=Str.get("dialog_mapcache_output"),
         )
-        self.output_input.changed.connect(self._handle_output_change)
+        self.output.changed.connect(self._on_output_changed)
 
-        self.main_layout.addWidget(source_label)
-        self.main_layout.addWidget(self.source_input)
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(output_label)
-        self.main_layout.addWidget(self.output_input)
+        layout.addWidget(source_label)
+        layout.addWidget(self.source)
+        layout.addWidget(output_label)
+        layout.addWidget(self.output)
+        layout.addSpacing(10)
+        layout.addWidget(self._build_options())
+        layout.addStretch()
+        layout.addWidget(self.warnings)
 
-        self._build_options()
+        self.info = QLabel(Str.get("info_mdat_context"))
+        self.info.setStyleSheet(Styles.MAPCACHE)
+        self.info.setWordWrap(True)
+        layout.addWidget(self.info)
 
-        self.main_layout.addStretch()
-        self.main_layout.addWidget(self.warnings)
+        self.merge = QPushButton(Str.get("btn_merge_regions"))
+        self.merge.setFixedHeight(50)
+        self.merge.setStyleSheet(Styles.BUTTON)
+        self.merge.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.merge.setEnabled(False)
+        self.merge.clicked.connect(self._merge)
+        layout.addWidget(self.merge)
 
-        self.info_label = QLabel(Strings.get("info_mdat_context"))
-        self.info_label.setStyleSheet(Styles.MAPCACHE)
-        self.info_label.setWordWrap(True)
-        self.main_layout.addWidget(self.info_label)
-
-        self.merge_btn = QPushButton(Strings.get("btn_merge_regions"))
-        self.merge_btn.setFixedHeight(50)
-        self.merge_btn.setStyleSheet(Styles.BUTTON)
-        self.merge_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.merge_btn.setEnabled(False)
-        self.merge_btn.clicked.connect(self._merge)
-        self.main_layout.addWidget(self.merge_btn)
-
-        self._update_ui_state()
+        self._sync_ui()
 
     def _build_options(self):
-        self.options_group = QWidget()
-        layout = QVBoxLayout(self.options_group)
+        group = QWidget()
+        layout = QVBoxLayout(group)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        self.cb_auto_resolve = OptionWidget(
-            text=Strings.get("cb_auto_resolve"),
-            hint=Strings.get("hint_auto_resolve"),
+        self.auto_resolve = OptionWidget(
+            text=Str.get("cb_auto_resolve"),
+            hint=Str.get("hint_auto_resolve"),
             checked=True,
         )
-        self.cb_auto_resolve.changed.connect(self._handle_autoresolve)
+        self.auto_resolve.changed.connect(self._on_autoresolve_changed)
 
-        self.cb_raw_blocks = OptionWidget(
-            text=Strings.get("cb_raw_blocks"),
-            hint=Strings.get("hint_raw_blocks"),
+        self.raw_blocks = OptionWidget(
+            text=Str.get("cb_raw_blocks"),
+            hint=Str.get("hint_raw_blocks"),
             checked=False,
         )
 
-        layout.addWidget(self.cb_auto_resolve)
-        layout.addWidget(self.cb_raw_blocks)
+        layout.addWidget(self.auto_resolve)
+        layout.addWidget(self.raw_blocks)
 
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(self.options_group)
+        return group
 
     def _merge(self):
-        source = Path(self.source_input.text().strip())
-        output = Path(self.output_input.text().strip())
-        options = UserOptions(parse_region_raw=self.cb_raw_blocks.isChecked())
+        source = Path(self.source.text().strip())
+        output = Path(self.output.text().strip())
+        options = UserOptions(parse_region_raw=self.raw_blocks.isChecked())
 
-        self.merge_btn.setEnabled(False)
+        self.merge.setEnabled(False)
 
         self._merge_worker = MapCacheWorker(source, output, options)
         self._merge_thread = workers.execute(
             self._merge_worker,
-            on_done=lambda: self.merge_btn.setEnabled(True),
+            on_done=lambda: self.merge.setEnabled(True),
         )
 
-    def _handle_source_change(self):
-        path = Path(self.source_input.text().strip())
+    def _on_source_changed(self):
+        path = Path(self.source.text().strip())
 
-        if self.cb_auto_resolve.isChecked() and path.exists():
+        if self.auto_resolve.isChecked() and path.exists():
             resolved = resolve_mapcache_path(path)
 
             if resolved.as_posix() != path.as_posix():
-                self.source_input.setText(resolved.as_posix())
+                self.source.setText(resolved.as_posix())
 
-        self._update_ui_state()
+        self._sync_ui()
 
-    def _handle_output_change(self):
-        path = Path(self.output_input.text().strip())
+    def _on_output_changed(self):
+        path = Path(self.output.text().strip())
 
-        if self.cb_auto_resolve.isChecked() and path.exists():
+        if self.auto_resolve.isChecked() and path.exists():
             resolved = resolve_output_path(path)
 
             if resolved.as_posix() != path.as_posix():
-                self.output_input.setText(resolved.as_posix())
+                self.output.setText(resolved.as_posix())
 
-        self._update_ui_state()
+        self._sync_ui()
 
-    def _handle_autoresolve(self):
-        self._handle_source_change()
-        self._handle_output_change()
+    def _on_autoresolve_changed(self):
+        self._on_source_changed()
+        self._on_output_changed()
 
-    def _is_output_set(self) -> bool:
-        return bool(self.output_input.text().strip())
-
-    def _update_ui_state(self):
+    def _sync_ui(self):
         self.warnings.update_state()
 
-        source = self.source_input.text().strip()
-        output = self.output_input.text().strip()
+        source = self.source.text().strip()
+        output = self.output.text().strip()
 
-        source_ok = bool(source) and is_mapcache_dir(Path(source))
+        source_ok = bool(source) and is_mapcache(Path(source))
         output_ok = bool(output) and not Path(output).is_file()
         is_okay = source_ok and output_ok
 
         checks = {
-            output_ok: Strings.get("tooltip_invalid_output"),
-            source_ok: Strings.get("tooltip_bad_mapcache_source"),
+            output_ok: Str.get("tooltip_invalid_output"),
+            source_ok: Str.get("tooltip_bad_mapcache_source"),
         }
 
         tooltip = checks.get(False, "")
 
-        self.merge_btn.setEnabled(is_okay)
-        self.merge_btn.setToolTip(tooltip)
-        self.merge_btn.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
+        self.merge.setEnabled(is_okay)
+        self.merge.setToolTip(tooltip)
+        self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)

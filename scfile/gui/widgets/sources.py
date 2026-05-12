@@ -39,7 +39,7 @@ _ENV_MAPPING = {
 _ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists()}
 
 
-class FileListWidget(QListWidget):
+class SourcesWidget(QListWidget):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
