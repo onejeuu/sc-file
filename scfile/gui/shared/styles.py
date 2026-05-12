@@ -1,30 +1,33 @@
-from enum import StrEnum
+from enum import Enum
 
 from PySide6.QtGui import QColor
 
 
-class Colors(StrEnum):
-    ACCENT = "#ffd666"
-    CARD = "#2b2b2b"
-    BACKGROUND = "#1a1a1a"
-    TEXT = "#abb2bf"
-    WARNING = "#e2a03f"
+class Colors(Enum):
+    ACCENT = QColor("#ffd666")
+    CARD = QColor("#2b2b2b")
+    BACKGROUND = QColor("#1a1a1a")
+    TEXT = QColor("#abb2bf")
+    WARNING = QColor("#e2a03f")
+
+    def __str__(self):
+        return self.value.name()
 
     @property
     def darker(self):
-        return QColor(self).darker(120).name()
+        return self.value.darker(120).name()
 
     @property
     def dark(self):
-        return QColor(self).darker(150).name()
+        return self.value.darker(150).name()
 
     @property
     def lighter(self):
-        return QColor(self).lighter(120).name()
+        return self.value.lighter(120).name()
 
     @property
     def light(self):
-        return QColor(self).lighter(150).name()
+        return self.value.lighter(150).name()
 
 
 class Styles:
