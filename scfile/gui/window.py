@@ -11,9 +11,9 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.gui.widgets.footer import FooterWidget
+from scfile.utils import files
 
-from .shared import utils
-from .shared.strings import Strings
+from .shared.strings import Str
 from .shared.styles import Styles
 from .tabs.convert import ConverterTab
 from .tabs.mapcache import MapCacheTab
@@ -26,47 +26,47 @@ class MainWindow(QMainWindow):
         self._build_ui()
 
     def _build_ui(self):
-        self.setWindowIcon(QIcon(str(utils.get_resource("assets/scfile.ico"))))
+        self.setWindowIcon(QIcon(str(files.get_resource("assets/scfile.ico"))))
         self.setWindowTitle("scfile")
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 700)
 
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        self.main_layout = QVBoxLayout(self.central_widget)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+        group = QWidget()
+        self.setCentralWidget(group)
 
-        self.tab_bar = QTabBar()
-        self.tab_bar.setStyleSheet(Styles.TAB)
-        self.tab_bar.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.tab_bar.currentChanged.connect(self._on_tab_changed)
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        self.content_stack = QStackedWidget()
+        self.tabbar = QTabBar()
+        self.tabbar.setStyleSheet(Styles.TAB)
+        self.tabbar.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tabbar.currentChanged.connect(self._on_tab_changed)
+
+        self.stack = QStackedWidget()
 
         self._add_tab(
-            name=Strings.get("tab_converter"),
+            name=Str.get("tab_converter"),
             widget=ConverterTab(),
         )
         self._add_tab(
-            name=Strings.get("tab_mapcache"),
+            name=Str.get("tab_mapcache"),
             widget=MapCacheTab(),
         )
 
-        self.main_layout.addWidget(self.tab_bar)
-        self.main_layout.addWidget(self.content_stack)
-        self.main_layout.addWidget(FooterWidget())
-
+        layout.addWidget(self.tabbar)
+        layout.addWidget(self.stack)
+        layout.addWidget(FooterWidget())
         self._on_tab_changed(0)
 
     def _add_tab(self, name: str, widget: QWidget):
-        index = self.tab_bar.addTab(name)
-        self.content_stack.addWidget(widget)
+        index = self.tabbar.addTab(name)
+        self.stack.addWidget(widget)
         self.tabs[index] = widget
 
     def _on_tab_changed(self, index: int):
         if widget := self.tabs.get(index):
-            self.content_stack.setCurrentWidget(widget)
+            self.stack.setCurrentWidget(widget)
 
 
 def run():

@@ -4,28 +4,29 @@ from typing import Optional
 import click
 from rich import print
 
-from scfile import convert, exceptions
-from scfile.cli import types, utils, version
+from scfile import convert, exceptions, types
+from scfile.cli import params
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
 from scfile.enums import CliCommand, L
+from scfile.utils import files, version
 
 from . import scfile
 
 
 @scfile.command(name=CliCommand.CONVERT)
-@click.argument("PATHS", type=types.Files, nargs=-1)
+@click.argument("PATHS", type=params.Files, nargs=-1)
 @click.option(
     "-O",
     "--output",
     help="Output results directory.",
-    type=types.Output,
+    type=params.Output,
 )
 @click.option(
     "-F",
     "--mdlformat",
     help="Preferred format for models.",
-    type=types.Formats,
+    type=params.Formats,
     multiple=True,
 )
 @click.option(
@@ -85,9 +86,10 @@ def convert_command(
     # Warn if specified formats has unsupported features
     if model_formats:
         if skeleton:
-            utils.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+            files.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+
         if animation:
-            utils.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
+            files.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Prepare options
     options = UserOptions(
@@ -98,9 +100,9 @@ def convert_command(
     )
 
     # Iterate over each directory to their supported files
-    for root, source in utils.paths_to_files_map(paths):
+    for root, source in files.paths_to_files_map(paths):
         # Get destination path
-        dest = utils.output_to_destination(root, source, output, relative, parent)
+        dest = files.output_to_destination(root, source, output, relative, parent)
 
         # Convert source file
         try:

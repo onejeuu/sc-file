@@ -6,9 +6,9 @@ from typing import Callable, TypeAlias
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import convert, exceptions
-from scfile.cli import utils
 from scfile.consts import CLI
 from scfile.core import UserOptions
+from scfile.utils import files
 
 from .base import Worker
 from .logs import logger
@@ -73,11 +73,11 @@ class ConvertDispatcher(Worker):
                 if not source.exists():
                     logger.error(f"Source not found '{source.as_posix()}'")
 
-            for root, source in utils.paths_to_files_map(self.sources):
+            for root, source in files.paths_to_files_map(self.sources):
                 if not self.context.predicate(source):
                     continue
 
-                dest = utils.output_to_destination(
+                dest = files.output_to_destination(
                     root=root,
                     source=source,
                     output=self.context.output,

@@ -5,8 +5,8 @@ from PySide6.QtGui import QDesktopServices, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from scfile import __version__
-from scfile.gui.shared import utils
 from scfile.gui.shared.styles import Styles
+from scfile.utils import files
 
 
 class LinkLabel(QWidget):
@@ -27,7 +27,7 @@ class LinkLabel(QWidget):
             self.icon_label = QLabel()
             aspect = Qt.AspectRatioMode.KeepAspectRatio
             mode = Qt.TransformationMode.SmoothTransformation
-            pixmap = QPixmap(str(utils.get_resource(icon)))
+            pixmap = QPixmap(str(files.get_resource(icon)))
             pixmap = pixmap.scaled(12, 12, aspect, mode)
             self.icon_label.setPixmap(pixmap)
             layout.addWidget(self.icon_label)

@@ -1,15 +1,11 @@
-"""
-CLI wrapper small utils.
-"""
-
+import sys
 from pathlib import Path
 
 from rich import print
 
+from scfile import types
 from scfile.consts import NBT_FILENAMES, SUPPORTED_SUFFIXES, Formats
 from scfile.enums import L
-
-from . import types
 
 
 def check_feature_unsupported(user_formats: Formats, unsupported_formats: Formats, feature: str) -> None:
@@ -52,3 +48,15 @@ def output_to_destination(
         basedir = root.parent if parent else root
         return output / source.relative_to(basedir).parent
     return output
+
+
+def get_resource(path: Path | str) -> Path:
+    meipass = getattr(sys, "_MEIPASS", None)
+
+    if meipass:
+        return Path(meipass) / path
+
+    root = Path(__file__).parent.parent.absolute()
+    gui = root / "gui"
+
+    return gui / path

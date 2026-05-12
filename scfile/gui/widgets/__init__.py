@@ -1,6 +1,6 @@
 from .footer import FooterWidget
 from .option import OptionWidget
-from .path_input import PathInputWidget
+from .path import PathInputWidget
 from .sources import SourcesWidget
 from .warnings import WarningsWidget
 
