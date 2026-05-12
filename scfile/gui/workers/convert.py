@@ -4,15 +4,14 @@ from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QRunnable, QThreadPool
-from rich import print
 
 from scfile import convert, exceptions
 from scfile.cli import utils
 from scfile.consts import CLI
 from scfile.core import UserOptions
-from scfile.enums import L
 
 from .base import Worker
+from .logs import logger
 
 
 @dataclass
@@ -28,26 +27,27 @@ class ConvertTask(QRunnable):
         self,
         source: Path,
         output: Path | None,
-        context: ConvertContext,
+        options: UserOptions,
     ):
         super().__init__()
         self.source = source
         self.output = output
-        self.context = context
+        self.options = options
 
     def run(self):
         try:
-            convert.auto(source=self.source, output=self.output, options=self.context.options)
-            print(f"{L.DONE} '{self.source.as_posix()}'")
+            convert.auto(source=self.source, output=self.output, options=self.options)
+            logger.done(f"'{self.source.as_posix()}'")
 
         except exceptions.InvalidStructureError as err:
-            print(f"{L.ERROR} {str(err)} {CLI.EXCEPTION}")
+            logger.error(f"{str(err)} {CLI.EXCEPTION}")
 
         except exceptions.ScFileException as err:
-            print(f"{L.ERROR} {str(err)}")
+            logger.error(str(err))
 
         except Exception as err:
-            print(f"{L.EXCEPTION} {str(err)}")
+            logger.exception(repr(err))
+            logger.message.emit(traceback.format_exc())
 
 
 class ConvertDispatcher(Worker):
@@ -68,28 +68,28 @@ class ConvertDispatcher(Worker):
 
             for source in self.sources:
                 if not source.exists():
-                    print(f"{L.ERROR} Source not found '{source.as_posix()}'")
+                    logger.error(f"Source not found '{source.as_posix()}'")
 
             for root, source in utils.paths_to_files_map(self.sources):
                 if not self.context.predicate(source):
                     continue
 
                 dest = utils.output_to_destination(
-                    root,
-                    source,
-                    self.context.output,
-                    self.context.relative,
-                    self.context.relative,
+                    root=root,
+                    source=source,
+                    output=self.context.output,
+                    relative=self.context.relative,
+                    parent=self.context.relative,  # this is NOT a typo
                 )
 
-                task = ConvertTask(source, dest, self.context)
+                task = ConvertTask(source, dest, self.context.options)
                 self.pool.start(task)
 
         except Exception as err:
-            print(f"{L.EXCEPTION} {repr(err)}")
-            print(traceback.format_exc())
+            logger.exception(repr(err))
+            logger.message.emit(traceback.format_exc())
 
         finally:
             self.pool.waitForDone()
             self.finished.emit()
-            print(f"{L.DONE} Converting")
+            logger.done("Converting")

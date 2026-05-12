@@ -1,12 +1,14 @@
 import os
 import traceback
-from typing import Callable
+from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QObject, Signal
 
-from scfile.enums import L
-
 from .base import Worker, execute
+from .logs import logger
+
+
+Predicate: TypeAlias = Callable[[str], bool]
 
 
 class CountWorker(Worker):
@@ -15,7 +17,7 @@ class CountWorker(Worker):
     def __init__(
         self,
         sources: list[str],
-        predicate: Callable[[str], bool],
+        predicate: Predicate,
     ):
         super().__init__()
         self.sources = sources
@@ -23,7 +25,7 @@ class CountWorker(Worker):
 
     def run(self) -> None:
         count = 0
-        in_gamedir = False
+        gamedir = False
         thread = self.thread()
 
         try:
@@ -32,7 +34,7 @@ class CountWorker(Worker):
                     return
 
                 if "modassets/assets" in source:
-                    in_gamedir = True
+                    gamedir = True
 
                 if os.path.isfile(source):
                     count += self.predicate(source)
@@ -43,15 +45,15 @@ class CountWorker(Worker):
                             return
 
                         if "modassets/assets" in root.replace("\\", "/"):
-                            in_gamedir = True
+                            gamedir = True
 
                         count += sum(self.predicate(file) for file in files)
 
-            self.status.emit(count, in_gamedir)
+            self.status.emit(count, gamedir)
 
         except Exception as err:
-            print(f"{L.EXCEPTION} {repr(err)}")
-            print(traceback.format_exc())
+            logger.exception(repr(err))
+            logger.message.emit(traceback.format_exc())
 
         finally:
             self.finished.emit()
@@ -62,31 +64,47 @@ class CountController(QObject):
 
     def __init__(self):
         super().__init__()
+        self._count = 0
+        self._gamedir = False
+        self._busy = False
 
-        self.count = 0
-        self.gamedir = False
-        self.is_counting = False
+        self._worker = None
+        self._thread = None
 
-        self._active_thread = None
+    @property
+    def count(self) -> int:
+        return self._count
 
-    def refresh(self, sources: list[str], predicate: Callable[[str], bool]):
+    @property
+    def gamedir(self) -> bool:
+        return self._gamedir
+
+    @property
+    def busy(self) -> bool:
+        return self._busy
+
+    def refresh(self, sources: list[str], predicate: Predicate):
         if not sources:
-            self._update_state(count=0, gamedir=False, is_counting=False)
+            self._apply(count=0, gamedir=False, busy=False)
             return
 
-        self.is_counting = True
-        self.changed.emit("...", 0, True)
+        self._cancel()
+        self._apply(count=0, gamedir=False, busy=True)
 
         self._worker = CountWorker(sources=sources, predicate=predicate)
-        self._worker.status.connect(self._on_status_ready)
+        self._worker.status.connect(self._on_done)
         self._thread = execute(self._worker)
 
-    def _on_status_ready(self, count: int, gamedir: bool):
-        self._update_state(count=count, gamedir=gamedir, is_counting=False)
+    def _cancel(self):
+        if self._thread and self._thread.isRunning():
+            self._thread.requestInterruption()
 
-    def _update_state(self, count: int, gamedir: bool, is_counting: bool):
-        self.count = count
-        self.gamedir = gamedir
-        self.is_counting = is_counting
-        text = "..." if is_counting else f"{count:,}"
-        self.changed.emit(text, count, is_counting)
+    def _on_done(self, count: int, gamedir: bool):
+        self._apply(count=count, gamedir=gamedir, busy=False)
+
+    def _apply(self, count: int, gamedir: bool, busy: bool):
+        self._count = count
+        self._gamedir = gamedir
+        self._busy = busy
+        text = "..." if busy else f"{count:,}"
+        self.changed.emit(text, count, busy)

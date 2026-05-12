@@ -21,9 +21,7 @@ from scfile.gui.shared import consts
 from scfile.gui.shared.consts import FT
 from scfile.gui.shared.strings import Strings
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import FileListWidget
-from scfile.gui.widgets.path_input import PathInputWidget
-from scfile.gui.widgets.warnings import WarningsWidget
+from scfile.gui.widgets import FileListWidget, PathInputWidget, WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
 from scfile.gui.workers.counter import CountController
 
@@ -37,19 +35,18 @@ class ConverterTab(QWidget):
         self._refresh_count()
 
     def _setup_counter(self):
-        # Create counter controller
-        self.count_controller = CountController()
-        self.count_controller.changed.connect(self._on_count_changed)
+        self.counter = CountController()
+        self.counter.changed.connect(self._on_count_changed)
 
-    def _on_count_changed(self, text: str, count: int, is_counting: bool):
-        base_text = Strings.get("btn_convert")
-        self.convert_btn.setText(f"{base_text} ({text})")
+    def _on_count_changed(self, text: str, count: int, busy: bool):
+        label = Strings.get("btn_convert")
+        self.convert_btn.setText(f"{label} ({text})")
         self._sync_state()
 
     def _refresh_count(self):
         allowed = tuple(self._get_activated_suffixes())
 
-        self.count_controller.refresh(
+        self.counter.refresh(
             sources=self._get_current_sources(),
             predicate=lambda path: path.lower().endswith(allowed),
         )
@@ -63,10 +60,9 @@ class ConverterTab(QWidget):
             output = Path(self.output_path.text().strip())
             sources = [Path(s) for s in self._get_current_sources()]
             targets = [output] if (custom and output) else sources
-
             gamedir_in_targets = any(["modassets/assets" in path.as_posix() for path in targets])
 
-            if gamedir_in_targets or (samedir and self.count_controller.gamedir):
+            if gamedir_in_targets or (samedir and self.counter.gamedir):
                 return Strings.get("warn_game_dir")
 
         def check_collision():
@@ -377,7 +373,7 @@ class ConverterTab(QWidget):
 
     def _sync_convert_button(self):
         has_sources = self.file_list.count() > 0
-        has_targets = self.count_controller.is_counting or self.count_controller.count > 0
+        has_targets = self.counter.busy or self.counter.count > 0
         output_valid = self._is_output_valid()
         is_okay = has_sources and has_targets and output_valid
 

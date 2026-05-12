@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import TypeAlias
+from typing import Callable, TypeAlias
 
 import click
 from rich import print
@@ -17,9 +17,20 @@ from . import scfile
 
 
 RegionKey: TypeAlias = tuple[int, int]
+LogCallback = Callable[[str], None]
 
 
-def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions) -> None:
+# TODO: refactor me
+def merge(
+    item: tuple[RegionKey, list[Path]],
+    output: Path,
+    options: UserOptions,
+    on_done: LogCallback | None = None,
+    on_error: LogCallback | None = None,
+) -> None:
+    _done = on_done or (lambda msg: print(L.DONE, msg))
+    _error = on_error or (lambda msg: print(L.ERROR, msg))
+
     (rx, rz), paths = item
 
     merged = RegionContent()
@@ -36,7 +47,7 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
                     seen.add(chunk.index)
 
         except Exception as err:
-            print(L.ERROR, f"{path.name} - {err}")
+            _error(f"{path.name} - {err}")
 
     merged.rx = rx
     merged.rz = rz
@@ -52,9 +63,10 @@ def merge(item: tuple[RegionKey, list[Path]], output: Path, options: UserOptions
         mca.encode()
         mca.save(target)
 
-    print(L.INFO, f"{filename} merged {len(merged.chunks)} chunks")
+    _done(f"{filename} merged {len(merged.chunks)} chunks")
 
 
+# TODO: refactor me
 @scfile.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",
@@ -118,6 +130,7 @@ def mapcache_command(
         return
 
     print(L.INFO, f"Found {len(regions)} unique regions")
+    print(L.INFO, "Starting merge...")
 
     options = UserOptions(parse_region_raw=raw)
 
