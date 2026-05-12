@@ -30,15 +30,15 @@ class ConverterTab(QWidget):
     def __init__(self):
         super().__init__()
         self._setup_counter()
-        self._setup_warning()
+        self._setup_warnings()
         self._setup_ui()
         self._refresh_count()
 
     def _setup_counter(self):
         self.counter = CountController()
-        self.counter.changed.connect(self._on_count_changed)
+        self.counter.changed.connect(self._on_counter_changed)
 
-    def _on_count_changed(self, text: str, count: int, busy: bool):
+    def _on_counter_changed(self, text: str, count: int, busy: bool):
         label = Strings.get("btn_convert")
         self.convert_btn.setText(f"{label} ({text})")
         self._sync_state()
@@ -51,7 +51,7 @@ class ConverterTab(QWidget):
             predicate=lambda path: path.lower().endswith(allowed),
         )
 
-    def _setup_warning(self):
+    def _setup_warnings(self):
         self.warnings = WarningsWidget()
 
         def check_game_dir():

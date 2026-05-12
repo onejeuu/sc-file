@@ -1,7 +1,7 @@
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QRunnable, QThreadPool
 
@@ -14,12 +14,15 @@ from .base import Worker
 from .logs import logger
 
 
+Predicate: TypeAlias = Callable[[Path], bool]
+
+
 @dataclass
 class ConvertContext:
     options: UserOptions
     output: Path | None
     relative: bool
-    predicate: Callable[[Path], bool]
+    predicate: Predicate
 
 
 class ConvertTask(QRunnable):
