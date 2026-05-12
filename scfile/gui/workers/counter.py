@@ -4,6 +4,8 @@ from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QObject, Signal
 
+from scfile.utils.files import clean_source_paths
+
 from .base import Worker, execute
 from .logs import logger
 
@@ -30,12 +32,12 @@ class CountWorker(Worker):
         gamedir = False
 
         try:
-            for source in self.sources:
-                if "modassets/assets" in source:
+            for source in clean_source_paths(self.sources):
+                if "modassets/assets" in source.as_posix():
                     gamedir = True
 
                 if os.path.isfile(source):
-                    count += self.predicate(source)
+                    count += self.predicate(source.as_posix())
 
                 else:
                     for root, _, files in os.walk(source):

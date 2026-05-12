@@ -8,6 +8,6 @@ Path = pathlib.Path
 PathLike: TypeAlias = str | Path | os.PathLike[str]
 
 OutputDir: TypeAlias = Optional[Path]
-
 FilesPaths: TypeAlias = Sequence[Path]
+FilesSources: TypeAlias = Sequence[PathLike]
 FilesIter: TypeAlias = Iterator[Tuple[Path, Path]]

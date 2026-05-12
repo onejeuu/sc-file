@@ -369,11 +369,14 @@ class ConverterTab(QWidget):
         allowed = self._get_suffixes()
         fmt: consts.ModelFormat = self.format.currentData()
 
+        ft_skeleton = self.feat_checks[FT.SKELETON.id]
+        ft_animation = self.feat_checks[FT.ANIMATION.id]
+
         context = ConvertContext(
             options=UserOptions(
                 model_formats=[fmt.id] if fmt else None,
-                parse_skeleton=self.feat_checks[FT.SKELETON.id].isChecked(),
-                parse_animation=self.feat_checks[FT.ANIMATION.id].isChecked(),
+                parse_skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
+                parse_animation=ft_animation.isEnabled() and ft_animation.isChecked(),
                 overwrite=not self.unique_names.isChecked(),
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
