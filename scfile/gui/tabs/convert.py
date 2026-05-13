@@ -351,12 +351,12 @@ class ConverterTab(QWidget):
     def _get_sources(self) -> list[str]:
         return [self.sources.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.sources.count())]
 
-    def _get_suffixes(self) -> list[str]:
+    def _get_suffixes(self) -> set[str]:
         suffixes: set[str] = set()
         for ft in consts.FILE_KINDS:
             if self.kind_checks[ft.id].isChecked():
                 suffixes.update(ft.suffixes)
-        return list(suffixes)
+        return suffixes
 
     def _get_output_valid(self) -> bool:
         if self.output_to_origin.isChecked():

@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import Iterator, NamedTuple, Optional, Sequence, TypeAlias
+from typing import Iterable, Iterator, NamedTuple, Optional, Sequence, TypeAlias
 
 from .enums import FileFormat
 
@@ -13,10 +13,9 @@ PathLike: TypeAlias = str | Path | os.PathLike[str]
 Output: TypeAlias = Optional[Path]
 OutputLike: TypeAlias = Optional[PathLike]
 
-Sources: TypeAlias = Sequence[str]
-FilesWhitelist: TypeAlias = Sequence[str]
-FilesPaths: TypeAlias = Sequence[Path]
-FilesSources: TypeAlias = Sequence[PathLike]
+FilesWhitelist: TypeAlias = Iterable[str]
+FilesPaths: TypeAlias = Iterable[Path]
+FilesSources: TypeAlias = Iterable[PathLike]
 
 
 class FileEntry(NamedTuple):
@@ -26,4 +25,3 @@ class FileEntry(NamedTuple):
 
 
 FilesWalk: TypeAlias = Iterator[FileEntry]
-# SuffixesWhitelist: TypeAlias = tuple[str, ...]
