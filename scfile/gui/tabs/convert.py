@@ -101,8 +101,7 @@ class ConverterTab(QWidget):
         header.addWidget(add_dir)
 
         self.sources = SourcesWidget()
-        self.sources.model().rowsInserted.connect(self._handle_sources)
-        self.sources.model().rowsRemoved.connect(self._handle_sources)
+        self.sources.changed.connect(self._handle_sources)
 
         self.left.addLayout(header)
         self.left.addWidget(self.sources, 1)
@@ -397,14 +396,16 @@ class ConverterTab(QWidget):
         files, _ = QFileDialog.getOpenFileNames(self, Str.get("dialog_files"))
         if files:
             self.sources.add_sources(files)
+            self._handle_sources()
 
     def _browse_folder(self):
         path = QFileDialog.getExistingDirectory(self, Str.get("dialog_folder"))
         if path:
             self.sources.add_sources([path])
+            self._handle_sources()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F5:
-            self._sync_counter()
+            self._handle_sources()
 
         super().keyPressEvent(event)
