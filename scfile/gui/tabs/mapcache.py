@@ -36,8 +36,8 @@ def resolve_mapcache_path(path: Path) -> Path:
     if is_mapcache(path):
         return path
 
-    for required in ["EXBO/runtime/stalcraft/map_cache/5.0", "stalcraft/map_cache/5.0"]:
-        required = Path(required)
+    for root in ["EXBO/runtime/stalcraft/map_cache/5.0", "stalcraft/map_cache/5.0"]:
+        required = Path(root)
 
         target = path / required
         if is_mapcache(target):
