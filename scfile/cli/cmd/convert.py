@@ -10,6 +10,7 @@ from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
 from scfile.enums import CliCommand, L
 from scfile.utils import files, version
+from scfile.utils.cli import check_feature_unsupported
 
 from . import scfile
 
@@ -86,10 +87,10 @@ def convert_command(
     # Warn if specified formats has unsupported features
     if model_formats:
         if skeleton:
-            files.check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+            check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
 
         if animation:
-            files.check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
+            check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Prepare options
     options = UserOptions(
@@ -99,14 +100,16 @@ def convert_command(
         overwrite=not unique,
     )
 
+    out = str(output) if output else None
+
     # Iterate over each directory to their supported files
-    for root, source in files.paths_to_files_map(paths):
-        # Get destination path
-        dest = files.output_to_destination(root, source, output, relative, parent)
+    for entry in files.walk(paths, parent=parent):
+        dest = files.destination(relpath=entry.relpath, relative=relative, output=out)
 
         # Convert source file
         try:
-            convert.auto(source=source, output=dest, options=options)
+            convert.auto(source=entry.path, output=dest, options=options)
+            print(L.DONE, f"'{entry.path}'")
 
         except exceptions.InvalidStructureError as err:
             print(L.ERROR, str(err), CLI.EXCEPTION)
@@ -115,10 +118,6 @@ def convert_command(
             print(L.ERROR, str(err))
 
         except Exception as err:
-            traceback.print_exception(err)
-            print(L.EXCEPTION, f"File '{source.as_posix()}' {err}.", CLI.EXCEPTION)
-
-        else:
-            src_path = source.relative_to(root)
-            dst_path = dest or source.parent
-            print(L.INFO, f"File '{src_path.as_posix()}' converted to '{dst_path.as_posix()}'.")
+            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", CLI.EXCEPTION)
+            print(traceback.format_exc())
+            print()

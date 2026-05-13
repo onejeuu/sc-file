@@ -1,16 +1,11 @@
-import os
 import traceback
-from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
 from scfile import types
-from scfile.utils.files import clean_source_paths
+from scfile.utils import files
 
 from .logs import logger
-
-
-Predicate: TypeAlias = Callable[[str], bool]
 
 
 class CountWorker(QObject):
@@ -32,8 +27,8 @@ class CountWorker(QObject):
         with QMutexLocker(self._mutex):
             self._abort = value
 
-    @Slot(int, list, object)
-    def count(self, request_id: int, sources: list[str], predicate: Predicate):
+    @Slot(int, list, tuple)
+    def count(self, request_id: int, sources: list[str], whitelist: types.FilesWhitelist):
         if request_id != self.request_id:
             return
 
@@ -41,38 +36,15 @@ class CountWorker(QObject):
         total = 0
         gamedir = False
 
-        def _scan(path: types.PathLike):
-            nonlocal total, gamedir
-            try:
-                with os.scandir(path) as it:
-                    for entry in it:
-                        if self.abort:
-                            return
-
-                        if entry.is_file():
-                            if predicate(entry.path):
-                                total += 1
-
-                        elif entry.is_dir():
-                            if not gamedir and "modassets\\assets" in entry.path:
-                                gamedir = True
-                            _scan(entry.path)
-
-            except PermissionError:
-                pass
-
         try:
-            for source in clean_source_paths(sources):
+            for entry in files.walk(sources, whitelist=whitelist):
                 if self.abort:
-                    return
+                    break
 
-                if not gamedir and "modassets\\assets" in str(source):
+                if not gamedir and "modassets\\assets" in entry.path:
                     gamedir = True
 
-                if os.path.isfile(source):
-                    total += predicate(source.as_posix())
-                else:
-                    _scan(source)
+                total += 1
 
             if not self.abort:
                 self.status.emit(request_id, total, gamedir)
@@ -84,7 +56,7 @@ class CountWorker(QObject):
 
 class CountDispatcher(QObject):
     changed = Signal(str, int, bool)
-    requested = Signal(int, list, object)
+    requested = Signal(int, list, tuple)
 
     def __init__(self):
         super().__init__()
@@ -113,7 +85,7 @@ class CountDispatcher(QObject):
     def busy(self) -> bool:
         return self._busy
 
-    def refresh(self, sources: list[str], predicate: Predicate):
+    def refresh(self, sources: list[str], whitelist: types.FilesWhitelist):
         self._request_id += 1
 
         self._worker.request_id = self._request_id
@@ -124,7 +96,7 @@ class CountDispatcher(QObject):
             return
 
         self._apply(count=0, gamedir=False, busy=True)
-        self.requested.emit(self._request_id, sources, predicate)
+        self.requested.emit(self._request_id, sources, whitelist)
 
     def _on_done(self, request_id: int, count: int, gamedir: bool):
         if request_id == self._request_id:
