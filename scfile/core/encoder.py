@@ -9,22 +9,22 @@ from scfile.enums import FileMode
 from scfile.structures.models import Flag
 from scfile.types import PathLike
 
-from .base import BaseFile, Content
-from .context import ModelContent, UserOptions
+from .base import BaseFile
+from .context import ContentType, ModelContent, UserOptions
 from .io import StructBytesIO
 
 
 EncoderContext: TypeAlias = dict[str, Any]
 
 
-class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
+class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
     """Base class for encoding structured data objects into file content."""
 
     @property
     def mode(self) -> str:
         return FileMode.WRITE
 
-    def __init__(self, data: Content, options: Optional[UserOptions] = None):
+    def __init__(self, data: ContentType, options: Optional[UserOptions] = None):
         """Initialize file encoder with content data and options.
 
         Arguments:
@@ -41,7 +41,7 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[Content], ABC):
             Call `encode()` to perform serialization process.
         """
 
-        self.data: Content = data
+        self.data: ContentType = data
         self.options: UserOptions = options or UserOptions()
         self.ctx: EncoderContext = {}
 

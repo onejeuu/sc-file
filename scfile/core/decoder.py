@@ -9,18 +9,18 @@ from scfile import exceptions
 from scfile.enums import FileMode
 from scfile.types import PathLike
 
-from .base import BaseFile, Content
-from .context import UserOptions
+from .base import BaseFile
+from .context import ContentType, UserOptions
 from .encoder import FileEncoder
 from .io import StructFileIO
 
 
-class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
+class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
     """Base class for decoding file content into structured data objects."""
 
     mode: str = FileMode.READ
 
-    _content: type[Content]
+    _content: type[ContentType]
 
     def __init__(self, file: PathLike, options: Optional[UserOptions] = None):
         """Initialize file decoder with source file and options.
@@ -41,11 +41,11 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
 
         self.file = file
         self.options: UserOptions = options or UserOptions()
-        self.data: Content = self._content()
+        self.data: ContentType = self._content()
 
         super().__init__(file=self.file, mode=self.mode)
 
-    def decode(self, seek: bool = True) -> Content:
+    def decode(self, seek: bool = True) -> ContentType:
         """Decode file: prepare, validate signature, parse. Returns parsed data."""
         self.prepare()
         self.validate_signature()
@@ -56,9 +56,9 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
 
     def convert_to(
         self,
-        encoder: Type[FileEncoder[Content]],
+        encoder: Type[FileEncoder[ContentType]],
         options: Optional[UserOptions] = None,
-    ) -> FileEncoder[Content]:
+    ) -> FileEncoder[ContentType]:
         """Decode and convert to encoder. Returns encoder with open buffer (must be closed)."""
         options = options or self.options
         data = self.decode()
@@ -68,7 +68,7 @@ class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):
 
     def convert(
         self,
-        encoder: type[FileEncoder[Content]],
+        encoder: type[FileEncoder[ContentType]],
         options: Optional[UserOptions] = None,
     ) -> bytes:
         """Decode, convert to encoder and return bytes. Closes encoder automatically."""

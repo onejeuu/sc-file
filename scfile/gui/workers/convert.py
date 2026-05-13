@@ -66,7 +66,6 @@ class ConvertDispatcher(Worker):
                 self.context.output.mkdir(exist_ok=True, parents=True)
 
             paths = files.resolve(self.sources)
-
             output = str(self.context.output) if self.context.output else None
 
             for entry in files.walk(paths, whitelist=self.context.whitelist, parent=self.context.relative):

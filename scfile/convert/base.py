@@ -7,12 +7,12 @@ from typing import Optional, Type
 
 from scfile import exceptions, types
 from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.base import Content
+from scfile.core.context import ContentType
 
 
 def convert(
-    decoder: Type[FileDecoder[Content]],
-    encoder: Type[FileEncoder[Content]],
+    decoder: Type[FileDecoder[ContentType]],
+    encoder: Type[FileEncoder[ContentType]],
     source: types.PathLike,
     output: types.OutputLike = None,
     options: Optional[UserOptions] = None,
