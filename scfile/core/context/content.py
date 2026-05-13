@@ -5,7 +5,7 @@ Shared content data between decoder and encoder.
 from abc import ABC
 from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
-from typing import Generic, TypeAlias, cast
+from typing import Generic, TypeAlias, TypeVar, cast
 from uuid import UUID
 
 from scfile.enums import FileType
@@ -33,6 +33,9 @@ class FileContent(ABC):
 
             else:
                 setattr(self, f.name, None)
+
+
+ContentType = TypeVar("ContentType", bound=FileContent)
 
 
 @dataclass

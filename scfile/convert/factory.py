@@ -8,7 +8,7 @@ from functools import wraps
 from typing import Callable, Optional, Type, TypeAlias
 
 from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.base import Content
+from scfile.core.context import ContentType
 from scfile.types import PathLike
 
 from .base import convert
@@ -29,8 +29,8 @@ def registry() -> ConverterRegistry:
 
 
 def converter(
-    decoder: Type[FileDecoder[Content]],
-    encoder: Type[FileEncoder[Content]],
+    decoder: Type[FileDecoder[ContentType]],
+    encoder: Type[FileEncoder[ContentType]],
 ) -> Callable:
     """Factory decorator for base convert function with fixed decoder/encoder."""
 
