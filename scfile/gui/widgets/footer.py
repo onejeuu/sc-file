@@ -27,7 +27,7 @@ class LinkLabel(QWidget):
             self.icon_label = QLabel()
             aspect = Qt.AspectRatioMode.KeepAspectRatio
             mode = Qt.TransformationMode.SmoothTransformation
-            pixmap = QPixmap(str(files.get_resource(icon)))
+            pixmap = QPixmap(str(files.resource(icon)))
             pixmap = pixmap.scaled(12, 12, aspect, mode)
             self.icon_label.setPixmap(pixmap)
             layout.addWidget(self.icon_label)

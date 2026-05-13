@@ -311,10 +311,9 @@ class ConverterTab(QWidget):
         self._sync_warnings()
 
     def _sync_counter(self):
-        allowed = tuple(self._get_suffixes())
         self.counter.refresh(
             sources=self._get_sources(),
-            predicate=lambda p: p.lower().endswith(allowed),
+            whitelist=self._get_suffixes(),
         )
 
     def _sync_button(self):
@@ -352,12 +351,12 @@ class ConverterTab(QWidget):
     def _get_sources(self) -> list[str]:
         return [self.sources.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.sources.count())]
 
-    def _get_suffixes(self) -> set[str]:
-        out: set[str] = set()
+    def _get_suffixes(self) -> list[str]:
+        suffixes: set[str] = set()
         for ft in consts.FILE_KINDS:
             if self.kind_checks[ft.id].isChecked():
-                out.update(ft.suffixes)
-        return out
+                suffixes.update(ft.suffixes)
+        return list(suffixes)
 
     def _get_output_valid(self) -> bool:
         if self.output_to_origin.isChecked():
@@ -366,13 +365,13 @@ class ConverterTab(QWidget):
         return bool(path) and not Path(path).is_file()
 
     def _convert(self):
-        allowed = tuple(self._get_suffixes())
         fmt: consts.ModelFormat = self.format.currentData()
 
         ft_skeleton = self.feat_checks[FT.SKELETON.id]
         ft_animation = self.feat_checks[FT.ANIMATION.id]
 
         context = ConvertContext(
+            whitelist=self._get_suffixes(),
             options=UserOptions(
                 model_formats=[fmt.id] if fmt else None,
                 parse_skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
@@ -381,7 +380,6 @@ class ConverterTab(QWidget):
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),
-            predicate=lambda p: str(p).lower().endswith(allowed),
         )
 
         self._convert_dispatcher = ConvertDispatcher(sources=self._get_sources(), context=context)

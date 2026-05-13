@@ -8,7 +8,7 @@ from typing import Optional
 import lz4.block
 
 from scfile import exceptions, types
-from scfile.consts import NBT_FILENAMES
+from scfile.consts import SUPPORTED_NBT
 from scfile.core import UserOptions
 from scfile.enums import FileFormat
 
@@ -17,7 +17,7 @@ from . import factory, formats
 
 def auto(
     source: types.PathLike,
-    output: types.Output = None,
+    output: types.OutputLike = None,
     options: Optional[UserOptions] = None,
 ) -> None:
     """
@@ -39,7 +39,7 @@ def auto(
     model_formats = options.model_formats or options.default_model_formats
 
     # Detect NBT by file name
-    if src_path.name in NBT_FILENAMES:
+    if src_path.name in SUPPORTED_NBT:
         src_format = str(FileFormat.NBT)
 
     # Normalize mcvd format (same as mcsa)

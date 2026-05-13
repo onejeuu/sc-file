@@ -1,9 +1,5 @@
-from typing import Sequence, TypeAlias
-
 from .enums import FileFormat
-
-
-Formats: TypeAlias = Sequence[FileFormat]
+from .types import Formats
 
 
 SUPPORTED_FORMATS: set[FileFormat] = {
@@ -20,11 +16,13 @@ SUPPORTED_FORMATS: set[FileFormat] = {
 }
 """Files formats (suffixes without dot) that can be converted."""
 
-SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
+SUPPORTED_EXTENSIONS: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
 """Files suffixes that can be converted."""
 
-NBT_FILENAMES: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd2", "sd3", "sd4"}
+SUPPORTED_NBT: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd2", "sd3", "sd4"}
 """Files names that can be converted."""
+
+ALLOWED_SUFFIXES: set[str] = SUPPORTED_EXTENSIONS | SUPPORTED_NBT
 
 
 class FileSignature:
@@ -80,8 +78,8 @@ class McsaModel:
 class CLI:
     """Command line interface constants."""
 
-    FORMATS = EPILOG = f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}"
-    NBT = f"Supported NBTs: {sorted(NBT_FILENAMES)}"
+    FORMATS = EPILOG = f"Supported Formats: {sorted(SUPPORTED_EXTENSIONS)}"
+    NBT = f"Supported NBTs: {sorted(SUPPORTED_NBT)}"
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
     PAUSE = "\nPress any key to exit..."
 

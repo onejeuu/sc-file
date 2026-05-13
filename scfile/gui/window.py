@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         self._build_ui()
 
     def _build_ui(self):
-        self.setWindowIcon(QIcon(str(files.get_resource("assets/scfile.ico"))))
+        self.setWindowIcon(QIcon(str(files.resource("assets/scfile.ico"))))
         self.setWindowTitle("scfile")
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 700)

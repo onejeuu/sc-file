@@ -1,11 +1,10 @@
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QRunnable, QThreadPool
 
-from scfile import convert, exceptions
+from scfile import convert, exceptions, types
 from scfile.consts import CLI
 from scfile.core import UserOptions
 from scfile.utils import files
@@ -14,33 +13,30 @@ from .base import Worker
 from .logs import logger
 
 
-Predicate: TypeAlias = Callable[[Path], bool]
-
-
 @dataclass
 class ConvertContext:
+    whitelist: types.FilesWhitelist
     options: UserOptions
     output: Path | None
     relative: bool
-    predicate: Predicate
 
 
 class ConvertTask(QRunnable):
     def __init__(
         self,
-        source: Path,
-        output: Path | None,
+        src: str,
+        dst: str | None,
         options: UserOptions,
     ):
         super().__init__()
-        self.source = source
-        self.output = output
+        self.src = src
+        self.dst = dst
         self.options = options
 
     def run(self):
         try:
-            convert.auto(source=self.source, output=self.output, options=self.options)
-            logger.done(f"'{self.source.as_posix()}'")
+            convert.auto(source=self.src, output=self.dst, options=self.options)
+            logger.done(f"'{self.src}'")
 
         except exceptions.InvalidStructureError as err:
             logger.error(f"{str(err)} {CLI.EXCEPTION}")
@@ -69,26 +65,13 @@ class ConvertDispatcher(Worker):
             if self.context.output:
                 self.context.output.mkdir(exist_ok=True, parents=True)
 
-            sources = files.clean_source_paths(self.sources)
+            paths = files.resolve(self.sources)
 
-            for source in sources:
-                if not source.exists():
-                    logger.error(f"Source not found '{source.as_posix()}'")
+            output = str(self.context.output) if self.context.output else None
 
-            for root, source in files.paths_to_files_map(sources):
-                if not self.context.predicate(source):
-                    continue
-
-                dest = files.output_to_destination(
-                    root=root,
-                    source=source,
-                    output=self.context.output,
-                    relative=self.context.relative,
-                    parent=self.context.relative,  # this is NOT a typo
-                )
-
-                task = ConvertTask(source, dest, self.context.options)
-                self.pool.start(task)
+            for entry in files.walk(paths, whitelist=self.context.whitelist, parent=self.context.relative):
+                dst = files.destination(relpath=entry.relpath, relative=self.context.relative, output=output)
+                self.pool.start(ConvertTask(src=entry.path, dst=dst, options=self.context.options))
 
         except Exception as err:
             logger.exception(repr(err))

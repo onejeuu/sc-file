@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from scfile.consts import NBT_FILENAMES
+from scfile.consts import SUPPORTED_NBT
 from scfile.enums import FileFormat
 
 from .strings import Strings
@@ -73,7 +73,7 @@ FILE_KINDS: list[FileKind] = [
         id="nbt",
         icon="⚙️",
         label=Strings.get("fmt_nbt"),
-        suffixes=list(sorted(NBT_FILENAMES)),
+        suffixes=list(sorted(SUPPORTED_NBT)),
     ),
 ]
 
