@@ -239,6 +239,25 @@ def efkmodel_to_glb(
     """
 
 
+@converter(formats.efkmodel.EfkmodelDecoder, formats.fbx.FbxEncoder)
+def efkmodel_to_fbx(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts model from `.efkmodel` to `.fbx` format.
+
+    Arguments:
+        source: Path to input `.efkmodel` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `efkmodel_to_fbx("model.efkmodel", "path/to/output")`
+    """
+
+
 @converter(formats.efkmodel.EfkmodelDecoder, formats.dae.DaeEncoder)
 def efkmodel_to_dae(
     source: PathLike,

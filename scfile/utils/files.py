@@ -39,7 +39,8 @@ def walk(
     whitelist: types.FilesWhitelist | None = None,
     parent: bool = False,
 ) -> types.FilesWalk:
-    paths = list(map(str, sources))
+    paths = resolve(sources)
+    paths = list(map(str, paths))
     whitelist = tuple(whitelist or ALLOWED_SUFFIXES)
 
     for root in paths:

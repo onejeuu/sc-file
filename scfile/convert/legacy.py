@@ -49,6 +49,25 @@ def mcsa_to_glb(
     """
 
 
+@converter(formats.mcsa.McsaDecoder, formats.fbx.FbxEncoder)
+def mcsa_to_fbx(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[UserOptions] = None,
+):
+    """
+    Converts model from `.mcsa` to `.fbx` format.
+
+    Arguments:
+        source: Path to input `.mcsa` file.
+        output (optional): Path to output directory. Defaults: `Same directory as source`.
+        options (optional): User settings. Default: `None`.
+
+    Example:
+        `mcsa_to_fbx("model.mcsa", "path/to/output", UserOptions(parse_skeleton=True))`
+    """
+
+
 @converter(formats.mcsa.McsaDecoder, formats.dae.DaeEncoder)
 def mcsa_to_dae(
     source: PathLike,
