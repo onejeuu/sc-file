@@ -5,17 +5,16 @@ Basic implementation of converting one format to another.
 from pathlib import Path
 from typing import Optional, Type
 
-from scfile import exceptions
+from scfile import exceptions, types
 from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.types import Content
-from scfile.types import OutputDir, PathLike
+from scfile.core.base import Content
 
 
 def convert(
     decoder: Type[FileDecoder[Content]],
     encoder: Type[FileEncoder[Content]],
-    source: PathLike,
-    output: OutputDir = None,
+    source: types.PathLike,
+    output: types.OutputLike = None,
     options: Optional[UserOptions] = None,
 ) -> None:
     """

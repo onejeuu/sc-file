@@ -32,7 +32,7 @@ def clean_source_paths(
     sources: types.FilesSources,
 ) -> list[types.Path]:
     resolved = sorted({Path(src).resolve() for src in sources if Path(src).exists()})
-    clean = []
+    clean: list[types.Path] = []
     for path in resolved:
         if not any(path.is_relative_to(root) for root in clean):
             clean.append(path)
@@ -56,10 +56,10 @@ def paths_to_files_map(
 def output_to_destination(
     root: types.Path,
     source: types.Path,
-    output: types.OutputDir,
+    output: types.Output,
     relative: bool,
     parent: bool,
-) -> types.OutputDir:
+) -> types.Output:
     """Output path with source relative subdirectory appended if relative flag."""
     if relative and output:
         basedir = root.parent if parent else root

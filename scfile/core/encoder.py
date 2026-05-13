@@ -9,10 +9,9 @@ from scfile.enums import FileMode
 from scfile.structures.models import Flag
 from scfile.types import PathLike
 
-from .base import BaseFile
+from .base import BaseFile, Content
 from .context import ModelContent, UserOptions
 from .io import StructBytesIO
-from .types import Content
 
 
 EncoderContext: TypeAlias = dict[str, Any]

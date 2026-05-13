@@ -4,6 +4,7 @@ from typing import Callable, TypeAlias
 
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
+from scfile import types
 from scfile.utils.files import clean_source_paths
 
 from .logs import logger
@@ -40,40 +41,48 @@ class CountWorker(QObject):
         total = 0
         gamedir = False
 
+        def _scan(path: types.PathLike):
+            nonlocal total, gamedir
+            try:
+                with os.scandir(path) as it:
+                    for entry in it:
+                        if self.abort:
+                            return
+
+                        if entry.is_file():
+                            if predicate(entry.path):
+                                total += 1
+
+                        elif entry.is_dir():
+                            if not gamedir and "modassets\\assets" in entry.path:
+                                gamedir = True
+                            _scan(entry.path)
+
+            except PermissionError:
+                pass
+
         try:
             for source in clean_source_paths(sources):
                 if self.abort:
                     return
 
-                if "modassets\\assets" in str(source):
+                if not gamedir and "modassets\\assets" in str(source):
                     gamedir = True
 
                 if os.path.isfile(source):
                     total += predicate(source.as_posix())
-
                 else:
-                    for root, _, files in os.walk(source):
-                        if self.abort:
-                            return
+                    _scan(source)
 
-                        if "modassets\\assets" in root:
-                            gamedir = True
-
-                        for file in files:
-                            if self.abort:
-                                return
-
-                            if predicate(file):
-                                total += 1
-
-            self.status.emit(request_id, total, gamedir)
+            if not self.abort:
+                self.status.emit(request_id, total, gamedir)
 
         except Exception as err:
             logger.exception(repr(err))
             logger.message.emit(traceback.format_exc())
 
 
-class CountController(QObject):
+class CountDispatcher(QObject):
     changed = Signal(str, int, bool)
     requested = Signal(int, list, object)
 

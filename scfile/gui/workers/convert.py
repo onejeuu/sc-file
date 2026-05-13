@@ -56,7 +56,7 @@ class ConvertTask(QRunnable):
 class ConvertDispatcher(Worker):
     def __init__(
         self,
-        sources: list[Path],
+        sources: list[str],
         context: ConvertContext,
     ):
         super().__init__()
@@ -69,11 +69,13 @@ class ConvertDispatcher(Worker):
             if self.context.output:
                 self.context.output.mkdir(exist_ok=True, parents=True)
 
-            for source in self.sources:
+            sources = files.clean_source_paths(self.sources)
+
+            for source in sources:
                 if not source.exists():
                     logger.error(f"Source not found '{source.as_posix()}'")
 
-            for root, source in files.paths_to_files_map(self.sources):
+            for root, source in files.paths_to_files_map(sources):
                 if not self.context.predicate(source):
                     continue
 

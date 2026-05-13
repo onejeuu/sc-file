@@ -3,12 +3,15 @@ Base class for all processable files.
 """
 
 from abc import ABC
-from typing import Optional
+from typing import Optional, TypeVar
 
 from scfile.enums import ByteOrder, FileFormat
 
-from .context import UserOptions
+from .context import FileContent, UserOptions
 from .io import StructIO
+
+
+Content = TypeVar("Content", bound=FileContent)
 
 
 class BaseFile(ABC):

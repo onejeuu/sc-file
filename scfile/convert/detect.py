@@ -7,18 +7,17 @@ from typing import Optional
 
 import lz4.block
 
-from scfile import exceptions
+from scfile import exceptions, types
 from scfile.consts import NBT_FILENAMES
 from scfile.core import UserOptions
 from scfile.enums import FileFormat
-from scfile.types import OutputDir, PathLike
 
 from . import factory, formats
 
 
 def auto(
-    source: PathLike,
-    output: OutputDir = None,
+    source: types.PathLike,
+    output: types.Output = None,
     options: Optional[UserOptions] = None,
 ) -> None:
     """
