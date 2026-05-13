@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from PySide6.QtCore import QFileInfo, Qt
+from PySide6.QtCore import QFileInfo, QMimeData, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -9,23 +9,22 @@ from PySide6.QtGui import (
     QDragMoveEvent,
     QDropEvent,
     QFont,
+    QGuiApplication,
     QKeyEvent,
+    QKeySequence,
     QPainter,
     QPixmap,
-    QResizeEvent,
 )
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFileIconProvider,
-    QLabel,
     QListWidget,
     QListWidgetItem,
     QMenu,
-    QVBoxLayout,
-    QWidget,
 )
 
-from scfile.gui.shared.strings import Strings
+from scfile import types
+from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Colors, Styles
 from scfile.utils import files
 
@@ -36,69 +35,86 @@ _ENV_MAPPING = {
     Path(os.environ.get("LOCALAPPDATA", _ENV_STUB)): "%LOCALAPPDATA%",
     Path.home(): "~",
 }
-_ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists()}
+_ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists() and k != Path(_ENV_STUB)}
+
+
+def normalize_path(source: types.PathLike) -> str:
+    path = Path(source).resolve()
+
+    for env, alias in _ENV_MAPPING.items():
+        if path.is_relative_to(env):
+            relative = path.relative_to(env)
+            return (Path(alias) / relative).as_posix()
+
+    return path.as_posix()
 
 
 class SourcesWidget(QListWidget):
+    changed = Signal()
+
     def __init__(self):
         super().__init__()
+        self.icon_provider = QFileIconProvider()
+
         self.setAcceptDrops(True)
-        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setStyleSheet(Styles.LIST)
         self.setMinimumWidth(320)
 
-        self.icon_provider = QFileIconProvider()
+        self._placeholder_icon = self._prepare_placeholder_icon()
+        self._placeholder_text = Str.get("drop_hint")
 
-        self._setup_placeholder()
-
-        # TODO: clipboard paste support
-
-    def _normalize_path(self, source: str) -> str:
-        path = Path(source).resolve()
-
-        for env, alias in _ENV_MAPPING.items():
-            if env != Path(_ENV_STUB) and path.is_relative_to(env):
-                relative = path.relative_to(env)
-                return (Path(alias) / relative).as_posix()
-
-        return path.as_posix()
-
-    def add_sources(self, sources: list[str]):
+    def add_sources(self, sources: types.FilesSources):
         for source in sources:
             if not source:
                 continue
 
-            normalized = self._normalize_path(source)
-
-            existing = self.findItems(normalized, Qt.MatchFlag.MatchExactly)
+            path = normalize_path(source)
+            existing = self.findItems(path, Qt.MatchFlag.MatchExactly)
             if existing:
                 continue
 
-            item = QListWidgetItem(normalized)
+            item = QListWidgetItem(path)
             item.setData(Qt.ItemDataRole.UserRole, source)
             item.setIcon(self.icon_provider.icon(QFileInfo(source)))
             self.addItem(item)
 
-    def keyPressEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key.Key_Delete:
-            self.remove_selected()
-        else:
-            super().keyPressEvent(event)
+        self.changed.emit()
+
+    def _remove_selected(self):
+        for item in reversed(self.selectedItems()):
+            self.takeItem(self.row(item))
+
+        self.changed.emit()
+
+    def _add_mime(self, data: QMimeData) -> bool:
+        if data.hasUrls():
+            if sources := [url.toLocalFile() for url in data.urls() if url.isLocalFile()]:
+                QTimer.singleShot(0, lambda: self.add_sources(sources))
+                return True
+        return False
+
+    def _paste_from_clipboard(self):
+        self._add_mime(QGuiApplication.clipboard().mimeData())
 
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
         if item:
             menu = QMenu(self)
-            remove_action = QAction(Strings.get("action_remove"), self)
-            remove_action.triggered.connect(self.remove_selected)
+            remove_action = QAction(Str.get("action_remove"), self)
+            remove_action.triggered.connect(self._remove_selected)
             menu.addAction(remove_action)
             menu.exec(event.globalPos())
 
-    def remove_selected(self):
-        for item in self.selectedItems():
-            self.takeItem(self.row(item))
-        self._update_placeholder()
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key.Key_Delete:
+            self._remove_selected()
+            event.accept()
+        elif event.matches(QKeySequence.StandardKey.Paste):
+            self._paste_from_clipboard()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
@@ -109,55 +125,56 @@ class SourcesWidget(QListWidget):
             event.acceptProposedAction()
 
     def dropEvent(self, event: QDropEvent):
-        self.add_sources([url.toLocalFile() for url in event.mimeData().urls()])
-        event.acceptProposedAction()
-        self._update_placeholder()
+        if self._add_mime(event.mimeData()):
+            event.acceptProposedAction()
 
-    def _setup_placeholder(self):
-        self.placeholder = QWidget(self.viewport())
-        self.placeholder.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.placeholder.setStyleSheet("background: transparent; border: none;")
-
-        layout = QVBoxLayout(self.placeholder)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setSpacing(20)
-
-        color = QColor(Colors.TEXT.dark)
-
-        self.placeholder_icon = QLabel()
+    def _prepare_placeholder_icon(self) -> QPixmap:
         aspect = Qt.AspectRatioMode.KeepAspectRatio
         mode = Qt.TransformationMode.SmoothTransformation
-        raw_pixmap = QPixmap(str(files.get_resource("assets/upload.png")))
-        raw_pixmap = raw_pixmap.scaled(64, 64, aspect, mode)
+        raw = QPixmap(str(files.get_resource("assets/upload.png"))).scaled(64, 64, aspect, mode)
 
-        tinted = QPixmap(raw_pixmap.size())
+        tinted = QPixmap(raw.size())
         tinted.fill(Qt.GlobalColor.transparent)
-        p = QPainter(tinted)
-        p.drawPixmap(0, 0, raw_pixmap)
-        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-        p.fillRect(tinted.rect(), color)
-        p.end()
 
-        self.placeholder_icon.setPixmap(tinted)
-        self.placeholder_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        paint = QPainter(tinted)
+        paint.drawPixmap(0, 0, raw)
+        paint.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        paint.fillRect(tinted.rect(), QColor(Colors.TEXT.dark))
+        paint.end()
+        return tinted
 
-        text_content = Strings.get("drop_hint").replace("\n", "<br>")
-        self.placeholder_text = QLabel(text_content)
-        self.placeholder_text.setFont(QFont("Segoe UI", 12))
-        self.placeholder_text.setStyleSheet(f"color: {Colors.TEXT.dark}; border: none;")
-        self.placeholder_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    def paintEvent(self, event):
+        super().paintEvent(event)
 
-        layout.addWidget(self.placeholder_icon)
-        layout.addWidget(self.placeholder_text)
+        if self.count() > 0:
+            return
 
-        self.placeholder.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self._update_placeholder()
+        painter = QPainter(self.viewport())
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-    def _update_placeholder(self):
-        self.placeholder.setVisible(self.count() == 0)
-        if self.placeholder.isVisible():
-            self.placeholder.resize(self.viewport().size())
+        viewport = self.viewport().rect()
 
-    def resizeEvent(self, event: QResizeEvent):
-        super().resizeEvent(event)
-        self.placeholder.resize(self.viewport().size())
+        font = QFont("Segoe UI", 12)
+        painter.setFont(font)
+        painter.setPen(QColor(Colors.TEXT.dark))
+
+        fm = painter.fontMetrics()
+        flags = Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap
+        text_rect = fm.boundingRect(viewport, flags, self._placeholder_text)
+
+        spacing = 8
+        icon_size = self._placeholder_icon.size()
+        total_height = icon_size.height() + spacing + text_rect.height()
+
+        start_y = (viewport.height() - total_height) // 2
+
+        icon_x = (viewport.width() - icon_size.width()) // 2
+        painter.drawPixmap(icon_x, start_y, self._placeholder_icon)
+
+        text_y_offset = start_y + icon_size.height() + spacing
+        draw_text_rect = viewport.adjusted(0, text_y_offset, 0, 0)
+
+        flags = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
+        painter.drawText(draw_text_rect, flags, self._placeholder_text)
+
+        painter.end()
