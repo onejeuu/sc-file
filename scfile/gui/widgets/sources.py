@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from PySide6.QtCore import QFileInfo, QMimeData, Qt, QTimer, Signal
+from PySide6.QtCore import QFileInfo, QMimeData, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -151,30 +151,21 @@ class SourcesWidget(QListWidget):
 
         painter = QPainter(self.viewport())
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        viewport = self.viewport().rect()
-
-        font = QFont("Segoe UI", 12)
-        painter.setFont(font)
+        painter.setFont(QFont("Segoe UI", 12))
         painter.setPen(QColor(Colors.TEXT.dark))
 
-        fm = painter.fontMetrics()
+        viewport = self.viewport().rect()
+        icon = self._placeholder_icon
+        text = self._placeholder_text
         flags = Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap
-        text_rect = fm.boundingRect(viewport, flags, self._placeholder_text)
-
         spacing = 8
-        icon_size = self._placeholder_icon.size()
-        total_height = icon_size.height() + spacing + text_rect.height()
 
-        start_y = (viewport.height() - total_height) // 2
+        label = painter.fontMetrics().boundingRect(QRect(0, 0, viewport.width(), 0), flags, text)
+        content = QRect(0, 0, max(icon.width(), label.width()), icon.height() + label.height() + spacing)
+        content.moveCenter(viewport.center())
 
-        icon_x = (viewport.width() - icon_size.width()) // 2
-        painter.drawPixmap(icon_x, start_y, self._placeholder_icon)
+        painter.drawPixmap(content.left() + (content.width() - icon.width()) // 2, content.top(), icon)
 
-        text_y_offset = start_y + icon_size.height() + spacing
-        draw_text_rect = viewport.adjusted(0, text_y_offset, 0, 0)
-
-        flags = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
-        painter.drawText(draw_text_rect, flags, self._placeholder_text)
-
-        painter.end()
+        label.moveTop(content.top() + icon.height() + spacing)
+        label.setWidth(content.width())
+        painter.drawText(label, flags, text)
