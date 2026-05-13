@@ -19,7 +19,7 @@ class Strings:
         "tab_retarget": {"EN": "Retarget", "RU": "Ретаргет анимаций"},
         "action_remove": {"EN": "Remove from list", "RU": "Удалить из списка"},
         "drop_hint": {
-            "EN": "Drag & drop files or folders\nor use buttons above",
+            "EN": "Drag & drop files and folders\nor use buttons above",
             "RU": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
         },
         "label_sources": {"EN": "Sources", "RU": "Источники"},
@@ -98,7 +98,7 @@ class Strings:
         "fmt_models": {"EN": "Models", "RU": "Модели"},
         "fmt_textures": {"EN": "Textures", "RU": "Текстуры"},
         "fmt_images": {"EN": "Images", "RU": "Изображения"},
-        "fmt_texarr": {"EN": "Texture Array", "RU": "Массив текстур"},
+        "fmt_texarr": {"EN": "Texture Array", "RU": "Массив Текстур"},
         "fmt_nbt": {"EN": "NBT Data", "RU": "NBT Данные"},
     }
 

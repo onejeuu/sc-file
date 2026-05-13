@@ -51,9 +51,9 @@ class PathInputWidget(QWidget):
         if not text:
             return
 
-        path = Path(text)
-
         try:
+            path = Path(text)
+
             if not path.exists() and not path.is_file():
                 path.mkdir(exist_ok=True, parents=True)
 
