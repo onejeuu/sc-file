@@ -24,7 +24,7 @@ from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import PathInputWidget, SourcesWidget, WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
-from scfile.gui.workers.counter import CountController
+from scfile.gui.workers.counter import CountDispatcher
 
 
 class ConverterTab(QWidget):
@@ -35,7 +35,7 @@ class ConverterTab(QWidget):
         self._build_ui()
 
     def _setup_counter(self):
-        self.counter = CountController()
+        self.counter = CountDispatcher()
         self.counter.changed.connect(self._handle_counter)
 
     def _setup_warnings(self):
@@ -366,7 +366,7 @@ class ConverterTab(QWidget):
         return bool(path) and not Path(path).is_file()
 
     def _convert(self):
-        allowed = self._get_suffixes()
+        allowed = tuple(self._get_suffixes())
         fmt: consts.ModelFormat = self.format.currentData()
 
         ft_skeleton = self.feat_checks[FT.SKELETON.id]
@@ -381,12 +381,10 @@ class ConverterTab(QWidget):
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),
-            predicate=lambda p: (p.suffix.lower() in allowed) or (p.name in consts.NBT_FILENAMES),
+            predicate=lambda p: str(p).lower().endswith(allowed),
         )
 
-        paths = [Path(s) for s in self._get_sources()]
-
-        self._convert_dispatcher = ConvertDispatcher(paths, context)
+        self._convert_dispatcher = ConvertDispatcher(sources=self._get_sources(), context=context)
         self._convert_thread = workers.execute(
             self._convert_dispatcher,
             on_done=lambda: self.convert.setEnabled(True),

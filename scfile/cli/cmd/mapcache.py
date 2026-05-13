@@ -101,7 +101,7 @@ def merge(
 )
 def mapcache_command(
     source: types.Path,
-    output: types.OutputDir,
+    output: types.Output,
     workers: int | None,
     raw: bool,
 ) -> None:

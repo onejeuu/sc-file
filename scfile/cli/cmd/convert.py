@@ -64,7 +64,7 @@ from . import scfile
 )
 def convert_command(
     paths: types.FilesPaths,
-    output: types.OutputDir,
+    output: types.Output,
     mdlformat: Optional[Formats],
     relative: bool,
     parent: bool,

@@ -9,11 +9,10 @@ from scfile import exceptions
 from scfile.enums import FileMode
 from scfile.types import PathLike
 
-from .base import BaseFile
+from .base import BaseFile, Content
 from .context import UserOptions
 from .encoder import FileEncoder
 from .io import StructFileIO
-from .types import Content
 
 
 class FileDecoder(BaseFile, StructFileIO, Generic[Content], ABC):

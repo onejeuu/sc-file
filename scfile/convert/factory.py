@@ -8,7 +8,7 @@ from functools import wraps
 from typing import Callable, Optional, Type, TypeAlias
 
 from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.types import Content
+from scfile.core.base import Content
 from scfile.types import PathLike
 
 from .base import convert
