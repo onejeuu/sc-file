@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent, QKeyEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
@@ -404,8 +405,11 @@ class ConverterTab(QWidget):
             self.sources.add_sources([path])
             self._handle_sources()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent):
         if event.key() == Qt.Key.Key_F5:
             self._handle_sources()
-
         super().keyPressEvent(event)
+
+    def closeEvent(self, event: QCloseEvent):
+        self.counter.stop()
+        super().closeEvent(event)

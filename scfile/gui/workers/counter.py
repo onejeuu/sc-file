@@ -127,3 +127,9 @@ class CountController(QObject):
         self._busy = busy
         text = "..." if busy else f"{count:,}"
         self.changed.emit(text, count, busy)
+
+    def stop(self):
+        if self._thread and self._thread.isRunning():
+            self._worker.abort = True
+            self._thread.quit()
+            self._thread.wait()

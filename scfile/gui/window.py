@@ -68,6 +68,12 @@ class MainWindow(QMainWindow):
         if widget := self.tabs.get(index):
             self.stack.setCurrentWidget(widget)
 
+    def closeEvent(self, event):
+        for widget in self.tabs.values():
+            widget.close()
+
+        event.accept()
+
 
 def run():
     app = QApplication(sys.argv)
