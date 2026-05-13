@@ -2,71 +2,95 @@ import os
 import traceback
 from typing import Callable, TypeAlias
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
 from scfile.utils.files import clean_source_paths
 
-from .base import Worker, execute
 from .logs import logger
 
 
 Predicate: TypeAlias = Callable[[str], bool]
 
 
-class CountWorker(Worker):
+class CountWorker(QObject):
     status = Signal(int, int, bool)
 
-    def __init__(
-        self,
-        request_id: int,
-        sources: list[str],
-        predicate: Predicate,
-    ):
+    def __init__(self):
         super().__init__()
-        self.request_id = request_id
-        self.sources = sources
-        self.predicate = predicate
+        self.request_id = 0
+        self._mutex = QMutex()
+        self._abort = False
 
-    def run(self) -> None:
-        count = 0
+    @property
+    def abort(self) -> bool:
+        with QMutexLocker(self._mutex):
+            return self._abort
+
+    @abort.setter
+    def abort(self, value: bool):
+        with QMutexLocker(self._mutex):
+            self._abort = value
+
+    @Slot(int, list, object)
+    def count(self, request_id: int, sources: list[str], predicate: Predicate):
+        if request_id != self.request_id:
+            return
+
+        self.abort = False
+        total = 0
         gamedir = False
 
         try:
-            for source in clean_source_paths(self.sources):
-                if "modassets/assets" in source.as_posix():
+            for source in clean_source_paths(sources):
+                if self.abort:
+                    return
+
+                if "modassets\\assets" in str(source):
                     gamedir = True
 
                 if os.path.isfile(source):
-                    count += self.predicate(source.as_posix())
+                    total += predicate(source.as_posix())
 
                 else:
                     for root, _, files in os.walk(source):
-                        if "modassets/assets" in root.replace("\\", "/"):
+                        if self.abort:
+                            return
+
+                        if "modassets\\assets" in root:
                             gamedir = True
 
-                        count += sum(self.predicate(file) for file in files)
+                        for file in files:
+                            if self.abort:
+                                return
 
-            self.status.emit(self.request_id, count, gamedir)
+                            if predicate(file):
+                                total += 1
+
+            self.status.emit(request_id, total, gamedir)
 
         except Exception as err:
             logger.exception(repr(err))
             logger.message.emit(traceback.format_exc())
 
-        finally:
-            self.finished.emit()
-
 
 class CountController(QObject):
     changed = Signal(str, int, bool)
+    requested = Signal(int, list, object)
 
     def __init__(self):
         super().__init__()
         self._count = 0
         self._gamedir = False
         self._busy = False
-
         self._request_id = 0
-        self._worker = None
+
+        self._thread = QThread()
+        self._worker = CountWorker()
+        self._worker.moveToThread(self._thread)
+
+        self.requested.connect(self._worker.count)
+        self._worker.status.connect(self._on_done)
+        self._thread.start()
 
     @property
     def count(self) -> int:
@@ -82,17 +106,16 @@ class CountController(QObject):
 
     def refresh(self, sources: list[str], predicate: Predicate):
         self._request_id += 1
-        request_id = self._request_id
+
+        self._worker.request_id = self._request_id
+        self._worker.abort = True
 
         if not sources:
             self._apply(count=0, gamedir=False, busy=False)
             return
 
         self._apply(count=0, gamedir=False, busy=True)
-
-        self._worker = CountWorker(request_id=request_id, sources=sources, predicate=predicate)
-        self._worker.status.connect(self._on_done)
-        execute(self._worker)
+        self.requested.emit(self._request_id, sources, predicate)
 
     def _on_done(self, request_id: int, count: int, gamedir: bool):
         if request_id == self._request_id:
