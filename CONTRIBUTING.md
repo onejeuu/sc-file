@@ -2,7 +2,7 @@
 
 On large PRs open an issue first. A quick discussion upfront avoids wasted effort on both sides.
 
-**Target branch:** `dev` or a dedicated `feat/` branch.
+**Target branch:** `develop` (for general improvements) or a dedicated `feat/` branch.
 
 ## 🚫 Out of scope
 

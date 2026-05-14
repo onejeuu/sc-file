@@ -7,8 +7,6 @@ on:
   push:
     tags:
       - "v*"
-    branches:
-      - "v*-dev"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -36,7 +34,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
@@ -52,15 +49,15 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.binary }}
+          retention-days: 1
 
   publish-package:
     name: Publish PyPi
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag'
+    if: github.ref_type == 'tag' && !contains(github.ref_name, 'dev')
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
@@ -91,24 +88,17 @@ jobs:
         id: meta
         shell: bash
         run: |
+          export TZ="Europe/Moscow"
           echo "date=$(date +'%B %d, %Y')" >> "$GITHUB_OUTPUT"
+          echo "time=$(date +'%H:%M (GMT+3)')" >> "$GITHUB_OUTPUT"
 
-          if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            echo "prerelease=false" >> "$GITHUB_OUTPUT"
-          else
+          if [[ "${{ github.ref_name }}" == *"dev"* ]]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "title=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "title=Release ${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Update Dev Tag
-        if: steps.meta.outputs.prerelease == 'true'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete "${{ github.ref_name }}" --yes 2>/dev/null || true
-          git push origin ":refs/tags/${{ github.ref_name }}" 2>/dev/null || true
-          git tag "${{ github.ref_name }}" --force
-          git push origin "refs/tags/${{ github.ref_name }}" --force
 
       - name: Create Release
         if: github.ref_type == 'tag' || startsWith(github.ref_name, 'v')
@@ -117,11 +107,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          name: ${{ steps.meta.outputs.title }}
           prerelease: ${{ steps.meta.outputs.prerelease }}
           generate_release_notes: true
           body: |
-            ${{ steps.meta.outputs.prerelease == 'true' && '## Development' || '## Release' }} `${{ steps.meta.outputs.date }}`
+            ## `${{ steps.meta.outputs.date }}` `${{ steps.meta.outputs.time }}`
             ${{ steps.meta.outputs.prerelease == 'true' && '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and not tested.' || '' }}
