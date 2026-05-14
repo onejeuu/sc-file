@@ -17,8 +17,8 @@ def ensure_command() -> None:
 
         return window.run()
 
-    # Show default help
-    if "--help" in args:
+    # Allow default commands
+    if set(("--help", "--version")) & set(args):
         return
 
     # Backfill command if missing

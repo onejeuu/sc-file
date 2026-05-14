@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from scfile import __version__
 from scfile.gui.shared.styles import Styles
-from scfile.utils import files
+from scfile.utils import files, versions
 
 
 class LinkLabel(QWidget):
@@ -58,10 +58,12 @@ class FooterWidget(QWidget):
         layout.setContentsMargins(10, 0, 10, 5)
         layout.setSpacing(10)
 
-        version = __version__
+        semver = __version__
+        version = versions.parse(semver)
+        tag = version.tag if version else semver
 
         links = [
-            LinkLabel(text=f"v{version}", url=f"https://github.com/onejeuu/sc-file/releases/tag/v{version}"),
+            LinkLabel(text=f"{tag}", url=f"https://github.com/onejeuu/sc-file/releases/tag/{tag}"),
             LinkLabel(text="onejeuu/sc-file", url="https://github.com/onejeuu/sc-file"),
         ]
 

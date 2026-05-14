@@ -9,7 +9,7 @@ from scfile.cli import params
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
 from scfile.enums import CliCommand, L
-from scfile.utils import files, version
+from scfile.utils import files
 from scfile.utils.cli import check_feature_unsupported
 
 from . import scfile
@@ -54,14 +54,6 @@ from . import scfile
     "--unique",
     help="Ensure file saved with unique name, avoiding overwrites.",
     is_flag=True,
-)
-@click.option(
-    "--version",
-    help="Show the version and exit.",
-    callback=version.callback,
-    is_flag=True,
-    is_eager=True,
-    expose_value=False,
 )
 def convert_command(
     paths: types.FilesPaths,

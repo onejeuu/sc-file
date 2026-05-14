@@ -11,7 +11,6 @@ from scfile.cli import params
 from scfile.core.context.content import RegionContent
 from scfile.core.context.options import UserOptions
 from scfile.enums import CliCommand, L
-from scfile.utils import version
 
 from . import scfile
 
@@ -90,14 +89,6 @@ def merge(
     "--raw",
     is_flag=True,
     help="Raw blocks without lookup",
-)
-@click.option(
-    "--version",
-    help="Show the version and exit.",
-    callback=version.callback,
-    is_flag=True,
-    is_eager=True,
-    expose_value=False,
 )
 def mapcache_command(
     source: types.Path,

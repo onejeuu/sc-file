@@ -34,7 +34,6 @@ docs/locale/pot
 
 # Local tests
 test/
-utils/
 
 # Private files
 .*
