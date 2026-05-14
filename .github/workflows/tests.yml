@@ -29,8 +29,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Run Tests
         run: uv run --group dev pytest
@@ -44,8 +45,9 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Run Tests
         run: uv run --group dev pytest
