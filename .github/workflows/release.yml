@@ -7,6 +7,12 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - "v*-dev"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -16,13 +22,13 @@ jobs:
         include:
           - os: ubuntu-latest
             name: Linux
-            artifact_name: linux-binary
-            binary_name: scfile_linux_x64
+            artifact: linux-binary
+            binary: scfile_linux_x64
             cmd: mv dist/scfile scfile_linux_x64 && chmod +x scfile_linux_x64
           - os: windows-latest
             name: Windows
-            artifact_name: windows-binary
-            binary_name: scfile_windows_x64.exe
+            artifact: windows-binary
+            binary: scfile_windows_x64.exe
             cmd: mv dist/scfile.exe scfile_windows_x64.exe
 
     runs-on: ${{ matrix.os }}
@@ -31,8 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Build Binary
         run: uv run --group build scripts/build.py
@@ -43,19 +50,20 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.binary_name }}
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.binary }}
 
   publish-package:
     name: Publish PyPi
     runs-on: ubuntu-latest
-    if: ${{ !(contains(github.ref_name, '-dev') || contains(github.ref_name, '-rc') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta')) }}
+    if: github.ref_type == 'tag'
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
 
       - name: Build Package
         run: uv build -o ./dist/
@@ -71,26 +79,52 @@ jobs:
     needs: [build]
 
     steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Get Current Date
-        id: date
-        run: echo "date=$(date +'%B %d, %Y')" >> $GITHUB_OUTPUT
+      - name: Define Metadata
+        id: meta
+        shell: bash
+        run: |
+          echo "date=$(date +'%B %d, %Y')" >> "$GITHUB_OUTPUT"
+
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update Dev Tag
+        if: steps.meta.outputs.prerelease == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete "${{ github.ref_name }}" --yes 2>/dev/null || true
+          git push origin ":refs/tags/${{ github.ref_name }}" 2>/dev/null || true
+          git tag "${{ github.ref_name }}" --force
+          git push origin "refs/tags/${{ github.ref_name }}" --force
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        if: github.ref_type == 'tag' || startsWith(github.ref_name, 'v')
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: ${{ steps.meta.outputs.prerelease }}
           generate_release_notes: true
-          prerelease: ${{ contains(github.ref_name, '-dev') || contains(github.ref_name, '-rc') || contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') }}
-          name: Release ${{ github.ref_name }}
           body: |
-            ## `${{ github.ref_name }}` `${{ steps.date.outputs.date }}`
+            ${{ steps.meta.outputs.prerelease == 'true' && '## Development' || '## Release' }} `${{ steps.meta.outputs.date }}`
+            ${{ steps.meta.outputs.prerelease == 'true' && '' }}
+            ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
+            ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and not tested.' || '' }}
           files: |
             artifacts/windows-binary/scfile_windows_x64.exe
             artifacts/linux-binary/scfile_linux_x64

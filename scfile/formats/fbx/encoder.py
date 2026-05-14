@@ -30,7 +30,6 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
         if self._animation_presented:
             self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
-            self.data.scene.animation.convert_to_euler()
 
         self.ctx["NODES"] = []
         self.ctx["CLIPS"] = []

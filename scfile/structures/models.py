@@ -21,9 +21,18 @@ class FlagKey(StrEnum):
     COLORS = auto()
 
 
-Flag = FlagKey
+class UVOrigin(StrEnum):
+    TOP_LEFT = auto()
+    BOTTOM_LEFT = auto()
 
-ModelFlags: TypeAlias = dict[FlagKey, bool]
+
+class SkeletonSpace(StrEnum):
+    GLOBAL = auto()
+    LOCAL = auto()
+
+
+Flag = FlagKey
+ModelFlags: TypeAlias = dict[Flag, bool]
 
 Vector2D: TypeAlias = Annotated[NDArray[np.float32], (..., 2)]
 Vector3D: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
@@ -80,6 +89,9 @@ class ModelMesh:
 
     polygons: Polygons = field(default_factory=lambda: np.zeros((0, 3), dtype=np.uint32))
 
+    uv1_origin: UVOrigin = UVOrigin.TOP_LEFT
+    uv2_origin: UVOrigin = UVOrigin.TOP_LEFT
+
 
 @dataclass
 class SkeletonBone:
@@ -102,12 +114,17 @@ class SkeletonBone:
     def quaternion(self) -> Vector4D:
         return euler_to_quat(self.rotation)
 
+    @property
+    def slug(self) -> str:
+        return "".join(ch for ch in self.name.lower() if ch.isalnum())
+
 
 @dataclass
 class ModelSkeleton:
     """Skeleton bones container."""
 
     bones: List[SkeletonBone] = field(default_factory=list)
+    space: SkeletonSpace = SkeletonSpace.GLOBAL
 
     @property
     def roots(self) -> List[SkeletonBone]:
@@ -215,18 +232,6 @@ class ModelAnimation:
         for clip in self.clips:
             for bone in skeleton.bones:
                 clip.transforms[:, bone.id, 4:7] += bone.position
-
-    def convert_to_euler(self):
-        for clip in self.clips:
-            quats = clip.transforms[:, :, 0:4]
-            x, y, z, w = quats[..., 0], quats[..., 1], quats[..., 2], quats[..., 3]
-
-            roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y))
-            sinp = 2 * (w * y - z * x)
-            pitch = np.where(np.abs(sinp) >= 1, np.sign(sinp) * np.pi / 2, np.arcsin(sinp))
-            yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
-
-            clip.transforms[:, :, 0:3] = np.degrees(np.stack([roll, pitch, yaw], axis=-1))
 
 
 @dataclass
