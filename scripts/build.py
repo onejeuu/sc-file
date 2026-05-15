@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import PyInstaller.__main__
@@ -16,24 +17,23 @@ HOOKS = str(SCRIPTS / "hooks")
 
 
 def build():
-    PyInstaller.__main__.run(
-        [
-            ENTRYPOINT,
-            "-i",
-            FAVICON,
-            "--name",
-            NAME,
-            "--specpath",
-            SPECPATH,
-            "--additional-hooks-dir",
-            HOOKS,
-            "--add-data",
-            f"{FAVICON}:assets",
-            "--add-data",
-            f"{ASSETS}:assets",
-            "--onefile",
-        ]
-    )
+    args: list[tuple[str, ...]] = [
+        (ENTRYPOINT,),
+        ("-i", FAVICON),
+        ("--name", NAME),
+        ("--specpath", SPECPATH),
+        ("--additional-hooks-dir", HOOKS),
+        ("--add-data", f"{FAVICON}:assets"),
+        ("--add-data", f"{ASSETS}:assets"),
+        ("--onefile",),
+    ]
+
+    if sha := os.environ.get("GITHUB_SHA"):
+        commit = Path(SPECPATH) / "commit"
+        commit.write_text(sha.strip())
+        args.append(("--add-data", f"{commit}:."))
+
+    PyInstaller.__main__.run([s for pair in args for s in pair])
 
 
 if __name__ == "__main__":

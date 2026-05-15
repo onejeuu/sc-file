@@ -12,12 +12,6 @@
 [docs]: https://sc-file.readthedocs.io/en/latest
 [contact]: https://onejeuu.t.me
 
-<!-- Usage -->
-
-[usage-dragndrop]: https://en.wikipedia.org/wiki/Drag_and_drop
-[usage-defaultapp]: https://support.microsoft.com/en-us/windows/e5d82cad-17d1-c53b-3505-f10a32e1894d
-[usage-cli]: https://en.wikipedia.org/wiki/Command-line_interface
-
 <!-- Docs -->
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
@@ -49,13 +43,14 @@
 
 ## ✨ Supported Formats
 
-| Type           | Game formats            | →   | Standard formats             |
-| -------------- | ----------------------- | --- | ---------------------------- |
-| 🧊 **Model**   | `.mcsb` `.mcsa` `.mcvd` | →   | `.glb` `.obj` `.dae` `.ms3d` |
-| 🧱 **Texture** | `.ol`                   | →   | `.dds`                       |
-| 🖼️ **Image**   | `.mic`                  | →   | `.png`                       |
-| 📦 **Archive** | `.texarr`               | →   | `.zip`                       |
-| ⚙️ **Data**    | `NBT`\*                 | →   | `.json`                      |
+| Type            | Game formats                        | →   | Standard formats                    |
+| --------------- | ----------------------------------- | --- | ----------------------------------- |
+| 🧊 **Model**    | `.mcsb` `.mcsa` `.mcvd` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
+| 🧱 **Texture**  | `.ol`                               | →   | `.dds`                              |
+| 🖼️ **Image**    | `.mic`                              | →   | `.png`                              |
+| 📦 **Archive**  | `.texarr`                           | →   | `.zip`                              |
+| 🗺 **Region\*** | `.mdat`                             | →   | `.mca`                              |
+| ⚙️ **NBT\***    | `...`                               | →   | `.json`                             |
 
 \* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
@@ -79,12 +74,10 @@ _No Python required._
 
 **Usage:**
 
-- 📥 **Drag & Drop**: drag file onto `scfile.exe`  
-   _[What is drag and drop?][usage-dragndrop]_
-- 🖱️ **Open With**: set as default app for supported formats  
-   _[How to set default app (Windows)?][usage-defaultapp]_
+- 🖱️ **GUI**: launch `scfile.exe` without arguments to open graphical interface with logs console
+- 📥 **Drag & Drop**: drag file onto `scfile.exe`
+- 🖱️ **Open With**: set as default app for supported formats
 - 📟 **Command Line**: `scfile.exe --help`  
-   _[What is command line interface?][usage-cli]_  
    _Example:_ `scfile.exe model.mcsb -F glb --skeleton`  
    _Options: `-F` picks model format, `--skeleton` extracts model armature._
 

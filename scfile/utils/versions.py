@@ -1,13 +1,9 @@
-from typing import NamedTuple, Optional
-
-import click
-from rich import print
-
-from scfile import __version__
-from scfile.consts import CLI
+from dataclasses import dataclass
+from typing import Optional
 
 
-class Version(NamedTuple):
+@dataclass
+class Version:
     major: int
     minor: int
     patch: int
@@ -28,6 +24,19 @@ class Version(NamedTuple):
     def __str__(self) -> str:
         return f"{self.major}.{self.minor}.{self.patch}{f'-{self.suffix}' if self.suffix else ''}"
 
+    def _key(self):
+        return self.major, self.minor, self.patch, self.suffix is not None, self.suffix or ""
+
+    def __lt__(self, other):
+        if not isinstance(other, Version):
+            return NotImplemented
+        return self._key() < other._key()
+
+    def __eq__(self, other):
+        if not isinstance(other, Version):
+            return NotImplemented
+        return self._key() == other._key()
+
 
 def parse(semver: str) -> Version | None:
     try:
@@ -37,17 +46,6 @@ def parse(semver: str) -> Version | None:
 
     except (ValueError, TypeError):
         return None
-
-
-def callback(ctx: click.Context, param: click.Parameter, value: bool):
-    if value:
-        version = parse(__version__)
-
-        print(f"scfile, version {str(version)} {version.emoji if version else ''}")
-        print(CLI.FORMATS)
-        print(CLI.NBT)
-
-        ctx.exit()
 
 
 EMOJIS = [

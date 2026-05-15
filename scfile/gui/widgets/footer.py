@@ -4,7 +4,8 @@ from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
-from scfile import __version__
+from scfile import __repository__ as REPO
+from scfile import __version__ as SEMVER
 from scfile.gui.shared.styles import Styles
 from scfile.utils import files, versions
 
@@ -58,13 +59,12 @@ class FooterWidget(QWidget):
         layout.setContentsMargins(10, 0, 10, 5)
         layout.setSpacing(10)
 
-        semver = __version__
-        version = versions.parse(semver)
-        tag = version.tag if version else semver
+        v = versions.parse(SEMVER)
+        tag = v.tag if v else SEMVER
 
         links = [
-            LinkLabel(text=f"{tag}", url=f"https://github.com/onejeuu/sc-file/releases/tag/{tag}"),
-            LinkLabel(text="onejeuu/sc-file", url="https://github.com/onejeuu/sc-file"),
+            LinkLabel(text=f"{tag}", url=f"https://github.com/{REPO}/releases/tag/{tag}"),
+            LinkLabel(text=f"{REPO}", url=f"https://github.com/{REPO}"),
         ]
 
         for link in links:

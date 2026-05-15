@@ -1,6 +1,7 @@
 from typing import Any, TypeAlias
 
-from scfile import __version__
+from scfile import __repository__ as REPO
+from scfile import __version__ as SEMVER
 
 
 Props: TypeAlias = list[tuple[Any, ...]]
@@ -12,7 +13,7 @@ class FBX:
     HEADER = b"Kaydara FBX Binary  \x00\x1a\x00"
     FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
     NULL_NODE = b"\x00" * 13
-    CREATOR = b"onejeuu/sc-file v" + __version__.encode()
+    CREATOR = f"{REPO} v{SEMVER}".encode()
 
 
 class DEFAULT:
