@@ -23,28 +23,32 @@ def check_feature_unsupported(
 
 
 def version_callback(ctx: click.Context, param: click.Parameter, value: bool):
-    if value:
-        version = versions.parse(SEMVER)
+    if not value:
+        return
 
-        print(f"scfile, version {str(version)} {version.emoji if version else ''}")
-        print(CLI.FORMATS)
-        print(CLI.NBT)
+    version = versions.parse(SEMVER)
+
+    print(f"scfile, version {str(version)} {version.emoji if version else ''}")
+    print(CLI.FORMATS)
+    print(CLI.NBT)
 
     ctx.exit()
 
 
 def updates_callback(ctx: click.Context, param: click.Parameter, value: bool):
-    if value:
-        status, info = updates.check(SEMVER)
+    if not value:
+        return
 
-        match status:
-            case UpdateStatus.UPTODATE:
-                print("[green]✅ You are using the latest version[/]")
+    status, info = updates.check(SEMVER)
 
-            case UpdateStatus.AVAILABLE:
-                print(f"[blue]🔄 Update available: {info}[/]")
+    match status:
+        case UpdateStatus.UPTODATE:
+            print("[green]✅ You are using the latest version[/]")
 
-            case UpdateStatus.ERROR:
-                print(f"[red]❌ Could not check for updates:[/] {info}")
+        case UpdateStatus.AVAILABLE:
+            print(f"[blue]🔄 Update available: {info}[/]")
+
+        case UpdateStatus.ERROR:
+            print(f"[red]❌ Could not check for updates:[/] {info}")
 
     ctx.exit()

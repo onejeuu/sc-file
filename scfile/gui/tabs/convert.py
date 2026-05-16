@@ -111,6 +111,7 @@ class ConverterTab(QWidget):
         title = QLabel(Str.get("label_settings"))
         title.setStyleSheet(Styles.TITLE)
         self.right.addWidget(title)
+        self.right.addSpacing(10)
 
         # File types groups
         self.feat_checks: dict[str, QCheckBox] = {}
