@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.core.context.options import UserOptions

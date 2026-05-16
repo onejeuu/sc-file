@@ -8,7 +8,10 @@ class Colors(Enum):
     CARD = QColor("#2b2b2b")
     BACKGROUND = QColor("#1a1a1a")
     TEXT = QColor("#abb2bf")
+    INFO = QColor("#61afef")
+    SUCCESS = QColor("#98c379")
     WARNING = QColor("#e2a03f")
+    ERROR = QColor("#e06c75")
 
     def __str__(self):
         return self.value.name()
@@ -92,8 +95,18 @@ class Styles:
         QTabBar::tab:hover {{ background: {Colors.CARD.darker}; }}
     """
 
-    LINK = f"""color: {Colors.TEXT.dark}; font-size: 12px;"""
-    LINK_HOVER = f"""color: {Colors.ACCENT}; font-size: 12px;"""
+    POPUP = f"""
+        UpdatePopup {{
+            background-color: {Colors.BACKGROUND.lighter};
+            border: 1px solid {Colors.CARD.lighter};
+        }}
+        QLabel {{
+            background: transparent;
+        }}
+    """
+
+    LINK = f"""background-color: transparent; color: {Colors.TEXT.dark}; font-size: 12px;"""
+    LINK_HOVER = f"""background-color: transparent; color: {Colors.ACCENT}; font-size: 12px;"""
 
     TITLE = "font-weight: bold; font-size: 16px;"
     LABEL = "font-weight: bold; font-size: 14px;"

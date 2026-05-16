@@ -100,6 +100,11 @@ class Strings:
         "fmt_images": {"EN": "Images", "RU": "Изображения"},
         "fmt_texarr": {"EN": "Texture Array", "RU": "Массив Текстур"},
         "fmt_nbt": {"EN": "NBT Data", "RU": "NBT Данные"},
+        "update_checking": {"EN": "Checking for updates...", "RU": "Проверка обновлений..."},
+        "update_uptodate": {"EN": "You are using the latest version", "RU": "Вы используете последнюю версию"},
+        "update_available": {"EN": "Update available", "RU": "Доступно обновление"},
+        "update_error": {"EN": "Could not check for updates", "RU": "Не удалось проверить обновления"},
+        "update_manual": {"EN": "Check manually", "RU": "Проверьте вручную"},
     }
 
     @classmethod
