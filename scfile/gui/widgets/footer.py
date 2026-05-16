@@ -1,54 +1,9 @@
-from typing import Optional
-
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QMouseEvent, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QWidget
 
 from scfile import __repository__ as REPO
-from scfile import __version__ as SEMVER
-from scfile.gui.shared.styles import Styles
-from scfile.utils import files, versions
 
-
-class LinkLabel(QWidget):
-    def __init__(self, text: str, url: str, icon: Optional[str] = None, parent: Optional[QWidget] = None):
-        super().__init__(parent)
-        self.url = url
-
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
-        self.setStyleSheet(Styles.LINK)
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-        layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-
-        if icon:
-            self.icon_label = QLabel()
-            aspect = Qt.AspectRatioMode.KeepAspectRatio
-            mode = Qt.TransformationMode.SmoothTransformation
-            pixmap = QPixmap(str(files.resource(icon)))
-            pixmap = pixmap.scaled(12, 12, aspect, mode)
-            self.icon_label.setPixmap(pixmap)
-            layout.addWidget(self.icon_label)
-
-        self.text_label = QLabel(text)
-        layout.addWidget(self.text_label)
-
-    def leaveEvent(self, event):
-        self.setStyleSheet(Styles.LINK)
-        super().leaveEvent(event)
-
-    def enterEvent(self, event):
-        self.setStyleSheet(Styles.LINK_HOVER)
-        super().enterEvent(event)
-
-    def mouseReleaseEvent(self, event: QMouseEvent):
-        if event.button() == Qt.MouseButton.LeftButton:
-            if self.rect().contains(event.pos()):
-                QDesktopServices.openUrl(QUrl(self.url))
-        super().mouseReleaseEvent(event)
+from .link import LinkWidget
+from .version import VersionWidget
 
 
 class FooterWidget(QWidget):
@@ -59,15 +14,9 @@ class FooterWidget(QWidget):
         layout.setContentsMargins(10, 0, 10, 5)
         layout.setSpacing(10)
 
-        v = versions.parse(SEMVER)
-        tag = v.tag if v else SEMVER
+        version = VersionWidget()
+        repo = LinkWidget(text=f"{REPO}", url=f"https://github.com/{REPO}")
 
-        links = [
-            LinkLabel(text=f"{tag}", url=f"https://github.com/{REPO}/releases/tag/{tag}"),
-            LinkLabel(text=f"{REPO}", url=f"https://github.com/{REPO}"),
-        ]
-
-        for link in links:
-            layout.addWidget(link)
-
+        layout.addWidget(version)
+        layout.addWidget(repo)
         layout.addStretch()

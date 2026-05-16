@@ -10,7 +10,7 @@ from . import files, versions
 
 TIMEOUT = 5
 
-UpdateCheck: TypeAlias = tuple[Status, str]
+UpdateCheck: TypeAlias = tuple[Status, str, str]
 
 
 def fetch(url: str) -> dict[str, Any] | None:
@@ -41,39 +41,39 @@ def _check_dev(v: versions.Version) -> UpdateCheck:
     sha = current()
     if not sha:
         url = f"https://github.com/{REPO}/releases/tag/{v.tag}"
-        return (Status.ERROR, f"local commit sha not found. check manually: {url}")
+        return (Status.ERROR, "local commit sha not found", url)
 
     data = fetch(f"https://api.github.com/repos/{REPO}/commits/{v.tag}")
     if not data:
-        return (Status.ERROR, "network error")
+        return (Status.ERROR, "network error", "")
 
     remote_sha = data.get("sha")
     if remote_sha != sha:
-        return (Status.AVAILABLE, f"https://github.com/{REPO}/releases/tag/{v.tag}")
+        return (Status.AVAILABLE, "", f"https://github.com/{REPO}/releases/tag/{v.tag}")
 
-    return (Status.UPTODATE, "")
+    return (Status.UPTODATE, "", "")
 
 
 def _check_release(v: versions.Version) -> UpdateCheck:
     data = fetch(f"https://api.github.com/repos/{REPO}/releases/latest")
     if data is None:
-        return (Status.ERROR, "network error")
+        return (Status.ERROR, "network error", "")
 
     tag = data.get("tag_name", "")
     remote_v = versions.parse(tag)
     if not remote_v:
-        return (Status.ERROR, f"invalid remote version format '{tag}'")
+        return (Status.ERROR, f"invalid remote version format '{tag}'", "")
 
     if remote_v and remote_v > v:
-        return (Status.AVAILABLE, f"https://github.com/{REPO}/releases/tag/{tag}")
+        return (Status.AVAILABLE, "", f"https://github.com/{REPO}/releases/tag/{tag}")
 
-    return (Status.UPTODATE, "")
+    return (Status.UPTODATE, "", "")
 
 
 def check(semver: str) -> UpdateCheck:
     v = versions.parse(semver)
     if not v:
-        return (Status.ERROR, f"invalid version format '{semver}'")
+        return (Status.ERROR, f"invalid version format '{semver}'", "")
 
     if "dev" in str(v.suffix).lower():
         return _check_dev(v)
