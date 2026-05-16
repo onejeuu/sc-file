@@ -26,9 +26,19 @@ class UVOrigin(StrEnum):
     BOTTOM_LEFT = auto()
 
 
+class UVSign(StrEnum):
+    POSITIVE = auto()
+    NEGATIVE = auto()
+
+
 class SkeletonSpace(StrEnum):
     GLOBAL = auto()
     LOCAL = auto()
+
+
+class SkeletonHierarchy(StrEnum):
+    FLAT = auto()
+    BUILT = auto()
 
 
 Flag = FlagKey
@@ -89,8 +99,8 @@ class ModelMesh:
 
     polygons: Polygons = field(default_factory=lambda: np.zeros((0, 3), dtype=np.uint32))
 
-    uv1_origin: UVOrigin = UVOrigin.TOP_LEFT
-    uv2_origin: UVOrigin = UVOrigin.TOP_LEFT
+    uv_origin: UVOrigin = UVOrigin.TOP_LEFT
+    uv_sign: UVSign = UVSign.POSITIVE
 
 
 @dataclass
@@ -125,6 +135,7 @@ class ModelSkeleton:
 
     bones: List[SkeletonBone] = field(default_factory=list)
     space: SkeletonSpace = SkeletonSpace.GLOBAL
+    hierarchy: SkeletonHierarchy = SkeletonHierarchy.FLAT
 
     @property
     def roots(self) -> List[SkeletonBone]:
@@ -227,6 +238,8 @@ class ModelAnimation:
     """Animation clips container."""
 
     clips: list[AnimationClip] = field(default_factory=list)
+    # translations DELTA
+    # rotations QUATERNION
 
     def convert_to_local(self, skeleton: ModelSkeleton):
         for clip in self.clips:
