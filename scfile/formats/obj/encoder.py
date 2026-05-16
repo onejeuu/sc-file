@@ -1,7 +1,7 @@
 import numpy as np
 
 from scfile.core import FileEncoder, ModelContent
-from scfile.enums import FileFormat
+from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag
 
@@ -10,6 +10,7 @@ from . import faces
 
 class ObjEncoder(FileEncoder[ModelContent]):
     format = FileFormat.OBJ
+    order = ByteOrder.LITTLE
 
     def prepare(self):
         self.data.scene.ensure_unique_names()

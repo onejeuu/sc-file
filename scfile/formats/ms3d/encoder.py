@@ -2,7 +2,7 @@ import numpy as np
 
 from scfile.consts import FileSignature, McsaModel
 from scfile.core import FileEncoder, ModelContent
-from scfile.enums import F, FileFormat
+from scfile.enums import ByteOrder, F, FileFormat
 
 from .io import Ms3dFileIO
 
@@ -18,6 +18,7 @@ MAX_TRIANGLES = 0xFFFF
 class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
+    order = ByteOrder.LITTLE
 
     def prepare(self):
         self.data.scene.ensure_unique_names()

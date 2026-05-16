@@ -1,11 +1,12 @@
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ImageContent
-from scfile.enums import FileFormat
+from scfile.enums import ByteOrder, FileFormat
 
 
 class MicDecoder(FileDecoder[ImageContent]):
     format = FileFormat.MIC
     signature = FileSignature.MIC
+    order = ByteOrder.LITTLE
 
     _content = ImageContent
 
