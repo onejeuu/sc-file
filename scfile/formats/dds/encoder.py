@@ -1,6 +1,6 @@
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, TextureContent
-from scfile.enums import F, FileFormat
+from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 from scfile.structures.textures import TextureType
 
@@ -11,6 +11,7 @@ from .mask import BGRA8, RGBA8
 class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
     format = FileFormat.DDS
     signature = FileSignature.DDS
+    order = ByteOrder.LITTLE
 
     def serialize(self):
         self._add_header()

@@ -16,8 +16,8 @@ from .io import OlFileIO
 # mro nightmare
 class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[TextureType], ABC):
     format = FileFormat.OL
-    order = ByteOrder.BIG
     signature = FileSignature.OL
+    order = ByteOrder.BIG
 
     def to_dds(self):
         from scfile.formats.dds.encoder import DdsEncoder

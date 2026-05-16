@@ -16,8 +16,8 @@ from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
 class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     format = FileFormat.MCSA
-    order = ByteOrder.LITTLE
     signature = FileSignature.MCSA
+    order = ByteOrder.LITTLE
 
     _content = ModelContent
 

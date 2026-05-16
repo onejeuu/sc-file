@@ -8,8 +8,8 @@ from scfile.structures import models as S
 
 class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
     format = FileFormat.MCAL
-    order = ByteOrder.LITTLE
     signature = FileSignature.MCAL
+    order = ByteOrder.LITTLE
 
     _content = ModelContent
 

@@ -6,7 +6,7 @@ import numpy as np
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
-from scfile.enums import F, FileFormat
+from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.models import Flag
 
 from . import base
@@ -23,6 +23,7 @@ Accessor: TypeAlias = dict[str, str | int]
 class GlbEncoder(FileEncoder[ModelContent]):
     format = FileFormat.GLB
     signature = FileSignature.GLTF
+    order = ByteOrder.LITTLE
 
     def prepare(self):
         self.data.scene.ensure_unique_names()
