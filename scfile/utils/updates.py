@@ -1,6 +1,6 @@
 import json
 import urllib.request
-from typing import Any
+from typing import Any, TypeAlias
 
 from scfile import __repository__ as REPO
 from scfile.enums import UpdateStatus as Status
@@ -9,6 +9,8 @@ from . import files, versions
 
 
 TIMEOUT = 5
+
+UpdateCheck: TypeAlias = tuple[Status, str]
 
 
 def fetch(url: str) -> dict[str, Any] | None:
@@ -35,7 +37,7 @@ def current() -> str | None:
     return None
 
 
-def _check_dev(v: versions.Version) -> tuple[Status, str]:
+def _check_dev(v: versions.Version) -> UpdateCheck:
     sha = current()
     if not sha:
         url = f"https://github.com/{REPO}/releases/tag/{v.tag}"
@@ -52,25 +54,28 @@ def _check_dev(v: versions.Version) -> tuple[Status, str]:
     return (Status.UPTODATE, "")
 
 
-def _check_release(v: versions.Version) -> tuple[Status, str]:
-    latest = fetch(f"https://api.github.com/repos/{REPO}/releases/latest")
-    if latest is None:
+def _check_release(v: versions.Version) -> UpdateCheck:
+    data = fetch(f"https://api.github.com/repos/{REPO}/releases/latest")
+    if data is None:
         return (Status.ERROR, "network error")
 
-    tag = latest.get("tag_name", "")
+    tag = data.get("tag_name", "")
     remote_v = versions.parse(tag)
+    if not remote_v:
+        return (Status.ERROR, f"invalid remote version format '{tag}'")
+
     if remote_v and remote_v > v:
         return (Status.AVAILABLE, f"https://github.com/{REPO}/releases/tag/{tag}")
 
     return (Status.UPTODATE, "")
 
 
-def check(semver: str) -> tuple[Status, str]:
+def check(semver: str) -> UpdateCheck:
     v = versions.parse(semver)
     if not v:
         return (Status.ERROR, f"invalid version format '{semver}'")
 
-    if "dev" in str(v.suffix):
+    if "dev" in str(v.suffix).lower():
         return _check_dev(v)
 
     return _check_release(v)
