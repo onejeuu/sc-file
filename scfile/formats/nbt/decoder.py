@@ -3,14 +3,13 @@ import gzip
 import zstandard as zstd
 
 from scfile.core import FileDecoder, NbtContent
-from scfile.core.io import StructFileIO
 from scfile.enums import ByteOrder, FileFormat
 
 from .enums import Tag
-from .io import NbtBytesIO
+from .io import NbtBufferIO
 
 
-class NbtDecoder(FileDecoder[NbtContent], StructFileIO):
+class NbtDecoder(FileDecoder[NbtContent]):
     format = FileFormat.NBT
     order = ByteOrder.LITTLE
 
@@ -23,8 +22,7 @@ class NbtDecoder(FileDecoder[NbtContent], StructFileIO):
 
     def parse(self):
         data = self._decompress()
-
-        stream = NbtBytesIO(data)
+        stream = NbtBufferIO(data)
 
         # Read root tag
         tag = stream._read_tag()

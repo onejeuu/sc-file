@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.core.context.options import UserOptions
+from scfile.core import UserOptions
 from scfile.gui import workers
 from scfile.gui.shared import consts
 from scfile.gui.shared.consts import FT

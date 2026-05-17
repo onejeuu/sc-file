@@ -3,11 +3,11 @@ Extensions for OL file format with custom struct-based I/O methods.
 """
 
 from scfile.consts import CubemapFaces, OlString
-from scfile.core.io import StructFileIO
+from scfile.core import StructIO
 from scfile.enums import F
 
 
-class OlFileIO(StructFileIO):
+class OlFileIO(StructIO):
     def _readsizes(self, mipmap_count: int) -> list[int]:
         return [self._readb(F.U32) for _ in range(mipmap_count)]
 

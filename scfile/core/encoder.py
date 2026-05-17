@@ -1,34 +1,31 @@
-"""
-Base class for file encoder (serialization).
-"""
-
 from abc import ABC, abstractmethod
+from io import BytesIO
 from typing import Any, Generic, Optional, Self, TypeAlias
 
-from scfile.enums import FileMode
 from scfile.structures.models import Flag
 from scfile.structures.models.transforms import SceneTransform
 from scfile.types import PathLike
 
-from .base import BaseFile
-from .context import ContentType, ModelContent, UserOptions
-from .io import StructBytesIO
+from .base import BaseFile, IOStream
+from .content import ContentType, ModelContent
+from .options import UserOptions
 
 
 EncoderContext: TypeAlias = dict[str, Any]
 EncoderTransforms: TypeAlias = Optional[list[SceneTransform]]
 
 
-class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
+class FileEncoder(BaseFile, Generic[ContentType], ABC):
     """Base class for encoding structured data objects into file content."""
 
     transforms: EncoderTransforms = None
 
-    @property
-    def mode(self) -> str:
-        return FileMode.WRITE
-
-    def __init__(self, data: ContentType, options: Optional[UserOptions] = None):
+    def __init__(
+        self,
+        data: ContentType,
+        options: Optional[UserOptions] = None,
+        output: Optional[IOStream] = None,
+    ):
         """Initialize file encoder with content data and options.
 
         Arguments:
@@ -49,12 +46,17 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         self.options: UserOptions = options or UserOptions()
         self.ctx: EncoderContext = {}
 
+        super().__init__(output or BytesIO(), mode="wb")
+
     @property
     def suffix(self) -> str:
         """Return standard file extension for this format (with dot)."""
         return self.format.suffix
 
-    def encode(self, transforms: EncoderTransforms = None) -> Self:
+    def encode(
+        self,
+        transforms: EncoderTransforms = None,
+    ) -> Self:
         """Encode data: prelude, apply transform, add signature, serialize. Returns self."""
         self.prelude()
         self.transform(transforms=transforms)
@@ -66,7 +68,10 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         """Runs before file transform and serialization."""
         pass
 
-    def transform(self, transforms: EncoderTransforms = None):
+    def transform(
+        self,
+        transforms: EncoderTransforms = None,
+    ):
         transforms = transforms or self.transforms
         if transforms and isinstance(self.data, ModelContent):
             scene = self.data.scene
@@ -84,23 +89,39 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         """Convert structured `self.data` into bytes and write to buffer."""
         pass
 
-    def save_as(self, path: PathLike) -> None:
+    def save_as(
+        self,
+        path: PathLike,
+        mode: str = "wb",
+    ) -> None:
         """Write buffer content to file. Keeps encoder open."""
-        with open(path, mode=self.mode) as fp:
+        with open(path, mode=mode) as fp:
             fp.write(self.getvalue())
 
-    def export_as(self, path: PathLike) -> None:
+    def export_as(
+        self,
+        path: PathLike,
+        mode: str = "wb",
+    ) -> None:
         """Save to path (without suffix) adding format suffix automatically. Keeps encoder open."""
-        self.save_as(path=f"{path}{self.suffix}")
+        self.save_as(path=f"{path}{self.suffix}", mode=mode)
 
-    def save(self, path: PathLike) -> None:
+    def save(
+        self,
+        path: PathLike,
+        mode: str = "wb",
+    ) -> None:
         """Write buffer content to file. Closes encoder."""
-        self.save_as(path=path)
+        self.save_as(path=path, mode=mode)
         self.close()
 
-    def export(self, path: PathLike) -> None:
+    def export(
+        self,
+        path: PathLike,
+        mode: str = "wb",
+    ) -> None:
         """Save to path (without suffix) adding format suffix automatically. Closes encoder."""
-        self.save(path=f"{path}{self.suffix}")
+        self.save(path=f"{path}{self.suffix}", mode=mode)
         self.close()
 
     def close(self) -> None:

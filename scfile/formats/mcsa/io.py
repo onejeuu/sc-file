@@ -4,25 +4,15 @@ Extensions for MCSA file format with custom struct-based I/O methods.
 
 import numpy as np
 
-from scfile.consts import Factor, ModelDefaults
-from scfile.core.io import StructFileIO
+from scfile.consts import Factor
+from scfile.core import StructIO
 from scfile.enums import F
 from scfile.structures import models as S
 
 from .consts import McsaUnits
-from .exceptions import McsaCountsLimit
 
 
-class McsaFileIO(StructFileIO):
-    def _readcount(self, type: str) -> int:
-        count = self._readb(F.U32)
-
-        # ? Prevent memory overflow
-        if count > ModelDefaults.GEOMETRY_LIMIT:
-            raise McsaCountsLimit(self.path, type, count)
-
-        return count
-
+class McsaFileIO(StructIO):
     def _readvertex(self, fmt: str, factor: float, units: int, count: int, scale: float = 1.0):
         # Read array
         data = self._readarray(fmt, count * units)

@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
-from scfile.core import FileDecoder, FileEncoder
-from scfile.core.context import ContentType
+from scfile.core import ContentType, FileDecoder, FileEncoder
 
 
 class Results(NamedTuple):

@@ -6,8 +6,7 @@ from pathlib import Path
 from typing import Optional, Type
 
 from scfile import exceptions, types
-from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.context import ContentType
+from scfile.core import ContentType, FileDecoder, FileEncoder, UserOptions
 
 
 def convert(
@@ -36,12 +35,12 @@ def convert(
     options = options or UserOptions()
 
     if not src_path.exists() or not src_path.is_file():
-        raise exceptions.FileNotFound(src_path)
+        raise exceptions.FileNotFound(str(src_path))
 
     if not out_dir.exists():
         out_dir.mkdir(exist_ok=True, parents=True)
 
-    with decoder(file=src_path, options=options) as src:
+    with decoder(src_path, options) as src:
         with src.convert_to(encoder=encoder) as out:
             output = out_dir / f"{src_path.stem}{out.suffix}"
 

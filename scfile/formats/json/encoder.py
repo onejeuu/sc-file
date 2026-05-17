@@ -1,7 +1,6 @@
 import json
 
-from scfile.core import FileEncoder
-from scfile.core.context import NbtContent
+from scfile.core import FileEncoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 
 

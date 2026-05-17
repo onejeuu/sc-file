@@ -1,28 +1,24 @@
-"""
-Base class for file decoder (parsing).
-"""
-
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, Type
 
 from scfile import exceptions
-from scfile.enums import FileMode
-from scfile.types import PathLike
 
-from .base import BaseFile
-from .context import ContentType, UserOptions
+from .base import BaseFile, IOStream
+from .content import ContentType
 from .encoder import FileEncoder
-from .io import StructFileIO
+from .options import UserOptions
 
 
-class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
+class FileDecoder(BaseFile, Generic[ContentType], ABC):
     """Base class for decoding file content into structured data objects."""
-
-    mode: str = FileMode.READ
 
     _content: type[ContentType]
 
-    def __init__(self, file: PathLike, options: Optional[UserOptions] = None):
+    def __init__(
+        self,
+        stream: IOStream,
+        options: Optional[UserOptions] = None,
+    ):
         """Initialize file decoder with source file and options.
 
         Arguments:
@@ -39,13 +35,15 @@ class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
             Call `decode()` to perform parsing process.
         """
 
-        self.file = file
         self.options: UserOptions = options or UserOptions()
         self.data: ContentType = self._content()
 
-        super().__init__(file=self.file, mode=self.mode)
+        super().__init__(stream=stream, mode="rb")
 
-    def decode(self, seek: bool = True) -> ContentType:
+    def decode(
+        self,
+        seek: bool = True,
+    ) -> ContentType:
         """Decode file: prelude, validate signature, parse. Returns parsed data."""
         self.prelude()
         self.validate_signature()
@@ -89,14 +87,14 @@ class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
 
     def validate_signature(self) -> None:
         """Validate file signature. Raises `EmptyFileError` or `InvalidSignatureError` on failure."""
-        if self.filesize <= len(self.signature or bytes()):
-            raise exceptions.EmptyFileError(self.path)
+        if self.size <= len(self.signature or bytes()):
+            raise exceptions.EmptyFileError(self.location)
 
         if self.signature:
             read = self.read(len(self.signature))
 
             if read != self.signature:
-                raise exceptions.InvalidSignatureError(self.path, read, self.signature)
+                raise exceptions.InvalidSignatureError(self.location, read, self.signature)
 
     def close(self) -> None:
         """Close file buffer. Same as `FileIO.close()`."""

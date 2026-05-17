@@ -1,6 +1,5 @@
 from scfile.consts import FileSignature
-from scfile.core.context.content import ModelContent
-from scfile.core.decoder import FileDecoder
+from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.mcsa.io import McsaFileIO
 from scfile.structures import models as S

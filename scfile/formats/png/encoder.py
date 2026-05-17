@@ -1,6 +1,5 @@
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder
-from scfile.core.context import ImageContent
+from scfile.core import FileEncoder, ImageContent
 from scfile.enums import ByteOrder, FileFormat
 
 

@@ -1,8 +1,5 @@
-import pathlib
 from dataclasses import dataclass
 from typing import Optional
-
-from scfile.types import PathLike
 
 
 class ScFileException(Exception):
@@ -50,14 +47,10 @@ class BaseIOError(ScFileException):
 class FileError(BaseIOError):
     """Base exception occurring file i/o operations."""
 
-    file: PathLike
-
-    @property
-    def path(self) -> pathlib.Path:
-        return pathlib.Path(self.file)
+    location: str
 
     def __str__(self):
-        return f"{super().__str__()} '{self.path.as_posix()}'"
+        return f"{super().__str__()} '{self.location}'"
 
 
 @dataclass
@@ -80,8 +73,10 @@ class EmptyFileError(FileError):
 class UnsupportedFormatError(FileError):
     """Raised when file format (by suffix) is not supported."""
 
+    suffix: str
+
     def __str__(self):
-        return f"{super().__str__()} has unsupported suffix '{self.path.suffix}'."
+        return f"{super().__str__()} has unsupported suffix '{self.suffix}'."
 
 
 @dataclass
