@@ -34,6 +34,33 @@ class McsaFileIO(StructFileIO):
         # attribute = position[3] / normal[3] / uv[2]
         return data.reshape(-1, units)
 
+    def _readnormals(self, count: int):
+        normals = self._readvertex(
+            fmt=F.I8,
+            factor=Factor.I8,
+            units=McsaUnits.NORMALS,
+            count=count,
+        )[:, :3]
+        norm = np.linalg.norm(normals, axis=1, keepdims=True)
+        return np.divide(normals, norm, out=np.zeros_like(normals), where=norm != 0)
+
+    def _readtangents(self, count: int):
+        tangents = self._readvertex(
+            fmt=F.I8,
+            factor=Factor.I8,
+            units=McsaUnits.TANGENTS,
+            count=count,
+        )
+
+        xyz = tangents[:, :3]
+        norm = np.linalg.norm(xyz, axis=1, keepdims=True)
+        tangents[:, :3] = np.divide(xyz, norm, out=np.zeros_like(xyz), where=norm != 0)
+
+        w = tangents[:, 3]
+        tangents[:, 3] = np.where(w >= 0, 1.0, -1.0)
+
+        return tangents
+
     def _readpolygons(self, count: int, quads: bool = False):
         units = McsaUnits.QUADS if quads else McsaUnits.TRIANGLES
 
@@ -122,14 +149,14 @@ def _apply_bones_mapping(ids: np.ndarray, bones: S.BonesMapping) -> S.LinksIds:
 
 
 def _links(ids: np.ndarray, weights: np.ndarray, bones: S.BonesMapping) -> S.Links:
-    # Convert local bone ids to skeleton bone ids
     ids = _apply_bones_mapping(ids, bones)
-
-    # Clean empty ids
     ids[weights == 0.0] = 0
 
-    # Scale, Round, Normalize
     weights = weights.astype(F.F32) * np.float32(1.0 / Factor.U8)
 
-    # Reshape to vertex[bone_ids[units]], vertex[weights[units]]
-    return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32).reshape(-1, 4))
+    # Normalize weights
+    weights = weights.reshape(-1, 4)
+    sums = weights.sum(axis=1, keepdims=True)
+    weights = np.divide(weights, sums, out=np.zeros_like(weights), where=sums != 0)
+
+    return (ids.astype(F.U8).reshape(-1, 4), weights.astype(F.F32))

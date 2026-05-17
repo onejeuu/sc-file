@@ -16,12 +16,13 @@ from .io import StructBytesIO
 
 
 EncoderContext: TypeAlias = dict[str, Any]
+EncoderTransforms: TypeAlias = Optional[list[SceneTransform]]
 
 
 class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
     """Base class for encoding structured data objects into file content."""
 
-    transforms: Optional[list[SceneTransform]] = None
+    transforms: EncoderTransforms = None
 
     @property
     def mode(self) -> str:
@@ -53,10 +54,10 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         """Return standard file extension for this format (with dot)."""
         return self.format.suffix
 
-    def encode(self) -> Self:
+    def encode(self, transforms: EncoderTransforms = None) -> Self:
         """Encode data: prelude, apply transform, add signature, serialize. Returns self."""
         self.prelude()
-        self.transform()
+        self.transform(transforms=transforms)
         self.add_signature()
         self.serialize()
         return self
@@ -65,11 +66,12 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         """Runs before file transform and serialization."""
         pass
 
-    def transform(self):
-        if self.transforms and isinstance(self.data, ModelContent):
+    def transform(self, transforms: EncoderTransforms = None):
+        transforms = transforms or self.transforms
+        if transforms and isinstance(self.data, ModelContent):
             scene = self.data.scene
-            for transform in self.transforms:
-                scene = transform(scene)
+            for tr in transforms:
+                scene = tr(scene)
             self.data.scene = scene
 
     def add_signature(self) -> None:
