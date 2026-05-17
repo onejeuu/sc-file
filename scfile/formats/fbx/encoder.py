@@ -93,8 +93,8 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
 
-            if self._animation_presented:
-                self._write_animation()
+            # if self._animation_presented:
+            #    self._write_animation()
 
         # Connections
         with self._node(b"Connections", root=True):
@@ -316,6 +316,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
                     self._leaf(b"Node", [np.int64(bone_id)])
                     self._leaf(b"Matrix", [matrix])
 
+    """"
     def _write_animation(self):
         for clip in self.data.scene.animation.clips:
             stack_id = self._next_id()
@@ -379,6 +380,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
                 self.ctx["CLIPS"].append((r_node_id, bone_id, b"Lcl Rotation"))
                 self.ctx["CLIPS"].append((layer_id, t_node_id))
                 self.ctx["CLIPS"].append((layer_id, r_node_id))
+   """
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):

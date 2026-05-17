@@ -74,7 +74,11 @@ class McsaFileIO(StructFileIO):
 
         # Reshape to clip[frames][bones][transforms[7]]
         # transforms = [rotation[4], translation[3]]
-        return data.reshape(times_count, bones_count, units)
+        data = data.reshape(times_count, bones_count, units)
+        rotations = data[:, :, :4]
+        translations = data[:, :, 4:7]
+
+        return rotations, translations
 
     def _readpackedlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
         units = McsaUnits.LINKS

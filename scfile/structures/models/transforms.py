@@ -116,13 +116,13 @@ def animation_to_absolute(scene: ModelScene) -> ModelScene:
         return scene
 
     skeleton = scene.skeleton
+    positions = np.array([bone.position for bone in skeleton.bones], dtype=np.float32)
     new_clips: list[AnimationClip] = []
 
     for clip in scene.animation.clips:
-        new_transforms = clip.transforms.copy()
-        positions = np.array([bone.position for bone in skeleton.bones], dtype=np.float32)
-        new_transforms[:, :, 4:7] += positions[np.newaxis, :, :]
-        new_clips.append(replace(clip, transforms=new_transforms))
+        new_translations = clip.translations.copy()
+        new_translations += positions[np.newaxis, :, :]
+        new_clips.append(replace(clip, translations=new_translations))
 
     new_animation = replace(
         scene.animation,

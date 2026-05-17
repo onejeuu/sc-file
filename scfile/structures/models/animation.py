@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .enums import AnimationRotation, AnimationTranslation
-from .types import AnimationTimes, AnimationTransforms
+from .types import AnimationRotations, AnimationTimes, AnimationTranslations
 
 
 @dataclass
@@ -13,7 +13,8 @@ class AnimationClip:
     name: str = "clip"
     frames: int = 0
     rate: float = 0.33
-    transforms: AnimationTransforms = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
+    translations: AnimationTranslations = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
+    rotations: AnimationRotations = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
 
     @property
     def times(self) -> AnimationTimes:
