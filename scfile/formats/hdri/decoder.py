@@ -9,7 +9,7 @@ from scfile.structures.textures import CubemapTexture
 class OlCubemapDecoder(BaseOlDecoder[CubemapTexture]):
     _content = TextureContent
 
-    def prepare(self):
+    def prelude(self):
         self.data.texture = CubemapTexture()
 
     def _parse_sizes(self):

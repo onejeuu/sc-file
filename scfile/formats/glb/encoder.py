@@ -285,7 +285,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self._add_meshes()
 
         if self._skeleton_presented:
-            self._add_bindmatrix()
+            bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
+            self.write(bindpose.tobytes())
 
         if self._animation_presented:
             self._add_animation()
@@ -335,11 +336,6 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # ABC Polygons
             self.write(mesh.polygons.flatten().tobytes())
-
-    def _add_bindmatrix(self):
-        # Skeleton bones bind matrix
-        bind_matrix = self.data.scene.skeleton.inverse_bind_matrices(transpose=True).tobytes()
-        self.write(bind_matrix)
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:
