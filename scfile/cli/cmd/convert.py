@@ -8,6 +8,7 @@ from scfile import convert, exceptions, types
 from scfile.cli import params
 from scfile.consts import CLI, Formats
 from scfile.core import UserOptions
+from scfile.core.options import OnConflict
 from scfile.enums import CliCommand, L
 from scfile.utils import files
 from scfile.utils.cli import check_feature_unsupported
@@ -51,9 +52,10 @@ from . import scfile
     is_flag=True,
 )
 @click.option(
-    "--unique",
-    help="Ensure file saved with unique name, avoiding overwrites.",
-    is_flag=True,
+    "--on-conflict",
+    type=params.OnConflict,
+    default="overwrite",
+    help="What to do when output file already exists.",
 )
 def convert_command(
     paths: types.FilesPaths,
@@ -63,7 +65,7 @@ def convert_command(
     parent: bool,
     skeleton: bool,
     animation: bool,
-    unique: bool,
+    on_conflict: OnConflict,
 ) -> None:
     # Normalize options
     model_formats = mdlformat or None
@@ -89,7 +91,7 @@ def convert_command(
         model_formats=model_formats,
         parse_skeleton=skeleton,
         parse_animation=animation,
-        overwrite=not unique,
+        on_conflict=on_conflict,
     )
 
     out = str(output) if output else None

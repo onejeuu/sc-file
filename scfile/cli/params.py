@@ -43,3 +43,8 @@ Formats = click.Choice(
     choices=list(OutputFormats.MODELS),
     case_sensitive=False,
 )
+
+OnConflict = click.Choice(
+    choices=["overwrite", "skip", "rename"],
+    case_sensitive=False,
+)

@@ -377,7 +377,7 @@ class ConverterTab(QWidget):
                 model_formats=[fmt.id] if fmt else None,
                 parse_skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
                 parse_animation=ft_animation.isEnabled() and ft_animation.isChecked(),
-                overwrite=not self.unique_names.isChecked(),
+                on_conflict="rename" if self.unique_names.isChecked() else "overwrite",
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),
