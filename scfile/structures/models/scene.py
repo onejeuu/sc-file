@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
 
-import numpy as np
-
 from .animation import ModelAnimation
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
@@ -44,15 +42,3 @@ class ModelScene:
     @property
     def total_polygons(self):
         return sum(mesh.count.polygons for mesh in self.meshes)
-
-    def normalize_vectors(self):
-        for mesh in self.meshes:
-            if mesh.normals is not None and mesh.normals.size > 0:
-                norm = np.linalg.norm(mesh.normals, axis=1, keepdims=True)
-                mesh.normals = np.divide(mesh.normals, norm, out=np.zeros_like(mesh.normals), where=norm != 0)
-
-            if mesh.tangents is not None and mesh.tangents.size > 0:
-                xyz = mesh.tangents[:, :3]
-                norm = np.linalg.norm(xyz, axis=1, keepdims=True)
-                normalized_xyz = np.divide(xyz, norm, out=np.zeros_like(xyz), where=norm != 0)
-                mesh.tangents[:, :3] = normalized_xyz

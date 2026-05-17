@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-import numpy as np
-
 from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -136,12 +134,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Vertices normals
         if self.data.flags[Flag.NORMALS]:
-            self._parse_normals(mesh)
+            mesh.normals = self._readnormals(mesh.count.vertices)
 
         # ? Not parsed
         # Vertices tangents
         if self.data.flags[Flag.TANGENTS]:
-            self._parse_tangents(mesh)
+            mesh.tangents = self._readtangents(mesh.count.vertices)
 
         # ? Not parsed
         # Vertices rgba colors
@@ -183,27 +181,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             count=mesh.count.vertices,
             scale=self.data.scene.scale.uv2,
         )
-
-    def _parse_normals(self, mesh: S.ModelMesh):
-        mesh.normals = self._readvertex(
-            fmt=F.I8,
-            factor=Factor.I8,
-            units=McsaUnits.NORMALS,
-            count=mesh.count.vertices,
-        )[:, :3]
-
-    def _parse_tangents(self, mesh: S.ModelMesh):
-        tangents = self._readvertex(
-            fmt=F.I8,
-            factor=Factor.I8,
-            units=McsaUnits.TANGENTS,
-            count=mesh.count.vertices,
-        )
-
-        w = tangents[:, 3]
-        tangents[:, 3] = np.where(w >= 0, 1.0, -1.0)
-
-        mesh.tangents = tangents
 
     def _parse_links(self, mesh: S.ModelMesh):
         match mesh.count.links:
