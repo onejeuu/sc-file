@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(str(files.resource("assets/scfile.ico"))))
         self.setWindowTitle("scfile")
         self.setStyleSheet(Styles.WINDOW)
-        self.resize(1000, 700)
+        self.resize(1000, 800)
 
         group = QWidget()
         self.setCentralWidget(group)

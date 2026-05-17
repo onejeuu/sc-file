@@ -15,6 +15,7 @@ from scfile.enums import FileFormat
 from . import factory, formats
 
 
+# TODO: status response
 def auto(
     source: types.PathLike,
     output: types.OutputLike = None,

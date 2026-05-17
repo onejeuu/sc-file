@@ -105,6 +105,14 @@ class Strings:
         "update_available": {"EN": "Update available", "RU": "Доступно обновление"},
         "update_error": {"EN": "Could not check for updates", "RU": "Не удалось проверить обновления"},
         "update_manual": {"EN": "Check manually", "RU": "Проверьте вручную"},
+        "label_on_conflict": {"EN": "On Name Collision", "RU": "При совпадении имени"},
+        "opt_conflict_overwrite": {"EN": "Overwrite", "RU": "Перезапись"},
+        "opt_conflict_skip": {"EN": "Skip", "RU": "Пропуск"},
+        "opt_conflict_rename": {"EN": "Rename", "RU": "Переименовать"},
+        "hint_on_conflict": {
+            "EN": "What to do when output file name matches an existing file",
+            "RU": "Действие при совпадении имени выходного файла с существующим",
+        },
     }
 
     @classmethod

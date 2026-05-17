@@ -105,12 +105,37 @@ class Styles:
         }}
     """
 
+    TOGGLE_GROUP = f"""
+        QWidget {{ background: {Colors.CARD}; border: 1px solid {Colors.CARD.lighter}; }}
+    """
+
+    TOGGLE_ITEM = f"""
+        QPushButton {{
+            background: {Colors.CARD};
+            color: {Colors.TEXT};
+            border: none;
+            padding: 6px 8px;
+            font-size: 12px;
+        }}
+        QPushButton:checked {{
+            background: {Colors.ACCENT};
+            color: black;
+            font-weight: bold;
+        }}
+        QPushButton:hover:!checked {{
+            background: {Colors.CARD.light};
+        }}
+        QPushButton:first {{ border-top-left-radius: 2px; border-bottom-left-radius: 2px; }}
+        QPushButton:last {{ border-top-right-radius: 2px; border-bottom-right-radius: 2px; }}
+    """
+
     LINK = f"""background-color: transparent; color: {Colors.TEXT.dark}; font-size: 12px;"""
     LINK_HOVER = f"""background-color: transparent; color: {Colors.ACCENT}; font-size: 12px;"""
 
     TITLE = "font-weight: bold; font-size: 16px;"
     LABEL = "font-weight: bold; font-size: 14px;"
 
-    HINT = f"color: {Colors.TEXT.dark}; font-size: 10px; margin-left: 24px;"
+    HINT = f"color: {Colors.TEXT.dark}; font-size: 10px;"
+
     MAPCACHE = f"color: {Colors.TEXT.dark}; font-size: 12px;"
     WARNING = f"font-weight: medium; color: {Colors.WARNING}; font-size: 12px; line-height: 120%;"
