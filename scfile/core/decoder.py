@@ -46,8 +46,8 @@ class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
         super().__init__(file=self.file, mode=self.mode)
 
     def decode(self, seek: bool = True) -> ContentType:
-        """Decode file: prepare, validate signature, parse. Returns parsed data."""
-        self.prepare()
+        """Decode file: prelude, validate signature, parse. Returns parsed data."""
+        self.prelude()
         self.validate_signature()
         self.parse()
         if seek:
@@ -78,8 +78,8 @@ class FileDecoder(BaseFile, StructFileIO, Generic[ContentType], ABC):
         enc.close()
         return content
 
-    def prepare(self) -> None:
-        """Perform file preparation before parsing. *(e.g. skip bytes)*."""
+    def prelude(self) -> None:
+        """Runs before file parsing."""
         pass
 
     @abstractmethod

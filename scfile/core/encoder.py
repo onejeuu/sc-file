@@ -54,11 +54,16 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
         return self.format.suffix
 
     def encode(self) -> Self:
-        """Encode data: prepare, add signature, serialize. Returns self."""
+        """Encode data: prelude, apply transform, add signature, serialize. Returns self."""
+        self.prelude()
         self.transform()
         self.add_signature()
         self.serialize()
         return self
+
+    def prelude(self) -> None:
+        """Runs before file transform and serialization."""
+        pass
 
     def transform(self):
         if self.transforms and isinstance(self.data, ModelContent):
