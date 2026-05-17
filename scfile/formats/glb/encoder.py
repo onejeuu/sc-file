@@ -342,8 +342,5 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.write(clip.times.tobytes())
 
             for bone in self.data.scene.skeleton.bones:
-                bone_transforms = clip.transforms[:, bone.id, :]
-                rotations, translations = np.split(bone_transforms, [4], axis=1)
-
-                self.write(translations.tobytes())
-                self.write(rotations.tobytes())
+                self.write(clip.translations[:, bone.id, :].tobytes())
+                self.write(clip.rotations[:, bone.id, :].tobytes())

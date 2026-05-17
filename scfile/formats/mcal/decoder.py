@@ -34,6 +34,9 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip.name = self._readutf8()
         clip.frames = self._readb(F.U32)
         clip.rate = self._readb(F.F32)
-        clip.transforms = self._readclip(clip.frames, self.data.scene.count.bones)
+
+        rotations, translations = self._readclip(clip.frames, self.data.scene.count.bones)
+        clip.rotations = rotations
+        clip.translations = translations
 
         self.data.scene.animation.clips.append(clip)

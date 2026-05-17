@@ -22,7 +22,8 @@ RotationMatrix: TypeAlias = Annotated[NDArray[np.float32], (3, 3)]
 TransformMatrix: TypeAlias = Annotated[NDArray[np.float32], (4, 4)]
 BindPose: TypeAlias = list[TransformMatrix]
 InverseBindMatrices: TypeAlias = Annotated[NDArray[np.float32], (..., 4, 4)]
-AnimationTransforms: TypeAlias = Annotated[NDArray[np.float32], (..., 7)]
+AnimationTranslations: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
+AnimationRotations: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
 AnimationTimes: TypeAlias = Annotated[NDArray[np.float32], (...)]
 
 LocalBoneId = NewType("LocalBoneId", int)
