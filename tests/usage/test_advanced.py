@@ -130,18 +130,3 @@ def test_context_multiple_copies(assets: Path, temp: Path):
             assert obj.closed
         assert obj.closed
     assert mcsa.closed
-
-
-def test_encoded_method(assets: Path, temp: Path):
-    with McsaDecoder(assets / "model.mcsa") as mcsa:
-        data = mcsa.decode()
-
-    with ObjEncoder(data).encoded() as obj:
-        assert obj.getvalue() is not None
-        assert len(obj.getvalue()) > 0
-        obj.save(temp / "model.obj")
-
-    assert (temp / "model.obj").exists()
-    assert (temp / "model.obj").stat().st_size > 0
-
-    assert obj.closed

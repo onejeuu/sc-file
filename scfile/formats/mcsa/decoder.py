@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from scfile.consts import Factor, FileSignature, McsaModel
+from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import models as S
@@ -131,7 +131,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._parse_uv1(mesh)
 
         # Texture coordinates (AO)
-        if self.data.flags.get(Flag.UV2):
+        if self.data.flags[Flag.UV2]:
             self._parse_uv2(mesh)
 
         # Vertices normals
@@ -141,7 +141,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ? Not parsed
         # Vertices tangents
         if self.data.flags[Flag.TANGENTS]:
-            self._skip_vertices(mesh, units=4)
+            self._parse_tangents(mesh)
 
         # ? Not parsed
         # Vertices rgba colors
@@ -247,7 +247,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ? Bone is root if parent_id points to itself
         # ? self-reference would cause invalid recursion
         parent_id = self._readb(F.U8)
-        bone.parent_id = parent_id if parent_id != index else McsaModel.ROOT_BONE_ID
+        bone.parent_id = parent_id if parent_id != index else ModelDefaults.ROOT_BONE_ID
 
         bone.position, bone.rotation = self._readbone()
 

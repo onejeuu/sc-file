@@ -4,7 +4,7 @@ Extensions for MCSA file format with custom struct-based I/O methods.
 
 import numpy as np
 
-from scfile.consts import Factor, McsaModel
+from scfile.consts import Factor, ModelDefaults
 from scfile.core.io import StructFileIO
 from scfile.enums import F
 from scfile.structures import models as S
@@ -18,7 +18,7 @@ class McsaFileIO(StructFileIO):
         count = self._readb(F.U32)
 
         # ? Prevent memory overflow
-        if count > McsaModel.GEOMETRY_LIMIT:
+        if count > ModelDefaults.GEOMETRY_LIMIT:
             raise McsaCountsLimit(self.path, type, count)
 
         return count
@@ -46,10 +46,10 @@ class McsaFileIO(StructFileIO):
 
         # Reshape to face[indices[3]]
         if quads:
-          data = data.reshape(-1, McsaUnits.QUADS)
-          tri1 = data[:, [0, 1, 2]]
-          tri2 = data[:, [0, 2, 3]]
-          return np.concatenate([tri1, tri2]).astype(F.U32)
+            data = data.reshape(-1, McsaUnits.QUADS)
+            tri1 = data[:, [0, 1, 2]]
+            tri2 = data[:, [0, 2, 3]]
+            return np.concatenate([tri1, tri2]).astype(F.U32)
 
         # Reshape to face[indices[3]]
         return data.astype(F.U32).reshape(-1, units)

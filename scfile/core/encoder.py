@@ -7,6 +7,7 @@ from typing import Any, Generic, Optional, Self, TypeAlias
 
 from scfile.enums import FileMode
 from scfile.structures.models import Flag
+from scfile.structures.models.transforms import SceneTransform
 from scfile.types import PathLike
 
 from .base import BaseFile
@@ -19,6 +20,8 @@ EncoderContext: TypeAlias = dict[str, Any]
 
 class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
     """Base class for encoding structured data objects into file content."""
+
+    transforms: Optional[list[SceneTransform]] = None
 
     @property
     def mode(self) -> str:
@@ -52,18 +55,17 @@ class FileEncoder(BaseFile, StructBytesIO, Generic[ContentType], ABC):
 
     def encode(self) -> Self:
         """Encode data: prepare, add signature, serialize. Returns self."""
-        self.prepare()
+        self.transform()
         self.add_signature()
         self.serialize()
         return self
 
-    def encoded(self) -> Self:
-        """Context manager that automatically encodes data on exit."""
-        return self.encode()
-
-    def prepare(self) -> None:
-        """Perform preparations before serialization. *(e.g. calculations in content)*."""
-        pass
+    def transform(self):
+        if self.transforms and isinstance(self.data, ModelContent):
+            scene = self.data.scene
+            for transform in self.transforms:
+                scene = transform(scene)
+            self.data.scene = scene
 
     def add_signature(self) -> None:
         """Write format signature (magic bytes) to buffer if defined."""
