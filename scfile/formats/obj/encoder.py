@@ -4,6 +4,7 @@ from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag
+from scfile.structures.models import transforms as T
 
 from . import faces
 
@@ -12,11 +13,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
     format = FileFormat.OBJ
     order = ByteOrder.LITTLE
 
-    def prepare(self):
-        self.data.scene.ensure_unique_names()
-
-        if self.data.flags[Flag.UV]:
-            self.data.scene.flip_v_textures()
+    transforms = [T.unique_names, T.flip_uv]
 
     def serialize(self):
         self._add_meshes()

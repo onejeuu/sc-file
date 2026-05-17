@@ -8,6 +8,7 @@ from scfile.core.encoder import FileEncoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag
+from scfile.structures.models import transforms as T
 
 from .consts import DEFAULT, FBX, Props
 from .io import FbxFileIO
@@ -17,19 +18,11 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
 
-    def prepare(self):
-        self.data.scene.ensure_unique_names()
+    transforms = [T.unique_names, T.flip_uv, T.skeleton_to_local, T.build_hierarchy]
 
-        if self.data.flags[Flag.UV]:
-            self.data.scene.flip_v_textures()
-
+    def serialize(self):
         if self._skeleton_presented:
-            self.data.scene.skeleton.convert_to_local()
-            self.data.scene.skeleton.build_hierarchy()
             self.ctx["BINDPOSE"] = self.data.scene.skeleton.calculate_global_transforms()
-
-        if self._animation_presented:
-            self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
 
         self.ctx["NODES"] = []
         self.ctx["CLIPS"] = []
@@ -38,7 +31,6 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
         self.ctx["ROOT_ID"] = 0
         self.ctx["NEXT_ID"] = 0
 
-    def serialize(self):
         self._write_header()
         self._write_nodes()
         self.write(FBX.NULL_NODE)

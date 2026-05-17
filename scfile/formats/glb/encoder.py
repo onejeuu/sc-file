@@ -8,6 +8,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.models import Flag
+from scfile.structures.models import transforms as T
 
 from . import base
 from .enums import BufferTarget, ComponentType
@@ -25,16 +26,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
     signature = FileSignature.GLTF
     order = ByteOrder.LITTLE
 
-    def prepare(self):
-        self.data.scene.ensure_unique_names()
-        self.data.scene.normalize_vectors()
-
-        if self._skeleton_presented:
-            self.data.scene.skeleton.convert_to_local()
-            self.data.scene.skeleton.build_hierarchy()
-
-        if self._animation_presented:
-            self.data.scene.animation.convert_to_local(self.data.scene.skeleton)
+    transforms = [T.unique_names, T.skeleton_to_local, T.build_hierarchy, T.animation_to_absolute]
 
     def serialize(self):
         self._add_header()
@@ -126,25 +118,25 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self._create_accessor(mesh.count.vertices, "VEC3", array=mesh.positions)
 
             # UV Texture
-            if self.data.flags.get(Flag.UV):
+            if self.data.flags[Flag.UV]:
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC2")
 
             # UV Texture (2)
-            if self.data.flags.get(Flag.UV2):
+            if self.data.flags[Flag.UV2]:
                 primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC2")
 
             # XYZ Normals
-            if self.data.flags.get(Flag.NORMALS):
+            if self.data.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC3")
 
             # XYZW Tangents
-            if self.data.flags.get(Flag.TANGENTS):
+            if self.data.flags[Flag.TANGENTS]:
                 primitive["attributes"]["TANGENT"] = self._accessor_index()
                 self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
                 self._create_accessor(mesh.count.vertices, "VEC4")
@@ -318,23 +310,23 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.write(mesh.positions.tobytes())
 
             # UV Texture
-            if self.data.flags.get(Flag.UV):
+            if self.data.flags[Flag.UV]:
                 self.write(mesh.uv1.tobytes())
 
             # UV Texture (2)
-            if self.data.flags.get(Flag.UV2):
+            if self.data.flags[Flag.UV2]:
                 self.write(mesh.uv2.tobytes())
 
             # XYZ Normals
-            if self.data.flags.get(Flag.NORMALS):
+            if self.data.flags[Flag.NORMALS]:
                 self.write(mesh.normals.tobytes())
 
             # XYZW Tangents
-            if self.data.flags.get(Flag.TANGENTS):
+            if self.data.flags[Flag.TANGENTS]:
                 self.write(mesh.tangents.tobytes())
 
             # Bone Links
-            if self._skeleton_presented:
+            if self._skeleton_presented and mesh.count.links > 0:
                 # Joint Indices
                 self.write(mesh.links_ids.tobytes())
 

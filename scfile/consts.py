@@ -66,7 +66,7 @@ class CubemapFaces:
     COUNT = len(FACES)
 
 
-class McsaModel:
+class ModelDefaults:
     """Mcsa model constants."""
 
     DECIMALS = 6

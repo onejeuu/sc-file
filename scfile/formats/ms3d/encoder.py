@@ -1,8 +1,9 @@
 import numpy as np
 
-from scfile.consts import FileSignature, McsaModel
+from scfile.consts import FileSignature, ModelDefaults
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.structures.models import transforms as T
 
 from .io import Ms3dFileIO
 
@@ -20,11 +21,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     signature = FileSignature.MS3D
     order = ByteOrder.LITTLE
 
-    def prepare(self):
-        self.data.scene.ensure_unique_names()
-
-        if self._skeleton_presented:
-            self.data.scene.skeleton.convert_to_local()
+    transforms = [T.unique_names, T.skeleton_to_local]
 
     def serialize(self):
         self._writeb(F.I32, VERSION)
@@ -47,7 +44,9 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
 
         for mesh in self.data.scene.meshes:
             for index, xyz in enumerate(mesh.positions):
-                bone_id = mesh.links_ids.astype(F.I8)[index][0] if self._skeleton_presented else McsaModel.ROOT_BONE_ID
+                bone_id = (
+                    mesh.links_ids.astype(F.I8)[index][0] if self._skeleton_presented else ModelDefaults.ROOT_BONE_ID
+                )
                 self._writeb(fmt, 0, *xyz, bone_id, reference_count)
 
     def _add_triangles(self):
@@ -112,7 +111,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
             self._writefixedstring(bone.name)  # bone name
 
             parent = self.data.scene.skeleton.bones[bone.parent_id]
-            parent_name = parent.name if bone.parent_id != McsaModel.ROOT_BONE_ID else ""
+            parent_name = parent.name if bone.parent_id != ModelDefaults.ROOT_BONE_ID else ""
             self._writefixedstring(parent_name)  # parent name
 
             # f32 bone rotation[3], f32 bone position[3]

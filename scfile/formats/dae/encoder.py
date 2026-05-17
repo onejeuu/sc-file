@@ -8,6 +8,7 @@ from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag
+from scfile.structures.models import transforms as T
 
 from . import utils
 
@@ -26,15 +27,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
     format = FileFormat.DAE
     order = ByteOrder.LITTLE
 
-    def prepare(self):
-        self.data.scene.ensure_unique_names()
-
-        if self.data.flags[Flag.UV]:
-            self.data.scene.invert_v_textures()
-
-        if self._skeleton_presented:
-            self.data.scene.skeleton.convert_to_local()
-            self.data.scene.skeleton.build_hierarchy()
+    transforms = [T.unique_names, T.invert_uv, T.skeleton_to_local, T.build_hierarchy]
 
     def serialize(self):
         self.ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)

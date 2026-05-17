@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from scfile import exceptions
-from scfile.consts import McsaModel
+from scfile.consts import ModelDefaults
 
 
 class McsaDecodingError(exceptions.FileError, exceptions.DecodingError):
@@ -23,7 +23,7 @@ class McsaCountsLimit(McsaDecodingError, exceptions.ParsingError):
         return (
             f"{super().__str__()} has invalid structure - "
             f"{self.count:,} {self.type} "
-            f"(max reasonable: {McsaModel.GEOMETRY_LIMIT:,})."
+            f"(max reasonable: {ModelDefaults.GEOMETRY_LIMIT:,})."
         )
 
 
