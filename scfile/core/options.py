@@ -8,7 +8,8 @@ from typing import Literal, Optional
 from scfile.consts import DefaultModelFormats, Formats
 
 
-OnConflict = Literal["overwrite", "skip", "rename"]
+OnConflict = Literal["overwrite", "rename", "skip"]
+ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
 
 
 @dataclass

@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.core import UserOptions
+from scfile.core.options import ON_CONFLICT_OPTIONS
 from scfile.gui import workers
 from scfile.gui.shared import consts
 from scfile.gui.shared.consts import FT
@@ -123,7 +124,10 @@ class ConverterTab(QWidget):
         # Output path
         self._build_output()
         self._build_structure()
-        self._build_overwrite()
+        self.right.addSpacing(10)
+
+        # Output conflicts
+        self._build_onconflict()
         self.right.addStretch()
 
         # Warnings
@@ -185,7 +189,7 @@ class ConverterTab(QWidget):
 
             # Suffixes hint
             suffixes = QLabel(", ".join(kind.suffixes))
-            suffixes.setStyleSheet(Styles.HINT)
+            suffixes.setStyleSheet(f"{Styles.HINT}; margin-left: 24px;")
 
             layout.addWidget(toggle)
             layout.addWidget(suffixes)
@@ -266,24 +270,40 @@ class ConverterTab(QWidget):
 
         self.right.addWidget(self.structure)
 
-    def _build_overwrite(self):
+    def _build_onconflict(self):
         group = QWidget()
         layout = QVBoxLayout(group)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        # Checkbox
-        self.unique_names = QCheckBox(Str.get("cb_unique_names"))
-        self.unique_names.setStyleSheet(Styles.CHECKBOX)
-        self.unique_names.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.unique_names.setChecked(False)
+        label = QLabel(Str.get("label_on_conflict"))
+        label.setStyleSheet(Styles.LABEL)
+        layout.addWidget(label)
 
-        # Hint
-        hint = QLabel(Str.get("hint_unique_names"))
+        toggle_group = QWidget()
+        toggle_layout = QHBoxLayout(toggle_group)
+        toggle_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_layout.setSpacing(0)
+
+        self.on_conflict = QButtonGroup(self)
+        self.on_conflict.setExclusive(True)
+
+        for option in ON_CONFLICT_OPTIONS:
+            btn = QPushButton(Str.get(f"opt_conflict_{option}"))
+            btn.setCheckable(True)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setProperty("conflict_option", option)
+            btn.setStyleSheet(Styles.TOGGLE_ITEM)
+            self.on_conflict.addButton(btn)
+            toggle_layout.addWidget(btn)
+
+        self.on_conflict.buttons()[0].setChecked(True)
+        toggle_group.setStyleSheet(Styles.TOGGLE_GROUP)
+
+        hint = QLabel(Str.get("hint_on_conflict"))
         hint.setStyleSheet(Styles.HINT)
 
-        # Add to layout
-        layout.addWidget(self.unique_names)
+        layout.addWidget(toggle_group)
         layout.addWidget(hint)
 
         self.right.addSpacing(10)
@@ -371,13 +391,15 @@ class ConverterTab(QWidget):
         ft_skeleton = self.feat_checks[FT.SKELETON.id]
         ft_animation = self.feat_checks[FT.ANIMATION.id]
 
+        on_conflict = self.on_conflict.checkedButton()
+
         context = ConvertContext(
             whitelist=self._get_suffixes(),
             options=UserOptions(
                 model_formats=[fmt.id] if fmt else None,
                 parse_skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
                 parse_animation=ft_animation.isEnabled() and ft_animation.isChecked(),
-                on_conflict="rename" if self.unique_names.isChecked() else "overwrite",
+                on_conflict=on_conflict.property("conflict_option") if on_conflict else "overwrite",
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),

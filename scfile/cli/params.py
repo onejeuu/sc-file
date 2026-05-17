@@ -6,6 +6,7 @@ import click
 
 from scfile import types
 from scfile.consts import OutputFormats
+from scfile.core.options import ON_CONFLICT_OPTIONS
 
 
 Files = click.Path(
@@ -45,6 +46,6 @@ Formats = click.Choice(
 )
 
 OnConflict = click.Choice(
-    choices=["overwrite", "skip", "rename"],
+    choices=ON_CONFLICT_OPTIONS,
     case_sensitive=False,
 )

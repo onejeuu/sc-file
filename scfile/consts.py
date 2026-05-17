@@ -13,7 +13,7 @@ SUPPORTED_FORMATS: set[FileFormat] = {
     FileFormat.NBT,
     FileFormat.MDAT,
 }
-"""Files formats (suffixes without dot) that can be converted."""
+"""Files formats (extensions without dot) that can be converted."""
 
 SUPPORTED_EXTENSIONS: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
 """Files suffixes that can be converted."""
