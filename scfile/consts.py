@@ -99,4 +99,4 @@ class DefaultModelFormats:
     """Default model formats for cases where no preference is specified."""
 
     STANDARD: Formats = (FileFormat.OBJ,)
-    SKELETON: Formats = (FileFormat.GLB,)
+    ON_SKELETON: Formats = (FileFormat.GLB,)

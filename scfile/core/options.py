@@ -3,9 +3,12 @@ Shared user options between decoder and encoder.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Literal, Optional
 
 from scfile.consts import DefaultModelFormats, Formats
+
+
+OnConflict = Literal["overwrite", "skip", "rename"]
 
 
 @dataclass
@@ -16,10 +19,11 @@ class UserOptions:
     parse_skeleton: bool = False
     parse_animation: bool = False
     parse_region_raw: bool = False
-    overwrite: bool = True
+    on_conflict: OnConflict = "overwrite"
+    # overwrite: bool = True
 
     @property
-    def default_model_formats(self):
+    def default_model_formats(self) -> Formats:
         if self.parse_skeleton:
-            return DefaultModelFormats.SKELETON
+            return DefaultModelFormats.ON_SKELETON
         return DefaultModelFormats.STANDARD

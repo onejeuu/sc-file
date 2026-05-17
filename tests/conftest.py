@@ -16,7 +16,7 @@ def assets(request: Any) -> Path:
 
 @pytest.fixture
 def options() -> UserOptions:
-    return UserOptions(overwrite=True)
+    return UserOptions(on_conflict="overwrite")
 
 
 @pytest.fixture
