@@ -3,8 +3,7 @@ from contextlib import contextmanager
 
 import numpy as np
 
-from scfile.core.context.content import ModelContent
-from scfile.core.encoder import FileEncoder
+from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Flag

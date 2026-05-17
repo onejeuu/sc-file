@@ -8,8 +8,7 @@ from rich import print
 
 from scfile import formats, types
 from scfile.cli import params
-from scfile.core.context.content import RegionContent
-from scfile.core.context.options import UserOptions
+from scfile.core import RegionContent, UserOptions
 from scfile.enums import CliCommand, L
 
 from . import scfile
@@ -37,7 +36,7 @@ def merge(
 
     for path in paths:
         try:
-            with formats.mdat.MdatDecoder(file=path, options=options) as mdat:
+            with formats.mdat.MdatDecoder(path, options) as mdat:
                 region = mdat.decode()
 
             for chunk in region.chunks:

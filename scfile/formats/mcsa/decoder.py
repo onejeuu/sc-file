@@ -7,7 +7,7 @@ from scfile.structures import models as S
 from scfile.structures.models import Flag
 
 from .consts import McsaUnits
-from .exceptions import McsaBoneLinksError, McsaVersionUnsupported
+from .exceptions import McsaBoneLinksError, McsaCountsLimit, McsaVersionUnsupported
 from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
@@ -58,7 +58,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self.data.version = self._readb(F.F32)
 
         if self.data.version not in SUPPORTED_VERSIONS:
-            raise McsaVersionUnsupported(self.path, self.data.version)
+            raise McsaVersionUnsupported(self.location, self.data.version)
 
     def _parse_flags(self):
         latest = max(VERSION_MAP.keys())
@@ -101,12 +101,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
                 mesh.bones[S.LocalBoneId(index)] = S.SkeletonBoneId(self._readb(F.U8))
 
         # Geometry counts
-        mesh.count.vertices = self._readcount("vertices")
+        mesh.count.vertices = self._parse_count("vertices")
 
         if self.data.version >= 12.0:
             mesh.quads = self._readb(F.BOOL)
 
-        mesh.count.polygons = self._readcount("polygons")
+        mesh.count.polygons = self._parse_count("polygons")
 
         # ? Not exported
         if self.data.flags[Flag.UV]:
@@ -155,6 +155,15 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         self.data.scene.meshes.append(mesh)
 
+    def _parse_count(self, type: str) -> int:
+        count = self._readb(F.U32)
+
+        # ? Prevent memory overflow
+        if count > ModelDefaults.GEOMETRY_LIMIT:
+            raise McsaCountsLimit(self.location, type, count)
+
+        return count
+
     def _parse_positions(self, mesh: S.ModelMesh):
         mesh.positions = self._readvertex(
             fmt=F.I16,
@@ -191,7 +200,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             case 3 | 4:
                 self._parse_plain_links(mesh)
             case _:
-                raise McsaBoneLinksError(self.path, mesh.count.links)
+                raise McsaBoneLinksError(self.location, mesh.count.links)
 
     def _parse_packed_links(self, mesh: S.ModelMesh):
         if self.options.parse_skeleton:

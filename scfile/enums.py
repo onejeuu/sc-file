@@ -24,7 +24,6 @@ class FileFormat(StrEnum):
     PNG = auto()
     TEXARR = auto()
     ZIP = auto()
-    ITEMNAMES = "dat"  # NBT
 
     @property
     def suffix(self):

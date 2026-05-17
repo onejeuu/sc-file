@@ -1,8 +1,6 @@
 import zstandard as zstd
 
-from scfile.core.context.content import RegionContent
-from scfile.core.decoder import FileDecoder
-from scfile.core.io.streams import StructFileIO
+from scfile.core import FileDecoder, RegionContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import regions as S
 
@@ -13,7 +11,7 @@ SECTION_SIZE = 16 * 16 * 16  # 4096
 NIBBLE_SIZE = 16 * 16 * 8  # 2048
 
 
-class MdatDecoder(FileDecoder[RegionContent], StructFileIO):
+class MdatDecoder(FileDecoder[RegionContent]):
     format = FileFormat.MDAT
     order = ByteOrder.BIG
 

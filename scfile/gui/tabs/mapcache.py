@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.core.context.options import UserOptions
+from scfile.core import UserOptions
 from scfile.gui import workers
 from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles

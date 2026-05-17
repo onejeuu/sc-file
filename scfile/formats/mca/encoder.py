@@ -2,9 +2,7 @@ import struct
 import time
 import zlib
 
-from scfile.core.context.content import RegionContent
-from scfile.core.encoder import FileEncoder
-from scfile.core.io.streams import StructBytesIO
+from scfile.core import FileEncoder, RegionContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.formats.nbt.enums import Tag
 from scfile.structures.regions import RegionChunk
@@ -38,7 +36,7 @@ _PAYLOAD_CHUNK = (
 )
 
 
-class McaEncoder(FileEncoder[RegionContent], StructBytesIO):
+class McaEncoder(FileEncoder[RegionContent]):
     format = FileFormat.MCA
     order = ByteOrder.BIG
 

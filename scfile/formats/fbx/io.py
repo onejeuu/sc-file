@@ -2,13 +2,13 @@ from typing import Any
 
 import numpy as np
 
-from scfile.core.io import StructBytesIO
+from scfile.core import StructIO
 from scfile.enums import F
 
 from .enums import PropertyType
 
 
-class FbxFileIO(StructBytesIO):
+class FbxFileIO(StructIO):
     def _write_property(self, value: Any):
         if isinstance(value, bool):
             self._writeb(F.U8, PropertyType.BOOL)

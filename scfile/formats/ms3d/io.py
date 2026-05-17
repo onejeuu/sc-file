@@ -2,13 +2,13 @@
 Extensions for MS3D file format with custom struct-based I/O methods.
 """
 
-from scfile.core.io import StructBytesIO
+from scfile.core import StructIO
 from scfile.enums import F
 
 from .exceptions import Ms3dCountsLimit
 
 
-class Ms3dFileIO(StructBytesIO):
+class Ms3dFileIO(StructIO):
     def _writecount(self, type: str, count: int, limit: int) -> None:
         if count > limit:
             raise Ms3dCountsLimit(type, count, limit)

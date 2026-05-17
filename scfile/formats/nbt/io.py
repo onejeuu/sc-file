@@ -1,13 +1,14 @@
+from io import BytesIO
 from typing import Callable, ClassVar, Self
 
-from scfile.core.context.content import NbtValue
-from scfile.core.io import StructBytesIO
+from scfile.core import StructIO
+from scfile.core.content import NbtValue
 from scfile.enums import ByteOrder, F
 
 from .enums import Tag
 
 
-class NbtBytesIO(StructBytesIO):
+class NbtBytesIO(StructIO):
     order: ByteOrder = ByteOrder.BIG
 
     _HANDLERS: ClassVar[dict[Tag, Callable[[Self], NbtValue]]] = {
@@ -58,3 +59,7 @@ class NbtBytesIO(StructBytesIO):
             key = self._readutf8()
             data[key] = self._parse_tag(tag)
         return data
+
+
+class NbtBufferIO(NbtBytesIO, BytesIO):
+    pass

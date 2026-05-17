@@ -7,7 +7,7 @@ from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile.cli.cmd import mapcache
 from scfile.cli.cmd.mapcache import RegionKey
-from scfile.core.context.options import UserOptions
+from scfile.core import UserOptions
 
 from .base import Worker
 from .logs import logger

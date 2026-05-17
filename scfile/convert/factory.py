@@ -7,8 +7,7 @@ from copy import deepcopy
 from functools import wraps
 from typing import Callable, Optional, Type, TypeAlias
 
-from scfile.core import FileDecoder, FileEncoder, UserOptions
-from scfile.core.context import ContentType
+from scfile.core import ContentType, FileDecoder, FileEncoder, UserOptions
 from scfile.types import PathLike
 
 from .base import convert

@@ -39,7 +39,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
         self.data.format = self._readformat()
 
         if self.data.format not in SUPPORTED_FORMATS:
-            raise OlFormatUnsupported(self.path, self.data.format)
+            raise OlFormatUnsupported(self.location, self.data.format)
 
     def _parse_image(self):
         self.texture_id = self._reads()

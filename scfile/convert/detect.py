@@ -67,7 +67,7 @@ def auto(
                     formats.ol_cubemap_to_dds(source, output, options)
 
                 except lz4.block.LZ4BlockError as err:
-                    raise exceptions.InvalidStructureError(source) from err
+                    raise exceptions.InvalidStructureError(str(source)) from err
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)
@@ -82,4 +82,4 @@ def auto(
             formats.mdat_to_mca(source, output, options)
 
         case _:
-            raise exceptions.UnsupportedFormatError(src_path)
+            raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
