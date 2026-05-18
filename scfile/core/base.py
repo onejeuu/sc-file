@@ -1,8 +1,8 @@
 import struct
 from abc import ABC
-from io import BytesIO
+from io import BytesIO, IOBase
 from pathlib import Path
-from typing import Any, BinaryIO, Literal, Optional, TypeAlias
+from typing import IO, Any, BinaryIO, Literal, Optional, TypeAlias, cast
 
 from scfile.enums import FileFormat
 from scfile.exceptions import InvalidStructureError
@@ -21,15 +21,18 @@ class BaseFile(StructIO, ABC):
     signature: Optional[bytes] = None
     options: UserOptions
 
-    _stream: BinaryIO
+    _stream: IO[bytes]
 
     def __init__(self, stream: IOStream, mode: FileMode):
         if isinstance(stream, (str, Path)):
             self._stream = open(str(stream), mode)
+
         elif isinstance(stream, bytes):
             self._stream = BytesIO(stream)
-        elif isinstance(stream, BytesIO):
-            self._stream = stream
+
+        elif isinstance(stream, IOBase):
+            self._stream = cast(IO[bytes], stream)
+
         else:
             raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
 
