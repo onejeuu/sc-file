@@ -46,7 +46,7 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         self.options: UserOptions = options or UserOptions()
         self.ctx: EncoderContext = {}
 
-        super().__init__(output or BytesIO(), mode="wb")
+        super().__init__(output or BytesIO(), mode="wb+")
 
     @property
     def suffix(self) -> str:
