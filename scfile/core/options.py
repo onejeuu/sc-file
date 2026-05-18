@@ -21,7 +21,6 @@ class UserOptions:
     parse_animation: bool = False
     parse_region_raw: bool = False
     on_conflict: OnConflict = "overwrite"
-    # overwrite: bool = True
 
     @property
     def default_model_formats(self) -> Formats:

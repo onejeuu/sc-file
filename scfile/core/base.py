@@ -1,3 +1,4 @@
+import os
 import struct
 from abc import ABC
 from io import BytesIO, IOBase
@@ -25,7 +26,7 @@ class BaseFile(StructIO, ABC):
 
     def __init__(self, stream: IOStream, mode: FileMode):
         if isinstance(stream, (str, Path)):
-            self._stream = open(str(stream), mode)
+            self._stream = open(os.fspath(stream), mode)
 
         elif isinstance(stream, bytes):
             self._stream = BytesIO(stream)
@@ -97,3 +98,7 @@ class BaseFile(StructIO, ABC):
 
         except struct.error as err:
             raise InvalidStructureError(self.location, position=self.tell()) from err
+
+    def __repr__(self) -> str:
+        closed = "closed" if self.closed else "open"
+        return f"<{type(self).__name__} {self.location} [{closed}]>"
