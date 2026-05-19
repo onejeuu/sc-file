@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 from rich import print
 
@@ -22,7 +24,11 @@ def check_feature_unsupported(
         print(L.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 
 
-def version_callback(ctx: click.Context, param: click.Parameter, value: bool):
+def version_callback(
+    ctx: click.Context,
+    param: Optional[click.Parameter],
+    value: bool,
+):
     if not value:
         return
 
@@ -35,7 +41,11 @@ def version_callback(ctx: click.Context, param: click.Parameter, value: bool):
     ctx.exit()
 
 
-def updates_callback(ctx: click.Context, param: click.Parameter, value: bool):
+def updates_callback(
+    ctx: click.Context,
+    param: Optional[click.Parameter],
+    value: bool,
+):
     if not value:
         return
 
