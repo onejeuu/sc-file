@@ -59,7 +59,7 @@ lines_after_imports = 2
 skip = ["__init__.py"]
 
 [tool.coverage.run]
-omit = ["scfile/gui/*", "scfile/formats/*"]
+omit = ["scfile/gui/*"]
 
 [build-system]
 requires = ["setuptools"]
