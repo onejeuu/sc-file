@@ -24,7 +24,7 @@ class BaseFile(StructIO, ABC):
 
     _stream: IO[bytes]
 
-    def __init__(self, stream: IOStream, mode: FileMode):
+    def __init__(self, stream: IOStream, mode: FileMode = "rb"):
         if isinstance(stream, (str, Path)):
             self._stream = open(os.fspath(stream), mode)
 
