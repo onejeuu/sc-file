@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional, Self
 
 
 @dataclass
@@ -27,14 +27,12 @@ class Version:
     def _key(self):
         return self.major, self.minor, self.patch, self.suffix is not None, self.suffix or ""
 
-    def __lt__(self, other):
-        if not isinstance(other, Version):
-            return NotImplemented
+    def __lt__(self, other: Self):
         return self._key() < other._key()
 
-    def __eq__(self, other):
+    def __eq__(self, other: Self | Any):
         if not isinstance(other, Version):
-            return NotImplemented
+            return False
         return self._key() == other._key()
 
 
