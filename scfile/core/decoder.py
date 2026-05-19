@@ -19,22 +19,6 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         stream: IOStream,
         options: Optional[UserOptions] = None,
     ):
-        """Initialize file decoder with source file and options.
-
-        Arguments:
-            file: Path to file that will be decoded. Can be any `path-like` object.
-            options (optional): User provided options. If None, default `UserOptions` will be used.
-
-        Initialized:
-            file (`PathLike`): The input file path.
-            options (`UserOptions`): Decoding options (default or user provided).
-            data (`Generic[Content]`): Empty instance of content type for storing decoded data.
-
-        Note:
-            Actual decoding doesn't happen during initialization.
-            Call `decode()` to perform parsing process.
-        """
-
         self.options: UserOptions = options or UserOptions()
         self.data: ContentType = self._content()
 
@@ -83,7 +67,7 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
     @abstractmethod
     def parse(self) -> None:
         """Parse file content into `self.data`."""
-        pass
+        ...
 
     def validate_signature(self) -> None:
         """Validate file signature. Raises `EmptyFileError` or `InvalidSignatureError` on failure."""

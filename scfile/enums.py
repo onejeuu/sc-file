@@ -4,6 +4,7 @@ from enum import IntEnum, StrEnum, auto
 class FileFormat(StrEnum):
     """File suffix (without dot)."""
 
+    NONE = ""
     DAE = auto()
     DDS = auto()
     EFKMODEL = auto()
@@ -27,7 +28,7 @@ class FileFormat(StrEnum):
 
     @property
     def suffix(self):
-        return f".{self.value.lower()}"
+        return f".{self.value.lower()}" if self.value else ""
 
 
 class FileType(StrEnum):
