@@ -1,4 +1,4 @@
-from enum import IntEnum, StrEnum, auto
+from enum import StrEnum, auto
 
 
 class FileFormat(StrEnum):
@@ -141,7 +141,7 @@ class CliCommand(StrEnum):
     RETARGET = auto()
 
 
-class UpdateStatus(IntEnum):
-    ERROR = -1
-    UPTODATE = 0
-    AVAILABLE = 1
+class UpdateStatus(StrEnum):
+    ERROR = auto()
+    UPTODATE = auto()
+    AVAILABLE = auto()
