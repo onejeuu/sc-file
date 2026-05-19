@@ -5,14 +5,13 @@ from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.core.options import UserOptions
 from scfile.structures.models import Flag, ModelScene
-
-from .conftest import FakeContent, FakeEncoder, FakeModelEncoder
+from tests.conftest import FakeContent, FakeEncoder, FakeModelEncoder
 
 
 def test_encode_serializes_data():
     enc = FakeEncoder(FakeContent(parsed=b"hello"))
     enc.encode()
-    assert enc.getvalue() == b"HXGNhello"
+    assert enc.getvalue() == b"hello"
     enc.close()
 
 
@@ -22,18 +21,13 @@ def test_encode_returns_self():
     enc.close()
 
 
-def test_encode_without_signature():
-    class _NoSigEncoder(FileEncoder[FakeContent]):
-        format = FakeEncoder.format
-        signature = None
+def test_encode_with_signature():
+    class _Enc(FakeEncoder):
+        signature = b"STRN"
 
-        def serialize(self) -> None:
-            self.write(b"raw")
-
-    enc = _NoSigEncoder(FakeContent())
+    enc = _Enc(FakeContent(parsed=b"data"))
     enc.encode()
-    assert enc.getvalue() == b"raw"
-    enc.close()
+    assert enc.getvalue() == b"STRNdata"
 
 
 def test_ctx_cleared_on_close():
@@ -48,7 +42,7 @@ def test_save_as(temp: Path):
     enc.encode()
     path = temp / "out.obj"
     enc.save_as(path)
-    assert path.read_bytes() == b"HXGNdata"
+    assert path.read_bytes() == b"data"
     enc.close()
 
 
@@ -56,7 +50,7 @@ def test_export_as(temp: Path):
     enc = FakeEncoder(FakeContent(parsed=b"x"))
     enc.encode()
     enc.export_as(temp / "out")
-    assert (temp / "out.obj").read_bytes() == b"HXGNx"
+    assert (temp / "out.obj").read_bytes() == b"x"
     enc.close()
 
 
@@ -65,7 +59,7 @@ def test_save(temp: Path):
     enc.encode()
     path = temp / "out.obj"
     enc.save(path)
-    assert path.read_bytes() == b"HXGNx"
+    assert path.read_bytes() == b"x"
     assert enc.closed
 
 
@@ -73,7 +67,7 @@ def test_export(temp: Path):
     enc = FakeEncoder(FakeContent(parsed=b"x"))
     enc.encode()
     enc.export(temp / "out")
-    assert (temp / "out.obj").read_bytes() == b"HXGNx"
+    assert (temp / "out.obj").read_bytes() == b"x"
     assert enc.closed
 
 
@@ -89,7 +83,7 @@ def test_output_to_path(temp: Path):
     enc = FakeEncoder(FakeContent(parsed=b"direct"), output=path)
     enc.encode()
     enc.close()
-    assert path.read_bytes() == b"HXGNdirect"
+    assert path.read_bytes() == b"direct"
 
 
 def test_output_to_bytesio():
@@ -98,7 +92,7 @@ def test_output_to_bytesio():
     enc.encode()
     result = enc.getvalue()
     enc.close()
-    assert result == b"HXGNbuf"
+    assert result == b"buf"
 
 
 def test_default_output_is_bytesio():
