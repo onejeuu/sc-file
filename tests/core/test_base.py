@@ -9,7 +9,7 @@ from scfile.exceptions import InvalidStructureError
 
 
 class _TestFile(BaseFile):
-    format = FileFormat.OBJ
+    format = FileFormat.NONE
 
 
 def test_from_path(temp: Path):
