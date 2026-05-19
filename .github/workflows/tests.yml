@@ -34,7 +34,7 @@ jobs:
           enable-cache: true
 
       - name: Run Tests
-        run: uv run --group dev pytest
+        run: uv run --group dev pytest --cov=scfile --cov-report=term-missing
 
   tests-windows:
     name: Windows
@@ -50,4 +50,4 @@ jobs:
           enable-cache: true
 
       - name: Run Tests
-        run: uv run --group dev pytest
+        run: uv run --group dev pytest --cov=scfile --cov-report=term-missing
