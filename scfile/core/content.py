@@ -31,9 +31,6 @@ class FileContent(ABC):
             elif f.default is not MISSING:
                 setattr(self, f.name, f.default)
 
-            else:
-                setattr(self, f.name, None)
-
 
 ContentType = TypeVar("ContentType", bound=FileContent)
 
