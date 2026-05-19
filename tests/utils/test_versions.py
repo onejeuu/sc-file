@@ -49,6 +49,7 @@ def test_parse():
     assert parse("v1.2.3") == Version(1, 2, 3)
     assert parse("1.2.3-dev") == Version(1, 2, 3, "dev")
     assert parse("0.0.0") == Version(0, 0, 0)
+    assert parse(" 1.2.3 ") == Version(1, 2, 3)
 
 
 def test_parse_invalid():
