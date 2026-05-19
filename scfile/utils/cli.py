@@ -39,17 +39,17 @@ def updates_callback(ctx: click.Context, param: click.Parameter, value: bool):
     if not value:
         return
 
-    status, info, url = updates.check(SEMVER)
+    check = updates.check(SEMVER)
 
-    match status:
+    match check.status:
         case UpdateStatus.UPTODATE:
             print("[green]✅ You are using the latest version[/]")
 
         case UpdateStatus.AVAILABLE:
-            print(f"[blue]🔄 Update available:[/] {url}")
+            print(f"[blue]🔄 Update available:[/] {check.url}")
 
         case UpdateStatus.ERROR:
-            url = f"\n[yellow]Check manually:[/] {url}" if url else ""
-            print(f"[red]❌ Could not check for updates:[/] {info} {url}".strip())
+            url = f"\n[yellow]Check manually:[/] {check.url}" if check.url else ""
+            print(f"[red]❌ Could not check for updates:[/] {check.message} {url}".strip())
 
     ctx.exit()
