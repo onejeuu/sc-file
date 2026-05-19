@@ -15,13 +15,11 @@ class Texture(ABC):
 
     @property
     @abstractmethod
-    def image(self) -> bytes:
-        pass
+    def image(self) -> bytes: ...
 
     @property
     @abstractmethod
-    def linear_size(self) -> int:
-        pass
+    def linear_size(self) -> int: ...
 
 
 TextureType = TypeVar("TextureType", bound=Texture)

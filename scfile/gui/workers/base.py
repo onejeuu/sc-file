@@ -14,8 +14,7 @@ class Worker(QObject, metaclass=WorkerMeta):
     finished = Signal()
 
     @abstractmethod
-    def run(self) -> None:
-        pass
+    def run(self) -> None: ...
 
 
 def execute(worker: Worker, on_done=None) -> QThread:

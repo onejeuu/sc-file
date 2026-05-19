@@ -46,12 +46,10 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
         self._parse_mipmaps()
 
     @abstractmethod
-    def _parse_sizes(self):
-        pass
+    def _parse_sizes(self): ...
 
     @abstractmethod
-    def _parse_mipmaps(self):
-        pass
+    def _parse_mipmaps(self): ...
 
 
 class OlDecoder(BaseOlDecoder[DefaultTexture]):
