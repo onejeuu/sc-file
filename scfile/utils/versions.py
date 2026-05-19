@@ -38,7 +38,7 @@ class Version:
 
 def parse(semver: str) -> Version | None:
     try:
-        base, _, suffix = semver.removeprefix("v").partition("-")
+        base, _, suffix = semver.strip().removeprefix("v").partition("-")
         major, minor, patch = map(int, base.split("."))
         return Version(major, minor, patch, suffix or None)
 
