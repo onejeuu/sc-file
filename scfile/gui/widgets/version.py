@@ -39,7 +39,7 @@ class UpdatePopup(QWidget):
         self.adjustSize()
         self.show()
 
-    def show_status(self, status: UpdateStatus, info: str, url: str):
+    def show_status(self, status: UpdateStatus, message: str, url: str):
         self._clear_layout()
 
         match status:
@@ -56,7 +56,7 @@ class UpdatePopup(QWidget):
                 self.main_layout.addWidget(LinkWidget(text=url, url=url))
 
             case UpdateStatus.ERROR:
-                label = QLabel(f"{Str.get('update_error')}: {info}")
+                label = QLabel(f"{Str.get('update_error')}: {message}")
                 label.setStyleSheet(f"color: {Colors.ERROR};")
                 self.main_layout.addWidget(label)
 
@@ -129,6 +129,6 @@ class VersionWidget(QWidget):
         self.worker.status.connect(self.handle_status)
         self.worker.start()
 
-    def handle_status(self, status: UpdateStatus, info: str, url: str):
+    def handle_status(self, status: UpdateStatus, message: str, url: str):
         if self.popup:
-            self.popup.show_status(status, info, url)
+            self.popup.show_status(status, message, url)

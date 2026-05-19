@@ -9,5 +9,5 @@ class UpdatesWorker(QThread):
     status = Signal(UpdateStatus, str, str)
 
     def run(self):
-        status, info, url = updates.check(SEMVER)
-        self.status.emit(status, info, url)
+        status, message, url = updates.check(SEMVER)
+        self.status.emit(status, message, url)
