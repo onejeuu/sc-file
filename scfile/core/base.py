@@ -18,7 +18,7 @@ FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 
 class BaseFile(StructIO, ABC):
-    format: FileFormat
+    format: FileFormat = FileFormat.NONE
     signature: Optional[bytes] = None
     options: UserOptions
 

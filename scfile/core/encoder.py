@@ -26,22 +26,6 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         options: Optional[UserOptions] = None,
         output: Optional[IOStream] = None,
     ):
-        """Initialize file encoder with content data and options.
-
-        Arguments:
-            data: Content data to be encoded.
-            options (optional): User provided options. If None, default `UserOptions` will be used.
-
-        Initialized:
-            data (`Generic[Content]`): Content to encode.
-            options (`UserOptions`): Encoding options (default or user provided).
-            ctx (`EncoderContext`): Empty context dictionary for processing state.
-
-        Note:
-            Actual encoding doesn't happen during initialization.
-            Call `encode()` to perform serialization process.
-        """
-
         self.data: ContentType = data
         self.options: UserOptions = options or UserOptions()
         self.ctx: EncoderContext = {}
@@ -87,7 +71,7 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     @abstractmethod
     def serialize(self) -> None:
         """Convert structured `self.data` into bytes and write to buffer."""
-        pass
+        ...
 
     def save_as(
         self,
