@@ -44,9 +44,6 @@ def walk(
     whitelist = tuple(whitelist or ALLOWED_SUFFIXES)
 
     for root in paths:
-        if not os.path.exists(root):
-            continue
-
         base = os.path.dirname(root) if parent else root
 
         if os.path.isfile(root):
