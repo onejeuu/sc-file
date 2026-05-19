@@ -58,6 +58,9 @@ ignore = ["E701"]
 lines_after_imports = 2
 skip = ["__init__.py"]
 
+[tool.coverage.run]
+omit = ["scfile/gui/*"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
