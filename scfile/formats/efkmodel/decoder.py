@@ -1,5 +1,7 @@
+from scfile.consts import ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.formats.mcsa.exceptions import McsaCountsLimit
 from scfile.formats.mcsa.io import McsaFileIO
 from scfile.structures import models as S
 
@@ -21,14 +23,23 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
             mesh = S.ModelMesh()
 
             # Read vertex data
-            mesh.count.vertices = self._readcount("vertices")
+            mesh.count.vertices = self._parse_count("vertices")
             data = self._readarray(F.F32, mesh.count.vertices * 15).reshape((mesh.count.vertices, 15))
             mesh.positions = data[:, 0:3]
             mesh.normals = data[:, 3:6]
             mesh.uv1 = data[:, 12:14]
 
             # Read polygons data
-            mesh.count.polygons = self._readcount("polygons")
+            mesh.count.polygons = self._parse_count("polygons")
             mesh.polygons = self._readarray(F.I32, mesh.count.polygons * 3).astype(F.I32).reshape(-1, 3)
 
             self.data.scene.meshes.append(mesh)
+
+    def _parse_count(self, type: str) -> int:
+        count = self._readb(F.U32)
+
+        # ? Prevent memory overflow
+        if count > ModelDefaults.GEOMETRY_LIMIT:
+            raise McsaCountsLimit(self.location, type, count)
+
+        return count

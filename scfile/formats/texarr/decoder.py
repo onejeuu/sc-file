@@ -1,6 +1,5 @@
 from scfile.core import FileDecoder, TextureArrayContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.formats.zip.encoder import TextureArrayEncoder
 
 
 DELIMITER = ":"
@@ -14,6 +13,8 @@ class TextureArrayDecoder(FileDecoder[TextureArrayContent]):
     _content = TextureArrayContent
 
     def to_zip(self):
+        from scfile.formats.zip.encoder import TextureArrayEncoder
+
         return self.convert_to(TextureArrayEncoder)
 
     def parse(self):

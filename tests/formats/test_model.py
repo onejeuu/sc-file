@@ -5,6 +5,7 @@ import pytest
 
 from scfile.core import FileEncoder, ModelContent, UserOptions
 from scfile.formats.dae import DaeEncoder
+from scfile.formats.efkmodel import EfkmodelDecoder
 from scfile.formats.fbx import FbxEncoder
 from scfile.formats.glb import GlbEncoder
 from scfile.formats.mcsb import McsbDecoder
@@ -39,3 +40,11 @@ def test_model_smoke(assets: Path, version: int, encoder: ModelEncoder):
     with McsbDecoder(assets / "source" / src, OPTIONS) as dec:
         data = dec.convert(encoder)
     assert len(data) > 0
+
+
+@pytest.mark.parametrize("encoder", ENCODERS_FULL)
+def test_efkmodel(assets: Path, encoder: ModelEncoder):
+    src = "model/efkmodel_v5"
+    out = f"model/efkmodel_v5{encoder.format.suffix}"
+    source, output = extract(EfkmodelDecoder, encoder, assets, src, out)
+    assert source == output
