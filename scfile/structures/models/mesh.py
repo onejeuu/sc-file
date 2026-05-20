@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .enums import LinkSpace, UVOrigin, UVSign
-from .types import BonesMapping, LinksIds, LinksWeights, Polygons, Vector2D, Vector3D, Vector4D
+from .types import BonesMapping, Colors, LinksIds, LinksWeights, Polygons, Vector2D, Vector3D, Vector4D
 
 
 @dataclass
@@ -41,6 +41,7 @@ class ModelMesh:
     uv2: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
     normals: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
     tangents: Vector4D = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
+    colors: Colors = field(default_factory=lambda: np.zeros((0, 4), dtype=np.uint8))
 
     links_ids: LinksIds = field(default_factory=lambda: np.zeros((0, 4), dtype=np.uint8))
     links_weights: LinksWeights = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
