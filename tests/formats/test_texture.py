@@ -20,7 +20,7 @@ TEXTURES = [
 
 
 @pytest.mark.parametrize("name", TEXTURES)
-def test_ol(assets: Path, name: str):
+def test_texture(assets: Path, name: str):
     src = f"texture/{name}"
     out = f"texture/{name}"
     source, output = extract(OlDecoder, DdsEncoder, assets, src, out)
