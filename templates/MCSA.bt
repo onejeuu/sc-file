@@ -81,6 +81,7 @@ switch( version ) {
         FlagsV7 flags <name="Flags", fgcolor=cAqua>; break;
     case 8.0:
         FlagsV8 flags <name="Flags", fgcolor=cAqua>; break;
+    case 9.0:
     case 10.0:
     case 11.0:
     case 12.0:
@@ -177,13 +178,12 @@ typedef struct {
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
 
-    if ( version >= 12.0 ) {
-        if ( polygonQuads )
-            if ( polygonCount * 4 >= 0x10000) {
-                Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
-            } else {
-                Quad16 polygons[polygonCount] <name="Polygons", comment="Q16", bgcolor=cLtBlue>;
-            }
+    if ( version >= 12.0 && polygonQuads ) {
+        if ( polygonCount * 4 >= 0x10000) {
+            Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
+        } else {
+            Quad16 polygons[polygonCount] <name="Polygons", comment="Q16", bgcolor=cLtBlue>;
+        }
     } else {
         if ( polygonCount * 3 >= 0x10000) {
             Tri32 polygons[polygonCount] <name="Polygons", comment="T32", bgcolor=cLtBlue>;

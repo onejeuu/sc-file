@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, Type
+from typing import Generic, Optional, Type, TypeVar
 
 from scfile import exceptions
 
@@ -7,6 +7,9 @@ from .base import BaseFile, IOStream
 from .content import ContentType
 from .encoder import FileEncoder
 from .options import UserOptions
+
+
+EncoderType = TypeVar("EncoderType", bound=FileEncoder)
 
 
 class FileDecoder(BaseFile, Generic[ContentType], ABC):
@@ -38,9 +41,9 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
     def convert_to(
         self,
-        encoder: Type[FileEncoder[ContentType]],
+        encoder: Type[EncoderType],
         options: Optional[UserOptions] = None,
-    ) -> FileEncoder[ContentType]:
+    ) -> EncoderType:
         """Decode and convert to encoder. Returns encoder with open buffer (must be closed)."""
         options = options or self.options
         data = self.decode()
@@ -50,12 +53,12 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
     def convert(
         self,
-        encoder: type[FileEncoder[ContentType]],
+        encoder: Type[EncoderType],
         options: Optional[UserOptions] = None,
     ) -> bytes:
         """Decode, convert to encoder and return bytes. Closes encoder automatically."""
         options = options or self.options
-        enc = self.convert_to(encoder, options)
+        enc: EncoderType = self.convert_to(encoder, options)
         content = enc.getvalue()
         enc.close()
         return content

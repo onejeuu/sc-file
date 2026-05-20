@@ -26,7 +26,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
     signature = FileSignature.GLTF
     order = ByteOrder.LITTLE
 
-    transforms = [T.unique_names, T.skeleton_to_local, T.build_hierarchy, T.animation_to_absolute]
+    transforms = [T.unique_names, T.build_hierarchy, T.skeleton_to_local, T.animation_to_absolute]
 
     def serialize(self):
         self._add_header()

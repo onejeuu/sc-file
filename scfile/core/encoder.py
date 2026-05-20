@@ -32,11 +32,6 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
 
         super().__init__(output or BytesIO(), mode="wb+")
 
-    @property
-    def suffix(self) -> str:
-        """Return standard file extension for this format (with dot)."""
-        return self.format.suffix
-
     def encode(
         self,
         transforms: EncoderTransforms = None,

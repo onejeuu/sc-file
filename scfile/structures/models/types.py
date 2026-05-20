@@ -15,6 +15,7 @@ LinksIds: TypeAlias = Annotated[NDArray[np.uint8], (..., 4)]
 LinksWeights: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
 Links: TypeAlias = tuple[LinksIds, LinksWeights]
 Polygons: TypeAlias = Annotated[NDArray[np.uint32], (..., 3)]
+Colors: TypeAlias = Annotated[NDArray[np.uint8], (..., 4)]
 
 EulerAngles: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
 Quaternion: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]

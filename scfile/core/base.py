@@ -19,6 +19,7 @@ FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 class BaseFile(StructIO, ABC):
     format: FileFormat = FileFormat.NONE
+
     signature: Optional[bytes] = None
     options: UserOptions
 
@@ -36,6 +37,10 @@ class BaseFile(StructIO, ABC):
 
         else:
             raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
+
+    @property
+    def suffix(self) -> str:
+        return self.format.suffix
 
     def read(self, size: int = -1) -> bytes:
         return self._stream.read(size)
