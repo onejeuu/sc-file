@@ -8,7 +8,7 @@ from scfile.enums import ByteOrder, F
 from .enums import Tag
 
 
-class NbtBytesIO(StructIO):
+class NbtIO(StructIO):
     order: ByteOrder = ByteOrder.BIG
 
     _HANDLERS: ClassVar[dict[Tag, Callable[[Self], NbtValue]]] = {
@@ -61,5 +61,4 @@ class NbtBytesIO(StructIO):
         return data
 
 
-class NbtBufferIO(NbtBytesIO, BytesIO):
-    pass
+class NbtBufferIO(NbtIO, BytesIO): ...

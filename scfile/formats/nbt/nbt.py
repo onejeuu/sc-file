@@ -1,6 +1,6 @@
 import struct
 
-from scfile.formats.nbt.enums import Tag
+from .enums import Tag
 
 
 def encode(tag: int, name: bytes) -> bytes:

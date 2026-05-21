@@ -1,19 +1,18 @@
 import struct
-import time
 import zlib
 
 from scfile.core import FileEncoder, RegionContent
 from scfile.enums import ByteOrder, FileFormat
+from scfile.formats.nbt import nbt
 from scfile.formats.nbt.enums import Tag
 from scfile.structures.regions import RegionChunk
 
-from . import nbt
 from .mapping import BLOCKS_MAPPING
 
 
 _VERSION = nbt.encode_int(b"DataVersion", 1343)  # Anvil 1.12.2
 
-_CURRENT_TIME = int(time.time())
+_CURRENT_TIME = 0
 _TIMESTAMPS = struct.pack(">I", _CURRENT_TIME) * 1024
 
 _ROOT_COMPOUND = nbt.encode(Tag.COMPOUND, b"")
