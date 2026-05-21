@@ -6,8 +6,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 _THREADS: set[QThread] = set()
 
 
-class WorkerMeta(ABCMeta, type(QObject)):
-    pass
+class WorkerMeta(ABCMeta, type(QObject)): ...
 
 
 class Worker(QObject, metaclass=WorkerMeta):

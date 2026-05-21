@@ -6,7 +6,6 @@ from scfile.structures import regions as S
 
 
 CHUNKS_COUNT = 32 * 32  # 1024
-
 SECTION_SIZE = 16 * 16 * 16  # 4096
 NIBBLE_SIZE = 16 * 16 * 8  # 2048
 
@@ -42,14 +41,6 @@ class MdatDecoder(FileDecoder[RegionContent]):
             sections_count = bin(blocks_mask).count("1")
             blocks = decompressed[: sections_count * SECTION_SIZE]
 
-            # add_count = bin(add_mask).count("1")
-            # buffer = BytesIO(decompressed)
-            # blocks = buffer.read(sections_count * SECTION_SIZE)
-            # meta = buffer.read(sections_count * NIBBLE_SIZE)
-            # light = buffer.read(sections_count * NIBBLE_SIZE * 3)
-            # add = buffer.read(add_count * NIBBLE_SIZE)
-            # extra = buffer.read()
-
             chunks.append(
                 S.RegionChunk(
                     index=index,
@@ -66,5 +57,5 @@ class MdatDecoder(FileDecoder[RegionContent]):
 
         self.data.offsets = offsets
         self.data.counts = counts
-        # self.data.uuid = uuids
+        self.data.uuid = uuids
         self.data.chunks = chunks

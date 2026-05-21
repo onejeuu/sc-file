@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-class Tag(IntEnum):
+class NbtTag(IntEnum):
     END = 0
     BYTE = 1
     SHORT = 2
@@ -15,3 +15,6 @@ class Tag(IntEnum):
     COMPOUND = 10
     INT_ARRAY = 11
     LONG_ARRAY = 12
+
+
+Tag = NbtTag
