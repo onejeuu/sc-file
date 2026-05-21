@@ -1,3 +1,4 @@
+from scfile import formats
 from scfile.core import FileDecoder, TextureArrayContent
 from scfile.enums import ByteOrder, F, FileFormat
 
@@ -13,9 +14,7 @@ class TextureArrayDecoder(FileDecoder[TextureArrayContent]):
     _content = TextureArrayContent
 
     def to_zip(self):
-        from scfile.formats.zip.encoder import TextureArrayEncoder
-
-        return self.convert_to(TextureArrayEncoder)
+        return self.convert_to(formats.zip.TextureArrayEncoder)
 
     def parse(self):
         self.data.count = self._readb(F.U32)

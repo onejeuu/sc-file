@@ -2,29 +2,28 @@ import pytest
 
 from scfile.core.options import UserOptions
 from scfile.exceptions import EmptyFileError, InvalidSignatureError
-from tests.conftest import FakeDecoder, FakeEncoder
+from tests.conftest import DATA, FakeDecoder, FakeEncoder
 
 
 def test_decode_parses_data():
-    dec = FakeDecoder(b"hello")
+    dec = FakeDecoder(DATA)
     data = dec.decode()
-    assert data.parsed == b"hello"
+    assert data.parsed == DATA
     dec.close()
 
 
 def test_decode_with_seek():
-    dec = FakeDecoder(b"world")
+    dec = FakeDecoder(DATA)
     data = dec.decode(seek=True)
-    assert data.parsed == b"world"
+    assert data.parsed == DATA
     assert dec.tell() == 0
     dec.close()
 
 
 def test_decode_without_seek():
-    data = b"world"
-    dec = FakeDecoder(data)
+    dec = FakeDecoder(DATA)
     dec.decode(seek=False)
-    assert dec.tell() == len(data)
+    assert dec.tell() == len(DATA)
     dec.close()
 
 
@@ -48,9 +47,9 @@ def test_decode_no_signature():
     class _Dec(FakeDecoder):
         signature = None
 
-    dec = _Dec(b"data")
+    dec = _Dec(DATA)
     data = dec.decode()
-    assert data.parsed == b"data"
+    assert data.parsed == DATA
 
 
 def test_prelude_order():
@@ -64,23 +63,23 @@ def test_prelude_order():
             log.append("parse")
             super().parse()
 
-    dec = _Prelude(b"data")
+    dec = _Prelude(DATA)
     dec.decode()
     assert log == ["pre", "parse"]
     dec.close()
 
 
 def test_convert_to():
-    dec = FakeDecoder(b"payload")
+    dec = FakeDecoder(DATA)
     enc = dec.convert_to(FakeEncoder)
-    assert enc.getvalue() == b"payload"
-    assert enc.data.parsed == b"payload"
+    assert enc.getvalue() == DATA
+    assert enc.data.parsed == DATA
     enc.close()
     dec.close()
 
 
 def test_convert_to_options():
-    dec = FakeDecoder(b"x")
+    dec = FakeDecoder(DATA)
     enc = dec.convert_to(FakeEncoder, options=UserOptions(on_conflict="skip"))
     assert enc.options.on_conflict == "skip"
     enc.close()
@@ -88,14 +87,14 @@ def test_convert_to_options():
 
 
 def test_convert():
-    dec = FakeDecoder(b"bytes")
+    dec = FakeDecoder(DATA)
     result = dec.convert(FakeEncoder)
-    assert result == b"bytes"
+    assert result == DATA
     dec.close()
 
 
 def test_context_manager():
-    with FakeDecoder(b"test") as dec:
+    with FakeDecoder(DATA) as dec:
         data = dec.decode()
-        assert data.parsed == b"test"
+        assert data.parsed == DATA
     assert dec.closed

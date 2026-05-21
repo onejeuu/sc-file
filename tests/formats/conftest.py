@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import NamedTuple, Optional
 
-import pytest
-
 from scfile import UserOptions
 from scfile.core import ContentType, FileDecoder, FileEncoder
 
@@ -26,8 +24,3 @@ def extract(
     expected = (assets / "output" / output).read_bytes()
 
     return Compare(converted, expected)
-
-
-@pytest.fixture
-def assets() -> Path:
-    return Path(__file__).parent / "assets"

@@ -1,3 +1,4 @@
+from scfile import formats
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ImageContent
 from scfile.enums import ByteOrder, FileFormat
@@ -11,9 +12,7 @@ class MicDecoder(FileDecoder[ImageContent]):
     _content = ImageContent
 
     def to_png(self):
-        from scfile.formats.png.encoder import PngEncoder
-
-        return self.convert_to(PngEncoder)
+        return self.convert_to(formats.png.PngEncoder)
 
     def parse(self):
         self.data.image = self.read()

@@ -2,6 +2,7 @@ import gzip
 
 import zstandard as zstd
 
+from scfile import formats
 from scfile.core import FileDecoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 
@@ -16,9 +17,7 @@ class NbtDecoder(FileDecoder[NbtContent]):
     _content = NbtContent
 
     def to_json(self):
-        from scfile.formats.json.encoder import JsonEncoder
-
-        return self.convert_to(JsonEncoder)
+        return self.convert_to(formats.json.JsonEncoder)
 
     def parse(self):
         data = self._decompress()

@@ -36,8 +36,8 @@ def test_model(assets: Path, version: int, encoder: ModelEncoder):
 @pytest.mark.parametrize("version", VERSIONS)
 @pytest.mark.parametrize("encoder", ENCODERS_SMOKE)
 def test_model_smoke(assets: Path, version: int, encoder: ModelEncoder):
-    src = f"model/model_v{version}"
-    with McsbDecoder(assets / "source" / src, OPTIONS) as dec:
+    src = assets / "source" / f"model/model_v{version}"
+    with McsbDecoder(src, OPTIONS) as dec:
         data = dec.convert(encoder)
     assert len(data) > 0
 

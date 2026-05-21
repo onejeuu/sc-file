@@ -67,8 +67,8 @@ def auto(
                 try:
                     formats.ol_cubemap_to_dds(source, output, options)
 
-                except lz4.block.LZ4BlockError as err:
-                    raise exceptions.InvalidStructureError(str(source)) from err
+                except lz4.block.LZ4BlockError:
+                    raise exceptions.InvalidStructureError(str(source))
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)

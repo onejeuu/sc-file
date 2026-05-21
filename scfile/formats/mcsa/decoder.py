@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from scfile import formats
 from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -20,24 +21,19 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     _content = ModelContent
 
     def to_obj(self):
-        from scfile.formats.obj.encoder import ObjEncoder
-
-        return self.convert_to(ObjEncoder)
+        return self.convert_to(formats.obj.ObjEncoder)
 
     def to_glb(self):
-        from scfile.formats.glb.encoder import GlbEncoder
+        return self.convert_to(formats.glb.GlbEncoder)
 
-        return self.convert_to(GlbEncoder)
+    def to_fbx(self):
+        return self.convert_to(formats.fbx.FbxEncoder)
 
     def to_dae(self):
-        from scfile.formats.dae.encoder import DaeEncoder
-
-        return self.convert_to(DaeEncoder)
+        return self.convert_to(formats.dae.DaeEncoder)
 
     def to_ms3d(self):
-        from scfile.formats.ms3d.encoder import Ms3dEncoder
-
-        return self.convert_to(Ms3dEncoder)
+        return self.convert_to(formats.ms3d.Ms3dEncoder)
 
     def parse(self):
         self._parse_header()

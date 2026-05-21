@@ -7,5 +7,7 @@ from .conftest import extract
 
 
 def test_image(assets: Path):
-    source, output = extract(MicDecoder, PngEncoder, assets, "image", "image")
+    src = "image/image"
+    out = "image/image"
+    source, output = extract(MicDecoder, PngEncoder, assets, src, out)
     assert source == output
