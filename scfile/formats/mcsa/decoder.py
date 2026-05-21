@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from scfile.consts import Factor, FileSignature, McsaModel, McsaUnits
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -64,7 +65,9 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         latest = max(VERSION_MAP.keys())
         mapping = VERSION_MAP.get(self.data.version, VERSION_MAP[latest])
 
-        self.data.flags = defaultdict(bool, {flag: bool(self._readb(F.BOOL)) for flag in mapping})
+        self.data.flags = defaultdict(
+            bool, {flag: bool(self._readb(F.BOOL)) for flag in mapping}
+        )
 
     def _parse_scales(self):
         self.data.scene.scale.position = self._readb(F.F32)
@@ -153,6 +156,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Polygon faces
         mesh.polygons = self._readpolygons(mesh.count.polygons, mesh.quads)
+        mesh.count.polygons = len(mesh.polygons)
 
         self.data.scene.meshes.append(mesh)
 
