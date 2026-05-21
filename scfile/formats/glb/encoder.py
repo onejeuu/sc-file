@@ -111,7 +111,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def _create_meshes(self):
         for index, mesh in enumerate(self.data.scene.meshes):
             primitive: Node = deepcopy(base.PRIMITIVE)
-            skeleton_presented = self._skeleton_presented and len(mesh.links_ids) > 0 and len(mesh.links_weights) > 0
+            skeleton_presented = self._skeleton_presented and mesh.max_influences > 0
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = self._accessor_index()
@@ -309,7 +309,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _add_meshes(self):
         for mesh in self.data.scene.meshes:
-            skeleton_presented = self._skeleton_presented and len(mesh.links_ids) > 0 and len(mesh.links_weights) > 0
+            skeleton_presented = self._skeleton_presented and mesh.max_influences > 0
 
             # XYZ Position
             self.write(mesh.vertices.tobytes())
@@ -339,7 +339,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self.write(mesh.links_weights.tobytes())
 
             # ABC Polygons
-            self.write(mesh.polygons.flatten().tobytes())
+            self.write(mesh.polygons.flatten().astype(F.U32).tobytes())
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:

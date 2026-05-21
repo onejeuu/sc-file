@@ -1,25 +1,24 @@
-from pathlib import Path
-
 from scfile.formats.json import JsonEncoder
 from scfile.formats.nbt import NbtDecoder, nbt
 from scfile.formats.nbt.enums import Tag
+from tests.conftest import ASSETS
 
 from .conftest import extract
 
 
-def test_nbt(assets: Path):
-    source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt", "nbt/nbt")
+def test_nbt():
+    source, output = extract(NbtDecoder, JsonEncoder, "nbt/nbt", "nbt/nbt")
     assert source == output
 
-    source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt_gzip", "nbt/nbt")
+    source, output = extract(NbtDecoder, JsonEncoder, "nbt/nbt_gzip", "nbt/nbt")
     assert source == output
 
-    source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt_zstd", "nbt/nbt")
+    source, output = extract(NbtDecoder, JsonEncoder, "nbt/nbt_zstd", "nbt/nbt")
     assert source == output
 
 
-def test_empty(assets: Path):
-    src = assets / "source" / "nbt" / "nbt_empty"
+def test_empty():
+    src = ASSETS / "source" / "nbt" / "nbt_empty"
     with NbtDecoder(src) as dec:
         data = dec.decode()
     assert data.value is None

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from scfile.__main__ import main
+from tests.conftest import ASSETS
 
 
 def test_main_help():
@@ -42,8 +43,8 @@ def test_main_mapcache_keyword():
             main()
 
 
-def test_main_implicit_convert(assets: Path, temp: Path):
-    src = str(assets / "cli" / "model_v12.mcsb")
+def test_main_implicit_convert(temp: Path):
+    src = str(ASSETS / "cli/model_v12.mcsb")
     testargs = ["scfile", src, "-O", str(temp)]
     with patch.object(sys, "argv", testargs):
         with pytest.raises(SystemExit):

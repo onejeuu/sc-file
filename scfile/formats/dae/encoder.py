@@ -119,10 +119,11 @@ class DaeEncoder(FileEncoder[ModelContent]):
         library = SubElement(self.ctx["ROOT"], "library_controllers")
 
         for mesh in self.data.scene.meshes:
-            controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
-            skin = SubElement(controller, "skin", source=f"#{mesh.name}")
-            self._add_controller_sources(mesh, skin)
-            self._add_joints_and_weights(mesh, skin)
+            if mesh.max_influences > 0:
+                controller = SubElement(library, "controller", id=f"{mesh.name}-skin", name="Armature")
+                skin = SubElement(controller, "skin", source=f"#{mesh.name}")
+                self._add_controller_sources(mesh, skin)
+                self._add_joints_and_weights(mesh, skin)
 
     def _add_controller_sources(self, mesh: S.ModelMesh, skin: Element):
         # Add joint names
@@ -190,8 +191,9 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def _add_mesh_instances(self, parent: Element):
         for mesh in self.data.scene.meshes:
             node = SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
+            skeleton_presented = self._skeleton_presented and mesh.max_influences > 0
 
-            if self._skeleton_presented:
+            if skeleton_presented:
                 bone = self.data.scene.skeleton.roots[0]
                 instance = SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 SubElement(instance, "skeleton").text = f"#armature-{bone.name}"
