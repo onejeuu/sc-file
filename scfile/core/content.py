@@ -87,7 +87,7 @@ class ImageContent(FileContent):
 
 
 @dataclass
-class TextureArrayContent(FileContent):
+class TexarrContent(FileContent):
     """Texture array storage."""
 
     type: FileType = field(default=FileType.TEXARR)

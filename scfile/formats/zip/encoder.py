@@ -1,10 +1,10 @@
 import zipfile
 
-from scfile.core import FileEncoder, TextureArrayContent
+from scfile.core import FileEncoder, TexarrContent
 from scfile.enums import ByteOrder, FileFormat
 
 
-class TextureArrayEncoder(FileEncoder[TextureArrayContent]):
+class TexarrEncoder(FileEncoder[TexarrContent]):
     format = FileFormat.ZIP
     order = ByteOrder.LITTLE
 

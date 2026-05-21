@@ -1,4 +1,4 @@
-from .decoder import TextureArrayDecoder
+from .decoder import TexarrDecoder
 
 
-__all__ = ("TextureArrayDecoder",)
+__all__ = ("TexarrDecoder",)
