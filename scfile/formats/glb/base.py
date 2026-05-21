@@ -1,8 +1,10 @@
+from scfile import __repository__ as REPO
+
 from .enums import PrimitiveMode
 
 
 GLTF = {
-    "asset": {"version": "2.0", "generator": "onejeuu@scfile"},
+    "asset": {"version": "2.0", "generator": f"{REPO}"},
     "scene": 0,
     "scenes": [],
     "nodes": [],
