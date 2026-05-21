@@ -1,4 +1,4 @@
-from .encoder import TextureArrayEncoder
+from .encoder import TexarrEncoder
 
 
-__all__ = ("TextureArrayEncoder",)
+__all__ = ("TexarrEncoder",)

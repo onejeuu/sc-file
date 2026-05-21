@@ -1,3 +1,4 @@
+from scfile import formats
 from scfile.consts import ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -11,6 +12,21 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
     order = ByteOrder.LITTLE
 
     _content = ModelContent
+
+    def to_obj(self):
+        return self.convert_to(formats.obj.ObjEncoder)
+
+    def to_glb(self):
+        return self.convert_to(formats.glb.GlbEncoder)
+
+    def to_fbx(self):
+        return self.convert_to(formats.fbx.FbxEncoder)
+
+    def to_dae(self):
+        return self.convert_to(formats.dae.DaeEncoder)
+
+    def to_ms3d(self):
+        return self.convert_to(formats.ms3d.Ms3dEncoder)
 
     def parse(self):
         self.data.version = self._readb(F.U32)

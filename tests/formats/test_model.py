@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import Type
 
 import pytest
 
-from scfile.core import FileEncoder, ModelContent, UserOptions
+from scfile.core import UserOptions
+from scfile.core.types import ModelEncoder
 from scfile.formats.dae import DaeEncoder
 from scfile.formats.efkmodel import EfkmodelDecoder
 from scfile.formats.fbx import FbxEncoder
@@ -20,8 +20,6 @@ ENCODERS_FULL = [GlbEncoder, ObjEncoder]
 ENCODERS_SMOKE = [DaeEncoder, FbxEncoder, Ms3dEncoder]
 
 OPTIONS = UserOptions(parse_skeleton=True, parse_animation=True)
-
-ModelEncoder = Type[FileEncoder[ModelContent]]
 
 
 @pytest.mark.parametrize("version", VERSIONS)

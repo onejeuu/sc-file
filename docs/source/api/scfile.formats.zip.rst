@@ -6,10 +6,10 @@
 
   from scfile import formats
 
-  with formats.texarr.TextureArrayDecoder("path/to/blockMap.texarr") as ta:
+  with formats.texarr.TexarrDecoder("path/to/blockMap.texarr") as ta:
     data = ta.decode()
 
-  with formats.zip.TextureArrayEncoder(data) as zip:
+  with formats.zip.TexarrEncoder(data) as zip:
     zip.encode().save("output.zip")
 
 Encoder

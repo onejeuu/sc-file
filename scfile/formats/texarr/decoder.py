@@ -1,5 +1,5 @@
 from scfile import formats
-from scfile.core import FileDecoder, TextureArrayContent
+from scfile.core import FileDecoder, TexarrContent
 from scfile.enums import ByteOrder, F, FileFormat
 
 
@@ -7,14 +7,14 @@ DELIMITER = ":"
 FORMAT = FileFormat.DDS.suffix
 
 
-class TextureArrayDecoder(FileDecoder[TextureArrayContent]):
+class TexarrDecoder(FileDecoder[TexarrContent]):
     format = FileFormat.TEXARR
     order = ByteOrder.BIG
 
-    _content = TextureArrayContent
+    _content = TexarrContent
 
     def to_zip(self):
-        return self.convert_to(formats.zip.TextureArrayEncoder)
+        return self.convert_to(formats.zip.TexarrEncoder)
 
     def parse(self):
         self.data.count = self._readb(F.U32)

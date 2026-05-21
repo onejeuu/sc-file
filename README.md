@@ -43,14 +43,14 @@
 
 ## ✨ Supported Formats
 
-| Type            | Game formats                        | →   | Standard formats                    |
-| --------------- | ----------------------------------- | --- | ----------------------------------- |
-| 🧊 **Model**    | `.mcsb` `.mcsa` `.mcvd` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
-| 🧱 **Texture**  | `.ol`                               | →   | `.dds`                              |
-| 🖼️ **Image**    | `.mic`                              | →   | `.png`                              |
-| 📦 **Archive**  | `.texarr`                           | →   | `.zip`                              |
-| 🗺 **Region\*** | `.mdat`                             | →   | `.mca`                              |
-| ⚙️ **NBT\***    | `...`                               | →   | `.json`                             |
+| Type           | Game formats                        | →   | Standard formats                    |
+| -------------- | ----------------------------------- | --- | ----------------------------------- |
+| 🧊 **Model**   | `.mcsb` `.mcsa` `.mcvd` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
+| 🧱 **Texture** | `.ol`                               | →   | `.dds`                              |
+| 🖼️ **Image**   | `.mic`                              | →   | `.png`                              |
+| 📦 **Archive** | `.texarr`                           | →   | `.zip`                              |
+| 🗺 **Region**  | `.mdat`                             | →   | `.mca`                              |
+| ⚙️ **NBT\***   | `...`                               | →   | `.json`                             |
 
 \* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
@@ -74,12 +74,12 @@ _No Python required._
 
 **Usage:**
 
-- 🖱️ **GUI**: launch `scfile.exe` without arguments to open graphical interface with logs console
+- 🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical interface
 - 📥 **Drag & Drop**: drag file onto `scfile.exe`
 - 🖱️ **Open With**: set as default app for supported formats
 - 📟 **Command Line**: `scfile.exe --help`  
-   _Example:_ `scfile.exe model.mcsb -F glb --skeleton`  
-   _Options: `-F` picks model format, `--skeleton` extracts model armature._
+   _Command example:_ `scfile.exe model.mcsb -F glb --skeleton`  
+   _Options in example: `-F` picks model format, `--skeleton` extracts model armature._
 
 ### 🐍 Install Python package
 
@@ -92,6 +92,7 @@ pip install sc-file
 **Usage:**
 
 - 📖 **Python library**: [See Library section](#-library)
+- 🖥️ **GUI via package**: `scfile`
 - 📟 **CLI via package**: `scfile --help`
 
 ### 🔧 Compile from source

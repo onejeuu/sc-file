@@ -57,6 +57,7 @@ OUTPUT = f"file{FakeEncoder.format.suffix}"
 DATA = b"data"
 
 MODEL = "model/model_v12"
+MODEL_EFK = "model/efkmodel_v5"
 MODEL_LEGACY = "model/legacy/model_v12"
 TEXTURE = "texture/texture_dxt1"
 CUBEMAP = "texture/texture_cubemap"

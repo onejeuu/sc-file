@@ -1,4 +1,4 @@
-from . import base, decoder, encoder, options, structio
+from . import base, decoder, encoder, options, structio, types
 from .base import BaseFile
 from .content import (
     ContentType,
@@ -7,7 +7,7 @@ from .content import (
     ModelContent,
     NbtContent,
     RegionContent,
-    TextureArrayContent,
+    TexarrContent,
     TextureContent,
 )
 from .decoder import FileDecoder
@@ -22,6 +22,7 @@ __all__ = (
     "encoder",
     "options",
     "structio",
+    "types",
     "BaseFile",
     "FileDecoder",
     "FileEncoder",
@@ -32,7 +33,7 @@ __all__ = (
     "TextureContent",
     "ImageContent",
     "RegionContent",
-    "TextureArrayContent",
+    "TexarrContent",
     "NbtContent",
     "StructIO",
 )
