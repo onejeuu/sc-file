@@ -17,7 +17,12 @@ from . import scfile
 
 
 @scfile.command(name=CliCommand.CONVERT)
-@click.argument("PATHS", type=params.Files, nargs=-1)
+@click.argument(
+    "PATHS",
+    type=params.Files,
+    nargs=-1,
+    required=True,
+)
 @click.option(
     "-O",
     "--output",

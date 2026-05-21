@@ -20,5 +20,4 @@ from scfile.utils.cli import updates_callback, version_callback
     is_eager=True,
     expose_value=False,
 )
-def scfile():
-    pass
+def scfile(): ...

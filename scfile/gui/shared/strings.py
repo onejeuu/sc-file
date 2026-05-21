@@ -1,4 +1,5 @@
 import locale
+import warnings
 from typing import Literal, TypeAlias
 
 
@@ -6,7 +7,8 @@ Lang: TypeAlias = Literal["EN"] | Literal["RU"]
 
 
 def _get_lang() -> Lang:
-    lang = str(locale.getdefaultlocale()[0] or "")
+    warnings.filterwarnings("ignore")
+    lang = locale.getlocale()[0] or ""
     return "RU" if lang.startswith("ru") else "EN"
 
 
