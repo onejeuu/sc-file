@@ -70,6 +70,7 @@ def merge(
     "SOURCE",
     type=params.MapCacheDir,
     nargs=1,
+    required=True,
 )
 @click.option(
     "-O",
