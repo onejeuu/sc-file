@@ -9,7 +9,7 @@ from scfile.formats.mic import MicDecoder
 from scfile.formats.nbt import NbtDecoder
 from scfile.formats.ol import OlDecoder
 from scfile.formats.texarr import TexarrDecoder
-from tests.conftest import CUBEMAP, IMAGE, MODEL, MODEL_EFK, NBT, TEXARR, TEXTURE
+from tests.conftest import ASSETS, CUBEMAP, IMAGE, MODEL, MODEL_EFK, NBT, TEXARR, TEXTURE
 
 
 @pytest.mark.parametrize(
@@ -19,8 +19,8 @@ from tests.conftest import CUBEMAP, IMAGE, MODEL, MODEL_EFK, NBT, TEXARR, TEXTUR
         (EfkmodelDecoder, MODEL_EFK),
     ],
 )
-def test_sugar_model(assets: Path, decoder: type[McsbDecoder] | type[EfkmodelDecoder], src: str):
-    with decoder(assets / "source" / src) as dec:
+def test_sugar_model(decoder: type[McsbDecoder] | type[EfkmodelDecoder], src: str):
+    with decoder(ASSETS / "source" / src) as dec:
         with dec.to_obj() as enc:
             assert len(enc.getvalue()) > 0
         with dec.to_glb() as enc:
@@ -33,36 +33,36 @@ def test_sugar_model(assets: Path, decoder: type[McsbDecoder] | type[EfkmodelDec
             assert len(enc.getvalue()) > 0
 
 
-def test_sugar_texture(assets: Path):
-    src = assets / "source" / TEXTURE
+def test_sugar_texture():
+    src = ASSETS / "source" / TEXTURE
     with OlDecoder(src) as dec:
         with dec.to_dds() as enc:
             assert len(enc.getvalue()) > 0
 
 
-def test_sugar_cubemap(assets: Path):
-    src = assets / "source" / CUBEMAP
+def test_sugar_cubemap():
+    src = ASSETS / "source" / CUBEMAP
     with OlCubemapDecoder(src) as dec:
         with dec.to_dds() as enc:
             assert len(enc.getvalue()) > 0
 
 
-def test_sugar_image(assets: Path):
-    src = assets / "source" / IMAGE
+def test_sugar_image():
+    src = ASSETS / "source" / IMAGE
     with MicDecoder(src) as dec:
         with dec.to_png() as enc:
             assert len(enc.getvalue()) > 0
 
 
-def test_sugar_texarr(assets: Path):
-    src = assets / "source" / TEXARR
+def test_sugar_texarr():
+    src = ASSETS / "source" / TEXARR
     with TexarrDecoder(src) as dec:
         with dec.to_zip() as enc:
             assert len(enc.getvalue()) > 0
 
 
-def test_sugar_nbt(assets: Path):
-    src = assets / "source" / NBT
+def test_sugar_nbt():
+    src = ASSETS / "source" / NBT
     with NbtDecoder(src) as dec:
         with dec.to_json() as enc:
             assert len(enc.getvalue()) > 0

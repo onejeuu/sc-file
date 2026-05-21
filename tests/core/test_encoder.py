@@ -5,7 +5,7 @@ from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.core.options import UserOptions
 from scfile.structures.models import Flag, ModelScene
-from tests.conftest import DATA, OUTPUT, SOURCE, FakeContent, FakeEncoder, FakeModelEncoder
+from tests.conftest import DATA, OUTPUT, FakeContent, FakeEncoder, FakeModelEncoder
 
 
 def test_encode_serializes_data():

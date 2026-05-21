@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from scfile.formats.dds import DdsEncoder
@@ -20,15 +18,15 @@ TEXTURES = [
 
 
 @pytest.mark.parametrize("name", TEXTURES)
-def test_texture(assets: Path, name: str):
+def test_texture(name: str):
     src = f"texture/{name}"
     out = f"texture/{name}"
-    source, output = extract(OlDecoder, DdsEncoder, assets, src, out)
+    source, output = extract(OlDecoder, DdsEncoder, src, out)
     assert source == output
 
 
-def test_cubemap(assets: Path):
+def test_cubemap():
     src = "texture/texture_cubemap"
     out = "texture/texture_cubemap"
-    source, output = extract(OlCubemapDecoder, DdsEncoder, assets, src, out)
+    source, output = extract(OlCubemapDecoder, DdsEncoder, src, out)
     assert source == output

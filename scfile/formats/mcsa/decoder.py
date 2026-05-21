@@ -198,7 +198,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     def _parse_links(self, mesh: S.ModelMesh, count: int, max_influences: int):
         match max_influences:
             case 0:
-                pass
+                return
             case 1 | 2:
                 self._parse_packed_links(mesh, count)
             case 3 | 4:

@@ -40,3 +40,9 @@ class ModelMesh:
     link_space: LinkSpace = LinkSpace.GLOBAL
     uv_origin: UVOrigin = UVOrigin.TOP_LEFT
     uv_sign: UVSign = UVSign.POSITIVE
+
+    @property
+    def max_influences(self) -> int:
+        if self.links_weights.size == 0:
+            return 0
+        return int((self.links_weights > 0).sum(axis=1).max())

@@ -1,8 +1,8 @@
-from pathlib import Path
 from typing import NamedTuple, Optional
 
 from scfile import UserOptions
 from scfile.core import ContentType, FileDecoder, FileEncoder
+from tests.conftest import ASSETS
 
 
 class Compare(NamedTuple):
@@ -13,14 +13,13 @@ class Compare(NamedTuple):
 def extract(
     decoder: type[FileDecoder[ContentType]],
     encoder: type[FileEncoder[ContentType]],
-    assets: Path,
     source: str,
     output: str,
     options: Optional[UserOptions] = None,
 ) -> Compare:
-    with decoder(assets / "source" / source, options) as dec:
+    with decoder(ASSETS / "source" / source, options) as dec:
         converted = dec.convert(encoder)
 
-    expected = (assets / "output" / output).read_bytes()
+    expected = (ASSETS / "output" / output).read_bytes()
 
     return Compare(converted, expected)

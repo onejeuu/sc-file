@@ -19,11 +19,6 @@ def temp() -> Generator[Path, None, None]:
     shutil.rmtree(path)
 
 
-@pytest.fixture
-def assets() -> Path:
-    return Path(__file__).parent / "assets"
-
-
 @dataclass
 class FakeContent(FileContent):
     type: FileType = field(default=FileType.NONE)
@@ -52,6 +47,7 @@ class FakeModelEncoder(FileEncoder[ModelContent]):
         pass
 
 
+ASSETS = Path(__file__).resolve().parent / "assets"
 SOURCE = f"file{FakeDecoder.format.suffix}"
 OUTPUT = f"file{FakeEncoder.format.suffix}"
 DATA = b"data"

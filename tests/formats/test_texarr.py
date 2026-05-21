@@ -1,6 +1,5 @@
 import zipfile
 from io import BytesIO
-from pathlib import Path
 
 from scfile.formats.texarr import TexarrDecoder
 from scfile.formats.zip import TexarrEncoder
@@ -8,8 +7,10 @@ from scfile.formats.zip import TexarrEncoder
 from .conftest import extract
 
 
-def test_texarr(assets: Path):
-    source, output = extract(TexarrDecoder, TexarrEncoder, assets, "texarr/texarr", "texarr/texarr")
+def test_texarr():
+    src = "texarr/texarr"
+    out = "texarr/texarr"
+    source, output = extract(TexarrDecoder, TexarrEncoder, src, out)
 
     with zipfile.ZipFile(BytesIO(source)) as z1, zipfile.ZipFile(BytesIO(output)) as z2:
         assert z1.namelist() == z2.namelist()
