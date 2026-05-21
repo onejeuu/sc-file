@@ -98,7 +98,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self._create_animation()
 
     def _count_nodes(self):
-        nodes = list(range(self.data.scene.count.meshes))
+        nodes = list(range(len(self.data.scene.meshes)))
 
         if self._skeleton_presented:
             nodes += self.ctx["ROOT_INDEXES"]
@@ -111,58 +111,59 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def _create_meshes(self):
         for index, mesh in enumerate(self.data.scene.meshes):
             primitive: Node = deepcopy(base.PRIMITIVE)
+            skeleton_presented = self._skeleton_presented and len(mesh.links_ids) > 0 and len(mesh.links_weights) > 0
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = self._accessor_index()
-            self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
-            self._create_accessor(mesh.count.vertices, "VEC3", array=mesh.positions)
+            self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
+            self._create_accessor(len(mesh.vertices), "VEC3", array=mesh.vertices)
 
             # UV Texture
             if self.data.flags[Flag.UV]:
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
-                self._create_accessor(mesh.count.vertices, "VEC2")
+                self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
+                self._create_accessor(len(mesh.vertices), "VEC2")
 
             # UV Texture (2)
             if self.data.flags[Flag.UV2]:
                 primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 2 * 4)
-                self._create_accessor(mesh.count.vertices, "VEC2")
+                self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
+                self._create_accessor(len(mesh.vertices), "VEC2")
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS]:
                 primitive["attributes"]["NORMAL"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 3 * 4)
-                self._create_accessor(mesh.count.vertices, "VEC3")
+                self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
+                self._create_accessor(len(mesh.vertices), "VEC3")
 
             # XYZW Tangents
             if self.data.flags[Flag.TANGENTS]:
                 primitive["attributes"]["TANGENT"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
-                self._create_accessor(mesh.count.vertices, "VEC4")
+                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
+                self._create_accessor(len(mesh.vertices), "VEC4")
 
             # Bone Links
-            if self._skeleton_presented and mesh.count.links > 0:
+            if skeleton_presented:
                 # Joint Indices
                 primitive["attributes"]["JOINTS_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 4 * 1)
-                self._create_accessor(mesh.count.vertices, "VEC4", ComponentType.UBYTE)
+                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 1)
+                self._create_accessor(len(mesh.vertices), "VEC4", ComponentType.UBYTE)
 
                 # Joint Weights
                 primitive["attributes"]["WEIGHTS_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=mesh.count.vertices * 4 * 4)
-                self._create_accessor(mesh.count.vertices, "VEC4", ComponentType.FLOAT)
+                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
+                self._create_accessor(len(mesh.vertices), "VEC4", ComponentType.FLOAT)
 
             # ABC Polygons
             primitive["indices"] = self._accessor_index()
-            self._create_bufferview(byte_length=mesh.count.polygons * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
-            self._create_accessor(mesh.count.polygons * 3, "SCALAR", ComponentType.UINT32)
+            self._create_bufferview(byte_length=len(mesh.polygons) * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
+            self._create_accessor(len(mesh.polygons) * 3, "SCALAR", ComponentType.UINT32)
 
             # Create nodes
             primitive["material"] = index
             node: Node = {"name": mesh.name, "mesh": index}
 
-            if self._skeleton_presented and mesh.count.links > 0:
+            if skeleton_presented:
                 node["skin"] = 0
 
             # Add to GLTF
@@ -174,7 +175,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.ctx["BONE_INDEXES"] = []
         self.ctx["ROOT_INDEXES"] = []
 
-        node_index_offset = self.data.scene.count.meshes
+        node_index_offset = len(self.data.scene.meshes)
 
         for index, bone in enumerate(self.data.scene.skeleton.bones, start=node_index_offset):
             node: Node = dict(
@@ -202,8 +203,8 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 joints=self.ctx["BONE_INDEXES"],
             )
         )
-        self._create_bufferview(byte_length=self.data.scene.count.bones * 16 * 4, target=None)
-        self._create_accessor(self.data.scene.count.bones, "MAT4", ComponentType.FLOAT)
+        self._create_bufferview(byte_length=len(self.data.scene.skeleton.bones) * 16 * 4, target=None)
+        self._create_accessor(len(self.data.scene.skeleton.bones), "MAT4", ComponentType.FLOAT)
 
     def _create_animation(self):
         for clip in self.data.scene.animation.clips:
@@ -308,8 +309,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _add_meshes(self):
         for mesh in self.data.scene.meshes:
+            skeleton_presented = self._skeleton_presented and len(mesh.links_ids) > 0 and len(mesh.links_weights) > 0
+
             # XYZ Position
-            self.write(mesh.positions.tobytes())
+            self.write(mesh.vertices.tobytes())
 
             # UV Texture
             if self.data.flags[Flag.UV]:
@@ -328,7 +331,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self.write(mesh.tangents.tobytes())
 
             # Bone Links
-            if self._skeleton_presented and mesh.count.links > 0:
+            if skeleton_presented:
                 # Joint Indices
                 self.write(mesh.links_ids.tobytes())
 

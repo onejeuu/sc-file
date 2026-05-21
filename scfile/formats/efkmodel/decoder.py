@@ -2,6 +2,7 @@ from scfile import formats
 from scfile.consts import ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.formats.mcsa.decoder import MeshCounts
 from scfile.formats.mcsa.exceptions import McsaCountsLimit
 from scfile.formats.mcsa.io import McsaFileIO
 from scfile.structures import models as S
@@ -31,23 +32,24 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
     def parse(self):
         self.data.version = self._readb(F.U32)
 
-        self._readb(F.F32)  # ? Scale
-        self.data.scene.count.meshes = self._readb(F.I32)
-        self._readb(F.I32)  # ? Animation count
+        self.ctx["SCALE"] = self._readb(F.F32)
+        self.ctx["COUNT_MESHES"] = self._readb(F.I32)
+        self.ctx["COUNT_CLIPS"] = self._readb(F.I32)
 
-        for _ in range(self.data.scene.count.meshes):
+        for _ in range(self.ctx["COUNT_MESHES"]):
             mesh = S.ModelMesh()
+            counts = MeshCounts()
 
             # Read vertex data
-            mesh.count.vertices = self._parse_count("vertices")
-            data = self._readarray(F.F32, mesh.count.vertices * 15).reshape((mesh.count.vertices, 15))
-            mesh.positions = data[:, 0:3]
+            counts.vertices = self._parse_count("vertices")
+            data = self._readarray(F.F32, counts.vertices * 15).reshape((counts.vertices, 15))
+            mesh.vertices = data[:, 0:3]
             mesh.normals = data[:, 3:6]
             mesh.uv1 = data[:, 12:14]
 
             # Read polygons data
-            mesh.count.polygons = self._parse_count("polygons")
-            mesh.polygons = self._readarray(F.I32, mesh.count.polygons * 3).astype(F.I32).reshape(-1, 3)
+            counts.polygons = self._parse_count("polygons")
+            mesh.polygons = self._readarray(F.I32, counts.polygons * 3).astype(F.I32).reshape(-1, 3)
 
             self.data.scene.meshes.append(mesh)
 

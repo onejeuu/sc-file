@@ -16,20 +16,10 @@ class SceneScales:
 
 
 @dataclass
-class SceneCounts:
-    """Quantifying of scene elements."""
-
-    meshes: int = 0
-    bones: int = 0
-    clips: int = 0
-
-
-@dataclass
 class ModelScene:
     """Complete 3D model container with geometry, skeleton and animation."""
 
     scale: SceneScales = field(default_factory=SceneScales)
-    count: SceneCounts = field(default_factory=SceneCounts)
 
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
@@ -37,8 +27,8 @@ class ModelScene:
 
     @property
     def total_vertices(self):
-        return sum(mesh.count.vertices for mesh in self.meshes)
+        return sum(len(mesh.vertices) for mesh in self.meshes)
 
     @property
     def total_polygons(self):
-        return sum(mesh.count.polygons for mesh in self.meshes)
+        return sum(len(mesh.polygons) for mesh in self.meshes)

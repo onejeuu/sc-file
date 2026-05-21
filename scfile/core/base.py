@@ -1,3 +1,4 @@
+import io
 import os
 import struct
 from abc import ABC
@@ -15,6 +16,7 @@ from .structio import StructIO
 
 IOStream: TypeAlias = str | bytes | PathLike | BinaryIO
 FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
+TempContext: TypeAlias = dict[str, Any]
 
 
 class BaseFile(StructIO, ABC):
@@ -38,9 +40,26 @@ class BaseFile(StructIO, ABC):
         else:
             raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
 
+        self.ctx: TempContext = {}
+
     @property
     def suffix(self) -> str:
         return self.format.suffix
+
+    @property
+    def closed(self) -> bool:
+        return self._stream.closed
+
+    @property
+    def location(self) -> str:
+        return repr(self._stream)
+
+    def size(self) -> int:
+        current = self.tell()
+        self.seek(0, 2)
+        size = self.tell()
+        self.seek(current)
+        return size
 
     def read(self, size: int = -1) -> bytes:
         return self._stream.read(size)
@@ -50,6 +69,9 @@ class BaseFile(StructIO, ABC):
 
     def seek(self, pos: int, whence: int = 0) -> int:
         return self._stream.seek(pos, whence)
+
+    def skip(self, size: int):
+        self.seek(size, io.SEEK_CUR)
 
     def tell(self) -> int:
         return self._stream.tell()
@@ -63,15 +85,12 @@ class BaseFile(StructIO, ABC):
     def seekable(self) -> bool:
         return self._stream.seekable()
 
-    @property
-    def closed(self) -> bool:
-        return self._stream.closed
-
-    def close(self) -> None:
-        self._stream.close()
-
     def flush(self) -> None:
         self._stream.flush()
+
+    def close(self) -> None:
+        self.ctx = {}
+        self._stream.close()
 
     def getvalue(self) -> bytes:
         if isinstance(self._stream, BytesIO):
@@ -82,20 +101,8 @@ class BaseFile(StructIO, ABC):
         self.seek(current)
         return data
 
-    @property
-    def location(self) -> str:
-        return repr(self._stream)
-
-    @property
-    def size(self) -> int:
-        current = self.tell()
-        self.seek(0, 2)
-        size = self.tell()
-        self.seek(current)
-        return size
-
     def is_eof(self) -> bool:
-        return self.size <= self.tell()
+        return self.size() <= self.tell()
 
     def _unpack(self, fmt: str) -> tuple[Any, ...]:
         try:

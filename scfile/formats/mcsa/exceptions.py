@@ -31,10 +31,10 @@ class McsaCountsLimit(McsaDecodingError, exceptions.ParsingError):
 class McsaBoneLinksError(McsaDecodingError, exceptions.ParsingError):
     """Raised when mesh contain unexpected/invalid links count."""
 
-    links_count: int
+    max_influences: int
 
     def __str__(self):
-        return f"{super().__str__()} has unexpected links count: {self.links_count}."
+        return f"{super().__str__()} has unexpected bones max influences: {self.max_influences}."
 
 
 @dataclass

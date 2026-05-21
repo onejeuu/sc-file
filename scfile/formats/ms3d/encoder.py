@@ -43,7 +43,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         reference_count = 0xFF  # ? necessary only for optimization, calculation too expensive
 
         for mesh in self.data.scene.meshes:
-            for index, xyz in enumerate(mesh.positions):
+            for index, xyz in enumerate(mesh.vertices):
                 bone_id = (
                     mesh.links_ids.astype(F.I8)[index][0] if self._skeleton_presented else ModelDefaults.ROOT_BONE_ID
                 )
@@ -67,7 +67,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
 
                 self._writeb(fmt, 0, *indices, *normals, *uv, 1, index)
 
-            offset += mesh.count.vertices
+            offset += len(mesh.vertices)
 
     def _add_groups(self):
         self._writeb(F.U16, len(self.data.scene.meshes))  # groups count
@@ -77,7 +77,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
             self._writeb(F.U8, 0)  # flags
             self._writefixedstring(mesh.name)  # group name
 
-            count = mesh.count.polygons
+            count = len(mesh.polygons)
             self._writeb(F.U16, count)  # triangles count
             self._writeb(f"{count}{F.U16}", *np.arange(count, dtype=F.U16) + offset)  # indices
             self._writeb(F.I8, index)  # material index
@@ -104,7 +104,7 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     def _add_bones(self):
         # f32 fps, f32 frame, f32 framesCount, u16 bonesCount
         fmt = f"{F.F32 * 3}{F.U16}"
-        self._writeb(fmt, 24, 1, 30, self.data.scene.count.bones)
+        self._writeb(fmt, 24, 1, 30, len(self.data.scene.skeleton.bones))
 
         for bone in self.data.scene.skeleton.bones:
             self._writeb(F.U8, 0)  # flags

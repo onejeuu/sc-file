@@ -108,7 +108,7 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
         with self._node(b"Geometry", [geom_id, geometry_name, b"Mesh"]):
             self._leaf(b"Properties70")
             self._leaf(b"GeometryVersion", [124])
-            self._leaf(b"Vertices", [mesh.positions.flatten().astype(np.float64)])
+            self._leaf(b"Vertices", [mesh.vertices.flatten().astype(np.float64)])
             self._leaf(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)])
             self._leaf(b"Edges", [])
 

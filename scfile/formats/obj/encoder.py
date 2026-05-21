@@ -36,24 +36,24 @@ class ObjEncoder(FileEncoder[ModelContent]):
             self._writeutf8(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh, offset)
 
-            offset += mesh.count.vertices
+            offset += len(mesh.vertices)
 
     def _vectorize(self, template: bytes, data: np.ndarray, count: int):
         return (template * count) % tuple(data.flatten().tolist())
 
     def _add_geometric_vertices(self, mesh: S.ModelMesh):
         template = b"v %.6f %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.positions, mesh.count.vertices))
+        self.write(self._vectorize(template, mesh.vertices, len(mesh.vertices)))
         self.write(b"\n")
 
     def _add_texture_coordinates(self, mesh: S.ModelMesh):
         template = b"vt %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.uv1, mesh.count.vertices))
+        self.write(self._vectorize(template, mesh.uv1, len(mesh.vertices)))
         self.write(b"\n")
 
     def _add_vertex_normals(self, mesh: S.ModelMesh):
         template = b"vn %.6f %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.normals, mesh.count.vertices))
+        self.write(self._vectorize(template, mesh.normals, len(mesh.vertices)))
         self.write(b"\n")
 
     def _add_polygonal_faces(self, mesh: S.ModelMesh, offset: int):
