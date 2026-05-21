@@ -86,14 +86,14 @@ def test_location_bytesio():
 
 def test_size_bytesio():
     f = _TestFile(DATA, mode="rb")
-    assert f.size == len(DATA)
+    assert f.size() == len(DATA)
 
 
 def test_size_file(temp: Path):
     path = temp / SOURCE
     path.write_bytes(DATA)
     f = _TestFile(path, mode="rb")
-    assert f.size == len(DATA)
+    assert f.size() == len(DATA)
     f.close()
 
 

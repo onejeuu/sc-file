@@ -73,8 +73,8 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
     def _add_mesh_sources(self, mesh: S.ModelMesh, node: Element):
         # XYZ Positions
-        pos_source = utils.create_source(node, mesh.name, "positions", mesh.positions)
-        utils.add_accessor(pos_source, mesh.name, "positions", len(mesh.positions), ["X", "Y", "Z"], "float")
+        pos_source = utils.create_source(node, mesh.name, "positions", mesh.vertices)
+        utils.add_accessor(pos_source, mesh.name, "positions", len(mesh.vertices), ["X", "Y", "Z"], "float")
 
         # UV Texture
         if self.data.flags[Flag.UV]:
@@ -90,7 +90,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         vertices = SubElement(node, "vertices", id=f"{mesh.name}-vertices")
         SubElement(vertices, "input", semantic="POSITION", source=f"#{mesh.name}-positions")
 
-        triangles = SubElement(node, "triangles", count=str(mesh.count.polygons), material=f"{mesh.material}-material")
+        triangles = SubElement(node, "triangles", count=str(len(mesh.polygons)), material=f"{mesh.material}-material")
 
         # Inputs
         SubElement(triangles, "input", semantic="VERTEX", source=f"#{mesh.name}-vertices", offset="0")
@@ -146,7 +146,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         SubElement(joints, "input", semantic="INV_BIND_MATRIX", source=f"#{mesh.name}-bindposes")
 
         # Add vertex weights
-        weights = SubElement(skin, "vertex_weights", count=str(mesh.count.vertices))
+        weights = SubElement(skin, "vertex_weights", count=str(len(mesh.vertices)))
         SubElement(weights, "input", semantic="JOINT", source=f"#{mesh.name}-joints", offset="0")
         SubElement(weights, "input", semantic="WEIGHT", source=f"#{mesh.name}-weights", offset="1")
 
@@ -154,7 +154,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         weight_index = itertools.count()
         bone_indices = [f"{bone_id} {next(weight_index)}" for bone_id in mesh.links_ids.flatten()]
 
-        SubElement(weights, "vcount").text = " ".join(["4"] * mesh.count.vertices)
+        SubElement(weights, "vcount").text = " ".join(["4"] * len(mesh.vertices))
         SubElement(weights, "v").text = " ".join(bone_indices)
 
     def _add_scenes(self):

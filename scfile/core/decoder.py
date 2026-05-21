@@ -74,7 +74,7 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
     def validate_signature(self) -> None:
         """Validate file signature. Raises `EmptyFileError` or `InvalidSignatureError` on failure."""
-        if self.size <= len(self.signature or bytes()):
+        if self.size() <= len(self.signature or bytes()):
             raise exceptions.EmptyFileError(self.location)
 
         if self.signature:
@@ -82,7 +82,3 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
             if read != self.signature:
                 raise exceptions.InvalidSignatureError(self.location, read, self.signature)
-
-    def close(self) -> None:
-        """Close file buffer. Same as `FileIO.close()`."""
-        super().close()

@@ -28,7 +28,6 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     ):
         self.data: ContentType = data
         self.options: UserOptions = options or UserOptions()
-        self.ctx: EncoderContext = {}
 
         super().__init__(output or BytesIO(), mode="wb+")
 
@@ -102,11 +101,6 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         """Save to path (without suffix) adding format suffix automatically. Closes encoder."""
         self.save(path=f"{path}{self.suffix}", mode=mode)
         self.close()
-
-    def close(self) -> None:
-        """Close buffer and reset `self.ctx` state. Same as `BytesIO.close()`."""
-        self.ctx = {}
-        super().close()
 
     @property
     def _skeleton_presented(self) -> bool:

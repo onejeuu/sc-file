@@ -7,16 +7,6 @@ from .types import BonesMapping, Colors, LinksIds, LinksWeights, Polygons, Vecto
 
 
 @dataclass
-class MeshCounts:
-    """Quantifying of mesh elements."""
-
-    vertices: int = 0
-    polygons: int = 0
-    links: int = 0
-    bones: int = 0
-
-
-@dataclass
 class MeshBounds:
     min: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     max: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
@@ -30,13 +20,12 @@ class ModelMesh:
     name: str = "name"
     material: str = "material"
 
-    count: MeshCounts = field(default_factory=MeshCounts)
     bounds: MeshBounds = field(default_factory=MeshBounds)
     quads: bool = False
 
     bones: BonesMapping = field(default_factory=dict)
 
-    positions: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
+    vertices: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
     uv1: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
     uv2: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))
     normals: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))

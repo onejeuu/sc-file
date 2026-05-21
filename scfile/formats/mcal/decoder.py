@@ -18,13 +18,13 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_header(self):
         self.data.version = self._readb(F.F32)
-        self.data.scene.count.bones = self._readb(F.U32)
-        _ = self._readb(F.U8)  # ? some buffer size
+        self.ctx["COUNT_BONES"] = self._readb(F.U32)
+        self.ctx["UNKNOWN_SIZE"] = self._readb(F.U8)
 
     def _parse_animation(self):
-        self.data.scene.count.clips = self._readb(F.I32)
+        self.ctx["COUNT_CLIPS"] = self._readb(F.I32)
 
-        for _ in range(self.data.scene.count.clips):
+        for _ in range(self.ctx["COUNT_CLIPS"]):
             self._parse_clip()
 
     def _parse_clip(self):
@@ -34,7 +34,7 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip.frames = self._readb(F.U32)
         clip.rate = self._readb(F.F32)
 
-        rotations, translations = self._readclip(clip.frames, self.data.scene.count.bones)
+        rotations, translations = self._readclip(clip.frames, self.ctx["COUNT_BONES"])
         clip.rotations = rotations
         clip.translations = translations
 
