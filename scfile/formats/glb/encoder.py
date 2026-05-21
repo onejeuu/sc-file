@@ -207,9 +207,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _create_animation(self):
         for clip in self.data.scene.animation.clips:
+            times = clip.times
             time_idx = self._accessor_index()
             self._create_bufferview(byte_length=clip.frames * 4, target=None)
-            self._create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT)
+            self._create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT, array=times.reshape(-1, 1))
 
             sampler_idx = 0
             samplers = []
