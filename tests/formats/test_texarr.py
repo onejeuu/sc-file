@@ -9,7 +9,7 @@ from .conftest import extract
 
 
 def test_texarr(assets: Path):
-    source, output = extract(TextureArrayDecoder, TextureArrayEncoder, assets, "texarr", "texarr")
+    source, output = extract(TextureArrayDecoder, TextureArrayEncoder, assets, "texarr/texarr", "texarr/texarr")
 
     with zipfile.ZipFile(BytesIO(source)) as z1, zipfile.ZipFile(BytesIO(output)) as z2:
         assert z1.namelist() == z2.namelist()

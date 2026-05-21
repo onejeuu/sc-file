@@ -17,12 +17,9 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
 
-    transforms = [T.unique_names, T.flip_uv, T.skeleton_to_local, T.build_hierarchy]
+    transforms = [T.unique_names, T.flip_uv]
 
     def serialize(self):
-        if self._skeleton_presented:
-            self.ctx["BINDPOSE"] = self.data.scene.skeleton.calculate_global_transforms()
-
         self.ctx["NODES"] = []
         self.ctx["CLIPS"] = []
         self.ctx["BONES"] = {}
@@ -78,88 +75,18 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
         # Objects
         with self._node(b"Objects", root=True):
-            if self._skeleton_presented:
-                self._write_armature()
-
-                for bone in self.data.scene.skeleton.bones:
-                    self._write_bone(bone)
-
-                self._write_bindpose()
-
-                for mesh in self.data.scene.meshes:
-                    self._write_mesh_skinning(mesh)
-
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
-
-            # if self._animation_presented:
-            #    self._write_animation()
 
         # Connections
         with self._node(b"Connections", root=True):
             root_id = np.int64(self.ctx["ROOT_ID"])
 
-            if self._skeleton_presented:
-                self._leaf(b"C", [b"OO", root_id, np.int64(0)])
-
-                for bone in self.data.scene.skeleton.bones:
-                    child_id = self.ctx["BONES"][bone.name]
-                    parent_name = self.data.scene.skeleton.bones[bone.parent_id].name
-                    parent_id = root_id if bone.is_root else self.ctx["BONES"][parent_name]
-
-                    self._leaf(b"C", [b"OO", child_id, parent_id])
-
             for mesh in self.data.scene.meshes:
                 ids = self.ctx["MESHES"][mesh.name]
-
                 self._leaf(b"C", [b"OO", ids["mesh"], root_id])
                 self._leaf(b"C", [b"OO", ids["geometry"], ids["mesh"]])
                 self._leaf(b"C", [b"OO", ids["material"], ids["mesh"]])
-
-                if self._skeleton_presented:
-                    self._leaf(b"C", [b"OO", ids["skin"], ids["geometry"]])
-
-                    for global_id in mesh.bones.values():
-                        cluster_id = ids.get(f"cluster_{global_id}")
-                        if not cluster_id:
-                            continue
-
-                        bone_name = self.data.scene.skeleton.bones[global_id].name
-                        bone_id = self.ctx["BONES"][bone_name]
-
-                        self._leaf(b"C", [b"OO", cluster_id, ids["skin"]])
-                        self._leaf(b"C", [b"OO", bone_id, cluster_id])
-
-            if self._animation_presented:
-                for clip in self.ctx.get("CLIPS", []):
-                    if len(clip) == 2:
-                        self._leaf(b"C", [b"OO", np.int64(clip[0]), np.int64(clip[1])])
-                    else:
-                        self._leaf(b"C", [b"OP", np.int64(clip[0]), np.int64(clip[1]), clip[2]])
-
-    def _write_armature(self):
-        armature_id = self._next_id()
-        self.ctx["ROOT_ID"] = armature_id
-
-        root_name = b"Armature\x00\x01Model"
-        with self._node(b"Model", [armature_id, root_name, b"Null"]):
-            self._props70([(b"InheritType", b"enum", b"", b"", 1)])
-
-    def _write_bone(self, bone: S.SkeletonBone):
-        fbx_id = self._next_id()
-        self.ctx["BONES"][bone.name] = fbx_id
-
-        bone_name = bone.name.encode() + b"\x00\x01" + b"Model"
-        with self._node(b"Model", [fbx_id, bone_name, b"LimbNode"]):
-            self._leaf(b"Version", [232])
-            self._props70(
-                [
-                    (b"Lcl Translation", b"Lcl Translation", b"", b"A", *bone.position.tolist()),
-                    (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", *bone.rotation.tolist()),
-                    (b"RotationOrder", b"enum", b"", b"", 0),
-                    (b"InheritType", b"enum", b"", b"", 1),
-                ]
-            )
 
     def _write_mesh(self, mesh: S.ModelMesh):
         fbx_id = self._next_id()
@@ -250,136 +177,6 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
             self._props70(DEFAULT.MATERIAL)
 
         self.ctx["MESHES"][mesh.name]["material"] = mat_id
-
-    def _write_mesh_skinning(self, mesh: S.ModelMesh):
-        skin_id = self._next_id()
-        self.ctx["MESHES"][mesh.name]["skin"] = skin_id
-
-        skin_name = mesh.name.encode() + b"\x00\x01Deformer"
-        with self._node(b"Deformer", [skin_id, skin_name, b"Skin"]):
-            self._leaf(b"Version", [101])
-            self._leaf(b"Link_DeformAcuracy", [50.0])
-
-        for global_id in mesh.bones.values():
-            bone = self.data.scene.skeleton.bones[global_id]
-
-            row_idx, col_idx = np.where(mesh.links_ids == global_id)
-            if row_idx.size == 0:
-                continue
-
-            rows, inverse = np.unique(row_idx, return_inverse=True)
-            weights = np.zeros(len(rows), dtype=np.float64)
-            np.add.at(weights, inverse, mesh.links_weights[row_idx, col_idx])
-
-            indices = rows.astype(np.int32)
-            weights = weights.astype(np.float64)
-
-            bindpose = self.ctx["BINDPOSE"][bone.id].astype(np.float64)
-            transform = np.eye(4, dtype=np.float64).flatten().tolist()
-            transform_link = bindpose.T.flatten().tolist()
-
-            cluster_id = self._next_id()
-            self.ctx["MESHES"][mesh.name][f"cluster_{global_id}"] = cluster_id
-
-            cluster_name = bone.name.encode() + b"\x00\x01SubDeformer"
-            with self._node(b"Deformer", [cluster_id, cluster_name, b"Cluster"]):
-                self._leaf(b"Version", [100])
-                self._leaf(b"UserData", [b"", b""])
-                self._leaf(b"Indexes", [indices])
-                self._leaf(b"Weights", [weights])
-                self._leaf(b"Transform", [transform])
-                self._leaf(b"TransformLink", [transform_link])
-
-    def _write_bindpose(self):
-        pose_id = self._next_id()
-
-        pose_name = b"Pose\x00\x01Pose"
-
-        bones = self.data.scene.skeleton.bones
-
-        with self._node(b"Pose", [pose_id, pose_name, b"BindPose"]):
-            self._leaf(b"Type", [b"BindPose"])
-            self._leaf(b"Version", [100])
-            self._leaf(b"NbPoseNodes", [len(bones) + 1])
-
-            armature_id = self.ctx["ROOT_ID"]
-            identity = np.eye(4, dtype=np.float64).flatten().tolist()
-            with self._node(b"PoseNode"):
-                self._leaf(b"Node", [np.int64(armature_id)])
-                self._leaf(b"Matrix", [identity])
-
-            for bone in bones:
-                bone_id = self.ctx["BONES"][bone.name]
-                matrix = self.ctx["BINDPOSE"][bone.id].T.flatten().astype(np.float64).tolist()
-                with self._node(b"PoseNode"):
-                    self._leaf(b"Node", [np.int64(bone_id)])
-                    self._leaf(b"Matrix", [matrix])
-
-    """"
-    def _write_animation(self):
-        for clip in self.data.scene.animation.clips:
-            stack_id = self._next_id()
-            stack_name = clip.name.encode() + b"\x00\x01AnimationStack"
-            with self._node(b"AnimationStack", [stack_id, stack_name, b""]):
-                self._leaf(b"Properties70", [])
-
-            layer_id = self._next_id()
-            layer_name = b"BaseLayer\x00\x01AnimationLayer"
-            self._leaf(b"AnimationLayer", [layer_id, layer_name, b""])
-
-            self.ctx["CLIPS"].append((layer_id, stack_id))
-
-            times = (clip.times * 46186158000).astype(np.int64)
-            flags = np.full(len(times), 0x218, dtype=np.int32)
-            attr_data = np.zeros(4, dtype=np.float32)
-            attr_count = np.array([len(times)], dtype=np.int32)
-
-            for bone in self.data.scene.skeleton.bones:
-                transforms = clip.transforms[:, bone.id, :]
-                rotations = transforms[:, 0:3].astype(np.float32)
-                translations = transforms[:, 4:7].astype(np.float32)
-
-                bone_id = self.ctx["BONES"][bone.name]
-
-                t_node_id = self._next_id()
-                t_node_name = b"T\x00\x01AnimationCurveNode"
-                with self._node(b"AnimationCurveNode", [t_node_id, t_node_name, b""]):
-                    self._props70(DEFAULT.CURVE)
-
-                r_node_id = self._next_id()
-                r_node_name = b"R\x00\x01AnimationCurveNode"
-                with self._node(b"AnimationCurveNode", [r_node_id, r_node_name, b""]):
-                    self._props70(DEFAULT.CURVE)
-
-                for i, axis in enumerate([b"d|X", b"d|Y", b"d|Z"]):
-                    curve_id = self._next_id()
-                    with self._node(b"AnimationCurve", [curve_id, b"\x00\x01AnimationCurve", b""]):
-                        self._leaf(b"Default", [0.0])
-                        self._leaf(b"KeyVer", [4008])
-                        self._leaf(b"KeyTime", [times])
-                        self._leaf(b"KeyValueFloat", [translations[:, i]])
-                        self._leaf(b"KeyAttrFlags", [flags])
-                        self._leaf(b"KeyAttrDataFloat", [attr_data])
-                        self._leaf(b"KeyAttrRefCount", [attr_count])
-                    self.ctx["CLIPS"].append((curve_id, t_node_id, axis))
-
-                for i, axis in enumerate([b"d|X", b"d|Y", b"d|Z"]):
-                    curve_id = self._next_id()
-                    with self._node(b"AnimationCurve", [curve_id, b"\x00\x01AnimationCurve", b""]):
-                        self._leaf(b"Default", [0.0])
-                        self._leaf(b"KeyVer", [4008])
-                        self._leaf(b"KeyTime", [times])
-                        self._leaf(b"KeyValueFloat", [rotations[:, i]])
-                        self._leaf(b"KeyAttrFlags", [flags])
-                        self._leaf(b"KeyAttrDataFloat", [attr_data])
-                        self._leaf(b"KeyAttrRefCount", [attr_count])
-                    self.ctx["CLIPS"].append((curve_id, r_node_id, axis))
-
-                self.ctx["CLIPS"].append((t_node_id, bone_id, b"Lcl Translation"))
-                self.ctx["CLIPS"].append((r_node_id, bone_id, b"Lcl Rotation"))
-                self.ctx["CLIPS"].append((layer_id, t_node_id))
-                self.ctx["CLIPS"].append((layer_id, r_node_id))
-   """
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):

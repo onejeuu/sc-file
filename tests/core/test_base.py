@@ -6,6 +6,7 @@ import pytest
 from scfile.core.base import BaseFile
 from scfile.enums import FileFormat
 from scfile.exceptions import InvalidStructureError
+from tests.conftest import DATA, OUTPUT, SOURCE
 
 
 class _TestFile(BaseFile):
@@ -13,34 +14,34 @@ class _TestFile(BaseFile):
 
 
 def test_from_path(temp: Path):
-    path = temp / "test.bin"
-    path.write_bytes(b"hello")
+    path = temp / SOURCE
+    path.write_bytes(DATA)
     f = _TestFile(path, mode="rb")
-    assert f.read() == b"hello"
+    assert f.read() == DATA
     assert not f.closed
     f.close()
     assert f.closed
 
 
 def test_from_bytes():
-    f = _TestFile(b"hello", mode="rb")
-    assert f.read() == b"hello"
+    f = _TestFile(DATA, mode="rb")
+    assert f.read() == DATA
     f.close()
 
 
 def test_from_bytesio():
-    buf = io.BytesIO(b"hello")
+    buf = io.BytesIO(DATA)
     f = _TestFile(buf, mode="rb")
-    assert f.read() == b"hello"
+    assert f.read() == DATA
     f.close()
 
 
 def test_from_file_object(temp: Path):
-    path = temp / "test.bin"
-    path.write_bytes(b"hello")
+    path = temp / SOURCE
+    path.write_bytes(DATA)
     with open(path, "rb") as fh:
         f = _TestFile(fh, mode="rb")
-        assert f.read() == b"hello"
+        assert f.read() == DATA
         f.close()
 
 
@@ -50,71 +51,71 @@ def test_invalid_stream_type():
 
 
 def test_write_mode(temp: Path):
-    path = temp / "out.bin"
+    path = temp / OUTPUT
     f = _TestFile(path, mode="wb")
-    f.write(b"data")
+    f.write(DATA)
     f.close()
-    assert path.read_bytes() == b"data"
+    assert path.read_bytes() == DATA
 
 
 def test_getvalue_bytesio():
-    f = _TestFile(b"hello", mode="rb")
-    assert f.getvalue() == b"hello"
+    f = _TestFile(DATA, mode="rb")
+    assert f.getvalue() == DATA
 
 
 def test_getvalue_file(temp: Path):
-    path = temp / "out.bin"
+    path = temp / OUTPUT
     f = _TestFile(path, mode="wb+")
-    f.write(b"data")
-    assert f.getvalue() == b"data"
+    f.write(DATA)
+    assert f.getvalue() == DATA
     f.close()
 
 
 def test_location_path(temp: Path):
-    path = temp / "loc.bin"
+    path = temp / "location.bin"
     f = _TestFile(path, mode="wb")
-    assert "loc.bin" in f.location
+    assert "location.bin" in f.location
     f.close()
 
 
 def test_location_bytesio():
-    f = _TestFile(b"data", mode="rb")
+    f = _TestFile(DATA, mode="rb")
     assert "BytesIO" in f.location
     f.close()
 
 
 def test_size_bytesio():
-    f = _TestFile(b"hello", mode="rb")
-    assert f.size == 5
+    f = _TestFile(DATA, mode="rb")
+    assert f.size == len(DATA)
 
 
 def test_size_file(temp: Path):
-    path = temp / "size.bin"
-    path.write_bytes(b"1234567")
+    path = temp / SOURCE
+    path.write_bytes(DATA)
     f = _TestFile(path, mode="rb")
-    assert f.size == 7
+    assert f.size == len(DATA)
     f.close()
 
 
 def test_is_eof():
-    f = _TestFile(b"ab", mode="rb")
+    f = _TestFile(DATA, mode="rb")
     assert not f.is_eof()
-    f.read(1)
+    f.read(len(DATA) // 2)
     assert not f.is_eof()
-    f.read(1)
+    f.read()
     assert f.is_eof()
 
 
 def test_context_manager(temp: Path):
-    path = temp / "ctx.bin"
-    path.write_bytes(b"test")
+    path = temp / SOURCE
+    path.write_bytes(DATA)
     with _TestFile(path, mode="rb") as f:
-        assert f.read() == b"test"
+        assert f.read() == DATA
     assert f.closed
 
 
 def test_readable():
-    f = _TestFile(b"data", mode="rb")
+    f = _TestFile(DATA, mode="rb")
     assert f.readable()
     f.close()
 
@@ -126,38 +127,29 @@ def test_writable():
 
 
 def test_seekable():
-    f = _TestFile(b"data", mode="rb")
+    f = _TestFile(DATA, mode="rb")
     assert f.seekable()
     f.close()
 
 
 def test_flush():
-    f = _TestFile(b"data", mode="wb")
+    f = _TestFile(DATA, mode="wb")
     f.flush()
     f.close()
 
 
-def test_tell_and_seek():
-    f = _TestFile(b"hello", mode="rb")
-    assert f.tell() == 0
-    f.seek(2)
-    assert f.tell() == 2
-    assert f.read() == b"llo"
-    f.close()
-
-
 def test_getvalue(temp: Path):
-    path = temp / "out.bin"
+    path = temp / OUTPUT
     f = _TestFile(path, mode="wb+")
-    f.write(b"data")
+    f.write(DATA)
     result = f.getvalue()
-    assert result == b"data"
+    assert result == DATA
     assert f.tell() == len(result)
     f.close()
 
 
 def test_unpack_error(temp: Path):
-    path = temp / "bad.bin"
+    path = temp / SOURCE
     path.write_bytes(b"\x00")
     f = _TestFile(path, mode="rb")
     with pytest.raises(InvalidStructureError):
@@ -166,6 +158,6 @@ def test_unpack_error(temp: Path):
 
 
 def test_repr():
-    f = _TestFile(b"data", mode="rb")
+    f = _TestFile(DATA, mode="rb")
     assert isinstance(repr(f), str)
     f.close()

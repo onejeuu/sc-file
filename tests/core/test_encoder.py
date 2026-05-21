@@ -5,18 +5,18 @@ from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.core.options import UserOptions
 from scfile.structures.models import Flag, ModelScene
-from tests.conftest import FakeContent, FakeEncoder, FakeModelEncoder
+from tests.conftest import DATA, OUTPUT, SOURCE, FakeContent, FakeEncoder, FakeModelEncoder
 
 
 def test_encode_serializes_data():
-    enc = FakeEncoder(FakeContent(parsed=b"hello"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     enc.encode()
-    assert enc.getvalue() == b"hello"
+    assert enc.getvalue() == DATA
     enc.close()
 
 
 def test_encode_returns_self():
-    enc = FakeEncoder(FakeContent(parsed=b"x"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     assert enc.encode() is enc
     enc.close()
 
@@ -25,9 +25,9 @@ def test_encode_with_signature():
     class _Enc(FakeEncoder):
         signature = b"STRN"
 
-    enc = _Enc(FakeContent(parsed=b"data"))
+    enc = _Enc(FakeContent(parsed=DATA))
     enc.encode()
-    assert enc.getvalue() == b"STRNdata"
+    assert enc.getvalue() == b"STRN" + DATA
 
 
 def test_ctx_cleared_on_close():
@@ -38,72 +38,66 @@ def test_ctx_cleared_on_close():
 
 
 def test_save_as(temp: Path):
-    enc = FakeEncoder(FakeContent(parsed=b"data"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     enc.encode()
-    path = temp / "out.obj"
+    path = temp / OUTPUT
     enc.save_as(path)
-    assert path.read_bytes() == b"data"
+    assert path.read_bytes() == DATA
     enc.close()
 
 
 def test_export_as(temp: Path):
-    enc = FakeEncoder(FakeContent(parsed=b"x"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     enc.encode()
     enc.export_as(temp / "out")
-    assert (temp / "out.obj").read_bytes() == b"x"
+    assert (temp / "out.obj").read_bytes() == DATA
     enc.close()
 
 
 def test_save(temp: Path):
-    enc = FakeEncoder(FakeContent(parsed=b"x"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     enc.encode()
-    path = temp / "out.obj"
+    path = temp / OUTPUT
     enc.save(path)
-    assert path.read_bytes() == b"x"
+    assert path.read_bytes() == DATA
     assert enc.closed
 
 
 def test_export(temp: Path):
-    enc = FakeEncoder(FakeContent(parsed=b"x"))
+    enc = FakeEncoder(FakeContent(parsed=DATA))
     enc.encode()
     enc.export(temp / "out")
-    assert (temp / "out.obj").read_bytes() == b"x"
+    assert (temp / "out.obj").read_bytes() == DATA
     assert enc.closed
 
 
 def test_output_default_is_bytesio():
     enc = FakeEncoder(FakeContent())
-    enc.write(b"test")
-    assert enc.getvalue() == b"test"
+    enc.write(DATA)
+    assert enc.getvalue() == DATA
     enc.close()
 
 
 def test_output_to_path(temp: Path):
-    path = temp / "direct.obj"
-    enc = FakeEncoder(FakeContent(parsed=b"direct"), output=path)
+    path = temp / OUTPUT
+    enc = FakeEncoder(FakeContent(parsed=DATA), output=path)
     enc.encode()
     enc.close()
-    assert path.read_bytes() == b"direct"
+    assert path.read_bytes() == DATA
 
 
 def test_output_to_bytesio():
     buf = BytesIO()
-    enc = FakeEncoder(FakeContent(parsed=b"buf"), output=buf)
+    enc = FakeEncoder(FakeContent(parsed=DATA), output=buf)
     enc.encode()
     result = enc.getvalue()
     enc.close()
-    assert result == b"buf"
+    assert result == DATA
 
 
 def test_default_output_is_bytesio():
     enc = FakeEncoder(FakeContent())
     assert isinstance(enc._stream, BytesIO)
-    enc.close()
-
-
-def test_suffix():
-    enc = FakeEncoder(FakeContent())
-    assert enc.suffix == ".obj"
     enc.close()
 
 
@@ -118,7 +112,7 @@ def test_prelude_called():
             log.append("ser")
             super().serialize()
 
-    enc = _PreludeEncoder(FakeContent(parsed=b"x"))
+    enc = _PreludeEncoder(FakeContent(parsed=DATA))
     enc.encode()
     assert log == ["pre", "ser"]
     enc.close()

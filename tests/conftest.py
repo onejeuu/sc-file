@@ -19,6 +19,11 @@ def temp() -> Generator[Path, None, None]:
     shutil.rmtree(path)
 
 
+@pytest.fixture
+def assets() -> Path:
+    return Path(__file__).parent / "assets"
+
+
 @dataclass
 class FakeContent(FileContent):
     type: FileType = field(default=FileType.NONE)
@@ -45,3 +50,16 @@ class FakeModelEncoder(FileEncoder[ModelContent]):
 
     def serialize(self) -> None:
         pass
+
+
+SOURCE = f"file{FakeDecoder.format.suffix}"
+OUTPUT = f"file{FakeEncoder.format.suffix}"
+DATA = b"data"
+
+MODEL = "model/model_v12"
+MODEL_LEGACY = "model/legacy/model_v12"
+TEXTURE = "texture/texture_dxt1"
+CUBEMAP = "texture/texture_cubemap"
+TEXARR = "texarr/texarr"
+IMAGE = "image/image"
+NBT = "nbt/nbt"
