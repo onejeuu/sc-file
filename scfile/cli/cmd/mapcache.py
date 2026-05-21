@@ -18,7 +18,6 @@ RegionKey: TypeAlias = tuple[int, int]
 LogCallback = Callable[[str], None]
 
 
-# TODO: refactor me
 def merge(
     item: tuple[RegionKey, list[types.Path]],
     output: types.Path,
@@ -64,7 +63,6 @@ def merge(
     _done(f"{filename} merged {len(merged.chunks)} chunks")
 
 
-# TODO: refactor me
 @scfile.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",

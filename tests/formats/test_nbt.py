@@ -11,15 +11,18 @@ def test_nbt(assets: Path):
     source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt", "nbt/nbt")
     assert source == output
 
-
-def test_gzip(assets: Path):
     source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt_gzip", "nbt/nbt")
     assert source == output
 
-
-def test_zstd(assets: Path):
     source, output = extract(NbtDecoder, JsonEncoder, assets, "nbt/nbt_zstd", "nbt/nbt")
     assert source == output
+
+
+def test_empty(assets: Path):
+    src = assets / "source" / "nbt" / "nbt_empty"
+    with NbtDecoder(src) as dec:
+        data = dec.decode()
+    assert data.value is None
 
 
 def test_encode():
