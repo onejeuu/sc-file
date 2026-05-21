@@ -148,6 +148,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # Polygon faces
         mesh.polygons = self._readpolygons(mesh.count.polygons, mesh.quads)
+        mesh.count.polygons = len(mesh.polygons)
 
         self.data.scene.meshes.append(mesh)
 

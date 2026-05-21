@@ -18,6 +18,7 @@ from .conftest import extract
 VERSIONS = [7, 8, 9, 10, 11, 12]
 ENCODERS_FULL = [GlbEncoder, ObjEncoder]
 ENCODERS_SMOKE = [DaeEncoder, FbxEncoder, Ms3dEncoder]
+SPECIAL = ["model_v12_links2", "model_v12_links3", "model_v12_links4", "model_v12_quads"]
 
 OPTIONS = UserOptions(parse_skeleton=True, parse_animation=True)
 
@@ -27,6 +28,15 @@ OPTIONS = UserOptions(parse_skeleton=True, parse_animation=True)
 def test_model(assets: Path, version: int, encoder: ModelEncoder):
     src = f"model/model_v{version}"
     out = f"model/model_v{version}{encoder.format.suffix}"
+    source, output = extract(McsbDecoder, encoder, assets, src, out, OPTIONS)
+    assert source == output
+
+
+@pytest.mark.parametrize("filename", SPECIAL)
+@pytest.mark.parametrize("encoder", ENCODERS_FULL)
+def test_model_special(assets: Path, filename: str, encoder: ModelEncoder):
+    src = f"model/special/{filename}"
+    out = f"model/special/{filename}{encoder.format.suffix}"
     source, output = extract(McsbDecoder, encoder, assets, src, out, OPTIONS)
     assert source == output
 
