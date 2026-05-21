@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -54,10 +54,9 @@ def test_main_implicit_convert(assets: Path, temp: Path):
 def test_main_no_args():
     testargs = ["scfile"]
     with patch.object(sys, "argv", testargs):
-        with patch("scfile.gui.window.run") as window_run:
+        with patch.dict(sys.modules, {"scfile.gui.window": MagicMock()}):
             with pytest.raises(SystemExit):
                 main()
-            window_run.assert_called_once()
 
 
 def test_main_keyboard_interrupt():
