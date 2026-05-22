@@ -1,0 +1,55 @@
+//------------------------------------------------
+// File: EFKMODEL.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse effects model scenes.
+// Category: STALCRAFT
+// File Mask: *.efkmodel
+//------------------------------------------------
+
+
+// Default Byte Order
+
+LittleEndian();
+
+
+// Vectors
+
+typedef struct { float u, v; } Vec2f <read=Str("%f, %f", u, v)>;
+typedef struct { float x, y, z; } Vec3f <read=Str("%f, %f, %f", x, y, z)>;
+typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, w)>;
+
+
+// File Header
+
+struct Header {
+    uint version <name="Version", fgcolor=cRed>;
+    float scale <name="Scale">;
+    int meshCount <name="Mesh Count", bgcolor=cAqua>;
+    int unknownCount <name="Unknown Count", bgcolor=cBlue>;
+} header;
+
+
+// Model Meshes
+
+typedef struct {
+    Vec3f position <name="Position", bgcolor=cGreen>;
+    Vec3f normal <name="Normal", bgcolor=cPurple>;
+    float unknown[6] <name="Unknown", bgcolor=cGray>;
+    Vec2f uv1 <name="UV1", bgcolor=cRed>;
+    float unknown2 <name="Unknown", bgcolor=cGray>;
+} Vertex;
+
+typedef struct {
+    uint vertexCount <name="Vertex Count", bgcolor=cLtGreen>;
+    Vertex vertices[vertexCount] <name="Vertex", optimize=false>;
+
+    uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
+    int32 polygons[polygonCount * 3] <name="Polygons", bgcolor=cLtBlue>;
+} Mesh;
+
+
+// Model
+
+if ( header.meshCount > 0 )
+    Mesh meshes[header.meshCount] <name="Mesh", optimize=false>;

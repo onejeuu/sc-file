@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from scfile import convert
-from scfile.exceptions import InvalidStructureError, UnsupportedFormatError
+from scfile.exceptions import InvalidSignatureError, InvalidStructureError, UnsupportedFormatError
 from tests.conftest import ASSETS, CUBEMAP, IMAGE, MODEL, MODEL_LEGACY, NBT, TEXTURE
 
 
@@ -55,3 +55,8 @@ def test_auto_invalid_texture(temp: Path):
 def test_auto_unsupported(temp: Path):
     with pytest.raises(UnsupportedFormatError):
         convert.auto(ASSETS / "invalid/unknown.xyz", temp)
+
+
+def test_auto_invalid_signature(temp: Path):
+    with pytest.raises(InvalidSignatureError):
+        convert.auto(ASSETS / "invalid/signature.mic", temp)

@@ -3,6 +3,8 @@ import pytest
 from scfile.formats.dds import DdsEncoder
 from scfile.formats.hdri import OlCubemapDecoder
 from scfile.formats.ol import OlDecoder
+from scfile.formats.ol.exceptions import OlFormatUnsupported
+from tests.conftest import ASSETS
 
 from .conftest import extract
 
@@ -30,3 +32,8 @@ def test_cubemap():
     out = "texture/texture_cubemap"
     source, output = extract(OlCubemapDecoder, DdsEncoder, src, out)
     assert source == output
+
+
+def test_invalid_version():
+    with pytest.raises(OlFormatUnsupported):
+        OlDecoder(ASSETS / "invalid" / "unsuported.ol").decode()

@@ -1,7 +1,8 @@
 import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, TypeAlias
+from pathlib import Path
+from typing import Callable, Iterable, TypeAlias
 
 import click
 from rich import print
@@ -15,6 +16,7 @@ from . import scfile
 
 
 RegionKey: TypeAlias = tuple[int, int]
+RegionsMapping = dict[RegionKey, list[types.Path]]
 LogCallback = Callable[[str], None]
 
 
@@ -63,6 +65,20 @@ def merge(
     _done(f"{filename} merged {len(merged.chunks)} chunks")
 
 
+def parse_regions(paths: Iterable[Path]) -> RegionsMapping:
+    regions: RegionsMapping = defaultdict(list)
+
+    for path in paths:
+        try:
+            rx, rz = map(int, path.stem.removeprefix("reg.").removeprefix("r.").split("."))
+            regions[(rx, rz)].append(path)
+
+        except ValueError:
+            continue
+
+    return regions
+
+
 @scfile.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",
@@ -106,16 +122,13 @@ def mapcache_command(
 
     mdats = [path for path in source.rglob("*.mdat") if path.stat().st_size > 0 and ".bck" not in str(path)]
     if not mdats:
-        print(L.ERROR, f"No MDAT files found in {source}")
+        print(L.ERROR, f"No MDAT files found in '{source}'")
         return
 
-    regions: dict[RegionKey, list[types.Path]] = defaultdict(list)
-    for path in mdats:
-        rx, rz = map(int, path.stem.lstrip("reg.").split("."))
-        regions[(rx, rz)].append(path)
+    regions = parse_regions(mdats)
 
     if not regions:
-        print(L.ERROR, f"No valid regions found in {source}")
+        print(L.ERROR, f"No valid regions found in '{source}'")
         return
 
     print(L.INFO, f"Found {len(regions)} unique regions")

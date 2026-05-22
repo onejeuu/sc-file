@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import Path
 
 import pytest
@@ -8,8 +9,12 @@ from scfile.formats.dae import DaeEncoder
 from scfile.formats.efkmodel import EfkmodelDecoder
 from scfile.formats.fbx import FbxEncoder
 from scfile.formats.glb import GlbEncoder
+from scfile.formats.mcal.decoder import McalDecoder
+from scfile.formats.mcsa.exceptions import McsaCountsLimit, McsaVersionUnsupported
 from scfile.formats.mcsb import McsbDecoder
 from scfile.formats.ms3d import Ms3dEncoder
+from scfile.formats.ms3d.exceptions import Ms3dCountsLimit
+from scfile.formats.ms3d.io import Ms3dFileIO
 from scfile.formats.obj import ObjEncoder
 from tests.conftest import ASSETS
 
@@ -67,3 +72,35 @@ def test_efkmodel(encoder: ModelEncoder):
     out = f"model/efkmodel_v5{encoder.format.suffix}"
     source, output = extract(EfkmodelDecoder, encoder, src, out)
     assert source == output
+
+
+def test_animodel():
+    src = ASSETS / "source" / "model/animodel_v12"
+
+    with McalDecoder(src) as dec:
+        data = dec.decode()
+
+    assert len(data.scene.animation.clips) >= 1
+
+
+def test_invalid_version():
+    with pytest.raises(McsaVersionUnsupported):
+        McsbDecoder(ASSETS / "invalid" / "unsuported.mcsb").decode()
+
+
+def test_invalid_counts():
+    with pytest.raises(McsaCountsLimit):
+        McsbDecoder(ASSETS / "invalid" / "counts.mcsb").decode()
+
+
+def test_invalid_counts_efkmodel():
+    with pytest.raises(McsaCountsLimit):
+        EfkmodelDecoder(ASSETS / "invalid" / "counts.efkmodel").decode()
+
+
+def test_ms3d_writecount_limit():
+    class _Enc(Ms3dFileIO, BytesIO):
+        pass
+
+    with pytest.raises(Ms3dCountsLimit):
+        _Enc()._writecount("vertices", 1000, 512)

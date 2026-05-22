@@ -108,8 +108,8 @@ class BaseFile(StructIO, ABC):
         try:
             return super()._unpack(fmt)
 
-        except struct.error as err:
-            raise InvalidStructureError(self.location, position=self.tell()) from err
+        except struct.error:
+            raise InvalidStructureError(self.location, position=self.tell())
 
     def __repr__(self) -> str:
         closed = "closed" if self.closed else "open"
