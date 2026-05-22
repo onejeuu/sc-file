@@ -4,58 +4,65 @@
 .. include:: _links.rst
 
 ----------------------------------------
-``.mcsa`` / ``.mcsb`` / ``.mcvd``
+🧊 Model Formats
 ----------------------------------------
 
-Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``, ``12.0``
+``.mcsb`` ``.mcsa`` ``.mcvd``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. list-table:: Output Formats
+| Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``
+
+.. list-table::
   :header-rows: 1
 
   * - Suffix
     - Name
     - Skeleton
     - Animation
-    - Speed
-  * - ``.glb``
-    - `glTF Binary <GLTF_>`_
-    - ✅
-    - ✅
-    - 8ms
   * - ``.obj``
     - `Wavefront <OBJ_>`_
     - ➖
     - ➖
-    - 170ms
+  * - ``.glb``
+    - `glTF Binary <GLTF_>`_
+    - ✅
+    - ✅
   * - ``.dae``
     - `Collada <DAE_>`_
     - ✅
     - ❌
-    - 180ms
   * - ``.ms3d``
-    - `MilkShape 3D <MS3D_>`_
+    - `MilkShape3D <MS3D_>`_
     - ✅
     - ❌
-    - 1120ms
+  * - ``.fbx``
+    - `Autodesk <FBX_>`_
+    - ❌
+    - ❌
 
-| **Feature:**
 | ✅ Supported
 | ❌ Not supported by scfile
 | ➖ Not supported by format
 
-| Benchmarks were performed using one of the most complex 3D model.
-| Note that average results may vary.
+
+``.efkmodel``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Supported versions: ``5``
+| Output: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``
+
 
 ----------------------------------------
+🧱 Texture Formats
+----------------------------------------
+
 ``.ol``
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Supported Formats: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_XY``, ``RGBA32F``
-| Supported Types: ``Texture``, ``Normalmap``, ``Cubemap``
+| Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)
+| Supported types: ``Texture``, ``Normalmap``, ``Cubemap``
 
-| Output Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
-
-.. list-table:: Known Formats
+.. list-table::
   :header-rows: 1
 
   * - Encoded
@@ -88,33 +95,47 @@ Supported Versions: ``7.0``, ``8.0``, ``10.0``, ``11.0``, ``12.0``
     - ``None``
   * - ``5 %&TU!GGGGGGGGG``
     - ``RGBA32F``
-    - ``R32G32B32A32`` (``DX10``)
+    - ``R32G32B32A32``
     - ``None``
 
-`More about Compression... <S3TC_>`_
-
 
 ----------------------------------------
+🖼️ Image Formats
+----------------------------------------
+
 ``.mic``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Output: ``.png`` (`Portable Network Graphics <PNG_>`_)
+| Only difference from standard PNG is the file signature.
+
+
+----------------------------------------
+📦 Archive Formats
 ----------------------------------------
 
-| Format: ``.png`` (`Portable Network Graphics <PNG_>`_)
-| Only difference is `file signature <SIG_>`_ *(first 4 bytes)*
-
-
-----------------------------------------
 ``.texarr``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Output: ``.zip`` (`ZIP <ZIP_>`_)
+| Contains ``.dds`` textures.
+
+
+----------------------------------------
+🗺 Region Formats
 ----------------------------------------
 
-| Output Format: ``.zip`` (`ZIP <ZIP_>`_)
-| Textures Format: ``.dds`` (`DirectDraw Surface <DDS_>`_)
+``.mdat``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Output: ``.mca`` (`Anvil <ANVIL_>`_). Version ``1343``. Minecraft ``1.12.2``.
+| Only basic blocks export.
 
 
 ----------------------------------------
-``NBT``
+⚙️ NBT Formats
 ----------------------------------------
 
-| Format: `Named Binary Tag <NBT_>`_
-| Supported Types: ``RAW``, ``GZIP``, ``ZSTD``
-| Supported Files: ``assets/stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0``, ``config/%Name%/sd1``, ``config/%Name%/sd2``, ``config/%Name%/sd3``, ``config/%Name%/sd4``
-| Output Format: ``.json`` (`JavaScript Object Notation <JSON_>`_)
+| Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)
+| Supported types: ``RAW``, ``GZIP``, ``ZSTD``
+| Supported files: ``stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0..4``

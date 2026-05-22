@@ -116,7 +116,7 @@
 
 
 ----------------------------------------
-🗃️ NBT Formats
+⚙️ NBT Formats
 ----------------------------------------
 
 | **NBT** (`Named Binary Tag <NBT_>`_) format, viewable with tools like `NBT Explorer <NBTE_>`_.
@@ -215,7 +215,7 @@ Config Formats
 
 
 ----------------------------------------
-🗂️ Other Formats
+Other Formats
 ----------------------------------------
 
 ``.xeon`` Encrypted Object Notation
@@ -232,7 +232,7 @@ Config Formats
 
 
 ----------------------------------------
-🛠️ Launcher Formats
+Launcher Formats
 ----------------------------------------
 
 ``.map`` Hash Mappings (HASHMAP.bt_)
