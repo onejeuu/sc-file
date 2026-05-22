@@ -4,39 +4,41 @@
 .. include:: _links.rst
 
 .. warning::
-  Formats specifications are based on **reverse-engineering efforts** and may contain inaccuracies.
-  Subject to change.
+  Formats specifications are based on **reverse-engineering** and may contain inaccuracies.
 
 
 ----------------------------------------
 🧊 Model Formats
 ----------------------------------------
 
-.. list-table::
-  :header-rows: 0
+``.mcsa`` Scene Assets (MCSA.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  * - ``.mcsa``
-    - **Scene Assets** (MCSA.bt_)
-       • Configuration: Flags, Scales.
-       • Geometry: Name, Material, Vertex Position, UVs, Normals, Polygons.
-       • Optional: Skeleton bones, Animation clips.
-  * - ``.mcsb``
-    - **Scene Bundle** (MCSA.bt_)
-       • Identical to ``.mcsa`` but with integrity check.
-       • Contains leading hash to prevent tampering.
-  * - ``.mcvd``
-    - **Vector Dynamic** (MCSA.bt_)
-       • Simplified low-poly geometry.
-       • Includes animation data.
-       • Used for physics/collision trace detection.
-  * - ``.mcal``
-    - **Animation Library** (MCAL.bt_)
-       • Metadata: frame count, bone count.
-       • Technical skeletal animation transforms (per bone).
-       • Model-specific (requires matching skeleton).
-  * - ``.mcws``
-    - **World Slice** (`AES Encrypted <AES_>`_)
-       • Slices of safezone (single world chunk).
+| Configuration: Flags, Scales.
+| Geometry: Name, Material, Vertex positions, UV1, UV2, Normals, Tangents, Polygons.
+| Optional: Skeleton bones, Animation clips.
+
+``.mcsb`` Scene Bundle (MCSA.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Same structure as ``.mcsa`` with leading bytes prefix (?).
+
+``.mcvd`` Vector Dynamic (MCSA.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Identical to ``.mcsa``.
+| Used for low-poly geometry with animations (?).
+
+``.mcal`` Animation Library (MCAL.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Character animation clips.
+| Used for retargeting animations between compatible armatures.
+
+``.efkmodel`` Effekseer Model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Geometry: Vertex positions, Normals, UV1, Polygons.
 
 
 ----------------------------------------
@@ -44,15 +46,14 @@
 ----------------------------------------
 
 ``.ol`` Object Layer (OL.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standard ``.dds`` (`DirectDraw Surface <DDS_>`_).
-| Has simplified structure and `mipmaps <MIPMAP_>`_ are compressed using `LZ4`_.
+| Standard ``.dds`` (`DirectDraw Surface <DDS_>`_) with simplified structure.
+| Mipmaps compressed with `LZ4`_.
+| Some normal map textures are inverted.
 
-| Some `normal maps <NORMALMAP_>`_ textures can be inverted.
-
-| Some textures can be `cube maps <CUBEMAP_>`_. (OLCUBEMAP.bt_)
-| Mainly located in: ``gloomycore/sky``, ``effects/textures``, ``stalker/gui``.
+| Cubemap variant exists (OLCUBEMAP.bt_)
+| Mostly found in: ``gloomycore/sky``, ``effects/textures``, ``stalker/gui``.
 
 .. list-table:: Texture Suffix Conventions
   :header-rows: 1
@@ -64,68 +65,62 @@
   * - ``_diff``
     - Diffuse
     - Base Color / Albedo
-    - Contains raw surface color without lighting or reflections.
+    - Raw surface color without lighting or reflections.
   * - ``_spek``
     - Specular
     - Reflectivity Control
-    - Defines intensity and sharpness of highlights/reflections.
+    - Intensity and sharpness of highlights.
   * - ``_nrm``
     - Normal
     - Surface Detail
-    - Simulates small bumps/dents without changing geometry.
+    - Simulates bumps and dents without changing geometry.
   * - ``_emi``
     - Emission
     - Self-Illumination
     - Makes parts glow or emit light independently.
 
+
+----------------------------------------
+🖼️ Image Formats
+----------------------------------------
+
 ``.mic`` Media Image Container
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standard ``.png`` (`Portable Network Graphics <PNG_>`_).
-| Has modified `file signature <SIG_>`_.
-| Previously used for game `GUI`_.
+| Standard ``.png`` (`Portable Network Graphics <PNG_>`_) with modified file signature.
+| Previously used for game GUI.
 
-``.texarr`` TEXture ARRay (TEXARR.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
+----------------------------------------
+📦 Archive Formats
+----------------------------------------
+
+``.texarr`` Texture Array (TEXARR.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Container for ``.dds`` textures.
 | Textures referenced as ``group:path`` (e.g., ``probuilder:general/generic``).
 
 
 ----------------------------------------
-🗂️ Other Formats
+🗺 Region Formats
 ----------------------------------------
 
-``.xeon`` eXtended Encrypted Object Notation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``.mdat`` World Chunks Cache
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Contains large `JSON`_ structure. `AES Encrypted <AES_>`_.
-| Once encrypted individually ``.eon`` files combined into bundles.
-
-
-----------------------------------------
-🛠️ Launcher Formats
-----------------------------------------
-
-``.map`` MAPping hashes (HASHMAP.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Contains SHA-1 hash mappings for game files.
-| Used by launcher for integrity verification.
-
-``.torrent.bin`` TORRENT BINary (TORRENT.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
-| Used by game launcher for content delivery.
-| Trackers block unauthorized access (token required).
+| Based on ``.mca`` (`Minecraft Anvil <ANVIL_>`_) with extended world data.
+| Terrain chunks with blocks, metadata, lighting arrays and extra data.
+| Chunk data compressed with `ZSTD`_.
+| Format is not fully documented.
 
 
 ----------------------------------------
 🗃️ NBT Formats
 ----------------------------------------
 
-Uncompressed **NBT** (`Named Binary Tag <NBT_>`_) format and can be viewed/edited with tools like `NBT Explorer <NBTE_>`_. Can be raw, but in game uses ``GZIP`` or ``ZSTD`` compression.
+| **NBT** (`Named Binary Tag <NBT_>`_) format, viewable with tools like `NBT Explorer <NBTE_>`_.
+| In game assets used ``GZIP`` or ``ZSTD`` compression.
 
 Assets
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -138,8 +133,7 @@ Assets
     - Purpose
   * - ``stalker/itemnames.dat``
     - ``GZIP``
-    - **Quests items descriptions**.
-
+    - Quest item descriptions.
 
 Configs
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -153,9 +147,8 @@ Configs
     - Keys (examples)
   * - ``prefs``
     - ``ZSTD``
-    - **UI read state cache**. Tracks seen articles, experiences, tutorial prompts, and ads.
+    - UI read state cache.
     - ``seenArticleLinks[], seenExperiences[], hasSeen*``
-
 
 Per-Character Configs
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -172,33 +165,31 @@ Per-Character Configs
     - Keys (examples)
   * - ``common``
     - ``ZSTD``
-    - **General settings and UI states**. Loot filter ("trashed" items), Reports cooldown, Events UI toggles, Viewed tutorials and introductions.
-    - ``trashedItems[], caseLastOpenCount[], complaintsData{reportedCharnames[], reportedHacks[], ...}, seenFrontlineIntros``
+    - General settings and UI states.
+    - ``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``
   * - ``sd0``
     - ``ZSTD``
-    - **Incoming friend requests**. Contains a list of pending requests for UI.
+    - Incoming friend requests.
     - ``requests[]``
   * - ``sd1``
     - ``ZSTD``
-    - **Recent interactions** (last 200 players). Stores usernames, faction IDs, and interaction type for the "Recently Interacted" UI.
+    - Recent interactions (last 200 players).
     - ``interacts[{allianceId, type, username}]``
   * - ``sd2``
     - ``ZSTD``
-    - **Notifications history** (last 100 popups). Stores message content, read status, and dynamic ``payload`` (varies by notification type).
-    - ``notifications[{isRead, receivedMoment, notification{channel_id, payload}}]``
+    - Notifications history (last 100 popups).
+    - ``notifications[{isRead, receivedMoment, notification{...}}]``
   * - ``sd3``
     - ``ZSTD``
-    - **Store (donate shop) view history**. Tracks observed shop offers.
+    - Store (donate shop) view history.
     - ``observedOffers[]``
   * - ``sd4``
     - ``ZSTD``
-    - **Profile customization UI state**. Tracks last seen versions of backgrounds, patterns, stickers, and tags.
+    - Profile customization UI state.
     - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
 
-
-----------------------------------------
-⚙️ Config Formats
-----------------------------------------
+Config Formats
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
   :header-rows: 1
@@ -208,16 +199,51 @@ Per-Character Configs
     - Purpose
   * - ``display``
     - Text
-    - Selected display ID
+    - Selected display ID.
   * - ``keybindings``
     - JSON
-    - Keyboard control mappings
+    - Keyboard control mappings.
   * - ``options.json``
     - JSON
-    - Game settings (graphics, audio, gameplay)
+    - Game settings (graphics, audio, gameplay).
   * - ``quests.json``
     - JSON
-    - Quest visibility toggles
+    - Quest visibility toggles.
   * - ``waypoints.cfg``
     - JSON
-    - Custom map markers
+    - Custom map markers.
+
+
+----------------------------------------
+🗂️ Other Formats
+----------------------------------------
+
+``.xeon`` Encrypted Object Notation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Sensitive client data bundle. `AES Encrypted <AES_>`_.
+| Mirrors the assets folder structure.
+
+``.mcws`` World Slice
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Chunk of a safezone. `AES Encrypted <AES_>`_.
+| Exact purpose is unknown.
+
+
+----------------------------------------
+🛠️ Launcher Formats
+----------------------------------------
+
+``.map`` Hash Mappings (HASHMAP.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| SHA-1 hash mappings for game files.
+| Used by launcher to verify game file integrity.
+
+``.torrent.bin`` Torrent Binary (TORRENT.bt_)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
+| Used by launcher for content delivery.
+| Trackers block unauthorized access (token required).
