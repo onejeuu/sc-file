@@ -43,14 +43,14 @@
 
 ## ✨ Поддерживаемые форматы
 
-| Тип                | Игровые форматы                     | →   | Стандартные форматы                 |
-| ------------------ | ----------------------------------- | --- | ----------------------------------- |
-| 🧊 **Модель**      | `.mcsb` `.mcsa` `.mcvd` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
-| 🧱 **Текстура**    | `.ol`                               | →   | `.dds`                              |
-| 🖼️ **Изображение** | `.mic`                              | →   | `.png`                              |
-| 📦 **Архив**       | `.texarr`                           | →   | `.zip`                              |
-| 🗺 **Регион**      | `.mdat`                             | →   | `.mca`                              |
-| ⚙️ **NBT**         | `...`                               | →   | `.json`                             |
+| Тип                | Игровые форматы     | →   | Стандартные форматы                 |
+| ------------------ | ------------------- | --- | ----------------------------------- |
+| 🧊 **Модель**      | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
+| 🧱 **Текстура**    | `.ol`               | →   | `.dds`                              |
+| 🖼️ **Изображение** | `.mic`              | →   | `.png`                              |
+| 📦 **Архив**       | `.texarr`           | →   | `.zip`                              |
+| 🗺 **Регион**      | `.mdat`             | →   | `.mca`                              |
+| ⚙️ **NBT**         | `...`               | →   | `.json`                             |
 
 \* `NBT` Относится к специфичным файлам (`itemnames.dat`, `prefs`, `sd0` и т.д.)
 
@@ -110,7 +110,7 @@ pip install sc-file -U
 
 **Пример использования:**
 
-```py
+```python
 from scfile import convert, formats, UserOptions
 
 # Простая конвертация (автоопределение формата по расширению)
@@ -121,8 +121,10 @@ convert.auto("model.mcsb", options=UserOptions(parse_skeleton=True))
 # Контекстный менеджер обеспечивает корректное освобождение ресурсов
 with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
     # Доступ к данным сцены: меши, кости и тд
-    scene = mcsb.decode().scene
-    print(f"Всего вершин в модели: {sum(m.count.vertices for m in scene.meshes)}")
+    data = mcsb.decode()
+    print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
+    print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
+    print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
 
     # Экспорт в конкретный стандартный формат
     mcsb.to_obj().save("output.obj")
