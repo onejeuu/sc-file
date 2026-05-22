@@ -60,9 +60,6 @@ skip = ["__init__.py"]
 [tool.coverage.run]
 omit = ["scfile/gui/*"]
 
-[tool.coverage.report]
-skip_covered = true
-
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
