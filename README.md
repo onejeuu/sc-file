@@ -43,14 +43,14 @@
 
 ## ✨ Supported Formats
 
-| Type           | Game formats                        | →   | Standard formats                    |
-| -------------- | ----------------------------------- | --- | ----------------------------------- |
-| 🧊 **Model**   | `.mcsb` `.mcsa` `.mcvd` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
-| 🧱 **Texture** | `.ol`                               | →   | `.dds`                              |
-| 🖼️ **Image**   | `.mic`                              | →   | `.png`                              |
-| 📦 **Archive** | `.texarr`                           | →   | `.zip`                              |
-| 🗺 **Region**  | `.mdat`                             | →   | `.mca`                              |
-| ⚙️ **NBT\***   | `...`                               | →   | `.json`                             |
+| Type           | Game formats        | →   | Standard formats                    |
+| -------------- | ------------------- | --- | ----------------------------------- |
+| 🧊 **Model**   | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
+| 🧱 **Texture** | `.ol`               | →   | `.dds`                              |
+| 🖼️ **Image**   | `.mic`              | →   | `.png`                              |
+| 📦 **Archive** | `.texarr`           | →   | `.zip`                              |
+| 🗺 **Region**  | `.mdat`             | →   | `.mca`                              |
+| ⚙️ **NBT\***   | `...`               | →   | `.json`                             |
 
 \* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
 
@@ -110,7 +110,7 @@ pip install sc-file -U
 
 **Usage example:**
 
-```py
+```python
 from scfile import convert, formats, UserOptions
 
 # Simple conversion (auto detect format by file suffix)
@@ -120,9 +120,11 @@ convert.auto("model.mcsb", options=UserOptions(parse_skeleton=True))
 # Advanced control (manual decoding and data inspection)
 # Context manager ensures proper resource cleanup
 with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    # Access parsed scene data: meshes, bones
-    scene = mcsb.decode().scene
-    print(f"Model total vertices: {sum(m.count.vertices for m in scene.meshes)}")
+    # Access parsed scene data: meshes, bones, etc
+    data = mcsb.decode()
+    print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
+    print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
+    print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
 
     # Export to a specific standard format
     mcsb.to_obj().save("output.obj")

@@ -3,204 +3,276 @@
 
 .. include:: _links.rst
 
-1. **Easiest Way:**
-   Use `Drag & Drop <DND_>`_. Just drag and drop files you want convert onto ``scfile.exe``.
-   File paths will automatically be taken as arguments, converted to new format, and saved in same location.
 
-2. **File Associations:**
-   You can set ``scfile.exe`` as the default application for opening model and texture files.
-   When a file is "opened" this way, it will be automatically converted to new format and saved in same location.
+----------------------------------------
+Quick Start
+----------------------------------------
 
-3. **Via Console:**
-   ``scfile`` is primarily a `CLI <CLI_>`_. If you're comfortable with the terminal, you'll figure it out fast.
-   Check out arguments and options with ``scfile.exe --help``.
+🖥️ **GUI**
+  Launch ``scfile.exe`` without arguments to open the graphical interface.
+  Add files or folders, choose output formats and settings, and press **Convert**.
 
-   .. code-block:: bash
 
-    Usage: scfile [PATHS]... [OPTIONS]
+📥 **Drag & Drop**
+  Drag files or folders directly onto ``scfile.exe`` in File Explorer.
+  Supported files are converted to default formats and saved alongside source file.
 
-    Options:
-      -O, --output DIRECTORY  Output results directory.
-      -F, [obj|glb|dae|ms3d]  Preferred format for models.
-      --relative              Preserve directory structure from source in output.
-      --parent                Use parent directory as starting point in relative directory.
-      --skeleton              Parse armature in models.
-      --animation             Parse builtin clips in models.
-      --unique                Ensure file saved with unique name, avoiding overwrites.
-      --version               Show the version and exit.
-      --help                  Show help message and exit.
+  This is equivalent to running ``scfile.exe <path>`` for each dropped file.
 
-4. **As Library:**
-   Install release build using ``pip install sc-file`` or any other package manager.
 
-   :doc:`More details in API Reference... <api/index>`
+🖱️ **Open With**
+  Set ``scfile.exe`` as the default program for opening supported file types.
+  Double-clicking any such file in Explorer will convert it and save output alongside source file.
 
-   .. code-block:: python
-    :caption: Simple code example
+  To set up: right-click a file → **Open With** → choose ``scfile.exe``
+  and check «Always use this app».
 
-    from pathlib import Path
+
+📟 **Command Line**
+  Run ``scfile.exe --help`` to see all available arguments and options.
+  The CLI gives full control over conversion: output formats, skeletons,
+  animations, directory structure, file name conflicts, and more.
+
+  .. code-block:: bash
+
+    scfile.exe model.mcsb -F glb --skeleton
+
+  All options are described in next section.
+
+
+📖 **Python Library**
+  Install the package from PyPI: ``pip install sc-file -U``.
+  Use ``scfile`` directly in your Python scripts, automate complex workflows,
+  or build your own tools on top of it.
+
+  :doc:`Full API Reference <api/index>`
+
+  .. code-block:: python
+    :caption: Example
+
     from scfile import UserOptions, convert
 
-    models = Path("models")
-    output = Path("output")
-    options = UserOptions(parse_skeleton=True, overwrite=False)
-
-    for path in models.rglob("*.mcsb"):
-        convert.mcsb_to_glb(source=path, output=output, options=options)
-
-   This code takes all ``.mcsb`` files from ``models`` directory, converts them to ``.glb``, and dumps into ``output``.
+    convert.mcsb_to_glb(
+        "model.mcsb",
+        options=UserOptions(parse_skeleton=True, on_conflict="skip"),
+    )
 
 
 ----------------------------------------
-Output Model Formats
+Command Line Interface
 ----------------------------------------
 
-| Specify ``--mdlformat`` / ``-F`` parameter followed by desired format suffix.
-| For example: ``-F obj`` or ``-F dae``.
+General
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| To specify multiple formats at once, you need to use parameter multiple times.
-| For example: ``scfile.exe model.mcsb -F obj -F dae -F ms3d``
-| This command will create three files: ``model.obj``, ``model.dae``, ``model.ms3d``.
+``--version``
+    Show the program version and exit.
 
+    .. code-block:: bash
 
-----------------------------------------
-Default Model Formats
-----------------------------------------
-
-| Default Behavior (without ``-F`` parameter):
-| Uses ``consts.py::DefaultModelFormats.STANDARD``: ``.obj``.
+      scfile --version
 
 
-| If ``--skeleton`` or ``--animation`` is specified:
-| Uses ``consts.py::DefaultModelFormats.SKELETON``: ``.glb``.
+``--updates``
+    Check for available updates on GitHub Releases and exit.
+    Requires internet connection.
 
-**Two ways to change it:**
+    .. code-block:: bash
 
-1. **Easiest Way:**
-   Create a shortcut for the ``scfile.exe``. At end of «Target» field, add desired formats like in examples above.
-
-2. **Modify Source Code:**
-   Alternatively, tweak this consts in source code and :doc:`compile yourself <compile>`.
+      scfile --updates
 
 
-----------------------------------------
-Model Skeleton
-----------------------------------------
+convert
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Specify ``--skeleton`` flag.
-| If skeleton has presented, it will be exported.
-| Output formats with armature support: ``.glb``, ``.dae``, ``.ms3d``.
+Default command. Converts game assets to standard formats.
 
+``PATHS``
+  One or more files or directories. Accepts full paths, relative paths,
+  and wildcard patterns (``*``). Only files with supported extensions are processed.
 
-----------------------------------------
-Model Animation
-----------------------------------------
+  .. code-block:: bash
+    :caption: Example
 
-| Specify ``--animation`` flag.
-| If skeleton and animation has presented, it will be exported.
-| Output formats with animation support: ``.glb``.
-| `List of files with built-in clips <ANIMSLIST_>`_ (can be outdated).
-
-
-----------------------------------------
-Path Arguments
-----------------------------------------
-
-File and directory paths are accepted. Patterns also work.
-Quotes are required when paths include spaces.
-
-You can use full paths:
-::
-  scfile.exe "C:/foo/model.mcsb"
-
-Or relative paths:
-::
-  scfile.exe "bar/model.mcsb"
-
-You can specify a directory, only files with supported formats will be processed:
-::
-  scfile.exe "C:/assets"
-
-You can also use patterns. Each file matching the pattern will be passed as a separate argument:
-::
-  scfile.exe "C:/assets/*.ol"
-
-You can combine multiple arguments, mixing files, directories, and patterns. However, use this with caution and ensure you understand the implications:
-::
-  scfile.exe "C:/foo/model.mcsb" "bar/model.mcsb" "C:/assets" "C:/assets/*.ol"
+    scfile "model.mcsb"
+    scfile "C:/assets"
+    scfile "C:/assets/*.ol"
+    scfile "model.mcsb" "texture.ol" "C:/assets/*.ol"
 
 
-----------------------------------------
-Output Directory
-----------------------------------------
+``-O, --output``
+  Output directory for converted files. If not specified, output files are saved alongside source file.
 
-| As mentioned earlier, you can convert entire directories at once.
-| By default, output files saved in same location.
+  .. code-block:: bash
+    :caption: Example
 
-You can specify ``--output`` / ``-O`` parameter to change it.
-::
-  scfile.exe "C:/game/assets" --output "D:/output"
+    scfile "model.mcsb" --output "D:/output"
 
 
-----------------------------------------
-Output Overwriting
-----------------------------------------
+``-F, --mdlformat``
+  | Preferred output format for models. Repeatable to specify multiple formats.
+  | Accepted values: ``obj``, ``glb``, ``fbx``, ``dae``, ``ms3d``.
 
-| To prevent overwriting files, use ``--unique`` flag.
-| Duplicates files will be renamed like ``model (2).obj``, ``model (3).obj`` and etc.
+  | Default is ``obj``.
+  | When ``--skeleton`` or ``--animation`` is used, default is ``glb``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "model.mcsb" -F glb
+    scfile "model.mcsb" -F glb -F obj -F dae
 
 
-----------------------------------------
+``--skeleton``
+  | Parse and export skeleton (armature) from models.
+  | Supported by: ``glb``, ``dae``, ``ms3d``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "model.mcsb" --skeleton
+    scfile "model.mcsb" -F glb --skeleton
+    scfile "model.mcsb" -F dae --skeleton
+
+
+``--animation``
+  | Parse and export built-in animation clips from models. Implies ``--skeleton``.
+  | Supported by: ``glb``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "model.mcsb" --animation
+    scfile "model.mcsb" -F glb --animation
+
+
+``--on-conflict``
+  | What to do when an output file already exists.
+  | Accepted values: ``overwrite``, ``skip``, ``rename``.
+  | Default is ``overwrite``.
+
+  - ``overwrite`` Replace existing file.
+  - ``skip`` Keep existing file.
+  - ``rename`` Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "C:/assets/model.mcsb" "C:/assets/sub/model.mcsb" --on-conflict rename
+
+
+``--relative``
+  Preserve directory structure of source files inside output directory.
+  Requires ``--output``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "C:/assets" --output "D:/output" --relative
+
+
+``--parent``
+  Use parent directory of each source path as root for relative output.
+  Implies ``--relative``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "C:/assets" --output "D:/output" --parent
+
+
 Output Structure
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| To preserve source directory structure, use ``--relative`` flag.
-| Relative path from path argument will be passed as relative path of base ``--output`` directory.
-
-| To use source root directory as starting point in output, use ``--parent`` flag.
+Examples of how ``--relative`` and ``--parent`` change output layout.
 
 .. code-block:: text
-  :caption: Example source structure
+  :caption: Source structure
 
   ./assets/
   ├── armor/albatros.mcsb
   └── items/vodka.ol
 
-Default Structure
-^^^^^^^^^^^^^^^^^^
-.. code-block:: bash
 
-  scfile.exe "./assets" --output "./output"
+Default
+  .. code-block:: bash
 
-.. code-block:: text
-  :caption: Output
+    scfile "./assets" --output "./output"
 
-  ./output/
-  ├── albatros.obj
-  └── vodka.dds
+  .. code-block:: text
+    :caption: Output
 
-Relative Structure
-^^^^^^^^^^^^^^^^^^^
-.. code-block:: bash
+    ./output/
+    ├── albatros.obj
+    └── vodka.dds
 
-    scfile.exe "./assets" --output "./output" --relative
 
-.. code-block:: text
-  :caption: Output
+Relative
+  .. code-block:: bash
 
-  ./output/
-  ├── armor/albatros.obj
-  └── items/vodka.dds
+    scfile "./assets" --output "./output" --relative
 
-Parent Structure
-^^^^^^^^^^^^^^^^^
-.. code-block:: bash
+  .. code-block:: text
+    :caption: Output
 
-    scfile.exe "./assets" --output "./output" --parent
+    ./output/
+    ├── armor/albatros.obj
+    └── items/vodka.dds
 
-.. code-block:: text
-  :caption: Output
 
-  ./output/
-  ├── assets/armor/albatros.obj
-  └── assets/items/vodka.dds
+Parent
+  .. code-block:: bash
+
+    scfile "./assets" --output "./output" --parent
+
+  .. code-block:: text
+    :caption: Output
+
+    ./output/
+    ├── assets/armor/albatros.obj
+    └── assets/items/vodka.dds
+
+
+mapcache
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Merges ``.mdat`` cached regions into ``.mca`` region files.
+| Run with explicit command or use a path containing ``map_cache`` to auto-detect.
+
+``SOURCE``
+  Directory containing ``.mdat`` files.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "C:/map_cache/5.0"
+    scfile mapcache "C:/map_cache/5.0"
+
+
+``-O, --output``
+  Output directory for ``.mca`` files.
+  If not specified, creates a folder alongside ``SOURCE`` with ``_mca`` suffix.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapcache "C:/map_cache/5.0" --output "D:/output"
+
+
+``-W, --workers``
+  | Number of worker threads. Default: ``CPU count × 2``.
+  | Set to ``0`` for sequential execution (no threads).
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapcache "C:/map_cache/5.0" -W 4
+
+
+``--raw``
+  Keep original block IDs without lookup table replacement.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapcache "C:/map_cache/5.0" --raw
