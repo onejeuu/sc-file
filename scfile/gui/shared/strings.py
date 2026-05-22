@@ -18,7 +18,6 @@ class Strings:
     DATA: dict[str, dict[Lang, str]] = {
         "tab_converter": {"EN": "Convert Files", "RU": "Конвертер файлов"},
         "tab_mapcache": {"EN": "Map Cache", "RU": "Кэш карты"},
-        "tab_retarget": {"EN": "Retarget", "RU": "Ретаргет анимаций"},
         "action_remove": {"EN": "Remove from list", "RU": "Удалить из списка"},
         "drop_hint": {
             "EN": "Drag & drop files and folders\nor use buttons above",

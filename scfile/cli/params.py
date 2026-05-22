@@ -32,13 +32,6 @@ MapCacheDir = click.Path(
     resolve_path=True,
 )
 
-RetargetPath = click.Path(
-    path_type=types.Path,
-    dir_okay=False,
-    file_okay=True,
-    exists=True,
-    resolve_path=True,
-)
 
 Formats = click.Choice(
     choices=list(OutputFormats.MODELS),

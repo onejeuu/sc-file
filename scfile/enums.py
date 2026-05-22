@@ -138,7 +138,6 @@ L = ConsoleLabel
 class CliCommand(StrEnum):
     CONVERT = auto()
     MAPCACHE = auto()
-    RETARGET = auto()
 
 
 class UpdateStatus(StrEnum):
