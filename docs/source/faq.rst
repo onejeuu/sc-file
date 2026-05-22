@@ -3,6 +3,7 @@
 
 .. include:: _links.rst
 
+
 ----------------------------------------
 📌 General
 ----------------------------------------
@@ -14,13 +15,9 @@ Q: How to encode files back into game formats?
 | Even though it's possible to create this feature, making it public could cause problems.
 
 1. **Cheating concerns**: Public reverse encoding would make creating hacks much easier, attracting unwanted attention and undermining this tool purpose.
-2. **Formats changes risk**: If modifying game files becomes too easy, developers might start encrypting or complicating their assets.
+2. **Formats changes risk**: If modifying game files becomes too easy, developers might start encrypting or complicating their assets, making them inaccessible for everyone.
 
-**My goal is to support research and creativity, not to create tools that could harm the game community.**
-
-.. note::
-
-  If you need assistance with in-game content creation tasks, you can `contact me directly <TG_>`_.
+**This tool supports research and creativity, not harming the game community.**
 
 
 Q: After game update ``%any_filename%`` no longer decodes!
@@ -62,21 +59,57 @@ Any programs with full support for all `DirectDraw Surface <DDS_>`_ formats.
 Q: How to convert ``.dds`` textures to ``.png``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Native support is not planned for code simplicity.
+Native support is not planned.
 
-| If needed, convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_.
+Convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_ or `FFmpeg <FFMPEG_>`_.
 
 .. code-block:: bash
-  :caption: Command Example
+  :caption: ImageMagick
 
-  magick mogrify -format png *.dds
+  magick convert input.dds output.png
+
+.. code-block:: bash
+  :caption: FFmpeg
+
+  ffmpeg -i input.dds output.png
 
 
-Q: Why model have weird/black textures?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: Why do models have weird or black textures?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <ALPHAMODE_>`_).
 
 | Some models seem to have mixed-up suffixes in filenames.
 | Make sure that the ``_diff`` texture is actually a Diffuse Map and the ``_spek`` texture is a Specular Map.
 | :doc:`More about Suffix Conventions... <formats>`
+
+
+----------------------------------------
+🛠 Troubleshooting
+----------------------------------------
+
+Q: Antivirus or SmartScreen blocks ``scfile.exe``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The source code is open and anyone can inspect it at `GitHub <GITHUB_>`_.
+
+| SmartScreen warns because the executable has **no digital signature**.
+| Code signing certificates are not feasible for a free project.
+
+| Antivirus detections on VirusTotal are **false positives**.
+| Executable program is built with `PyInstaller <PYINSTALLER_>`_, a tool that packages Python scripts into standalone ``.exe``.
+| Malware authors also use PyInstaller, so low-quality antivirus engines flag **any** PyInstaller executable.
+
+
+Q: Something doesn't work as expected
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If a file fails to convert, produces wrong output, or causes a crash, `open an issue <ISSUES_>`_.
+
+Please include:
+
+- **What happened**: error message, wrong output, crash.
+- **What you expected**: correct output, different format, etc.
+- **Which file**: if possible, attach or describe path. Without it, bug cannot be reproduced.
+
+Reports without a file or clear description are hard to fix. The more details you provide, the faster is fix.

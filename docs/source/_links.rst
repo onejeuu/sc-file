@@ -1,3 +1,9 @@
+.. Project
+.. _GITHUB: https://github.com/onejeuu/sc-file
+.. _ISSUES: https://github.com/onejeuu/sc-file/issues
+.. _RELEASES: https://github.com/onejeuu/sc-file/releases
+.. _PYPI: https://pypi.org/project/sc-file
+
 .. Binary Templates
 .. _MCSA.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt
 .. _OL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/OL.bt
@@ -10,12 +16,6 @@
 .. Media Files
 .. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
 .. _ANIMSLIST: https://github.com/onejeuu/sc-file/blob/master/docs/source/data/anims.rst?plain=1
-
-.. Project
-.. _GITHUB: https://github.com/onejeuu/sc-file
-.. _ISSUES: https://github.com/onejeuu/sc-file/issues
-.. _RELEASES: https://github.com/onejeuu/sc-file/releases
-.. _PYPI: https://pypi.org/project/sc-file
 
 .. Wikipedia General
 .. _AES: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
@@ -45,13 +45,15 @@
 .. _CUBEMAP: https://en.wikipedia.org/wiki/Cube_mapping
 .. _S3TC: https://en.wikipedia.org/wiki/S3_Texture_Compression
 
-.. Useful Programs
+.. Programs
 .. _XNVIEW: https://xnview.com
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _RENDERDOC: https://renderdoc.org/builds
 .. _IMAGEMAGICK: https://imagemagick.org
+.. _FFMPEG: https://ffmpeg.org
 .. _UV: https://github.com/astral-sh/uv
 .. _NBTE: https://nbtexplorer.org
+.. _PYINSTALLER: https://pyinstaller.org
 
 .. Contacts
 .. _TG: https://onejeuu.t.me
