@@ -28,16 +28,6 @@ class McsaCountsLimit(McsaDecodingError, exceptions.ParsingError):
 
 
 @dataclass
-class McsaBoneLinksError(McsaDecodingError, exceptions.ParsingError):
-    """Raised when mesh contain unexpected/invalid links count."""
-
-    max_influences: int
-
-    def __str__(self):
-        return f"{super().__str__()} has unexpected bones max influences: {self.max_influences}."
-
-
-@dataclass
 class McsaVersionUnsupported(McsaDecodingError, exceptions.UnsupportedError):
     """Raised when attempting to parse unsupported model version."""
 

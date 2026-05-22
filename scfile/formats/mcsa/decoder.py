@@ -9,7 +9,7 @@ from scfile.structures import models as S
 from scfile.structures.models import Flag
 
 from .consts import McsaUnits
-from .exceptions import McsaBoneLinksError, McsaCountsLimit, McsaVersionUnsupported
+from .exceptions import McsaCountsLimit, McsaVersionUnsupported
 from .io import McsaFileIO
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
@@ -199,14 +199,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_links(self, mesh: S.ModelMesh, count: int, max_influences: int):
         match max_influences:
-            case 0:
-                return
             case 1 | 2:
                 self._parse_packed_links(mesh, count)
             case 3 | 4:
                 self._parse_plain_links(mesh, count)
             case _:
-                raise McsaBoneLinksError(self.location, max_influences)
+                return
 
     def _parse_packed_links(self, mesh: S.ModelMesh, count: int):
         if self.options.parse_skeleton:

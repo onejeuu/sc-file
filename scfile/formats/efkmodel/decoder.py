@@ -34,7 +34,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         self.ctx["SCALE"] = self._readb(F.F32)
         self.ctx["COUNT_MESHES"] = self._readb(F.I32)
-        self.ctx["COUNT_CLIPS"] = self._readb(F.I32)
+        self.ctx["COUNT_UNKNOWN"] = self._readb(F.I32)
 
         for _ in range(self.ctx["COUNT_MESHES"]):
             mesh = S.ModelMesh()

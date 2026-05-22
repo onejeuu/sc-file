@@ -6,7 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile.cli.cmd import mapcache
-from scfile.cli.cmd.mapcache import RegionKey
+from scfile.cli.cmd.mapcache import RegionKey, parse_regions
 from scfile.core import UserOptions
 
 from .base import Worker
@@ -62,16 +62,16 @@ class MapCacheWorker(Worker):
 
             if not mdats:
                 logger.error(f"No MDAT files found in '{self.source}'")
-                self.finished.emit()
+                return
+
+            regions = parse_regions(mdats)
+
+            if not regions:
+                logger.error(f"No valid regions found in '{self.source}'")
                 return
 
             if not self.output.exists():
                 self.output.mkdir(parents=True, exist_ok=True)
-
-            regions: dict[RegionKey, list[Path]] = defaultdict(list)
-            for path in mdats:
-                rx, rz = map(int, path.stem.lstrip("reg.").split("."))
-                regions[(rx, rz)].append(path)
 
             logger.info(f"Found {len(regions)} unique regions")
             logger.info("Starting merging...")
