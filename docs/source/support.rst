@@ -19,31 +19,38 @@
     - Name
     - Skeleton
     - Animation
+    - Time
   * - ``.obj``
     - `Wavefront <OBJ_>`_
     - ➖
     - ➖
+    - ``200ms``
   * - ``.glb``
     - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
+    - ``20ms``
   * - ``.dae``
     - `Collada <DAE_>`_
     - ✅
     - ❌
+    - ``200ms``
   * - ``.ms3d``
     - `MilkShape3D <MS3D_>`_
     - ✅
     - ❌
+    - ``1300ms``
   * - ``.fbx``
     - `Autodesk <FBX_>`_
     - ❌
     - ❌
+    - ``70ms``
 
-| ✅ Supported
-| ❌ Not supported by scfile
-| ➖ Not supported by format
+| ``✅ Supported``
+| ``❌ Not supported by scfile``
+| ``➖ Not supported by format``
 
+| Encoding time benchmarked on a complex model. Average results may vary.
 
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
