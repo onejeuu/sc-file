@@ -1,5 +1,6 @@
 import zstandard as zstd
 
+from scfile import formats
 from scfile.core import FileDecoder, RegionContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import regions as S
@@ -15,6 +16,9 @@ class MdatDecoder(FileDecoder[RegionContent]):
     order = ByteOrder.BIG
 
     _content = RegionContent
+
+    def as_mca(self):
+        return self.convert_to(formats.mca.McaEncoder)
 
     def parse(self):
         table = [(self._readb(F.I32), self._readb(F.I32), self.read(16)) for _ in range(CHUNKS_COUNT)]

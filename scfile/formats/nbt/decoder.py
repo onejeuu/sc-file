@@ -16,7 +16,7 @@ class NbtDecoder(FileDecoder[NbtContent]):
 
     _content = NbtContent
 
-    def to_json(self):
+    def as_json(self):
         return self.convert_to(formats.json.JsonEncoder)
 
     def parse(self):

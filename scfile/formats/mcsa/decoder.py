@@ -29,19 +29,19 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     _content = ModelContent
 
-    def to_obj(self):
+    def as_obj(self):
         return self.convert_to(formats.obj.ObjEncoder)
 
-    def to_glb(self):
+    def as_glb(self):
         return self.convert_to(formats.glb.GlbEncoder)
 
-    def to_fbx(self):
+    def as_fbx(self):
         return self.convert_to(formats.fbx.FbxEncoder)
 
-    def to_dae(self):
+    def as_dae(self):
         return self.convert_to(formats.dae.DaeEncoder)
 
-    def to_ms3d(self):
+    def as_ms3d(self):
         return self.convert_to(formats.ms3d.Ms3dEncoder)
 
     def parse(self):

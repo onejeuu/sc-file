@@ -106,7 +106,7 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         self,
         path: PathLike,
         mode: str = "wb",
-    ) -> None:
+    ) -> Self:
         """
         Write encoded data to file by name. Keeps encoder open.
 
@@ -115,14 +115,19 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             mode: File open mode.
         """
 
+        if self.size() == 0:
+            self.encode()
+
         with open(path, mode=mode) as fp:
             fp.write(self.getvalue())
+
+        return self
 
     def export_as(
         self,
         path: PathLike,
         mode: str = "wb",
-    ) -> None:
+    ) -> Self:
         """
         Write encoded data to file by stem. Format suffix appended. Keeps the encoder open.
 
@@ -131,7 +136,10 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             mode: File open mode.
         """
 
-        self.save_as(path=f"{path}{self.suffix}", mode=mode)
+        return self.save_as(
+            path=f"{path}{self.suffix}",
+            mode=mode,
+        )
 
     def save(
         self,
@@ -164,6 +172,11 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
 
         self.save(path=f"{path}{self.suffix}", mode=mode)
         self.close()
+
+    def getvalue(self) -> bytes:
+        if self.size() == 0:
+            self.encode()
+        return super().getvalue()
 
     @property
     def _skeleton_presented(self) -> bool:

@@ -11,7 +11,7 @@ class MicDecoder(FileDecoder[ImageContent]):
 
     _content = ImageContent
 
-    def to_png(self):
+    def as_png(self):
         return self.convert_to(formats.png.PngEncoder)
 
     def parse(self):

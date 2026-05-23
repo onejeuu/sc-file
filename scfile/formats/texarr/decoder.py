@@ -13,7 +13,7 @@ class TexarrDecoder(FileDecoder[TexarrContent]):
 
     _content = TexarrContent
 
-    def to_zip(self):
+    def as_zip(self):
         return self.convert_to(formats.zip.TexarrEncoder)
 
     def parse(self):
