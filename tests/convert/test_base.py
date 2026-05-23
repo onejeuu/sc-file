@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from scfile.convert.base import convert, ensure_unique_path
-from scfile.core.options import UserOptions
+from scfile.convert.convert import convert, ensure_unique_path
+from scfile.core.options import Options
 from scfile.exceptions import FileNotFound
 from tests.conftest import FakeDecoder, FakeEncoder
 
@@ -49,7 +49,7 @@ def test_overwrite(temp: Path):
     src.write_bytes(b"data")
     out = temp / "model.obj"
     out.write_bytes(b"old")
-    convert(FakeDecoder, FakeEncoder, src, temp, UserOptions(on_conflict="overwrite"))
+    convert(FakeDecoder, FakeEncoder, src, temp, Options(on_conflict="overwrite"))
     assert out.read_bytes() == b"data"
 
 
@@ -58,7 +58,7 @@ def test_skip(temp: Path):
     src.write_bytes(b"data")
     out = temp / "model.obj"
     out.write_bytes(b"old")
-    convert(FakeDecoder, FakeEncoder, src, temp, UserOptions(on_conflict="skip"))
+    convert(FakeDecoder, FakeEncoder, src, temp, Options(on_conflict="skip"))
     assert out.read_bytes() == b"old"
 
 
@@ -67,7 +67,7 @@ def test_rename(temp: Path):
     src.write_bytes(b"data")
     out = temp / "model.obj"
     out.write_bytes(b"old")
-    convert(FakeDecoder, FakeEncoder, src, temp, UserOptions(on_conflict="rename"))
+    convert(FakeDecoder, FakeEncoder, src, temp, Options(on_conflict="rename"))
     assert out.read_bytes() == b"old"
     assert (temp / "model (1).obj").read_bytes() == b"data"
 
@@ -77,7 +77,7 @@ def test_rename_multiple(temp: Path):
     src.write_bytes(b"x")
     (temp / "model.obj").write_bytes(b"1")
     (temp / "model (1).obj").write_bytes(b"2")
-    convert(FakeDecoder, FakeEncoder, src, temp, UserOptions(on_conflict="rename"))
+    convert(FakeDecoder, FakeEncoder, src, temp, Options(on_conflict="rename"))
     assert (temp / "model (2).obj").read_bytes() == b"x"
 
 

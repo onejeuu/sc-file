@@ -1,21 +1,20 @@
 API Reference
 =============
 
-.. toctree::
-  :maxdepth: 3
-
-  scfile.cli
-  scfile.convert
-  scfile.core
-  scfile.exceptions
-  scfile.structures
+Modules
+--------------------
 
 .. toctree::
   :maxdepth: 2
 
+  scfile.core
+  scfile.convert
   scfile.formats
+  scfile.structures
+  scfile.utils
 
-Consts
+
+Constants
 --------------------
 
 .. automodule:: scfile.consts
@@ -23,10 +22,29 @@ Consts
   :show-inheritance:
   :undoc-members:
 
+
 Enums
 -------------------
 
 .. automodule:: scfile.enums
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Types
+-------------------
+
+.. automodule:: scfile.types
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Exceptions
+-------------------
+
+.. automodule:: scfile.exceptions
   :members:
   :show-inheritance:
   :undoc-members:

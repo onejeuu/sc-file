@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional, Type
 
 from scfile import exceptions, types
-from scfile.core import ContentType, FileDecoder, FileEncoder, UserOptions
+from scfile.core import ContentType, FileDecoder, FileEncoder, Options
 
 
 def convert(
@@ -14,25 +14,29 @@ def convert(
     encoder: Type[FileEncoder[ContentType]],
     source: types.PathLike,
     output: types.OutputLike = None,
-    options: Optional[UserOptions] = None,
+    options: Optional[Options] = None,
 ) -> None:
     """
-    Converts file between formats with basic validations.
+    Convert one file between formats.
 
-    Arguments:
-        decoder: Input file decoder class.
-        encoder: Output file encoder class.
-        source: Path to input file.
-        output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): User settings. Default: `None`.
+    Args:
+        decoder: Decoder class for source format.
+        encoder: Encoder class for output format.
+        source: Path to source file.
+        output (optional): Path to output file or directory. Defaults to source directory.
+        options (optional): Settings for parsing.
+
+    Raises:
+        FileNotFound: Source file does not exist.
 
     Example:
-        `convert(McsaDecoder, ObjEncoder, "model.mcsb", "path/to/output")`
+        - ``convert(McsaDecoder, ObjEncoder, "model.mcsb", "model.obj")``
+        - ``convert(McsaDecoder, ObjEncoder, "model.mcsb", "path/to/output/dir")``
     """
 
     src_path = Path(source)
     out_path = Path(output or src_path.parent)
-    options = options or UserOptions()
+    options = options or Options()
 
     if not src_path.exists() or not src_path.is_file():
         raise exceptions.FileNotFound(str(src_path))
@@ -61,7 +65,7 @@ def convert(
 
 
 def ensure_unique_path(path: Path) -> Path:
-    """Generates unique file path by appending counter if path exists."""
+    """Append a counter to path if a file already exists."""
 
     filename, suffix = path.stem, path.suffix
     counter = 1

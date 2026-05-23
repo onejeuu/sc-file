@@ -1,5 +1,6 @@
 """
-Shared content data between decoder and encoder.
+Shared content data containers for decoders and encoders.
+Defines the data structures that hold parsed file contents.
 """
 
 from abc import ABC
@@ -18,8 +19,8 @@ NbtValue: TypeAlias = None | int | float | bytes | str | list[int] | list["NbtVa
 
 
 @dataclass
-class FileContent(ABC):
-    """Base dataclass for file content storage."""
+class BaseContent(ABC):
+    """Base class for file content types."""
 
     type: FileType = field(default=FileType.NONE)
 
@@ -32,12 +33,12 @@ class FileContent(ABC):
                 setattr(self, f.name, f.default)
 
 
-ContentType = TypeVar("ContentType", bound=FileContent)
+ContentType = TypeVar("ContentType", bound=BaseContent)
 
 
 @dataclass
-class ModelContent(FileContent):
-    """Model content storage."""
+class ModelContent(BaseContent):
+    """Content container for 3D models."""
 
     type: FileType = field(default=FileType.MODEL)
 
@@ -47,8 +48,8 @@ class ModelContent(FileContent):
 
 
 @dataclass
-class TextureContent(FileContent, Generic[TextureType]):
-    """Texture content storage."""
+class TextureContent(BaseContent, Generic[TextureType]):
+    """Content container for textures (2D or cubemap)."""
 
     type: FileType = field(default=FileType.TEXTURE)
 
@@ -78,8 +79,8 @@ class TextureContent(FileContent, Generic[TextureType]):
 
 
 @dataclass
-class ImageContent(FileContent):
-    """Image content storage."""
+class ImageContent(BaseContent):
+    """Content container for images."""
 
     type: FileType = field(default=FileType.IMAGE)
 
@@ -87,8 +88,8 @@ class ImageContent(FileContent):
 
 
 @dataclass
-class TexarrContent(FileContent):
-    """Texture array storage."""
+class TexarrContent(BaseContent):
+    """Content container for texture arrays."""
 
     type: FileType = field(default=FileType.TEXARR)
 
@@ -97,14 +98,18 @@ class TexarrContent(FileContent):
 
 
 @dataclass
-class NbtContent(FileContent):
+class NbtContent(BaseContent):
+    """Content container for NBT (Named Binary Tag) data."""
+
     type: FileType = field(default=FileType.NBT)
 
     value: NbtValue = None
 
 
 @dataclass
-class RegionContent(FileContent):
+class RegionContent(BaseContent):
+    """Content container for regions (world terrain)."""
+
     type: FileType = field(default=FileType.REGION)
 
     rx: int = 0

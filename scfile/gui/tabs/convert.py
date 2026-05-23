@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.core import UserOptions
+from scfile.core import Options
 from scfile.core.options import ON_CONFLICT_OPTIONS
 from scfile.gui import workers
 from scfile.gui.shared import consts
@@ -395,10 +395,10 @@ class ConverterTab(QWidget):
 
         context = ConvertContext(
             whitelist=self._get_suffixes(),
-            options=UserOptions(
+            options=Options(
                 model_formats=[fmt.id] if fmt else None,
-                parse_skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
-                parse_animation=ft_animation.isEnabled() and ft_animation.isChecked(),
+                skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
+                animation=ft_animation.isEnabled() and ft_animation.isChecked(),
                 on_conflict=on_conflict.property("conflict_option") if on_conflict else "overwrite",
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),

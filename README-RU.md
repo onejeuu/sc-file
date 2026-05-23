@@ -111,11 +111,11 @@ pip install sc-file -U
 **Пример использования:**
 
 ```python
-from scfile import convert, formats, UserOptions
+from scfile import convert, formats, Options
 
 # Простая конвертация (автоопределение формата по расширению)
 # Настройки пользователя для управления парсингом и экспортом
-convert.auto("model.mcsb", options=UserOptions(parse_skeleton=True))
+convert.auto("model.mcsb", options=Options(skeleton=True))
 
 # Расширенное управление (ручное декодирование и просмотр данных)
 # Контекстный менеджер обеспечивает корректное освобождение ресурсов

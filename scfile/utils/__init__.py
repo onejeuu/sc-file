@@ -1,4 +1,8 @@
-from . import files, versions
+"""
+Internal utility modules.
+"""
+
+from . import cli, files, updates, versions
 
 
-__all__ = ("files", "versions")
+__all__ = ("files", "versions", "cli", "updates")

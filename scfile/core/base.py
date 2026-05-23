@@ -1,3 +1,10 @@
+"""
+Binary stream adapter for file-like sources.
+
+Wraps any binary source (file path, bytes, or IO stream)
+into a unified interface for reading and writing structured binary data.
+"""
+
 import io
 import os
 import struct
@@ -10,7 +17,7 @@ from scfile.enums import FileFormat
 from scfile.exceptions import InvalidStructureError
 from scfile.types import PathLike
 
-from .options import UserOptions
+from .options import Options
 from .structio import StructIO
 
 
@@ -20,14 +27,26 @@ TempContext: TypeAlias = dict[str, Any]
 
 
 class BaseFile(StructIO, ABC):
+    """Unified binary stream adapter."""
+
     format: FileFormat = FileFormat.NONE
+    """File format associated with this stream."""
 
     signature: Optional[bytes] = None
-    options: UserOptions
+    """Expected file signature for validation."""
+
+    options: Options
+    """User provided settings for decoding/encoding."""
 
     _stream: IO[bytes]
 
     def __init__(self, stream: IOStream, mode: FileMode = "rb"):
+        """
+        Args:
+            stream: Source to open. File path, bytes, or binary IO stream.
+            mode: File mode for opening when ``stream`` is a path. Must be a binary mode.
+        """
+
         if isinstance(stream, (str, Path)):
             self._stream = open(os.fspath(stream), mode)
 
@@ -47,12 +66,12 @@ class BaseFile(StructIO, ABC):
         return self.format.suffix
 
     @property
-    def closed(self) -> bool:
-        return self._stream.closed
-
-    @property
     def location(self) -> str:
         return repr(self._stream)
+
+    @property
+    def closed(self) -> bool:
+        return self._stream.closed
 
     def size(self) -> int:
         current = self.tell()

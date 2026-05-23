@@ -7,7 +7,7 @@ from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile.cli.cmd import mapcache
 from scfile.cli.cmd.mapcache import RegionKey, parse_regions
-from scfile.core import UserOptions
+from scfile.core import Options
 
 from .base import Worker
 from .logs import logger
@@ -19,7 +19,7 @@ class MergeRegionTask(QRunnable):
         key: RegionKey,
         paths: list[Path],
         output: Path,
-        options: UserOptions,
+        options: Options,
     ):
         super().__init__()
         self.key = key
@@ -47,7 +47,7 @@ class MapCacheWorker(Worker):
         self,
         source: Path,
         output: Path,
-        options: UserOptions,
+        options: Options,
     ):
         super().__init__()
         self.source = source

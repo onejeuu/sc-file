@@ -37,8 +37,6 @@ Quick Start
 
     scfile.exe model.mcsb -F glb --skeleton
 
-  All options are described in next section.
-
 
 📖 **Python Library**
   Install the package from PyPI: ``pip install sc-file -U``.
@@ -50,11 +48,11 @@ Quick Start
   .. code-block:: python
     :caption: Example
 
-    from scfile import UserOptions, convert
+    from scfile import Options, convert
 
     convert.mcsb_to_glb(
         "model.mcsb",
-        options=UserOptions(parse_skeleton=True, on_conflict="skip"),
+        options=Options(skeleton=True, on_conflict="skip"),
     )
 
 

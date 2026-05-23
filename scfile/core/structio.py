@@ -1,3 +1,10 @@
+"""
+Low-level binary I/O with structured packing and unpacking operations.
+
+Provides a base class for reading and writing binary data in various formats
+using :mod:`struct` and :mod:`numpy`. Designed to be subclassed by format-specific I/O classes.
+"""
+
 import io
 import struct
 from typing import Any, Optional
@@ -8,8 +15,19 @@ from scfile.enums import ByteOrder, F, UnicodeErrors
 
 
 class StructIO(io.IOBase):
+    """
+    Base class for structured binary I/O.
+
+    Extends :class:`io.IOBase` with methods for packed binary operations.
+    Subclasses must implement ``read``, ``write``, ``seek``, and ``tell``
+    from the :class:`io.IOBase` interface.
+    """
+
     order: ByteOrder = ByteOrder.LITTLE
+    """Default byte order for pack/unpack operations."""
+
     unicode_errors: str = UnicodeErrors.REPLACE
+    """Error handling mode for UTF-8 encoding/decoding."""
 
     def _pack(self, fmt: str, *values: Any) -> bytes:
         return struct.pack(str(fmt), *values)

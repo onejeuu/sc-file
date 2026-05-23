@@ -1,16 +1,10 @@
 🧊 MCSA
 ===========================
 
-.. code-block:: python
-  :caption: Usage Example
+.. automodule:: scfile.formats.mcsa
+  :show-inheritance:
+  :undoc-members:
 
-  from scfile import formats
-
-  with formats.mcsa.McsaDecoder("path/to/model.mcsa") as mcsa:
-    data = mcsa.decode()
-
-  with formats.obj.ObjEncoder(data) as obj:
-    obj.encode().save("output.obj")
 
 Decoder
 ----------------------------------
@@ -20,18 +14,38 @@ Decoder
   :show-inheritance:
   :undoc-members:
 
-Exceptions
--------------------------------------
-
-.. automodule:: scfile.formats.mcsa.exceptions
-  :members:
-  :show-inheritance:
-  :undoc-members:
 
 IO
 -----------------------------
 
 .. automodule:: scfile.formats.mcsa.io
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Versions
+-----------------------------------
+
+.. automodule:: scfile.formats.mcsa.versions
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Constants
+---------------------------------
+
+.. automodule:: scfile.formats.mcsa.consts
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Exceptions
+-------------------------------------
+
+.. automodule:: scfile.formats.mcsa.exceptions
   :members:
   :show-inheritance:
   :undoc-members:

@@ -76,31 +76,31 @@
     - Decoded
     - Format
     - Compression
-  * - ``#?3VGGGGGGGGGGGG``
+  * - ``#?3V``
     - ``DXT1``
     - ``DXT1``
     - ``BC1``
-  * - ``#?3TGGGGGGGGGGGG``
+  * - ``#?3T``
     - ``DXT3``
     - ``DXT3``
     - ``BC2``
-  * - ``#?3RGGGGGGGGGGGG``
+  * - ``#?3R``
     - ``DXT5``
     - ``DXT5``
     - ``BC3``
-  * - ``#?)8?>GGGGGGGGGG``
+  * - ``#?)8?>``
     - ``DXN_XY``
     - ``ATI2``
     - ``BC5``
-  * - ``5 %&_GGGGGGGGGGG``
+  * - ``5 %&_``
     - ``RGBA8``
     - ``R8G8B8A8``
     - ``None``
-  * - ``% 5&_GGGGGGGGGGG``
+  * - ``% 5&_``
     - ``BGRA8``
     - ``B8G8R8A8``
     - ``None``
-  * - ``5 %&TU!GGGGGGGGG``
+  * - ``5 %&TU!``
     - ``RGBA32F``
     - ``R32G32B32A32``
     - ``None``

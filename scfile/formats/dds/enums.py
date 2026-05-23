@@ -29,12 +29,23 @@ class CubemapFlag(IntFlag):
 
 
 class DXGIFormat(IntFlag):
-    FLOAT_R32G32B32A32 = 2
-    FLOAT_R32G32B32 = 6
+    FLOAT_R32G32B32A32 = 0x2
+    FLOAT_R32G32B32 = 0x6
 
 
 class DXGIDimension(IntFlag):
-    BUFFER = 1
-    TEXTURE1D = 2
-    TEXTURE2D = 3
-    TEXTURE3D = 4
+    BUFFER = 0x1
+    TEXTURE1D = 0x2
+    TEXTURE2D = 0x3
+    TEXTURE3D = 0x4
+
+
+class ChannelMask(IntFlag):
+    RED = R = 0x000000FF
+    GREEN = G = 0x0000FF00
+    BLUE = B = 0x00FF0000
+    ALPHA = A = 0xFF000000
+
+
+RGBA8 = (ChannelMask.R, ChannelMask.G, ChannelMask.B, ChannelMask.A)
+BGRA8 = (ChannelMask.B, ChannelMask.G, ChannelMask.R, ChannelMask.A)

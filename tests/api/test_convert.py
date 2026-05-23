@@ -23,7 +23,7 @@ def test_formats_convert(temp: Path):
 
     src = ASSETS / "source" / MODEL_LEGACY
     out = temp / "model_v12.obj"
-    convert.legacy.mcsa_to_obj(src, temp)
+    convert.formats.mcsa_to_obj(src, temp)
     assert out.exists()
 
     src = ASSETS / "source" / TEXTURE

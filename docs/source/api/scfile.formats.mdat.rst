@@ -1,7 +1,7 @@
-🧊 MCSB
+🗺 MDAT
 ===========================
 
-.. automodule:: scfile.formats.mcsb
+.. automodule:: scfile.formats.mdat
   :show-inheritance:
   :undoc-members:
 
@@ -9,7 +9,7 @@
 Decoder
 ----------------------------------
 
-.. automodule:: scfile.formats.mcsb.decoder
+.. automodule:: scfile.formats.mdat.decoder
   :members:
   :show-inheritance:
   :undoc-members:

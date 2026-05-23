@@ -2,9 +2,13 @@
 Extensions for OL file format with custom struct-based I/O methods.
 """
 
-from scfile.consts import CubemapFaces, OlString
+from scfile.consts import CubemapFaces
 from scfile.core import StructIO
 from scfile.enums import F
+
+
+XOR = ord("g")
+NULL = ord("G")
 
 
 class OlFileIO(StructIO):
@@ -16,7 +20,7 @@ class OlFileIO(StructIO):
 
     def _readformat(self) -> bytes:
         # Read string and skip last 0x00 byte
-        string = self.read(OlString.SIZE)[:-1]
+        string = self.read(17)[:-1]
 
-        # Xor byte if it's is not null
-        return bytes(byte ^ OlString.XOR for byte in string if byte != OlString.NULL)
+        # Xor fourcc string
+        return bytes(byte ^ XOR for byte in string if byte != NULL)

@@ -1,54 +1,38 @@
-Structures
+🗃️ Structures
 =========================
 
 .. automodule:: scfile.structures
   :no-members:
   :show-inheritance:
 
-🧮 Flags
-----------------------------------
 
-.. automodule:: scfile.structures.flags
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-🏞️ Scene
-------------------------------
-
-.. automodule:: scfile.structures.scene
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-🕸️ Mesh
------------------------------
-
-.. automodule:: scfile.structures.mesh
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-🦴 Skeleton
+🧊 Models
 ---------------------------------
 
-.. automodule:: scfile.structures.skeleton
+.. automodule:: scfile.structures.models
   :members:
   :show-inheritance:
   :undoc-members:
 
-🎬 Animation
-----------------------------------
+.. toctree::
+  :maxdepth: 2
 
-.. automodule:: scfile.structures.animation
+  scfile.structures.models
+
+
+🧱 Textures
+---------------------------------
+
+.. automodule:: scfile.structures.textures
   :members:
   :show-inheritance:
   :undoc-members:
 
-🧱 Texture
+
+🗺 Regions
 --------------------------------
 
-.. automodule:: scfile.structures.texture
+.. automodule:: scfile.structures.regions
   :members:
   :show-inheritance:
   :undoc-members:

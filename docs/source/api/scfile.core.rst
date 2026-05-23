@@ -1,23 +1,28 @@
-Core
+🛠️ Core
 ===================
 
 .. automodule:: scfile.core
   :no-members:
   :show-inheritance:
 
-.. toctree::
-  :maxdepth: 3
 
-  scfile.core.context
-  scfile.core.io
-
-Base
+BaseFile
 -----------------------
 
 .. automodule:: scfile.core.base
   :members:
   :show-inheritance:
   :undoc-members:
+
+
+Content
+--------------------------
+
+.. automodule:: scfile.core.content
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
 
 Decoder
 --------------------------
@@ -27,10 +32,29 @@ Decoder
   :show-inheritance:
   :undoc-members:
 
+
 Encoder
 --------------------------
 
 .. automodule:: scfile.core.encoder
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+Options
+--------------------------
+
+.. automodule:: scfile.core.options
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
+StructIO
+---------------------------
+
+.. automodule:: scfile.core.structio
   :members:
   :show-inheritance:
   :undoc-members:

@@ -1,5 +1,5 @@
 """
-Internal data handler module. Provides dataclass-based structures representation.
+Data structures for parsed file content.
 """
 
 from . import models, regions, textures

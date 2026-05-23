@@ -1,3 +1,7 @@
+"""
+Data structures for skeletons.
+"""
+
 from dataclasses import dataclass, field
 from typing import List, Self
 
@@ -12,7 +16,7 @@ from .types import BindPose, EulerAngles, InverseBindMatrices, Quaternion, Vecto
 
 @dataclass
 class SkeletonBone:
-    """Single skeleton bone with transform data."""
+    """Bone with transform data."""
 
     id: int = 0
     name: str = "bone"
@@ -49,6 +53,8 @@ class ModelSkeleton:
         return list(filter(lambda bone: bone.is_root, self.bones))
 
     def calculate_global_transforms(self) -> BindPose:
+        """Compute global transformation matrix for each bone."""
+
         transforms: BindPose = []
 
         for bone in self.bones:
@@ -59,6 +65,8 @@ class ModelSkeleton:
         return transforms
 
     def inverse_bind_matrices(self, transpose: bool) -> InverseBindMatrices:
+        """Compute inverse bind matrices for all bones."""
+
         global_transforms = self.calculate_global_transforms()
 
         inverse_matrices = [np.linalg.inv(matrix) for matrix in global_transforms]

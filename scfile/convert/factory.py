@@ -1,5 +1,5 @@
 """
-Internal factory decorator for convert functions.
+Decorator for registering named format converters.
 """
 
 from collections import defaultdict
@@ -7,10 +7,10 @@ from copy import deepcopy
 from functools import wraps
 from typing import Callable, Optional, Type, TypeAlias
 
-from scfile.core import ContentType, FileDecoder, FileEncoder, UserOptions
+from scfile.core import ContentType, FileDecoder, FileEncoder, Options
 from scfile.types import PathLike
 
-from .base import convert
+from .convert import convert
 
 
 ConverterMap: TypeAlias = dict[str, Callable]
@@ -20,10 +20,12 @@ _REGISTRY: ConverterRegistry = defaultdict(dict)
 
 
 def converters(src_format: str) -> ConverterMap:
+    """Converters for source format."""
     return deepcopy(_REGISTRY.get(src_format.lower().lstrip("."), {}))
 
 
 def registry() -> ConverterRegistry:
+    """Copy of full converter registry."""
     return deepcopy(dict(_REGISTRY))
 
 
@@ -31,14 +33,14 @@ def converter(
     decoder: Type[FileDecoder[ContentType]],
     encoder: Type[FileEncoder[ContentType]],
 ) -> Callable:
-    """Factory decorator for base convert function with fixed decoder/encoder."""
+    """Factory decorator for named conversion between two formats."""
 
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(
             source: PathLike,
             output: Optional[PathLike] = None,
-            options: Optional[UserOptions] = None,
+            options: Optional[Options] = None,
         ):
             convert(
                 decoder=decoder,

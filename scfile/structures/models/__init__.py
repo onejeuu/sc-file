@@ -1,9 +1,12 @@
+"""
+Data structures for 3D model content.
+"""
+
 from .animation import AnimationClip, ModelAnimation
 from .enums import (
     AnimationRotation,
     AnimationTranslation,
     Flag,
-    FlagKey,
     LinkSpace,
     SkeletonHierarchy,
     SkeletonSpace,

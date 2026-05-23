@@ -3,7 +3,7 @@ from pathlib import Path
 
 from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
-from scfile.core.options import UserOptions
+from scfile.core.options import Options
 from scfile.structures.models import Flag, ModelScene
 from tests.conftest import DATA, OUTPUT, FakeContent, FakeEncoder, FakeModelEncoder
 
@@ -123,7 +123,7 @@ def test_skeleton_presented():
         scene=ModelScene(),
         flags={Flag.SKELETON: True},
     )
-    opts = UserOptions(parse_skeleton=True)
+    opts = Options(skeleton=True)
     enc = FakeModelEncoder(data, options=opts)
     assert enc._skeleton_presented
     enc.close()
@@ -134,7 +134,7 @@ def test_skeleton_presented_flag_false():
         scene=ModelScene(),
         flags={Flag.SKELETON: False},
     )
-    opts = UserOptions(parse_skeleton=True)
+    opts = Options(skeleton=True)
     enc = FakeModelEncoder(data, options=opts)
     assert not enc._skeleton_presented
     enc.close()
@@ -145,7 +145,7 @@ def test_skeleton_presented_option_false():
         scene=ModelScene(),
         flags={Flag.SKELETON: True},
     )
-    opts = UserOptions(parse_skeleton=False)
+    opts = Options(skeleton=False)
     enc = FakeModelEncoder(data, options=opts)
     assert not enc._skeleton_presented
     enc.close()
@@ -156,7 +156,7 @@ def test_animation_presented():
         scene=ModelScene(),
         flags={Flag.SKELETON: True},
     )
-    opts = UserOptions(parse_skeleton=True, parse_animation=True)
+    opts = Options(skeleton=True, animation=True)
     enc = FakeModelEncoder(data, options=opts)
     assert enc._animation_presented
     enc.close()
@@ -167,7 +167,7 @@ def test_animation_presented_no_animation_option():
         scene=ModelScene(),
         flags={Flag.SKELETON: True},
     )
-    opts = UserOptions(parse_skeleton=True, parse_animation=False)
+    opts = Options(skeleton=True, animation=False)
     enc = FakeModelEncoder(data, options=opts)
     assert not enc._animation_presented
     enc.close()

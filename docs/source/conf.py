@@ -9,7 +9,8 @@ from pathlib import Path
 from sphinx.ext import autodoc
 from sphinx.locale import _
 
-import scfile
+from scfile import __author__ as AUTHOR
+from scfile import __version__ as SEMVER
 
 
 PATH = Path("../../scfile").absolute()
@@ -19,13 +20,13 @@ sys.path.insert(0, PATH.as_posix())
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "sc-file"
-copyright = "2025, onejeuu"
+author = AUTHOR
+version = SEMVER
 
-author = scfile.__author__
-release = scfile.__version__
+project = "scfile"
+html_title = f"{project} {SEMVER}"
 
-html_title = f"{project} {release}"
+copyright = "%Y"
 
 
 # -- General configuration ---------------------------------------------------

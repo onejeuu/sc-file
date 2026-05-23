@@ -1,16 +1,10 @@
 🧱 OL (CUBEMAP)
-===========================
+=========================
 
-.. code-block:: python
-  :caption: Usage Example
+.. automodule:: scfile.formats.hdri
+  :show-inheritance:
+  :undoc-members:
 
-  from scfile import formats
-
-  with formats.hdri.OlCubemapDecoder("path/to/texture.ol") as hdri:
-    data = hdri.decode()
-
-  with formats.dds.DdsEncoder(data) as dds:
-    dds.encode().save("output.dds")
 
 Decoder
 ----------------------------------

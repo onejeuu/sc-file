@@ -1,6 +1,6 @@
 import pytest
 
-from scfile.core.options import UserOptions
+from scfile.core.options import Options
 from scfile.exceptions import EmptyFileError, InvalidSignatureError
 from tests.conftest import DATA, FakeDecoder, FakeEncoder
 
@@ -80,7 +80,7 @@ def test_convert_to():
 
 def test_convert_to_options():
     dec = FakeDecoder(DATA)
-    enc = dec.convert_to(FakeEncoder, options=UserOptions(on_conflict="skip"))
+    enc = dec.convert_to(FakeEncoder, options=Options(on_conflict="skip"))
     assert enc.options.on_conflict == "skip"
     enc.close()
     dec.close()

@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.core import UserOptions
+from scfile.core import Options
 from scfile.gui import workers
 from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
@@ -178,7 +178,7 @@ class MapCacheTab(QWidget):
     def _merge(self):
         source = Path(self.source.text().strip())
         output = Path(self.output.text().strip())
-        options = UserOptions(parse_region_raw=self.raw_blocks.isChecked())
+        options = Options(chunks_raw=self.raw_blocks.isChecked())
 
         self.merge.setEnabled(False)
 

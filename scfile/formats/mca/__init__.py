@@ -1,5 +1,5 @@
 """
-Co-author: [TeamDima](https://github.com/DeTTK)
+Co-author: https://github.com/DeTTK
 """
 
 from .encoder import McaEncoder
