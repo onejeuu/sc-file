@@ -2,7 +2,7 @@ from enum import StrEnum, auto
 
 
 class FileFormat(StrEnum):
-    """File suffix (without dot)."""
+    """File extension without dot."""
 
     NONE = ""
     DAE = auto()
@@ -32,7 +32,7 @@ class FileFormat(StrEnum):
 
 
 class FileType(StrEnum):
-    """File content type."""
+    """File content kind."""
 
     NONE = auto()
     MODEL = auto()
@@ -43,17 +43,8 @@ class FileType(StrEnum):
     REGION = auto()
 
 
-class FileMode(StrEnum):
-    """File open mode."""
-
-    RB = READ = auto()
-    WB = WRITE = auto()
-    AB = APPEND = auto()
-    PLUS = "+"
-
-
 class ByteOrder(StrEnum):
-    """File content bytes order."""
+    """File data byte order."""
 
     NATIVE = "@"
     STANDARD = "="
@@ -63,7 +54,7 @@ class ByteOrder(StrEnum):
 
 
 class UnicodeErrors(StrEnum):
-    """Unicode errors handling policy."""
+    """Unicode error handling policy."""
 
     STRICT = auto()
     """Raise UnicodeDecodeError on invalid bytes"""
@@ -84,7 +75,7 @@ class UnicodeErrors(StrEnum):
 
 
 class StructFormat(StrEnum):
-    """Native C-type struct format codes."""
+    """C-type struct format codes."""
 
     BOOL = "?"
     """boolean: `BOOL` `1 byte` [False, True]"""
@@ -120,7 +111,7 @@ F = StructFormat
 
 
 class ConsoleLabel(StrEnum):
-    """Colored labels for console output."""
+    """Colored console output labels."""
 
     INFO = "[b blue]INFO:[/]"
     HINT = "[b cyan]HINT:[/]"
@@ -136,11 +127,15 @@ L = ConsoleLabel
 
 
 class CliCommand(StrEnum):
+    """CLI command names."""
+
     CONVERT = auto()
     MAPCACHE = auto()
 
 
 class UpdateStatus(StrEnum):
+    """Update check result status."""
+
     ERROR = auto()
     UPTODATE = auto()
     AVAILABLE = auto()

@@ -1,35 +1,58 @@
 📖 Library
-==================================================
+==============
 
-Choose appropriate API based on your needs:
+The Reference API is divided into execution layers depending on the required control granularity.
 
-* **For simple conversion** (recommended for most users):
 
-  Use :mod:`scfile.convert` — high-level functions with automatic or specific format conversion.
+High-Level Conversion (:mod:`scfile.convert`)
+---------------------------------------------------------------
+Provides simplified, single function access for automated format conversion.
 
-  .. code-block:: python
+.. code-block:: python
 
-    from scfile import convert
+  from scfile import convert
 
-    convert.auto("model.mcsb") # Auto detect format by file suffix
-    convert.formats.ol_to_dds("texture.ol") # Convert ol to dds
-    convert.formats.mcsb_to_obj("model.mcsb") # Convert mcsb to obj
+  # Automated format detection via file extension
+  convert.auto("model.mcsb")
+  convert.auto("model.mcsb", output="path/to/output/dir")
 
-* **For advanced control** (e.g., custom pipelines):
+  # Explicit format pair conversion
+  convert.formats.mcsb_to_obj("model.mcsb", output="output.obj")
 
-  Use :mod:`scfile.formats` — low-level access to decoders/encoders.
 
-  .. code-block:: python
+Advanced Pipelines (:mod:`scfile.formats`)
+---------------------------------------------------------------
+Provides explicit control over decoding and encoding lifecycle using context managers.
 
-    from scfile import formats
+.. code-block:: python
 
-    # Decode mcsb model, convert to obj and save file
-    with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-      mcsb.to_obj().save("output.obj")
+  from scfile.formats.mcsb import McsbDecoder
 
-* **For data inspection/modification**:
+  with McsbDecoder("model.mcsb") as mcsb:
+    mcsb.to_obj().save("output.obj")
 
-  Use :mod:`scfile.core.context` & :mod:`scfile.structures` — access to parsed model data (meshes, textures, etc.).
+
+Data Inspection (:mod:`scfile.structures`)
+---------------------------------------------------------------
+Provides direct access to parsed structures and underlying data containers before serialization.
+
+.. code-block:: python
+
+  from scfile.formats.mcsb import McsbDecoder
+  from scfile import Options
+
+  options = Options(skeleton=True)
+
+  with McsbDecoder("model.mcsb", options=options) as mcsb:
+    content = mcsb.decode()
+
+    print(f"Version: {content.version}")
+    print(f"Polygons: {content.scene.total_polygons}")
+    print(f"Bones: {[bone.name for bone in content.scene.skeleton.bones]}")
+
+
+API Reference
+---------------------------------------------------------------
 
 .. toctree::
   :maxdepth: 3

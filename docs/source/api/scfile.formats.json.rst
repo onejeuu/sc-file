@@ -1,16 +1,10 @@
 ⚙️ JSON
-===========================
+=========================
 
-.. code-block:: python
-  :caption: Usage Example
+.. automodule:: scfile.formats.json
+  :show-inheritance:
+  :undoc-members:
 
-  from scfile import formats
-
-  with formats.nbt.NbtDecoder("path/to/itemnames.dat") as nbt:
-    data = nbt.decode()
-
-  with formats.json.JsonEncoder(data) as json:
-    json.encode().save("output.json")
 
 Encoder
 ----------------------------------

@@ -1,16 +1,10 @@
 ⚙️ NBT
-==========================
+=========================
 
-.. code-block:: python
-  :caption: Usage Example
+.. automodule:: scfile.formats.nbt
+  :show-inheritance:
+  :undoc-members:
 
-  from scfile import formats
-
-  with formats.nbt.NbtDecoder("path/to/itemnames.dat") as nbt:
-    data = nbt.decode()
-
-  with formats.json.JsonEncoder(data) as json:
-    json.encode().save("output.json")
 
 Decoder
 ---------------------------------
@@ -18,7 +12,16 @@ Decoder
 .. automodule:: scfile.formats.nbt.decoder
   :members:
   :show-inheritance:
+   :undoc-members:
+
+IO
+----------------------------
+
+.. automodule:: scfile.formats.nbt.io
+  :members:
+  :show-inheritance:
   :undoc-members:
+
 
 Enums
 -------------------------------
@@ -28,10 +31,11 @@ Enums
   :show-inheritance:
   :undoc-members:
 
-IO
-----------------------------
 
-.. automodule:: scfile.formats.nbt.io
+NBT
+-----------------------------
+
+.. automodule:: scfile.formats.nbt.nbt
   :members:
   :show-inheritance:
   :undoc-members:

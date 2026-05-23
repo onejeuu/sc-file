@@ -9,7 +9,7 @@ from rich import print
 
 from scfile import formats, types
 from scfile.cli import params
-from scfile.core import RegionContent, UserOptions
+from scfile.core import RegionContent, Options
 from scfile.enums import CliCommand, L
 
 from . import scfile
@@ -23,7 +23,7 @@ LogCallback = Callable[[str], None]
 def merge(
     item: tuple[RegionKey, list[types.Path]],
     output: types.Path,
-    options: UserOptions,
+    options: Options,
     on_done: LogCallback | None = None,
     on_error: LogCallback | None = None,
 ) -> None:
@@ -134,7 +134,7 @@ def mapcache_command(
     print(L.INFO, f"Found {len(regions)} unique regions")
     print(L.INFO, "Starting merge...")
 
-    options = UserOptions(parse_region_raw=raw)
+    options = Options(chunks_raw=raw)
 
     if workers is not None and workers <= 0:
         for item in regions.items():

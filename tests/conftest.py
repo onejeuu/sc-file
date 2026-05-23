@@ -6,7 +6,7 @@ from typing import Generator
 
 import pytest
 
-from scfile.core.content import FileContent, ModelContent
+from scfile.core.content import BaseContent, ModelContent
 from scfile.core.decoder import FileDecoder
 from scfile.core.encoder import FileEncoder
 from scfile.enums import FileFormat, FileType
@@ -20,7 +20,7 @@ def temp() -> Generator[Path, None, None]:
 
 
 @dataclass
-class FakeContent(FileContent):
+class FakeContent(BaseContent):
     type: FileType = field(default=FileType.NONE)
     parsed: bytes = field(default_factory=bytes)
 

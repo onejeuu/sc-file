@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from scfile.core import UserOptions
+from scfile.core import Options
 from scfile.exceptions import EmptyFileError, InvalidSignatureError
 from tests.conftest import DATA, OUTPUT, SOURCE, FakeContent, FakeDecoder, FakeEncoder
 
@@ -32,8 +32,8 @@ def test_decode_from_open_file(temp: Path):
 
 
 def test_decode_with_options():
-    dec = FakeDecoder(DATA, options=UserOptions(parse_skeleton=True))
-    assert dec.options.parse_skeleton is True
+    dec = FakeDecoder(DATA, options=Options(skeleton=True))
+    assert dec.options.skeleton is True
     dec.decode()
 
 
@@ -67,7 +67,7 @@ def test_convert_to():
 
 def test_convert_to_with_options():
     dec = FakeDecoder(DATA)
-    enc = dec.convert_to(FakeEncoder, options=UserOptions(on_conflict="rename"))
+    enc = dec.convert_to(FakeEncoder, options=Options(on_conflict="rename"))
     assert enc.options.on_conflict == "rename"
     enc.close()
 
@@ -79,7 +79,7 @@ def test_convert():
 
 def test_convert_with_options():
     dec = FakeDecoder(DATA)
-    result = dec.convert(FakeEncoder, options=UserOptions(on_conflict="skip"))
+    result = dec.convert(FakeEncoder, options=Options(on_conflict="skip"))
     assert result == DATA
 
 

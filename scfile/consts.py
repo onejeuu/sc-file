@@ -13,19 +13,20 @@ SUPPORTED_FORMATS: set[FileFormat] = {
     FileFormat.NBT,
     FileFormat.MDAT,
 }
-"""Files formats (extensions without dot) that can be converted."""
+"""Formats available for conversion."""
 
-SUPPORTED_EXTENSIONS: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
-"""Files suffixes that can be converted."""
+SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
+"""Formats suffixes available for conversion."""
 
 SUPPORTED_NBT: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd2", "sd3", "sd4"}
-"""Files names that can be converted."""
+"""NBT filenames available for conversion."""
 
-ALLOWED_SUFFIXES: set[str] = SUPPORTED_EXTENSIONS | SUPPORTED_NBT
+ALLOWED_SUFFIXES: set[str] = SUPPORTED_SUFFIXES | SUPPORTED_NBT
+"""All path suffixes available for conversion."""
 
 
 class FileSignature:
-    """File magic number for formats (big-endian)."""
+    """Format magic bytes."""
 
     MCSA = b"MCSA"
     MCAL = b"MCAL"
@@ -38,8 +39,33 @@ class FileSignature:
     MS3D = b"MS3D000000"
 
 
+class CLI:
+    """Command line interface constants."""
+
+    NON_SKELETAL_FORMATS: Formats = (FileFormat.OBJ, FileFormat.FBX)
+    NON_ANIMATION_FORMATS: Formats = (FileFormat.OBJ, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
+
+
+class OutputFormats:
+    """Supported output formats for file data types."""
+
+    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
+    TEXTURES: Formats = (FileFormat.DDS,)
+    IMAGES: Formats = (FileFormat.PNG,)
+    REGIONS: Formats = (FileFormat.MCA,)
+    TEXARR: Formats = (FileFormat.ZIP,)
+    NBT: Formats = (FileFormat.NBT,)
+
+
+class DefaultModelFormats:
+    """Default model formats for unset options."""
+
+    STANDARD: Formats = (FileFormat.OBJ,)
+    ON_SKELETON: Formats = (FileFormat.GLB,)
+
+
 class Factor:
-    """Integer max range for integer type."""
+    """Integer range limits."""
 
     I8 = 0x7F
     U8 = 0xFF
@@ -49,24 +75,15 @@ class Factor:
     U32 = 0xFFFFFFFF
 
 
-class OlString:
-    """Xor encoded zero-end string."""
-
-    SIZE = 17
-    """16 encoded bytes and last 0x00 byte."""
-    XOR = ord("g")
-    NULL = ord("G")
-
-
 class CubemapFaces:
-    """Dds cubemap faces."""
+    """DDS cubemap faces."""
 
     FACES = {"+x", "-x", "+y", "-y", "+z", "-z"}
     COUNT = len(FACES)
 
 
 class ModelDefaults:
-    """Mcsa model constants."""
+    """Model default constants."""
 
     DECIMALS = 6
     ROOT_BONE_ID = -1
@@ -74,29 +91,9 @@ class ModelDefaults:
     """Safety limit to prevent memory overflow on corrupted files."""
 
 
-class CLI:
-    """Command line interface constants."""
+class Text:
+    """Shared text constants."""
 
-    FORMATS = EPILOG = f"Supported Formats: {sorted(SUPPORTED_EXTENSIONS)}"
+    FORMATS = f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}"
     NBT = f"Supported NBTs: {sorted(SUPPORTED_NBT)}"
     EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"
-    PAUSE = "\nPress any key to exit..."
-
-    NON_SKELETAL_FORMATS: Formats = (FileFormat.OBJ,)
-    NON_ANIMATION_FORMATS: Formats = (FileFormat.OBJ, FileFormat.MS3D, FileFormat.DAE)
-
-
-class OutputFormats:
-    """Supported output formats for file data types."""
-
-    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
-    TEXTURES: Formats = (FileFormat.DDS,)
-    IMAGES: Formats = (FileFormat.PNG,)
-    TEXARR: Formats = (FileFormat.ZIP,)
-
-
-class DefaultModelFormats:
-    """Default model formats for cases where no preference is specified."""
-
-    STANDARD: Formats = (FileFormat.OBJ,)
-    ON_SKELETON: Formats = (FileFormat.GLB,)

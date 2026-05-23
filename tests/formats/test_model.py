@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from scfile.core import UserOptions
+from scfile.core import Options
 from scfile.core.types import ModelEncoder
 from scfile.formats.dae import DaeEncoder
 from scfile.formats.efkmodel import EfkmodelDecoder
@@ -27,7 +27,7 @@ ENCODERS_SMOKE = [DaeEncoder, FbxEncoder, Ms3dEncoder]
 
 SPECIALS = sorted((ASSETS / "source" / "model" / "special").iterdir())
 
-OPTIONS = UserOptions(parse_skeleton=True, parse_animation=True)
+OPTIONS = Options(skeleton=True, animation=True)
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -51,7 +51,7 @@ def test_model_special(path: Path, encoder: ModelEncoder):
 @pytest.mark.parametrize("name", ["model_v12_links2", "model_v12_links3"])
 def test_skip_links(name: str):
     src = ASSETS / "source" / "model" / "special" / name
-    opts = UserOptions(parse_skeleton=False)
+    opts = Options(skeleton=False)
     with McsbDecoder(src, opts) as dec:
         data = dec.decode()
     assert len(data.scene.meshes) > 0

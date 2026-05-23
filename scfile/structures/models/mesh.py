@@ -1,3 +1,7 @@
+"""
+Data structures for meshes.
+"""
+
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -8,6 +12,8 @@ from .types import BonesMapping, Colors, LinksIds, LinksWeights, Polygons, Vecto
 
 @dataclass
 class MeshBounds:
+    """Mesh bounding box."""
+
     min: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     max: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     radius: float = 0.0
@@ -15,7 +21,7 @@ class MeshBounds:
 
 @dataclass
 class ModelMesh:
-    """3D mesh geometry container."""
+    """Mesh geometry container."""
 
     name: str = "name"
     material: str = "material"

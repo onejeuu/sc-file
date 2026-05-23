@@ -1,3 +1,7 @@
+"""
+Scene transformation functions.
+"""
+
 from dataclasses import replace
 from typing import Callable, TypeAlias
 
@@ -16,6 +20,8 @@ SceneTransform: TypeAlias = Callable[[ModelScene], ModelScene]
 
 
 def unique_names(scene: ModelScene) -> ModelScene:
+    """Ensure all meshes have unique names."""
+
     seen_names: set[str] = set()
     meshes: list[ModelMesh] = []
 
@@ -36,6 +42,8 @@ def unique_names(scene: ModelScene) -> ModelScene:
 
 
 def flip_uv(scene: ModelScene) -> ModelScene:
+    """Flip V axis (TOP_LEFT - BOTTOM_LEFT)."""
+
     meshes: list[ModelMesh] = []
 
     for mesh in scene.meshes:
@@ -56,6 +64,8 @@ def flip_uv(scene: ModelScene) -> ModelScene:
 
 
 def invert_uv(scene: ModelScene) -> ModelScene:
+    """Invert V axis sign (POSITIVE -> NEGATIVE)."""
+
     meshes: list[ModelMesh] = []
 
     for mesh in scene.meshes:
@@ -75,6 +85,8 @@ def invert_uv(scene: ModelScene) -> ModelScene:
 
 
 def skeleton_to_local(scene: ModelScene) -> ModelScene:
+    """Convert bone positions (GLOBAL -> LOCAL)."""
+
     if scene.skeleton.space == SkeletonSpace.LOCAL:
         return scene
 
@@ -97,6 +109,8 @@ def skeleton_to_local(scene: ModelScene) -> ModelScene:
 
 
 def build_hierarchy(scene: ModelScene) -> ModelScene:
+    """Build bone children tree (FLAT → BUILT)."""
+
     if scene.skeleton.hierarchy == SkeletonHierarchy.BUILT:
         return scene
 
@@ -112,6 +126,8 @@ def build_hierarchy(scene: ModelScene) -> ModelScene:
 
 
 def animation_to_absolute(scene: ModelScene) -> ModelScene:
+    """Add rest pose positions to animation deltas (DELTA → ABSOLUTE)."""
+
     if scene.animation.translation == AnimationTranslation.ABSOLUTE:
         return scene
 

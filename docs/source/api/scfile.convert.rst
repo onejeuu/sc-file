@@ -1,9 +1,10 @@
-Convert
+🔄 Convert
 ======================
 
 .. automodule:: scfile.convert
   :no-members:
   :show-inheritance:
+
 
 Detect
 --------------------------
@@ -13,6 +14,7 @@ Detect
   :show-inheritance:
   :undoc-members:
 
+
 Formats
 -----------------------------
 
@@ -21,21 +23,15 @@ Formats
   :show-inheritance:
   :undoc-members:
 
-Legacy
-----------------------------
 
-.. automodule:: scfile.convert.legacy
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-Base
+Convert
 --------------------------
 
-.. automodule:: scfile.convert.base
+.. automodule:: scfile.convert.convert
   :members:
   :show-inheritance:
   :undoc-members:
+
 
 Factory
 -----------------------------

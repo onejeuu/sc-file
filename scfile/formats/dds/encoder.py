@@ -4,8 +4,8 @@ from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 from scfile.structures.textures import TextureType
 
+from .enums import BGRA8, RGBA8
 from .header import DDS
-from .mask import BGRA8, RGBA8
 
 
 class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
@@ -54,7 +54,7 @@ class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
         self._writenull(size=4)  # dwFourCC (unused)
         self._writeb(F.U32, DDS.PF.BIT_COUNT)  # dwRGBBitCount
 
-        bitmask = BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8  # not best realization...
+        bitmask = BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8
         self._writeb(F.U32 * 4, *bitmask)  # RGBA bit masks
 
     def _add_caps(self):

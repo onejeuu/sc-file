@@ -1,3 +1,7 @@
+"""
+Data structures for scenes.
+"""
+
 from dataclasses import dataclass, field
 
 from .animation import ModelAnimation
@@ -7,7 +11,7 @@ from .skeleton import ModelSkeleton
 
 @dataclass
 class SceneScales:
-    """Multiplier values for scene components."""
+    """Scale multipliers for scene data."""
 
     position: float = 1.0
     uv: float = 1.0
@@ -17,7 +21,7 @@ class SceneScales:
 
 @dataclass
 class ModelScene:
-    """Complete 3D model container with geometry, skeleton and animation."""
+    """Container for meshes, skeleton, and animation."""
 
     scale: SceneScales = field(default_factory=SceneScales)
 

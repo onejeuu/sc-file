@@ -1,21 +1,15 @@
 📦 TEXARR
-=============================
+===========================
 
-.. code-block:: python
-  :caption: Usage Example
+.. automodule:: scfile.formats.texarr
+  :show-inheritance:
+  :undoc-members:
 
-  from scfile import formats
-
-  with formats.texarr.TexarrDecoder("path/to/blockMap.texarr") as ta:
-    data = ta.decode()
-
-  with formats.zip.TexarrEncoder(data) as zip:
-    zip.encode().save("output.zip")
 
 Decoder
----------------------------------
+------------------------------------
 
 .. automodule:: scfile.formats.texarr.decoder
-   :members:
-   :show-inheritance:
-   :undoc-members:
+  :members:
+  :show-inheritance:
+  :undoc-members:

@@ -118,11 +118,11 @@ Overview
 .. code-block:: python
   :caption: Usage example
 
-  from scfile import convert, formats, UserOptions
+  from scfile import convert, formats, Options
 
   # Simple conversion (auto detect format by file suffix)
   # User options to control parsing and export settings
-  convert.auto("model.mcsb", options=UserOptions(parse_skeleton=True))
+  convert.auto("model.mcsb", options=Options(skeleton=True))
 
   # Advanced control (manual decoding and data inspection)
   # Context manager ensures proper resource cleanup

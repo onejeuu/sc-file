@@ -5,8 +5,8 @@ from pathlib import Path
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import convert, exceptions, types
-from scfile.consts import CLI
-from scfile.core import UserOptions
+from scfile.consts import Text
+from scfile.core import Options
 from scfile.utils import files
 
 from .base import Worker
@@ -16,7 +16,7 @@ from .logs import logger
 @dataclass
 class ConvertContext:
     whitelist: types.FilesWhitelist
-    options: UserOptions
+    options: Options
     output: Path | None
     relative: bool
 
@@ -26,7 +26,7 @@ class ConvertTask(QRunnable):
         self,
         src: str,
         dst: str | None,
-        options: UserOptions,
+        options: Options,
     ):
         super().__init__()
         self.src = src
@@ -39,7 +39,7 @@ class ConvertTask(QRunnable):
             logger.done(f"'{self.src}'")
 
         except exceptions.InvalidStructureError as err:
-            logger.error(f"{str(err)} {CLI.EXCEPTION}")
+            logger.error(f"{str(err)} {Text.EXCEPTION}")
 
         except exceptions.ScFileException as err:
             logger.error(str(err))

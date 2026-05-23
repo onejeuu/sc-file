@@ -5,7 +5,7 @@ from rich import print
 
 from scfile import __version__ as SEMVER
 from scfile import types
-from scfile.consts import CLI
+from scfile.consts import Text
 from scfile.enums import L, UpdateStatus
 
 from . import updates, versions
@@ -16,7 +16,6 @@ def check_feature_unsupported(
     unsupported_formats: types.Formats,
     feature: str,
 ) -> None:
-    """Checks that user formats contain unsupported feature."""
     matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
 
     if bool(matching_formats):
@@ -35,8 +34,8 @@ def version_callback(
     version = versions.parse(SEMVER)
 
     print(f"scfile, version {str(version)} {version.emoji if version else ''}")
-    print(CLI.FORMATS)
-    print(CLI.NBT)
+    print(Text.FORMATS)
+    print(Text.NBT)
 
     ctx.exit()
 

@@ -1,5 +1,5 @@
 """
-Dataclasses for game specific textures.
+Data structures for textures.
 """
 
 from abc import ABC, abstractmethod
@@ -11,7 +11,7 @@ from scfile.consts import CubemapFaces
 
 @dataclass
 class Texture(ABC):
-    """Base dataclass representing texture."""
+    """Base class for texture data."""
 
     @property
     @abstractmethod
@@ -44,7 +44,7 @@ class DefaultTexture(Texture):
 
 @dataclass
 class CubemapTexture(Texture):
-    """Cube map texture with face separated mipmaps."""
+    """Cubemap texture with face separated mipmaps."""
 
     uncompressed: list[list[int]] = field(default_factory=list)
     compressed: list[list[int]] = field(default_factory=list)

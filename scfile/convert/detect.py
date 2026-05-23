@@ -1,5 +1,5 @@
 """
-Conversion by input path based on file suffix.
+Format auto-detection by file extension.
 """
 
 import pathlib
@@ -9,7 +9,7 @@ import lz4.block
 
 from scfile import exceptions, types
 from scfile.consts import SUPPORTED_NBT
-from scfile.core import UserOptions
+from scfile.core import Options
 from scfile.enums import FileFormat
 
 from . import factory, formats
@@ -19,24 +19,30 @@ from . import factory, formats
 def auto(
     source: types.PathLike,
     output: types.OutputLike = None,
-    options: Optional[UserOptions] = None,
+    options: Optional[Options] = None,
 ) -> None:
     """
-    Automatically convert file between formats based on file suffix.
+    Automatically convert one file between formats based on its extension.
 
     Arguments:
-        source: Path to input file.
-        output (optional): Path to output directory. Defaults: `Same directory as source`.
-        options (optional): User settings. Default: `None`.
+        source: Path to source file.
+        output (optional): Path to output file or directory. Defaults to source directory.
+        options (optional): Settings for parsing.
+
+    Raises:
+        InvalidStructureError: Source file is corrupted.
+        UnsupportedFormatError: Source file not supported.
 
     Example:
-        `auto("model.mcsb", "path/to/output", UserOptions(parse_skeleton=True))`
+        - ``auto("model.mcsb", "model.obj")``
+        - ``auto("model.mcsb", "model.obj", Options(skeleton=True))``
+        - ``auto("model.mcsb", "path/to/output/dir")``
     """
 
     src_path = pathlib.Path(source)
     src_format = src_path.suffix.lstrip(".")
 
-    options = options or UserOptions()
+    options = options or Options()
     model_formats = options.model_formats or options.default_model_formats
 
     # Detect NBT by file name

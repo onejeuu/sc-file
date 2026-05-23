@@ -315,4 +315,3 @@ msgstr "Относительная структура (``--relative``)"
 #: ../../usage.rst:196
 msgid "Parent Structure"
 msgstr "Родительская структура (``--parent``)"
-

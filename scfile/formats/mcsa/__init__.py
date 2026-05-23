@@ -1,5 +1,9 @@
-from .decoder import McsaDecoder
+"""
+MCSA Decoder
+"""
+
 from . import exceptions, versions
+from .decoder import McsaDecoder
 
 
 __all__ = (

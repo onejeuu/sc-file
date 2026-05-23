@@ -8,7 +8,7 @@ from .types import AnimationRotations, AnimationTimes, AnimationTranslations
 
 @dataclass
 class AnimationClip:
-    """Single animation clip with timing and transformation data."""
+    """Keyframed bone animation clip."""
 
     name: str = "clip"
     frames: int = 0

@@ -6,8 +6,8 @@ from rich import print
 
 from scfile import convert, exceptions, types
 from scfile.cli import params
-from scfile.consts import CLI, Formats
-from scfile.core import UserOptions
+from scfile.consts import CLI, Formats, Text
+from scfile.core import Options
 from scfile.core.options import OnConflict
 from scfile.enums import CliCommand, L
 from scfile.utils import files
@@ -92,10 +92,10 @@ def convert_command(
             check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
 
     # Prepare options
-    options = UserOptions(
+    options = Options(
         model_formats=model_formats,
-        parse_skeleton=skeleton,
-        parse_animation=animation,
+        skeleton=skeleton,
+        animation=animation,
         on_conflict=on_conflict,
     )
 
@@ -111,12 +111,12 @@ def convert_command(
             print(L.DONE, f"'{entry.path}'")
 
         except exceptions.InvalidStructureError as err:
-            print(L.ERROR, str(err), CLI.EXCEPTION)
+            print(L.ERROR, str(err), Text.EXCEPTION)
 
         except exceptions.ScFileException as err:
             print(L.ERROR, str(err))
 
         except Exception as err:
-            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", CLI.EXCEPTION)
+            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", Text.EXCEPTION)
             print(traceback.format_exc())
             print()

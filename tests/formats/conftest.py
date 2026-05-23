@@ -1,6 +1,6 @@
 from typing import NamedTuple, Optional
 
-from scfile import UserOptions
+from scfile import Options
 from scfile.core import ContentType, FileDecoder, FileEncoder
 from tests.conftest import ASSETS
 
@@ -15,7 +15,7 @@ def extract(
     encoder: type[FileEncoder[ContentType]],
     source: str,
     output: str,
-    options: Optional[UserOptions] = None,
+    options: Optional[Options] = None,
 ) -> Compare:
     with decoder(ASSETS / "source" / source, options) as dec:
         converted = dec.convert(encoder)

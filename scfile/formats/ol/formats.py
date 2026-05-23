@@ -1,4 +1,9 @@
-SUPPORTED_FORMATS: list[bytes] = [
+from typing import TypeAlias
+
+
+Format: TypeAlias = bytes
+
+SUPPORTED_FORMATS: list[Format] = [
     b"DXT1",
     b"DXT3",
     b"DXT5",
@@ -7,3 +12,4 @@ SUPPORTED_FORMATS: list[bytes] = [
     b"RGBA32F",
     b"DXN_XY",
 ]
+"""Supported texture pixel formats."""

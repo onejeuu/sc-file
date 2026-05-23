@@ -239,7 +239,7 @@ Launcher Formats
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | SHA-1 hash mappings for game files.
-| Used by launcher to verify game file integrity.
+| Used by launcher to verify game assets integrity.
 
 ``.torrent.bin`` Torrent Binary (TORRENT.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

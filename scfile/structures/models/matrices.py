@@ -1,9 +1,15 @@
+"""
+Matrix transformations utilities.
+"""
+
 import numpy as np
 
 from .types import EulerAngles, Quaternion, RotationMatrix, TransformMatrix, Vector3D
 
 
 def create_rotation_matrix(rotation: EulerAngles) -> RotationMatrix:
+    """Euler angles (XYZ) to 3×3 rotation matrix."""
+
     angles = np.radians(rotation)
     cx, cy, cz = np.cos(angles)
     sx, sy, sz = np.sin(angles)
@@ -18,14 +24,19 @@ def create_rotation_matrix(rotation: EulerAngles) -> RotationMatrix:
     )
 
 
-def create_transform_matrix(position: Vector3D, rotation: EulerAngles) -> TransformMatrix:
+def create_transform_matrix(translation: Vector3D, rotation: EulerAngles) -> TransformMatrix:
+    """Translation and rotation (R * T) to 4×4 transform matrix."""
+
     matrix = np.eye(4, dtype=np.float32)
     matrix[:3, :3] = create_rotation_matrix(rotation)
-    matrix[:3, 3] = position
+    matrix[:3, 3] = translation
+
     return matrix
 
 
 def euler_to_quat(rotation: EulerAngles) -> Quaternion:
+    """Convert euler angles (XYZ) to quaternion (XYZW)."""
+
     x, y, z = np.radians(rotation)
     hx, hy, hz = x * 0.5, y * 0.5, z * 0.5
 

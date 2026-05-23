@@ -1,3 +1,9 @@
+"""
+Base class for file format decoders.
+
+Defines the contract for parsing binary data into structured content.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, Type, TypeVar
 
@@ -6,24 +12,40 @@ from scfile import exceptions
 from .base import BaseFile, IOStream
 from .content import ContentType
 from .encoder import FileEncoder
-from .options import UserOptions
+from .options import Options
 
 
 EncoderType = TypeVar("EncoderType", bound=FileEncoder)
 
 
 class FileDecoder(BaseFile, Generic[ContentType], ABC):
-    """Base class for decoding file content into structured data objects."""
+    """
+    Base class for parsing binary data into structured content.
+
+    Subclasses define the format-specific parsing logic.
+    """
 
     _content: type[ContentType]
 
     def __init__(
         self,
         stream: IOStream,
-        options: Optional[UserOptions] = None,
+        options: Optional[Options] = None,
     ):
-        self.options: UserOptions = options or UserOptions()
+        """
+        Initialize decoder.
+
+        Args:
+            stream: Source to decode. File path, bytes, or binary IO stream.
+            options: Optional settings for parsing.
+
+        Note:
+            The file is not parsed during initialization.
+            Call :meth:`decode` to perform the actual parsing.
+        """
+
         self.data: ContentType = self._content()
+        self.options: Options = options or Options()
 
         super().__init__(stream=stream, mode="rb")
 
@@ -31,7 +53,16 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         self,
         seek: bool = True,
     ) -> ContentType:
-        """Decode file: prelude, validate signature, parse. Returns parsed data."""
+        """
+        Runs decoding pipeline.
+
+        Args:
+            seek: Reset stream position to the beginning after parsing.
+
+        Returns:
+            Parsed content data.
+        """
+
         self.prelude()
         self.validate_signature()
         self.parse()
@@ -42,9 +73,19 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
     def convert_to(
         self,
         encoder: Type[EncoderType],
-        options: Optional[UserOptions] = None,
+        options: Optional[Options] = None,
     ) -> EncoderType:
-        """Decode and convert to encoder. Returns encoder with open buffer (must be closed)."""
+        """
+        Decode and convert to given encoder format.
+
+        Args:
+            encoder: Encoder class to use for conversion.
+            options: Optional settings for encoder.
+
+        Returns:
+            Encoder instance with ``encode()`` already called.
+        """
+
         options = options or self.options
         data = self.decode()
         enc = encoder(data, options)
@@ -54,9 +95,19 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
     def convert(
         self,
         encoder: Type[EncoderType],
-        options: Optional[UserOptions] = None,
+        options: Optional[Options] = None,
     ) -> bytes:
-        """Decode, convert to encoder and return bytes. Closes encoder automatically."""
+        """
+        Decode and convert to given encoder format.
+
+        Args:
+            encoder: Encoder class to use for conversion.
+            options: Optional settings for encoder.
+
+        Returns:
+            Encoded file content as bytes.
+        """
+
         options = options or self.options
         enc: EncoderType = self.convert_to(encoder, options)
         content = enc.getvalue()
@@ -64,16 +115,22 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         return content
 
     def prelude(self) -> None:
-        """Runs before file parsing."""
+        """Hook called before signature and parsing."""
         pass
 
     @abstractmethod
     def parse(self) -> None:
-        """Parse file content into `self.data`."""
+        """Parse file content into ``self.data``. Called by :meth:`decode`."""
         ...
 
     def validate_signature(self) -> None:
-        """Validate file signature. Raises `EmptyFileError` or `InvalidSignatureError` on failure."""
+        """
+        Validate file signature.
+
+        Raises:
+            `EmptyFileError` or `InvalidSignatureError` on failure.
+        """
+
         if self.size() <= len(self.signature or bytes()):
             raise exceptions.EmptyFileError(self.location)
 
