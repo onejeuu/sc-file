@@ -12,6 +12,7 @@ Encoder
 .. automodule:: scfile.formats.mca.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 

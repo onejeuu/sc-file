@@ -12,6 +12,7 @@ Encoder
 .. automodule:: scfile.formats.glb.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 
