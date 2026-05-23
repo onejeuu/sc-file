@@ -8,6 +8,7 @@
 .. _MCSA.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt
 .. _OL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/OL.bt
 .. _OLCUBEMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/OL.CUBEMAP.bt
+.. _EFKMODEL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/EFKMODEL.bt
 .. _MCAL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCAL.bt
 .. _TEXARR.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TEXARR.bt
 .. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.MAP.bt
