@@ -1,4 +1,4 @@
-🎮 Game Formats
+📝 Game Formats
 ==================================================
 
 .. include:: _links.rst
@@ -64,7 +64,7 @@
     - Purpose
   * - ``_diff``
     - Diffuse
-    - Base Color / Albedo
+    - Base Color
     - Raw surface color without lighting or reflections.
   * - ``_spek``
     - Specular
@@ -76,7 +76,7 @@
     - Simulates bumps and dents without changing geometry.
   * - ``_emi``
     - Emission
-    - Self-Illumination
+    - Self Illumination
     - Makes parts glow or emit light independently.
 
 
@@ -120,7 +120,7 @@
 ----------------------------------------
 
 | **NBT** (`Named Binary Tag <NBT_>`_) format, viewable with tools like `NBT Explorer <NBTE_>`_.
-| In game assets used ``GZIP`` or ``ZSTD`` compression.
+| In game assets used `GZIP`_ or `ZSTD`_ compression.
 
 Assets
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -181,7 +181,7 @@ Per-Character Configs
     - ``notifications[{isRead, receivedMoment, notification{...}}]``
   * - ``sd3``
     - ``ZSTD``
-    - Store (donate shop) view history.
+    - Donate shop view history.
     - ``observedOffers[]``
   * - ``sd4``
     - ``ZSTD``
@@ -238,7 +238,7 @@ Launcher Formats
 ``.map`` Hash Mappings (HASHMAP.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| SHA-1 hash mappings for game files.
+| Hash Mapping (SHA-1) for game files.
 | Used by launcher to verify game assets integrity.
 
 ``.torrent.bin`` Torrent Binary (TORRENT.bt_)

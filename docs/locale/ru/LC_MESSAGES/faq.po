@@ -1,53 +1,37 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-01 15:15+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
-"Language-Team: ru <LL@li.org>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
 
-#: ../../faq.rst:2
+#: ../../source/faq.rst:2
 msgid "❓ FAQ"
 msgstr "❓ FAQ"
 
-#: ../../faq.rst:8
+#: ../../source/faq.rst:9
 msgid "📌 General"
 msgstr "📌 Общее"
 
-#: ../../faq.rst:11
+#: ../../source/faq.rst:12
 msgid "Q: How to encode files back into game formats?"
 msgstr "В: Как закодировать файлы обратно в игровые форматы?"
 
-#: ../../faq.rst:13
+#: ../../source/faq.rst:14
 msgid "**Reverse encoding is unsupported on purpose.**"
 msgstr "**Обратная кодировка не поддерживается намеренно.**"
 
-#: ../../faq.rst:14
+#: ../../source/faq.rst:15
 msgid ""
 "Even though it's possible to create this feature, making it public could "
 "cause problems."
 msgstr ""
 "Несмотря на возможность создания такой функции, ее публикация может "
-"привести к проблемам."
+"привести к проблемам"
 
-#: ../../faq.rst:16
-msgid ""
-"**Formats changes risk**: If modifying game files becomes too easy, "
-"developers might start encrypting or complicating their assets."
-msgstr ""
-"**Риск изменения форматов**: Если модификация игровых файлов станет "
-"слишком простой, разработчики могут начать шифровать свои ассеты."
-
-#: ../../faq.rst:17
+#: ../../source/faq.rst:17
 msgid ""
 "**Cheating concerns**: Public reverse encoding would make creating hacks "
 "much easier, attracting unwanted attention and undermining this tool "
@@ -57,25 +41,27 @@ msgstr ""
 "упростит создание хаков, что привлечет нежелательное внимание и подорвет "
 "назначение этого инструмента."
 
-#: ../../faq.rst:19
-msgid "**My goal is to support research and creativity, not to create tools that could harm the game community.**"
-msgstr ""
-"**Моя цель — поддерживать исследование и творчество, а не создавать "
-"инструменты, которые могут навредить игровому сообществу.**"
-
-#: ../../faq.rst:20
+#: ../../source/faq.rst:18
 msgid ""
-"If you need assistance with in-game content creation tasks, you can "
-"`contact me directly <TG_>`_."
+"**Formats changes risk**: If modifying game files becomes too easy, "
+"developers might start encrypting or complicating their assets, making "
+"them inaccessible for everyone."
 msgstr ""
-"Если вам нужна помощь в создании внутри-игрового контента, вы можете "
-"`связаться со мной напрямую <TG_>`_."
+"**Риск изменения форматов**: Если модификация игровых файлов станет "
+"слишком простой, разработчики могут начать шифровать свои ассеты, делая "
+"их недоступными для каждого."
 
-#: ../../faq.rst:24
+#: ../../source/faq.rst:20
+msgid ""
+"**This tool supports research and creativity, not harming the game "
+"community.**"
+msgstr ""
+
+#: ../../source/faq.rst:24
 msgid "Q: After game update ``%any_filename%`` no longer decodes!"
 msgstr "В: После обновления игры ``%любой_файл%`` больше не декодируется!"
 
-#: ../../faq.rst:26
+#: ../../source/faq.rst:26
 msgid ""
 "Format structure may have been updated. Wait for program update. In case "
 "of large changes, it might take some time to adapt."
@@ -83,19 +69,19 @@ msgstr ""
 "Структура формата могла измениться. Дождитесь обновления программы. В "
 "случае значительных изменений это может занять некоторое время."
 
-#: ../../faq.rst:30
+#: ../../source/faq.rst:30
 msgid "Q: Could using this program lead to game ban?"
 msgstr "В: Может ли использование этой программы привести к блокировке в игре?"
 
-#: ../../faq.rst:32
+#: ../../source/faq.rst:32
 msgid "Use at your own risk."
 msgstr "Используйте на свой страх и риск."
 
-#: ../../faq.rst:34
+#: ../../source/faq.rst:34
 msgid "Basic recommendations"
 msgstr "Базовые рекомендации"
 
-#: ../../faq.rst:35
+#: ../../source/faq.rst:37
 msgid ""
 "You **MUST** close both game and launcher **BEFORE** interacting with any"
 " assets files."
@@ -103,7 +89,7 @@ msgstr ""
 "Вы **ДОЛЖНЫ** закрыть игру и лаунчер **ПЕРЕД** взаимодействием с любыми "
 "файлами ассетов."
 
-#: ../../faq.rst:36
+#: ../../source/faq.rst:38
 msgid ""
 "You **MUST NOT** leave any files or modifications in game assets "
 "directory."
@@ -111,7 +97,7 @@ msgstr ""
 "Вы **НЕ ДОЛЖНЫ** оставлять какие-либо файлы или изменения в каталоге "
 "ассетов."
 
-#: ../../faq.rst:37
+#: ../../source/faq.rst:39
 msgid ""
 "You **SHOULD** copy required files to separate directory **BEFORE** "
 "performing any manipulations."
@@ -119,15 +105,15 @@ msgstr ""
 "Вам **СЛЕДУЕТ** скопировать необходимые файлы в отдельный каталог "
 "**ПЕРЕД** выполнением каких-либо манипуляций."
 
-#: ../../faq.rst:42
+#: ../../source/faq.rst:44
 msgid "📤 Output Formats"
 msgstr "📤 Выходные форматы"
 
-#: ../../faq.rst:45
+#: ../../source/faq.rst:47
 msgid "Q: What programs supports ``.dds`` viewing?"
 msgstr "В: Через какие программы смотреть ``.dds`` текстуры?"
 
-#: ../../faq.rst:47
+#: ../../source/faq.rst:49
 msgid ""
 "Any programs with full support for all `DirectDraw Surface <DDS_>`_ "
 "formats."
@@ -135,45 +121,51 @@ msgstr ""
 "Любые программы с полной поддержкой всех форматов `DirectDraw Surface "
 "<DDS_>`_."
 
-#: ../../faq.rst:49
+#: ../../source/faq.rst:51
 msgid "Recommended Viewers"
 msgstr "Программы для просмотра"
 
-#: ../../faq.rst:50
+#: ../../source/faq.rst:54
 msgid "`XnView <XNVIEW_>`_ (Universal)"
 msgstr "`XnView <XNVIEW_>`_ (Универсальный)"
 
-#: ../../faq.rst:51
+#: ../../source/faq.rst:55
 msgid "`WTV <WTV_>`_ (Lightweight)"
 msgstr "`WTV <WTV_>`_ (Легковесный)"
 
-#: ../../faq.rst:52
+#: ../../source/faq.rst:56
 msgid "`RenderDoc <RENDERDOC_>`_ (Analysis)"
 msgstr "`RenderDoc <RENDERDOC_>`_ (Анализ)"
 
-#: ../../faq.rst:56
+#: ../../source/faq.rst:60
 msgid "Q: How to convert ``.dds`` textures to ``.png``?"
 msgstr "В: Как конвертировать ``.dds`` текстуры в ``.png``?"
 
-#: ../../faq.rst:58
-msgid "Native support is not planned for code simplicity."
-msgstr "Нативная поддержка не планируется ради простоты кода."
+#: ../../source/faq.rst:62
+msgid "Native support is not planned."
+msgstr "Нативная поддержка не планируется."
 
-#: ../../faq.rst:60
+#: ../../source/faq.rst:64
 msgid ""
-"If needed, convert ``.dds`` to ``.png`` using `ImageMagick "
-"<IMAGEMAGICK_>`_."
-msgstr "Если необходимо используйте `ImageMagick <IMAGEMAGICK_>`_ для конвертации."
+"Convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_ or "
+"`FFmpeg <FFMPEG_>`_."
+msgstr ""
+"Используйте `ImageMagick <IMAGEMAGICK_>`_ или `FFmpeg <FFMPEG_>`_ для "
+"конвертации."
 
-#: ../../faq.rst:62
-msgid "Command Example"
-msgstr "Пример команды"
+#: ../../source/faq.rst:66
+msgid "ImageMagick"
+msgstr ""
 
-#: ../../faq.rst:69
-msgid "Q: Why model have weird/black textures?"
-msgstr "В: Почему у модели странные/черные текстуры?"
+#: ../../source/faq.rst:71
+msgid "FFmpeg"
+msgstr ""
 
-#: ../../faq.rst:71
+#: ../../source/faq.rst:78
+msgid "Q: Why do models have weird or black textures?"
+msgstr "В: Почему у модели странные или чёрные текстуры?"
+
+#: ../../source/faq.rst:80
 msgid ""
 "Make sure texture node alpha mode is set to ``Channel Packed`` "
 "(`Screenshot <ALPHAMODE_>`_)."
@@ -181,11 +173,11 @@ msgstr ""
 "Убедитесь что у ноды текстуры ``Alpha Mode`` поставлен на ``Channel "
 "Packed`` (`Скриншот <ALPHAMODE_>`_)."
 
-#: ../../faq.rst:73
+#: ../../source/faq.rst:82
 msgid "Some models seem to have mixed-up suffixes in filenames."
 msgstr "Некоторые модели, похоже, имеют перепутанные суффиксы текстур."
 
-#: ../../faq.rst:74
+#: ../../source/faq.rst:83
 msgid ""
 "Make sure that the ``_diff`` texture is actually a Diffuse Map and the "
 "``_spek`` texture is a Specular Map."
@@ -193,89 +185,87 @@ msgstr ""
 "Убедитесь что ``_diff`` текстура действительно является Diffuse Map, а "
 "``_spek`` текстура Specular Map."
 
-#: ../../faq.rst:75
+#: ../../source/faq.rst:84
 msgid ":doc:`More about Suffix Conventions... <formats>`"
 msgstr ":doc:`Подробнее про Конвенции суффиксов... <formats>`"
 
-#: ../../faq.rst:80
-msgid "⛔ Unsupported Formats"
-msgstr "⛔ Неподдерживаемые форматы"
+#: ../../source/faq.rst:89
+msgid "🛠 Troubleshooting"
+msgstr "🛠 Неисправности"
 
-#: ../../faq.rst:83
-msgid "Q: Why animations library (``.mcal``) unsupported?"
-msgstr "В: Почему библиотека анимаций (``.mcal``) не поддерживается?"
+#: ../../source/faq.rst:92
+msgid "Q: Antivirus or SmartScreen blocks ``scfile.exe``"
+msgstr "В: Антивирус или SmartScreen блокирует ``scfile.exe``"
 
-#: ../../faq.rst:85
+#: ../../source/faq.rst:94
+msgid "The source code is open and anyone can inspect it at `GitHub <GITHUB_>`_."
+msgstr "Исходный код открыт и любой может его изучить на `GitHub <GITHUB_>`_."
+
+#: ../../source/faq.rst:96
+msgid "SmartScreen warns because the executable has **no digital signature**."
+msgstr ""
+"SmartScreen предупреждает, так как исполняемый файл **не имеет цифровой "
+"подписи**."
+
+#: ../../source/faq.rst:97
+msgid "Code signing certificates are not feasible for a free project."
+msgstr "Подписание кода нецелесообразно для бесплатного проекта."
+
+#: ../../source/faq.rst:99
+msgid "Antivirus detections on VirusTotal are **false positives**."
+msgstr "Антивирусные детекции на VirusTotal являются **ложными положительными**."
+
+#: ../../source/faq.rst:100
 msgid ""
-"This format is currently unusable due to its fragmented and technical "
-"nature."
+"Executable program is built with `PyInstaller <PYINSTALLER_>`_, a tool "
+"that packages Python scripts into standalone ``.exe``."
 msgstr ""
-"В настоящее время этот формат непригоден для использования из-за его "
-"фрагментированности и технического характера."
+"Исполняемая программа собирается с помощью `PyInstaller <PYINSTALLER_>`_,"
+" инструмента, который упаковывает Python скрипты в автономные ``.exe``."
 
-#: ../../faq.rst:87
-msgid "For example: character animations stored in ``pack.mcal``."
-msgstr "Например: анимации персонажей хранятся в ``pack.mcal``."
-
-#: ../../faq.rst:88
-msgid "But each has just few frames, totaling around **~5,000** entries."
-msgstr "Но в каждом клипе всего несколько кадров, а всего около **~5000** записей."
-
-#: ../../faq.rst:90
+#: ../../source/faq.rst:101
 msgid ""
-"Unpacking is pointless, these are just broken-up animation fragments, not"
-" usable clips."
+"Malware authors also use PyInstaller, so low-quality antivirus engines "
+"flag **any** PyInstaller executable."
 msgstr ""
-"Распаковывать их бессмысленно, это всего лишь разбитые фрагменты "
-"анимации, а не готовые клипы."
+"Авторы вредоносного ПО также используют PyInstaller, поэтому "
+"низкокачественные антивирусные движки помечают **любые** файлы, собранные"
+" через PyInstaller."
 
-#: ../../faq.rst:91
+#: ../../source/faq.rst:105
+msgid "Q: Something doesn't work as expected"
+msgstr "В: Что-то не работает так, как ожидалось"
+
+#: ../../source/faq.rst:107
 msgid ""
-"Also, CLI can't handle them. They need paired model files, breaking "
-"current input logic."
+"If a file fails to convert, produces wrong output, or causes a crash, "
+"`open an issue <ISSUES_>`_."
 msgstr ""
-"Кроме того, CLI не может их обрабатывать. Им нужны парные файлы моделей, "
-"что нарушает текущую логику ввода."
+"Если файл не конвертируется, выдает неправильный результат или приводит к"
+" сбою, создайте `issue <ISSUES_>`_."
 
-#: ../../faq.rst:93
-msgid "*This might change in the future, but for now, there's no clear solution.*"
-msgstr "*В будущем это может измениться, но на данный момент нет четкого решения.*"
+#: ../../source/faq.rst:109
+msgid "Please include:"
+msgstr "Пожалуйста, включите:"
 
-#: ../../faq.rst:97
-msgid "Q: Why world map cache (``.mdat``) unsupported?"
-msgstr "В: Почему кеш карты (``.mdat``) не поддерживается?"
+#: ../../source/faq.rst:111
+msgid "**What happened**: error message, wrong output, etc."
+msgstr "**Что произошло**: сообщение об ошибке, неправильный результат, и тд."
 
-#: ../../faq.rst:99
+#: ../../source/faq.rst:112
+msgid "**What you expected**: correct output, different format, etc."
+msgstr "**Что вы ожидали**: правильный результат, другой формат, и тд."
+
+#: ../../source/faq.rst:113
 msgid ""
-"Structure resembles `minecraft chunk <MCA_>`_. But this format is too "
-"complex and possibly `AES Encrypted <AES_>`_."
+"**Which file (if any)**: attach file or describe path. Without it, bug "
+"cannot be reproduced."
 msgstr ""
-"Структура напоминает `чанки minecraft <MCA_>`_. Но этот формат похоже "
-"`зашифрован через AES <AES_>`_."
+"**Какой файл (если есть)**: приложите файл или укажите путь. Без него, баг "
+"не может быть воспроизведен."
 
-#: ../../faq.rst:100
-msgid ""
-"If you figure it out, feel free to contribute to `Pull Requests "
-"<https://github.com/onejeuu/sc-file/pulls>`_."
-msgstr ""
-"Если вы с ним разберетесь, не стесняйтесь вносить вклад в `Pull Requests "
-"<https://github.com/onejeuu/sc-file/pulls>`_."
+msgid "Reports without a file or clear description are hard to fix."
+msgstr "Репорты без файла или ясной описания сложнее исправить."
 
-#: ../../faq.rst:104
-msgid "Q: Why json bundle (``.xeon``) unsupported?"
-msgstr "В: Почему пакет json (``.xeon``) не поддерживается?"
-
-#: ../../faq.rst:106
-msgid "This format is `AES Encrypted <AES_>`_. This encryption is unbreakable."
-msgstr ""
-"Этот формат `зашифрован через AES <AES_>`_. Это шифрование невозможно "
-"взломать."
-
-#: ../../faq.rst:108
-msgid ""
-"If you have information about key (password) for game assets, would be "
-"nice to know details `in DM <TG_>`_."
-msgstr ""
-"Если у вас есть информация о ключе (пароле) для ассетов, было бы здорово "
-"узнать подробности в `ЛС <TG_>`_."
-
+msgid "The more details you provide, the faster is fix."
+msgstr "Чем больше деталей вы предоставите, тем быстрее это исправится."

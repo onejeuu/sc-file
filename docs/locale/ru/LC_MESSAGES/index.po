@@ -1,29 +1,21 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-01 15:15+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
-"Language-Team: ru <LL@li.org>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
 
-#: ../../index.rst:2
+#: ../../source/index.rst:2
 msgid "Index"
-msgstr "Индекс"
+msgstr "Главная"
 
-#: ../../index.rst:20
+#: ../../source/index.rst:20
 msgid "Overview"
 msgstr "Обзор"
 
-#: ../../index.rst:22
+#: ../../source/index.rst:22
 msgid ""
 "**scfile** is a utility and library for converting proprietary Stalcraft "
 "assets formats to standard ones."
@@ -31,191 +23,198 @@ msgstr ""
 "**scfile** это утилита и библиотека для конвертации проприетарных форматов "
 "ассетов игры Stalcraft в стандартные."
 
-#: ../../index.rst:24
+#: ../../source/index.rst:24
 msgid "This is an **unofficial** project and is **not affiliated** with EXBO."
 msgstr "Данный проект является **неофициальным** и **не аффилирован** с EXBO."
 
-#: ../../index.rst:27
+#: ../../source/index.rst:27
 msgid "✨ Supported Formats"
 msgstr "✨ Поддерживаемые форматы"
 
-#: ../../index.rst:30
+#: ../../source/index.rst:30
 msgid "Type"
 msgstr "Тип"
 
-#: ../../index.rst:31
+#: ../../source/index.rst:31
 msgid "Game formats"
-msgstr "Игровые форматы"
+msgstr "Форматы игры"
 
-#: ../../index.rst:32
+#: ../../source/index.rst:32
 msgid "Standard formats"
 msgstr "Стандартные форматы "
 
-#: ../../index.rst:33
+#: ../../source/index.rst:33
 msgid "🧊 **Model**"
 msgstr "🧊 **Модель**"
 
-#: ../../index.rst:36
+#: ../../source/index.rst:36
 msgid "🧱 **Texture**"
-msgstr "🧱 **Текстура**"
+msgstr ""
 
-#: ../../index.rst:39
+#: ../../source/index.rst:39
 msgid "🖼️ **Image**"
 msgstr "🖼️ **Изображение**"
 
-#: ../../index.rst:42
+#: ../../source/index.rst:42
 msgid "📦 **Archive**"
 msgstr "📦 **Архив**"
 
-#: ../../index.rst:45
-msgid "⚙️ **Data**"
-msgstr "⚙️ **Данные**"
+#: ../../source/index.rst:45
+msgid "🗺 **Region**"
+msgstr "🗺 **Регион**"
 
-#: ../../index.rst:49
+#: ../../source/index.rst:48
+msgid "⚙️ **NBT\\***"
+msgstr "⚙️ **NBT\\***"
+
+#: ../../source/index.rst:52
 msgid ""
 "\\* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, "
 "``sd0``, etc.)"
 msgstr "\\* ``NBT`` Относится к специфичным файлам (``itemnames.dat``, ``prefs``, ``sd0`` и т.д.)"
 
-#: ../../index.rst
-msgid "**Reverse conversion** (``standard`` → ``game``) **is not available.**"
-msgstr "**Обратная конвертация** (``стандартный`` → ``игровой``) **недоступна.**"
-
-#: ../../index.rst
-msgid "📚 :doc:`See FAQ for details → <faq>`"
-msgstr "📚 :doc:`Подробности в FAQ → <faq>`"
-
-#: ../../index.rst:60
+#: ../../source/index.rst:56
 msgid "📚 :doc:`Detailed formats support → <support>`"
 msgstr "📚 :doc:`Детальная информация о поддержке форматов → <support>`"
 
-#: ../../index.rst:65
-msgid "🚀 Quick Start"
-msgstr "🚀 Быстрый старт"
+#: ../../source/index.rst
+msgid "**Reverse conversion** (``standard`` → ``game``) **is not available.**"
+msgstr "**Обратная конвертация** (``стандартный`` → ``игровой``) **недоступна.**"
 
-#: ../../index.rst:67
+#: ../../source/index.rst
+msgid "📚 :doc:`See FAQ for details → <faq>`"
+msgstr "📚 :doc:`Подробности в FAQ → <faq>`"
+
+#: ../../source/index.rst:67
+msgid "🚀 Installation"
+msgstr "🚀 Установка"
+
+#: ../../source/index.rst:69
 msgid "**Three ways to get started:** download, install, or compile."
-msgstr "**Три способа начать:** скачать, установить или скомпилировать."
+msgstr "**Три способа начать:** скачать, установить, или скомпилировать."
 
-#: ../../index.rst:70
-msgid "1. 💻 Download executable"
-msgstr "1. 💻 Скачать исполняемый файл"
+#: ../../source/index.rst:72
+msgid "💻 Download executable"
+msgstr "💻 Скачать исполняемый файл"
 
-#: ../../index.rst:72
+#: ../../source/index.rst:74
 msgid ""
 "Standalone ``scfile.exe`` available on `Releases page "
 "<https://github.com/onejeuu/sc-file/releases>`_"
 msgstr ""
-"Standalone ``scfile.exe`` доступен на `странице Releases <https://github.com/onejeuu/sc-file/releases>`_"
+"Исполняемый файл ``scfile.exe`` доступен на `странице релизов "
+"<https://github.com/onejeuu/sc-file/releases>`_"
 
-#: ../../index.rst:73
+#: ../../source/index.rst:75
 msgid "*No Python required.*"
 msgstr "*Не требует установки Python.*"
 
-#: ../../index.rst:75 ../../index.rst:96
+#: ../../source/index.rst:77 ../../source/index.rst:96
 msgid "**Usage:**"
 msgstr "**Использование:**"
 
-#: ../../index.rst:77
+#: ../../source/index.rst:79
+msgid ""
+"🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical "
+"interface"
+msgstr "🖥️ **GUI**: запустите `scfile.exe` без аргументов для открытия графического интерфейса"
+
+#: ../../source/index.rst:80
 msgid "📥 **Drag & Drop**: drag file onto ``scfile.exe``"
 msgstr "📥 **Drag & Drop**: перетащите файл на ``scfile.exe``"
 
-#: ../../index.rst:78
-msgid "`What is drag and drop? <DND_>`_"
-msgstr "`Что такое drag and drop? <DND_>`_"
-
-#: ../../index.rst:79
+#: ../../source/index.rst:81
 msgid "🖱️ **Open With**: set as default app for supported formats"
-msgstr "🖱️ **Открыть с помощью**: установите приложением по умолчанию для поддерживаемых форматов"
+msgstr "🖱️ **Open With**: установите как приложение по умолчанию для поддерживаемых форматов"
 
-#: ../../index.rst:80
-msgid "`How to set default app (Windows)? <DEFAPP_>`_"
-msgstr "`Как установить приложение по умолчанию (Windows)? <DEFAPP_>`_"
-
-#: ../../index.rst:81
+#: ../../source/index.rst:82
 msgid "📟 **Command Line**: ``scfile.exe --help``"
 msgstr "📟 **Командная строка**: ``scfile.exe --help``"
 
-#: ../../index.rst
-msgid "`What is command line interface? <CLI_>`_"
-msgstr "`Что такое командный интерфейс? <CLI_>`_"
+#: ../../source/index.rst
+msgid "*Command example:* ``scfile.exe model.mcsb -F glb --skeleton``"
+msgstr "*Пример команды:* ``scfile.exe model.mcsb -F glb --skeleton``"
 
-#: ../../index.rst
-msgid "*Example:* ``scfile.exe model.mcsb -F glb --skeleton``"
-msgstr "*Пример:* ``scfile.exe model.mcsb -F glb --skeleton``"
+#: ../../source/index.rst
+msgid ""
+"*Options in example:* ``-F`` *picks model format,* ``--skeleton`` "
+"*extracts model armature.*"
+msgstr "*Опции в примере:* ``-F`` *выбирает формат модели,* ``--skeleton`` *извлекает скелет модели.*"
 
-#: ../../index.rst
-msgid "*Options:* ``-F`` *picks model format,* ``--skeleton`` *extracts armature.*"
-msgstr "*Опции:* ``-F`` *выбирает формат модели,* ``--skeleton`` *извлекает скелет и кости.*"
+#: ../../source/index.rst:87
+msgid "🐍 Install Python package"
+msgstr "🐍 Установить Python пакет"
 
-#: ../../index.rst:87
-msgid "2. 🐍 Install Python package"
-msgstr "2. 🐍 Установить Python пакет"
-
-#: ../../index.rst:89
+#: ../../source/index.rst:89
 msgid "**Install:**"
 msgstr "**Установка:**"
 
-#: ../../index.rst:98
+#: ../../source/index.rst:98
 msgid "📖 **Python library**: *See Library section*"
 msgstr "📖 **Python библиотека**: *См. раздел Библиотека*"
 
-#: ../../index.rst:99
+#: ../../source/index.rst:99
+msgid "🖥️ **GUI via package**: `scfile`"
+msgstr "🖥️ **GUI через пакет**: `scfile`"
+
+#: ../../source/index.rst:100
 msgid "📟 **CLI via package**: ``scfile --help``"
 msgstr "📟 **CLI через пакет**: ``scfile --help``"
 
-#: ../../index.rst:102
-msgid "3. 🔧 Compile from source"
-msgstr "3. 🔧 Скомпилировать из исходников"
+#: ../../source/index.rst:103
+msgid "🔧 Compile from source"
+msgstr "🔧 Скомпилировать из исходников"
 
-#: ../../index.rst:104
+#: ../../source/index.rst:105
 msgid "Build from source code using the :doc:`compile guide <compile>`."
-msgstr "Соберите из исходного кода, используя :doc:`руководство по сборке <compile>`."
+msgstr "Соберите из исходного кода, используя :doc:`Руководство по сборке <compile>`."
 
-#: ../../index.rst:105
+#: ../../source/index.rst:106
 msgid "*For developers, contributors, or custom builds.*"
 msgstr "*Для разработчиков, контрибьюторов или пользовательских сборок.*"
 
-#: ../../index.rst:110
+#: ../../source/index.rst:111
 msgid "📖 Library"
 msgstr "📖 Библиотека"
 
-#: ../../index.rst:112
+#: ../../source/index.rst:113
 msgid "**Install latest version:**"
 msgstr "**Установите последнюю версию:**"
 
-#: ../../index.rst:119
+#: ../../source/index.rst:120
 msgid "Usage example"
-msgstr "**Пример использования:**"
+msgstr "Пример использования"
 
-#: ../../index.rst:141
+#: ../../source/index.rst:144
 msgid "📚 :doc:`Complete Library API reference → <api/index>`"
-msgstr "📚 :doc:`Полное описание API библиотеки → <api/index>`"
+msgstr "📚 :doc:`Полная документация API → <api/index>`"
 
-#: ../../index.rst:146
+#: ../../source/index.rst:149
 msgid "🔗 Links"
 msgstr "🔗 Ссылки"
 
-#: ../../index.rst:148
+#: ../../source/index.rst:151
 msgid "``❓`` **Questions?** Check :doc:`FAQ <faq>` or `contact me <TG_>`_"
-msgstr "``❓`` **Есть вопросы?** Ознакомьтесь с :doc:`FAQ <faq>` или `свяжитесь со мной <TG_>`_"
+msgstr "``❓`` **Остались вопросы?** Ознакомьтесь с :doc:`FAQ <faq>` или `свяжитесь со мной <TG_>`_"
 
-#: ../../index.rst:149
+#: ../../source/index.rst:152
 msgid "``🐛`` **Found a bug?** `Open an issue <ISSUES_>`_"
 msgstr "``🐛`` **Нашли баг?** `Создайте issue <ISSUES_>`_"
 
-#: ../../index.rst:150
+#: ../../source/index.rst:153
 msgid "``💻`` **Download executable:** `Latest release <RELEASES_>`_"
 msgstr "``💻`` **Скачать исполняемый файл:** `Последний релиз <RELEASES_>`_"
 
-#: ../../index.rst:151
+#: ../../source/index.rst:154
 msgid "``🔧`` **Compile from source:** :doc:`Build guide <compile>`"
 msgstr "``🔧`` **Скомпилировать из исходников:** :doc:`Руководство по сборке <compile>`"
 
-#: ../../index.rst:156
+#: ../../source/index.rst:159
 msgid "🤝 Acknowledgments"
 msgstr "🤝 Благодарности"
 
-#: ../../index.rst:161
-msgid "Thanks to everyone who reported issues, shared findings, or contributed ideas."
+#: ../../source/index.rst:164
+msgid ""
+"Thanks to everyone who reported issues, shared findings, or contributed "
+"ideas."
 msgstr "Спасибо всем, кто сообщал об ошибках, делился находками или вносил идеи."

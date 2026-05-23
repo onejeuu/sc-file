@@ -38,6 +38,7 @@
 .. _TORRENT: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
 .. _ZSTD: https://en.wikipedia.org/wiki/Zstd
+.. _GZIP: https://en.wikipedia.org/wiki/Gzip
 .. _NBT: https://minecraft.wiki/w/NBT_format
 .. _ANVIL: https://minecraft.wiki/w/Anvil_file_format
 
