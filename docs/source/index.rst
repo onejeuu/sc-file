@@ -31,8 +31,8 @@ Overview
     - Game formats
     - Standard formats
   * - 🧊 **Model**
-    - ``.mcsb`` ``.mcsa`` ``.mcvd``
-    - ``.obj`` ``.glb`` ``.dae`` ``.ms3d``
+    - ``.mcsb`` ``.efkmodel``
+    - ``.obj`` ``.glb`` ``.dae`` ``.ms3d`` ``.fbx``
   * - 🧱 **Texture**
     - ``.ol``
     - ``.dds``
@@ -42,8 +42,11 @@ Overview
   * - 📦 **Archive**
     - ``.texarr``
     - ``.zip``
-  * - ⚙️ **Data**
-    - ``NBT``\*
+  * - 🗺 **Region**
+    - ``.mdat``
+    - ``.mca``
+  * - ⚙️ **NBT\***
+    - ``...``
     - ``.json``
 
 \* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, ``sd0``, etc.)
@@ -73,14 +76,12 @@ Overview
 
 **Usage:**
 
+- 🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical interface
 - 📥 **Drag & Drop**: drag file onto ``scfile.exe``
-   `What is drag and drop? <DND_>`_
 - 🖱️ **Open With**: set as default app for supported formats
-   `How to set default app (Windows)? <DEFAPP_>`_
 - 📟 **Command Line**: ``scfile.exe --help``
-   | `What is command line interface? <CLI_>`_
-   | *Example:* ``scfile.exe model.mcsb -F glb --skeleton``
-   | *Options:* ``-F`` *picks model format,* ``--skeleton`` *extracts model armature.*
+   | *Command example:* ``scfile.exe model.mcsb -F glb --skeleton``
+   | *Options in example:* ``-F`` *picks model format,* ``--skeleton`` *extracts model armature.*
 
 🐍 Install Python package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,6 +96,7 @@ Overview
 **Usage:**
 
 - 📖 **Python library**: *See Library section*
+- 🖥️ **GUI via package**: `scfile`
 - 📟 **CLI via package**: ``scfile --help``
 
 🔧 Compile from source
@@ -116,23 +118,25 @@ Overview
 
 
 .. code-block:: python
-  :caption: Usage example
+    :caption: Usage example
 
-  from scfile import convert, formats, Options
+    from scfile import convert, formats, Options
 
-  # Simple conversion (auto detect format by file suffix)
-  # User options to control parsing and export settings
-  convert.auto("model.mcsb", options=Options(skeleton=True))
+    # Simple conversion (auto detect format by file suffix)
+    # User options to control parsing and export settings
+    convert.auto("model.mcsb", options=Options(skeleton=True))
 
-  # Advanced control (manual decoding and data inspection)
-  # Context manager ensures proper resource cleanup
-  with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    # Access parsed scene data: meshes, bones
-    scene = mcsb.decode().scene
-    print(f"Model total vertices: {sum(m.count.vertices for m in scene.meshes)}")
+    # Advanced control (manual decoding and data inspection)
+    # Context manager ensures proper resource cleanup
+    with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
+        # Access parsed scene data: meshes, bones, etc
+        data = mcsb.decode()
+        print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
+        print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
+        print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
 
-    # Export to a specific standard format
-    mcsb.to_obj().save("output.obj")
+        # Export to a specific standard format
+        mcsb.to_obj().save("output.obj")
 
 
 .. seealso::

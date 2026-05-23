@@ -45,7 +45,7 @@
 
 | Type           | Game formats        | →   | Standard formats                    |
 | -------------- | ------------------- | --- | ----------------------------------- |
-| 🧊 **Model**   | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.fbx` `.dae` `.ms3d` |
+| 🧊 **Model**   | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.dae` `.ms3d` `.fbx` |
 | 🧱 **Texture** | `.ol`               | →   | `.dds`                              |
 | 🖼️ **Image**   | `.mic`              | →   | `.png`                              |
 | 📦 **Archive** | `.texarr`           | →   | `.zip`                              |

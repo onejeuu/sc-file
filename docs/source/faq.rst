@@ -17,8 +17,6 @@ Q: How to encode files back into game formats?
 1. **Cheating concerns**: Public reverse encoding would make creating hacks much easier, attracting unwanted attention and undermining this tool purpose.
 2. **Formats changes risk**: If modifying game files becomes too easy, developers might start encrypting or complicating their assets, making them inaccessible for everyone.
 
-**This tool supports research and creativity, not harming the game community.**
-
 
 Q: After game update ``%any_filename%`` no longer decodes!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -108,8 +106,9 @@ If a file fails to convert, produces wrong output, or causes a crash, `open an i
 
 Please include:
 
-- **What happened**: error message, wrong output, crash.
+- **What happened**: error message, wrong output, etc.
 - **What you expected**: correct output, different format, etc.
-- **Which file**: if possible, attach or describe path. Without it, bug cannot be reproduced.
+- **Which file (if any)**: attach file or describe path. Without it, bug cannot be reproduced.
 
-Reports without a file or clear description are hard to fix. The more details you provide, the faster is fix.
+| Reports without a file or clear description are hard to fix.
+| The more details you provide, the faster is fix.

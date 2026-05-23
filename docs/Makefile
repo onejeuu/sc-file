@@ -22,7 +22,7 @@ help:
 .PHONY: watch
 
 watch:
-    sphinx-autobuild docs/source docs/_build/html
+  sphinx-autobuild docs/source docs/_build/html
 
 apidoc:
 	sphinx-apidoc -o docs/source/api scfile/

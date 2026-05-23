@@ -205,7 +205,7 @@ Default
     └── vodka.dds
 
 
-Relative
+``--relative``
   .. code-block:: bash
 
     scfile "./assets" --output "./output" --relative
@@ -218,7 +218,7 @@ Relative
     └── items/vodka.dds
 
 
-Parent
+``--parent``
   .. code-block:: bash
 
     scfile "./assets" --output "./output" --parent
