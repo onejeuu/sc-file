@@ -20,7 +20,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
     signature = FileSignature.OL
     order = ByteOrder.BIG
 
-    def to_dds(self):
+    def as_dds(self):
         return self.convert_to(formats.dds.DdsEncoder)
 
     def parse(self):

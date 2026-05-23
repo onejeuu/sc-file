@@ -74,28 +74,30 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         self,
         encoder: Type[EncoderType],
         options: Optional[Options] = None,
+        output: Optional[IOStream] = None,
     ) -> EncoderType:
         """
         Decode and convert to given encoder format.
 
         Args:
             encoder: Encoder class to use for conversion.
-            options: Optional settings for encoder.
+            options: Optional settings for parsing.
+            output: Optional destination. File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
-            Encoder instance with ``encode()`` already called.
+            Clear encoder instance.
         """
 
         options = options or self.options
         data = self.decode()
-        enc = encoder(data, options)
-        enc.encode()
-        return enc
+
+        return encoder(data=data, options=options, output=output)
 
     def convert(
         self,
         encoder: Type[EncoderType],
         options: Optional[Options] = None,
+        output: Optional[IOStream] = None,
     ) -> bytes:
         """
         Decode and convert to given encoder format.
@@ -103,16 +105,14 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         Args:
             encoder: Encoder class to use for conversion.
             options: Optional settings for encoder.
+            output: Optional destination. File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
             Encoded file content as bytes.
         """
 
-        options = options or self.options
-        enc: EncoderType = self.convert_to(encoder, options)
-        content = enc.getvalue()
-        enc.close()
-        return content
+        with self.convert_to(encoder, options=options, output=output) as enc:
+            return enc.getvalue()
 
     def prelude(self) -> None:
         """Hook called before signature and parsing."""

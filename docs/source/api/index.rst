@@ -3,6 +3,11 @@
 
 The Reference API is divided into execution layers depending on the required control granularity.
 
+.. toctree::
+  :maxdepth: 2
+
+  usage/index
+
 
 High-Level Conversion (:mod:`scfile.convert`)
 ---------------------------------------------------------------
