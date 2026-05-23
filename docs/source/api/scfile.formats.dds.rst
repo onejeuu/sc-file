@@ -12,6 +12,7 @@ Encoder
 .. automodule:: scfile.formats.dds.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 

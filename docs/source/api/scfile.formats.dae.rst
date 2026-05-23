@@ -12,4 +12,5 @@ Encoder
 .. automodule:: scfile.formats.dae.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:

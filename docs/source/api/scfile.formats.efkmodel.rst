@@ -12,4 +12,5 @@ Decoder
 .. automodule:: scfile.formats.efkmodel.decoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:

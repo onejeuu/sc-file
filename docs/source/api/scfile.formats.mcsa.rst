@@ -12,6 +12,7 @@ Decoder
 .. automodule:: scfile.formats.mcsa.decoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 

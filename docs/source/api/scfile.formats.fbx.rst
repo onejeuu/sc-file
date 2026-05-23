@@ -12,6 +12,7 @@ Encoder
 .. automodule:: scfile.formats.fbx.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 

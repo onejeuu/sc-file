@@ -12,6 +12,7 @@ Decoder
 .. automodule:: scfile.formats.ol.decoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 

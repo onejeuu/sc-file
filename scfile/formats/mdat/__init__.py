@@ -5,6 +5,13 @@ MDAT Format.
 :Name: World Chunks Cache
 :Wiki: `<https://sc-file.rtfd.io/en/latest/formats.html#mdat-world-chunks-cache>`_
 :Co-authors: `<https://github.com/DeTTK>`_
+
+Example::
+
+    from scfile import formats
+
+    with formats.mdat.MdatDecoder("reg.0.0.mdat") as mdat:
+        data = mdat.decode()
 """
 
 from .decoder import MdatDecoder

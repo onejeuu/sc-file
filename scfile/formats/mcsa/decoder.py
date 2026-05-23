@@ -23,6 +23,8 @@ class MeshCounts:
 
 
 class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
+    """MCSA format decoder."""
+
     format = FileFormat.MCSA
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE

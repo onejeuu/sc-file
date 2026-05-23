@@ -12,7 +12,8 @@ Decoder
 .. automodule:: scfile.formats.nbt.decoder
   :members:
   :show-inheritance:
-   :undoc-members:
+  :inherited-members:
+  :undoc-members:
 
 IO
 ----------------------------

@@ -1,5 +1,5 @@
 class McsaUnits:
-    """Mcsa structures elements count."""
+    """MCSA structures elements count."""
 
     POSITIONS = 4
     TEXTURES = 2

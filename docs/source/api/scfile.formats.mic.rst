@@ -12,4 +12,5 @@ Decoder
 .. automodule:: scfile.formats.mic.decoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:

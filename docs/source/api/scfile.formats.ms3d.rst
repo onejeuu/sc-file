@@ -12,6 +12,7 @@ Encoder
 .. automodule:: scfile.formats.ms3d.encoder
   :members:
   :show-inheritance:
+  :inherited-members:
   :undoc-members:
 
 
