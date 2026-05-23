@@ -35,7 +35,7 @@
 | Character animation clips.
 | Used for retargeting animations between compatible armatures.
 
-``.efkmodel`` Effekseer Model
+``.efkmodel`` Effekseer Model (EFKMODEL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Geometry: Vertex positions, Normals, UV1, Polygons.
@@ -109,7 +109,7 @@
 ``.mdat`` World Chunks Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Based on ``.mca`` (`Minecraft Anvil <ANVIL_>`_) with extended world data.
+| Based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_) with extended world data.
 | Terrain chunks with blocks, metadata, lighting arrays and extra data.
 | Chunk data compressed with `ZSTD`_.
 | Format is not fully documented.

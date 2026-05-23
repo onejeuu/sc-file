@@ -41,7 +41,7 @@
     - ❌
     - ``1300ms``
   * - ``.fbx``
-    - `Autodesk <FBX_>`_
+    - `Autodesk Filmbox <FBX_>`_
     - ❌
     - ❌
     - ``70ms``
