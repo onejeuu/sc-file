@@ -69,7 +69,6 @@ class MapCacheTab(QWidget):
     def __init__(self):
         super().__init__()
 
-        # TODO: f5 support, mdats counter?
         self._setup_warnings()
         self._build_ui()
 
