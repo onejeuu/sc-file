@@ -1,0 +1,6 @@
+v4.3.0
+==========
+
+Added
+----------
+* ``McsaDecoder``: support for version ``12.0``.

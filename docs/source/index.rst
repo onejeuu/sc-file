@@ -13,6 +13,7 @@ Index
   compile
 
   api/index
+  v/index
 
 
 ----------------------------------------

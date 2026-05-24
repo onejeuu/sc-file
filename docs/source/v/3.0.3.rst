@@ -1,0 +1,8 @@
+v3.0.3
+==========
+
+Changed
+----------
+* Models: ``.obj`` export now includes mesh names as object group.
+* Models: float precision format set to constant.
+* Core: ``FileDecoder`` file opener mode made as property.

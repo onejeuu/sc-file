@@ -1,0 +1,13 @@
+v3.3.1
+==========
+
+Added
+----------
+* ``Ms3dBinEncoder``: MilkShape3D Binary encoder (``.ms3d``).
+* ``Ms3dAsciiEncoder``: MilkShape3D ASCII encoder (``.txt``).
+
+Changed
+----------
+* CLI: export now includes ``.obj`` and ``.txt``.
+* CLI: relocated to separate module.
+* Structures: model dataclass updated.

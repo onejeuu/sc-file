@@ -1,0 +1,8 @@
+v4.2.1
+==========
+
+Added
+----------
+* ``NbtDecoder``: new NBT decoder for ``itemnames.dat`` and synced configs.
+* ``JsonEncoder``: new encoder to ``.json``.
+* CLI: assigned emoji to ``--version`` output.

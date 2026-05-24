@@ -1,0 +1,9 @@
+v1.4.2
+==================================================
+
+Changed
+----------
+* ``ObjFile``: group name changed from ``<Root>`` to filename.
+* ``utils.func`` renamed to ``utils.convert``.
+* Reader enums extracted to ``scfile.reader.enums``.
+* DDS header relocated to ``dds_structure``.

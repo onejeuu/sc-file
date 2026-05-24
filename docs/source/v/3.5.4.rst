@@ -1,0 +1,10 @@
+v3.5.4
+==========
+
+Changed
+----------
+* ``ObjEncoder``: added material name (``usemtl``) to output.
+
+Fixed
+----------
+* CLI: corrected entrypoint, ``scfile`` command now works globally after ``pip install``.
