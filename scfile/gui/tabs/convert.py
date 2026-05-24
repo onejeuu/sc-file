@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent, QKeyEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -33,16 +33,21 @@ class ConverterTab(QWidget):
         super().__init__()
         self._setup_counter()
         self._setup_warnings()
+        self._setup_converter()
         self._build_ui()
 
     def _setup_counter(self):
-        self.counter = CountDispatcher()
-        self.counter.changed.connect(self._handle_counter)
+        self._counter = CountDispatcher()
+        self._counter.changed.connect(self._handle_counter)
 
     def _setup_warnings(self):
-        self.warnings = WarningsWidget()
-        self.warnings.add_rule(self._warn_gamedir)
-        self.warnings.add_rule(self._warn_collision)
+        self._warnings = WarningsWidget()
+        self._warnings.add_rule(self._warn_gamedir)
+        self._warnings.add_rule(self._warn_collision)
+
+    def _setup_converter(self):
+        self._converter: ConvertDispatcher | None = None
+        self._converter_thread: QThread | None = None
 
     def _warn_gamedir(self) -> str | None:
         custom = self.output_to_custom.isChecked()
@@ -53,7 +58,7 @@ class ConverterTab(QWidget):
 
         if any("modassets/assets" in path.as_posix() for path in targets):
             return Str.get("warn_game_dir")
-        if origin and self.counter.gamedir:
+        if origin and self._counter.gamedir:
             return Str.get("warn_game_dir")
 
     def _warn_collision(self) -> str | None:
@@ -131,7 +136,7 @@ class ConverterTab(QWidget):
         self.right.addStretch()
 
         # Warnings
-        self.right.addWidget(self.warnings)
+        self.right.addWidget(self._warnings)
 
         # Convert button
         self.convert = QPushButton(Str.get("btn_convert"))
@@ -332,14 +337,14 @@ class ConverterTab(QWidget):
         self._sync_warnings()
 
     def _sync_counter(self):
-        self.counter.refresh(
+        self._counter.refresh(
             sources=self._get_sources(),
             whitelist=self._get_suffixes(),
         )
 
     def _sync_button(self):
         has_sources = self.sources.count() > 0
-        has_targets = self.counter.busy or self.counter.count > 0
+        has_targets = self._counter.busy or self._counter.count > 0
         output_valid = self._get_output_valid()
         ok = has_sources and has_targets and output_valid
 
@@ -355,7 +360,7 @@ class ConverterTab(QWidget):
         self.convert.setCursor(Qt.CursorShape.PointingHandCursor if ok else Qt.CursorShape.ForbiddenCursor)
 
     def _sync_warnings(self):
-        self.warnings.update_state()
+        self._warnings.update_state()
 
     def _sync_output_widgets(self):
         custom = self.output_to_custom.isChecked()
@@ -405,12 +410,14 @@ class ConverterTab(QWidget):
             relative=self.output_tree.isChecked(),
         )
 
-        self._convert_dispatcher = ConvertDispatcher(sources=self._get_sources(), context=context)
-        self._convert_thread = workers.execute(
-            self._convert_dispatcher,
-            on_done=lambda: self.convert.setEnabled(True),
-        )
+        self._converter = ConvertDispatcher(sources=self._get_sources(), context=context)
+        self._converter_thread = workers.execute(self._converter, on_done=self._on_convert_finish)
         self.convert.setEnabled(False)
+
+    def _on_convert_finish(self):
+        self._converter = None
+        self._converter_thread = None
+        self.convert.setEnabled(True)
 
     def _browse_files(self):
         files, _ = QFileDialog.getOpenFileNames(self, Str.get("dialog_files"))
@@ -430,5 +437,9 @@ class ConverterTab(QWidget):
         super().keyPressEvent(event)
 
     def closeEvent(self, event: QCloseEvent):
-        self.counter.stop()
+        self._counter.stop()
+
+        if self._converter:
+            self._converter.stop()
+
         super().closeEvent(event)

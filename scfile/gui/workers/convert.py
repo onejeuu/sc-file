@@ -68,6 +68,10 @@ class ConvertDispatcher(Worker):
             output = str(self.context.output) if self.context.output else None
 
             for entry in files.walk(self.sources, whitelist=self.context.whitelist, parent=self.context.relative):
+                if self.thread().isInterruptionRequested():
+                    self.pool.clear()
+                    break
+
                 dst = files.destination(relpath=entry.relpath, relative=self.context.relative, output=output)
                 self.pool.start(ConvertTask(src=entry.path, dst=dst, options=self.context.options))
 
@@ -79,3 +83,9 @@ class ConvertDispatcher(Worker):
             self.pool.waitForDone()
             self.finished.emit()
             logger.done("Converting\n")
+
+    def stop(self):
+        self.pool.clear()
+        self.thread().requestInterruption()
+        self.thread().quit()
+        self.thread().wait()
