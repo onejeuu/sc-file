@@ -36,7 +36,7 @@
     - ❌
     - ``200ms``
   * - ``.ms3d``
-    - `MilkShape3D <MS3D_>`_
+    - `MilkShape 3D <MS3D_>`_
     - ✅
     - ❌
     - ``1300ms``

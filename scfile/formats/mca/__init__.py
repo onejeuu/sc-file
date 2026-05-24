@@ -4,7 +4,7 @@ MCA Format.
 :Name: **Minecraft Chunks Anvil**
 :Type: **🗺 Region Encoder**
 :Wiki: `<https://minecraft.wiki/w/Anvil_file_format>`_
-:Co-authors: `<https://github.com/DeTTK>`_
+:Co-authors: `<https://github.com/DeTTK>`_, BoJIwEbNuK7
 :Suffix: ``.mca``
 :Support: ``🧪 Experimental``
 :Features: ``Blocks``

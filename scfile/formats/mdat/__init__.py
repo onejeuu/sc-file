@@ -4,7 +4,7 @@ MDAT Format.
 :Name: **World Chunks Cache**
 :Type: **🗺 Region Decoder**
 :Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mdat-world-chunks-cache>`_
-:Co-authors: `<https://github.com/DeTTK>`_
+:Co-authors: `<https://github.com/DeTTK>`_, BoJIwEbNuK7
 :Suffix: ``.mdat``
 :Support: ``🧪 Experimental``
 :Features: ``Blocks``
