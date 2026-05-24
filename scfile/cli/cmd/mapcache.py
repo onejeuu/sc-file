@@ -1,82 +1,26 @@
 import os
-from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Callable, Iterable, TypeAlias
 
 import click
 from rich import print
 
-from scfile import formats, types
+from scfile import types
 from scfile.cli import params
-from scfile.core import RegionContent, Options
+from scfile.core import Options
 from scfile.enums import CliCommand, L
+from scfile.utils import regions
 
 from . import scfile
 
 
-RegionKey: TypeAlias = tuple[int, int]
-RegionsMapping = dict[RegionKey, list[types.Path]]
-LogCallback = Callable[[str], None]
+def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: Options):
+    try:
+        filename, chunks = regions.merge(key, paths, output, options)
+        print(L.DONE, f"{filename} merged {chunks} chunks")
 
-
-def merge(
-    item: tuple[RegionKey, list[types.Path]],
-    output: types.Path,
-    options: Options,
-    on_done: LogCallback | None = None,
-    on_error: LogCallback | None = None,
-) -> None:
-    _done = on_done or (lambda msg: print(L.DONE, msg))
-    _error = on_error or (lambda msg: print(L.ERROR, msg))
-
-    (rx, rz), paths = item
-
-    merged = RegionContent()
-    seen: set[int] = set()
-
-    for path in paths:
-        try:
-            with formats.mdat.MdatDecoder(path, options) as mdat:
-                region = mdat.decode()
-
-            for chunk in region.chunks:
-                if chunk.index not in seen:
-                    merged.chunks.append(chunk)
-                    seen.add(chunk.index)
-
-        except Exception as err:
-            _error(f"{path.name} - {err}")
-
-    merged.rx = rx
-    merged.rz = rz
-    filename = f"r.{rx}.{rz}.mca"
-    target = output / filename
-
-    if target.exists():
-        backup = target.with_suffix(".mca.bck")
-        if not backup.exists():
-            target.rename(backup)
-
-    with formats.mca.McaEncoder(data=merged, options=options) as mca:
-        mca.encode()
-        mca.save(target)
-
-    _done(f"{filename} merged {len(merged.chunks)} chunks")
-
-
-def parse_regions(paths: Iterable[Path]) -> RegionsMapping:
-    regions: RegionsMapping = defaultdict(list)
-
-    for path in paths:
-        try:
-            rx, rz = map(int, path.stem.removeprefix("reg.").removeprefix("r.").split("."))
-            regions[(rx, rz)].append(path)
-
-        except ValueError:
-            continue
-
-    return regions
+    except regions.RegionFileError as err:
+        print(L.ERROR, repr(err))
 
 
 @scfile.command(name=CliCommand.MAPCACHE)
@@ -116,31 +60,31 @@ def mapcache_command(
         "Expect broken visuals up close. Full compatibility is unlikely.[/]",
     )
 
-    if not output:
-        output = source.with_name(f"{source.name}_mca")
-        output.mkdir(parents=True, exist_ok=True)
-
-    mdats = [path for path in source.rglob("*.mdat") if path.stat().st_size > 0 and ".bck" not in str(path)]
+    mdats = regions.resolve(source)
     if not mdats:
         print(L.ERROR, f"No MDAT files found in '{source}'")
         return
 
-    regions = parse_regions(mdats)
+    mapping = regions.parse(mdats)
 
-    if not regions:
+    if not mapping:
         print(L.ERROR, f"No valid regions found in '{source}'")
         return
 
-    print(L.INFO, f"Found {len(regions)} unique regions")
+    if not output:
+        output = source.with_name(f"{source.name}_mca")
+        output.mkdir(parents=True, exist_ok=True)
+
+    print(L.INFO, f"Found {len(mapping)} unique regions")
     print(L.INFO, "Starting merge...")
 
     options = Options(chunks_raw=raw)
 
     if workers is not None and workers <= 0:
-        for item in regions.items():
-            merge(item, output, options)
+        for key, paths in mapping.items():
+            _merge(key, paths, output, options)
 
     else:
         max_workers = (workers or os.cpu_count() or 4) * 2
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            executor.map(lambda item: merge(item, output, options), regions.items())
+            executor.map(lambda key, paths: _merge(key, paths, output, options), mapping.items())

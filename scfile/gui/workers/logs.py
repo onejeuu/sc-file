@@ -13,6 +13,9 @@ class _Logger(QObject):
     def done(self, msg: str) -> None:
         self.message.emit(f"{L.DONE} {msg}")
 
+    def aborted(self, msg: str) -> None:
+        self.message.emit(f"{L.ABORTED} {msg}")
+
     def error(self, msg: str) -> None:
         self.message.emit(f"{L.ERROR} {msg}")
 

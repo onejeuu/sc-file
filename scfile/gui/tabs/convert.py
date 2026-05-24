@@ -24,8 +24,8 @@ from scfile.gui.shared.consts import FT
 from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import PathInputWidget, SourcesWidget, WarningsWidget
-from scfile.gui.workers.convert import ConvertContext, ConvertDispatcher
-from scfile.gui.workers.counter import CountDispatcher
+from scfile.gui.workers.convert import ConvertContext, ConvertWorker
+from scfile.gui.workers.counter import CounterWorker
 
 
 class ConverterTab(QWidget):
@@ -37,7 +37,7 @@ class ConverterTab(QWidget):
         self._build_ui()
 
     def _setup_counter(self):
-        self._counter = CountDispatcher()
+        self._counter = CounterWorker()
         self._counter.changed.connect(self._handle_counter)
 
     def _setup_warnings(self):
@@ -46,7 +46,7 @@ class ConverterTab(QWidget):
         self._warnings.add_rule(self._warn_collision)
 
     def _setup_converter(self):
-        self._converter: ConvertDispatcher | None = None
+        self._converter: ConvertWorker | None = None
         self._converter_thread: QThread | None = None
 
     def _warn_gamedir(self) -> str | None:
@@ -410,7 +410,7 @@ class ConverterTab(QWidget):
             relative=self.output_tree.isChecked(),
         )
 
-        self._converter = ConvertDispatcher(sources=self._get_sources(), context=context)
+        self._converter = ConvertWorker(sources=self._get_sources(), context=context)
         self._converter_thread = workers.execute(self._converter, on_done=self._on_convert_finish)
         self.convert.setEnabled(False)
 

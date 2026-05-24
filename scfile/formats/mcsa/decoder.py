@@ -118,19 +118,17 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.UV]:
             self.data.scene.scale.filtering = self._readb(F.F32)
 
-        # Default origins
         if self.data.version >= 10.0:
             mesh.bounds.min = self._readarray(F.F32, 3)
             mesh.bounds.max = self._readarray(F.F32, 3)
 
-        # Default scale
         if self.data.version >= 11.0:
             mesh.bounds.radius = self._readb(F.F32)
 
         # Vertices geometric
         self._parse_positions(mesh, counts.vertices)
 
-        # Texture coordinates (Atlas)
+        # Texture coordinates (atlas)
         if self.data.flags[Flag.UV]:
             self._parse_uv1(mesh, counts.vertices)
 
@@ -220,7 +218,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             mesh.links_ids, mesh.links_weights = links
 
         else:
-            self.skip(count * 4)
+            self.skip(count * 8)
 
     def _parse_skeleton(self):
         self.ctx["COUNT_BONES"] = self._readb(F.U8)

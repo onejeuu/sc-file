@@ -102,3 +102,26 @@ class InvalidStructureError(FileError):
 
     def __str__(self):
         return f"{super().__str__()} parsing failed{f' at position {self.position}' if self.position else ''}."
+
+
+class RegionError(ScFileException):
+    """Base exception for region operations."""
+
+    pass
+
+
+@dataclass
+class RegionFileError(RegionError):
+    """Raised when a region file fails to decode."""
+
+    path: str
+
+    def __str__(self):
+        return f"Region '{self.path}'"
+
+
+class MergeInterrupted(RegionError):
+    """Raised when region merge is interrupted by user."""
+
+    def __str__(self):
+        return "Merge interrupted"

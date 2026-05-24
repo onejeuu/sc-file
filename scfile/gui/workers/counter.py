@@ -8,7 +8,7 @@ from scfile.utils import files
 from .logs import logger
 
 
-class CountWorker(QObject):
+class CounterTask(QObject):
     status = Signal(int, int, bool)
 
     def __init__(self):
@@ -54,7 +54,7 @@ class CountWorker(QObject):
             logger.message.emit(traceback.format_exc())
 
 
-class CountDispatcher(QObject):
+class CounterWorker(QObject):
     changed = Signal(str, int, bool)
     requested = Signal(int, list, tuple)
 
@@ -66,11 +66,11 @@ class CountDispatcher(QObject):
         self._request_id = 0
 
         self._thread = QThread()
-        self._worker = CountWorker()
-        self._worker.moveToThread(self._thread)
+        self._task = CounterTask()
+        self._task.moveToThread(self._thread)
 
-        self.requested.connect(self._worker.count)
-        self._worker.status.connect(self._on_done)
+        self.requested.connect(self._task.count)
+        self._task.status.connect(self._on_done)
         self._thread.start()
 
     @property
@@ -88,8 +88,8 @@ class CountDispatcher(QObject):
     def refresh(self, sources: list[str], whitelist: types.FilesWhitelist):
         self._request_id += 1
 
-        self._worker.request_id = self._request_id
-        self._worker.abort = True
+        self._task.request_id = self._request_id
+        self._task.abort = True
 
         if not sources:
             self._apply(count=0, gamedir=False, busy=False)
@@ -111,6 +111,6 @@ class CountDispatcher(QObject):
 
     def stop(self):
         if self._thread and self._thread.isRunning():
-            self._worker.abort = True
+            self._task.abort = True
             self._thread.quit()
             self._thread.wait()
