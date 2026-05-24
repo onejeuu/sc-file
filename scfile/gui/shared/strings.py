@@ -32,7 +32,7 @@ class Strings:
         "btn_add_folder": {"EN": "+ Folder", "RU": "+ Папка"},
         "btn_convert": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
         "btn_merge_regions": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
-        "opt_output_default": {"EN": "Same folder as original", "RU": "Рядом с оригинальным файлом"},
+        "opt_output_default": {"EN": "Alongside source file", "RU": "Рядом с оригинальным файлом"},
         "opt_output_flat": {"EN": "Single flat folder", "RU": "В одну плоскую папку"},
         "opt_output_tree": {"EN": "Keep subfolder structure", "RU": "Сохранять структуру подпапок"},
         "placeholder_path": {"EN": "Specify path...", "RU": "Укажите путь..."},

@@ -1,6 +1,5 @@
 import os
 import traceback
-from collections import defaultdict
 from pathlib import Path
 
 from PySide6.QtCore import QRunnable, QThreadPool
