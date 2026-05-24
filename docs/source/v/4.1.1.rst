@@ -1,6 +1,7 @@
 v4.1.1
-==========
+======
 
-Optimized
-----------
+⚡ Optimized
+------------
+
 * ``ObjEncoder``: export optimization (450ms → 170ms).

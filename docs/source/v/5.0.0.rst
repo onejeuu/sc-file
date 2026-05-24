@@ -6,7 +6,7 @@ v5.0.0
 
 GUI
 ~~~~
-* Added Graphical interface (``PySide6``). Launches when arguments is empty.
+* Added Graphical interface (``PySide6``). Launches when no arguments given.
 * ``ConverterTab``: drag & drop, file type filters, output structure options.
 * ``MapCacheTab``: ``.mdat`` to ``.mca`` conversion with threading.
 * ``VersionWidget``: update check popup with GitHub release lookup.
@@ -21,11 +21,11 @@ CLI
 
 Formats
 ~~~~~~~
-* ``EfkmodelDecoder``: source format ``.efkmodel`` (geometry only).
-* ``FbxEncoder``: output format ``.fbx`` (geometry only).
-* ``MdatDecoder``: source format ``.mdat`` (world regions).
-* ``McaEncoder``: output format ``.mca`` (anvil regions).
-* ``McalDecoder``: source format ``.mcal`` (animation library, no export).
+* ``EfkmodelDecoder``: new source format ``.efkmodel`` (geometry only).
+* ``McalDecoder``: new source format ``.mcal`` (animation library, no export).
+* ``MdatDecoder``: new source format ``.mdat`` (world regions).
+* ``McaEncoder``: new output format ``.mca`` (anvil regions).
+* ``FbxEncoder``: new output format ``.fbx`` (geometry only).
 * NBT encoding utilities in ``nbt.nbt`` (``encode``, ``compound``, ``list``, etc.).
 * Block ID mapping table for Anvil format in ``mca.mapping``.
 
@@ -103,7 +103,7 @@ Tests
 --------
 
 * ``McsaDecoder``: UV2 and Tangents parsing (export only in ``.glb``).
-* ``GlbEncoder``: Meshes without skinning links when skeleton present.
+* ``GlbEncoder``: binary data on meshes without skinning links when skeleton present.
 
 
 🗑️ Removed
