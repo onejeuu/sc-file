@@ -24,8 +24,8 @@ def execute(worker: Worker, on_done=None) -> QThread:
         worker.finished.connect(on_done)
 
     worker.finished.connect(thread.quit)
-    worker.finished.connect(worker.deleteLater)
-    thread.finished.connect(thread.deleteLater)
+    # worker.finished.connect(worker.deleteLater)
+    # thread.finished.connect(thread.deleteLater)
 
     _THREADS.add(thread)
     thread.finished.connect(lambda t=thread: _THREADS.discard(t))

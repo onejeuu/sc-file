@@ -49,7 +49,7 @@ class ConvertTask(QRunnable):
             logger.message.emit(traceback.format_exc())
 
 
-class ConvertDispatcher(Worker):
+class ConvertWorker(Worker):
     def __init__(
         self,
         sources: list[str],
@@ -82,7 +82,11 @@ class ConvertDispatcher(Worker):
         finally:
             self.pool.waitForDone()
             self.finished.emit()
-            logger.done("Converting\n")
+
+            if self.thread().isInterruptionRequested():
+                logger.aborted("Converting\n")
+            else:
+                logger.done("Converting\n")
 
     def stop(self):
         self.pool.clear()

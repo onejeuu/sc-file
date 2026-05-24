@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.core import Options
@@ -70,12 +71,17 @@ class MapCacheTab(QWidget):
         super().__init__()
 
         self._setup_warnings()
+        self._setup_merger()
         self._build_ui()
 
     def _setup_warnings(self):
         self.warnings = WarningsWidget()
         self.warnings.add_rule(self._warn_not_minecraft_world)
         self.warnings.add_rule(self._warn_overwrite)
+
+    def _setup_merger(self):
+        self._merger: MapCacheWorker | None = None
+        self._merger_thread: QThread | None = None
 
     def _warn_not_minecraft_world(self):
         if not bool(self.output.text().strip()):
@@ -181,11 +187,13 @@ class MapCacheTab(QWidget):
 
         self.merge.setEnabled(False)
 
-        self._merge_worker = MapCacheWorker(source, output, options)
-        self._merge_thread = workers.execute(
-            self._merge_worker,
-            on_done=lambda: self.merge.setEnabled(True),
-        )
+        self._merger = MapCacheWorker(source, output, options)
+        self._merger_thread = workers.execute(self._merger, on_done=self._on_merge_finish)
+
+    def _on_merge_finish(self):
+        self._merger = None
+        self._merger_thread = None
+        self.merge.setEnabled(True)
 
     def _on_source_changed(self):
         path = Path(self.source.text().strip())
@@ -233,3 +241,9 @@ class MapCacheTab(QWidget):
         self.merge.setEnabled(is_okay)
         self.merge.setToolTip(tooltip)
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
+
+    def closeEvent(self, event: QCloseEvent):
+        if self._merger:
+            self._merger.stop()
+
+        super().closeEvent(event)

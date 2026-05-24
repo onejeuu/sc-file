@@ -117,6 +117,7 @@ class ConsoleLabel(StrEnum):
     HINT = "[b cyan]HINT:[/]"
     DONE = "[b green]DONE:[/]"
     WARN = "[b yellow]WARN:[/]"
+    ABORTED = "[b yellow]ABORTED:[/]"
     ERROR = "[b red]ERROR:[/]"
     INVALID = "[b red]INVALID INPUT:[/]"
     EXCEPTION = "[b red]UNEXPECTED ERROR:[/]"
