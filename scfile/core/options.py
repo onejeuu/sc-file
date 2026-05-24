@@ -25,8 +25,11 @@ class Options:
     animation: bool = False
     """Decode and Encode built-in animation clips from models."""
 
-    chunks_raw: bool = False
+    raw_blocks: bool = False
     """Keep raw block IDs in chunks data without lookup table replacement."""
+
+    full_chunk: bool = False
+    """Parse (no export) full chunk data including metadata."""
 
     on_conflict: OnConflict = "overwrite"
     """

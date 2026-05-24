@@ -71,7 +71,7 @@ class McaEncoder(FileEncoder[RegionContent]):
         self.write(b"".join(payload))
 
     def _chunk(self, cx: int, cz: int, chunk: RegionChunk) -> bytes:
-        blocks = chunk.blocks if self.options.chunks_raw else chunk.blocks.translate(BLOCKS_MAPPING)
+        blocks = chunk.blocks if self.options.raw_blocks else chunk.blocks.translate(BLOCKS_MAPPING)
         mask = chunk.header.blocks_mask
 
         sections: list[bytes] = []
