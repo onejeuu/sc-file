@@ -1,0 +1,6 @@
+v3.4.1
+==========
+
+Fixed
+----------
+* ``DaeEncoder``: removed non-functional test skeleton from scenes.

@@ -1,0 +1,18 @@
+v3.5.0
+==========
+
+Added
+----------
+* ``McsaDecoder``: support for version ``11.0``.
+* ``OlDecoder``: support for all mipmap levels.
+
+Changed
+----------
+* CLI: ``--output`` option now accepts only a directory.
+* CLI: ``convert.auto()`` now exports to ``.obj`` and ``.ms3d``.
+* Textures: saved in raw format (no ``RGBA8`` conversion).
+* ``McsaDecoder``: bone links parsing disabled (pending output format support).
+
+Removed
+----------
+* Textures: ``RGBA32F`` support dropped (used in 1 asset file).

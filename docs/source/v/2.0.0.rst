@@ -1,0 +1,19 @@
+v2.0.0
+==========
+
+Added
+----------
+* Models: support for all known versions.
+* Models: safety limits against memory overflow on corrupted files.
+* Textures: support for all known formats.
+* CLI: accepts multiple files at once.
+
+Changed
+----------
+* Core: internal API updated.
+* Structures: model data changed from ``dict`` to ``list``.
+* Models: skeleton parsing disabled (pending output format support).
+
+Optimized
+----------
+* Models: processing up to 10x faster in common cases.

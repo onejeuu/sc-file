@@ -1,0 +1,10 @@
+v3.1.0
+==========
+
+Added
+----------
+* Models: partial support for ``.mcvd`` format (no animations).
+
+Changed
+----------
+* Core: internal API improvements.

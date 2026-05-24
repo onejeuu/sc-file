@@ -1,0 +1,13 @@
+v3.0.0
+==========
+
+Added
+----------
+* Models: support for vertex normals.
+* Textures: support for normalmap textures.
+* Textures: format conversions ``BGRA8`` / ``RGBA32F`` / ``DXN_XY`` to ``RGBA8``.
+* Testing: basic pytest coverage added.
+
+Changed
+----------
+* Core: internal API rewritten from scratch.

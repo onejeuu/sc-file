@@ -1,0 +1,144 @@
+v5.0.0
+======
+
+✨ Added
+--------
+
+GUI
+~~~~
+* Added Graphical interface (``PySide6``). Launches when arguments is empty.
+* ``ConverterTab``: drag & drop, file type filters, output structure options.
+* ``MapCacheTab``: ``.mdat`` to ``.mca`` conversion with threading.
+* ``VersionWidget``: update check popup with GitHub release lookup.
+
+CLI
+~~~
+* **New command structure:** ``scfile convert`` and ``scfile mapcache``.
+* ``scfile.__main__``: automatically runs ``convert`` when a file or directory is given as first argument.
+* ``--updates`` flag for version check.
+* ``--on-conflict`` (``overwrite``/``rename``/``skip``).
+* ``params`` module with click types: ``Files``, ``Output``, ``MapCacheDir``, ``Formats``, ``OnConflict``.
+
+Formats
+~~~~~~~
+* ``EfkmodelDecoder``: source format ``.efkmodel`` (geometry only).
+* ``FbxEncoder``: output format ``.fbx`` (geometry only).
+* ``MdatDecoder``: source format ``.mdat`` (world regions).
+* ``McaEncoder``: output format ``.mca`` (anvil regions).
+* ``McalDecoder``: source format ``.mcal`` (animation library, no export).
+* NBT encoding utilities in ``nbt.nbt`` (``encode``, ``compound``, ``list``, etc.).
+* Block ID mapping table for Anvil format in ``mca.mapping``.
+
+Core
+~~~~
+* ``StructIO``: single class (replaces ``StructBytesIO``/``StructFileIO``).
+* ``BaseFile``: unified binary stream adapter (supports path, bytes, IO).
+* ``FileDecoder.prelude()`` hook (replaces ``prepare``).
+* ``FileDecoder.convert_to`` now accepts ``output`` parameter (``IOStream``).
+* ``FileEncoder.transform()`` hook and transforms pipeline.
+* ``RegionContent`` container for world chunks.
+* ``TexarrContent`` (renamed from ``TextureArrayContent``).
+* ``RegionChunk``, ``ChunkHeader`` structures.
+* ``ModelContent`` fields: ``uv2``, ``tangents``, ``colors``.
+
+Models
+~~~~~~
+* ``transforms`` module: scene transformation functions.
+* ``ModelMesh`` fields: ``uv2``, ``tangents``, ``colors``, ``link_space``, ``uv_origin``, ``uv_sign``, ``max_influences``.
+* ``ModelSkeleton`` fields: ``space``, ``hierarchy``.
+* ``AnimationClip``: replaced ``transforms`` with ``rotations`` and ``translations``.
+* ``SkeletonBone`` property ``slug``.
+* **New Enums:** ``UVOrigin``, ``UVSign``, ``LinkSpace``, ``SkeletonSpace``, ``SkeletonHierarchy``, ``AnimationTranslation``, ``AnimationRotation``.
+* **New Type Aliases:** ``EulerAngles``, ``TransformMatrix``, ``BindPose``, etc.
+
+Convert
+~~~~~~~
+* Converter registry: ``converters()`` and ``registry()`` functions; ``@converter`` decorator registers format pairs.
+
+Utils
+~~~~~
+* New package ``scfile.utils``.
+* ``files``: ``resource()``, ``resolve()``, ``walk()``, ``destination()``.
+* ``versions``: ``Version`` dataclass with parsing and comparison.
+* ``updates``: update checking against GitHub API.
+* ``cli``: callbacks ``version_callback``, ``updates_callback``.
+
+
+📝 Changed
+----------
+
+Core
+~~~~
+* ``UserOptions`` renamed to ``Options``.
+* ``UserOptions.parse_skeleton`` → ``Options.skeleton``.
+* ``UserOptions.parse_animation`` → ``Options.animation``.
+* ``UserOptions.overwrite`` replaced by ``Options.on_conflict``.
+* ``FileDecoder.prepare()`` renamed to ``prelude()``.
+* ``FileEncoder.save_as()``, ``export_as()`` now return ``Self``.
+
+CLI
+~~~
+* ``scfile`` command moved to ``scfile.cli.cmd`` with ``click.group``.
+* Version callback moved to ``scfile.utils.cli``.
+* ``--unique`` flag replaced by ``--on-conflict rename``.
+
+Formats
+~~~~~~~
+* **Model Decoders**: syntactic sugar ``to_XXX()`` replaced by ``as_XXX()``. Now they return empty encoder, ``encode()`` must be called explicitly.
+* **Model Decoders**: replaced ``prepare()`` with transforms list.
+* ``GlbEncoder._add_meshes`` now writes ``uv2`` and ``tangents`` when present.
+* ``DaeEncoder._add_controller_sources`` now checks ``max_influences > 0``.
+* ``McsaFileIO._links`` normalizes bone weights.
+
+Consts
+~~~~~~
+* ``NBT_FILENAMES`` renamed to ``SUPPORTED_NBT``.
+
+Tests
+~~~~~
+* Coverage except ``scfile.gui`` now 100%.
+
+
+🐛 Fixed
+--------
+
+* ``McsaDecoder``: UV2 and Tangents parsing (export only in ``.glb``).
+* ``GlbEncoder``: Meshes without skinning links when skeleton present.
+
+
+🗑️ Removed
+----------
+
+* CLI Flag ``--unique``.
+* ``FileFormat.ITEMNAMES`` (uses ``NBT``).
+* ``McsaBoneLinksError`` (silent fallback).
+* ``scfile.cli.commands.py``, ``scfile.cli.types.py``, ``scfile.cli.utils.py``.
+* ``SceneCounts``, ``MeshCounts``.
+* ``structures.types``.
+* ``enums.FileMode``.
+
+
+♻️ Refactored
+--------------
+
+Structure
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Moved ``core.io`` package to ``core.structio``.
+* Moved ``core.context`` package to ``core.content`` and ``core.options``.
+* Moved ``animation``, ``mesh``, ``skeleton``, ``scene``, ``flags``, ``vectors`` into ``structures.models``.
+* Moved ``consts.McsaUnits`` into ``formats.mcsa.consts``.
+* Moved ``consts.OlString`` into ``formats.ol.io``.
+* Merged ``StructBytesIO`` and ``StructFileIO`` into single ``StructIO`` class.
+* Split ``AnimationClip.transforms`` into ``rotations`` and ``translations``.
+* Removed ``convert.legacy`` (merged back into ``convert.formats``).
+
+Rename
+~~~~~~~~~~~~~~~~~~~~~~~~
+* ``ModelMesh.positions`` → ``vertices``.
+* ``ModelMesh.textures`` → ``uv1``.
+* ``TextureArrayContent`` → ``TexarrContent``.
+* ``TextureArrayDecoder`` → ``TexarrDecoder``.
+* ``TextureArrayEncoder`` → ``TexarrEncoder``.
+* ``NbtBytesIO`` → ``NbtBufferIO``.
+* ``McsaModel`` → ``ModelDefaults``.
+* ``MeshOrigin`` → ``MeshBounds``.
