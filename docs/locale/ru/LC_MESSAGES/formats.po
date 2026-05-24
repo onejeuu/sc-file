@@ -147,8 +147,8 @@ msgid "Previously used for game GUI."
 msgstr "Ранее использовалось в основном для GUI игры."
 
 #: ../../source/formats.rst:96
-msgid "📦 Archive Formats"
-msgstr "📦 Архив"
+msgid "📦 TextureArray Formats"
+msgstr "📦 TextureArray"
 
 #: ../../source/formats.rst:101
 msgid "Container for ``.dds`` textures."

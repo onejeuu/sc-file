@@ -1,9 +1,12 @@
 """
 DDS Format.
 
-:Type: Texture Encoder
-:Name: DirectDraw Surface
+:Name: **DirectDraw Surface**
+:Type: **🧱 Texture Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/DirectDraw_Surface>`_
+:Suffix: ``.dds``
+:Support: ``✅ Full``
+:Features: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_XY`` (``ATI2``), ``RGBA32F`` (``DX10``)
 
 Example::
 

@@ -1,10 +1,13 @@
 """
 MDAT Format.
 
-:Type: Region Decoder
-:Name: World Chunks Cache
-:Wiki: `<https://sc-file.rtfd.io/en/latest/formats.html#mdat-world-chunks-cache>`_
+:Name: **World Chunks Cache**
+:Type: **🗺 Region Decoder**
+:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mdat-world-chunks-cache>`_
 :Co-authors: `<https://github.com/DeTTK>`_
+:Suffix: ``.mdat``
+:Support: ``🧪 Experimental``
+:Features: ``Blocks``
 
 Example::
 

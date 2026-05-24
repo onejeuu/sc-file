@@ -360,7 +360,7 @@ def texarr_to_zip(
     options: Optional[Options] = None,
 ):
     """
-    Converts archive from ``.texarr`` to ``.zip`` format.
+    Converts texture array from ``.texarr`` to ``.zip`` format.
 
     Arguments:
         source: Path to source ``.texarr`` file.

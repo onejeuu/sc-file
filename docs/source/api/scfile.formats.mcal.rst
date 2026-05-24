@@ -1,22 +1,16 @@
-scfile.formats.mcal package
+🧊 MCAL
 ===========================
 
-Submodules
-----------
+.. automodule:: scfile.formats.mcal
+  :show-inheritance:
+  :undoc-members:
 
-scfile.formats.mcal.decoder module
+
+Decoder
 ----------------------------------
 
 .. automodule:: scfile.formats.mcal.decoder
-   :members:
-   :show-inheritance:
-   :inherited-members:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: scfile.formats.mcal
-   :members:
-   :show-inheritance:
-   :undoc-members:
+  :members:
+  :show-inheritance:
+  :inherited-members:
+  :undoc-members:

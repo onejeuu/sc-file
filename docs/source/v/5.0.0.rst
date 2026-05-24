@@ -23,7 +23,7 @@ Formats
 ~~~~~~~
 * ``EfkmodelDecoder``: new source format ``.efkmodel`` (geometry only).
 * ``McalDecoder``: new source format ``.mcal`` (animation library, no export).
-* ``MdatDecoder``: new source format ``.mdat`` (world regions).
+* ``MdatDecoder``: new source format ``.mdat`` (cache regions).
 * ``McaEncoder``: new output format ``.mca`` (anvil regions).
 * ``FbxEncoder``: new output format ``.fbx`` (geometry only).
 * NBT encoding utilities in ``nbt.nbt`` (``encode``, ``compound``, ``list``, etc.).
@@ -33,13 +33,12 @@ Core
 ~~~~
 * ``StructIO``: single class (replaces ``StructBytesIO``/``StructFileIO``).
 * ``BaseFile``: unified binary stream adapter (supports path, bytes, IO).
-* ``FileDecoder.prelude()`` hook (replaces ``prepare``).
 * ``FileDecoder.convert_to`` now accepts ``output`` parameter (``IOStream``).
 * ``FileEncoder.transform()`` hook and transforms pipeline.
 * ``RegionContent`` container for world chunks.
-* ``TexarrContent`` (renamed from ``TextureArrayContent``).
 * ``RegionChunk``, ``ChunkHeader`` structures.
 * ``ModelContent`` fields: ``uv2``, ``tangents``, ``colors``.
+* ``FileEncoder``, ``FileDecoder``: ``prelude()`` hook.
 
 Models
 ~~~~~~
@@ -61,6 +60,7 @@ Utils
 * ``files``: ``resource()``, ``resolve()``, ``walk()``, ``destination()``.
 * ``versions``: ``Version`` dataclass with parsing and comparison.
 * ``updates``: update checking against GitHub API.
+* ``regions``: region merging from scattered map cache files.
 * ``cli``: callbacks ``version_callback``, ``updates_callback``.
 
 
@@ -73,14 +73,7 @@ Core
 * ``UserOptions.parse_skeleton`` → ``Options.skeleton``.
 * ``UserOptions.parse_animation`` → ``Options.animation``.
 * ``UserOptions.overwrite`` replaced by ``Options.on_conflict``.
-* ``FileDecoder.prepare()`` renamed to ``prelude()``.
 * ``FileEncoder.save_as()``, ``export_as()`` now return ``Self``.
-
-CLI
-~~~
-* ``scfile`` command moved to ``scfile.cli.cmd`` with ``click.group``.
-* Version callback moved to ``scfile.utils.cli``.
-* ``--unique`` flag replaced by ``--on-conflict rename``.
 
 Formats
 ~~~~~~~
@@ -103,13 +96,13 @@ Tests
 --------
 
 * ``McsaDecoder``: UV2 and Tangents parsing (export only in ``.glb``).
-* ``GlbEncoder``: binary data on meshes without skinning links when skeleton present.
+* ``GlbEncoder``: binary data on meshes without skinning links when skeleton presented.
 
 
 🗑️ Removed
 ----------
 
-* CLI Flag ``--unique``.
+* CLI Flag ``--unique`` (replaced by ``--on-conflict rename``).
 * ``FileFormat.ITEMNAMES`` (uses ``NBT``).
 * ``McsaBoneLinksError`` (silent fallback).
 * ``scfile.cli.commands.py``, ``scfile.cli.types.py``, ``scfile.cli.utils.py``.

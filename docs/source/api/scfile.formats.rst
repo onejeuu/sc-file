@@ -15,6 +15,7 @@ Modules
 
   scfile.formats.mcsa
   scfile.formats.mcsb
+  scfile.formats.mcal
   scfile.formats.efkmodel
   scfile.formats.obj
   scfile.formats.glb

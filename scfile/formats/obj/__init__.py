@@ -1,9 +1,12 @@
 """
 OBJ Format.
 
-:Type: Model Encoder
-:Name: Wavefront OBJ
+:Name: **Wavefront OBJ**
+:Type: **🧊 Model Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
+:Suffix: ``.obj``
+:Support: ``✅ Full``
+:Features: ``Geometry``
 
 Example::
 

@@ -1,4 +1,4 @@
-from scfile.utils.versions import Version, parse
+from scfile.utils.versions import Version
 
 
 def test_string():
@@ -45,15 +45,12 @@ def test_emoji():
 
 
 def test_parse():
-    assert parse("1.2.3") == Version(1, 2, 3)
-    assert parse("v1.2.3") == Version(1, 2, 3)
-    assert parse("1.2.3-dev") == Version(1, 2, 3, "dev")
-    assert parse("0.0.0") == Version(0, 0, 0)
-    assert parse(" 1.2.3 ") == Version(1, 2, 3)
-
-
-def test_parse_invalid():
-    assert parse("abc") is None
-    assert parse("") is None
-    assert parse("1.2") is None
-    assert parse("v1.2.3.4") is None
+    assert Version.parse("1.2.3") == Version(1, 2, 3)
+    assert Version.parse("v1.2.3") == Version(1, 2, 3)
+    assert Version.parse("1.2.3-dev") == Version(1, 2, 3, "dev")
+    assert Version.parse("0.0.0") == Version(0, 0, 0)
+    assert Version.parse(" 1.2.3 ") == Version(1, 2, 3)
+    assert Version.parse("abc") is None
+    assert Version.parse("") is None
+    assert Version.parse("1.2") is None
+    assert Version.parse("v1.2.3.4") is None

@@ -1,3 +1,5 @@
+"""Region merging from scattered map cache files."""
+
 import threading
 from collections import defaultdict
 from pathlib import Path
@@ -19,6 +21,7 @@ class MergeResult(NamedTuple):
 
 
 def resolve(source: Path) -> list[Path]:
+    """Collect valid .mdat files from a directory."""
     return [path for path in source.rglob("*.mdat") if path.stat().st_size > 0 and ".bck" not in str(path)]
 
 
@@ -29,6 +32,8 @@ def merge(
     options: Options,
     cancelled: CancelEvent,
 ) -> MergeResult:
+    """Merge multiple map chunks into single region file."""
+
     merged = RegionContent()
     seen: set[int] = set()
 
@@ -67,6 +72,8 @@ def merge(
 
 
 def parse(paths: Iterable[Path]) -> RegionsMapping:
+    """Group .mdat paths by region coordinates."""
+
     regions: RegionsMapping = defaultdict(list)
 
     for path in paths:

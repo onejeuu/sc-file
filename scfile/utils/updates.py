@@ -1,3 +1,5 @@
+"""Application updates checking."""
+
 import json
 import urllib.request
 from typing import Any, NamedTuple
@@ -5,7 +7,8 @@ from typing import Any, NamedTuple
 from scfile import __repository__ as REPO
 from scfile.enums import UpdateStatus as Status
 
-from . import files, versions
+from . import files
+from .versions import Version
 
 
 TIMEOUT = 5
@@ -17,7 +20,7 @@ class UpdateCheck(NamedTuple):
     url: str
 
 
-def fetch(url: str) -> dict[str, Any] | None:
+def _fetch(url: str) -> dict[str, Any] | None:
     headers = {"User-Agent": f"{REPO}", "Cache-Control": "no-cache"}
 
     try:
@@ -30,6 +33,8 @@ def fetch(url: str) -> dict[str, Any] | None:
 
 
 def current() -> str | None:
+    """Read local commit SHA from bundled file."""
+
     try:
         commit = files.resource("commit")
         if commit.exists():
@@ -41,13 +46,13 @@ def current() -> str | None:
     return None
 
 
-def _check_dev(v: versions.Version) -> UpdateCheck:
+def _check_dev(v: Version) -> UpdateCheck:
     sha = current()
     if not sha:
         url = f"https://github.com/{REPO}/releases/tag/{v.tag}"
         return UpdateCheck(Status.ERROR, "local commit sha not found", url)
 
-    data = fetch(f"https://api.github.com/repos/{REPO}/commits/{v.tag}")
+    data = _fetch(f"https://api.github.com/repos/{REPO}/commits/{v.tag}")
     if not data:
         return UpdateCheck(Status.ERROR, "network error", "")
 
@@ -58,13 +63,13 @@ def _check_dev(v: versions.Version) -> UpdateCheck:
     return UpdateCheck(Status.UPTODATE, "", "")
 
 
-def _check_release(v: versions.Version) -> UpdateCheck:
-    data = fetch(f"https://api.github.com/repos/{REPO}/releases/latest")
+def _check_release(v: Version) -> UpdateCheck:
+    data = _fetch(f"https://api.github.com/repos/{REPO}/releases/latest")
     if data is None:
         return UpdateCheck(Status.ERROR, "network error", "")
 
     tag = data.get("tag_name", "")
-    remote_v = versions.parse(tag)
+    remote_v = Version.parse(tag)
     if not remote_v:
         return UpdateCheck(Status.ERROR, f"invalid remote version format '{tag}'", "")
 
@@ -75,11 +80,13 @@ def _check_release(v: versions.Version) -> UpdateCheck:
 
 
 def check(semver: str) -> UpdateCheck:
-    v = versions.parse(semver)
+    """Check GitHub for a newer version."""
+
+    v = Version.parse(semver)
     if not v:
         return UpdateCheck(Status.ERROR, f"invalid version format '{semver}'", "")
 
-    if "dev" in str(v.suffix).lower():
+    if v.is_dev:
         return _check_dev(v)
 
     return _check_release(v)

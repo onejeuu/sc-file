@@ -1,3 +1,5 @@
+"""Basic file and path operations."""
+
 import os
 import sys
 from pathlib import Path
@@ -9,6 +11,8 @@ from scfile.consts import ALLOWED_SUFFIXES
 def resource(
     path: types.PathLike,
 ) -> types.Path:
+    """Resolve resource path, accounting for MEIPASS environment variable."""
+
     meipass = getattr(sys, "_MEIPASS", None)
 
     if meipass:
@@ -23,6 +27,8 @@ def resource(
 def resolve(
     sources: types.FilesSources,
 ) -> types.FilesPaths:
+    """Normalize paths into a clean minimal set."""
+
     paths = list(map(Path, sources))
     resolved = sorted({path.resolve() for path in paths if path.exists()})
 
@@ -39,6 +45,8 @@ def walk(
     whitelist: types.FilesWhitelist | None = None,
     parent: bool = False,
 ) -> types.FilesWalk:
+    """Walk through files in given sources, optionally filtering by whitelist."""
+
     paths = resolve(sources)
     paths = list(map(str, paths))
     whitelist = tuple(whitelist or ALLOWED_SUFFIXES)
@@ -63,6 +71,7 @@ def walk(
                     for entry in it:
                         if entry.is_dir():
                             stack.append(entry.path)
+
                         elif entry.is_file():
                             if entry.name.lower().endswith(whitelist):
                                 yield types.FileEntry(
@@ -80,6 +89,9 @@ def destination(
     relative: bool,
     output: str | None,
 ) -> str | None:
+    """Resolve destination path based on options."""
+
     if relative and output:
         return os.path.join(output, os.path.dirname(relpath))
+
     return output

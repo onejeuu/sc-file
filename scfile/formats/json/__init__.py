@@ -1,9 +1,11 @@
 """
 JSON Format.
 
-:Type: NBT Encoder
-:Name: JavaScript Object Notation
+:Name: **JavaScript Object Notation**
+:Type: **⚙️ NBT Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/JSON>`_
+:Suffix: ``.json``
+:Support: ``✅ Full``
 
 Example::
 

@@ -92,7 +92,7 @@
 
 
 ----------------------------------------
-📦 Archive Formats
+📦 TextureArray Formats
 ----------------------------------------
 
 ``.texarr`` Texture Array (TEXARR.bt_)
