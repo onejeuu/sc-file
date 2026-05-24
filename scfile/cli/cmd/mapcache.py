@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from rich import print
 
-from scfile import types
+from scfile import exceptions, types
 from scfile.cli import params
 from scfile.core import Options
 from scfile.enums import CliCommand, L
@@ -16,10 +16,10 @@ from . import scfile
 
 def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: Options):
     try:
-        filename, chunks = regions.merge(key, paths, output, options)
+        filename, chunks = regions.merge(key, paths, output, options, cancelled=None)
         print(L.DONE, f"{filename} merged {chunks} chunks")
 
-    except regions.RegionFileError as err:
+    except exceptions.RegionFileError as err:
         print(L.ERROR, repr(err))
 
 
@@ -87,4 +87,5 @@ def mapcache_command(
     else:
         max_workers = (workers or os.cpu_count() or 4) * 2
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            executor.map(lambda key, paths: _merge(key, paths, output, options), mapping.items())
+            for key, paths in mapping.items():
+                executor.submit(_merge, key, paths, output, options)
