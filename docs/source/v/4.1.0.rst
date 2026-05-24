@@ -1,23 +1,29 @@
 v4.1.0
-==========
+======
 
-Added
-----------
-* ``TextureArrayDecoder``: new decoder for ``.texarr`` archives.
-* ``TextureArrayEncoder``: new encoder to ``.zip``.
+✨ Added
+--------
+
+* ``TextureArrayDecoder``: source format ``.texarr``.
+* ``TextureArrayEncoder``: output format ``.zip``.
 * ``convert.texarr_to_zip``: new converter.
-* Templates: launcher torrent binary template.
 
-Changed
+
+📝 Changed
 ----------
+
 * ``GlbEncoder``: single bind matrix.
 * ``GlbEncoder``: position accessor bounds.
-* ``scfile.formats``: package imports improved.
+* `scfile.formats``: package imports improved.
 
-Fixed
-----------
-* ``GlbEncoder``: handle meshes without skinning links when skeleton present.
 
-Optimized
-----------
+🐛 Fixed
+--------
+
+* ``GlbEncoder``: gltf on meshes without skinning links when skeleton present.
+
+
+⚡ Optimized
+------------
+
 * ``StructIO``: read array optimization (``.mcsa`` parsing 53ms → 8ms).

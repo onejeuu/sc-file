@@ -1,31 +1,40 @@
 v4.0.0
-==========
+======
 
-Added
-----------
-* ``GlbEncoder``: glTF Binary encoder (``.glb``).
+✨ Added
+--------
+
+* ``GlbEncoder``: new encoder to ``.glb``.
 * ``McsaDecoder``, ``GlbEncoder``: skeleton support (``--skeleton`` flag).
-* ``McsaDecoder``, ``GlbEncoder``: built-in animation clips support (``--animation`` flag).
-* ``OlCubemapDecoder``: full cubemap texture support (``--cubemap`` flag).
+* ``McsaDecoder``, ``GlbEncoder``: built-in skeleton animation support (``--animation`` flag).
+* ``OlCubemapDecoder``: new decoder for cubemap textures.
 * ``OlDecoder``: ``RGBA32F`` (DX10) format support.
 * CLI: ``--parent`` flag.
 
-Changed
+
+📝 Changed
 ----------
-* CLI: improved exception handling, unexpected errors no longer interrupt batch processing.
-* CLI: cubemap textures fall back from standard to cubemap on decode failure.
-* CLI: ``--model-formats`` renamed to ``--mdlformat``.
-* CLI: ``--hdri`` flag renamed to ``--cubemap``.
-* CLI: ``--no-overwrite`` flag renamed to ``--unique``.
-* CLI: default model format changed to ``.obj``.
-* CLI: default model format with ``--skeleton`` changed to ``.glb``.
+
+CLI
+~~~
+* Exception handling: unexpected errors no longer interrupt batch processing.
+* Cubemap textures: fallback from standard to cubemap on decode failure.
+* ``--model-formats`` renamed to ``--mdlformat``.
+* ``--hdri`` renamed to ``--cubemap``.
+* ``--no-overwrite`` renamed to ``--unique``.
+* Default model format changed to ``.obj``.
+* Default model format with ``--skeleton`` changed to ``.glb``.
+
+Core
+~~~~
+* ``FileDecoder.validate()`` renamed to ``validate_signature()``.
+* ``FileDecoder.convert_to()`` and ``convert()`` now accept ``options: UserOptions`` parameter.
 * ``FileDecoder``, ``FileEncoder``: removed content reset on ``close()``.
 * ``FileContent``: new property ``type: FileType``.
 * ``FileFormat``: new property ``suffix: str``.
-* ``FileDecoder``: ``validate()`` renamed to ``validate_signature()``.
-* ``FileDecoder``: ``convert_to()`` and ``convert()`` now accept ``options: UserOptions`` parameter.
 
-Optimized
-----------
-* ``McsaDecoder``: ``StructIO`` read array optimization, parsing ~12x faster.
-* CLI: ``files_map`` replaced with iterator, eliminating startup delay on large folders.
+⚡ Optimized
+------------
+
+* ``McsaDecoder``: ``StructIO`` read array optimization (parsing ~12x faster).
+* CLI: ``files_map`` replaced with iterator (eliminated startup delay on large folders).

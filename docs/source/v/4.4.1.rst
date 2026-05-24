@@ -1,6 +1,8 @@
 v4.4.1
-==========
+======
 
-Fixed
-----------
-* ``GlbEncoder``: fixed polygon quads.
+🐛 Fixed
+--------
+
+* ``McsaDecoder``: polygon count now properly updated after quad to triangle conversion.
+* ``GlbEncoder``: fixed incorrect geometry when processing quads.

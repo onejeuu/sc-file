@@ -1,6 +1,7 @@
 v4.1.2
-==========
+======
 
-Added
-----------
-* CLI: usage hint on empty input.
+✨ Added
+--------
+
+* CLI: usage hint when no arguments given.

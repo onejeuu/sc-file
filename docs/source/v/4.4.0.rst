@@ -1,7 +1,13 @@
 v4.4.0
-==========
+======
 
-Fixed
-----------
-* ``McsaDecoder``: fixed polygon quads in version ``12.0``.
-* ``McsaDecoder``: fixed flags parsing (no export of UV2 and tangents).
+✨ Added
+--------
+
+* ``McsaDecoder``: support for polygon quads in model version 12.0.
+
+🐛 Fixed
+--------
+
+* ``McsaDecoder``: version specific flag sets (7.0, 8.0, 9.0+).
+* ``McsaDecoder``: quads now converted to triangles.
