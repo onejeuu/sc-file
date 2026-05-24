@@ -8,7 +8,8 @@ from scfile import types
 from scfile.consts import Text
 from scfile.enums import L, UpdateStatus
 
-from . import updates, versions
+from . import updates
+from .versions import Version
 
 
 def check_feature_unsupported(
@@ -31,7 +32,7 @@ def version_callback(
     if not value:
         return
 
-    version = versions.parse(SEMVER)
+    version = Version.parse(SEMVER)
 
     print(f"scfile, version {str(version)} {version.emoji if version else ''}")
     print(Text.FORMATS)

@@ -1,9 +1,12 @@
 """
 MS3D Format.
 
-:Type: Model Encoder
-:Name: MilkShape 3D
+:Name: **MilkShape 3D**
+:Type: **🧊 Model Encoder**
 :Wiki: `<https://developer.valvesoftware.com/wiki/MilkShape_3D>`_
+:Suffix: ``.ms3d``
+:Support: ``⚠️ Partial``
+:Features: ``Geometry``, ``Skeleton``
 
 Example::
 

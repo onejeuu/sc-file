@@ -1,9 +1,11 @@
 """
 PNG Format.
 
-:Type: Image Encoder
-:Name: Portable Network Graphics
+:Name: **Portable Network Graphics**
+:Type: **🖼️ Image Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/PNG>`_
+:Suffix: ``.png``
+:Support: ``✅ Full``
 
 Example::
 

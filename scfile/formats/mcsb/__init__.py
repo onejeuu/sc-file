@@ -1,9 +1,12 @@
 """
 MCSB Format.
 
-:Type: Model Decoder
-:Name: Scene Bundle
-:Wiki: `<https://sc-file.rtfd.io/en/latest/formats.html#mcsb-scene-bundle-mcsa-bt>`_
+:Name: **Scene Bundle**
+:Type: **🧊 Model Decoder**
+:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcsb-scene-bundle-mcsa-bt>`_
+:Suffix: ``.mcsb``
+:Support: ``✅ Full``
+:Features: ``Geometry``, ``Skeleton``, ``Animation``
 
 Example::
 

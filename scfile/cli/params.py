@@ -1,5 +1,5 @@
 """
-Data types for CLI wrapper.
+Click parameter types for commands.
 """
 
 import click

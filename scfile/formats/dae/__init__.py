@@ -1,9 +1,12 @@
 """
 DAE Format.
 
-:Type: Model Encoder
-:Name: COLLADA
+:Name: **COLLADA**
+:Type: **🧊 Model Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/COLLADA>`_
+:Suffix: ``.dae``
+:Support: ``⚠️ Partial``
+:Features: ``Geometry``, ``Skeleton``
 
 Example::
 

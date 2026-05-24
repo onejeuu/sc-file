@@ -23,12 +23,12 @@ def _fake_urlopen(body: Any, status: int = 200):
 
 def test_fetch_ok():
     with patch("urllib.request.urlopen", _fake_urlopen({"key": "val"})):
-        assert updates.fetch("http://x") == {"key": "val"}
+        assert updates._fetch("http://x") == {"key": "val"}
 
 
 def test_fetch_error():
     with patch("urllib.request.urlopen", side_effect=Exception):
-        assert updates.fetch("http://x") is None
+        assert updates._fetch("http://x") is None
 
 
 def test_check_invalid():
@@ -43,45 +43,45 @@ def test_check_dev_no_sha():
 
 def test_check_dev_network_error():
     with patch.object(updates, "current", return_value="abc123"):
-        with patch.object(updates, "fetch", return_value=None):
+        with patch.object(updates, "_fetch", return_value=None):
             check = updates.check("1.0.0-dev")
             assert check.status == Status.ERROR
 
 
 def test_check_dev_uptodate():
     with patch.object(updates, "current", return_value="abc123"):
-        with patch.object(updates, "fetch", return_value={"sha": "abc123"}):
+        with patch.object(updates, "_fetch", return_value={"sha": "abc123"}):
             check = updates.check("1.0.0-dev")
             assert check.status == Status.UPTODATE
 
 
 def test_check_dev_available():
     with patch.object(updates, "current", return_value="abc123"):
-        with patch.object(updates, "fetch", return_value={"sha": "def456"}):
+        with patch.object(updates, "_fetch", return_value={"sha": "def456"}):
             check = updates.check("1.0.0-dev")
             assert check.status == Status.AVAILABLE
 
 
 def test_check_release_network_error():
-    with patch.object(updates, "fetch", return_value=None):
+    with patch.object(updates, "_fetch", return_value=None):
         check = updates.check("1.0.0")
         assert check.status == Status.ERROR
 
 
 def test_check_release_invalid_remote():
-    with patch.object(updates, "fetch", return_value={"tag_name": "bad"}):
+    with patch.object(updates, "_fetch", return_value={"tag_name": "bad"}):
         check = updates.check("1.0.0")
         assert check.status == Status.ERROR
 
 
 def test_check_release_uptodate():
-    with patch.object(updates, "fetch", return_value={"tag_name": "v1.0.0"}):
+    with patch.object(updates, "_fetch", return_value={"tag_name": "v1.0.0"}):
         check = updates.check("1.0.0")
         assert check.status == Status.UPTODATE
 
 
 def test_check_release_available():
-    with patch.object(updates, "fetch", return_value={"tag_name": "v2.0.0"}):
+    with patch.object(updates, "_fetch", return_value={"tag_name": "v2.0.0"}):
         check = updates.check("1.0.0")
         assert check.status == Status.AVAILABLE
 

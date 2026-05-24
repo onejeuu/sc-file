@@ -40,7 +40,7 @@ Overview
   * - 🖼️ **Image**
     - ``.mic``
     - ``.png``
-  * - 📦 **Archive**
+  * - 📦 **TextureArray**
     - ``.texarr``
     - ``.zip``
   * - 🗺 **Region**

@@ -1,9 +1,12 @@
 """
 FBX Format.
 
-:Type: Model Encoder
-:Name: Autodesk Filmbox
+:Name: **Autodesk Filmbox**
+:Type: **🧊 Model Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/FBX>`_
+:Suffix: ``.fbx``
+:Support: ``⚠️ Partial``
+:Features: ``Geometry``
 
 Example::
 

@@ -7,7 +7,7 @@ from scfile.enums import UpdateStatus
 from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Colors, Styles
 from scfile.gui.workers.updates import UpdatesWorker
-from scfile.utils import versions
+from scfile.utils.versions import Version
 
 from .link import LinkWidget
 
@@ -94,7 +94,7 @@ class VersionWidget(QWidget):
         self.main_layout.setSpacing(0)
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-        v = versions.parse(SEMVER)
+        v = Version.parse(SEMVER)
         tag = v.tag if v else SEMVER
 
         self.text_label = QLabel(tag)

@@ -1,9 +1,11 @@
 """
 ZIP Format.
 
-:Type: Texture Array Encoder
-:Name: ZIP
+:Name: **ZIP**
+:Type: **📦 TextureArray Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/ZIP_(file_format)>`_
+:Suffix: ``.zip``
+:Support: ``✅ Full``
 
 Example::
 

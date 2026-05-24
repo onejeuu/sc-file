@@ -1,9 +1,12 @@
 """
 GLB Format.
 
-:Type: Model Encoder
-:Name: gLTF (Graphics Library Transmission Format)
+:Name: **glTF Binary**
+:Type: **🧊 Model Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/GlTF>`_
+:Suffix: ``.glb``
+:Support: ``✅ Full``
+:Features: ``Geometry``, ``Skeleton``, ``Animation``
 
 Example::
 

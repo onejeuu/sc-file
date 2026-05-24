@@ -8,6 +8,8 @@ def test_strings():
     assert str(exceptions.FileNotFound("test.txt"))
     assert str(exceptions.UnsupportedFormatError("test.txt", ".xyz"))
     assert str(exceptions.InvalidSignatureError("test.txt", b"\x00", b"\x01"))
+    assert str(exceptions.RegionFileError("reg.0.0.mdat"))
+    assert str(exceptions.MergeInterrupted())
     assert str(McsaCountsLimit("model.mcsa", "vertices", 0x7FFFFFFF))
     assert str(McsaVersionUnsupported("model.mcsa", 99.0))
     assert str(Ms3dCountsLimit("vertices", 0x7FFFFFFF, 512))

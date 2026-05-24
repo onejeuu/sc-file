@@ -1,9 +1,10 @@
 """
 NBT Format.
 
-:Type: NBT Decoder
-:Name: Named Binary Tag
+:Name: **Named Binary Tag**
+:Type: **⚙️ NBT Decoder**
 :Wiki: `<https://minecraft.wiki/w/NBT_format>`_
+:Support: ``✅ Full``
 
 Example::
 

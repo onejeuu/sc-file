@@ -1,9 +1,12 @@
 """
 EFKMODEL Format.
 
-:Type: Model Decoder
-:Name: Effekseer Model
-:Wiki: `<https://sc-file.rtfd.io/en/latest/formats.html#efkmodel-effekseer-model-efkmodel-bt>`_
+:Name: **Effekseer Model**
+:Type: **🧊 Model Decoder**
+:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#efkmodel-effekseer-model-efkmodel-bt>`_
+:Suffix: ``.efkmodel``
+:Support: ``⚠️ Partial``
+:Features: ``Geometry``
 
 Example::
 

@@ -106,8 +106,8 @@ msgid "Only difference from standard PNG is the file signature."
 msgstr "Единственное различие от стандартного PNG это сигнатура файла."
 
 #: ../../source/support.rst:122
-msgid "📦 Archive Formats"
-msgstr "📦 Архивы"
+msgid "📦 TextureArray Formats"
+msgstr "📦 TextureArray"
 
 #: ../../source/support.rst:127
 msgid "Output: ``.zip`` (`ZIP <ZIP_>`_)"

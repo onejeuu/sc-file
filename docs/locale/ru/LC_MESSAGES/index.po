@@ -56,8 +56,8 @@ msgid "🖼️ **Image**"
 msgstr "🖼️ **Изображение**"
 
 #: ../../source/index.rst:42
-msgid "📦 **Archive**"
-msgstr "📦 **Архив**"
+msgid "📦 **TextureArray**"
+msgstr "📦 **TextureArray**"
 
 #: ../../source/index.rst:45
 msgid "🗺 **Region**"
