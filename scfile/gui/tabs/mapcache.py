@@ -183,7 +183,7 @@ class MapCacheTab(QWidget):
     def _merge(self):
         source = Path(self.source.text().strip())
         output = Path(self.output.text().strip())
-        options = Options(chunks_raw=self.raw_blocks.isChecked())
+        options = Options(raw_blocks=self.raw_blocks.isChecked())
 
         self.merge.setEnabled(False)
 

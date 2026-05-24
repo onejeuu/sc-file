@@ -78,7 +78,7 @@ def mapcache_command(
     print(L.INFO, f"Found {len(mapping)} unique regions")
     print(L.INFO, "Starting merge...")
 
-    options = Options(chunks_raw=raw)
+    options = Options(raw_blocks=raw)
 
     if workers is not None and workers <= 0:
         for key, paths in mapping.items():
