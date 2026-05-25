@@ -40,7 +40,7 @@ jobs:
           enable-cache: true
 
       - name: Build Binary
-        run: uv run --group build scripts/build.py
+        run: uv run --group build --extra gui scripts/build.py
 
       - name: Prepare Artifact
         shell: bash

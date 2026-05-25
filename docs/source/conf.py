@@ -55,7 +55,7 @@ language = "en"
 html_theme = "sphinx_book_theme"
 html_css_files = ["custom.css"]
 html_static_path = ["_static"]
-html_extra_path = ["data"]
+html_extra_path = [""]
 
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
