@@ -30,24 +30,31 @@ Overview
 
   * - Type
     - Game formats
+    - →
     - Standard formats
   * - 🧊 **Model**
     - ``.mcsb`` ``.efkmodel``
+    - →
     - ``.obj`` ``.glb`` ``.dae`` ``.ms3d`` ``.fbx``
   * - 🧱 **Texture**
     - ``.ol``
+    - →
     - ``.dds``
   * - 🖼️ **Image**
     - ``.mic``
+    - →
     - ``.png``
   * - 📦 **TextureArray**
     - ``.texarr``
+    - →
     - ``.zip``
   * - 🗺 **Region**
     - ``.mdat``
+    - →
     - ``.mca``
   * - ⚙️ **NBT\***
     - ``...``
+    - →
     - ``.json``
 
 \* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, ``sd0``, etc.)
