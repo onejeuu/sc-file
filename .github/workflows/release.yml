@@ -114,7 +114,7 @@ jobs:
           generate_release_notes: true
           body: |
             ## `${{ steps.meta.outputs.date }}` `${{ steps.meta.outputs.time }}`
-            ${{ steps.meta.outputs.prerelease == 'true' && '' }}
+            ${{ steps.meta.outputs.prerelease == 'true' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and not tested.' || '' }}
           files: |
