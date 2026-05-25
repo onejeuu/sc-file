@@ -98,7 +98,8 @@ Overview
 
 .. code-block:: bash
 
-  pip install sc-file
+  pip install sc-file        # library + cli
+  pip install sc-file[gui]   # library + cli + gui
 
 
 **Usage:**

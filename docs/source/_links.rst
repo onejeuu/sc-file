@@ -16,7 +16,6 @@
 
 .. Media Files
 .. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
-.. _ANIMSLIST: https://github.com/onejeuu/sc-file/blob/master/docs/source/data/anims.rst?plain=1
 
 .. Wikipedia General
 .. _AES: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard

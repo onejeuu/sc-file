@@ -3,19 +3,33 @@ from typing import Never
 
 import click
 from rich import print
+from rich.markup import escape
 
 from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
-def ensure_command() -> None:
+def _run_gui() -> None:
+    try:
+        from scfile.gui import window
+
+        window.run()
+
+    except ImportError:
+        print(f"{L.ERROR} GUI is not available")
+        print(f"{L.INFO} Try install with: pip install {escape('sc-file[gui]')}")
+        print(f"{L.INFO} Or if your system does not support graphical interfaces, use command line: scfile --help")
+        input("\nPress Enter to exit...")
+        sys.exit(1)
+
+
+def _ensure_command() -> None:
     args = sys.argv[1:]
 
     # Run GUI if no arguments
     if not args:
-        from scfile.gui import window
-
-        return window.run()
+        _run_gui()
+        return
 
     # Allow default commands
     if set(("--help", "--version", "--updates")) & set(args):
@@ -44,7 +58,7 @@ def main() -> Never:
     """Program entrypoint."""
 
     try:
-        ensure_command()
+        _ensure_command()
         scfile(standalone_mode=False)
 
     except click.ClickException as err:
