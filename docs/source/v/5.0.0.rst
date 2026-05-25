@@ -56,7 +56,7 @@ Convert
 
 Utils
 ~~~~~
-* New package ``scfile.utils``.
+* **New package:** ``scfile.utils``.
 * ``files``: ``resource()``, ``resolve()``, ``walk()``, ``destination()``.
 * ``versions``: ``Version`` dataclass with parsing and comparison.
 * ``updates``: update checking against GitHub API.
