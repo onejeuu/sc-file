@@ -30,7 +30,6 @@ dev = [
     "pytest-cov>=7.1.0,<8.0.0",
 ]
 
-
 docs = [
     "sphinx>=8.0.0,<9.0.0",
     "sphinx-autobuild>=2025.8.25",
@@ -52,6 +51,9 @@ packages = { find = { include = ["scfile", "scfile.*"] } }
 
 [tool.setuptools.dynamic]
 version = { attr = "scfile.__version__" }
+
+[tool.setuptools.package-data]
+scfile = ["scfile/gui/**/*"]
 
 [tool.ruff.lint]
 ignore = ["E701"]
