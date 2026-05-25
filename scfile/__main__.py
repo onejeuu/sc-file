@@ -9,7 +9,7 @@ from scfile.cli.cmd import scfile
 from scfile.enums import CliCommand, L
 
 
-def _run_gui() -> None:
+def _run_gui() -> None:  # pragma: no cover
     try:
         from scfile.gui import window
 

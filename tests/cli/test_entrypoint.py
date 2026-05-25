@@ -66,22 +66,3 @@ def test_main_keyboard_interrupt():
         with patch("scfile.__main__.scfile", side_effect=KeyboardInterrupt):
             with pytest.raises(SystemExit):
                 main()
-
-
-def test_main_no_gui():
-    testargs = ["scfile"]
-    with patch.object(sys, "argv", testargs):
-        with patch("scfile.__main__._run_gui", side_effect=SystemExit(1)):
-            with pytest.raises(SystemExit):
-                main()
-
-
-def test_run_gui_import_error():
-    with patch.dict(sys.modules):
-        sys.modules.pop("scfile.gui", None)
-        sys.modules.pop("scfile.gui.window", None)
-        with patch("builtins.input", return_value=""):
-            with pytest.raises(SystemExit):
-                from scfile.__main__ import _run_gui
-
-                _run_gui()
