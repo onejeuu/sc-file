@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from scfile import types
-from scfile.gui.shared.strings import Str
+from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Colors, Styles
 from scfile.utils import files
 
@@ -62,7 +62,7 @@ class SourcesWidget(QListWidget):
         self.setMinimumWidth(320)
 
         self._placeholder_icon = self._prepare_placeholder_icon()
-        self._placeholder_text = Str.get("drop_hint")
+        self._placeholder_text = strings.get("converter.hint")
 
     def add_sources(self, sources: types.FilesSources):
         for source in sources:
@@ -101,7 +101,7 @@ class SourcesWidget(QListWidget):
         item = self.itemAt(event.pos())
         if item:
             menu = QMenu(self)
-            remove_action = QAction(Str.get("action_remove"), self)
+            remove_action = QAction(strings.get("button.remove_source"), self)
             remove_action.triggered.connect(self._remove_selected)
             menu.addAction(remove_action)
             menu.exec(event.globalPos())

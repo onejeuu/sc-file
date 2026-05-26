@@ -5,7 +5,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
 from scfile.enums import L
-from scfile.gui.shared.strings import Strings
+from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 
 
@@ -30,7 +30,7 @@ class PathInputWidget(QWidget):
         self.browse_btn = QPushButton("...")
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedSize(30, 30)
-        self.browse_btn.setToolTip(Strings.get("tooltip_path_browse"))
+        self.browse_btn.setToolTip(strings.get("tooltip.path_browse"))
 
         self.browse_btn.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.browse_btn.customContextMenuRequested.connect(self._open_in_explorer)

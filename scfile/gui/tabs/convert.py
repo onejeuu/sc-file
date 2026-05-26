@@ -19,9 +19,8 @@ from PySide6.QtWidgets import (
 from scfile.core import Options
 from scfile.core.options import ON_CONFLICT_OPTIONS
 from scfile.gui import workers
-from scfile.gui.shared import consts
+from scfile.gui.shared import consts, strings
 from scfile.gui.shared.consts import FT
-from scfile.gui.shared.strings import Str
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import PathInputWidget, SourcesWidget, WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertWorker
@@ -57,9 +56,9 @@ class ConverterTab(QWidget):
         targets = [output] if (custom and output) else sources
 
         if any("modassets/assets" in path.as_posix() for path in targets):
-            return Str.get("warn_game_dir")
+            return strings.get("warning.gamedir")
         if origin and self._counter.gamedir:
-            return Str.get("warn_game_dir")
+            return strings.get("warning.gamedir")
 
     def _warn_collision(self) -> str | None:
         custom = self.output_to_custom.isChecked()
@@ -68,7 +67,7 @@ class ConverterTab(QWidget):
         if custom and output:
             for source in (Path(s) for s in self._get_sources()):
                 if output == source or output.is_relative_to(source):
-                    return Str.get("warn_path_collision")
+                    return strings.get("warning.output_overlap")
 
     def _build_ui(self):
         layout = QHBoxLayout(self)
@@ -91,14 +90,14 @@ class ConverterTab(QWidget):
     def _build_left(self):
         header = QHBoxLayout()
 
-        title = QLabel(Str.get("label_sources"))
+        title = QLabel(strings.get("label.sources"))
         title.setStyleSheet(Styles.TITLE)
 
-        add_file = QPushButton(Str.get("btn_add_files"))
+        add_file = QPushButton(strings.get("button.add_files"))
         add_file.setCursor(Qt.CursorShape.PointingHandCursor)
         add_file.clicked.connect(self._browse_files)
 
-        add_dir = QPushButton(Str.get("btn_add_folder"))
+        add_dir = QPushButton(strings.get("button.add_folder"))
         add_dir.setCursor(Qt.CursorShape.PointingHandCursor)
         add_dir.clicked.connect(self._browse_folder)
 
@@ -114,7 +113,7 @@ class ConverterTab(QWidget):
         self.left.addWidget(self.sources, 1)
 
     def _build_right(self):
-        title = QLabel(Str.get("label_settings"))
+        title = QLabel(strings.get("label.settings"))
         title.setStyleSheet(Styles.TITLE)
         self.right.addWidget(title)
         self.right.addSpacing(10)
@@ -139,7 +138,7 @@ class ConverterTab(QWidget):
         self.right.addWidget(self._warnings)
 
         # Convert button
-        self.convert = QPushButton(Str.get("btn_convert"))
+        self.convert = QPushButton(strings.get("button.convert"))
         self.convert.setMinimumHeight(50)
         self.convert.setStyleSheet(Styles.BUTTON)
         self.convert.clicked.connect(self._convert)
@@ -202,14 +201,14 @@ class ConverterTab(QWidget):
             self.right.addWidget(group)
 
     def _build_output(self):
-        label = QLabel(Str.get("label_output_path"))
+        label = QLabel(strings.get("label.output"))
         label.setStyleSheet(Styles.LABEL)
         self.right.addWidget(label)
 
         self.output_mode = QButtonGroup(self)
 
         # Default output radio button
-        self.output_to_origin = QRadioButton(Str.get("opt_output_default"))
+        self.output_to_origin = QRadioButton(strings.get("option.output.origin"))
         self.output_to_origin.setStyleSheet(Styles.RADIO)
         self.output_to_origin.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_mode.addButton(self.output_to_origin)
@@ -230,8 +229,8 @@ class ConverterTab(QWidget):
 
         # Custom output path input
         self.output_path = PathInputWidget(
-            placeholder=Str.get("placeholder_path"),
-            caption=Str.get("dialog_output"),
+            placeholder=strings.get("placeholder.path"),
+            caption=strings.get("dialog.output"),
         )
         self.output_path.setText(consts.DEFAULT_OUTPUT.as_posix())
 
@@ -256,11 +255,11 @@ class ConverterTab(QWidget):
         layout.setSpacing(5)
 
         # Flat or structured output
-        self.output_tree = QRadioButton(Str.get("opt_output_tree"))
+        self.output_tree = QRadioButton(strings.get("option.output.tree"))
         self.output_tree.setStyleSheet(Styles.RADIO)
         self.output_tree.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        self.output_flat = QRadioButton(Str.get("opt_output_flat"))
+        self.output_flat = QRadioButton(strings.get("option.output.flat"))
         self.output_flat.setStyleSheet(Styles.RADIO)
         self.output_flat.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_tree.setChecked(True)
@@ -281,7 +280,7 @@ class ConverterTab(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        label = QLabel(Str.get("label_on_conflict"))
+        label = QLabel(strings.get("label.onconflict"))
         label.setStyleSheet(Styles.LABEL)
         layout.addWidget(label)
 
@@ -294,7 +293,7 @@ class ConverterTab(QWidget):
         self.on_conflict.setExclusive(True)
 
         for option in ON_CONFLICT_OPTIONS:
-            btn = QPushButton(Str.get(f"opt_conflict_{option}"))
+            btn = QPushButton(strings.get(f"option.onconflict.{option}"))
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setProperty("conflict_option", option)
@@ -305,7 +304,7 @@ class ConverterTab(QWidget):
         self.on_conflict.buttons()[0].setChecked(True)
         toggle_group.setStyleSheet(Styles.TOGGLE_GROUP)
 
-        hint = QLabel(Str.get("hint_on_conflict"))
+        hint = QLabel(strings.get("hint.onconflict"))
         hint.setStyleSheet(Styles.HINT)
 
         layout.addWidget(toggle_group)
@@ -331,7 +330,7 @@ class ConverterTab(QWidget):
         self._sync_feature_widgets()
 
     def _handle_counter(self, text: str, count: int, busy: bool):
-        label = Str.get("btn_convert")
+        label = strings.get("button.convert")
         self.convert.setText(f"{label} ({text})")
         self._sync_button()
         self._sync_warnings()
@@ -348,15 +347,14 @@ class ConverterTab(QWidget):
         output_valid = self._get_output_valid()
         ok = has_sources and has_targets and output_valid
 
-        checks = {
-            has_targets: "tooltip_no_targets",
-            has_sources: "tooltip_no_sources",
-            output_valid: "tooltip_invalid_output",
-        }
-        tooltip = checks.get(False, "")
+        tooltip = {
+            output_valid: "tooltip.invalid.output",
+            has_targets: "tooltip.invalid.targets",
+            has_sources: "tooltip.invalid.sources",
+        }.get(False, "")
 
         self.convert.setEnabled(ok)
-        self.convert.setToolTip(Str.get(tooltip))
+        self.convert.setToolTip(strings.get(tooltip))
         self.convert.setCursor(Qt.CursorShape.PointingHandCursor if ok else Qt.CursorShape.ForbiddenCursor)
 
     def _sync_warnings(self):
@@ -420,13 +418,13 @@ class ConverterTab(QWidget):
         self.convert.setEnabled(True)
 
     def _browse_files(self):
-        files, _ = QFileDialog.getOpenFileNames(self, Str.get("dialog_files"))
+        files, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.add_files"))
         if files:
             self.sources.add_sources(files)
             self._handle_sources()
 
     def _browse_folder(self):
-        path = QFileDialog.getExistingDirectory(self, Str.get("dialog_folder"))
+        path = QFileDialog.getExistingDirectory(self, strings.get("dialog.add_folder"))
         if path:
             self.sources.add_sources([path])
             self._handle_sources()

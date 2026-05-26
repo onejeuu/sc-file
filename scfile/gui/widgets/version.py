@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.enums import UpdateStatus
-from scfile.gui.shared.strings import Str
+from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Colors, Styles
 from scfile.gui.workers.updates import UpdatesWorker
 from scfile.utils.versions import Version
@@ -34,7 +34,7 @@ class UpdatePopup(QWidget):
 
     def show_loading(self):
         self._clear_layout()
-        label = QLabel(Str.get("update_checking"))
+        label = QLabel(strings.get("update.checking"))
         self.main_layout.addWidget(label)
         self.adjustSize()
         self.show()
@@ -44,24 +44,24 @@ class UpdatePopup(QWidget):
 
         match status:
             case UpdateStatus.UPTODATE:
-                label = QLabel(Str.get("update_uptodate"))
+                label = QLabel(strings.get("update.uptodate"))
                 label.setStyleSheet(f"color: {Colors.SUCCESS};")
                 self.main_layout.addWidget(label)
                 QTimer.singleShot(3000, self.close)
 
             case UpdateStatus.AVAILABLE:
-                label = QLabel(Str.get("update_available"))
+                label = QLabel(strings.get("update.available"))
                 label.setStyleSheet(f"color: {Colors.INFO};")
                 self.main_layout.addWidget(label)
                 self.main_layout.addWidget(LinkWidget(text=url, url=url))
 
             case UpdateStatus.ERROR:
-                label = QLabel(f"{Str.get('update_error')}: {message}")
+                label = QLabel(f"{strings.get('update.error')}: {message}")
                 label.setStyleSheet(f"color: {Colors.ERROR};")
                 self.main_layout.addWidget(label)
 
                 if url:
-                    warn = QLabel(Str.get("update_manual"))
+                    warn = QLabel(strings.get("update.manual"))
                     warn.setStyleSheet(f"color: {Colors.WARNING};")
                     self.main_layout.addWidget(warn)
                     self.main_layout.addWidget(LinkWidget(text=url, url=url))

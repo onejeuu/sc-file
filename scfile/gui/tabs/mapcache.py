@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.core import Options
 from scfile.gui import workers
-from scfile.gui.shared.strings import Str
+from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import OptionWidget, PathInputWidget, WarningsWidget
 from scfile.gui.workers.mapcache import MapCacheWorker
@@ -19,12 +19,8 @@ def is_mapcache(path: Path) -> bool:
     if not (path.exists() and path.is_dir()):
         return False
 
-    if any(path.glob("*.mdat")):
+    if any(path.glob("*/*.mdat")):
         return True
-
-    if path.name == "5.0" and path.parent.name == "map_cache":
-        if any(path.glob("*/*.mdat")):
-            return True
 
     return False
 
@@ -92,7 +88,7 @@ class MapCacheTab(QWidget):
         has_level = is_minecraft(output.parent) if is_region else is_minecraft(output)
 
         if not (is_region and has_level):
-            return Str.get("warn_not_minecraft_world")
+            return strings.get("warning.mapcache.invalid_world")
 
     def _warn_overwrite(self):
         if not bool(self.output.text().strip()):
@@ -103,19 +99,19 @@ class MapCacheTab(QWidget):
 
         if output.exists() and any(output.glob("*.mca")):
             world_name = output.parent.name if is_region else output.name
-            return Str.get("warn_regions_overwrite").format(world=world_name)
+            return strings.get("warning.mapcache.overwrite").format(world=world_name)
 
     def _build_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(10)
 
-        source_label = QLabel(Str.get("label_mapcache_source"))
+        source_label = QLabel(strings.get("label.mapcache.source"))
         source_label.setStyleSheet(Styles.LABEL)
 
         self.source = PathInputWidget(
             placeholder="stalcraft/map_cache/5.0",
-            caption=Str.get("dialog_mapcache_source"),
+            caption=strings.get("dialog.mapcache.source"),
         )
 
         if is_mapcache(DEFAULT_CACHE_PATH):
@@ -123,12 +119,12 @@ class MapCacheTab(QWidget):
 
         self.source.changed.connect(self._on_source_changed)
 
-        output_label = QLabel(Str.get("label_mapcache_output"))
+        output_label = QLabel(strings.get("label.mapcache.output"))
         output_label.setStyleSheet(Styles.LABEL)
 
         self.output = PathInputWidget(
             placeholder=".minecraft/saves/{world}/regions",
-            caption=Str.get("dialog_mapcache_output"),
+            caption=strings.get("dialog.mapcache.output"),
         )
         self.output.changed.connect(self._on_output_changed)
 
@@ -141,12 +137,12 @@ class MapCacheTab(QWidget):
         layout.addStretch()
         layout.addWidget(self.warnings)
 
-        self.info = QLabel(Str.get("info_mdat_context"))
+        self.info = QLabel(strings.get("mapcache.info"))
         self.info.setStyleSheet(Styles.MAPCACHE)
         self.info.setWordWrap(True)
         layout.addWidget(self.info)
 
-        self.merge = QPushButton(Str.get("btn_merge_regions"))
+        self.merge = QPushButton(strings.get("button.mapcache.merge"))
         self.merge.setFixedHeight(50)
         self.merge.setStyleSheet(Styles.BUTTON)
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -163,15 +159,15 @@ class MapCacheTab(QWidget):
         layout.setSpacing(10)
 
         self.auto_resolve = OptionWidget(
-            text=Str.get("cb_auto_resolve"),
-            hint=Str.get("hint_auto_resolve"),
+            text=strings.get("option.mapcache.resolve"),
+            hint=strings.get("hint.mapcache.resolve"),
             checked=True,
         )
         self.auto_resolve.changed.connect(self._on_autoresolve_changed)
 
         self.raw_blocks = OptionWidget(
-            text=Str.get("cb_raw_blocks"),
-            hint=Str.get("hint_raw_blocks"),
+            text=strings.get("option.mapcache.raw"),
+            hint=strings.get("hint.mapcache.raw"),
             checked=False,
         )
 
@@ -231,15 +227,13 @@ class MapCacheTab(QWidget):
         output_ok = bool(output) and not Path(output).is_file()
         is_okay = source_ok and output_ok
 
-        checks = {
-            output_ok: Str.get("tooltip_invalid_output"),
-            source_ok: Str.get("tooltip_bad_mapcache_source"),
-        }
-
-        tooltip = checks.get(False, "")
+        tooltip = {
+            output_ok: "tooltip.mapcache.invalid.output",
+            source_ok: "tooltip.mapcache.invalid.source",
+        }.get(False, "")
 
         self.merge.setEnabled(is_okay)
-        self.merge.setToolTip(tooltip)
+        self.merge.setToolTip(strings.get(tooltip))
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
 
     def closeEvent(self, event: QCloseEvent):

@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 from scfile.gui.widgets.footer import FooterWidget
 from scfile.utils import files
 
-from .shared.strings import Str
+from .shared import strings
 from .shared.styles import Styles
 from .tabs.convert import ConverterTab
 from .tabs.mapcache import MapCacheTab
@@ -46,11 +46,11 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
 
         self._add_tab(
-            name=Str.get("tab_converter"),
+            name=strings.get("tab.converter"),
             widget=ConverterTab(),
         )
         self._add_tab(
-            name=Str.get("tab_mapcache"),
+            name=strings.get("tab.mapcache"),
             widget=MapCacheTab(),
         )
 

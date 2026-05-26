@@ -4,7 +4,7 @@ from pathlib import Path
 from scfile.consts import SUPPORTED_NBT
 from scfile.enums import FileFormat
 
-from .strings import Strings
+from . import strings
 
 
 DEFAULT_OUTPUT = Path.home() / "scfile" / "export"
@@ -22,8 +22,8 @@ class Feature:
 
 
 class FT:
-    SKELETON = Feature(id="skeleton", icon="🦴", label=Strings.get("feat_skeleton"))
-    ANIMATION = Feature(id="animation", icon="🌀", label=Strings.get("feat_animation"))
+    SKELETON = Feature(id="skeleton", icon="🦴", label=strings.get("feature.skeleton"))
+    ANIMATION = Feature(id="animation", icon="🌀", label=strings.get("feature.animation"))
 
 
 @dataclass
@@ -47,32 +47,32 @@ FILE_KINDS: list[FileKind] = [
     FileKind(
         id="models",
         icon="🧊",
-        label=Strings.get("fmt_models"),
+        label=strings.get("format.models"),
         suffixes=[".mcsa", ".mcsb", ".mcvd", ".efkmodel"],
         features=[FT.SKELETON, FT.ANIMATION],
     ),
     FileKind(
         id="textures",
         icon="🧱",
-        label=Strings.get("fmt_textures"),
+        label=strings.get("format.textures"),
         suffixes=[".ol"],
     ),
     FileKind(
         id="images",
         icon="🖼",
-        label=Strings.get("fmt_images"),
+        label=strings.get("format.images"),
         suffixes=[".mic"],
     ),
     FileKind(
         id="texarr",
         icon="🗃️",
-        label=Strings.get("fmt_texarr"),
+        label=strings.get("format.texarr"),
         suffixes=[".texarr"],
     ),
     FileKind(
         id="nbt",
         icon="⚙️",
-        label=Strings.get("fmt_nbt"),
+        label=strings.get("format.nbt"),
         suffixes=list(sorted(SUPPORTED_NBT)),
     ),
 ]

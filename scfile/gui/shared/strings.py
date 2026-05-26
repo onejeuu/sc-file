@@ -5,118 +5,132 @@ from typing import Literal, TypeAlias
 Lang: TypeAlias = Literal["EN"] | Literal["RU"]
 
 
-def _get_lang() -> Lang:
-    lang = (locale.getlocale()[0] or "").lower()
-    return "RU" if lang.startswith("russian") or lang.startswith("ru_") else "EN"
+def _resolve_lang() -> Lang:
+    try:
+        lang = (locale.getlocale()[0] or "").lower()
+        return "RU" if lang.startswith("russian") or lang.startswith("ru_") else "EN"
+
+    except Exception:
+        return "EN"
 
 
-class Strings:
-    LANG: Lang = _get_lang()
+LANG: Lang = _resolve_lang()
 
-    DATA: dict[str, dict[Lang, str]] = {
-        "tab_converter": {"EN": "Convert Files", "RU": "Конвертер файлов"},
-        "tab_mapcache": {"EN": "Map Cache", "RU": "Кэш карты"},
-        "action_remove": {"EN": "Remove from list", "RU": "Удалить из списка"},
-        "drop_hint": {
-            "EN": "Drag & drop files and folders\nor use buttons above",
-            "RU": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
-        },
-        "label_sources": {"EN": "Sources", "RU": "Источники"},
-        "label_settings": {"EN": "Settings", "RU": "Настройки"},
-        "label_output_path": {"EN": "Output Path", "RU": "Путь сохранения"},
-        "label_mapcache_source": {"EN": "Stalcraft map cache folder", "RU": "Папка кэша карты сталкрафт"},
-        "label_mapcache_output": {"EN": "Minecraft save regions folder", "RU": "Папка регионов мира майнкрафт"},
-        "btn_add_files": {"EN": "+ Files", "RU": "+ Файлы"},
-        "btn_add_folder": {"EN": "+ Folder", "RU": "+ Папка"},
-        "btn_convert": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
-        "btn_merge_regions": {"EN": "CONVERT", "RU": "КОНВЕРТИРОВАТЬ"},
-        "opt_output_default": {"EN": "Alongside source file", "RU": "Рядом с оригинальным файлом"},
-        "opt_output_flat": {"EN": "Single flat folder", "RU": "В одну плоскую папку"},
-        "opt_output_tree": {"EN": "Keep subfolder structure", "RU": "Сохранять структуру подпапок"},
-        "placeholder_path": {"EN": "Specify path...", "RU": "Укажите путь..."},
-        "cb_unique_names": {"EN": "Create copies on name collision", "RU": "Создавать копии при совпадении имен"},
-        "cb_raw_blocks": {"EN": "Raw blocks", "RU": "Raw blocks"},
-        "cb_auto_resolve": {"EN": "Resolve paths", "RU": "Исправление путей"},
-        "hint_unique_names": {
-            "EN": "Add a sequence number to filename instead of overwriting",
-            "RU": "Добавлять порядковый номер к названию файла вместо перезаписи",
-        },
-        "hint_raw_blocks": {
-            "EN": "Literal interpretation of block IDs instead of lookup table replacement",
-            "RU": "Буквальная интерпретация айди блоков вместо замены по lookup таблице",
-        },
-        "hint_auto_resolve": {
-            "EN": "Automatically complete path to data folder",
-            "RU": "Автоматическое достраивание пути до папки с данными",
-        },
-        "tooltip_no_sources": {"EN": "Add sources to convert", "RU": "Добавьте источники для конвертации"},
-        "tooltip_no_targets": {
-            "EN": "No valid files found in sources",
-            "RU": "В источниках не найдено подходящих файлов",
-        },
-        "tooltip_invalid_output": {
-            "EN": "Specify a valid output directory",
-            "RU": "Укажите корректный путь сохранения",
-        },
-        "tooltip_bad_mapcache_source": {
-            "EN": "No .mdat files found in specified directory",
-            "RU": "В указанной папке не найдены файлы .mdat",
-        },
-        "tooltip_path_browse": {
-            "EN": "LMB: Select directory\nRMB: Open in Explorer",
-            "RU": "ЛКМ: Выбрать папку\nПКМ: Открыть в проводнике",
-        },
-        "warn_game_dir": {
-            "EN": "Output path is within game directory.",
-            "RU": "Путь сохранения находится внутри директории игры.",
-        },
-        "warn_path_collision": {
-            "EN": "Output directory is same as one of sources.",
-            "RU": "Путь сохранения совпадает с одним из источников.",
-        },
-        "warn_not_minecraft_world": {
-            "EN": "No Minecraft world data found at specified path.",
-            "RU": "По указанному пути не найдены данные мира Minecraft.",
-        },
-        "warn_regions_overwrite": {
-            "EN": 'Regions in world "{world}" will be overwritten!',
-            "RU": 'Регионы в мире "{world}" будут перезаписаны!',
-        },
-        "info_mdat_context": {
-            "EN": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview.\nFull environment replication or accurate block states are NOT planned.",
-            "RU": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.\nИдеальное воссоздание окружения и состояний блоков НЕ планируется.",
-        },
-        "dialog_files": {"EN": "Files", "RU": "Файлы"},
-        "dialog_folder": {"EN": "Folder", "RU": "Папка"},
-        "dialog_output": {"EN": "Output Directory", "RU": "Папка результатов"},
-        "dialog_mapcache_source": {"EN": "Stalcraft map cache", "RU": "Сталкрафт кэш карты"},
-        "dialog_mapcache_output": {"EN": "Minecraft map regions", "RU": "Регионы майнкрафт карты"},
-        "feat_skeleton": {"EN": "Skeleton", "RU": "Скелет"},
-        "feat_animation": {"EN": "Animation", "RU": "Анимация"},
-        "feat_uv2": {"EN": "UVMap2", "RU": "UVMap2"},
-        "fmt_models": {"EN": "Models", "RU": "Модели"},
-        "fmt_textures": {"EN": "Textures", "RU": "Текстуры"},
-        "fmt_images": {"EN": "Images", "RU": "Изображения"},
-        "fmt_texarr": {"EN": "Texture Array", "RU": "Массив Текстур"},
-        "fmt_nbt": {"EN": "NBT Data", "RU": "NBT Данные"},
-        "update_checking": {"EN": "Checking for updates...", "RU": "Проверка обновлений..."},
-        "update_uptodate": {"EN": "You are using the latest version", "RU": "Вы используете последнюю версию"},
-        "update_available": {"EN": "Update available", "RU": "Доступно обновление"},
-        "update_error": {"EN": "Could not check for updates", "RU": "Не удалось проверить обновления"},
-        "update_manual": {"EN": "Check manually", "RU": "Проверьте вручную"},
-        "label_on_conflict": {"EN": "On Name Collision", "RU": "При совпадении имени"},
-        "opt_conflict_overwrite": {"EN": "Overwrite", "RU": "Перезапись"},
-        "opt_conflict_skip": {"EN": "Skip", "RU": "Пропуск"},
-        "opt_conflict_rename": {"EN": "Rename", "RU": "Переименовать"},
-        "hint_on_conflict": {
-            "EN": "What to do when output file name matches an existing file",
-            "RU": "Действие при совпадении имени выходного файла с существующим",
-        },
-    }
+DATA: dict[Lang, dict[str, str]] = {
+    "EN": {
+        "tab.converter": "Convert Files",
+        "tab.mapcache": "Map Cache",
+        "label.sources": "Sources",
+        "label.settings": "Settings",
+        "label.output": "Output Path",
+        "label.onconflict": "On Name Collision",
+        "label.mapcache.source": "SC map cache",
+        "label.mapcache.output": "Minecraft world regions",
+        "button.add_files": "+ Files",
+        "button.add_folder": "+ Folder",
+        "button.remove_source": "Remove source from list",
+        "button.convert": "CONVERT",
+        "button.mapcache.merge": "CONVERT",
+        "format.models": "Models",
+        "format.textures": "Textures",
+        "format.images": "Images",
+        "format.texarr": "TextureArray",
+        "format.nbt": "NBT Data",
+        "feature.skeleton": "Skeleton",
+        "feature.animation": "Animation",
+        "option.output.origin": "Alongside source file",
+        "option.output.tree": "Keep subfolder structure",
+        "option.output.flat": "Single flat folder",
+        "option.onconflict.overwrite": "Overwrite",
+        "option.onconflict.skip": "Skip",
+        "option.onconflict.rename": "Rename",
+        "option.mapcache.resolve": "Resolve Paths",
+        "option.mapcache.raw": "Raw Block IDs",
+        "hint.onconflict": "Action on output file name conflict",
+        "hint.mapcache.resolve": "Auto-complete path to data folder",
+        "hint.mapcache.raw": "Keep original block IDs instead of lookup table replacement",
+        "tooltip.path_browse": "LMB: Select directory\nRMB: Open in Explorer",
+        "tooltip.invalid.output": "Specify an output folder",
+        "tooltip.invalid.sources": "Add sources to convert",
+        "tooltip.invalid.targets": "No compatible files found",
+        "tooltip.mapcache.invalid.output": "Specify an output folder",
+        "tooltip.mapcache.invalid.source": "No .mdat files found in specified folder",
+        "warning.gamedir": "Output path is inside game directory",
+        "warning.output_overlap": "Output path overlaps with a source",
+        "warning.mapcache.overwrite": 'Regions in world "{world}" will be overwritten!',
+        "warning.mapcache.invalid_world": "No Minecraft world found at specified path",
+        "dialog.add_files": "Select files",
+        "dialog.add_folder": "Select folder",
+        "dialog.output": "Output Folder",
+        "dialog.mapcache.source": "SC map cache",
+        "dialog.mapcache.output": "Minecraft world regions",
+        "update.checking": "Checking for updates...",
+        "update.uptodate": "You are using the latest version",
+        "update.available": "Update available",
+        "update.error": "Update check failed",
+        "update.manual": "Check manually",
+        "placeholder.path": "Specify path...",
+        "converter.hint": "Drag & Drop files and folders\nor use buttons above",
+        "mapcache.info": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview.\nFull environment replication or accurate block states are NOT planned.",
+    },
+    "RU": {
+        "tab.converter": "Конвертер файлов",
+        "tab.mapcache": "Кэш карты",
+        "label.sources": "Источники",
+        "label.settings": "Настройки",
+        "label.output": "Путь сохранения",
+        "label.onconflict": "При совпадении имени",
+        "label.mapcache.source": "SC кэш карты",
+        "label.mapcache.output": "Minecraft регионы мира",
+        "button.add_files": "+ Файлы",
+        "button.add_folder": "+ Папка",
+        "button.remove_source": "Удалить источник из списка",
+        "button.convert": "КОНВЕРТИРОВАТЬ",
+        "button.mapcache.merge": "КОНВЕРТИРОВАТЬ",
+        "format.models": "Модели",
+        "format.textures": "Текстуры",
+        "format.images": "Изображения",
+        "format.texarr": "TextureArray",
+        "format.nbt": "NBT Данные",
+        "feature.skeleton": "Скелет",
+        "feature.animation": "Анимация",
+        "option.output.origin": "Рядом с оригинальным файлом",
+        "option.output.tree": "Сохранять структуру подпапок",
+        "option.output.flat": "В одну плоскую папку",
+        "option.onconflict.overwrite": "Перезапись",
+        "option.onconflict.skip": "Пропуск",
+        "option.onconflict.rename": "Копия",
+        "option.mapcache.resolve": "Исправление путей",
+        "option.mapcache.raw": "Исходные ID",
+        "hint.onconflict": "Действие при совпадении имени выходного файла",
+        "hint.mapcache.resolve": "Автоматически достраивать путь до папки с данными",
+        "hint.mapcache.raw": "Сохранять исходные ID блоков вместо подмены по таблице",
+        "tooltip.path_browse": "ЛКМ: Выбрать папку\nПКМ: Открыть в проводнике",
+        "tooltip.invalid.output": "Укажите папку для сохранения",
+        "tooltip.invalid.sources": "Добавьте источники для конвертации",
+        "tooltip.invalid.targets": "Подходящие файлы не найдены",
+        "tooltip.mapcache.invalid.output": "Укажите папку для сохранения",
+        "tooltip.mapcache.invalid.source": "В указанной папке не найдены файлы .mdat",
+        "warning.gamedir": "Путь сохранения находится внутри папки игры",
+        "warning.output_overlap": "Путь сохранения пересекается с одним из источников",
+        "warning.mapcache.overwrite": 'Регионы мира "{world}" будут перезаписаны!',
+        "warning.mapcache.invalid_world": "По указанному пути не найдены данные мира Minecraft",
+        "dialog.add_files": "Выбор файлов",
+        "dialog.add_folder": "Выбор папки",
+        "dialog.output": "Папка результатов",
+        "dialog.mapcache.source": "Кэш карты SC",
+        "dialog.mapcache.output": "Регионы мира Minecraft",
+        "update.checking": "Проверка обновлений...",
+        "update.uptodate": "Вы используете последнюю версию",
+        "update.available": "Доступно обновление",
+        "update.error": "Ошибка проверки обновлений",
+        "update.manual": "Проверьте вручную",
+        "placeholder.path": "Укажите путь...",
+        "converter.hint": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
+        "mapcache.info": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.\nИдеальное воссоздание окружения и состояний блоков НЕ планируется.",
+    },
+}
 
-    @classmethod
-    def get(cls, key: str) -> str:
-        return cls.DATA.get(key, {}).get(cls.LANG, key)
 
-
-Str = Strings
+def get(key: str) -> str:
+    return DATA.get(LANG, {}).get(key, key)
