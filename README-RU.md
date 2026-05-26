@@ -10,6 +10,7 @@
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/ru/latest
+[deepwiki]: https://deepwiki.com/onejeuu/sc-file
 [contact]: https://onejeuu.t.me
 
 <!-- Docs -->
@@ -28,10 +29,11 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
+[badge-deepwiki]: https://deepwiki.com/badge.svg
 
 <img src="assets/scfile.svg" alt="icon" width="96" />
 
-[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
+[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues] [![DeepWiki][badge-deepwiki]][deepwiki]
 
 🇬🇧 [English][readme-en] | 🇷🇺 **Русский**
 
