@@ -2,7 +2,7 @@
 ZIP Format.
 
 :Name: **ZIP**
-:Type: **📦 TextureArray Encoder**
+:Type: **🗃️ TextureArray Encoder**
 :Wiki: `<https://en.wikipedia.org/wiki/ZIP_(file_format)>`_
 :Suffix: ``.zip``
 :Support: ``✅ Full``

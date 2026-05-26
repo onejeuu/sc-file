@@ -48,7 +48,7 @@
 | 🧊 **Model**        | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.dae` `.ms3d` `.fbx` |
 | 🧱 **Texture**      | `.ol`               | →   | `.dds`                              |
 | 🖼️ **Image**        | `.mic`              | →   | `.png`                              |
-| 📦 **TextureArray** | `.texarr`           | →   | `.zip`                              |
+| 🗃️ **TextureArray** | `.texarr`           | →   | `.zip`                              |
 | 🗺 **Region**       | `.mdat`             | →   | `.mca`                              |
 | ⚙️ **NBT\***        | `...`               | →   | `.json`                             |
 

@@ -1,4 +1,4 @@
-📦 ZIP
+🗃️ ZIP
 ===========================
 
 .. automodule:: scfile.formats.zip

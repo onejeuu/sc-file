@@ -90,7 +90,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "format.models": "Модели",
         "format.textures": "Текстуры",
         "format.images": "Изображения",
-        "format.texarr": "TextureArray",
+        "format.texarr": "Массив Текстур",
         "format.nbt": "NBT Данные",
         "feature.skeleton": "Скелет",
         "feature.animation": "Анимация",

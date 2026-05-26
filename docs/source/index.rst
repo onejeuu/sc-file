@@ -44,7 +44,7 @@ Overview
     - ``.mic``
     - →
     - ``.png``
-  * - 📦 **TextureArray**
+  * - 🗃️ **TextureArray**
     - ``.texarr``
     - →
     - ``.zip``

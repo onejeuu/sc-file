@@ -1,4 +1,4 @@
-📦 TEXARR
+🗃️ TEXARR
 ===========================
 
 .. automodule:: scfile.formats.texarr
