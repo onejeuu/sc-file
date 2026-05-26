@@ -55,13 +55,6 @@ version = { attr = "scfile.__version__" }
 [tool.setuptools.package-data]
 scfile = ["gui/assets/*"]
 
-[tool.ruff.lint]
-ignore = ["E701"]
-
-[tool.isort]
-lines_after_imports = 2
-skip = ["__init__.py"]
-
 [tool.coverage.run]
 omit = ["scfile/gui/*"]
 

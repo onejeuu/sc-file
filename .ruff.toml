@@ -5,3 +5,7 @@ ignore = ["E701"]
 
 [lint.isort]
 lines-after-imports = 2
+
+[lint.per-file-ignores]
+"__init__.py" = ["I001"]
+"**/__init__.py" = ["I001"]
