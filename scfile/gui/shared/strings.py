@@ -6,8 +6,8 @@ Lang: TypeAlias = Literal["EN"] | Literal["RU"]
 
 
 def _get_lang() -> Lang:
-    lang = locale.getlocale()[0] or ""
-    return "RU" if lang.lower().startswith("russian") else "EN"
+    lang = (locale.getlocale()[0] or "").lower()
+    return "RU" if lang.startswith("russian") or lang.startswith("ru_") else "EN"
 
 
 class Strings:
