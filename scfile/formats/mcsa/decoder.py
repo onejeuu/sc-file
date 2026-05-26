@@ -23,8 +23,6 @@ class MeshCounts:
 
 
 class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
-    """MCSA format decoder."""
-
     format = FileFormat.MCSA
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE
@@ -71,9 +69,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         latest = max(VERSION_MAP.keys())
         mapping = VERSION_MAP.get(self.data.version, VERSION_MAP[latest])
 
-        self.data.flags = defaultdict(
-            bool, {flag: bool(self._readb(F.BOOL)) for flag in mapping}
-        )
+        self.data.flags = defaultdict(bool, {flag: bool(self._readb(F.BOOL)) for flag in mapping})
 
     def _parse_scales(self):
         self.data.scene.scale.position = self._readb(F.F32)

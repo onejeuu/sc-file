@@ -15,7 +15,6 @@ from scfile.enums import FileFormat
 from . import factory, formats
 
 
-# TODO: status response
 def auto(
     source: types.PathLike,
     output: types.OutputLike = None,
@@ -26,12 +25,12 @@ def auto(
 
     Arguments:
         source: Path to source file.
-        output (optional): Path to output file or directory. Defaults to source directory.
-        options (optional): Settings for parsing.
+        output (optional): Path to directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Raises:
         InvalidStructureError: Source file is corrupted.
-        UnsupportedFormatError: Source file not supported.
+        UnsupportedFormatError: Source file format not supported.
 
     Example:
         - ``auto("model.mcsb", "model.obj")``

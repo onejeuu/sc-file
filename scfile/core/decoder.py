@@ -20,9 +20,9 @@ EncoderType = TypeVar("EncoderType", bound=FileEncoder)
 
 class FileDecoder(BaseFile, Generic[ContentType], ABC):
     """
-    Base class for parsing binary data into structured content.
+    Base class for decoding binary data into structured content.
 
-    Subclasses define the format-specific parsing logic.
+    Subclasses define format-specific parsing logic.
     """
 
     _content: type[ContentType]
@@ -36,8 +36,8 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         Initialize decoder.
 
         Args:
-            stream: Source to decode. File path, bytes, or binary IO stream.
-            options: Optional settings for parsing.
+            stream: Source input to decode. File path, bytes, or binary IO stream.
+            options (optional): Shared handlers options.
 
         Note:
             The file is not parsed during initialization.
@@ -81,8 +81,8 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
         Args:
             encoder: Encoder class to use for conversion.
-            options: Optional settings for parsing.
-            output: Optional destination. File path or binary IO stream. Defaults to in-memory buffer.
+            options (optional): Shared handlers options.
+            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
             Clear encoder instance.
@@ -104,8 +104,8 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
         Args:
             encoder: Encoder class to use for conversion.
-            options: Optional settings for encoder.
-            output: Optional destination. File path or binary IO stream. Defaults to in-memory buffer.
+            options (optional): Shared handlers options.
+            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
             Encoded file content as bytes.

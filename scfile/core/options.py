@@ -1,5 +1,5 @@
 """
-Shared user options for decoders and encoders.
+Shared options for handlers.
 """
 
 from dataclasses import dataclass
@@ -14,26 +14,26 @@ ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
 
 @dataclass
 class Options:
-    """Shared settings for decoding and encoding."""
+    """Shared handlers options."""
 
     model_formats: Optional[Formats] = None
     """Preferred output formats for models, :meth:`default_model_formats` used on unset."""
 
     skeleton: bool = False
-    """Decode and Encode skeleton bones from models."""
+    """Handle skeleton bones from models."""
 
     animation: bool = False
-    """Decode and Encode built-in animation clips from models."""
+    """Handle built-in animation clips from models."""
 
     raw_blocks: bool = False
-    """Keep raw block IDs in chunks data without lookup table replacement."""
+    """Keep raw block IDs in chunks without lookup table replacement."""
 
     full_chunk: bool = False
-    """Parse (no export) full chunk data including metadata."""
+    """Handle full chunk data including metadata (no export)."""
 
     on_conflict: OnConflict = "overwrite"
     """
-    Action when output file already exists.
+    Action on output file name conflict (if already exists).
 
     - `"overwrite"` Replace the existing file.
     - `"skip"` Keep the existing file.

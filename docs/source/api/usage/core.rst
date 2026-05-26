@@ -1,28 +1,22 @@
 Core Architecture
 ====================================
 
-Data and Logic Separation
--------------------------
-The library separates file processing logic from data containers.
+Handlers
+    | Classes derived from :class:`~scfile.core.decoder.FileDecoder` and :class:`~scfile.core.encoder.FileEncoder`.
+    | **Decoders** parses binary data into file content.
+    | **Encoders** serializes file content into binary data.
 
-Processors
-    Classes derived from :class:`~scfile.core.decoder.FileDecoder` and :class:`~scfile.core.encoder.FileEncoder`.
-    **Decoders** parse binary data into structured objects.
-    **Encoders** serialize these objects into binary format.
-
-Containers
-    Classes derived from :class:`~scfile.core.content.BaseContent`.
-    They are dataclasses that act as **Data Transfer Objects** (DTO).
-    Containers hold file kind representation in memory and expose its fields for reading and modification.
+Content
+    | Classes derived from :class:`~scfile.core.content.BaseContent`.
+    | File content and its structured **Data Transfer Objects** (DTO).
 
 
 Resource Safety
 ------------------------------------
-Every processor inherits from :class:`~scfile.core.base.BaseFile`, which accepts
-an ``IOStream`` (file paths, raw bytes, or open streams). Because processors
-hold system file handles or memory buffers, streams must be closed after use.
+Every handler inherits from :class:`~scfile.core.base.BaseFile`, which accepts an ``IOStream`` (file paths, raw bytes, or open streams).
+Because handlers hold system file or memory buffers, streams must be closed after use.
 
-Resource disposal can be handled automatically via a context manager or manually using the ``close()`` method:
+Use context manager ``with`` or ``close()`` method:
 
 .. code-block:: python
   :caption: Example

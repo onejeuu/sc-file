@@ -27,24 +27,28 @@ TempContext: TypeAlias = dict[str, Any]
 
 
 class BaseFile(StructIO, ABC):
-    """Unified binary stream adapter."""
+    """Unified binary stream handler."""
 
     format: FileFormat = FileFormat.NONE
-    """File format associated with this stream."""
+    """Associated file format."""
 
     signature: Optional[bytes] = None
-    """Expected file signature for validation."""
+    """Expected file signature."""
 
     options: Options
-    """User provided settings for decoding/encoding."""
+    """Shared handlers options."""
 
     _stream: IO[bytes]
 
-    def __init__(self, stream: IOStream, mode: FileMode = "rb"):
+    def __init__(
+        self,
+        stream: IOStream,
+        mode: FileMode = "rb",
+    ):
         """
         Args:
-            stream: Source to open. File path, bytes, or binary IO stream.
-            mode: File mode for opening when ``stream`` is a path. Must be a binary mode.
+            stream: Source input. File path, bytes, or binary IO stream.
+            mode: File mode (binary) for opening when ``stream`` is path.
         """
 
         if isinstance(stream, (str, Path)):

@@ -24,7 +24,7 @@ def convert(
         encoder: Encoder class for output format.
         source: Path to source file.
         output (optional): Path to output file or directory. Defaults to source directory.
-        options (optional): Settings for parsing.
+        options (optional): Shared handlers options.
 
     Raises:
         FileNotFound: Source file does not exist.

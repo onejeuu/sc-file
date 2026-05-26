@@ -42,7 +42,7 @@ def unique_names(scene: ModelScene) -> ModelScene:
 
 
 def flip_uv(scene: ModelScene) -> ModelScene:
-    """Flip V axis (TOP_LEFT - BOTTOM_LEFT)."""
+    """Flip V axis (TOP_LEFT → BOTTOM_LEFT)."""
 
     meshes: list[ModelMesh] = []
 
@@ -64,7 +64,7 @@ def flip_uv(scene: ModelScene) -> ModelScene:
 
 
 def invert_uv(scene: ModelScene) -> ModelScene:
-    """Invert V axis sign (POSITIVE -> NEGATIVE)."""
+    """Invert V axis sign (POSITIVE → NEGATIVE)."""
 
     meshes: list[ModelMesh] = []
 
@@ -85,7 +85,7 @@ def invert_uv(scene: ModelScene) -> ModelScene:
 
 
 def skeleton_to_local(scene: ModelScene) -> ModelScene:
-    """Convert bone positions (GLOBAL -> LOCAL)."""
+    """Convert bone positions (GLOBAL → LOCAL)."""
 
     if scene.skeleton.space == SkeletonSpace.LOCAL:
         return scene

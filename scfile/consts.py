@@ -54,7 +54,7 @@ class OutputFormats:
     IMAGES: Formats = (FileFormat.PNG,)
     REGIONS: Formats = (FileFormat.MCA,)
     TEXARR: Formats = (FileFormat.ZIP,)
-    NBT: Formats = (FileFormat.NBT,)
+    NBT: Formats = (FileFormat.JSON,)
 
 
 class DefaultModelFormats:

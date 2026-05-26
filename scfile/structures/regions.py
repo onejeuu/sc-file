@@ -18,7 +18,7 @@ class ChunkHeader:
 
 @dataclass
 class RegionChunk:
-    """World chunk."""
+    """World terrain chunk."""
 
     index: int = 0
     header: ChunkHeader = field(default_factory=ChunkHeader)

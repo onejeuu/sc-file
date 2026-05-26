@@ -1,6 +1,6 @@
 """
-Shared content data containers for decoders and encoders.
-Defines the data structures that hold parsed file contents.
+Shared content data containers for handlers.
+Defines data structures that hold parsed file contents.
 """
 
 from abc import ABC

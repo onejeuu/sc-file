@@ -22,11 +22,12 @@ def mcsb_to_obj(
 
     Arguments:
         source: Path to source ``.mcsb`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsb_to_obj("model.mcsb", "model.obj")``
+        - ``mcsb_to_obj("model.mcsb", "model.obj")``
+        - ``mcsb_to_obj("model.mcsb", "path/to/output/dir")``
     """
 
 
@@ -41,11 +42,12 @@ def mcsb_to_glb(
 
     Arguments:
         source: Path to source ``.mcsb`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsb_to_glb("model.mcsb", "model.glb")``
+        - ``mcsb_to_glb("model.mcsb", "model.glb")``
+        - ``mcsb_to_glb("model.mcsb", "path/to/output/dir")``
     """
 
 
@@ -60,11 +62,12 @@ def mcsb_to_dae(
 
     Arguments:
         source: Path to source ``.mcsb`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsb_to_dae("model.mcsb", "model.dae")``
+        - ``mcsb_to_dae("model.mcsb", "model.dae")``
+        - ``mcsb_to_dae("model.mcsb", "path/to/output/dir")``
     """
 
 
@@ -79,11 +82,12 @@ def mcsb_to_ms3d(
 
     Arguments:
         source: Path to source ``.mcsb`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsb_to_ms3d("model.mcsb", "model.ms3d")``
+        - ``mcsb_to_ms3d("model.mcsb", "model.ms3d")``
+        - ``mcsb_to_ms3d("model.mcsb", "path/to/output/dir")``
     """
 
 
@@ -98,11 +102,12 @@ def mcsb_to_fbx(
 
     Arguments:
         source: Path to source ``.mcsb`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsb_to_fbx("model.mcsb", "model.fbx")``
+        - ``mcsb_to_fbx("model.mcsb", "model.fbx")``
+        - ``mcsb_to_fbx("model.mcsb", "path/to/output/dir")``
     """
 
 
@@ -117,11 +122,12 @@ def mcsa_to_obj(
 
     Arguments:
         source: Path to source ``.mcsa`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsa_to_obj("model.mcsa", "model.obj")``
+        - ``mcsa_to_obj("model.mcsa", "model.obj")``
+        - ``mcsa_to_obj("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -136,11 +142,12 @@ def mcsa_to_glb(
 
     Arguments:
         source: Path to source ``.mcsa`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsa_to_glb("model.mcsa", "model.glb")``
+        - ``mcsa_to_glb("model.mcsa", "model.glb")``
+        - ``mcsa_to_glb("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -155,11 +162,12 @@ def mcsa_to_dae(
 
     Arguments:
         source: Path to source ``.mcsa`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsa_to_dae("model.mcsa", "model.dae")``
+        - ``mcsa_to_dae("model.mcsa", "model.dae")``
+        - ``mcsa_to_dae("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -174,11 +182,12 @@ def mcsa_to_ms3d(
 
     Arguments:
         source: Path to source ``.mcsa`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsa_to_ms3d("model.mcsa", "model.ms3d")``
+        - ``mcsa_to_ms3d("model.mcsa", "model.ms3d")``
+        - ``mcsa_to_ms3d("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -193,11 +202,12 @@ def mcsa_to_fbx(
 
     Arguments:
         source: Path to source ``.mcsa`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mcsa_to_fbx("model.mcsa", "model.fbx")``
+        - ``mcsa_to_fbx("model.mcsa", "model.fbx")``
+        - ``mcsa_to_fbx("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -212,11 +222,12 @@ def efkmodel_to_obj(
 
     Arguments:
         source: Path to source ``.efkmodel`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``efkmodel_to_obj("model.efkmodel", "model.obj")``
+        - ``efkmodel_to_obj("model.efkmodel", "model.obj")``
+        - ``efkmodel_to_obj("model.efkmodel", "path/to/output/dir")``
     """
 
 
@@ -231,11 +242,12 @@ def efkmodel_to_glb(
 
     Arguments:
         source: Path to source ``.efkmodel`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``efkmodel_to_glb("model.efkmodel", "model.glb")``
+        - ``efkmodel_to_glb("model.efkmodel", "model.glb")``
+        - ``efkmodel_to_glb("model.efkmodel", "path/to/output/dir")``
     """
 
 
@@ -250,11 +262,12 @@ def efkmodel_to_dae(
 
     Arguments:
         source: Path to source ``.efkmodel`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``efkmodel_to_dae("model.efkmodel", "model.dae")``
+        - ``efkmodel_to_dae("model.efkmodel", "model.dae")``
+        - ``efkmodel_to_dae("model.efkmodel", "path/to/output/dir")``
     """
 
 
@@ -269,11 +282,12 @@ def efkmodel_to_ms3d(
 
     Arguments:
         source: Path to source ``.efkmodel`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``efkmodel_to_ms3d("model.efkmodel", "model.ms3d")``
+        - ``efkmodel_to_ms3d("model.efkmodel", "model.ms3d")``
+        - ``efkmodel_to_ms3d("model.efkmodel", "path/to/output/dir")``
     """
 
 
@@ -288,11 +302,12 @@ def efkmodel_to_fbx(
 
     Arguments:
         source: Path to source ``.efkmodel`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``efkmodel_to_fbx("model.efkmodel", "model.fbx")``
+        - ``efkmodel_to_fbx("model.efkmodel", "model.fbx")``
+        - ``efkmodel_to_fbx("model.efkmodel", "path/to/output/dir")``
     """
 
 
@@ -307,11 +322,12 @@ def ol_to_dds(
 
     Arguments:
         source: Path to source ``.ol`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``ol_to_dds("texture.ol", "texture.dds")``
+        - ``ol_to_dds("texture.ol", "texture.dds")``
+        - ``ol_to_dds("texture.ol", "path/to/output/dir")``
     """
 
 
@@ -326,11 +342,12 @@ def ol_cubemap_to_dds(
 
     Arguments:
         source: Path to source ``.ol`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``ol_cubemap_to_dds("cubemap.ol", "cubemap.dds")``
+        - ``ol_cubemap_to_dds("cubemap.ol", "cubemap.dds")``
+        - ``ol_cubemap_to_dds("cubemap.ol", "path/to/output/dir")``
     """
 
 
@@ -345,11 +362,12 @@ def mic_to_png(
 
     Arguments:
         source: Path to source ``.mic`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mic_to_png("image.mic", "image.png")``
+        - ``mic_to_png("image.mic", "image.png")``
+        - ``mic_to_png("image.mic", "path/to/output/dir")``
     """
 
 
@@ -364,11 +382,12 @@ def texarr_to_zip(
 
     Arguments:
         source: Path to source ``.texarr`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``texarr_to_zip("blocks.texarr", "blocks.zip")``
+        - ``texarr_to_zip("blocks.texarr", "blocks.zip")``
+        - ``texarr_to_zip("blocks.texarr", "path/to/output/dir")``
     """
 
 
@@ -383,11 +402,12 @@ def nbt_to_json(
 
     Arguments:
         source: Path to source ``NBT`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``nbt_to_json("itemnames.dat", "itemnames.json")``
+        - ``nbt_to_json("itemnames.dat", "itemnames.json")``
+        - ``nbt_to_json("itemnames.dat", "path/to/output/dir")``
     """
 
 
@@ -402,9 +422,10 @@ def mdat_to_mca(
 
     Arguments:
         source: Path to source ``.mdat`` file.
-        output (optional): Path to output directory. Defaults: ``Same directory as source``.
-        options (optional): User settings. Default: ``None``.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
 
     Example:
-        ``mdat_to_mca("reg.0.0.mdat", "r.0.0.mca")``
+        - ``mdat_to_mca("reg.0.0.mdat", "r.0.0.mca")``
+        - ``mdat_to_mca("reg.0.0.mdat", "path/to/output/dir")``
     """

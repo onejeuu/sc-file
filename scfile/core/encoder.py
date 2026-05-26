@@ -12,7 +12,7 @@ from scfile.structures.models import Flag
 from scfile.structures.models.transforms import SceneTransform
 from scfile.types import PathLike
 
-from .base import BaseFile, IOStream
+from .base import BaseFile, FileMode, IOStream
 from .content import ContentType, ModelContent
 from .options import Options
 
@@ -22,7 +22,7 @@ EncoderTransforms: TypeAlias = Optional[list[SceneTransform]]
 
 class FileEncoder(BaseFile, Generic[ContentType], ABC):
     """
-    Base class for serializing structured content into binary data.
+    Base class for encoding structured content into binary data.
 
     Subclasses define the format-specific serialization logic.
     """
@@ -40,9 +40,9 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         Initialize encoder.
 
         Args:
-            data: Content to encode.
-            options: Optional settings for parsing.
-            output: Optional destination. File path or binary IO stream. Defaults to in-memory buffer.
+            data: Structured content to encode.
+            options (optional): Shared handlers options.
+            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
 
         Note:
             Data is not written during initialization.
@@ -105,14 +105,14 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     def save_as(
         self,
         path: PathLike,
-        mode: str = "wb",
+        mode: FileMode = "wb",
     ) -> Self:
         """
         Write encoded data to file by name. Keeps encoder open.
 
         Args:
             path: Output file path.
-            mode: File open mode.
+            mode: File mode (binary).
         """
 
         if self.size() == 0:
@@ -126,14 +126,14 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     def export_as(
         self,
         path: PathLike,
-        mode: str = "wb",
+        mode: FileMode = "wb",
     ) -> Self:
         """
         Write encoded data to file by stem. Format suffix appended. Keeps the encoder open.
 
         Args:
             path: Output file path.
-            mode: File open mode.
+            mode: File mode (binary).
         """
 
         return self.save_as(
@@ -144,14 +144,14 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     def save(
         self,
         path: PathLike,
-        mode: str = "wb",
+        mode: FileMode = "wb",
     ) -> None:
         """
         Write encoded data to file by name. Closes encoder.
 
         Args:
             path: Output file path.
-            mode: File open mode.
+            mode: File mode (binary).
         """
 
         self.save_as(path=path, mode=mode)
@@ -160,14 +160,14 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
     def export(
         self,
         path: PathLike,
-        mode: str = "wb",
+        mode: FileMode = "wb",
     ) -> None:
         """
         Write encoded data to file by stem. Format suffix appended. Closes encoder.
 
         Args:
             path: Output file path.
-            mode: File open mode.
+            mode: File mode (binary).
         """
 
         self.save(path=f"{path}{self.suffix}", mode=mode)

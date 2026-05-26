@@ -1,4 +1,5 @@
 import sys
+import traceback
 from typing import Never
 
 import click
@@ -16,6 +17,7 @@ def _run_gui() -> None:  # pragma: no cover
         window.run()
 
     except ImportError:
+        print(traceback.format_exc())
         print(f"{L.ERROR} GUI is not available")
         print(f"{L.INFO} Try install with: pip install {escape('sc-file[gui]')}")
         print(f"{L.INFO} Or if your system does not support graphical interfaces, use command line: scfile --help")

@@ -1,24 +1,9 @@
 Default Pipelines
 ========================================
 
-Execution Lifecycle
--------------------
-
-Initialization of decoders and encoders only binds stream targets and settings.
-Data processing occurs during explicit method calls:
-
-* :meth:`~scfile.core.decoder.FileDecoder.decode` Parses source stream and fills data container.
-* :meth:`~scfile.core.encoder.FileEncoder.encode` Serializes data container into output binary stream.
-
-
-Conversion Interfaces
----------------------
-
-Methods for direct cross-format conversion without manual instance management:
-
-* :meth:`~scfile.core.decoder.FileDecoder.convert_to` Calls decoder and returns a new encoder instance initialized with parsed data.
-* :meth:`~scfile.core.decoder.FileDecoder.convert` Decodes source, encodes it to target format, returns raw bytes, and closes streams automatically.
-* Format-specific methods (e.g., ``as_obj()``) that mirror behavior (syntax sugar) of :meth:`~scfile.core.decoder.FileDecoder.convert_to`.
+* :meth:`~scfile.core.decoder.FileDecoder.convert_to` Decodes and returns encoder with file content.
+* :meth:`~scfile.core.decoder.FileDecoder.convert` Decodes, encodes to target format, returns raw bytes, closes both streams.
+* Format-specific methods (e.g., ``as_obj()``) shortcut for :meth:`~scfile.core.decoder.FileDecoder.convert_to`.
 
 
 Examples
@@ -85,8 +70,6 @@ Examples
 
     with open("output.obj", "wb") as fp:
         fp.write(output.getvalue())
-
-
 
 
 Persistence
