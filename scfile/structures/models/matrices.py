@@ -8,7 +8,7 @@ from .types import EulerAngles, Quaternion, RotationMatrix, TransformMatrix, Vec
 
 
 def create_rotation_matrix(rotation: EulerAngles) -> RotationMatrix:
-    """Euler angles (XYZ) to 3×3 rotation matrix."""
+    """Convert euler angles (XYZ) to 3×3 rotation matrix."""
 
     angles = np.radians(rotation)
     cx, cy, cz = np.cos(angles)
@@ -25,7 +25,7 @@ def create_rotation_matrix(rotation: EulerAngles) -> RotationMatrix:
 
 
 def create_transform_matrix(translation: Vector3D, rotation: EulerAngles) -> TransformMatrix:
-    """Translation and rotation (R * T) to 4×4 transform matrix."""
+    """Convert translation and rotation (R * T) to 4×4 transform matrix."""
 
     matrix = np.eye(4, dtype=np.float32)
     matrix[:3, :3] = create_rotation_matrix(rotation)

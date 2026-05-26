@@ -5,10 +5,11 @@ __license__ = "MIT"
 __repository__ = "onejeuu/sc-file"
 
 from .core import Options
-from . import cli, consts, convert, core, enums, exceptions, formats, structures
+from . import cli, consts, convert, core, enums, exceptions, formats, structures, types
 
 
 __all__ = (
+    "Options",
     "cli",
     "convert",
     "core",
@@ -17,5 +18,5 @@ __all__ = (
     "structures",
     "consts",
     "enums",
-    "Options",
+    "types",
 )

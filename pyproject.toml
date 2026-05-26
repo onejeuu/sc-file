@@ -53,7 +53,7 @@ packages = { find = { include = ["scfile", "scfile.*"] } }
 version = { attr = "scfile.__version__" }
 
 [tool.setuptools.package-data]
-scfile = ["scfile/gui/**/*"]
+scfile = ["gui/assets/*"]
 
 [tool.ruff.lint]
 ignore = ["E701"]

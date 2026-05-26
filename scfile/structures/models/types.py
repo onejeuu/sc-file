@@ -13,6 +13,13 @@ from .enums import Flag
 ModelFlags: TypeAlias = dict[Flag, bool]
 """Per-feature presence flags."""
 
+LocalBoneId = NewType("LocalBoneId", int)
+"""Bone index within mesh."""
+SkeletonBoneId = NewType("SkeletonBoneId", int)
+"""Bone index within skeleton."""
+BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]
+"""Mapping from mesh local to skeleton bone indices."""
+
 Vector2D: TypeAlias = Annotated[NDArray[np.float32], (..., 2)]
 """2D float32 vector."""
 Vector3D: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
@@ -26,13 +33,6 @@ LinksWeights: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
 """Bone weights per vertex."""
 Links: TypeAlias = tuple[LinksIds, LinksWeights]
 """Bone indices and weights pair."""
-
-LocalBoneId = NewType("LocalBoneId", int)
-"""Bone index within mesh."""
-SkeletonBoneId = NewType("SkeletonBoneId", int)
-"""Bone index within skeleton."""
-BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]
-"""Mapping from mesh local to skeleton bone indices."""
 
 Polygons: TypeAlias = Annotated[NDArray[np.uint32], (..., 3)]
 """Triangle indices."""
