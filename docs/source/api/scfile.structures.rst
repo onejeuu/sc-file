@@ -10,9 +10,8 @@
 ---------------------------------
 
 .. automodule:: scfile.structures.models
-  :members:
+  :no-members:
   :show-inheritance:
-  :undoc-members:
 
 .. toctree::
   :maxdepth: 2
