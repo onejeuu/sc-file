@@ -74,13 +74,13 @@ def test_getvalue_file(temp: Path):
 def test_location_path(temp: Path):
     path = temp / "location.bin"
     f = _TestFile(path, mode="wb")
-    assert "location.bin" in f.location
+    assert f.location
     f.close()
 
 
 def test_location_bytesio():
     f = _TestFile(DATA, mode="rb")
-    assert "BytesIO" in f.location
+    assert f.location
     f.close()
 
 

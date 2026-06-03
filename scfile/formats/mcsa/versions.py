@@ -12,6 +12,7 @@ SUPPORTED_VERSIONS: list[Version] = [
     10.0,
     11.0,
     12.0,
+    15.0,
 ]
 """Supported MCSA format versions."""
 
@@ -20,4 +21,4 @@ VERSION_MAP: dict[Version, list[Flag]] = {
     8.0: [Flag.SKELETON, Flag.UV, Flag.NORMALS, Flag.TANGENTS, Flag.COLORS],
     9.0: [Flag.SKELETON, Flag.UV, Flag.UV2, Flag.NORMALS, Flag.TANGENTS, Flag.COLORS],
 }
-"""Mapping of MCSA versions to available feature flags."""
+"""Mapping of MCSA versions to feature flags (version floor semantics)."""

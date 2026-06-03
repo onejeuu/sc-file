@@ -16,7 +16,7 @@
 
 | Configuration: Flags, Scales.
 | Geometry: Name, Material, Vertex positions, UV1, UV2, Normals, Tangents, Polygons.
-| Optional: Skeleton bones, Animation clips.
+| Optional: Skeleton bones, Animation clips, Blend shapes.
 
 ``.mcsb`` Scene Bundle (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

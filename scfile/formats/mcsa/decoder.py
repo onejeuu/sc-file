@@ -20,6 +20,7 @@ class MeshCounts:
     polygons: int = 0
     max_influences: int = 0
     local_bones: int = 0
+    blend_shapes: int = 0
 
 
 class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
@@ -112,6 +113,14 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         counts.polygons = self._parse_count("polygons")
 
+        # ? Not parsed
+        # # Unknown: Feature Flags Dependence
+        # Blend Shape Table
+        if self.data.version >= 15.0:
+            self._readb(F.U8)  # flag ?
+            counts.blend_shapes = self._readb(F.U8)
+            self.skip(counts.blend_shapes * 2)
+
         # ? Not exported
         if self.data.flags[Flag.UV]:
             self.data.scene.scale.filtering = self._readb(F.F32)
@@ -152,8 +161,24 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.SKELETON]:
             self._parse_links(mesh, counts.vertices, counts.max_influences)
 
+        # ? Not parsed
+        # # Unknown: Feature Flags Dependence
+        # Blend Shape Mapping
+        if self.data.version >= 15.0:
+            self.skip(counts.vertices * 2)
+
         # Polygon faces
         mesh.polygons = self._readpolygons(counts.polygons, mesh.quads)
+
+        # ? Not parsed
+        # # Unknown: Feature Flags Dependence
+        # Blend Shape Data
+        if self.data.version >= 15.0:
+            self._readutf8()
+            active_shape_count = self._readb(F.U8)
+            base_vertex_count = self._readb(F.U16)
+            [self._readutf8() for _ in range(active_shape_count)]
+            self.skip(active_shape_count * base_vertex_count * 4)
 
         self.data.scene.meshes.append(mesh)
 
@@ -238,6 +263,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         bone.position, bone.rotation = self._readbone()
 
         self.data.scene.skeleton.bones.append(bone)
+
+        # ? Not parsed
+        # # Unknown: Feature Flags Dependence
+        if self.data.version >= 15.0:
+            count = self._readb(F.U16)
+            [self._readutf8() for _ in range(count)]
 
     def _parse_animation(self):
         self.ctx["COUNT_CLIPS"] = self._readb(F.I32)

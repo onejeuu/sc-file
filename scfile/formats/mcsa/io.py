@@ -6,7 +6,7 @@ import numpy as np
 
 from scfile.consts import Factor
 from scfile.core import StructIO
-from scfile.enums import F
+from scfile.enums import ByteOrder, F
 from scfile.structures import models as S
 
 from .consts import McsaUnits

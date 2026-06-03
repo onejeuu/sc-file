@@ -90,12 +90,9 @@ switch( version ) {
 }
 
 struct Scales {
-    if ( version >= 15.0 )
-       float morph;
-
     float positions <name="Positions">;
 
-    if ( flags.UV && version < 15.0 )
+    if ( flags.UV )
         float uv <name="UV">;
 
     if ( version >= 9.0 )
@@ -133,12 +130,18 @@ typedef struct {
 } BoundingBox;
 
 typedef struct {
+    ubyte flag;
+    ubyte count <name="Blend Shape Count">;
+    short parentIndex[count] <name="Parent Index">;
+} BlendShapeTree;
+
+typedef struct {
     byte deltaX, deltaY, deltaZ;
     byte reserved;
 } MorphDelta;
 
 typedef struct {
-    char baseMeshReference[64] <name="Base Mesh Reference">;
+    String reference <name="Base Mesh Reference">;
     ubyte activeShapeCount <name="Active Blend Shape Count">;
     ushort baseVertexCount <name="Base Mesh Vertex Count">;
     String blendShapeNames[activeShapeCount] <name="Blend Shape Name", optimize=false>;
@@ -159,9 +162,9 @@ typedef struct {
 
     uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
 
-    if ( version >= 15.0 )
-        char blendShapeSignature[4];
-        ushort blendShapeTable[52];
+    if ( version >= 15.0 ) {
+        BlendShapeTree blendShapeTree <name="Blend Shape Tree">;
+    }
 
     if ( flags.UV )
         float textureFilter <name="Texture Filtering">;
@@ -198,10 +201,10 @@ typedef struct {
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
 
-    if ( version >= 15.0 )
-         byte morphTargetCount;
-         ushort baseVertexMap[vertexCount];
-         BigEndian(); // not sure why, but in 15.0 polygons is BE (???)
+    if ( version >= 15.0 ) {
+        ushort baseVertexMap[vertexCount];
+    }
+
 
     if ( version >= 12.0 && polygonQuads ) {
         if ( polygonCount * 4 >= 0x10000) {
@@ -220,7 +223,7 @@ typedef struct {
     LittleEndian();
 
     if ( version >= 15.0 ) {
-        BlendShape blendShapeData <name="Blend Shape">;
+        BlendShape blendShape <name="Blend Shape">;
     }
 } Mesh <read=(exists(this.name.data) ? this.name.data : "")>;
 
