@@ -80,6 +80,7 @@ class Styles:
     COMBO = f"""
         QComboBox {{ background: {Colors.CARD}; border: 1px solid {Colors.BORDER}; border-radius: 4px; padding: 0px 10px; min-height: 26px; }}
         QComboBox:hover {{ border: 1px solid {Colors.ACCENT}; }}
+        QComboBox:disabled {{ background: {Colors.CARD.darker}; color: {Colors.TEXT.darker}; border: 1px solid {Colors.CARD}; }}
         QComboBox::drop-down {{ border: none; background: transparent; }}
         QComboBox QAbstractItemView {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; outline: none; padding: 4px 0px; }}
         QComboBox QAbstractItemView::item {{ min-height: 24px; padding-left: 10px; padding-right: 10px; border: none; border-radius: 2px; margin: 0px 4px; }}
