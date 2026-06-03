@@ -7,6 +7,7 @@ from scfile.enums import FileFormat
 from . import strings
 
 
+TITLE = "scfile"
 DEFAULT_OUTPUT = Path.home() / "scfile" / "export"
 
 

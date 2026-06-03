@@ -26,12 +26,20 @@ class Colors(Enum):
         return self.value.darker(150).name()
 
     @property
+    def black(self):
+        return self.value.darker(300).name()
+
+    @property
     def lighter(self):
         return self.value.lighter(120).name()
 
     @property
     def light(self):
         return self.value.lighter(150).name()
+
+    @property
+    def white(self):
+        return self.value.lighter(300).name()
 
 
 class Styles:
@@ -99,15 +107,19 @@ class Styles:
         QLineEdit:disabled {{ background: {Colors.CARD.darker}; color: {Colors.TEXT.darker}; border: 1px solid {Colors.CARD}; }}
     """
 
-    TAB = f"""
-        QTabBar::tab {{ background: {Colors.BACKGROUND}; color: {Colors.TEXT}; padding: 10px 20px; min-width: 120px; border: none; font-weight: bold; }}
-        QTabBar::tab:selected {{ background: {Colors.CARD}; color: white; border-bottom: 2px solid {Colors.ACCENT}; }}
-        QTabBar::tab:hover {{ background: {Colors.CARD.darker}; }}
-    """
-
     POPUP = f"""
         UpdatePopup {{ background-color: {Colors.BACKGROUND.lighter}; border: 1px solid {Colors.BORDER}; border-radius: 6px; }}
         QLabel {{ background: transparent; }}
+    """
+
+    SIDEBAR = f"""
+        QWidget#sidebar {{ background: {Colors.CARD}; border-right: 1px solid {Colors.BORDER}; }}
+    """
+
+    SIDEBAR_ITEM = f"""
+        QPushButton {{ background: transparent; border: none; border-left: 3px solid transparent; padding: 12px 0px; }}
+        QPushButton:hover {{ background: {Colors.CARD.light}; }}
+        QPushButton:checked {{ background: {Colors.ACCENT.black}; border-left: 3px solid {Colors.ACCENT}; }}
     """
 
     TOGGLE_GROUP = f"""
