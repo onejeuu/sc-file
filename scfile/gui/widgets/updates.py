@@ -1,3 +1,5 @@
+import time
+
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
@@ -7,6 +9,7 @@ from scfile.enums import UpdateStatus
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Colors, Styles
 from scfile.gui.workers.updates import UpdatesWorker
+from scfile.utils.updates import UpdateCheck
 from scfile.utils.versions import Version
 
 from .link import LinkWidget
@@ -25,7 +28,13 @@ class UpdatePopup(QWidget):
         self.main_layout.setContentsMargins(10, 8, 10, 8)
         self.main_layout.setSpacing(6)
 
-    def _clear_layout(self):
+        self.close_timer = QTimer(self)
+        self.close_timer.setSingleShot(True)
+        self.close_timer.timeout.connect(self.close)
+
+    def _clear_state(self):
+        self.close_timer.stop()
+
         while self.main_layout.count():
             if item := self.main_layout.takeAt(0):
                 if w := item.widget():
@@ -33,21 +42,22 @@ class UpdatePopup(QWidget):
                     w.deleteLater()
 
     def show_loading(self):
-        self._clear_layout()
+        self._clear_state()
+
         label = QLabel(strings.get("update.checking"))
         self.main_layout.addWidget(label)
         self.adjustSize()
         self.show()
 
     def show_status(self, status: UpdateStatus, message: str, url: str):
-        self._clear_layout()
+        self._clear_state()
 
         match status:
             case UpdateStatus.UPTODATE:
                 label = QLabel(strings.get("update.uptodate"))
                 label.setStyleSheet(f"color: {Colors.SUCCESS};")
                 self.main_layout.addWidget(label)
-                QTimer.singleShot(3000, self.close)
+                self.close_timer.start(3000)
 
             case UpdateStatus.AVAILABLE:
                 label = QLabel(strings.get("update.available"))
@@ -103,6 +113,10 @@ class VersionWidget(QWidget):
         self.popup: UpdatePopup | None = None
         self.worker: UpdatesWorker | None = None
 
+        self._cached: UpdateCheck | None = None
+        self._cache_timestamp: float = 0.0
+        self._cache_ttl: int = 60
+
     def leaveEvent(self, event):
         self.setStyleSheet(Styles.LINK)
         super().leaveEvent(event)
@@ -117,11 +131,16 @@ class VersionWidget(QWidget):
         super().mouseReleaseEvent(event)
 
     def start_update(self):
-        if self.worker and self.worker.isRunning():
-            return
-
         if not self.popup:
             self.popup = UpdatePopup(self)
+
+        now = time.time()
+        if self._cached and (now - self._cache_timestamp < self._cache_ttl):
+            self.popup.show_status(*self._cached)
+            return
+
+        if self.worker and self.worker.isRunning():
+            return
 
         self.popup.show_loading()
 
@@ -130,5 +149,9 @@ class VersionWidget(QWidget):
         self.worker.start()
 
     def handle_status(self, status: UpdateStatus, message: str, url: str):
+        if status in (UpdateStatus.UPTODATE, UpdateStatus.AVAILABLE):
+            self._cached = UpdateCheck(status, message, url)
+            self._cache_timestamp = time.time()
+
         if self.popup:
             self.popup.show_status(status, message, url)

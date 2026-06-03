@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QHBoxLayout, QWidget
 from scfile import __repository__ as REPO
 
 from .link import LinkWidget
-from .version import VersionWidget
+from .updates import VersionWidget
 
 
 class FooterWidget(QWidget):
