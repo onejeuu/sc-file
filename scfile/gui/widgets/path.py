@@ -28,6 +28,7 @@ class PathInputWidget(QWidget):
         self.line_edit.editingFinished.connect(lambda: self.changed.emit(self.line_edit.text()))
 
         self.browse_btn = QPushButton("...")
+        self.browse_btn.setStyleSheet(Styles.BROWSE)
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedSize(30, 30)
         self.browse_btn.setToolTip(strings.get("tooltip.path_browse"))

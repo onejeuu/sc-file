@@ -5,9 +5,10 @@ from PySide6.QtGui import QColor
 
 class Colors(Enum):
     ACCENT = QColor("#ffd666")
-    CARD = QColor("#2b2b2b")
-    BACKGROUND = QColor("#1a1a1a")
-    TEXT = QColor("#abb2bf")
+    CARD = QColor("#212124")
+    BACKGROUND = QColor("#141416")
+    BORDER = QColor("#323236")
+    TEXT = QColor("#e1e2e6")
     INFO = QColor("#61afef")
     SUCCESS = QColor("#98c379")
     WARNING = QColor("#e2a03f")
@@ -42,9 +43,9 @@ class Styles:
     CHECKBOX = f"""
         QCheckBox {{ color: {Colors.TEXT}; spacing: 8px; }}
         QCheckBox:disabled {{ color: {Colors.TEXT.dark}; }}
-        QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid {Colors.CARD.lighter}; background: {Colors.CARD}; }}
+        QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid {Colors.BORDER}; background: {Colors.CARD}; border-radius: 3px; }}
         QCheckBox::indicator:unchecked:hover {{ border: 1px solid {Colors.ACCENT}; }}
-        QCheckBox::indicator:disabled {{ background: transparent; border: 1px solid {Colors.CARD.darker}; }}
+        QCheckBox::indicator:disabled {{ background: transparent; border: 1px solid {Colors.BORDER.darker}; }}
         QCheckBox::indicator:checked {{ background: {Colors.ACCENT}; border: 1px solid {Colors.ACCENT}; }}
         QCheckBox::indicator:checked:hover {{ background: {Colors.ACCENT.darker}; border: 1px solid {Colors.ACCENT.darker}; }}
         QCheckBox::indicator:checked:disabled {{ background: {Colors.CARD.light}; border: 1px solid {Colors.CARD.light}; }}
@@ -53,39 +54,40 @@ class Styles:
     RADIO = f"""
         QRadioButton {{ color: {Colors.TEXT}; spacing: 8px; }}
         QRadioButton:disabled {{ color: {Colors.TEXT.dark}; }}
-        QRadioButton::indicator {{ width: 14px; height: 14px; border: 1px solid {Colors.CARD.lighter}; background: {Colors.CARD}; border-radius: 7px; }}
+        QRadioButton::indicator {{ width: 14px; height: 14px; border: 1px solid {Colors.BORDER}; background: {Colors.CARD}; border-radius: 7px; }}
         QRadioButton::indicator:unchecked:hover {{ border: 1px solid {Colors.ACCENT}; }}
-        QRadioButton::indicator:disabled {{ background: transparent; border: 1px solid {Colors.CARD.darker}; }}
+        QRadioButton::indicator:disabled {{ background: transparent; border: 1px solid {Colors.BORDER.darker}; }}
         QRadioButton::indicator:checked {{ background: {Colors.ACCENT}; border: 1px solid {Colors.ACCENT}; }}
         QRadioButton::indicator:checked:hover {{ background: {Colors.ACCENT.darker}; border: 1px solid {Colors.ACCENT.darker}; }}
         QRadioButton::indicator:checked:disabled {{ background: {Colors.CARD.light}; border: 1px solid {Colors.CARD.light}; }}
     """
 
     LIST = f"""
-        QListWidget {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.CARD.lighter}; outline: none; font-size: 12px; }}
-        QListWidget::item {{ padding: 3px 5px; }}
+        QListWidget {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; outline: none; font-size: 12px; }}
+        QListWidget::item {{ padding: 4px 6px; border-radius: 2px; }}
         QListWidget::item:selected {{ background: {Colors.CARD.lighter}; color: #ffffff; }}
         QListWidget::item:hover, QListWidget::item:selected:hover {{ background: {Colors.CARD.light}; }}
     """
 
     COMBO = f"""
-        QComboBox {{ background: {Colors.CARD}; border: 1px solid {Colors.CARD.lighter}; padding: 2px 10px; }}
+        QComboBox {{ background: {Colors.CARD}; border: 1px solid {Colors.BORDER}; border-radius: 4px; padding: 0px 10px; min-height: 26px; }}
         QComboBox:hover {{ border: 1px solid {Colors.ACCENT}; }}
         QComboBox::drop-down {{ border: none; background: transparent; }}
-        QComboBox QAbstractItemView {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.CARD.lighter}; outline: none; }}
-        QComboBox QAbstractItemView::item {{ min-height: 20px; padding-left: 10px; border: none; }}
+        QComboBox QAbstractItemView {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; outline: none; padding: 4px 0px; }}
+        QComboBox QAbstractItemView::item {{ min-height: 24px; padding-left: 10px; padding-right: 10px; border: none; border-radius: 2px; margin: 0px 4px; }}
         QComboBox QAbstractItemView::item:selected {{ background: {Colors.CARD.lighter}; color: {Colors.ACCENT}; }}
         QComboBox QAbstractItemView::item:hover {{ background: {Colors.CARD.light}; }}
     """
 
     BUTTON = f"""
-        QPushButton {{ background: {Colors.ACCENT}; color: black; font-weight: bold; font-size: 15px; border: none; }}
+        QPushButton {{ background: {Colors.ACCENT}; color: black; font-weight: bold; font-size: 15px; border: none; border-radius: 4px; }}
         QPushButton:hover {{ background: {Colors.ACCENT.lighter}; }}
         QPushButton:disabled {{ background: {Colors.CARD.light}; color: {Colors.TEXT.dark}; }}
     """
 
     INPUT = f"""
-        QLineEdit {{ background: {Colors.BACKGROUND}; color: {Colors.TEXT}; border: 1px solid {Colors.CARD.lighter}; padding: 4px; }}
+        QLineEdit {{ background: {Colors.BACKGROUND}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; padding: 4px; }}
+        QLineEdit:hover {{ border: 1px solid {Colors.ACCENT}; }}
         QLineEdit:disabled {{ background: {Colors.CARD.darker}; color: {Colors.TEXT.darker}; border: 1px solid {Colors.CARD}; }}
     """
 
@@ -96,37 +98,25 @@ class Styles:
     """
 
     POPUP = f"""
-        UpdatePopup {{
-            background-color: {Colors.BACKGROUND.lighter};
-            border: 1px solid {Colors.CARD.lighter};
-        }}
-        QLabel {{
-            background: transparent;
-        }}
+        UpdatePopup {{ background-color: {Colors.BACKGROUND.lighter}; border: 1px solid {Colors.BORDER}; border-radius: 6px; }}
+        QLabel {{ background: transparent; }}
+    """
+
+    BROWSE = f"""
+        QPushButton {{ background: {Colors.CARD}; border: 1px solid {Colors.BORDER}; border-radius: 4px; color: {Colors.TEXT}; }}
+        QPushButton:hover {{ border: 1px solid {Colors.ACCENT}; color: {Colors.ACCENT}; }}
+        QPushButton:pressed {{ background: {Colors.CARD.lighter}; }}
     """
 
     TOGGLE_GROUP = f"""
-        QWidget {{ background: {Colors.CARD}; border: 1px solid {Colors.CARD.lighter}; }}
+        QWidget {{ background: {Colors.BACKGROUND}; border-radius: 4px; }}
     """
 
     TOGGLE_ITEM = f"""
-        QPushButton {{
-            background: {Colors.CARD};
-            color: {Colors.TEXT};
-            border: none;
-            padding: 6px 8px;
-            font-size: 12px;
-        }}
-        QPushButton:checked {{
-            background: {Colors.ACCENT};
-            color: black;
-            font-weight: bold;
-        }}
-        QPushButton:hover:!checked {{
-            background: {Colors.CARD.light};
-        }}
-        QPushButton:first {{ border-top-left-radius: 2px; border-bottom-left-radius: 2px; }}
-        QPushButton:last {{ border-top-right-radius: 2px; border-bottom-right-radius: 2px; }}
+        QPushButton {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: none; padding: 6px 8px; font-size: 12px; margin-right: 4px; }}
+        QPushButton:last {{ margin-right: 0px; }}
+        QPushButton:checked {{ background: {Colors.ACCENT}; color: black; font-weight: bold; }}
+        QPushButton:hover:!checked {{ background: {Colors.CARD.light}; }}
     """
 
     LINK = f"""background-color: transparent; color: {Colors.TEXT.dark}; font-size: 12px;"""
