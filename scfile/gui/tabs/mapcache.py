@@ -144,7 +144,7 @@ class MapCacheTab(QWidget):
 
         self.merge = QPushButton(strings.get("button.mapcache.merge"))
         self.merge.setFixedHeight(50)
-        self.merge.setStyleSheet(Styles.BUTTON)
+        self.merge.setStyleSheet(Styles.BUTTON_ACCENT)
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor)
         self.merge.setEnabled(False)
         self.merge.clicked.connect(self._merge)

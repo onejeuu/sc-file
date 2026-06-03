@@ -94,10 +94,12 @@ class ConverterTab(QWidget):
         title.setStyleSheet(Styles.TITLE)
 
         add_file = QPushButton(strings.get("button.add_files"))
+        add_file.setStyleSheet(Styles.BUTTON)
         add_file.setCursor(Qt.CursorShape.PointingHandCursor)
         add_file.clicked.connect(self._browse_files)
 
         add_dir = QPushButton(strings.get("button.add_folder"))
+        add_dir.setStyleSheet(Styles.BUTTON)
         add_dir.setCursor(Qt.CursorShape.PointingHandCursor)
         add_dir.clicked.connect(self._browse_folder)
 
@@ -140,7 +142,7 @@ class ConverterTab(QWidget):
         # Convert button
         self.convert = QPushButton(strings.get("button.convert"))
         self.convert.setMinimumHeight(50)
-        self.convert.setStyleSheet(Styles.BUTTON)
+        self.convert.setStyleSheet(Styles.BUTTON_ACCENT)
         self.convert.clicked.connect(self._convert)
         self.right.addWidget(self.convert)
 

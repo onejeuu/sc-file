@@ -80,8 +80,16 @@ class Styles:
     """
 
     BUTTON = f"""
+        QPushButton {{ background: {Colors.CARD}; border: 1px solid {Colors.BORDER}; border-radius: 4px; color: {Colors.TEXT}; padding: 2px 8px; }}
+        QPushButton:hover {{ border: 1px solid {Colors.ACCENT}; color: {Colors.ACCENT}; }}
+        QPushButton:pressed {{ background: {Colors.CARD.lighter}; }}
+        QPushButton:disabled {{ background: {Colors.CARD.light}; color: {Colors.TEXT.dark}; }}
+    """
+
+    BUTTON_ACCENT = f"""
         QPushButton {{ background: {Colors.ACCENT}; color: black; font-weight: bold; font-size: 15px; border: none; border-radius: 4px; }}
-        QPushButton:hover {{ background: {Colors.ACCENT.lighter}; }}
+        QPushButton:hover {{ background: {Colors.ACCENT.darker}; }}
+        QPushButton:pressed {{ background: {Colors.ACCENT.darker}; padding-top: 2px; }}
         QPushButton:disabled {{ background: {Colors.CARD.light}; color: {Colors.TEXT.dark}; }}
     """
 
@@ -100,12 +108,6 @@ class Styles:
     POPUP = f"""
         UpdatePopup {{ background-color: {Colors.BACKGROUND.lighter}; border: 1px solid {Colors.BORDER}; border-radius: 6px; }}
         QLabel {{ background: transparent; }}
-    """
-
-    BROWSE = f"""
-        QPushButton {{ background: {Colors.CARD}; border: 1px solid {Colors.BORDER}; border-radius: 4px; color: {Colors.TEXT}; }}
-        QPushButton:hover {{ border: 1px solid {Colors.ACCENT}; color: {Colors.ACCENT}; }}
-        QPushButton:pressed {{ background: {Colors.CARD.lighter}; }}
     """
 
     TOGGLE_GROUP = f"""
