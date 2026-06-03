@@ -37,10 +37,14 @@ typedef struct {
 } String <read=(exists(data) ? data : "")>;
 
 
-// Vectors
+// Dequantization
 
-float nB(byte  i) { return (float)i / 127.0f; }   // NormalizeByte (Dequantization)
-float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort (Dequantization)
+float nB(byte  i) { return (float)i / 127.0f; }   // NormalizeByte
+float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort
+float nUS(ushort i) { return (float)i / 65535.0f; }  // NormalizeUnsignedShort
+
+
+// Vectors
 
 typedef struct { short u, v; } Vec2s <read=Str("%f, %f", nS(u), nS(v))>;
 
@@ -253,7 +257,7 @@ if ( flags.SKELETON )
             ushort facialBoneCount;
             if  ( facialBoneCount > 0 ) String facialBoneNames[facialBoneCount] <optimize=false>;
         }
-    } skeleton <name="Skeleton">;
+    } skeleton <name="Armature">;
 
 
 
@@ -266,23 +270,55 @@ struct BoneTransform {
     Vec3s translation <name="Translation", bgcolor=cWhite>;
 };
 
-struct KeyFrame {
-    if ( skeleton.boneCount > 0 ) BoneTransform transforms[skeleton.boneCount];
+struct BoneKeyFrame {
+    BoneTransform transforms[skeleton.boneCount];
+};
+
+
+typedef ushort MorphWeight <read=Str("%f", nUS(this))>;
+
+struct MorphKeyFrame {
+    MorphWeight weights[channelCount];
 };
 
 typedef struct {
     String name <name="Name">;
     int frameCount <name="Keyframe Count", bgcolor=cGreen>;
     float frameInterval <name="Frame Interval", fgcolor=cPurple>;
-    if ( frameCount > 0 ) KeyFrame frame[frameCount] <optimize=false>;
+    if ( frameCount > 0 ) {
+        BoneKeyFrame frame[frameCount] <optimize=false>;
+    }
 } Clip <read=(exists(this.name.data) ? this.name.data : "")>;
+
+
+typedef struct {
+    String name <name="Name">;;
+    int frameCount <name="Keyframe Count", bgcolor=cGreen>;
+    float frameInterval<name="Frame Interval", fgcolor=cPurple>;
+    ushort channelCount <name="Channel Count", bgcolor=cBlue>;
+    if ( frameCount > 0 && channelCount > 0 ) {
+        MorphKeyFrame frame[frameCount] <optimize=false, bgcolor=cGray>;
+    }
+} MorphClip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 
 // Not sure where exactly marked that file contains animation.
 // Perhaps its indicated from outside.
 if ( !FEof() )
-    if ( flags.SKELETON )
-        struct Animation {
-            int  clipCount <name="Clip Count", bgcolor=cBlue>;
-            if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
-        } animation <name="Animation">;
+    if ( flags.SKELETON ) {
+        if ( skeleton.boneCount > 0 ) {
+            struct Animation {
+                int  clipCount <name="Clip Count", bgcolor=cBlue>;
+                if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
+            } animation <name="Skeletal Animation">;
+        }
+
+        if ( version >= 15.0 ) {
+            if ( skeleton.facialBoneCount > 0 ) {
+                struct {
+                    int morphClipCount <name="Clip Count", bgcolor=cBlue>;
+                    if ( morphClipCount > 0 ) MorphClip morphClips[morphClipCount] <name="Clip", optimize=false>;
+                } morphAnimation <name="Morph Animation">;
+            }
+        }
+    }
