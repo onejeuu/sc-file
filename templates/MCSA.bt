@@ -18,9 +18,6 @@ if ( ext == ".mcsb" ) {
     char hashData[hashSize] <hidden=true, bgcolor=cGray>;
 }
 
-
-// Default Byte Order
-
 LittleEndian();
 
 
@@ -85,6 +82,7 @@ switch( version ) {
     case 10.0:
     case 11.0:
     case 12.0:
+    case 15.0:
         FlagsV9 flags <name="Flags", fgcolor=cAqua>; break;
     default:
         Warning("ERROR: File version '%g' is unsupported.\n", version);
@@ -92,9 +90,12 @@ switch( version ) {
 }
 
 struct Scales {
+    if ( version >= 15.0 )
+       float morph;
+
     float positions <name="Positions">;
 
-    if ( flags.UV )
+    if ( flags.UV && version < 15.0 )
         float uv <name="UV">;
 
     if ( version >= 9.0 )
@@ -104,6 +105,8 @@ struct Scales {
 
 
 // Model Meshes
+
+LittleEndian();
 
 typedef struct {
     ubyte maxInfluences <name="Max Influences">;
@@ -130,6 +133,19 @@ typedef struct {
 } BoundingBox;
 
 typedef struct {
+    byte deltaX, deltaY, deltaZ;
+    byte reserved;
+} MorphDelta;
+
+typedef struct {
+    char baseMeshReference[64] <name="Base Mesh Reference">;
+    ubyte activeShapeCount <name="Active Blend Shape Count">;
+    ushort baseVertexCount <name="Base Mesh Vertex Count">;
+    String blendShapeNames[activeShapeCount] <name="Blend Shape Name", optimize=false>;
+    MorphDelta morphDelta[activeShapeCount * baseVertexCount] <name="Blend Shape Deltas", optimize=false>;
+} BlendShape;
+
+typedef struct {
     String name <name="Name">;
     String material <name="Material">;
 
@@ -142,6 +158,10 @@ typedef struct {
         bool polygonQuads <name="Polygon Quads", bgcolor=cLtGreen>;
 
     uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
+
+    if ( version >= 15.0 )
+        char blendShapeSignature[4];
+        ushort blendShapeTable[52];
 
     if ( flags.UV )
         float textureFilter <name="Texture Filtering">;
@@ -178,6 +198,11 @@ typedef struct {
                 SkinArrays weights <name="Weights", bgcolor=cWhite>; break;
         }
 
+    if ( version >= 15.0 )
+         byte morphTargetCount;
+         ushort baseVertexMap[vertexCount];
+         BigEndian(); // not sure why, but in 15.0 polygons is BE (???)
+
     if ( version >= 12.0 && polygonQuads ) {
         if ( polygonCount * 4 >= 0x10000) {
             Quad32 polygons[polygonCount] <name="Polygons", comment="Q32", bgcolor=cLtBlue>;
@@ -191,6 +216,12 @@ typedef struct {
             Tri16 polygons[polygonCount] <name="Polygons", comment="T16", bgcolor=cLtBlue>;
         }
     }
+
+    LittleEndian();
+
+    if ( version >= 15.0 ) {
+        BlendShape blendShapeData <name="Blend Shape">;
+    }
 } Mesh <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Model {
@@ -200,6 +231,8 @@ struct Model {
 
 
 // Model Skeleton
+
+LittleEndian();
 
 typedef struct {
     String name <name="Name">;
@@ -212,10 +245,18 @@ if ( flags.SKELETON )
     struct Skeleton {
         ubyte boneCount <name="Bone Count", bgcolor=cPurple>;
         if  ( boneCount > 0 ) Bone bones[boneCount] <name="Bone", optimize=false>;
+
+        if ( version >= 15.0 ) {
+            ushort facialBoneCount;
+            if  ( facialBoneCount > 0 ) String facialBoneNames[facialBoneCount] <optimize=false>;
+        }
     } skeleton <name="Skeleton">;
 
 
+
 // Model Animation
+
+LittleEndian();
 
 struct BoneTransform {
     Vec4s rotation <name="Rotation", bgcolor=cGray>;
