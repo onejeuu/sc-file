@@ -38,6 +38,7 @@ class BaseFile(StructIO, ABC):
     options: Options
     """Shared handlers options."""
 
+    _location: str
     _stream: IO[bytes]
 
     def __init__(
@@ -52,13 +53,18 @@ class BaseFile(StructIO, ABC):
         """
 
         if isinstance(stream, (str, Path)):
-            self._stream = open(os.fspath(stream), mode)
+            self._location = os.fspath(stream)
+            self._stream = open(self._location, mode)
 
         elif isinstance(stream, bytes):
             self._stream = BytesIO(stream)
+            self._location = f"<bytes at {hex(id(self._stream))}>"
 
         elif isinstance(stream, IOBase):
             self._stream = cast(IO[bytes], stream)
+
+            name = self._stream.name if hasattr(self._stream, "name") else None
+            self._location = name or f"<{type(stream).__name__} at {hex(id(stream))}>"
 
         else:
             raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
@@ -71,7 +77,7 @@ class BaseFile(StructIO, ABC):
 
     @property
     def location(self) -> str:
-        return repr(self._stream)
+        return self._location
 
     @property
     def closed(self) -> bool:
