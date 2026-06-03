@@ -1,0 +1,15 @@
+v5.1.0
+======
+
+✨ Added
+--------
+
+* ``McsaDecoder``: support for model version 15.0.
+* **GUI:** sidebar navigation.
+
+📝 Changed
+----------
+
+* **Core:** ``BaseFile.location`` now returns meaningful identifier.
+* **GUI:** redesigned color scheme and component styles.
+* **GUI:** update check now caches results for 60 seconds.

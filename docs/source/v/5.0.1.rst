@@ -1,0 +1,8 @@
+v5.0.1
+======
+
+🐛 Fixed
+--------
+
+* **GUI:** language detection now works correctly.
+* **GUI:** assets are now included in the PyPI package.
