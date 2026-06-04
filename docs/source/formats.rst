@@ -52,9 +52,6 @@
 | Mipmaps compressed with `LZ4`_.
 | Some normal map textures are inverted.
 
-| Cubemap variant exists (OLCUBEMAP.bt_)
-| Mostly found in: ``gloomycore/sky``, ``effects/textures``, ``stalker/gui``.
-
 .. list-table:: Texture Suffix Conventions
   :header-rows: 1
 

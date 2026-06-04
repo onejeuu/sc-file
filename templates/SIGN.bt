@@ -1,0 +1,51 @@
+//------------------------------------------------
+// File: SIGN.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse texture signatures.
+// Category: STALCRAFT
+// File Mask: *.sign
+//------------------------------------------------
+
+// Hash Prefix
+
+BigEndian();
+
+uint hashSize <hidden=true, bgcolor=cLtGray>;
+char hashData[hashSize] <hidden=true, bgcolor=cGray>;
+
+
+// Length Prefixed String
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
+
+
+// File
+
+char signature[4] <name="Signature", fgcolor=cGreen>;
+uint version <name="Version", fgcolor=cRed>;
+uint textureCount <name="Texture Count">;
+
+struct MipMap {
+    uint index <name="Index", fgcolor=cLtRed>;
+    uint cubeFace <name="Reserved", fgcolor=cGray>;
+    uint compressedSize <name="Compressed Size", bgcolor=cDkGreen>;;
+    uint uncompressedSize <name="Uncompressed Size", bgcolor=cGreen>;
+    ubyte hash[32] <name="SHA-256", fgcolor=cLtBlue>;
+};
+
+struct TextureSignature {
+    String path <name="File Path">;
+    uint height <name="Height">;
+    uint width <name="Width">;
+    uint mipMapCount <name="MipMap Count", bgcolor=cAqua>;
+    uint faceCount <name="Face Count", fgcolor=cAqua>;
+    String format <name="FourCC", bgcolor=cDkYellow>;
+    uint signatureCount <name="Signatures Count", bgcolor=cLtRed>;
+    MipMap mips[signatureCount] <name="MipMap">;
+};
+
+TextureSignature textures[textureCount] <name="Texture", optimize=false>;

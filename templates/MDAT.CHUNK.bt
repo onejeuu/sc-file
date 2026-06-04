@@ -2,7 +2,7 @@
 // File: MDAT.CHUNK.bt
 // Authors: onejeuu, DeTTK
 // Version: 1.0
-// Purpose: Parse raw chunk
+// Purpose: Parse world chunk.
 // Category: STALCRAFT
 // File Mask: *.chunk
 //------------------------------------------------

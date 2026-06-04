@@ -13,21 +13,17 @@ Collection of binary templates for [010 Editor](https://www.sweetscape.com/010ed
 Templates **automatically** apply when opening supported game files in editor. \
 For manual template selection, use `Templates > STALCRAFT` menu.
 
-> [!NOTE]
-> `OL-CUBEMAPS.bt` requires manual selection. \
-> Cubemap textures have same `.ol` suffix without unique identifiers.
-
 ## Installation
 
 1. Download `.bt` templates file(s).
 2. Place in permanent directory (e.g. `~/Documents/SweetScape/010 Templates/Repository/`)
 3. Open `Templates > View Installed Templates...`.
 
-    <img src="../assets/images/bt1.png" alt="screenshot" width="600" />
+<img src="../assets/images/bt1.png" alt="screenshot" width="600" />
 
 4. Click `Add`.
 
-    <img src="../assets/images/bt2.png" alt="screenshot" width="600" />
+<img src="../assets/images/bt2.png" alt="screenshot" width="600" />
 
 5. Select downloaded `.bt` file(s) and click `Open`.
 

@@ -81,10 +81,6 @@ msgstr "Мипмапы сжаты с помощью `LZ4`_."
 msgid "Some normal map textures are inverted."
 msgstr "Некоторые текстуры нормальных карт инвертированы."
 
-#: ../../source/formats.rst:55
-msgid "Cubemap variant exists (OLCUBEMAP.bt_)"
-msgstr "Существует вариация кубической карты (OLCUBEMAP.bt_)."
-
 #: ../../source/formats.rst:56
 msgid ""
 "Mostly found in: ``gloomycore/sky``, ``effects/textures``, "

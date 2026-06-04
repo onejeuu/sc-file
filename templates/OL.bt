@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: OL.bt
 // Authors: onejeuu
-// Version: 2.0
+// Version: 3.0
 // Purpose: Parse textures.
 // Category: STALCRAFT
 // File Mask: *.ol
@@ -16,16 +16,21 @@ BigEndian();
 
 // Data Types
 
+typedef enum <ubyte> {
+    False = 0,
+    True = 1
+} bool;
+
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
     if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
 } String <read=(exists(data) ? data : "")>;
 
 typedef struct {
-    char encoded[17];
-} FourCC <read=ReadFourCC>;
+    char encoded[16];
+} FourCC <read=readFourCC>;
 
-string ReadFourCC( FourCC &fourcc ) {
+string readFourCC( FourCC &fourcc ) {
     local ubyte i = 0;
     local string result = "";
     for ( i = 0; i < 16; i++ ) {
@@ -38,26 +43,50 @@ string ReadFourCC( FourCC &fourcc ) {
 // Header
 
 char signature[4] <name="Signature", fgcolor=cGreen>;
-
 uint width <name="Width", bgcolor=cWhite>;
-uint height <name="Height", bgcolor=cWhite>;
+uint height <name="Height", bgcolor=cGray>;
 uint mipmapCount <name="Mipmap Count", bgcolor=cAqua>;
-FourCC fourcc <name="FourCC", bgcolor=cDkYellow>;
+FourCC fourcc <name="FourCC", fgcolor=cPurple>;
+bool cubemap <name="CubeMap", bgcolor=cLtRed>;
 
 
 // LZ4 Sizes
 
-struct Sizes {
-    uint uncompressed[mipmapCount] <name="Uncompressed", bgcolor=cGreen>;
-    uint compressed[mipmapCount] <name="Compressed", bgcolor=cDkGreen>;
-} sizes <name="LZ4 Sizes">;
+if (cubemap) {
+    struct MipSizes {
+        uint face[6] <name="Face">;
+    };
+    MipSizes uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
+    MipSizes compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
+} else {
+    uint uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
+    uint compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
+}
 
 
 // Texture ID
 
-String texture_id <name="Texture ID">;
+String textureID <name="Texture ID">;
 
 
-// Packed in lz4 mipmaps images
+// LZ4 packed mipmaps images
 
-byte imagedata[FileSize() - FTell()] <name="Mipmaps", bgcolor=cLtBlue>;
+struct MipMaps {
+    local uint i, f;
+
+    if (cubemap) {
+        for (i = 0; i < mipmapCount; i++) {
+            for (f = 0; f < 6; f++) {
+                struct {
+                    byte data[compressed[i].face[f]] <bgcolor=cLtBlue>;
+                } mip;
+            }
+        }
+    } else {
+        for (i = 0; i < mipmapCount; i++) {
+            struct {
+                byte data[compressed[i]] <bgcolor=cLtBlue>;
+            } mip;
+        }
+    }
+} mipmaps <name="MipMaps">;
