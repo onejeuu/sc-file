@@ -10,8 +10,8 @@
 .. _EFKMODEL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/EFKMODEL.bt
 .. _MCAL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCAL.bt
 .. _TEXARR.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TEXARR.bt
-.. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.MAP.bt
-.. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.BIN.bt
+.. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/HASHMAP.bt
+.. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.bt
 
 .. Media Files
 .. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
