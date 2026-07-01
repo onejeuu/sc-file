@@ -114,12 +114,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         counts.polygons = self._parse_count("polygons")
 
         # ? Not parsed
-        # # Unknown: Feature Flags Dependence
         # Blend Shape Table
+        blend_shapes = False
         if self.data.version >= 15.0:
-            self._readb(F.U8)  # flag ?
-            counts.blend_shapes = self._readb(F.U8)
-            self.skip(counts.blend_shapes * 2)
+            blend_shapes = self._readb(F.BOOL)
+            if blend_shapes:
+                counts.blend_shapes = self._readb(F.U8)
+                self.skip(counts.blend_shapes * 2)
 
         # ? Not exported
         if self.data.flags[Flag.UV]:
@@ -164,7 +165,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ? Not parsed
         # # Unknown: Feature Flags Dependence
         # Blend Shape Mapping
-        if self.data.version >= 15.0:
+        if self.data.version >= 15.0 and blend_shapes:
             self.skip(counts.vertices * 2)
 
         # Polygon faces
@@ -173,7 +174,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ? Not parsed
         # # Unknown: Feature Flags Dependence
         # Blend Shape Data
-        if self.data.version >= 15.0:
+        if self.data.version >= 15.0 and blend_shapes:
             self._readutf8()
             active_shape_count = self._readb(F.U8)
             base_vertex_count = self._readb(F.U16)
