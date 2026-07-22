@@ -1,4 +1,7 @@
-from typing import NamedTuple, TypeAlias
+from typing import Literal, NamedTuple, TypeAlias
+
+
+Skip = Literal["-"]
 
 
 class Model(NamedTuple):
@@ -8,9 +11,9 @@ class Model(NamedTuple):
     meshes: int
     vertices: int
     polygons: int
-    bones: int
-    clips: int
-    frames: int
+    bones: int | Skip
+    clips: int | Skip
+    frames: int | Skip
     skeleton: bool
     uv: bool
     uv2: bool
@@ -30,7 +33,7 @@ class Mesh(NamedTuple):
     vertices: int
     polygons: int
     quads: bool
-    max_influences: int
+    max_influences: int | Skip
 
 
 class Bone(NamedTuple):

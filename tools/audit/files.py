@@ -39,7 +39,7 @@ def _decode(asset: Asset, config: Config, options: Options) -> Result:
             ),
         )
 
-    records = stats.records(asset, content, config.path) if config.stats else None
+    records = stats.records(asset, content, config.path, config.animation) if config.stats else None
     return Result(format=asset.format, records=records)
 
 

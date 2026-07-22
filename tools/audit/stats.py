@@ -13,12 +13,12 @@ from tools.audit.schemas import Animation, Bone, Image, Mesh, Model, Record, Tex
 from tools.audit.types import Asset
 
 
-def records(asset: Asset, content: BaseContent, root: Path) -> list[Record]:
+def records(asset: Asset, content: BaseContent, root: Path, animation: bool) -> list[Record]:
     path = os.path.relpath(asset.path, root).replace("\\", "/")
 
     match content:
         case ModelContent():
-            return _model(path, content, os.path.getsize(asset.path))
+            return _model(path, content, os.path.getsize(asset.path), animation)
 
         case TextureContent():
             return _texture(path, content, os.path.getsize(asset.path))
@@ -30,7 +30,7 @@ def records(asset: Asset, content: BaseContent, root: Path) -> list[Record]:
             return []
 
 
-def _model(path: str, content: ModelContent, filesize: int) -> list[Record]:
+def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> list[Record]:
     flags = content.flags
     scene = content.scene
     scale = content.scene.scale
@@ -44,7 +44,7 @@ def _model(path: str, content: ModelContent, filesize: int) -> list[Record]:
             vertices=len(mesh.vertices),
             polygons=len(mesh.polygons),
             quads=mesh.quads,
-            max_influences=mesh.max_influences,
+            max_influences=mesh.max_influences if animation else "-",
         )
         for index, mesh in enumerate(scene.meshes)
     ]
@@ -77,9 +77,9 @@ def _model(path: str, content: ModelContent, filesize: int) -> list[Record]:
         meshes=len(meshes),
         vertices=scene.total_vertices,
         polygons=scene.total_polygons,
-        bones=len(bones),
-        clips=len(animations),
-        frames=sum(animation.frames for animation in animations),
+        bones=len(bones) if animation else "-",
+        clips=len(animations) if animation else "-",
+        frames=sum(clip.frames for clip in animations) if animation else "-",
         skeleton=bool(flags.get(Flag.SKELETON)),
         uv=bool(flags.get(Flag.UV)),
         uv2=bool(flags.get(Flag.UV2)),
