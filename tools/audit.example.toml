@@ -1,0 +1,4 @@
+path = "C:/Users/USERNAME/AppData/Roaming/EXBO/runtime/stalcraft/modassets/assets"
+workers = 4
+animation = true
+log = "errors.jsonl"
