@@ -58,6 +58,7 @@ class TextureContent(BaseContent, Generic[TextureType]):
     mipmap_count: int = 0
     format: bytes = field(default_factory=bytes)
     texture: TextureType = field(default_factory=lambda: cast(TextureType, DefaultTexture()))
+    texture_id: bytes = field(default_factory=bytes)
 
     @property
     def is_cubemap(self) -> bool:
