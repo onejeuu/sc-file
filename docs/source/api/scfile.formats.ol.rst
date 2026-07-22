@@ -25,6 +25,15 @@ IO
   :undoc-members:
 
 
+Enums
+---------------------------
+
+.. automodule:: scfile.formats.ol.enums
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+
 Formats
 --------------------------------
 

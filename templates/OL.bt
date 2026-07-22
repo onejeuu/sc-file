@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: OL.bt
 // Authors: onejeuu
-// Version: 3.0
+// Version: 3.1
 // Purpose: Parse textures.
 // Category: STALCRAFT
 // File Mask: *.ol
@@ -17,9 +17,9 @@ BigEndian();
 // Data Types
 
 typedef enum <ubyte> {
-    False = 0,
-    True = 1
-} bool;
+    Default = 0,
+    Cubemap = 1
+} TextureKind;
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
@@ -47,20 +47,24 @@ uint width <name="Width", bgcolor=cWhite>;
 uint height <name="Height", bgcolor=cGray>;
 uint mipmapCount <name="Mipmap Count", bgcolor=cAqua>;
 FourCC fourcc <name="FourCC", fgcolor=cPurple>;
-bool cubemap <name="CubeMap", bgcolor=cLtRed>;
+TextureKind textureKind <name="Kind", bgcolor=cLtRed>;
 
 
 // LZ4 Sizes
 
-if (cubemap) {
-    struct MipSizes {
-        uint face[6] <name="Face">;
-    };
-    MipSizes uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
-    MipSizes compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
-} else {
-    uint uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
-    uint compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
+switch (textureKind) {
+    case Default:
+        uint uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
+        uint compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
+        break;
+
+    case Cubemap:
+        struct MipSizes {
+            uint face[6] <name="Face">;
+        };
+        MipSizes uncompressed[mipmapCount] <name="Uncompressed", fgcolor=cGreen>;
+        MipSizes compressed[mipmapCount] <name="Compressed", fgcolor=cDkGreen>;
+        break;
 }
 
 
@@ -74,19 +78,23 @@ String textureID <name="Texture ID">;
 struct MipMaps {
     local uint i, f;
 
-    if (cubemap) {
-        for (i = 0; i < mipmapCount; i++) {
-            for (f = 0; f < 6; f++) {
+    switch (textureKind) {
+        case Default:
+            for (i = 0; i < mipmapCount; i++) {
                 struct {
-                    byte data[compressed[i].face[f]] <bgcolor=cLtBlue>;
+                    byte data[compressed[i]] <bgcolor=cLtBlue>;
                 } mip;
             }
-        }
-    } else {
-        for (i = 0; i < mipmapCount; i++) {
-            struct {
-                byte data[compressed[i]] <bgcolor=cLtBlue>;
-            } mip;
-        }
+            break;
+
+        case Cubemap:
+            for (i = 0; i < mipmapCount; i++) {
+                for (f = 0; f < 6; f++) {
+                    struct {
+                        byte data[compressed[i].face[f]] <bgcolor=cLtBlue>;
+                    } mip;
+                }
+            }
+            break;
     }
 } mipmaps <name="MipMaps">;

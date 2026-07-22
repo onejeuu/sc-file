@@ -19,3 +19,13 @@ class OlFormatUnsupported(OlDecodingError, exceptions.UnsupportedError):
 
     def __str__(self):
         return f"{super().__str__()} has unsupported format: {self.format}."
+
+
+@dataclass
+class OlKindUnsupported(OlDecodingError, exceptions.UnsupportedError):
+    """Raised when texture contains unsupported kind."""
+
+    kind: int
+
+    def __str__(self):
+        return f"{super().__str__()} has unsupported kind: {self.kind}."

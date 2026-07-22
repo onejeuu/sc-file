@@ -1,4 +1,4 @@
-from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
+from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 from .content import ImageContent, ModelContent, NbtContent, RegionContent, TexarrContent, TextureContent
 from .decoder import FileDecoder
@@ -8,14 +8,16 @@ from .encoder import FileEncoder
 ModelDecoder = type[FileDecoder[ModelContent]]
 ModelEncoder = type[FileEncoder[ModelContent]]
 
-TextureDecoder = type[FileDecoder[TextureContent[DefaultTexture]]]
-TextureEncoder = type[FileEncoder[TextureContent[DefaultTexture]]]
+TextureData = DefaultTexture | CubemapTexture
+
+TextureDecoder = type[FileDecoder[TextureContent[TextureData]]]
+TextureEncoder = type[FileEncoder[TextureContent[TextureData]]]
 
 CubemapDecoder = type[FileDecoder[TextureContent[CubemapTexture]]]
 CubemapEncoder = type[FileEncoder[TextureContent[CubemapTexture]]]
 
-AnyTextureDecoder = type[FileDecoder[TextureContent[Texture]]]
-AnyTextureEncoder = type[FileEncoder[TextureContent[Texture]]]
+AnyTextureDecoder = TextureDecoder
+AnyTextureEncoder = TextureEncoder
 
 ImageDecoder = type[FileDecoder[ImageContent]]
 ImageEncoder = type[FileEncoder[ImageContent]]

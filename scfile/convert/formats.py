@@ -2,6 +2,7 @@
 Named conversion functions for specific format pairs.
 """
 
+import warnings
 from typing import Optional
 
 from scfile import formats
@@ -331,12 +332,11 @@ def ol_to_dds(
     """
 
 
-@converter(formats.hdri.OlCubemapDecoder, formats.dds.DdsEncoder)
 def ol_cubemap_to_dds(
     source: PathLike,
     output: Optional[PathLike] = None,
     options: Optional[Options] = None,
-):
+) -> None:
     """
     Converts cubemap texture from ``.ol`` to ``.dds`` format.
 
@@ -349,6 +349,12 @@ def ol_cubemap_to_dds(
         - ``ol_cubemap_to_dds("cubemap.ol", "cubemap.dds")``
         - ``ol_cubemap_to_dds("cubemap.ol", "path/to/output/dir")``
     """
+    warnings.warn(
+        "ol_cubemap_to_dds is deprecated and will be removed in a future release; use ol_to_dds instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    ol_to_dds(source, output, options)
 
 
 @converter(formats.mic.MicDecoder, formats.png.PngEncoder)

@@ -19,8 +19,5 @@ class OlFileIO(StructIO):
         return [[self._readb(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
 
     def _readformat(self) -> bytes:
-        # Read string and skip last 0x00 byte
-        string = self.read(17)[:-1]
-
-        # Xor fourcc string
+        string = self.read(16)
         return bytes(byte ^ XOR for byte in string if byte != NULL)

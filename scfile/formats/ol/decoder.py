@@ -1,24 +1,24 @@
-from abc import ABC, abstractmethod
-from typing import Generic
-
 import lz4.block
 
-from scfile import formats
-from scfile.consts import FileSignature
+from scfile import exceptions, formats
+from scfile.consts import CubemapFaces, FileSignature
 from scfile.core import FileDecoder, TextureContent
+from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.textures import DefaultTexture, TextureType
+from scfile.structures.textures import CubemapTexture, DefaultTexture
 
-from .exceptions import OlFormatUnsupported
+from .enums import TextureKind
+from .exceptions import OlFormatUnsupported, OlKindUnsupported
 from .formats import SUPPORTED_FORMATS
 from .io import OlFileIO
 
 
-# mro nightmare
-class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[TextureType], ABC):
+class OlDecoder(FileDecoder[TextureContent[TextureData]], OlFileIO):
     format = FileFormat.OL
     signature = FileSignature.OL
     order = ByteOrder.BIG
+
+    _content = TextureContent
 
     def as_dds(self):
         return self.convert_to(formats.dds.DdsEncoder)
@@ -26,6 +26,7 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
     def parse(self):
         self._parse_header()
         self._parse_format()
+        self._parse_kind()
         self._parse_sizes()
         self._parse_image()
 
@@ -40,29 +41,57 @@ class BaseOlDecoder(FileDecoder[TextureContent[TextureType]], OlFileIO, Generic[
         if self.data.format not in SUPPORTED_FORMATS:
             raise OlFormatUnsupported(self.location, self.data.format)
 
-    def _parse_image(self):
-        self.texture_id = self._reads()
-        self._parse_mipmaps()
+    def _parse_kind(self):
+        kind = self._readb(F.U8)
 
-    @abstractmethod
-    def _parse_sizes(self): ...
+        match kind:
+            case TextureKind.DEFAULT:
+                self.data.texture = DefaultTexture()
 
-    @abstractmethod
-    def _parse_mipmaps(self): ...
+            case TextureKind.CUBEMAP:
+                self.data.texture = CubemapTexture()
 
-
-class OlDecoder(BaseOlDecoder[DefaultTexture]):
-    _content = TextureContent
+            case _:
+                raise OlKindUnsupported(self.location, kind)
 
     def _parse_sizes(self):
-        self.data.texture.uncompressed = self._readsizes(self.data.mipmap_count)
-        self.data.texture.compressed = self._readsizes(self.data.mipmap_count)
+        match self.data.texture:
+            case DefaultTexture() as texture:
+                texture.uncompressed = self._readsizes(self.data.mipmap_count)
+                texture.compressed = self._readsizes(self.data.mipmap_count)
 
-    def _parse_mipmaps(self):
-        for mipmap in range(self.data.mipmap_count):
-            self.data.texture.mipmaps.append(
-                lz4.block.decompress(
-                    self.read(self.data.texture.compressed[mipmap]),
-                    self.data.texture.uncompressed[mipmap],
-                )
-            )
+            case CubemapTexture() as texture:
+                texture.uncompressed = self._readsizescubemap(self.data.mipmap_count)
+                texture.compressed = self._readsizescubemap(self.data.mipmap_count)
+
+    def _parse_image(self):
+        self.texture_id = self._reads()
+
+        match self.data.texture:
+            case DefaultTexture() as texture:
+                for mipmap in range(self.data.mipmap_count):
+                    texture.mipmaps.append(
+                        self._parse_mipmap(
+                            texture.compressed[mipmap],
+                            texture.uncompressed[mipmap],
+                        )
+                    )
+
+            case CubemapTexture() as texture:
+                for mipmap in range(self.data.mipmap_count):
+                    for face in range(CubemapFaces.COUNT):
+                        texture.faces[face].append(
+                            self._parse_mipmap(
+                                texture.compressed[mipmap][face],
+                                texture.uncompressed[mipmap][face],
+                            )
+                        )
+
+    def _parse_mipmap(self, compressed: int, uncompressed: int) -> bytes:
+        position = self.tell()
+
+        try:
+            return lz4.block.decompress(self.read(compressed), uncompressed)
+
+        except lz4.block.LZ4BlockError:
+            raise exceptions.InvalidStructureError(self.location, position=position) from None

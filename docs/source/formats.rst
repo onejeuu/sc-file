@@ -49,8 +49,9 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Standard ``.dds`` (`DirectDraw Surface <DDS_>`_) with simplified structure.
+| Texture kinds: Default (2D) and Cubemap.
 | Mipmaps compressed with `LZ4`_.
-| Some normal map textures are inverted.
+| Normal map textures may be inverted.
 
 .. list-table:: Texture Suffix Conventions
   :header-rows: 1

@@ -5,8 +5,6 @@ Format auto-detection by file extension.
 import pathlib
 from typing import Optional
 
-import lz4.block
-
 from scfile import exceptions, types
 from scfile.consts import SUPPORTED_NBT
 from scfile.core import Options
@@ -63,17 +61,7 @@ def auto(
                 converters[fmt](source, output, options)
 
         case FileFormat.OL:
-            # Try standard texture first
-            try:
-                formats.ol_to_dds(source, output, options)
-
-            except lz4.block.LZ4BlockError:
-                # Fallback to cubemap on failure
-                try:
-                    formats.ol_cubemap_to_dds(source, output, options)
-
-                except lz4.block.LZ4BlockError:
-                    raise exceptions.InvalidStructureError(str(source))
+            formats.ol_to_dds(source, output, options)
 
         case FileFormat.MIC:
             formats.mic_to_png(source, output, options)

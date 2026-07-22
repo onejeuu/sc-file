@@ -1,27 +1,17 @@
-import lz4.block
+import warnings
+from typing import Optional
 
-from scfile.consts import CubemapFaces
-from scfile.core import TextureContent
-from scfile.formats.ol.decoder import BaseOlDecoder
-from scfile.structures.textures import CubemapTexture
+from scfile.core import IOStream, Options
+from scfile.formats.ol import OlDecoder
 
 
-class OlCubemapDecoder(BaseOlDecoder[CubemapTexture]):
-    _content = TextureContent
+class OlCubemapDecoder(OlDecoder):
+    """Deprecated compatibility name for :class:`OlDecoder`."""
 
-    def prelude(self):
-        self.data.texture = CubemapTexture()
-
-    def _parse_sizes(self):
-        self.data.texture.uncompressed = self._readsizescubemap(self.data.mipmap_count)
-        self.data.texture.compressed = self._readsizescubemap(self.data.mipmap_count)
-
-    def _parse_mipmaps(self):
-        for mipmap in range(self.data.mipmap_count):
-            for face in range(CubemapFaces.COUNT):
-                self.data.texture.faces[face].append(
-                    lz4.block.decompress(
-                        self.read(self.data.texture.compressed[mipmap][face]),
-                        self.data.texture.uncompressed[mipmap][face],
-                    )
-                )
+    def __init__(self, stream: IOStream, options: Optional[Options] = None):
+        warnings.warn(
+            "OlCubemapDecoder is deprecated and will be removed in a future release; use OlDecoder instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(stream, options)

@@ -1,0 +1,19 @@
+v5.2.0
+======
+
+✨ Added
+--------
+
+* ``OlDecoder``: support for ``DXN_X`` (``ATI1`` / ``BC4``) textures.
+
+📝 Changed
+----------
+
+* ``OlDecoder``: default and cubemap textures are now detected from the OL kind field.
+* ``OlDecoder``: texture data is typed as ``DefaultTexture | CubemapTexture``.
+
+⚠️ Deprecated
+-------------
+
+* ``OlCubemapDecoder``: use ``OlDecoder`` instead.
+* ``ol_cubemap_to_dds``: use ``ol_to_dds`` instead.
