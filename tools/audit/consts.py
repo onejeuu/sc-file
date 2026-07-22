@@ -11,6 +11,7 @@ REPORTS = ROOT / "reports" / "audit"
 DECODERS = decoders()
 FORMATS = tuple(sorted(DECODERS))
 
+# Broken files in game assets
 EXCLUDE = (
     "customitems/models/blocks/skafa.mcmtl.mcsb",
     "vegetation/models/wrk/optical.mic",

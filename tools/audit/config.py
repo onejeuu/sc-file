@@ -42,12 +42,13 @@ class Config:
         if not reports.is_absolute():
             reports = ROOT / reports
 
+        exclude = EXCLUDE + tuple(stored.get("exclude", ()))
+        exclude = tuple("/" + path.lower().replace("\\", "/").lstrip("/") for path in exclude)
+
         return cls(
             path=Path(path).resolve(),
             formats=tuple(formats or stored.get("formats") or FORMATS),
-            exclude=tuple(
-                "/" + item.lower().replace("\\", "/").lstrip("/") for item in (*EXCLUDE, *stored.get("exclude", ()))
-            ),
+            exclude=exclude,
             workers=workers if workers is not None else stored.get("workers", os.cpu_count() or 4),
             animation=animation if animation is not None else stored.get("animation", True),
             reports=reports.resolve(),
