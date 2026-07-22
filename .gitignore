@@ -32,8 +32,9 @@ docs/_build/
 *.pot
 docs/locale/pot
 
-# Local tests
-test/
+# Local tools
+audit.toml
+errors.jsonl
 
 # Private files
 .*

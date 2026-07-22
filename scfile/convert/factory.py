@@ -15,8 +15,22 @@ from .convert import convert
 
 ConverterMap: TypeAlias = dict[str, Callable]
 ConverterRegistry: TypeAlias = dict[str, ConverterMap]
+DecoderMap: TypeAlias = dict[str, type[FileDecoder]]
+EncoderMap: TypeAlias = dict[str, type[FileEncoder]]
 
 _REGISTRY: ConverterRegistry = defaultdict(dict)
+_DECODERS: DecoderMap = {}
+_ENCODERS: EncoderMap = {}
+
+
+def decoders() -> DecoderMap:
+    """Copy of registered format decoders."""
+    return deepcopy(_DECODERS)
+
+
+def encoders() -> EncoderMap:
+    """Copy of registered format encoders."""
+    return deepcopy(_ENCODERS)
 
 
 def converters(src_format: str) -> ConverterMap:
@@ -27,6 +41,19 @@ def converters(src_format: str) -> ConverterMap:
 def registry() -> ConverterRegistry:
     """Copy of full converter registry."""
     return deepcopy(dict(_REGISTRY))
+
+
+def _register(
+    decoder: Type[FileDecoder[ContentType]],
+    encoder: Type[FileEncoder[ContentType]],
+    func: Callable,
+) -> None:
+    dec = decoder.format.lower()
+    enc = encoder.format.lower()
+
+    _DECODERS[dec] = decoder
+    _ENCODERS[enc] = encoder
+    _REGISTRY[dec][enc] = func
 
 
 def converter(
@@ -50,7 +77,11 @@ def converter(
                 options=options,
             )
 
-        _REGISTRY[decoder.format.lower()][encoder.format.lower()] = wrapper
+        _register(
+            decoder=decoder,
+            encoder=encoder,
+            func=wrapper,
+        )
 
         return wrapper
 

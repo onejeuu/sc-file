@@ -5,6 +5,7 @@ v5.2.0
 --------
 
 * ``OlDecoder``: support for ``DXN_X`` (``ATI1`` / ``BC4``) textures.
+* Format handlers: ``decoders()`` and ``encoders()`` functions.
 
 📝 Changed
 ----------

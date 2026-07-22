@@ -4,7 +4,7 @@ Format conversion utilities and auto-detection.
 
 from . import convert, detect, factory, formats
 from .detect import auto
-from .factory import converters, registry
+from .factory import converters, decoders, encoders, registry
 from .formats import (
     efkmodel_to_dae,
     efkmodel_to_fbx,
@@ -37,6 +37,8 @@ __all__ = (
     "auto",
     "factory",
     "converters",
+    "decoders",
+    "encoders",
     "registry",
     "mcsa_to_obj",
     "mcsa_to_glb",
