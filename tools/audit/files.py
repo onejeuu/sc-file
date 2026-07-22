@@ -40,6 +40,9 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
 
     with console.status("Searching... 0 files") as status:
         for entry in walk([config.path], whitelist):
+            if entry.relpath.lower().replace("\\", "/") in config.exclude:
+                continue
+
             path = Path(entry.path)
             format = detect.format(path)
             if format not in config.formats:

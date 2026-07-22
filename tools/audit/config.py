@@ -15,12 +15,19 @@ LOGS = ROOT / "errors.jsonl"
 
 DECODERS = decoders()
 FORMATS = tuple(sorted(DECODERS))
+EXCLUDE = frozenset(
+    {
+        "customitems/models/blocks/skafa.mcmtl.mcsb",
+        "vegetation/models/wrk/optical.mic",
+    }
+)
 
 
 @dataclass
 class Config:
     path: Path
     formats: tuple[str, ...]
+    exclude: frozenset[str]
     workers: int
     animation: bool
     log: Path
@@ -50,6 +57,7 @@ class Config:
         return cls(
             path=Path(path).resolve(),
             formats=tuple(formats or stored.get("formats") or FORMATS),
+            exclude=EXCLUDE | frozenset(item.lower().replace("\\", "/") for item in stored.get("exclude", ())),
             workers=workers if workers is not None else stored.get("workers", os.cpu_count() or 4),
             animation=animation if animation is not None else stored.get("animation", True),
             log=log.resolve(),
