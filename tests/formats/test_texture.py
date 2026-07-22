@@ -13,6 +13,7 @@ TEXTURES = [
     "texture_dxt1",
     "texture_dxt3",
     "texture_dxt5",
+    "texture_dxnx",
     "texture_dxnxy",
     "texture_bgra",
     "texture_rgba",

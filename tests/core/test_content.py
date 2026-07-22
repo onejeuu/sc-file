@@ -22,10 +22,12 @@ def test_cubemap():
 
 def test_compressed():
     assert C.TextureContent(format=b"DXT1").is_compressed
+    assert C.TextureContent(format=b"DXN_X").is_compressed
     assert not C.TextureContent(format=b"RAW").is_compressed
 
 
 def test_fourcc():
+    assert C.TextureContent(format=b"DXN_X").fourcc == b"ATI1"
     assert C.TextureContent(format=b"DXN_XY").fourcc == b"ATI2"
     assert C.TextureContent(format=b"RGBA32F").fourcc == b"DX10"
     assert C.TextureContent(format=b"DXT5").fourcc == b"DXT5"

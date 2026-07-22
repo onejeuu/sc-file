@@ -65,11 +65,13 @@ class TextureContent(BaseContent, Generic[TextureType]):
 
     @property
     def is_compressed(self) -> bool:
-        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI2", b"DX10")
+        return self.fourcc in (b"DXT1", b"DXT3", b"DXT5", b"ATI1", b"ATI2", b"DX10")
 
     @property
     def fourcc(self) -> bytes:
         match self.format:
+            case b"DXN_X":
+                return b"ATI1"
             case b"DXN_XY":
                 return b"ATI2"
             case b"RGBA32F":

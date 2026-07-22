@@ -10,6 +10,7 @@ SUPPORTED_FORMATS: list[Format] = [
     b"RGBA8",
     b"BGRA8",
     b"RGBA32F",
+    b"DXN_X",
     b"DXN_XY",
 ]
 """Supported texture pixel formats."""
