@@ -1,4 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from tools.audit.schemas import Record
 
 
 @dataclass(slots=True)
@@ -17,3 +24,4 @@ class Error:
 class Result:
     format: str
     error: Error | None = None
+    records: list[Record] | None = None

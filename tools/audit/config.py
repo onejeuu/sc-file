@@ -10,16 +10,15 @@ from scfile.convert import decoders
 
 
 ROOT = Path(__file__).resolve().parent.parent
-CONFIG = ROOT / "audit.toml"
-LOGS = ROOT / "errors.jsonl"
+CONFIG = ROOT / "configs" / "audit.toml"
+REPORTS = ROOT / "reports" / "audit"
+LOGS = REPORTS / "errors.jsonl"
 
 DECODERS = decoders()
 FORMATS = tuple(sorted(DECODERS))
-EXCLUDE = frozenset(
-    {
-        "customitems/models/blocks/skafa.mcmtl.mcsb",
-        "vegetation/models/wrk/optical.mic",
-    }
+EXCLUDE = (
+    "customitems/models/blocks/skafa.mcmtl.mcsb",
+    "vegetation/models/wrk/optical.mic",
 )
 
 
@@ -27,9 +26,10 @@ EXCLUDE = frozenset(
 class Config:
     path: Path
     formats: tuple[str, ...]
-    exclude: frozenset[str]
+    exclude: tuple[str, ...]
     workers: int
     animation: bool
+    stats: Path | None
     log: Path
 
     @classmethod
@@ -39,6 +39,7 @@ class Config:
         formats: tuple[str, ...],
         workers: int | None,
         animation: bool | None,
+        stats: Path | None,
         log: Path | None,
     ) -> Self:
         stored = {}
@@ -54,11 +55,20 @@ class Config:
         if not log.is_absolute():
             log = ROOT / log
 
+        stats = stats or stored.get("stats")
+        if stats:
+            stats = Path(stats)
+            if not stats.is_absolute():
+                stats = ROOT / stats
+
         return cls(
             path=Path(path).resolve(),
             formats=tuple(formats or stored.get("formats") or FORMATS),
-            exclude=EXCLUDE | frozenset(item.lower().replace("\\", "/") for item in stored.get("exclude", ())),
+            exclude=tuple(
+                "/" + item.lower().replace("\\", "/").lstrip("/") for item in (*EXCLUDE, *stored.get("exclude", ()))
+            ),
             workers=workers if workers is not None else stored.get("workers", os.cpu_count() or 4),
             animation=animation if animation is not None else stored.get("animation", True),
+            stats=stats.resolve() if stats else None,
             log=log.resolve(),
         )

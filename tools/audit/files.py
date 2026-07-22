@@ -9,15 +9,23 @@ from rich.console import Console
 from scfile.consts import SUPPORTED_NBT
 from scfile.convert import detect
 from scfile.core import Options
+from scfile.exceptions import EmptyFileError
 from scfile.utils.files import walk
+from tools.audit import stats
 from tools.audit.config import DECODERS, Config
 from tools.audit.types import Asset, Error, Result
+
+
+IGNORED_EXCEPTIONS = (EmptyFileError,)
 
 
 def _decode(asset: Asset, config: Config, options: Options) -> Result:
     try:
         with DECODERS[asset.format](asset.path, options) as decoder:
-            decoder.decode(seek=False)
+            content = decoder.decode(seek=False)
+
+    except IGNORED_EXCEPTIONS:
+        return Result(format=asset.format)
 
     except Exception as error:
         relative = os.path.relpath(asset.path, config.path).replace("\\", "/")
@@ -30,7 +38,8 @@ def _decode(asset: Asset, config: Config, options: Options) -> Result:
             ),
         )
 
-    return Result(format=asset.format)
+    records = stats.records(asset, content, config.path) if config.stats else None
+    return Result(format=asset.format, records=records)
 
 
 def find_assets(config: Config, console: Console) -> list[Asset]:
@@ -44,7 +53,7 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
         updated = time.monotonic()
 
         for entry in walk([config.path], whitelist):
-            if entry.relpath.lower().replace("\\", "/") in config.exclude:
+            if entry.path.lower().replace("\\", "/").endswith(config.exclude):
                 continue
 
             format = detect.format(entry.path)

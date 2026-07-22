@@ -1,6 +1,7 @@
 import json
 import time
 from collections import Counter
+from contextlib import nullcontext
 from pathlib import Path
 
 import click
@@ -9,7 +10,7 @@ from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
-from tools.audit import files
+from tools.audit import files, stats
 from tools.audit.config import FORMATS, Config
 from tools.audit.types import Error
 
@@ -56,8 +57,9 @@ def run(cfg: Config, console: Console) -> int:
     )
     task = progress.add_task("Checking", total=len(assets))
 
+    output = stats.Writer(cfg.stats) if cfg.stats else nullcontext()
     initial = Group(progress, table(found, checked, failed))
-    with Live(initial, console=console, refresh_per_second=10) as live:
+    with output as writer, Live(initial, console=console, refresh_per_second=10) as live:
         updated = time.monotonic()
 
         for result in files.decode_assets(assets, cfg):
@@ -65,6 +67,8 @@ def run(cfg: Config, console: Console) -> int:
             if result.error:
                 failed[result.format] += 1
                 errors.append(result.error)
+            elif writer and result.records:
+                writer.write(result.records)
 
             progress.advance(task)
             now = time.monotonic()
@@ -73,6 +77,9 @@ def run(cfg: Config, console: Console) -> int:
                 updated = now
 
         live.update(Group(progress, table(found, checked, failed)), refresh=True)
+
+        if writer:
+            writer.formats(found, checked, failed)
 
     save(errors, cfg.log)
     if errors:
@@ -109,6 +116,11 @@ def run(cfg: Config, console: Console) -> int:
     help="Parse model skeletons and animations.",
 )
 @click.option(
+    "--stats",
+    type=click.Path(path_type=Path, file_okay=False),
+    help="Statistics directory.",
+)
+@click.option(
     "--log",
     type=click.Path(path_type=Path, dir_okay=False),
     help="Error logs path.",
@@ -118,9 +130,10 @@ def main(
     formats: tuple[str, ...],
     workers: int | None,
     animation: bool | None,
+    stats: Path | None,
     log: Path | None,
 ) -> None:
-    cfg = Config.load(path, formats, workers, animation, log)
+    cfg = Config.load(path, formats, workers, animation, stats, log)
     raise SystemExit(run(cfg, Console()))
 
 
