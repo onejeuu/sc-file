@@ -1,5 +1,5 @@
 path = "C:/Users/USERNAME/AppData/Roaming/EXBO/runtime/stalcraft/modassets/assets"
 workers = 4
-animation = true
-log = "reports/audit/errors.jsonl"
-# stats = "reports/audit"
+animation = false
+reports = "reports/audit"
+stats = false

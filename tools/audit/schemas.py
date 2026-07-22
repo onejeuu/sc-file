@@ -20,7 +20,6 @@ class Model(NamedTuple):
     scale: float
     scale_uv: float
     scale_uv2: float
-    scale_filtering: float
 
 
 class Mesh(NamedTuple):
@@ -52,15 +51,12 @@ class Animation(NamedTuple):
 class Texture(NamedTuple):
     path: str
     filesize: int
-    scformat: str
     fourcc: str
     width: int
     height: int
     kind: str
     mipmaps: int
     faces: int
-    uncompressed_size: int
-    compressed_size: int
     texture_id: str
 
 

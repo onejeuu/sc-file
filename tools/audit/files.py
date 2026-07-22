@@ -12,7 +12,8 @@ from scfile.core import Options
 from scfile.exceptions import EmptyFileError
 from scfile.utils.files import walk
 from tools.audit import stats
-from tools.audit.config import DECODERS, Config
+from tools.audit.config import Config
+from tools.audit.consts import DECODERS
 from tools.audit.types import Asset, Error, Result
 
 

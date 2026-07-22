@@ -6,20 +6,7 @@ from typing import Self
 
 import click
 
-from scfile.convert import decoders
-
-
-ROOT = Path(__file__).resolve().parent.parent
-CONFIG = ROOT / "configs" / "audit.toml"
-REPORTS = ROOT / "reports" / "audit"
-LOGS = REPORTS / "errors.jsonl"
-
-DECODERS = decoders()
-FORMATS = tuple(sorted(DECODERS))
-EXCLUDE = (
-    "customitems/models/blocks/skafa.mcmtl.mcsb",
-    "vegetation/models/wrk/optical.mic",
-)
+from tools.audit.consts import CONFIG, EXCLUDE, FORMATS, REPORTS, ROOT
 
 
 @dataclass
@@ -29,8 +16,8 @@ class Config:
     exclude: tuple[str, ...]
     workers: int
     animation: bool
-    stats: Path | None
-    log: Path
+    reports: Path
+    stats: bool
 
     @classmethod
     def load(
@@ -39,8 +26,8 @@ class Config:
         formats: tuple[str, ...],
         workers: int | None,
         animation: bool | None,
-        stats: Path | None,
-        log: Path | None,
+        reports: Path | None,
+        stats: bool | None,
     ) -> Self:
         stored = {}
         if CONFIG.exists():
@@ -51,15 +38,9 @@ class Config:
         if path is None:
             raise click.UsageError(f"Missing path. Pass PATH or set it in '{CONFIG}'.")
 
-        log = Path(log or stored.get("log", LOGS))
-        if not log.is_absolute():
-            log = ROOT / log
-
-        stats = stats or stored.get("stats")
-        if stats:
-            stats = Path(stats)
-            if not stats.is_absolute():
-                stats = ROOT / stats
+        reports = Path(reports or stored.get("reports", REPORTS))
+        if not reports.is_absolute():
+            reports = ROOT / reports
 
         return cls(
             path=Path(path).resolve(),
@@ -69,6 +50,6 @@ class Config:
             ),
             workers=workers if workers is not None else stored.get("workers", os.cpu_count() or 4),
             animation=animation if animation is not None else stored.get("animation", True),
-            stats=stats.resolve() if stats else None,
-            log=log.resolve(),
+            reports=reports.resolve(),
+            stats=stats if stats is not None else stored.get("stats", False),
         )

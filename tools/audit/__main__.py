@@ -11,7 +11,8 @@ from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, T
 from rich.table import Table
 
 from tools.audit import files, stats
-from tools.audit.config import FORMATS, Config
+from tools.audit.config import Config
+from tools.audit.consts import ERRORS_JSONL, FILES, FORMATS
 from tools.audit.types import Error
 
 
@@ -30,11 +31,16 @@ def table(found: Counter, checked: Counter, failed: Counter) -> Table:
     return output
 
 
+def clear(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    for name in FILES:
+        (path / name).unlink(missing_ok=True)
+
+
 def save(errors: list[Error], path: Path) -> None:
     if not errors:
         return
 
-    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as file:
         for error in sorted(errors, key=lambda item: item.path):
             record = {"path": error.path, "error": error.error}
@@ -57,7 +63,8 @@ def run(cfg: Config, console: Console) -> int:
     )
     task = progress.add_task("Checking", total=len(assets))
 
-    output = stats.Writer(cfg.stats) if cfg.stats else nullcontext()
+    clear(cfg.reports)
+    output = stats.Writer(cfg.reports) if cfg.stats else nullcontext()
     initial = Group(progress, table(found, checked, failed))
     with output as writer, Live(initial, console=console, refresh_per_second=10) as live:
         updated = time.monotonic()
@@ -81,9 +88,10 @@ def run(cfg: Config, console: Console) -> int:
         if writer:
             writer.formats(found, checked, failed)
 
-    save(errors, cfg.log)
+    save(errors, cfg.reports / ERRORS_JSONL)
+
     if errors:
-        console.print(f"[red]{len(errors)} errors written to '{cfg.log}'[/]")
+        console.print(f"[red]{len(errors)} errors written to '{cfg.reports / ERRORS_JSONL}'[/]")
         return 1
 
     console.print("[green]No errors found.[/]")
@@ -116,24 +124,25 @@ def run(cfg: Config, console: Console) -> int:
     help="Parse model skeletons and animations.",
 )
 @click.option(
-    "--stats",
+    "--reports",
     type=click.Path(path_type=Path, file_okay=False),
-    help="Statistics directory.",
+    help="Reports directory.",
 )
 @click.option(
-    "--log",
-    type=click.Path(path_type=Path, dir_okay=False),
-    help="Error logs path.",
+    "--stats",
+    is_flag=True,
+    default=None,
+    help="Write statistics.",
 )
 def main(
     path: Path | None,
     formats: tuple[str, ...],
     workers: int | None,
     animation: bool | None,
-    stats: Path | None,
-    log: Path | None,
+    reports: Path | None,
+    stats: bool | None,
 ) -> None:
-    cfg = Config.load(path, formats, workers, animation, stats, log)
+    cfg = Config.load(path, formats, workers, animation, reports, stats)
     raise SystemExit(run(cfg, Console()))
 
 
