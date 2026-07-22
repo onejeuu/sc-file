@@ -2,7 +2,7 @@
 Format auto-detection by file extension.
 """
 
-import pathlib
+from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
@@ -11,6 +11,18 @@ from scfile.core import Options
 from scfile.enums import FileFormat
 
 from . import factory, formats
+
+
+def format(
+    source: types.PathLike,
+) -> str:
+    """Detect input file format."""
+    path = Path(source)
+
+    if path.name.lower() in SUPPORTED_NBT:
+        return str(FileFormat.NBT)
+
+    return path.suffix.lower().lstrip(".")
 
 
 def auto(
@@ -36,19 +48,11 @@ def auto(
         - ``auto("model.mcsb", "path/to/output/dir")``
     """
 
-    src_path = pathlib.Path(source)
-    src_format = src_path.suffix.lstrip(".")
+    src_path = Path(source)
+    src_format = format(source)
 
     options = options or Options()
     model_formats = options.model_formats or options.default_model_formats
-
-    # Detect NBT by file name
-    if src_path.name in SUPPORTED_NBT:
-        src_format = str(FileFormat.NBT)
-
-    # Normalize mcvd format (same as mcsa)
-    if src_format == FileFormat.MCVD:
-        src_format = str(FileFormat.MCSA)
 
     # Detect format by file suffix
     match src_format:

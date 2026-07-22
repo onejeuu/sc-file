@@ -18,6 +18,9 @@ ConverterRegistry: TypeAlias = dict[str, ConverterMap]
 DecoderMap: TypeAlias = dict[str, type[FileDecoder]]
 EncoderMap: TypeAlias = dict[str, type[FileEncoder]]
 
+Decoder: TypeAlias = Type[FileDecoder[ContentType]]
+Encoder: TypeAlias = Type[FileEncoder[ContentType]]
+
 _REGISTRY: ConverterRegistry = defaultdict(dict)
 _DECODERS: DecoderMap = {}
 _ENCODERS: EncoderMap = {}
@@ -33,21 +36,19 @@ def encoders() -> EncoderMap:
     return deepcopy(_ENCODERS)
 
 
-def converters(src_format: str) -> ConverterMap:
-    """Converters for source format."""
-    return deepcopy(_REGISTRY.get(src_format.lower().lstrip("."), {}))
-
-
 def registry() -> ConverterRegistry:
     """Copy of full converter registry."""
     return deepcopy(dict(_REGISTRY))
 
 
-def _register(
-    decoder: Type[FileDecoder[ContentType]],
-    encoder: Type[FileEncoder[ContentType]],
-    func: Callable,
-) -> None:
+def converters(
+    src_format: str,
+) -> ConverterMap:
+    """Converters for source format."""
+    return deepcopy(_REGISTRY.get(src_format.lower().lstrip("."), {}))
+
+
+def _register(decoder: Decoder, encoder: Encoder, func: Callable) -> None:
     dec = decoder.format.lower()
     enc = encoder.format.lower()
 
@@ -56,9 +57,15 @@ def _register(
     _REGISTRY[dec][enc] = func
 
 
+def _alias(source: str, target: str) -> None:
+    _DECODERS[source] = _DECODERS[target]
+    _REGISTRY[source] = _REGISTRY[target]
+
+
 def converter(
-    decoder: Type[FileDecoder[ContentType]],
-    encoder: Type[FileEncoder[ContentType]],
+    decoder: Decoder,
+    encoder: Encoder,
+    aliases: tuple[str, ...] = (),
 ) -> Callable:
     """Factory decorator for named conversion between two formats."""
 
@@ -82,6 +89,9 @@ def converter(
             encoder=encoder,
             func=wrapper,
         )
+
+        for alias in aliases:
+            _alias(alias, decoder.format.lower())
 
         return wrapper
 

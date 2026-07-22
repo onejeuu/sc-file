@@ -112,7 +112,11 @@ def mcsb_to_fbx(
     """
 
 
-@converter(formats.mcsa.McsaDecoder, formats.obj.ObjEncoder)
+@converter(
+    formats.mcsa.McsaDecoder,
+    formats.obj.ObjEncoder,
+    aliases=("mcvd",),
+)
 def mcsa_to_obj(
     source: PathLike,
     output: Optional[PathLike] = None,
