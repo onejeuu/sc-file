@@ -1,20 +1,19 @@
 from dataclasses import dataclass
-from pathlib import Path
 
 
-@dataclass
+@dataclass(slots=True)
 class Asset:
-    path: Path
+    path: str
     format: str
 
 
-@dataclass
+@dataclass(slots=True)
 class Error:
     path: str
     error: str
 
 
-@dataclass
+@dataclass(slots=True)
 class Result:
     format: str
     error: Error | None = None

@@ -2,6 +2,7 @@
 Format auto-detection by file extension.
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -17,12 +18,12 @@ def format(
     source: types.PathLike,
 ) -> str:
     """Detect input file format."""
-    path = Path(source)
+    name = os.path.basename(os.fspath(source)).lower()
 
-    if path.name.lower() in SUPPORTED_NBT:
+    if name in SUPPORTED_NBT:
         return str(FileFormat.NBT)
 
-    return path.suffix.lower().lstrip(".")
+    return os.path.splitext(name)[1].lstrip(".")
 
 
 def auto(

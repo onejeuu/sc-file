@@ -1,6 +1,7 @@
+import os
+import time
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from itertools import islice
-from pathlib import Path
 from typing import Iterator
 
 from rich.console import Console
@@ -16,11 +17,11 @@ from tools.audit.types import Asset, Error, Result
 def _decode(asset: Asset, config: Config, options: Options) -> Result:
     try:
         with DECODERS[asset.format](asset.path, options) as decoder:
-            decoder.decode()
+            decoder.decode(seek=False)
 
     except Exception as error:
-        relative = asset.path.relative_to(config.path).as_posix()
-        message = str(error).replace(str(asset.path), relative)
+        relative = os.path.relpath(asset.path, config.path).replace("\\", "/")
+        message = str(error).replace(asset.path, relative)
         return Result(
             format=asset.format,
             error=Error(
@@ -34,21 +35,28 @@ def _decode(asset: Asset, config: Config, options: Options) -> Result:
 
 def find_assets(config: Config, console: Console) -> list[Asset]:
     assets: list[Asset] = []
-    whitelist = [f".{format}" for format in config.formats if format != "nbt"]
-    if "nbt" in config.formats:
+    formats = set(config.formats)
+    whitelist = [f".{format}" for format in formats if format != "nbt"]
+    if "nbt" in formats:
         whitelist.extend(SUPPORTED_NBT)
 
     with console.status("Searching... 0 files") as status:
+        updated = time.monotonic()
+
         for entry in walk([config.path], whitelist):
             if entry.relpath.lower().replace("\\", "/") in config.exclude:
                 continue
 
-            path = Path(entry.path)
-            format = detect.format(path)
-            if format not in config.formats:
+            format = detect.format(entry.path)
+            if format not in formats:
                 continue
-            assets.append(Asset(path=path, format=format))
-            status.update(f"Searching... {len(assets)} files")
+
+            assets.append(Asset(path=entry.path, format=format))
+
+            now = time.monotonic()
+            if now - updated >= 0.1:
+                status.update(f"Searching... {len(assets)} files")
+                updated = now
 
     return assets
 
