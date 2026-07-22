@@ -118,20 +118,18 @@ def run(cfg: Config, console: Console) -> int:
     help="Worker threads. Use 0 to disable threads.",
 )
 @click.option(
-    "--animation",
-    type=bool,
-    default=None,
-    help="Parse model skeletons and animations.",
-)
-@click.option(
     "--reports",
     type=click.Path(path_type=Path, file_okay=False),
     help="Reports directory.",
 )
 @click.option(
+    "--animation",
+    is_flag=True,
+    help="Parse model skeletons and animations.",
+)
+@click.option(
     "--stats",
     is_flag=True,
-    default=None,
     help="Write statistics.",
 )
 def main(
