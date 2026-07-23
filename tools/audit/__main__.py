@@ -91,10 +91,10 @@ def run(cfg: Config, console: Console) -> int:
     save(errors, cfg.reports / ERRORS_JSONL)
 
     if errors:
-        console.print(f"[red]{len(errors)} errors written to '{cfg.reports / ERRORS_JSONL}'[/]")
+        console.print(f"⛔ [red]{len(errors)} errors written to '{cfg.reports / ERRORS_JSONL}'[/]")
         return 1
 
-    console.print("[green]No errors found.[/]")
+    console.print("✅ [green]No errors found.[/]")
     return 0
 
 
@@ -125,11 +125,13 @@ def run(cfg: Config, console: Console) -> int:
 @click.option(
     "--animation",
     is_flag=True,
+    default=None,
     help="Parse model skeletons and animations.",
 )
 @click.option(
     "--stats",
     is_flag=True,
+    default=None,
     help="Write statistics.",
 )
 def main(

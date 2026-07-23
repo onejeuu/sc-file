@@ -286,4 +286,9 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip.rotations = rotations
         clip.translations = translations
 
+        # ? Not parsed
+        # # Unknown UINT16
+        if self.data.version >= 15.0:
+            self.read(2)
+
         self.data.scene.animation.clips.append(clip)

@@ -291,6 +291,9 @@ typedef struct {
     if ( frameCount > 0 ) {
         BoneKeyFrame frame[frameCount] <optimize=false>;
     }
+    if ( version >= 15.0 ) {
+        ushort unknownCount;
+    }
 } BoneClip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 
