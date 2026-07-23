@@ -163,7 +163,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self._parse_links(mesh, counts.vertices, counts.max_influences)
 
         # ? Not parsed
-        # # Unknown: Feature Flags Dependence
         # Blend Shape Mapping
         if self.data.version >= 15.0 and blend_shapes:
             self.skip(counts.vertices * 2)
@@ -172,7 +171,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         mesh.polygons = self._readpolygons(counts.polygons, mesh.quads)
 
         # ? Not parsed
-        # # Unknown: Feature Flags Dependence
         # Blend Shape Data
         if self.data.version >= 15.0 and blend_shapes:
             self._readutf8()
@@ -250,6 +248,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         for index in range(self.ctx["COUNT_BONES"]):
             self._parse_bone(index)
 
+        # ? Not parsed
+        # Facial Bone Names
+        if self.data.version >= 15.0:
+            count = self._readb(F.U16)
+            [self._readutf8() for _ in range(count)]
+
     def _parse_bone(self, index: int):
         bone = S.SkeletonBone()
 
@@ -264,12 +268,6 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         bone.position, bone.rotation = self._readbone()
 
         self.data.scene.skeleton.bones.append(bone)
-
-        # ? Not parsed
-        # # Unknown: Feature Flags Dependence
-        if self.data.version >= 15.0:
-            count = self._readb(F.U16)
-            [self._readutf8() for _ in range(count)]
 
     def _parse_animation(self):
         self.ctx["COUNT_CLIPS"] = self._readb(F.I32)

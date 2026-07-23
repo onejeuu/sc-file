@@ -1,4 +1,4 @@
-path = "C:/Users/USERNAME/AppData/Roaming/EXBO/runtime/stalcraft/modassets/assets"
+path = "C:/EXBO/runtime/stalcraft/modassets/assets"
 workers = 4
 animation = false
 reports = "reports/audit"
