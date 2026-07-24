@@ -34,10 +34,12 @@ def run(
 ) -> tuple[pstats.Stats, float, int]:
     profile = cProfile.Profile()
 
-    started = perf_counter()
     with profile:
-        for _ in range(count):
-            operation()
+        operation()
+
+    started = perf_counter()
+    for _ in range(count):
+        operation()
     elapsed = perf_counter() - started
 
     output.parent.mkdir(parents=True, exist_ok=True)

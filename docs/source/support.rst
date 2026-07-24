@@ -24,33 +24,33 @@
     - `Wavefront <OBJ_>`_
     - ➖
     - ➖
-    - ``200ms``
+    - ``95ms``
   * - ``.glb``
     - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
-    - ``20ms``
+    - ``10ms``
   * - ``.dae``
     - `Collada <DAE_>`_
     - ✅
     - ❌
-    - ``200ms``
+    - ``85ms``
   * - ``.ms3d``
     - `MilkShape 3D <MS3D_>`_
     - ✅
     - ❌
-    - ``1300ms``
+    - ``20ms``
   * - ``.fbx``
     - `Autodesk Filmbox <FBX_>`_
     - ❌
     - ❌
-    - ``70ms``
+    - ``20ms``
 
 | ``✅ Supported``
 | ``❌ Not supported by scfile``
 | ``➖ Not supported by format``
 
-| Encoding time benchmarked on a complex model. Average results may vary.
+| Encoding time benchmarked on a reference model. Average results may vary.
 
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

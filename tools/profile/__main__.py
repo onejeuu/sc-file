@@ -29,7 +29,6 @@ PROFILES = tuple(
 def table(rows: list[tuple[str, float, int, Path]], count: int) -> Table:
     output = Table()
     output.add_column("Operation")
-    output.add_column("Runs", justify="right")
     output.add_column("Total", justify="right")
     output.add_column("Average", justify="right", style="green")
     output.add_column("Calls", justify="right")
@@ -38,7 +37,6 @@ def table(rows: list[tuple[str, float, int, Path]], count: int) -> Table:
     for operation, elapsed, calls, profile in rows:
         output.add_row(
             operation,
-            str(count),
             f"{elapsed:.3f} s",
             f"{elapsed / count:.3f} s",
             f"{calls:,}",
