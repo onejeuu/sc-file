@@ -87,8 +87,6 @@ class ModelDefaults:
 
     DECIMALS = 6
     ROOT_BONE_ID = -1
-    GEOMETRY_LIMIT = 1_000_000
-    """Safety limit to prevent memory overflow on corrupted files."""
 
 
 class Text:

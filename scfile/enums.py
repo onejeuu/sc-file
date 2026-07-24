@@ -1,4 +1,4 @@
-from enum import StrEnum, auto
+from enum import IntEnum, StrEnum, auto
 
 
 class FileFormat(StrEnum):
@@ -41,6 +41,15 @@ class FileType(StrEnum):
     TEXARR = auto()
     NBT = auto()
     REGION = auto()
+
+
+class ModelLimit(IntEnum):
+    MESHES = 10_000
+    VERTICES = 1_000_000
+    POLYGONS = 1_500_000
+    CLIPS = 1_000
+    FRAMES = 100_000
+    TRANSFORMS = 2_000_000
 
 
 class ByteOrder(StrEnum):

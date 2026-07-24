@@ -104,6 +104,22 @@ class InvalidStructureError(FileError):
         return f"{super().__str__()} parsing failed{f' at position {self.position}' if self.position else ''}."
 
 
+@dataclass
+class LimitError(FileError, ParsingError):
+    """Raised when a decoded value exceeds its safety limit."""
+
+    type: str
+    count: int
+    maximum: int
+
+    def __str__(self) -> str:
+        return (
+            f"{super().__str__()} has invalid structure - "
+            f"{self.count:,} {self.type} "
+            f"(max reasonable: {self.maximum:,})."
+        )
+
+
 class RegionError(ScFileException):
     """Base exception for region operations."""
 

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from scfile import exceptions
-from scfile.consts import ModelDefaults
 
 
 class McsaDecodingError(exceptions.FileError, exceptions.DecodingError):
@@ -10,21 +9,6 @@ class McsaDecodingError(exceptions.FileError, exceptions.DecodingError):
     @property
     def prefix(self):
         return "Model"
-
-
-@dataclass
-class McsaCountsLimit(McsaDecodingError, exceptions.ParsingError):
-    """Raised when model exceeds allowed geometry limits (vertices/polygons count)."""
-
-    type: str
-    count: int
-
-    def __str__(self) -> str:
-        return (
-            f"{super().__str__()} has invalid structure - "
-            f"{self.count:,} {self.type} "
-            f"(max reasonable: {ModelDefaults.GEOMETRY_LIMIT:,})."
-        )
 
 
 @dataclass

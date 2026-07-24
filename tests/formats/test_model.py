@@ -5,12 +5,13 @@ import pytest
 
 from scfile.core import Options
 from scfile.core.types import ModelEncoder
+from scfile.exceptions import LimitError
 from scfile.formats.dae import DaeEncoder
 from scfile.formats.efkmodel import EfkmodelDecoder
 from scfile.formats.fbx import FbxEncoder
 from scfile.formats.glb import GlbEncoder
 from scfile.formats.mcal.decoder import McalDecoder
-from scfile.formats.mcsa.exceptions import McsaCountsLimit, McsaVersionUnsupported
+from scfile.formats.mcsa.exceptions import McsaVersionUnsupported
 from scfile.formats.mcsb import McsbDecoder
 from scfile.formats.ms3d import Ms3dEncoder
 from scfile.formats.ms3d.exceptions import Ms3dCountsLimit
@@ -89,12 +90,12 @@ def test_invalid_version():
 
 
 def test_invalid_counts():
-    with pytest.raises(McsaCountsLimit):
+    with pytest.raises(LimitError):
         McsbDecoder(ASSETS / "invalid" / "counts.mcsb").decode()
 
 
 def test_invalid_counts_efkmodel():
-    with pytest.raises(McsaCountsLimit):
+    with pytest.raises(LimitError):
         EfkmodelDecoder(ASSETS / "invalid" / "counts.efkmodel").decode()
 
 

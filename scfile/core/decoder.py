@@ -5,6 +5,7 @@ Defines the contract for parsing binary data into structured content.
 """
 
 from abc import ABC, abstractmethod
+from enum import IntEnum
 from typing import Generic, Optional, Type, TypeVar
 
 from scfile import exceptions
@@ -139,3 +140,12 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
             if read != self.signature:
                 raise exceptions.InvalidSignatureError(self.location, read, self.signature)
+
+    def _checklimit(self, value: int, limit: IntEnum) -> int:
+        maximum = int(limit)
+        if value > maximum:
+            raise exceptions.LimitError(self.location, limit.name.lower(), value, maximum)
+        return value
+
+    def _readcount(self, fmt: str, limit: IntEnum) -> int:
+        return self._checklimit(self._readb(fmt), limit)
