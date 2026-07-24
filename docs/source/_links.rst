@@ -6,7 +6,7 @@
 
 .. Binary Templates
 .. _010 Editor: https://www.sweetscape.com/010editor/
-.. _binary templates: https://github.com/onejeuu/sc-file/tree/master/templates
+.. _templates: https://github.com/onejeuu/sc-file/tree/master/templates
 .. _MCSA.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCSA.bt
 .. _OL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/OL.bt
 .. _EFKMODEL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/EFKMODEL.bt
@@ -53,6 +53,7 @@
 .. _XNVIEW: https://xnview.com
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _RENDERDOC: https://renderdoc.org/builds
+.. _EFFEKSEER: https://effekseer.github.io/
 .. _IMAGEMAGICK: https://imagemagick.org
 .. _FFMPEG: https://ffmpeg.org
 .. _UV: https://github.com/astral-sh/uv

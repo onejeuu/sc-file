@@ -6,8 +6,7 @@
 .. warning::
   Formats specifications are based on **reverse-engineering** and may contain inaccuracies.
 
-| Binary structures can be inspected with `010 Editor`_.
-| See the project's `binary templates`_ for installation and usage.
+| Binary templates for `010 Editor`_ are available in the `templates`_ directory.
 
 
 ----------------------------------------
@@ -17,31 +16,32 @@
 ``.mcsa`` Scene Assets (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Configuration: Flags, Scales.
-| Geometry: Name, Material, Vertex positions, UV1, UV2, Normals, Tangents, Polygons.
-| Optional: Skeleton bones, Animation clips, Blend shapes.
+| Geometry: Positions, UVs, Normals, Tangents, Vertex colors, Polygons.
+| Optional: Skeleton, Animations, Blend shapes.
 
 ``.mcsb`` Scene Bundle (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Same structure as ``.mcsa`` with leading bytes prefix (?).
+| Same structure as ``.mcsa``.
+| Contains a length-prefixed hash before the signature.
 
 ``.mcvd`` Vector Dynamic (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Identical to ``.mcsa``.
-| Used for low-poly geometry with animations (?).
+| Same structure as ``.mcsa``.
+| Used for collision models and standalone animation sets.
 
 ``.mcal`` Animation Library (MCAL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Character animation clips.
-| Used for retargeting animations between compatible armatures.
+| Reusable skeletal animation clips stored separately from models.
+| Applied to models with matching skeletons.
 
 ``.efkmodel`` Effekseer Model (EFKMODEL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Geometry: Vertex positions, Normals, UV1, Polygons.
+| Standard `Effekseer <EFFEKSEER_>`_ model resource used as particle geometry.
+| Geometry: Positions, Normals, Binormals, Tangents, UVs, Vertex colors, Polygons.
 
 
 ----------------------------------------
@@ -107,13 +107,12 @@
 🗺 Region Formats
 ----------------------------------------
 
-``.mdat`` World Chunks Cache
+``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_) with extended world data.
-| Terrain chunks with blocks, metadata, lighting arrays and extra data.
-| Chunk data compressed with `ZSTD`_.
-| Format is not fully documented.
+| Region container for 32×32 terrain chunks, based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
+| Uses 4 KiB sectors with allocation and UUID metadata for each chunk.
+| Chunk data includes blocks, metadata, lighting and extended data compressed with `ZSTD`_.
 
 
 ----------------------------------------
@@ -228,8 +227,8 @@ Other Formats
 ``.mcws`` World Slice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Chunk of a safezone. `AES Encrypted <AES_>`_.
-| Exact purpose is unknown.
+| `AES-encrypted <AES_>`_ world slice used to render scene in settlement progression screens.
+| Loaded as a separate local world with its own renderer and camera.
 
 
 ----------------------------------------
