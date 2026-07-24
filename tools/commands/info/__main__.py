@@ -8,10 +8,8 @@ from rich.console import Console
 from scfile.convert import decoders, detect
 from scfile.core import Options
 from tools.commands.info import tables
-from tools.paths import ROOT
 
 
-FORMATS = ROOT.parent / "scfile" / "formats"
 DECODERS = decoders()
 
 
@@ -20,14 +18,14 @@ def parser(exception: Exception) -> tuple[str, str, str] | None:
     fallback = None
 
     for frame, lineno in traceback.walk_tb(exception.__traceback__):
-        path = Path(frame.f_code.co_filename).resolve()
-        if not path.is_relative_to(FORMATS):
+        module = frame.f_globals.get("__name__", "")
+        if not module.startswith("scfile."):
             continue
 
         item = (
             frame.f_code.co_name,
-            linecache.getline(str(path), lineno).strip(),
-            f"{path.relative_to(ROOT.parent).as_posix()}:{lineno}",
+            linecache.getline(frame.f_code.co_filename, lineno).strip(),
+            f"{module}:{lineno}",
         )
         fallback = item
 
