@@ -1,29 +1,26 @@
 v4.1.0
-======
+==================================================
 
 ✨ Added
---------
+----------------------------------------
 
-* ``TextureArrayDecoder``: source format ``.texarr``.
-* ``TextureArrayEncoder``: output format ``.zip``.
-* ``convert.texarr_to_zip``: new converter.
-
+* ``TextureArrayDecoder``: new source format ``.texarr``.
+* ``TextureArrayEncoder``: new output format ``.zip``.
+* ``convert.texarr_to_zip()``: new converter.
 
 📝 Changed
-----------
+----------------------------------------
 
-* ``GlbEncoder``: single bind matrix.
-* ``GlbEncoder``: position accessor bounds.
-* `scfile.formats``: package imports improved.
-
+* ``GlbEncoder``: uses a single bind matrix.
+* ``GlbEncoder``: writes position accessor bounds.
+* ``scfile.formats``: package imports improved.
 
 🐛 Fixed
---------
+----------------------------------------
 
-* ``GlbEncoder``: gltf on meshes without skinning links when skeleton present.
-
+* ``GlbEncoder``: glTF output for meshes without skinning links when a skeleton is present.
 
 ⚡ Optimized
-------------
+----------------------------------------
 
-* ``StructIO``: read array optimization (``.mcsa`` parsing 53ms → 8ms).
+* ``StructIO``: faster array reads (``.mcsa`` parsing 53 ms → 8 ms).

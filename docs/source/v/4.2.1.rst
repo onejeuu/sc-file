@@ -1,9 +1,9 @@
 v4.2.1
-======
+==================================================
 
 ✨ Added
---------
+----------------------------------------
 
-* ``NbtDecoder``: new source format NBT (``itemnames.dat``, synced configs).
+* ``NbtDecoder``: new source format NBT (``itemnames.dat`` and synchronized configs).
 * ``JsonEncoder``: new output format ``.json``.
-* CLI: added emoji to ``--version`` output.
+* **CLI:** ``--version`` output now includes an emoji.

@@ -1,40 +1,39 @@
 v4.0.0
-======
+==================================================
 
 ✨ Added
---------
+----------------------------------------
 
-* ``GlbEncoder``: new encoder to ``.glb``.
-* ``McsaDecoder``, ``GlbEncoder``: skeleton support (``--skeleton`` flag).
-* ``McsaDecoder``, ``GlbEncoder``: built-in skeleton animation support (``--animation`` flag).
-* ``OlCubemapDecoder``: new decoder for cubemap textures.
-* ``OlDecoder``: ``RGBA32F`` (DX10) format support.
-* CLI: ``--parent`` flag.
-
+* ``GlbEncoder``: new output format ``.glb``.
+* ``McsaDecoder``, ``GlbEncoder``: skeleton parsing and export through ``--skeleton``.
+* ``McsaDecoder``, ``GlbEncoder``: built-in animation parsing and export through ``--animation``.
+* ``OlCubemapDecoder``: cubemap texture decoder.
+* ``OlDecoder``: support for ``RGBA32F`` (DX10) textures.
+* **CLI:** ``--parent`` option.
 
 📝 Changed
-----------
+----------------------------------------
 
 CLI
-~~~
-* Exception handling: unexpected errors no longer interrupt batch processing.
-* Cubemap textures: fallback from standard to cubemap on decode failure.
-* ``--model-formats`` renamed to ``--mdlformat``.
-* ``--hdri`` renamed to ``--cubemap``.
-* ``--no-overwrite`` renamed to ``--unique``.
-* Default model format changed to ``.obj``.
-* Default model format with ``--skeleton`` changed to ``.glb``.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Batch conversion: unexpected errors no longer interrupt processing.
+* Cubemap textures: fallback from default texture decoding on failure.
+* ``--model-formats``: renamed to ``--mdlformat``.
+* ``--hdri``: renamed to ``--cubemap``.
+* ``--no-overwrite``: renamed to ``--unique``.
+* Default model output format changed to ``.obj``.
+* Default model output format with ``--skeleton`` changed to ``.glb``.
 
 Core
-~~~~
-* ``FileDecoder.validate()`` renamed to ``validate_signature()``.
-* ``FileDecoder.convert_to()`` and ``convert()`` now accept ``options: UserOptions`` parameter.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* ``FileDecoder.validate()``: renamed to ``FileDecoder.validate_signature()``.
+* ``FileDecoder.convert_to()``, ``convert()``: ``options: UserOptions`` parameter.
 * ``FileDecoder``, ``FileEncoder``: removed content reset on ``close()``.
 * ``FileContent``: new property ``type: FileType``.
 * ``FileFormat``: new property ``suffix: str``.
 
 ⚡ Optimized
-------------
+----------------------------------------
 
-* ``McsaDecoder``: ``StructIO`` read array optimization (parsing ~12x faster).
-* CLI: ``files_map`` replaced with iterator (eliminated startup delay on large folders).
+* ``McsaDecoder``: array reads through ``StructIO`` (model parsing 12× faster).
+* **CLI:** ``files_map`` replaced by an iterator, eliminating startup delays on large directories.

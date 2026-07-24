@@ -1,24 +1,28 @@
 v3.4.0
-==========
+==================================================
 
-Added
-----------
-* ``DaeEncoder``: COLLADA encoder (``.dae``).
+✨ Added
+----------------------------------------
 
-Changed
-----------
-* ``FileDecoder``: file pointer reset to start (``seek(0)``) after ``decode()``.
-* ``McsaFileIO``: floats rounded to 6 decimals.
+* ``DaeEncoder``: new output format ``.dae`` (COLLADA).
 
-Removed
-----------
-* ``mcvd_to_XXX`` conversion functions removed (identical to ``.mcsa`` format).
+📝 Changed
+----------------------------------------
 
-Refactored
-----------
-* Formats moved to ``scfile.file.formats.XXX``.
-* Base classes moved to ``scfile.file.base``.
-* Data components moved to ``scfile.file.data``.
-* Entrypoint moved from ``scfile.__main__`` to ``scfile.cli``.
-* Model dataclasses reorganized.
-* General code structure improvements.
+* ``FileDecoder.decode()``: file position reset to the beginning after parsing.
+* ``McsaFileIO``: decoded floats rounded to six decimal places.
+
+🗑️ Removed
+----------------------------------------
+
+* ``mcvd_to_*``: conversion functions removed because ``.mcvd`` and ``.mcsa`` use the same structure.
+
+♻️ Refactored
+----------------------------------------
+
+* **Formats:** moved to ``scfile.file.formats``.
+* **Core:** base classes moved to ``scfile.file.base``.
+* **Core:** data components moved to ``scfile.file.data``.
+* **CLI:** entry point moved from ``scfile.__main__`` to ``scfile.cli``.
+* **Models:** dataclasses reorganized.
+* **Core:** general structure reorganized.

@@ -1,19 +1,22 @@
 v2.0.0
-==========
+==================================================
 
-Added
-----------
-* Models: support for all known versions.
-* Models: safety limits against memory overflow on corrupted files.
-* Textures: support for all known formats.
-* CLI: accepts multiple files at once.
+✨ Added
+----------------------------------------
 
-Changed
-----------
-* Core: internal API updated.
-* Structures: model data changed from ``dict`` to ``list``.
-* Models: skeleton parsing disabled (pending output format support).
+* **Models:** support for all known model versions.
+* **Models:** safety limits for corrupted files to prevent excessive memory use.
+* **Textures:** support for all known texture formats.
+* **CLI:** multiple input files.
 
-Optimized
-----------
-* Models: processing up to 10x faster in common cases.
+📝 Changed
+----------------------------------------
+
+* **Core:** internal API updated.
+* **Models:** model data structures changed from ``dict`` to ``list``.
+* **Models:** skeleton parsing disabled pending output format support.
+
+⚡ Optimized
+----------------------------------------
+
+* **Models:** parsing up to 10× faster for common files.

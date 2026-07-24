@@ -1,20 +1,36 @@
 v5.2.0
-======
+==================================================
 
 ✨ Added
---------
+----------------------------------------
 
 * ``OlDecoder``: support for ``DXN_X`` (``ATI1`` / ``BC4``) textures.
-* Format handlers: ``decoders()`` and ``encoders()`` functions.
+* ``decoders()``, ``encoders()``: registered decoder and encoder classes.
+* ``detect.format()``: input format detection by file name.
+* ``TextureContent.texture_id``: texture identifier.
+* ``SafetyLimit``: shared limits for decoded sizes and counts.
+* ``LimitError``: error for decoded values that exceed a safety limit.
+* **Development:** ``audit``, ``info`` and ``profile`` tools.
 
 📝 Changed
-----------
+----------------------------------------
 
 * ``OlDecoder``: default and cubemap textures are now detected from the OL kind field.
 * ``OlDecoder``: texture data is typed as ``DefaultTexture | CubemapTexture``.
 
+🐛 Fixed
+----------------------------------------
+
+* ``McsaDecoder``: facial bones and morph animation structure in model version 15.0.
+* ``DaeEncoder``: ``float_array`` counts in generated documents.
+
 ⚠️ Deprecated
--------------
+----------------------------------------
 
 * ``OlCubemapDecoder``: use ``OlDecoder`` instead.
-* ``ol_cubemap_to_dds``: use ``ol_to_dds`` instead.
+* ``ol_cubemap_to_dds()``: use ``ol_to_dds()`` instead.
+
+⚡ Optimized
+----------------------------------------
+
+* ``DaeEncoder``, ``Ms3dEncoder`` and ``ObjEncoder``: numeric data serialization.

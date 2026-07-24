@@ -1,10 +1,12 @@
 v3.2.0
-==========
+==================================================
 
-Changed
-----------
-* Core: general code cleanup.
+📝 Changed
+----------------------------------------
 
-Optimized
-----------
-* Models: ``McsaFileIO`` performance improved.
+* **Core:** general code cleanup.
+
+⚡ Optimized
+----------------------------------------
+
+* ``McsaFileIO``: faster model parsing.
