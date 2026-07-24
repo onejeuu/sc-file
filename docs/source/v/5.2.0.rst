@@ -6,6 +6,7 @@ v5.2.0
 
 * ``OlDecoder``: support for ``DXN_X`` (``ATI1`` / ``BC4``) textures.
 * ``decoders()``, ``encoders()``: registered decoder and encoder classes.
+* ``scfile.formats``: decoder and encoder class exports.
 * ``detect.format()``: input format detection by file name.
 * ``TextureContent.texture_id``: texture identifier.
 * ``SafetyLimit``: shared limits for decoded sizes and counts.

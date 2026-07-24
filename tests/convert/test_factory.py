@@ -51,6 +51,11 @@ def test_handlers_registered():
     assert encoders()[FileFormat.DDS] is formats.dds.DdsEncoder
 
 
+def test_handler_exports():
+    assert formats.McsaDecoder is formats.mcsa.McsaDecoder
+    assert formats.DaeEncoder is formats.dae.DaeEncoder
+
+
 def test_handlers_copy():
     decoder_map = decoders()
     encoder_map = encoders()

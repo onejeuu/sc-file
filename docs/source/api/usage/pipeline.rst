@@ -12,8 +12,7 @@ Examples
 .. code-block:: python
   :caption: Manual Pipeline
 
-  from scfile.formats.mcsb import McsbDecoder
-  from scfile.formats.obj import ObjEncoder
+  from scfile.formats import McsbDecoder, ObjEncoder
 
   with McsbDecoder("model.mcsb") as mcsb:
       content = mcsb.decode()
@@ -24,8 +23,7 @@ Examples
 .. code-block:: python
   :caption: Encoder Factory
 
-  from scfile.formats.mcsb import McsbDecoder
-  from scfile.formats.obj import ObjEncoder
+  from scfile.formats import McsbDecoder, ObjEncoder
 
   with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder) as obj:
@@ -36,8 +34,7 @@ Examples
 .. code-block:: python
   :caption: Encoded Bytes
 
-  from scfile.formats.mcsb import McsbDecoder
-  from scfile.formats.obj import ObjEncoder
+  from scfile.formats import McsbDecoder, ObjEncoder
 
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
@@ -47,8 +44,7 @@ Examples
 
   from io import BytesIO
 
-  from scfile.formats.mcsb import McsbDecoder
-  from scfile.formats.obj import ObjEncoder
+  from scfile.formats import McsbDecoder, ObjEncoder
 
   source = b"..."
   output = BytesIO()
@@ -73,7 +69,7 @@ All four methods encode the content automatically when the output stream is empt
 .. code-block:: python
   :caption: Persistence
 
-  from scfile.formats.obj import ObjEncoder
+  from scfile.formats import ObjEncoder
 
   with ObjEncoder(content) as obj:
       obj.export("model")

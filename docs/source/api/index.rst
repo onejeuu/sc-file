@@ -31,7 +31,7 @@ Use decoders and encoders from :mod:`scfile.formats` for control over their life
 
 .. code-block:: python
 
-  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats import McsbDecoder
 
   with McsbDecoder("model.mcsb") as mcsb:
     mcsb.as_obj().save("output.obj")

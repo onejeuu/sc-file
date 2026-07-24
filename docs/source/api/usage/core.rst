@@ -22,7 +22,7 @@ Use a context manager or call ``close()`` explicitly:
 .. code-block:: python
   :caption: Example
 
-  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats import McsbDecoder
 
   # Automatic cleanup
   with McsbDecoder("model.mcsb") as mcsb:
