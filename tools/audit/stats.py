@@ -65,7 +65,7 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
             idx=index,
             name=clip.name,
             frames=clip.frames,
-            rate=clip.rate,
+            rate=round(clip.rate, 3),
         )
         for index, clip in enumerate(scene.animation.clips)
     ]
