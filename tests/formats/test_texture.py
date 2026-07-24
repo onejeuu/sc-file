@@ -50,7 +50,7 @@ def test_unsupported_kind():
     source = bytearray((ASSETS / "source" / "texture/texture_dxt1").read_bytes())
     source[32] = 2
 
-    with pytest.raises(OlKindUnsupported):
+    with pytest.raises(OlKindUnsupported, match="unsupported kind: 2"):
         OlDecoder(bytes(source)).decode()
 
 
