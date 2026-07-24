@@ -60,7 +60,7 @@ class Texture(NamedTuple):
     kind: str
     mipmaps: int
     faces: int
-    texture_id: str
+    path_hash: str
 
 
 class Image(NamedTuple):

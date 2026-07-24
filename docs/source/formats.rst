@@ -51,9 +51,10 @@
 ``.ol`` Object Layer (OL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standard ``.dds`` (`DirectDraw Surface <DDS_>`_) with simplified structure.
-| Texture kinds: Default (2D) and Cubemap.
-| Mipmaps compressed with `LZ4`_.
+| `GPU texture data <KHRONOS_DATA_FORMAT_>`_ compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
+| `Mipmaps <MIPMAP_>`_ compressed with `LZ4`_.
+| Texture kinds: Default (2D), Cubemap.
+| Metadata: Path hash.
 | Normal map textures may be inverted.
 
 .. list-table:: Texture Suffix Conventions
@@ -88,8 +89,8 @@
 ``.mic`` Media Image Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standard ``.png`` (`Portable Network Graphics <PNG_>`_) with modified file signature.
-| Previously used for game GUI.
+| ``.png`` (`Portable Network Graphics <PNG_>`_) image with an ``MIC`` file signature.
+| Primarily used for GUI atlases and composed images.
 
 
 ----------------------------------------

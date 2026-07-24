@@ -8,7 +8,7 @@ v5.2.0
 * ``decoders()``, ``encoders()``: registered decoder and encoder classes.
 * ``scfile.formats``: decoder and encoder class exports.
 * ``detect.format()``: input format detection by file name.
-* ``TextureContent.texture_id``: texture identifier.
+* ``TextureContent.path_hash``: logical resource path hash.
 * ``SafetyLimit``: shared limits for decoded sizes and counts.
 * ``LimitError``: error for decoded values that exceed a safety limit.
 * **Development:** ``audit``, ``info`` and ``profile`` tools.

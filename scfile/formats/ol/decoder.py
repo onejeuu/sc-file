@@ -65,7 +65,7 @@ class OlDecoder(FileDecoder[TextureContent[TextureData]], OlFileIO):
                 texture.compressed = self._readsizescubemap(self.data.mipmap_count)
 
     def _parse_image(self):
-        self.data.texture_id = self._reads()
+        self.data.path_hash = self._reads()
 
         match self.data.texture:
             case DefaultTexture() as texture:

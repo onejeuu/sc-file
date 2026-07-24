@@ -49,6 +49,9 @@
 .. _CUBEMAP: https://en.wikipedia.org/wiki/Cube_mapping
 .. _S3TC: https://en.wikipedia.org/wiki/S3_Texture_Compression
 
+.. Specifications
+.. _KHRONOS_DATA_FORMAT: https://registry.khronos.org/DataFormat/specs/1.4/dataformat.1.4.html
+
 .. Programs
 .. _XNVIEW: https://xnview.com
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml

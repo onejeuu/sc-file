@@ -117,7 +117,7 @@ def _texture(path: str, content: TextureContent, filesize: int) -> list[Record]:
             kind=kind,
             mipmaps=content.mipmap_count,
             faces=faces,
-            texture_id=content.texture_id.decode(errors="replace"),
+            path_hash=content.path_hash.decode(errors="replace"),
         )
     ]
 

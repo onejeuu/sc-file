@@ -156,7 +156,7 @@ def _texture(data: TextureContent) -> list[Row]:
         ("Mipmaps", data.mipmap_count),
         ("Faces", faces),
         ("Image", f"{decimal(len(data.texture.image))} ({len(data.texture.image):,} bytes)"),
-        ("Texture ID", data.texture_id.decode(errors="replace") or "-"),
+        ("Path Hash", data.path_hash.decode(errors="replace") or "-"),
     ]
 
 
