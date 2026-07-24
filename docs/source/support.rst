@@ -1,4 +1,4 @@
-✨ Formats Support
+✨ Format Support
 ==================================================
 
 .. include:: _links.rst
@@ -19,38 +19,38 @@
     - Name
     - Skeleton
     - Animation
-    - Time
+    - Time*
   * - ``.obj``
     - `Wavefront <OBJ_>`_
     - ➖
     - ➖
-    - ``95ms``
+    - ``95 ms``
   * - ``.glb``
     - `glTF Binary <GLTF_>`_
     - ✅
     - ✅
-    - ``10ms``
+    - ``10 ms``
   * - ``.dae``
-    - `Collada <DAE_>`_
+    - `COLLADA <DAE_>`_
     - ✅
     - ❌
-    - ``85ms``
+    - ``85 ms``
   * - ``.ms3d``
     - `MilkShape 3D <MS3D_>`_
     - ✅
     - ❌
-    - ``20ms``
+    - ``20 ms``
   * - ``.fbx``
-    - `Autodesk Filmbox <FBX_>`_
+    - `Autodesk FBX <FBX_>`_
     - ❌
     - ❌
-    - ``20ms``
+    - ``20 ms``
 
 | ``✅ Supported``
 | ``❌ Not supported by scfile``
 | ``➖ Not supported by format``
 
-| Encoding time benchmarked on a reference model. Average results may vary.
+| \* Conversion time for the reference model. Results for game assets vary with model complexity and hardware.
 
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -67,14 +67,14 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)
-| Supported types: ``Texture``, ``Normalmap``, ``Cubemap``
+| Texture kinds: ``Default (2D)``, ``Cubemap``
 
 .. list-table::
   :header-rows: 1
 
   * - Encoded
-    - Decoded
-    - Format
+    - Game Format
+    - DDS Format
     - Compression
   * - ``#?3V``
     - ``DXT1``
@@ -140,7 +140,7 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Output: ``.mca`` (`Anvil <ANVIL_>`_). Version ``1343``. Minecraft ``1.12.2``.
-| Only basic blocks export.
+| Export limited to basic blocks.
 
 
 ----------------------------------------
@@ -148,5 +148,5 @@
 ----------------------------------------
 
 | Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)
-| Supported types: ``RAW``, ``GZIP``, ``ZSTD``
+| Compression: ``RAW``, ``GZIP``, ``ZSTD``
 | Supported files: ``stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0..4``

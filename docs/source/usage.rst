@@ -15,23 +15,23 @@ Quick Start
 
 📥 **Drag & Drop**
   Drag files or folders directly onto ``scfile.exe`` in File Explorer.
-  Supported files are converted to default formats and saved alongside source file.
+  Supported files are converted to default formats and saved alongside the source file.
 
-  This is equivalent to running ``scfile.exe <path>`` for each dropped file.
+  This is equivalent to passing dropped paths to ``scfile.exe``.
 
 
 🖱️ **Open With**
   Set ``scfile.exe`` as the default program for opening supported file types.
-  Double-clicking any such file in Explorer will convert it and save output alongside source file.
+  Double-clicking any such file in Explorer will convert it and save output alongside the source file.
 
   To set up: right-click a file → **Open With** → choose ``scfile.exe``
-  and check «Always use this app».
+  and check **Always use this app**.
 
 
 📟 **Command Line**
   Run ``scfile.exe --help`` to see all available arguments and options.
-  The CLI gives full control over conversion: output formats, skeletons,
-  animations, directory structure, file name conflicts, and more.
+  The CLI configures output formats, skeleton and animation export,
+  directory structure, and file name conflicts.
 
   .. code-block:: bash
 
@@ -40,8 +40,7 @@ Quick Start
 
 📖 **Python Library**
   Install the package from PyPI: ``pip install sc-file -U``.
-  Use ``scfile`` directly in your Python scripts, automate complex workflows,
-  or build your own tools on top of it.
+  Use ``scfile`` from Python scripts and tools.
 
   :doc:`Full API Reference <api/index>`
 
@@ -86,7 +85,7 @@ convert
 Default command. Converts game assets to standard formats.
 
 ``PATHS``
-  One or more files or directories. Accepts full paths, relative paths,
+  One or more files or directories. Accepts absolute paths, relative paths,
   and wildcard patterns (``*``). Only files with supported extensions are processed.
 
   .. code-block:: bash
@@ -99,7 +98,7 @@ Default command. Converts game assets to standard formats.
 
 
 ``-O, --output``
-  Output directory for converted files. If not specified, output files are saved alongside source file.
+  Output directory for converted files. If not specified, output files are saved alongside the source file.
 
   .. code-block:: bash
     :caption: Example
@@ -122,7 +121,7 @@ Default command. Converts game assets to standard formats.
 
 
 ``--skeleton``
-  | Parse and export skeleton (armature) from models.
+  | Export model skeleton (armature).
   | Supported by: ``glb``, ``dae``, ``ms3d``.
 
   .. code-block:: bash
@@ -134,7 +133,7 @@ Default command. Converts game assets to standard formats.
 
 
 ``--animation``
-  | Parse and export built-in animation clips from models. Implies ``--skeleton``.
+  | Export embedded animation clips. Implies ``--skeleton``.
   | Supported by: ``glb``.
 
   .. code-block:: bash
@@ -149,9 +148,9 @@ Default command. Converts game assets to standard formats.
   | Accepted values: ``overwrite``, ``skip``, ``rename``.
   | Default is ``overwrite``.
 
-  - ``overwrite`` Replace existing file.
-  - ``skip`` Keep existing file.
-  - ``rename`` Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
+  - ``overwrite`` — Replace existing file.
+  - ``skip`` — Keep existing file.
+  - ``rename`` — Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
 
   .. code-block:: bash
     :caption: Example
@@ -234,7 +233,7 @@ Default
 mapcache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Merges ``.mdat`` cached regions into ``.mca`` region files.
+| Merges ``.mdat`` region caches into ``.mca`` region files.
 | Run with explicit command or use a path containing ``map_cache`` to auto-detect.
 
 ``SOURCE``
