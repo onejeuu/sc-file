@@ -1,24 +1,40 @@
+import linecache
+import traceback
 from pathlib import Path
 
 import click
 from rich.console import Console
 
 from scfile.convert import decoders, detect
-from scfile.core import FileDecoder, Options
+from scfile.core import Options
 from tools.info import tables
 
 
+ROOT = Path(__file__).resolve().parents[2]
+FORMATS = ROOT / "scfile" / "formats"
 DECODERS = decoders()
-CONTEXT_SIZE = 16
 
 
-def context(decoder: FileDecoder, position: int) -> tuple[bytes, bytes]:
-    position = min(max(position, 0), decoder.size())
-    decoder.seek(max(0, position - CONTEXT_SIZE))
-    before = decoder.read(min(CONTEXT_SIZE, position))
-    decoder.seek(position)
-    after = decoder.read(CONTEXT_SIZE)
-    return before, after
+def parser(exception: Exception) -> tuple[str, str, str] | None:
+    found = None
+    fallback = None
+
+    for frame, lineno in traceback.walk_tb(exception.__traceback__):
+        path = Path(frame.f_code.co_filename).resolve()
+        if not path.is_relative_to(FORMATS):
+            continue
+
+        item = (
+            frame.f_code.co_name,
+            linecache.getline(str(path), lineno).strip(),
+            f"{path.relative_to(ROOT).as_posix()}:{lineno}",
+        )
+        fallback = item
+
+        if item[0] == "parse" or item[0].startswith("_parse"):
+            found = item
+
+    return found or fallback
 
 
 @click.command()
@@ -46,7 +62,6 @@ def main(source: Path) -> None:
             if position is None:
                 position = decoder.tell()
 
-            before, after = context(decoder, position)
             console.print("[bold red]Decode failed[/]")
             console.print(
                 tables.failure(
@@ -54,11 +69,10 @@ def main(source: Path) -> None:
                     format,
                     size,
                     decoder_type.__name__,
-                    type(decoder.data).__name__,
+                    decoder.data,
                     exception,
                     position,
-                    before,
-                    after,
+                    parser(exception),
                 )
             )
             raise click.exceptions.Exit(1)

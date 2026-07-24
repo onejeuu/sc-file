@@ -83,27 +83,36 @@ def failure(
     format: str,
     size: int,
     decoder: str,
-    content: str,
+    data: BaseContent,
     exception: Exception,
     position: int,
-    before: bytes,
-    after: bytes,
+    parser: tuple[str, str, str] | None,
 ) -> Table:
-    offset = f"{position:,} / {size:,}"
+    offset = f"{position:,} (0x{position:X}"
     if size:
-        offset += f" ({position / size:.1%})"
+        offset += f", {position / size:.2%}"
+    offset += ")"
 
     rows: list[Row] = [
         ("Path", source),
         ("Format", format),
         ("Size", f"{decimal(size)} ({size:,} bytes)"),
         ("Decoder", decoder),
-        ("Content", content),
+        ("Content", type(data).__name__),
         ("Error", f"{type(exception).__name__}: {exception}"),
         ("Offset", offset),
-        ("Before", before.hex(" ").upper() or "-"),
-        ("After", after.hex(" ").upper() or "-"),
     ]
+
+    if parser is not None:
+        name, code, location = parser
+        rows.extend(
+            (
+                ("Parser", name),
+                ("Code", code),
+                ("Source", location),
+            )
+        )
+
     return _table(rows, error=True)
 
 
@@ -129,9 +138,11 @@ def _texture(data: TextureContent) -> list[Row]:
         case DefaultTexture():
             kind = "DEFAULT"
             faces = 1
+
         case CubemapTexture() as texture:
             kind = "CUBEMAP"
             faces = len(texture.faces)
+
         case _:
             kind = type(data.texture).__name__
             faces = 0
