@@ -1,5 +1,5 @@
 🧊 EFKMODEL
-===========================
+==================================================
 
 .. automodule:: scfile.formats.efkmodel
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
---------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.efkmodel.decoder
   :members:

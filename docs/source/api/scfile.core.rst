@@ -1,5 +1,5 @@
 🛠️ Core
-===================
+==================================================
 
 .. automodule:: scfile.core
   :no-members:
@@ -7,7 +7,7 @@
 
 
 BaseFile
------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.base
   :members:
@@ -16,7 +16,7 @@ BaseFile
 
 
 Content
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.content
   :members:
@@ -25,7 +25,7 @@ Content
 
 
 Decoder
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.decoder
   :members:
@@ -34,7 +34,7 @@ Decoder
 
 
 Encoder
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.encoder
   :members:
@@ -43,7 +43,7 @@ Encoder
 
 
 Options
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.options
   :members:
@@ -52,7 +52,7 @@ Options
 
 
 StructIO
----------------------------
+----------------------------------------
 
 .. automodule:: scfile.core.structio
   :members:

@@ -1,5 +1,5 @@
 🧊 MCSB
-===========================
+==================================================
 
 .. automodule:: scfile.formats.mcsb
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsb.decoder
   :members:

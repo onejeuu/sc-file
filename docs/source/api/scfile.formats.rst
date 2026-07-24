@@ -1,5 +1,5 @@
 🧩 Formats
-======================
+==================================================
 
 .. automodule:: scfile.formats
   :no-members:
@@ -8,7 +8,7 @@
 
 
 Modules
-------------------
+----------------------------------------
 
 .. toctree::
   :maxdepth: 1
@@ -23,7 +23,6 @@ Modules
   scfile.formats.ms3d
   scfile.formats.fbx
   scfile.formats.ol
-  scfile.formats.hdri
   scfile.formats.dds
   scfile.formats.mic
   scfile.formats.png

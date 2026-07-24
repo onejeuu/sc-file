@@ -1,5 +1,5 @@
 🗺 MCA
-===========================
+==================================================
 
 .. automodule:: scfile.formats.mca
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mca.encoder
   :members:
@@ -17,7 +17,7 @@ Encoder
 
 
 Mapping
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mca.mapping
   :members:

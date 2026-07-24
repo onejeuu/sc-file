@@ -1,7 +1,7 @@
 📖 Library
-==============
+==================================================
 
-The Reference API is divided into execution layers depending on the required control granularity.
+The API is organized by level of control.
 
 .. toctree::
   :maxdepth: 2
@@ -9,42 +9,43 @@ The Reference API is divided into execution layers depending on the required con
   usage/index
 
 
-High-Level Conversion (:mod:`scfile.convert`)
----------------------------------------------------------------
-Provides simplified, single function access for automated format conversion.
+High-Level Conversion
+----------------------------------------
+
+Use :mod:`scfile.convert` for automatic format detection and named conversion functions.
 
 .. code-block:: python
 
   from scfile import convert
 
-  # Automated format detection via file extension
   convert.auto("model.mcsb")
   convert.auto("model.mcsb", output="path/to/output/dir")
 
-  # Explicit format pair conversion
   convert.formats.mcsb_to_obj("model.mcsb", output="output.obj")
 
 
-Advanced Pipelines (:mod:`scfile.formats`)
----------------------------------------------------------------
-Provides explicit control over decoding and encoding lifecycle using context managers.
+Advanced Pipelines
+----------------------------------------
+
+Use decoders and encoders from :mod:`scfile.formats` for control over their lifecycle.
 
 .. code-block:: python
 
   from scfile.formats.mcsb import McsbDecoder
 
   with McsbDecoder("model.mcsb") as mcsb:
-    mcsb.to_obj().save("output.obj")
+    mcsb.as_obj().save("output.obj")
 
 
-Data Inspection (:mod:`scfile.structures`)
----------------------------------------------------------------
-Provides direct access to parsed structures and underlying data containers before serialization.
+Data Inspection
+----------------------------------------
+
+Use :mod:`scfile.structures` to inspect decoded content before encoding it.
 
 .. code-block:: python
 
-  from scfile.formats.mcsb import McsbDecoder
   from scfile import Options
+  from scfile.formats.mcsb import McsbDecoder
 
   options = Options(skeleton=True)
 
@@ -57,7 +58,7 @@ Provides direct access to parsed structures and underlying data containers befor
 
 
 API Reference
----------------------------------------------------------------
+----------------------------------------
 
 .. toctree::
   :maxdepth: 3

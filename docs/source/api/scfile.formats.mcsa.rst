@@ -1,5 +1,5 @@
 🧊 MCSA
-===========================
+==================================================
 
 .. automodule:: scfile.formats.mcsa
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsa.decoder
   :members:
@@ -17,7 +17,7 @@ Decoder
 
 
 IO
------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsa.io
   :members:
@@ -26,7 +26,7 @@ IO
 
 
 Versions
------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsa.versions
   :members:
@@ -35,7 +35,7 @@ Versions
 
 
 Constants
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsa.consts
   :members:
@@ -44,7 +44,7 @@ Constants
 
 
 Exceptions
--------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcsa.exceptions
   :members:

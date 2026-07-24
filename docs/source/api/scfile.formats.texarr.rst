@@ -1,5 +1,5 @@
 🗃️ TEXARR
-===========================
+==================================================
 
 .. automodule:: scfile.formats.texarr
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
-------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.texarr.decoder
   :members:

@@ -1,5 +1,5 @@
 🧰 Utils
-====================
+==================================================
 
 .. automodule:: scfile.utils
   :no-members:
@@ -7,7 +7,7 @@
 
 
 Files
--------------------------
+----------------------------------------
 
 .. automodule:: scfile.utils.files
   :members:
@@ -16,7 +16,7 @@ Files
 
 
 Updates
----------------------------
+----------------------------------------
 
 .. automodule:: scfile.utils.updates
   :members:
@@ -25,7 +25,7 @@ Updates
 
 
 Versions
-----------------------------
+----------------------------------------
 
 .. automodule:: scfile.utils.versions
   :members:

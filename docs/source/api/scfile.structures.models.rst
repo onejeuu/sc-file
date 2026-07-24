@@ -1,5 +1,5 @@
-Models
----------------------------------
+🧊 Models
+==================================================
 
 .. automodule:: scfile.structures.models
   :members:
@@ -8,7 +8,7 @@ Models
 
 
 Scene
--------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.scene
   :members:
@@ -17,7 +17,7 @@ Scene
 
 
 Mesh
-------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.mesh
   :members:
@@ -35,7 +35,7 @@ Skeleton
 
 
 Animation
------------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.animation
   :members:
@@ -53,7 +53,7 @@ Matrices
 
 
 Transforms
-------------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.transforms
   :members:
@@ -62,7 +62,7 @@ Transforms
 
 
 Enums
--------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.enums
   :members:
@@ -71,7 +71,7 @@ Enums
 
 
 Types
--------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models.types
   :members:

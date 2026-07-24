@@ -1,5 +1,5 @@
 🧊 DAE
-===========================
+==================================================
 
 .. automodule:: scfile.formats.dae
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.dae.encoder
   :members:

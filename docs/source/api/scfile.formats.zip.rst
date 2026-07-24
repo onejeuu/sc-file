@@ -1,5 +1,5 @@
 🗃️ ZIP
-===========================
+==================================================
 
 .. automodule:: scfile.formats.zip
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
-------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.zip.encoder
   :members:

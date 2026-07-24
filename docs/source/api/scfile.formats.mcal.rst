@@ -1,5 +1,5 @@
 🧊 MCAL
-===========================
+==================================================
 
 .. automodule:: scfile.formats.mcal
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mcal.decoder
   :members:

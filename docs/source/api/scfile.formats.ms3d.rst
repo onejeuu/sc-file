@@ -1,5 +1,5 @@
 🧊 MS3D
-===========================
+==================================================
 
 .. automodule:: scfile.formats.ms3d
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ms3d.encoder
   :members:
@@ -17,18 +17,18 @@ Encoder
 
 
 IO
------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ms3d.io
-    :members:
-    :show-inheritance:
-    :undoc-members:
+  :members:
+  :show-inheritance:
+  :undoc-members:
 
 
 Exceptions
--------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ms3d.exceptions
-   :members:
-   :show-inheritance:
-   :undoc-members:
+  :members:
+  :show-inheritance:
+  :undoc-members:

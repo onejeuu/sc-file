@@ -1,5 +1,5 @@
 🖼️ PNG
-==========================
+==================================================
 
 .. automodule:: scfile.formats.png
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.png.encoder
   :members:

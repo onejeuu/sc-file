@@ -1,10 +1,10 @@
 Usage
-=============
+==================================================
 
-This section provides comprehensive, conceptual guides.
+Guides to decoding, encoding, and handler lifecycle.
 
 .. toctree::
-   :maxdepth: 2
-   :glob:
+  :maxdepth: 2
+  :glob:
 
-   *
+  *

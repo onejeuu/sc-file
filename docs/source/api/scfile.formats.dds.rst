@@ -1,5 +1,5 @@
 🧱 DDS
-=========================
+==================================================
 
 .. automodule:: scfile.formats.dds
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.dds.encoder
   :members:
@@ -17,7 +17,7 @@ Encoder
 
 
 Enums
--------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.dds.enums
   :members:
@@ -26,7 +26,7 @@ Enums
 
 
 Header
---------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.dds.header
   :members:

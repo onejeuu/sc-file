@@ -1,5 +1,5 @@
 🧱 OL
-=========================
+==================================================
 
 .. automodule:: scfile.formats.ol
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
---------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ol.decoder
   :members:
@@ -17,7 +17,7 @@ Decoder
 
 
 IO
----------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ol.io
   :members:
@@ -26,7 +26,7 @@ IO
 
 
 Enums
----------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ol.enums
   :members:
@@ -35,7 +35,7 @@ Enums
 
 
 Formats
---------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ol.formats
   :members:
@@ -44,7 +44,7 @@ Formats
 
 
 Exceptions
------------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.ol.exceptions
   :members:

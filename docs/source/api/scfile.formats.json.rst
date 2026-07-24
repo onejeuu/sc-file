@@ -1,5 +1,5 @@
 ⚙️ JSON
-=========================
+==================================================
 
 .. automodule:: scfile.formats.json
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.json.encoder
   :members:

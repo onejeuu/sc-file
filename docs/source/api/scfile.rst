@@ -1,8 +1,8 @@
 API Reference
-=============
+==================================================
 
 Modules
---------------------
+----------------------------------------
 
 .. toctree::
   :maxdepth: 2
@@ -15,7 +15,7 @@ Modules
 
 
 Constants
---------------------
+----------------------------------------
 
 .. automodule:: scfile.consts
   :members:
@@ -24,7 +24,7 @@ Constants
 
 
 Enums
--------------------
+----------------------------------------
 
 .. automodule:: scfile.enums
   :members:
@@ -33,7 +33,7 @@ Enums
 
 
 Types
--------------------
+----------------------------------------
 
 .. automodule:: scfile.types
   :members:
@@ -42,7 +42,7 @@ Types
 
 
 Exceptions
--------------------
+----------------------------------------
 
 .. automodule:: scfile.exceptions
   :members:

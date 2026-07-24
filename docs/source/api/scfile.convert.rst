@@ -1,5 +1,5 @@
 🔄 Convert
-======================
+==================================================
 
 .. automodule:: scfile.convert
   :no-members:
@@ -7,7 +7,7 @@
 
 
 Detect
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.convert.detect
   :members:
@@ -16,7 +16,7 @@ Detect
 
 
 Formats
------------------------------
+----------------------------------------
 
 .. automodule:: scfile.convert.formats
   :members:
@@ -25,7 +25,7 @@ Formats
 
 
 Convert
---------------------------
+----------------------------------------
 
 .. automodule:: scfile.convert.convert
   :members:
@@ -34,7 +34,7 @@ Convert
 
 
 Factory
------------------------------
+----------------------------------------
 
 .. automodule:: scfile.convert.factory
   :members:

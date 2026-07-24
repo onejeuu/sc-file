@@ -1,5 +1,5 @@
 🧊 OBJ
-===========================
+==================================================
 
 .. automodule:: scfile.formats.obj
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.obj.encoder
   :members:

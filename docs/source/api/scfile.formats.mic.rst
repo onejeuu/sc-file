@@ -1,5 +1,5 @@
 🖼️ MIC
-==========================
+==================================================
 
 .. automodule:: scfile.formats.mic
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mic.decoder
   :members:

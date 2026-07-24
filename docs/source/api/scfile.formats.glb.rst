@@ -1,5 +1,5 @@
 🧊 GLB
-===========================
+==================================================
 
 .. automodule:: scfile.formats.glb
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.glb.encoder
   :members:
@@ -17,7 +17,7 @@ Encoder
 
 
 Enums
--------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.glb.enums
   :members:

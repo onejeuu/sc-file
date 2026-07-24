@@ -1,5 +1,5 @@
 🗺 MDAT
-===========================
+==================================================
 
 .. automodule:: scfile.formats.mdat
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
-----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.mdat.decoder
   :members:

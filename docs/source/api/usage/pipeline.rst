@@ -1,107 +1,90 @@
 Default Pipelines
-========================================
+==================================================
 
-* :meth:`~scfile.core.decoder.FileDecoder.convert_to` Decodes and returns encoder with file content.
-* :meth:`~scfile.core.decoder.FileDecoder.convert` Decodes, encodes to target format, returns raw bytes, closes both streams.
-* Format-specific methods (e.g., ``as_obj()``) shortcut for :meth:`~scfile.core.decoder.FileDecoder.convert_to`.
+* :meth:`~scfile.core.decoder.FileDecoder.convert_to` decodes content and returns an encoder.
+* :meth:`~scfile.core.decoder.FileDecoder.convert` decodes and encodes content, then returns the result as bytes.
+* Format-specific methods such as ``as_obj()`` are shortcuts for :meth:`~scfile.core.decoder.FileDecoder.convert_to`.
 
 
 Examples
------------------------
+----------------------------------------
 
 .. code-block:: python
-   :caption: Basic Manual Pipeline
+  :caption: Manual Pipeline
 
-   from scfile.formats.mcsb import McsbDecoder
-   from scfile.formats.obj import ObjEncoder
+  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats.obj import ObjEncoder
 
-   with McsbDecoder("model.mcsb") as mcsb:
-       data = mcsb.decode()
+  with McsbDecoder("model.mcsb") as mcsb:
+      content = mcsb.decode()
 
-   with ObjEncoder(data) as obj:
-       obj.encode().save("output.obj")
-
-.. code-block:: python
-   :caption: Chaining and Factory Shortcuts
-
-   from scfile.formats.mcsb import McsbDecoder
-   from scfile.formats.obj import ObjEncoder
-
-   with McsbDecoder("model.mcsb") as mcsb:
-       # convert_to triggers decode() internally and returns a clear encoder
-       with mcsb.convert_to(ObjEncoder) as obj:
-           obj.encode().save("output.obj")
-
-       # Using explicit target format shortcuts in a concise single-line chain.
-       # If encode() is omitted, the persistence layer invokes it automatically.
-       mcsb.as_obj().save("output.obj")
+  with ObjEncoder(content) as obj:
+      obj.encode().save("output.obj")
 
 .. code-block:: python
-   :caption: High-Level Encapsulated Conversion
+  :caption: Encoder Factory
 
-   from scfile.formats.mcsb import McsbDecoder
-   from scfile.formats.obj import ObjEncoder
+  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats.obj import ObjEncoder
 
-   # Standard high-level pipeline returning raw format bytes directly
-   with McsbDecoder("model.mcsb") as mcsb:
-       data: bytes = mcsb.convert(ObjEncoder)
+  with McsbDecoder("model.mcsb") as mcsb:
+      with mcsb.convert_to(ObjEncoder) as obj:
+          obj.save("output.obj")
 
-   # Extracting buffer data
-   with ObjEncoder(data) as obj:
-       data: bytes = obj.getvalue()  # Automatically triggers encode() if buffer is empty
+      mcsb.as_obj().save("output.obj")
 
 .. code-block:: python
-    :caption: Alternative Stream Handling
+  :caption: Encoded Bytes
 
-    from io import BytesIO
-    from scfile.formats.mcsb import McsbDecoder
-    from scfile.formats.obj import ObjEncoder
+  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats.obj import ObjEncoder
 
-    source = b"..."
-    output = BytesIO()
+  with McsbDecoder("model.mcsb") as mcsb:
+      data = mcsb.convert(ObjEncoder)
 
-    with McsbDecoder(source) as mcsb:
-        data = mcsb.decode()
+.. code-block:: python
+  :caption: Binary Streams
 
-    # Directing serialization stream into specified output
-    with ObjEncoder(data, output=output) as obj:
-        obj.encode()
-        # output now contains serialized structure
+  from io import BytesIO
 
-    with open("output.obj", "wb") as fp:
-        fp.write(output.getvalue())
+  from scfile.formats.mcsb import McsbDecoder
+  from scfile.formats.obj import ObjEncoder
+
+  source = b"..."
+  output = BytesIO()
+
+  with McsbDecoder(source) as mcsb:
+      with mcsb.convert_to(ObjEncoder, output=output) as obj:
+          obj.encode()
+          data = output.getvalue()
 
 
 Persistence
------------
+----------------------------------------
 
-Methods for saving encoded data to disk or retrieving buffers:
+Methods for writing encoded data:
 
-* ``save(path)`` / ``save_as(path)`` Write data strictly to the specified file path.
-* ``export(path)`` / ``export_as(path)`` Append the format suffix (e.g., ``.obj``) to the path and write the data.
+* ``save(path)`` and ``save_as(path)`` write to the specified file path.
+* ``export(path)`` and ``export_as(path)`` append the format suffix to the path.
 
-Methods with the ``_as`` suffix keep the encoder stream open. Standard methods
-(``save``, ``export``) close the stream automatically after writing.
+Methods with the ``_as`` suffix keep the encoder open. ``save()`` and ``export()`` close it.
+All four methods encode the content automatically when the output stream is empty.
 
 .. code-block:: python
-   :caption: Persistence Options
+  :caption: Persistence
 
-   from scfile.formats.obj import ObjEncoder
+  from scfile.formats.obj import ObjEncoder
 
-   with ObjEncoder(data) as obj:
-       # Appends format extension automatically
-       obj.encode().export("model") # Closes stream
-       assert obj.closed
+  with ObjEncoder(content) as obj:
+      obj.export("model")
+      assert obj.closed
 
-   with ObjEncoder(data) as obj:
-       obj.encode()
+  with ObjEncoder(content) as obj:
+      obj.export_as("backup")
+      assert not obj.closed
 
-       # Keeps encoder open to duplicate data or append modifications
-       obj.export_as("backup")
-       assert not obj.closed
+      obj.save_as("backup.obj")
+      assert not obj.closed
 
-       obj.save_as("backup.obj")
-       assert not obj.closed
-
-       obj.save("model.obj") # Closes stream
-       assert obj.closed
+      obj.save("model.obj")
+      assert obj.closed

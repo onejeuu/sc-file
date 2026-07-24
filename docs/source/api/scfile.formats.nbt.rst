@@ -1,5 +1,5 @@
 ⚙️ NBT
-=========================
+==================================================
 
 .. automodule:: scfile.formats.nbt
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Decoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.nbt.decoder
   :members:
@@ -16,7 +16,7 @@ Decoder
   :undoc-members:
 
 IO
-----------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.nbt.io
   :members:
@@ -25,7 +25,7 @@ IO
 
 
 Enums
--------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.nbt.enums
   :members:
@@ -34,7 +34,7 @@ Enums
 
 
 NBT
------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.nbt.nbt
   :members:

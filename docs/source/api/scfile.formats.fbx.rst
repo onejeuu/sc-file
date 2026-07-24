@@ -1,5 +1,5 @@
 🧊 FBX
-===========================
+==================================================
 
 .. automodule:: scfile.formats.fbx
   :show-inheritance:
@@ -7,7 +7,7 @@
 
 
 Encoder
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.fbx.encoder
   :members:
@@ -17,7 +17,7 @@ Encoder
 
 
 IO
-----------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.fbx.io
   :members:
@@ -26,7 +26,7 @@ IO
 
 
 Constants
---------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.fbx.consts
   :members:
@@ -35,7 +35,7 @@ Constants
 
 
 Enums
--------------------------------
+----------------------------------------
 
 .. automodule:: scfile.formats.fbx.enums
   :members:

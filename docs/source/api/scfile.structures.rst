@@ -1,5 +1,5 @@
 🗃️ Structures
-=========================
+==================================================
 
 .. automodule:: scfile.structures
   :no-members:
@@ -7,7 +7,7 @@
 
 
 🧊 Models
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.models
   :no-members:
@@ -20,7 +20,7 @@
 
 
 🧱 Textures
----------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.textures
   :members:
@@ -29,7 +29,7 @@
 
 
 🗺 Regions
---------------------------------
+----------------------------------------
 
 .. automodule:: scfile.structures.regions
   :members:
