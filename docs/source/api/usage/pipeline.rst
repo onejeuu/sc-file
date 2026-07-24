@@ -1,52 +1,98 @@
-Default Pipelines
+Pipelines
 ==================================================
 
-* :meth:`~scfile.core.decoder.FileDecoder.convert_to` decodes content and returns an encoder.
-* :meth:`~scfile.core.decoder.FileDecoder.convert` decodes and encodes content, then returns the result as bytes.
-* Format-specific methods such as ``as_obj()`` are shortcuts for :meth:`~scfile.core.decoder.FileDecoder.convert_to`.
+Handlers can be composed directly when content must be inspected, changed, or kept in memory.
 
 
-Examples
+Manual Pipeline
 ----------------------------------------
 
+Decoding and encoding are separate operations:
+
 .. code-block:: python
-  :caption: Manual Pipeline
 
   from scfile.formats import McsbDecoder, ObjEncoder
 
   with McsbDecoder("model.mcsb") as mcsb:
-      content = mcsb.decode()
+      model = mcsb.decode()
 
-  with ObjEncoder(content) as obj:
-      obj.encode().save("output.obj")
+  with ObjEncoder(model) as obj:
+      obj.save("model.obj")
+
+``save()`` encodes automatically because the encoder stream is empty.
+Call ``encode()`` explicitly only when serialization must happen before persistence.
+
+
+Shortcuts
+----------------------------------------
+
+:class:`~scfile.core.decoder.FileDecoder` provides three levels of shorthand:
+
+* ``convert_to(ObjEncoder)`` decodes and returns an encoder without encoding it.
+* ``as_obj()`` is the format-specific form of ``convert_to()``.
+* ``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``.
 
 .. code-block:: python
-  :caption: Encoder Factory
 
   from scfile.formats import McsbDecoder, ObjEncoder
+
+  with McsbDecoder("model.mcsb") as mcsb:
+      mcsb.as_obj().save("model.obj")
 
   with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder) as obj:
-          obj.save("output.obj")
-
-      mcsb.as_obj().save("output.obj")
-
-.. code-block:: python
-  :caption: Encoded Bytes
-
-  from scfile.formats import McsbDecoder, ObjEncoder
+          obj.export("model")
 
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
 
+These methods do not close the decoder.
+Its lifecycle is still controlled by its context manager.
+
+
+Persistence
+----------------------------------------
+
+Encoder persistence methods differ in file naming and ownership:
+
+.. list-table::
+  :header-rows: 1
+
+  * - Method
+    - Output path
+    - Encoder
+  * - ``save("model.obj")``
+    - Used as given
+    - Closed
+  * - ``save_as("model.obj")``
+    - Used as given
+    - Kept open
+  * - ``export("model")``
+    - ``model.obj``
+    - Closed
+  * - ``export_as("model")``
+    - ``model.obj``
+    - Kept open
+
+All four methods encode automatically when the encoder stream is empty.
+The ``_as`` variants are useful for writing the same encoded data more than once.
+An encoder represents one serialization; do not call ``encode()`` repeatedly to duplicate its output.
+
+
+Binary Streams
+----------------------------------------
+
+Decoders accept paths, raw bytes, and open binary streams.
+Encoders use an in-memory stream by default or accept an output stream explicitly.
+
 .. code-block:: python
-  :caption: Binary Streams
 
   from io import BytesIO
+  from pathlib import Path
 
   from scfile.formats import McsbDecoder, ObjEncoder
 
-  source = b"..."
+  source = Path("model.mcsb").read_bytes()
   output = BytesIO()
 
   with McsbDecoder(source) as mcsb:
@@ -54,33 +100,4 @@ Examples
           obj.encode()
           data = output.getvalue()
 
-
-Persistence
-----------------------------------------
-
-Methods for writing encoded data:
-
-* ``save(path)`` and ``save_as(path)`` write to the specified file path.
-* ``export(path)`` and ``export_as(path)`` append the format suffix to the path.
-
-Methods with the ``_as`` suffix keep the encoder open. ``save()`` and ``export()`` close it.
-All four methods encode the content automatically when the output stream is empty.
-
-.. code-block:: python
-  :caption: Persistence
-
-  from scfile.formats import ObjEncoder
-
-  with ObjEncoder(content) as obj:
-      obj.export("model")
-      assert obj.closed
-
-  with ObjEncoder(content) as obj:
-      obj.export_as("backup")
-      assert not obj.closed
-
-      obj.save_as("backup.obj")
-      assert not obj.closed
-
-      obj.save("model.obj")
-      assert obj.closed
+Read an external output stream before the encoder closes, because the encoder owns that stream.
