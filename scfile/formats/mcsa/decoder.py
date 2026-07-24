@@ -52,7 +52,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.SKELETON] and self.options.skeleton:
             self._parse_skeleton()
 
-            if self.options.animation and not self.is_eof():
+            if self.options.animation and self.ctx["COUNT_BONES"] > 0 and not self.is_eof():
                 self._parse_animation()
 
     def _parse_header(self):
