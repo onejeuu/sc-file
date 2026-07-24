@@ -6,7 +6,12 @@ from scfile.formats.ol import OlDecoder
 
 
 class OlCubemapDecoder(OlDecoder):
-    """Deprecated compatibility name for :class:`OlDecoder`."""
+    """
+    Compatibility name for :class:`~scfile.formats.ol.OlDecoder`.
+
+    .. deprecated:: 5.2.0
+        Use :class:`~scfile.formats.ol.OlDecoder` instead.
+    """
 
     def __init__(self, stream: IOStream, options: Optional[Options] = None):
         warnings.warn(

@@ -344,6 +344,9 @@ def ol_cubemap_to_dds(
     """
     Converts cubemap texture from ``.ol`` to ``.dds`` format.
 
+    .. deprecated:: 5.2.0
+        Use :func:`~scfile.convert.formats.ol_to_dds` instead.
+
     Arguments:
         source: Path to source ``.ol`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
