@@ -15,6 +15,20 @@ msgstr "🔧 Компиляция"
 msgid "These instructions are tailored for `astral-sh/uv <UV_>`_."
 msgstr "Эти инструкции предназначены для `astral-sh/uv <UV_>`_."
 
+#: ../../source/compile.rst:10
+msgid "Download source code"
+msgstr "Скачайте исходный код"
+
 #: ../../source/compile.rst:16
+msgid "Compile without GUI"
+msgstr "Сборка без GUI"
+
+#: ../../source/compile.rst:21
+msgid "Compile with GUI"
+msgstr "Сборка с GUI"
+
+#: ../../source/compile.rst:26
 msgid "Executable ``scfile.exe`` will be created in ``sc-file/dist`` directory."
-msgstr "Исполняемый файл ``scfile.exe`` будет создан в директории ``sc-file/dist``."
+msgstr ""
+"Исполняемый файл ``scfile.exe`` будет создан в директории ``sc-"
+"file/dist``."

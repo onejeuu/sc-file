@@ -49,8 +49,6 @@ It remains usable after the decoder is closed.
   print(model.scene.total_vertices)
   print([mesh.name for mesh in model.scene.meshes])
 
-The handler owns the stream; the returned content does not.
-
 
 Resource Safety
 ----------------------------------------

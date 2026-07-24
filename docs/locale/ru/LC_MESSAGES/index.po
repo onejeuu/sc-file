@@ -11,69 +11,67 @@ msgstr ""
 msgid "Index"
 msgstr "Главная"
 
-#: ../../source/index.rst:20
+#: ../../source/index.rst:21
 msgid "Overview"
 msgstr "Обзор"
 
-#: ../../source/index.rst:22
+#: ../../source/index.rst:23
 msgid ""
 "**scfile** is a utility and library for converting proprietary Stalcraft "
 "assets formats to standard ones."
 msgstr ""
-"**scfile** это утилита и библиотека для конвертации проприетарных форматов "
-"ассетов игры Stalcraft в стандартные."
+"**scfile** это утилита и библиотека для конвертации проприетарных "
+"форматов ассетов игры Stalcraft в стандартные."
 
-#: ../../source/index.rst:24
+#: ../../source/index.rst:25
 msgid "This is an **unofficial** project and is **not affiliated** with EXBO."
 msgstr "Данный проект является **неофициальным** и **не аффилирован** с EXBO."
 
-#: ../../source/index.rst:27
+#: ../../source/index.rst:28
 msgid "✨ Supported Formats"
 msgstr "✨ Поддерживаемые форматы"
 
-#: ../../source/index.rst:30
+#: ../../source/index.rst:31
 msgid "Type"
 msgstr "Тип"
 
-#: ../../source/index.rst:31
+#: ../../source/index.rst:32
 msgid "Game formats"
 msgstr "Форматы игры"
 
-#: ../../source/index.rst:32
+#: ../../source/index.rst:34
 msgid "Standard formats"
-msgstr "Стандартные форматы "
+msgstr "Стандартные форматы"
 
-#: ../../source/index.rst:33
+#: ../../source/index.rst:35
 msgid "🧊 **Model**"
 msgstr "🧊 **Модель**"
 
-#: ../../source/index.rst:36
-msgid "🧱 **Texture**"
-msgstr ""
-
 #: ../../source/index.rst:39
+msgid "🧱 **Texture**"
+msgstr "🧱 **Текстура**"
+
+#: ../../source/index.rst:43
 msgid "🖼️ **Image**"
 msgstr "🖼️ **Изображение**"
 
-#: ../../source/index.rst:42
+#: ../../source/index.rst:47
 msgid "🗃️ **TextureArray**"
 msgstr "🗃️ **Массив Текстур**"
 
-#: ../../source/index.rst:45
+#: ../../source/index.rst:51
 msgid "🗺 **Region**"
 msgstr "🗺 **Регион**"
 
-#: ../../source/index.rst:48
-msgid "⚙️ **NBT\\***"
-msgstr "⚙️ **NBT\\***"
-
-#: ../../source/index.rst:52
+#: ../../source/index.rst:60
 msgid ""
 "\\* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, "
 "``sd0``, etc.)"
-msgstr "\\* ``NBT`` Относится к специфичным файлам (``itemnames.dat``, ``prefs``, ``sd0`` и т.д.)"
+msgstr ""
+"\\* ``NBT`` Относится к специфичным файлам (``itemnames.dat``, ``prefs``,"
+" ``sd0`` и т.д.)"
 
-#: ../../source/index.rst:56
+#: ../../source/index.rst:64
 msgid "📚 :doc:`Detailed formats support → <support>`"
 msgstr "📚 :doc:`Детальная информация о поддержке форматов → <support>`"
 
@@ -85,19 +83,19 @@ msgstr "**Обратная конвертация** (``стандартный`` 
 msgid "📚 :doc:`See FAQ for details → <faq>`"
 msgstr "📚 :doc:`Подробности в FAQ → <faq>`"
 
-#: ../../source/index.rst:67
+#: ../../source/index.rst:75
 msgid "🚀 Installation"
 msgstr "🚀 Установка"
 
-#: ../../source/index.rst:69
+#: ../../source/index.rst:77
 msgid "**Three ways to get started:** download, install, or compile."
 msgstr "**Три способа начать:** скачать, установить, или скомпилировать."
 
-#: ../../source/index.rst:72
+#: ../../source/index.rst:80
 msgid "💻 Download executable"
 msgstr "💻 Скачать исполняемый файл"
 
-#: ../../source/index.rst:74
+#: ../../source/index.rst:82
 msgid ""
 "Standalone ``scfile.exe`` available on `Releases page "
 "<https://github.com/onejeuu/sc-file/releases>`_"
@@ -105,29 +103,33 @@ msgstr ""
 "Исполняемый файл ``scfile.exe`` доступен на `странице релизов "
 "<https://github.com/onejeuu/sc-file/releases>`_"
 
-#: ../../source/index.rst:75
+#: ../../source/index.rst:83
 msgid "*No Python required.*"
 msgstr "*Не требует установки Python.*"
 
-#: ../../source/index.rst:77 ../../source/index.rst:96
+#: ../../source/index.rst:85 ../../source/index.rst:105
 msgid "**Usage:**"
 msgstr "**Использование:**"
 
-#: ../../source/index.rst:79
+#: ../../source/index.rst:87
 msgid ""
 "🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical "
 "interface"
-msgstr "🖥️ **GUI**: запустите `scfile.exe` без аргументов для открытия графического интерфейса"
+msgstr ""
+"🖥️ **GUI**: запустите `scfile.exe` без аргументов для открытия "
+"графического интерфейса"
 
-#: ../../source/index.rst:80
+#: ../../source/index.rst:88
 msgid "📥 **Drag & Drop**: drag file onto ``scfile.exe``"
 msgstr "📥 **Drag & Drop**: перетащите файл на ``scfile.exe``"
 
-#: ../../source/index.rst:81
+#: ../../source/index.rst:89
 msgid "🖱️ **Open With**: set as default app for supported formats"
-msgstr "🖱️ **Open With**: установите как приложение по умолчанию для поддерживаемых форматов"
+msgstr ""
+"🖱️ **Open With**: установите как приложение по умолчанию для "
+"поддерживаемых форматов"
 
-#: ../../source/index.rst:82
+#: ../../source/index.rst:90
 msgid "📟 **Command Line**: ``scfile.exe --help``"
 msgstr "📟 **Командная строка**: ``scfile.exe --help``"
 
@@ -139,82 +141,162 @@ msgstr "*Пример команды:* ``scfile.exe model.mcsb -F glb --skeleton
 msgid ""
 "*Options in example:* ``-F`` *picks model format,* ``--skeleton`` "
 "*extracts model armature.*"
-msgstr "*Опции в примере:* ``-F`` *выбирает формат модели,* ``--skeleton`` *извлекает скелет модели.*"
+msgstr ""
+"*Опции в примере:* ``-F`` *выбирает формат модели,* ``--skeleton`` "
+"*извлекает скелет модели.*"
 
-#: ../../source/index.rst:87
+#: ../../source/index.rst:95
 msgid "🐍 Install Python package"
 msgstr "🐍 Установить Python пакет"
 
-#: ../../source/index.rst:89
+#: ../../source/index.rst:97
 msgid "**Install:**"
 msgstr "**Установка:**"
 
-#: ../../source/index.rst:98
+#: ../../source/index.rst:107
 msgid "📖 **Python library**: *See Library section*"
 msgstr "📖 **Python библиотека**: *См. раздел Библиотека*"
 
-#: ../../source/index.rst:99
+#: ../../source/index.rst:108
 msgid "🖥️ **GUI via package**: `scfile`"
 msgstr "🖥️ **GUI через пакет**: `scfile`"
 
-#: ../../source/index.rst:100
+#: ../../source/index.rst:109
 msgid "📟 **CLI via package**: ``scfile --help``"
 msgstr "📟 **CLI через пакет**: ``scfile --help``"
 
-#: ../../source/index.rst:103
+#: ../../source/index.rst:112
 msgid "🔧 Compile from source"
 msgstr "🔧 Скомпилировать из исходников"
 
-#: ../../source/index.rst:105
+#: ../../source/index.rst:114
 msgid "Build from source code using the :doc:`compile guide <compile>`."
-msgstr "Соберите из исходного кода, используя :doc:`Руководство по сборке <compile>`."
+msgstr ""
+"Соберите из исходного кода, используя :doc:`Руководство по сборке "
+"<compile>`."
 
-#: ../../source/index.rst:106
+#: ../../source/index.rst:115
 msgid "*For developers, contributors, or custom builds.*"
 msgstr "*Для разработчиков, контрибьюторов или пользовательских сборок.*"
 
-#: ../../source/index.rst:111
+#: ../../source/index.rst:120
 msgid "📖 Library"
 msgstr "📖 Библиотека"
 
-#: ../../source/index.rst:113
+#: ../../source/index.rst:122
 msgid "**Install latest version:**"
 msgstr "**Установите последнюю версию:**"
 
-#: ../../source/index.rst:120
+#: ../../source/index.rst:129
 msgid "Usage example"
 msgstr "Пример использования"
 
-#: ../../source/index.rst:144
+#: ../../source/index.rst:153
 msgid "📚 :doc:`Complete Library API reference → <api/index>`"
 msgstr "📚 :doc:`Полная документация API → <api/index>`"
 
-#: ../../source/index.rst:149
+#: ../../source/index.rst:158
 msgid "🔗 Links"
 msgstr "🔗 Ссылки"
 
-#: ../../source/index.rst:151
+#: ../../source/index.rst:160
 msgid "``❓`` **Questions?** Check :doc:`FAQ <faq>` or `contact me <TG_>`_"
-msgstr "``❓`` **Остались вопросы?** Ознакомьтесь с :doc:`FAQ <faq>` или `свяжитесь со мной <TG_>`_"
+msgstr ""
+"``❓`` **Остались вопросы?** Ознакомьтесь с :doc:`FAQ <faq>` или "
+"`свяжитесь со мной <TG_>`_"
 
-#: ../../source/index.rst:152
+#: ../../source/index.rst:161
 msgid "``🐛`` **Found a bug?** `Open an issue <ISSUES_>`_"
 msgstr "``🐛`` **Нашли баг?** `Создайте issue <ISSUES_>`_"
 
-#: ../../source/index.rst:153
+#: ../../source/index.rst:162
 msgid "``💻`` **Download executable:** `Latest release <RELEASES_>`_"
 msgstr "``💻`` **Скачать исполняемый файл:** `Последний релиз <RELEASES_>`_"
 
-#: ../../source/index.rst:154
+#: ../../source/index.rst:163
 msgid "``🔧`` **Compile from source:** :doc:`Build guide <compile>`"
-msgstr "``🔧`` **Скомпилировать из исходников:** :doc:`Руководство по сборке <compile>`"
+msgstr ""
+"``🔧`` **Скомпилировать из исходников:** :doc:`Руководство по сборке "
+"<compile>`"
 
-#: ../../source/index.rst:159
+#: ../../source/index.rst:168
 msgid "🤝 Acknowledgments"
 msgstr "🤝 Благодарности"
 
-#: ../../source/index.rst:164
+#: ../../source/index.rst:173
 msgid ""
 "Thanks to everyone who reported issues, shared findings, or contributed "
 "ideas."
 msgstr "Спасибо всем, кто сообщал об ошибках, делился находками или вносил идеи."
+
+# ============================================================================
+# No translation required.
+# ============================================================================
+#: ../../source/index.rst:33 ../../source/index.rst:37
+#: ../../source/index.rst:41 ../../source/index.rst:45
+#: ../../source/index.rst:49 ../../source/index.rst:53
+#: ../../source/index.rst:57
+msgid "→"
+msgstr ""
+
+#: ../../source/index.rst:36
+msgid "``.mcsb`` ``.efkmodel``"
+msgstr ""
+
+#: ../../source/index.rst:38
+msgid "``.obj`` ``.glb`` ``.dae`` ``.ms3d`` ``.fbx``"
+msgstr ""
+
+#: ../../source/index.rst:40
+msgid "``.ol``"
+msgstr ""
+
+#: ../../source/index.rst:42
+msgid "``.dds``"
+msgstr ""
+
+#: ../../source/index.rst:44
+msgid "``.mic``"
+msgstr ""
+
+#: ../../source/index.rst:46
+msgid "``.png``"
+msgstr ""
+
+#: ../../source/index.rst:48
+msgid "``.texarr``"
+msgstr ""
+
+#: ../../source/index.rst:50
+msgid "``.zip``"
+msgstr ""
+
+#: ../../source/index.rst:52
+msgid "``.mdat``"
+msgstr ""
+
+#: ../../source/index.rst:54
+msgid "``.mca``"
+msgstr ""
+
+#: ../../source/index.rst:55
+msgid "⚙️ **NBT\\***"
+msgstr ""
+
+#: ../../source/index.rst:56
+msgid "``...``"
+msgstr ""
+
+#: ../../source/index.rst:58
+msgid "``.json``"
+msgstr ""
+
+#: ../../source/index.rst:170
+msgid ""
+"``kommunist2021`` · ``Art3mLapa`` · ``n1kodim`` · ``TeamDima`` · "
+"``BoJIwEbNuK7``"
+msgstr ""
+
+#: ../../source/index.rst:171
+msgid "``IExploitableMan`` · ``tuneyadecc`` · ``Hazart``"
+msgstr ""

@@ -20,7 +20,7 @@ Decoding and encoding are separate operations:
       obj.save("model.obj")
 
 ``save()`` encodes automatically because the encoder stream is empty.
-Call ``encode()`` explicitly only when serialization must happen before persistence.
+Call ``encode()`` explicitly when serialization must happen before persistence.
 
 
 Shortcuts

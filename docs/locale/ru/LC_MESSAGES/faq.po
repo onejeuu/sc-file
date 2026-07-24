@@ -7,10 +7,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../source/faq.rst:2
-msgid "❓ FAQ"
-msgstr "❓ FAQ"
-
 #: ../../source/faq.rst:9
 msgid "📌 General"
 msgstr "📌 Общее"
@@ -34,34 +30,28 @@ msgstr ""
 #: ../../source/faq.rst:17
 msgid ""
 "**Cheating concerns**: Public reverse encoding would make creating hacks "
-"much easier, attracting unwanted attention and undermining this tool "
+"much easier, attracting unwanted attention and undermining the tool's "
 "purpose."
 msgstr ""
-"**Проблемы читерства**: Публичное обратное кодирование значительно "
-"упростит создание хаков, что привлечет нежелательное внимание и подорвет "
-"назначение этого инструмента."
+"**Опасения из-за читерства**: Публичное обратное кодирование значительно "
+"упростит создание читов, привлечёт нежелательное внимание и исказит "
+"назначение инструмента."
 
 #: ../../source/faq.rst:18
 msgid ""
-"**Formats changes risk**: If modifying game files becomes too easy, "
+"**Format change risk**: If modifying game files becomes too easy, "
 "developers might start encrypting or complicating their assets, making "
 "them inaccessible for everyone."
 msgstr ""
 "**Риск изменения форматов**: Если модификация игровых файлов станет "
-"слишком простой, разработчики могут начать шифровать свои ассеты, делая "
-"их недоступными для каждого."
+"слишком простой, разработчики могут начать шифровать или усложнять "
+"ассеты, сделав их недоступными для всех."
 
-#: ../../source/faq.rst:20
-msgid ""
-"**This tool supports research and creativity, not harming the game "
-"community.**"
-msgstr ""
-
-#: ../../source/faq.rst:24
-msgid "Q: After game update ``%any_filename%`` no longer decodes!"
+#: ../../source/faq.rst:22
+msgid "Q: After a game update ``%any_filename%`` no longer decodes!"
 msgstr "В: После обновления игры ``%любой_файл%`` больше не декодируется!"
 
-#: ../../source/faq.rst:26
+#: ../../source/faq.rst:24
 msgid ""
 "Format structure may have been updated. Wait for program update. In case "
 "of large changes, it might take some time to adapt."
@@ -69,83 +59,81 @@ msgstr ""
 "Структура формата могла измениться. Дождитесь обновления программы. В "
 "случае значительных изменений это может занять некоторое время."
 
-#: ../../source/faq.rst:30
-msgid "Q: Could using this program lead to game ban?"
+#: ../../source/faq.rst:28
+msgid "Q: Could using this program lead to a game ban?"
 msgstr "В: Может ли использование этой программы привести к блокировке в игре?"
 
-#: ../../source/faq.rst:32
+#: ../../source/faq.rst:30
 msgid "Use at your own risk."
 msgstr "Используйте на свой страх и риск."
 
-#: ../../source/faq.rst:34
+#: ../../source/faq.rst:32
 msgid "Basic recommendations"
 msgstr "Базовые рекомендации"
 
-#: ../../source/faq.rst:37
+#: ../../source/faq.rst:35
 msgid ""
 "You **MUST** close both game and launcher **BEFORE** interacting with any"
-" assets files."
+" asset files."
 msgstr ""
 "Вы **ДОЛЖНЫ** закрыть игру и лаунчер **ПЕРЕД** взаимодействием с любыми "
 "файлами ассетов."
 
-#: ../../source/faq.rst:38
+#: ../../source/faq.rst:36
 msgid ""
-"You **MUST NOT** leave any files or modifications in game assets "
+"You **MUST NOT** leave any files or modifications in the game asset "
 "directory."
 msgstr ""
 "Вы **НЕ ДОЛЖНЫ** оставлять какие-либо файлы или изменения в каталоге "
 "ассетов."
 
-#: ../../source/faq.rst:39
+#: ../../source/faq.rst:37
 msgid ""
-"You **SHOULD** copy required files to separate directory **BEFORE** "
-"performing any manipulations."
+"You **SHOULD** copy required files to a separate directory **BEFORE** "
+"working with them."
 msgstr ""
 "Вам **СЛЕДУЕТ** скопировать необходимые файлы в отдельный каталог "
-"**ПЕРЕД** выполнением каких-либо манипуляций."
+"**ПЕРЕД** работой с ними."
 
-#: ../../source/faq.rst:44
+#: ../../source/faq.rst:42
 msgid "📤 Output Formats"
 msgstr "📤 Выходные форматы"
 
+#: ../../source/faq.rst:45
+msgid "Q: What programs support ``.dds`` files?"
+msgstr "В: Какие программы поддерживают файлы ``.dds``?"
+
 #: ../../source/faq.rst:47
-msgid "Q: What programs supports ``.dds`` viewing?"
-msgstr "В: Через какие программы смотреть ``.dds`` текстуры?"
+msgid ""
+"Any program with full support for all `DirectDraw Surface <DDS_>`_ "
+"formats."
+msgstr "Любые программы с полной поддержкой форматов `DirectDraw Surface <DDS_>`_."
 
 #: ../../source/faq.rst:49
-msgid ""
-"Any programs with full support for all `DirectDraw Surface <DDS_>`_ "
-"formats."
-msgstr ""
-"Любые программы с полной поддержкой всех форматов `DirectDraw Surface "
-"<DDS_>`_."
-
-#: ../../source/faq.rst:51
 msgid "Recommended Viewers"
 msgstr "Программы для просмотра"
 
-#: ../../source/faq.rst:54
+#: ../../source/faq.rst:52
 msgid "`XnView <XNVIEW_>`_ (Universal)"
 msgstr "`XnView <XNVIEW_>`_ (Универсальный)"
 
-#: ../../source/faq.rst:55
+#: ../../source/faq.rst:53
 msgid "`WTV <WTV_>`_ (Lightweight)"
 msgstr "`WTV <WTV_>`_ (Легковесный)"
 
-#: ../../source/faq.rst:56
+#: ../../source/faq.rst:54
 msgid "`RenderDoc <RENDERDOC_>`_ (Analysis)"
 msgstr "`RenderDoc <RENDERDOC_>`_ (Анализ)"
 
-#: ../../source/faq.rst:60
+#: ../../source/faq.rst:58
 msgid "Q: How to convert ``.dds`` textures to ``.png``?"
 msgstr "В: Как конвертировать ``.dds`` текстуры в ``.png``?"
 
-#: ../../source/faq.rst:62
+#: ../../source/faq.rst:60
 msgid "Native support is not planned."
 msgstr "Нативная поддержка не планируется."
 
-#: ../../source/faq.rst:64
+#: ../../source/faq.rst:62
 msgid ""
 "Convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_ or "
 "`FFmpeg <FFMPEG_>`_."
@@ -153,31 +141,23 @@ msgstr ""
 "Используйте `ImageMagick <IMAGEMAGICK_>`_ или `FFmpeg <FFMPEG_>`_ для "
 "конвертации."
 
-#: ../../source/faq.rst:66
-msgid "ImageMagick"
-msgstr ""
-
-#: ../../source/faq.rst:71
-msgid "FFmpeg"
-msgstr ""
-
-#: ../../source/faq.rst:78
+#: ../../source/faq.rst:76
 msgid "Q: Why do models have weird or black textures?"
 msgstr "В: Почему у модели странные или чёрные текстуры?"
 
-#: ../../source/faq.rst:80
+#: ../../source/faq.rst:78
 msgid ""
-"Make sure texture node alpha mode is set to ``Channel Packed`` "
-"(`Screenshot <ALPHAMODE_>`_)."
+"In Blender, make sure texture node alpha mode is set to ``Channel "
+"Packed`` (`Screenshot <ALPHAMODE_>`_)."
 msgstr ""
-"Убедитесь что у ноды текстуры ``Alpha Mode`` поставлен на ``Channel "
-"Packed`` (`Скриншот <ALPHAMODE_>`_)."
+"В Blender убедитесь, что режим альфа-канала узла текстуры установлен в "
+"``Channel Packed`` (`Скриншот <ALPHAMODE_>`_)."
 
-#: ../../source/faq.rst:82
+#: ../../source/faq.rst:80
 msgid "Some models seem to have mixed-up suffixes in filenames."
 msgstr "Некоторые модели, похоже, имеют перепутанные суффиксы текстур."
 
-#: ../../source/faq.rst:83
+#: ../../source/faq.rst:81
 msgid ""
 "Make sure that the ``_diff`` texture is actually a Diffuse Map and the "
 "``_spek`` texture is a Specular Map."
@@ -185,58 +165,58 @@ msgstr ""
 "Убедитесь что ``_diff`` текстура действительно является Diffuse Map, а "
 "``_spek`` текстура Specular Map."
 
-#: ../../source/faq.rst:84
+#: ../../source/faq.rst:82
 msgid ":doc:`More about Suffix Conventions... <formats>`"
 msgstr ":doc:`Подробнее про Конвенции суффиксов... <formats>`"
 
-#: ../../source/faq.rst:89
+#: ../../source/faq.rst:87
 msgid "🛠 Troubleshooting"
 msgstr "🛠 Неисправности"
 
-#: ../../source/faq.rst:92
+#: ../../source/faq.rst:90
 msgid "Q: Antivirus or SmartScreen blocks ``scfile.exe``"
 msgstr "В: Антивирус или SmartScreen блокирует ``scfile.exe``"
 
-#: ../../source/faq.rst:94
-msgid "The source code is open and anyone can inspect it at `GitHub <GITHUB_>`_."
+#: ../../source/faq.rst:92
+msgid "The source code is open and anyone can inspect it on `GitHub <GITHUB_>`_."
 msgstr "Исходный код открыт и любой может его изучить на `GitHub <GITHUB_>`_."
 
-#: ../../source/faq.rst:96
+#: ../../source/faq.rst:94
 msgid "SmartScreen warns because the executable has **no digital signature**."
 msgstr ""
 "SmartScreen предупреждает, так как исполняемый файл **не имеет цифровой "
 "подписи**."
 
-#: ../../source/faq.rst:97
+#: ../../source/faq.rst:95
 msgid "Code signing certificates are not feasible for a free project."
 msgstr "Подписание кода нецелесообразно для бесплатного проекта."
 
-#: ../../source/faq.rst:99
+#: ../../source/faq.rst:97
 msgid "Antivirus detections on VirusTotal are **false positives**."
 msgstr "Антивирусные детекции на VirusTotal являются **ложными положительными**."
 
-#: ../../source/faq.rst:100
+#: ../../source/faq.rst:98
 msgid ""
-"Executable program is built with `PyInstaller <PYINSTALLER_>`_, a tool "
-"that packages Python scripts into standalone ``.exe``."
+"Executable is built with `PyInstaller <PYINSTALLER_>`_, a tool that "
+"packages Python scripts into standalone ``.exe``."
 msgstr ""
-"Исполняемая программа собирается с помощью `PyInstaller <PYINSTALLER_>`_,"
-" инструмента, который упаковывает Python скрипты в автономные ``.exe``."
+"Исполняемый файл собирается с помощью `PyInstaller <PYINSTALLER_>`_ — "
+"инструмента, упаковывающего скрипты Python в автономные ``.exe``."
 
-#: ../../source/faq.rst:101
+#: ../../source/faq.rst:99
 msgid ""
-"Malware authors also use PyInstaller, so low-quality antivirus engines "
-"flag **any** PyInstaller executable."
+"Malware authors also use PyInstaller, so some low-quality antivirus "
+"engines flag unsigned PyInstaller executables."
 msgstr ""
-"Авторы вредоносного ПО также используют PyInstaller, поэтому "
-"низкокачественные антивирусные движки помечают **любые** файлы, собранные"
-" через PyInstaller."
+"Авторы вредоносного ПО также используют PyInstaller, поэтому некоторые "
+"низкокачественные антивирусные движки помечают неподписанные исполняемые "
+"файлы PyInstaller."
 
-#: ../../source/faq.rst:105
+#: ../../source/faq.rst:103
 msgid "Q: Something doesn't work as expected"
 msgstr "В: Что-то не работает так, как ожидалось"
 
-#: ../../source/faq.rst:107
+#: ../../source/faq.rst:105
 msgid ""
 "If a file fails to convert, produces wrong output, or causes a crash, "
 "`open an issue <ISSUES_>`_."
@@ -244,28 +224,41 @@ msgstr ""
 "Если файл не конвертируется, выдает неправильный результат или приводит к"
 " сбою, создайте `issue <ISSUES_>`_."
 
-#: ../../source/faq.rst:109
+#: ../../source/faq.rst:107
 msgid "Please include:"
 msgstr "Пожалуйста, включите:"
 
-#: ../../source/faq.rst:111
+#: ../../source/faq.rst:109
 msgid "**What happened**: error message, wrong output, etc."
 msgstr "**Что произошло**: сообщение об ошибке, неправильный результат, и тд."
 
-#: ../../source/faq.rst:112
+#: ../../source/faq.rst:110
 msgid "**What you expected**: correct output, different format, etc."
 msgstr "**Что вы ожидали**: правильный результат, другой формат, и тд."
 
+#: ../../source/faq.rst:111
+msgid "**Which file (if any)**: provide its path or attach it."
+msgstr "**Какой файл (если применимо)**: укажите путь или приложите его."
+
 #: ../../source/faq.rst:113
-msgid ""
-"**Which file (if any)**: attach file or describe path. Without it, bug "
-"cannot be reproduced."
+msgid "Reports without a file path or clear description are hard to fix."
+msgstr "Проблемы без пути к файлу или ясного описания трудно исправить."
+
+#: ../../source/faq.rst:114
+msgid "More detail usually means a faster fix."
+msgstr "Чем больше подробностей, тем обычно быстрее исправление."
+
+# ============================================================================
+# No translation required.
+# ============================================================================
+#: ../../source/faq.rst:2
+msgid "❓ FAQ"
 msgstr ""
-"**Какой файл (если есть)**: приложите файл или укажите путь. Без него, баг "
-"не может быть воспроизведен."
 
-msgid "Reports without a file or clear description are hard to fix."
-msgstr "Репорты без файла или ясной описания сложнее исправить."
+#: ../../source/faq.rst:64
+msgid "ImageMagick"
+msgstr ""
 
-msgid "The more details you provide, the faster is fix."
-msgstr "Чем больше деталей вы предоставите, тем быстрее это исправится."
+#: ../../source/faq.rst:69
+msgid "FFmpeg"
+msgstr ""

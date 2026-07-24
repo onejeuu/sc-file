@@ -9,10 +9,6 @@
 🧊 Models
 ----------------------------------------
 
-.. automodule:: scfile.structures.models
-  :no-members:
-  :show-inheritance:
-
 .. toctree::
   :maxdepth: 2
 

@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../../source/support.rst:2
-msgid "✨ Formats Support"
+msgid "✨ Format Support"
 msgstr "✨ Поддержка Форматов"
 
 #: ../../source/support.rst:8
@@ -19,7 +19,9 @@ msgstr "🧊 Модели"
 msgid ""
 "Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, "
 "``12.0``, ``15.0``"
-msgstr "Поддерживаемые версии: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``"
+msgstr ""
+"Поддерживаемые версии: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, "
+"``12.0``, ``15.0``"
 
 #: ../../source/support.rst:18
 msgid "Suffix"
@@ -38,8 +40,24 @@ msgid "Animation"
 msgstr "Анимация"
 
 #: ../../source/support.rst:22
-msgid "Time"
-msgstr "Время"
+msgid "Time*"
+msgstr "Время*"
+
+#: ../../source/support.rst:27
+msgid "``95 ms``"
+msgstr "``95 мс``"
+
+#: ../../source/support.rst:32
+msgid "``10 ms``"
+msgstr "``10 мс``"
+
+#: ../../source/support.rst:37
+msgid "``85 ms``"
+msgstr "``85 мс``"
+
+#: ../../source/support.rst:42 ../../source/support.rst:47
+msgid "``20 ms``"
+msgstr "``20 мс``"
 
 #: ../../source/support.rst:49
 msgid "``✅ Supported``"
@@ -54,8 +72,12 @@ msgid "``➖ Not supported by format``"
 msgstr "``➖ Не поддерживается форматом``"
 
 #: ../../source/support.rst:53
-msgid "Encoding time benchmarked on a complex model. Average results may vary."
-msgstr "Время кодирования протестировано на комплексной модели. Средние результаты могут отличаться."
+msgid ""
+"\\* Conversion time for the reference model. Results for game assets vary"
+" with model complexity."
+msgstr ""
+"\\* Время конвертации эталонной модели. Результаты для игровых ассетов "
+"зависят от сложности модели."
 
 #: ../../source/support.rst:58
 msgid "Supported versions: ``5``"
@@ -74,54 +96,54 @@ msgid "Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
 msgstr "Вывод: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
 
 #: ../../source/support.rst:70
-msgid "Supported types: ``Texture``, ``Normalmap``, ``Cubemap``"
-msgstr "Поддерживаемые типы: ``Texture``, ``Normalmap``, ``Cubemap``"
+msgid "Texture kinds: ``Default (2D)``, ``Cubemap``"
+msgstr "Виды текстур: ``Default (2D)``, ``Cubemap``"
 
 #: ../../source/support.rst:75
 msgid "Encoded"
 msgstr "Зашифр."
 
 #: ../../source/support.rst:76
-msgid "Decoded"
-msgstr "Расшифр."
+msgid "Game Format"
+msgstr "Формат игры"
 
 #: ../../source/support.rst:77
-msgid "Format"
-msgstr "Формат"
+msgid "DDS Format"
+msgstr "Формат DDS"
 
 #: ../../source/support.rst:78
 msgid "Compression"
 msgstr "Сжатие"
 
-#: ../../source/support.rst:111
+#: ../../source/support.rst:115
 msgid "🖼️ Image Formats"
 msgstr "🖼️ Изображения"
 
-#: ../../source/support.rst:116
+#: ../../source/support.rst:120
 msgid "Output: ``.png`` (`Portable Network Graphics <PNG_>`_)"
 msgstr "Вывод: ``.png`` (`Portable Network Graphics <PNG_>`_)"
 
-#: ../../source/support.rst:117
+#: ../../source/support.rst:121
 msgid "Only difference from standard PNG is the file signature."
 msgstr "Единственное различие от стандартного PNG это сигнатура файла."
 
-#: ../../source/support.rst:122
+#: ../../source/support.rst:126
 msgid "🗃️ TextureArray Formats"
 msgstr "🗃️ Массив Текстур"
 
-#: ../../source/support.rst:127
+#: ../../source/support.rst:131
 msgid "Output: ``.zip`` (`ZIP <ZIP_>`_)"
 msgstr "Вывод: ``.zip`` (`ZIP <ZIP_>`_)"
 
-#: ../../source/support.rst:128
+#: ../../source/support.rst:132
 msgid "Contains ``.dds`` textures."
 msgstr "Содержит текстуры ``.dds``."
 
-#: ../../source/support.rst:133
+#: ../../source/support.rst:137
 msgid "🗺 Region Formats"
 msgstr "🗺 Регионы"
 
-#: ../../source/support.rst:138
+#: ../../source/support.rst:142
 msgid ""
 "Output: ``.mca`` (`Anvil <ANVIL_>`_). Version ``1343``. Minecraft "
 "``1.12.2``."
@@ -129,26 +151,216 @@ msgstr ""
 "Вывод: ``.mca`` (`Anvil <ANVIL_>`_). Версия ``1343``. Minecraft "
 "``1.12.2``."
 
-#: ../../source/support.rst:139
-msgid "Only basic blocks export."
-msgstr "Экспортируются только базовые блоки."
+#: ../../source/support.rst:143
+msgid "Export limited to basic blocks."
+msgstr "Экспорт ограничен базовыми блоками."
 
-#: ../../source/support.rst:144
+#: ../../source/support.rst:148
 msgid "⚙️ NBT Formats"
 msgstr "⚙️ NBT"
 
-#: ../../source/support.rst:146
+#: ../../source/support.rst:150
 msgid "Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)"
 msgstr "Вывод: ``.json`` (`JavaScript Object Notation <JSON_>`_)"
 
-#: ../../source/support.rst:147
-msgid "Supported types: ``RAW``, ``GZIP``, ``ZSTD``"
-msgstr "Поддерживаемые типы: ``RAW``, ``GZIP``, ``ZSTD``"
+#: ../../source/support.rst:151
+msgid "Compression: ``RAW``, ``GZIP``, ``ZSTD``"
+msgstr "Сжатие: ``RAW``, ``GZIP``, ``ZSTD``"
 
-#: ../../source/support.rst:148
+#: ../../source/support.rst:152
 msgid ""
 "Supported files: ``stalker/itemnames.dat``, ``config/prefs``, "
 "``config/%Name%/common``, ``config/%Name%/sd0..4``"
 msgstr ""
 "Поддерживаемые файлы: ``stalker/itemnames.dat``, ``config/prefs``, "
 "``config/%Name%/common``, ``config/%Name%/sd0..4``"
+
+# ============================================================================
+# No translation required.
+# ============================================================================
+#: ../../source/support.rst:11
+msgid "``.mcsb`` ``.mcsa`` ``.mcvd``"
+msgstr ""
+
+#: ../../source/support.rst:23
+msgid "``.obj``"
+msgstr ""
+
+#: ../../source/support.rst:24
+msgid "`Wavefront <OBJ_>`_"
+msgstr ""
+
+#: ../../source/support.rst:25 ../../source/support.rst:26
+msgid "➖"
+msgstr ""
+
+#: ../../source/support.rst:28
+msgid "``.glb``"
+msgstr ""
+
+#: ../../source/support.rst:29
+msgid "`glTF Binary <GLTF_>`_"
+msgstr ""
+
+#: ../../source/support.rst:30 ../../source/support.rst:31
+#: ../../source/support.rst:35 ../../source/support.rst:40
+msgid "✅"
+msgstr ""
+
+#: ../../source/support.rst:33
+msgid "``.dae``"
+msgstr ""
+
+#: ../../source/support.rst:34
+msgid "`COLLADA <DAE_>`_"
+msgstr ""
+
+#: ../../source/support.rst:36 ../../source/support.rst:41
+#: ../../source/support.rst:45 ../../source/support.rst:46
+msgid "❌"
+msgstr ""
+
+#: ../../source/support.rst:38
+msgid "``.ms3d``"
+msgstr ""
+
+#: ../../source/support.rst:39
+msgid "`MilkShape 3D <MS3D_>`_"
+msgstr ""
+
+#: ../../source/support.rst:43
+msgid "``.fbx``"
+msgstr ""
+
+#: ../../source/support.rst:44
+msgid "`Autodesk FBX <FBX_>`_"
+msgstr ""
+
+#: ../../source/support.rst:56
+msgid "``.efkmodel``"
+msgstr ""
+
+#: ../../source/support.rst:67
+msgid "``.ol``"
+msgstr ""
+
+#: ../../source/support.rst:79
+msgid "``#?3V``"
+msgstr ""
+
+#: ../../source/support.rst:80 ../../source/support.rst:81
+msgid "``DXT1``"
+msgstr ""
+
+#: ../../source/support.rst:82
+msgid "``BC1``"
+msgstr ""
+
+#: ../../source/support.rst:83
+msgid "``#?3T``"
+msgstr ""
+
+#: ../../source/support.rst:84 ../../source/support.rst:85
+msgid "``DXT3``"
+msgstr ""
+
+#: ../../source/support.rst:86
+msgid "``BC2``"
+msgstr ""
+
+#: ../../source/support.rst:87
+msgid "``#?3R``"
+msgstr ""
+
+#: ../../source/support.rst:88 ../../source/support.rst:89
+msgid "``DXT5``"
+msgstr ""
+
+#: ../../source/support.rst:90
+msgid "``BC3``"
+msgstr ""
+
+#: ../../source/support.rst:91
+msgid "``#?)8?>``"
+msgstr ""
+
+#: ../../source/support.rst:92
+msgid "``DXN_XY``"
+msgstr ""
+
+#: ../../source/support.rst:93
+msgid "``ATI2``"
+msgstr ""
+
+#: ../../source/support.rst:94
+msgid "``BC5``"
+msgstr ""
+
+#: ../../source/support.rst:95
+msgid "``#?)8?``"
+msgstr ""
+
+#: ../../source/support.rst:96
+msgid "``DXN_X``"
+msgstr ""
+
+#: ../../source/support.rst:97
+msgid "``ATI1``"
+msgstr ""
+
+#: ../../source/support.rst:98
+msgid "``BC4``"
+msgstr ""
+
+#: ../../source/support.rst:99
+msgid "``5 %&_``"
+msgstr ""
+
+#: ../../source/support.rst:100
+msgid "``RGBA8``"
+msgstr ""
+
+#: ../../source/support.rst:101
+msgid "``R8G8B8A8``"
+msgstr ""
+
+#: ../../source/support.rst:102 ../../source/support.rst:106
+#: ../../source/support.rst:110
+msgid "``None``"
+msgstr ""
+
+#: ../../source/support.rst:103
+msgid "``% 5&_``"
+msgstr ""
+
+#: ../../source/support.rst:104
+msgid "``BGRA8``"
+msgstr ""
+
+#: ../../source/support.rst:105
+msgid "``B8G8R8A8``"
+msgstr ""
+
+#: ../../source/support.rst:107
+msgid "``5 %&TU!``"
+msgstr ""
+
+#: ../../source/support.rst:108
+msgid "``RGBA32F``"
+msgstr ""
+
+#: ../../source/support.rst:109
+msgid "``R32G32B32A32``"
+msgstr ""
+
+#: ../../source/support.rst:118
+msgid "``.mic``"
+msgstr ""
+
+#: ../../source/support.rst:129
+msgid "``.texarr``"
+msgstr ""
+
+#: ../../source/support.rst:140
+msgid "``.mdat``"
+msgstr ""

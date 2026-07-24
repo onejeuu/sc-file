@@ -1,0 +1,356 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/api/index.rst:2
+msgid "📖 Library"
+msgstr "📖 Библиотека"
+
+#: ../../source/api/index.rst:4
+msgid ""
+"The usage guide introduces the library from conversion functions to "
+"manual pipelines. The reference lists the available modules, handlers, "
+"content, and structures."
+msgstr ""
+"Руководство знакомит с библиотекой: от функций конвертации до ручных "
+"конвейеров. Справочник перечисляет доступные модули, обработчики, "
+"содержимое и структуры."
+
+#: ../../source/api/index.rst:14
+msgid "API Reference"
+msgstr "Справочник API"
+
+#: ../../source/api/usage/conversion.rst:2
+msgid "Conversion"
+msgstr "Конвертация"
+
+#: ../../source/api/usage/conversion.rst:4
+msgid ""
+"The shortest way to use the library is :mod:`scfile.convert`. It selects "
+"handlers, manages their streams, and writes the result."
+msgstr ""
+"Самый простой способ использовать библиотеку — :mod:`scfile.convert`. "
+"Модуль выбирает обработчики, управляет их потоками и записывает "
+"результат."
+
+#: ../../source/api/usage/conversion.rst:9
+msgid "Automatic Conversion"
+msgstr "Автоматическая конвертация"
+
+#: ../../source/api/usage/conversion.rst:11
+msgid ""
+":func:`~scfile.convert.detect.auto` detects the source format from the "
+"file name and uses the default output format."
+msgstr ""
+":func:`~scfile.convert.detect.auto` определяет исходный формат по имени "
+"файла и использует стандартный формат вывода."
+
+#: ../../source/api/usage/conversion.rst:20
+msgid ""
+"When ``output`` is omitted, the result is written alongside the source. "
+"For automatic conversion, ``output`` is a directory."
+msgstr ""
+"Если ``output`` не указан, результат записывается рядом с исходным "
+"файлом. При автоматической конвертации ``output`` является каталогом."
+
+#: ../../source/api/usage/conversion.rst:25
+msgid "Named Conversion"
+msgstr "Именованная конвертация"
+
+#: ../../source/api/usage/conversion.rst:27
+msgid "Use a named function when both formats are known:"
+msgstr "Если оба формата известны, используйте именованную функцию:"
+
+#: ../../source/api/usage/conversion.rst:36
+msgid "The output may be an exact file name or a directory."
+msgstr "Выводом может быть точное имя файла или каталог."
+
+#: ../../source/api/usage/conversion.rst:40
+msgid "Options"
+msgstr "Параметры"
+
+#: ../../source/api/usage/conversion.rst:42
+msgid ""
+":class:`~scfile.core.options.Options` controls work shared by converters "
+"and handlers. Skeletons and animations are disabled by default because "
+"they require additional parsing."
+msgstr ""
+":class:`~scfile.core.options.Options` управляет общей работой конвертеров"
+" и обработчиков. Скелеты и анимации по умолчанию отключены, поскольку "
+"требуют дополнительного парсинга."
+
+#: ../../source/api/usage/conversion.rst:57
+msgid "Animation parsing requires skeleton parsing."
+msgstr "Для парсинга анимаций необходим парсинг скелета."
+
+#: ../../source/api/usage/handlers.rst:2 ../../source/api/usage/handlers.rst:17
+msgid "Handlers"
+msgstr "Обработчики"
+
+#: ../../source/api/usage/handlers.rst:4
+msgid "High-level conversion is built from three independent parts:"
+msgstr "Высокоуровневая конвертация состоит из трёх независимых частей:"
+
+#: ../../source/api/usage/handlers.rst:10
+msgid ""
+"A decoder reads one binary format into content. An encoder writes "
+"compatible content into another binary format. Content is the shared "
+"representation between them. This separation allows decoded content to be"
+" inspected or passed to any compatible encoder without reading the source"
+" again."
+msgstr ""
+"Декодер читает бинарный формат в содержимое. Энкодер записывает "
+"совместимое содержимое в другой бинарный формат. Содержимое служит общим "
+"представлением между ними. Благодаря этому его можно изучить или передать"
+" любому совместимому энкодеру без повторного чтения исходного файла."
+
+#: ../../source/api/usage/handlers.rst:19
+msgid ""
+"Format handlers inherit from :class:`~scfile.core.decoder.FileDecoder` or"
+" :class:`~scfile.core.encoder.FileEncoder`. The commonly used handlers "
+"are available directly from :mod:`scfile.formats`."
+msgstr ""
+"Обработчики форматов наследуются от "
+":class:`~scfile.core.decoder.FileDecoder` или "
+":class:`~scfile.core.encoder.FileEncoder`. Часто используемые обработчики"
+" доступны напрямую из :mod:`scfile.formats`."
+
+#: ../../source/api/usage/handlers.rst:30
+msgid ""
+"A decoder does not return format-specific wrapper objects. It returns a "
+"content DTO such as :class:`~scfile.core.content.ModelContent` or "
+":class:`~scfile.core.content.TextureContent`."
+msgstr ""
+"Декодер возвращает не обёртку конкретного формата, а DTO содержимого, "
+"например :class:`~scfile.core.content.ModelContent` или "
+":class:`~scfile.core.content.TextureContent`."
+
+#: ../../source/api/usage/handlers.rst:36
+msgid "Content"
+msgstr "Содержимое"
+
+#: ../../source/api/usage/handlers.rst:38
+msgid ""
+"Content contains ordinary Python objects and NumPy arrays that may be "
+"inspected or changed before encoding. It remains usable after the decoder"
+" is closed."
+msgstr ""
+"Содержимое состоит из обычных объектов Python и массивов NumPy, которые "
+"можно изучить или изменить перед кодированием. Оно остаётся доступным "
+"после закрытия декодера."
+
+#: ../../source/api/usage/handlers.rst:56
+msgid "Resource Safety"
+msgstr "Работа с ресурсами"
+
+#: ../../source/api/usage/handlers.rst:58
+msgid ""
+"A handler should be treated like a normal Python file returned by "
+"``open()``: it wraps an open stream, has a current position, and must be "
+"closed. It exposes the familiar ``read()``, ``write()``, ``seek()``, "
+"``tell()``, and ``close()`` operations."
+msgstr ""
+"С обработчиком следует работать как с обычным файлом Python, возвращённым"
+" ``open()``: он оборачивает открытый поток, имеет текущую позицию и "
+"должен быть закрыт. Он предоставляет знакомые операции ``read()``, "
+"``write()``, ``seek()``, ``tell()`` и ``close()``."
+
+#: ../../source/api/usage/handlers.rst:62
+msgid ""
+"Creating a handler from a path opens the file immediately. Raw bytes are "
+"wrapped in an in-memory stream. Passing an existing binary stream "
+"transfers its ownership to the handler, which closes the stream when it "
+"closes."
+msgstr ""
+"При создании обработчика из пути файл открывается сразу. Сырые байты "
+"оборачиваются в поток в памяти. При передаче существующего бинарного "
+"потока обработчик получает владение им и закрывает вместе с собой."
+
+#: ../../source/api/usage/handlers.rst:66
+msgid "Use a context manager whenever possible:"
+msgstr "По возможности используйте контекстный менеджер:"
+
+#: ../../source/api/usage/handlers.rst:77
+msgid ""
+"Without a context manager, call ``close()`` in ``finally`` just as with "
+"an ordinary file."
+msgstr ""
+"Без контекстного менеджера вызывайте ``close()`` в ``finally``, как для "
+"обычного файла."
+
+#: ../../source/api/usage/index.rst:2
+msgid "Usage"
+msgstr "Использование"
+
+#: ../../source/api/usage/index.rst:4
+msgid ""
+"The library can be used at several levels. Start with conversion "
+"functions, then move to handlers and manual pipelines when more control "
+"is needed."
+msgstr ""
+"Библиотеку можно использовать на нескольких уровнях. Начните с функций "
+"конвертации, а для дополнительного контроля перейдите к обработчикам и "
+"ручным конвейерам."
+
+#: ../../source/api/usage/pipeline.rst:2
+msgid "Pipelines"
+msgstr "Конвейеры"
+
+#: ../../source/api/usage/pipeline.rst:4
+msgid ""
+"Handlers can be composed directly when content must be inspected, "
+"changed, or kept in memory."
+msgstr ""
+"Обработчики можно соединять напрямую, когда содержимое нужно изучить, "
+"изменить или оставить в памяти."
+
+#: ../../source/api/usage/pipeline.rst:8
+msgid "Manual Pipeline"
+msgstr "Ручной конвейер"
+
+#: ../../source/api/usage/pipeline.rst:10
+msgid "Decoding and encoding are separate operations:"
+msgstr "Декодирование и кодирование являются отдельными операциями:"
+
+#: ../../source/api/usage/pipeline.rst:22
+msgid ""
+"``save()`` encodes automatically because the encoder stream is empty. "
+"Call ``encode()`` explicitly when serialization must happen before "
+"persistence."
+msgstr ""
+"``save()`` выполняет кодирование автоматически, поскольку поток энкодера "
+"пуст. Вызывайте ``encode()`` явно, только если сериализация нужна до "
+"сохранения."
+
+#: ../../source/api/usage/pipeline.rst:27
+msgid "Shortcuts"
+msgstr "Сокращения"
+
+#: ../../source/api/usage/pipeline.rst:29
+msgid ""
+":class:`~scfile.core.decoder.FileDecoder` provides three levels of "
+"shorthand:"
+msgstr ""
+":class:`~scfile.core.decoder.FileDecoder` предоставляет три уровня "
+"сокращений:"
+
+#: ../../source/api/usage/pipeline.rst:31
+msgid ""
+"``convert_to(ObjEncoder)`` decodes and returns an encoder without "
+"encoding it."
+msgstr ""
+"``convert_to(ObjEncoder)`` декодирует содержимое и возвращает энкодер без"
+" кодирования."
+
+#: ../../source/api/usage/pipeline.rst:32
+msgid "``as_obj()`` is the format-specific form of ``convert_to()``."
+msgstr "``as_obj()`` — вариант ``convert_to()`` для конкретного формата."
+
+#: ../../source/api/usage/pipeline.rst:33
+msgid "``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``."
+msgstr "``convert(ObjEncoder)`` декодирует, кодирует и возвращает ``bytes``."
+
+#: ../../source/api/usage/pipeline.rst:49
+msgid ""
+"These methods do not close the decoder. Its lifecycle is still controlled"
+" by its context manager."
+msgstr ""
+"Эти методы не закрывают декодер. Его жизненным циклом по-прежнему "
+"управляет контекстный менеджер."
+
+#: ../../source/api/usage/pipeline.rst:54
+msgid "Persistence"
+msgstr "Сохранение"
+
+#: ../../source/api/usage/pipeline.rst:56
+msgid "Encoder persistence methods differ in file naming and ownership:"
+msgstr "Методы сохранения энкодера различаются именованием файла и владением:"
+
+#: ../../source/api/usage/pipeline.rst:61
+msgid "Method"
+msgstr "Метод"
+
+#: ../../source/api/usage/pipeline.rst:62
+msgid "Output path"
+msgstr "Путь вывода"
+
+#: ../../source/api/usage/pipeline.rst:63
+msgid "Encoder"
+msgstr "Энкодер"
+
+#: ../../source/api/usage/pipeline.rst:65
+#: ../../source/api/usage/pipeline.rst:68
+msgid "Used as given"
+msgstr "Как указан"
+
+#: ../../source/api/usage/pipeline.rst:66
+#: ../../source/api/usage/pipeline.rst:72
+msgid "Closed"
+msgstr "Закрыт"
+
+#: ../../source/api/usage/pipeline.rst:69
+#: ../../source/api/usage/pipeline.rst:75
+msgid "Kept open"
+msgstr "Остаётся открытым"
+
+#: ../../source/api/usage/pipeline.rst:77
+msgid ""
+"All four methods encode automatically when the encoder stream is empty. "
+"The ``_as`` variants are useful for writing the same encoded data more "
+"than once. An encoder represents one serialization; do not call "
+"``encode()`` repeatedly to duplicate its output."
+msgstr ""
+"Все четыре метода автоматически выполняют кодирование, если поток "
+"энкодера пуст. Варианты с ``_as`` позволяют записать одни закодированные "
+"данные несколько раз. Энкодер представляет одну сериализацию; не "
+"вызывайте ``encode()`` повторно для дублирования вывода."
+
+#: ../../source/api/usage/pipeline.rst:83
+msgid "Binary Streams"
+msgstr "Бинарные потоки"
+
+#: ../../source/api/usage/pipeline.rst:85
+msgid ""
+"Decoders accept paths, raw bytes, and open binary streams. Encoders use "
+"an in-memory stream by default or accept an output stream explicitly."
+msgstr ""
+"Декодеры принимают пути, сырые байты и открытые бинарные потоки. Энкодеры"
+" по умолчанию используют поток в памяти либо принимают выходной поток "
+"явно."
+
+#: ../../source/api/usage/pipeline.rst:103
+msgid ""
+"Read an external output stream before the encoder closes, because the "
+"encoder owns that stream."
+msgstr ""
+"Читайте внешний выходной поток до закрытия энкодера, поскольку энкодер "
+"владеет этим потоком."
+
+# ============================================================================
+# No translation required.
+# ============================================================================
+#: ../../source/api/usage/pipeline.rst:64
+msgid "``save(\"model.obj\")``"
+msgstr ""
+
+#: ../../source/api/usage/pipeline.rst:67
+msgid "``save_as(\"model.obj\")``"
+msgstr ""
+
+#: ../../source/api/usage/pipeline.rst:70
+msgid "``export(\"model\")``"
+msgstr ""
+
+#: ../../source/api/usage/pipeline.rst:71
+#: ../../source/api/usage/pipeline.rst:74
+msgid "``model.obj``"
+msgstr ""
+
+#: ../../source/api/usage/pipeline.rst:73
+msgid "``export_as(\"model\")``"
+msgstr ""

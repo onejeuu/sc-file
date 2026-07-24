@@ -50,7 +50,7 @@
 | ``❌ Not supported by scfile``
 | ``➖ Not supported by format``
 
-| \* Conversion time for the reference model. Results for game assets vary with model complexity and hardware.
+| \* Conversion time for the reference model. Results for game assets vary with model complexity.
 
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -88,14 +88,14 @@
     - ``DXT5``
     - ``DXT5``
     - ``BC3``
-  * - ``#?)8?>``
-    - ``DXN_XY``
-    - ``ATI2``
-    - ``BC5``
   * - ``#?)8?``
     - ``DXN_X``
     - ``ATI1``
     - ``BC4``
+  * - ``#?)8?>``
+    - ``DXN_XY``
+    - ``ATI2``
+    - ``BC5``
   * - ``5 %&_``
     - ``RGBA8``
     - ``R8G8B8A8``
