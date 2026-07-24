@@ -878,10 +878,10 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "click", specifier = ">=8.4.0,<9.0.0" },
-    { name = "lz4", specifier = ">=4.4.0,<5.0.0" },
-    { name = "numpy", specifier = ">=2.4.0,<3.0.0" },
-    { name = "pyside6", marker = "extra == 'gui'", specifier = ">=6.11.0,<7.0.0" },
+    { name = "click", specifier = ">=8.4.2,<9.0.0" },
+    { name = "lz4", specifier = ">=4.4.5,<5.0.0" },
+    { name = "numpy", specifier = ">=2.4.6,<3.0.0" },
+    { name = "pyside6", marker = "extra == 'gui'", specifier = ">=6.11.1,<7.0.0" },
     { name = "rich", specifier = ">=15.0.0,<16.0.0" },
     { name = "zstandard", specifier = ">=0.25.0,<1.0.0" },
 ]
@@ -890,15 +890,15 @@ provides-extras = ["gui"]
 [package.metadata.requires-dev]
 build = [{ name = "pyinstaller", specifier = ">=6.21.0,<7.0.0" }]
 dev = [
-    { name = "pytest", specifier = ">=9.1.0,<10.0.0" },
+    { name = "pytest", specifier = ">=9.1.1,<10.0.0" },
     { name = "pytest-cov", specifier = ">=7.1.0,<8.0.0" },
 ]
 docs = [
-    { name = "sphinx", specifier = ">=8.0.0,<9.0.0" },
+    { name = "sphinx", specifier = ">=8.2.3,<9.0.0" },
     { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
-    { name = "sphinx-autodoc-typehints", specifier = ">=3.5.0,<3.6.0" },
-    { name = "sphinx-book-theme", specifier = ">=1.1.0" },
-    { name = "sphinx-intl", specifier = ">=2.3.0" },
+    { name = "sphinx-autodoc-typehints", specifier = ">=3.5.2,<3.6.0" },
+    { name = "sphinx-book-theme", specifier = ">=1.4.0" },
+    { name = "sphinx-intl", specifier = ">=2.3.2" },
 ]
 
 [[package]]
