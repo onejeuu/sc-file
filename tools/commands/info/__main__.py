@@ -7,11 +7,11 @@ from rich.console import Console
 
 from scfile.convert import decoders, detect
 from scfile.core import Options
-from tools.info import tables
+from tools.commands.info import tables
+from tools.paths import ROOT
 
 
-ROOT = Path(__file__).resolve().parents[2]
-FORMATS = ROOT / "scfile" / "formats"
+FORMATS = ROOT.parent / "scfile" / "formats"
 DECODERS = decoders()
 
 
@@ -27,7 +27,7 @@ def parser(exception: Exception) -> tuple[str, str, str] | None:
         item = (
             frame.f_code.co_name,
             linecache.getline(str(path), lineno).strip(),
-            f"{path.relative_to(ROOT).as_posix()}:{lineno}",
+            f"{path.relative_to(ROOT.parent).as_posix()}:{lineno}",
         )
         fallback = item
 

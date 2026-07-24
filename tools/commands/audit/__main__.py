@@ -10,10 +10,10 @@ from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
-from tools.audit import files, stats
-from tools.audit.config import Config
-from tools.audit.consts import ERRORS_JSONL, FILES, FORMATS
-from tools.audit.types import Error
+from tools.commands.audit import files, stats
+from tools.commands.audit.config import Config
+from tools.commands.audit.consts import ERRORS_JSONL, FILES, FORMATS
+from tools.commands.audit.types import Error
 
 
 def table(found: Counter, checked: Counter, failed: Counter) -> Table:

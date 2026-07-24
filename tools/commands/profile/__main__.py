@@ -9,10 +9,10 @@ from rich.table import Table
 
 from scfile.convert import converters, decoders, detect, encoders, registry
 from scfile.core import Options
-from tools.profile import profiler
+from tools.commands.profile import profiler
+from tools.paths import ROOT
 
 
-ROOT = Path(__file__).resolve().parent.parent
 MODEL = ROOT / "assets" / "profile" / "model.mcsb"
 REPORTS = ROOT / "reports" / "profile"
 DECODERS = decoders()

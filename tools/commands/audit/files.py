@@ -11,10 +11,10 @@ from scfile.convert import detect
 from scfile.core import Options
 from scfile.exceptions import EmptyFileError
 from scfile.utils.files import walk
-from tools.audit import stats
-from tools.audit.config import Config
-from tools.audit.consts import DECODERS
-from tools.audit.types import Asset, Error, Result
+from tools.commands.audit import stats
+from tools.commands.audit.config import Config
+from tools.commands.audit.consts import DECODERS
+from tools.commands.audit.types import Asset, Error, Result
 
 
 IGNORED_EXCEPTIONS = (EmptyFileError,)

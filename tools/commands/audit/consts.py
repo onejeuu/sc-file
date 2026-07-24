@@ -1,10 +1,8 @@
-from pathlib import Path
-
 from scfile.convert import decoders
-from tools.audit.schemas import Animation, Bone, Image, Mesh, Model, Texture
+from tools.commands.audit.schemas import Animation, Bone, Image, Mesh, Model, Texture
+from tools.paths import ROOT
 
 
-ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "configs" / "audit.toml"
 REPORTS = ROOT / "reports" / "audit"
 

@@ -8,9 +8,9 @@ from scfile.core import BaseContent, ImageContent, ModelContent, TextureContent
 from scfile.formats.ol.enums import TextureKind
 from scfile.structures.models import Flag
 from scfile.structures.textures import CubemapTexture, DefaultTexture
-from tools.audit.consts import FORMATS_CSV, TABLES
-from tools.audit.schemas import Animation, Bone, Image, Mesh, Model, Record, Texture
-from tools.audit.types import Asset
+from tools.commands.audit.consts import FORMATS_CSV, TABLES
+from tools.commands.audit.schemas import Animation, Bone, Image, Mesh, Model, Record, Texture
+from tools.commands.audit.types import Asset
 
 
 def records(asset: Asset, content: BaseContent, root: Path, animation: bool) -> list[Record]:

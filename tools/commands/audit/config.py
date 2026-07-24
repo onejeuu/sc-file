@@ -6,7 +6,7 @@ from typing import Self
 
 import click
 
-from tools.audit.consts import CONFIG, EXCLUDE, FORMATS, REPORTS, ROOT
+from tools.commands.audit.consts import CONFIG, EXCLUDE, FORMATS, REPORTS, ROOT
 
 
 @dataclass
