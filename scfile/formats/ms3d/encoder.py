@@ -15,6 +15,27 @@ VERTEX_EXTRA_VERSION = 1
 MAX_VERTICES = 0xFFFF
 MAX_TRIANGLES = 0xFFFF
 
+VERTEX_DTYPE = np.dtype(
+    [
+        ("flags", "i1"),
+        ("position", "<f4", 3),
+        ("bone_id", "i1"),
+        ("reference_count", "u1"),
+    ]
+)
+
+TRIANGLE_DTYPE = np.dtype(
+    [
+        ("flags", "<u2"),
+        ("indices", "<u2", 3),
+        ("normals", "<f4", (3, 3)),
+        ("u", "<f4", 3),
+        ("v", "<f4", 3),
+        ("smoothing_group", "u1"),
+        ("group_index", "u1"),
+    ]
+)
+
 
 class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
     format = FileFormat.MS3D
@@ -37,35 +58,33 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
         # vertices count
         self._writecount("vertices", self.data.scene.total_vertices, MAX_VERTICES)
 
-        # i8 flags, f32 pos[3], i8 bone id, u8 reference count
-        fmt = f"{F.I8}{F.F32 * 3}{F.I8}{F.U8}"
-
         reference_count = 0xFF  # ? necessary only for optimization, calculation too expensive
 
         for mesh in self.data.scene.meshes:
-            for index, xyz in enumerate(mesh.vertices):
-                bone_id = (
-                    mesh.links_ids.astype(F.I8)[index][0] if self._skeleton_presented else ModelDefaults.ROOT_BONE_ID
-                )
-                self._writeb(fmt, 0, *xyz, bone_id, reference_count)
+            vertices = np.empty(len(mesh.vertices), dtype=VERTEX_DTYPE)
+            vertices["flags"] = 0
+            vertices["position"] = mesh.vertices
+            vertices["bone_id"] = mesh.links_ids[:, 0] if self._skeleton_presented else ModelDefaults.ROOT_BONE_ID
+            vertices["reference_count"] = reference_count
+            self.write(vertices.tobytes())
 
     def _add_triangles(self):
         # polygons count
         self._writecount("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
 
-        # u16 flags, u16 indices[3]
-        # f32 normals[3][3], f32 uv1 u[3], f32 uv1 v[3]
-        # u8 smoothing group, u8 group index
-        fmt = f"{F.U16 * 4}{F.F32 * 15}{F.U8 * 2}"
-
         offset = 0
         for index, mesh in enumerate(self.data.scene.meshes):
-            for abc in mesh.polygons:
-                normals = [i for vertex in abc for i in mesh.normals[vertex]]
-                uv = np.concatenate([mesh.uv1[abc][:, 0], mesh.uv1[abc][:, 1]], dtype=F.F32)
-                indices = (abc + offset).astype(F.U16)
+            triangles = np.empty(len(mesh.polygons), dtype=TRIANGLE_DTYPE)
+            uv = mesh.uv1[mesh.polygons]
 
-                self._writeb(fmt, 0, *indices, *normals, *uv, 1, index)
+            triangles["flags"] = 0
+            triangles["indices"] = mesh.polygons + offset
+            triangles["normals"] = mesh.normals[mesh.polygons]
+            triangles["u"] = uv[:, :, 0]
+            triangles["v"] = uv[:, :, 1]
+            triangles["smoothing_group"] = 1
+            triangles["group_index"] = index
+            self.write(triangles.tobytes())
 
             offset += len(mesh.vertices)
 
@@ -79,7 +98,8 @@ class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
 
             count = len(mesh.polygons)
             self._writeb(F.U16, count)  # triangles count
-            self._writeb(f"{count}{F.U16}", *np.arange(count, dtype=F.U16) + offset)  # indices
+            indices = np.arange(offset, offset + count, dtype="<u2")
+            self.write(indices.tobytes())
             self._writeb(F.I8, index)  # material index
 
             offset += count
