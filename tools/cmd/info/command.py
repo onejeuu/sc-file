@@ -42,8 +42,14 @@ def parser(exception: Exception) -> tuple[str, str, str] | None:
     "SOURCE",
     type=click.Path(path_type=Path, exists=True, dir_okay=False),
 )
-def info(source: Path) -> None:
-    format = detect.format(source)
+@click.option(
+    "-F",
+    "--format",
+    type=click.Choice(tuple(DECODERS), case_sensitive=False),
+    help="Source format.",
+)
+def info(source: Path, format: str | None) -> None:
+    format = format or detect.format(source)
     decoder_type = DECODERS.get(format)
     if decoder_type is None:
         raise click.UsageError(f"Unsupported source format: '{format}'.")

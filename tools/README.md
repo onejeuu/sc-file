@@ -40,9 +40,10 @@ Shows a compact summary of one decoded file.
 
 ```bash
 uv run -m tools info "C:/assets/model.mcsb"
+uv run -m tools info "C:/assets/model" -F mcsb
 ```
 
-Models are decoded with skeletons and animations. If decoding fails, the command shows the stream offset and the corresponding parser method, source statement, and module location.
+Use `--format` when source has no suffix or its format must be overridden. Models are decoded with skeletons and animations. If decoding fails, the command shows the stream offset and the corresponding parser method, source statement, and module location.
 
 ## Profile
 
