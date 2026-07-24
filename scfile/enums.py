@@ -120,6 +120,7 @@ class SafetyLimit(IntEnum):
     CLIPS = 1_000
     FRAMES = 100_000
     TRANSFORMS = 2_000_000
+    WEIGHTS = 10_000_000
 
 
 class ConsoleLabel(StrEnum):

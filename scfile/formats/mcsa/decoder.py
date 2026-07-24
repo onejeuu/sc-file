@@ -53,7 +53,11 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.SKELETON] and self.options.skeleton:
             self._parse_skeleton()
 
-            if self.options.animation and self.ctx["COUNT_BONES"] > 0 and not self.is_eof():
+            if (
+                self.options.animation
+                and (self.ctx["COUNT_BONES"] > 0 or self.ctx["COUNT_CHANNELS"] > 0)
+                and not self.is_eof()
+            ):
                 self._parse_animation()
 
     def _parse_header(self):
@@ -236,6 +240,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
     def _parse_skeleton(self):
         self.ctx["COUNT_BONES"] = self._readb(F.U8)
+        self.ctx["COUNT_CHANNELS"] = 0
 
         for index in range(self.ctx["COUNT_BONES"]):
             self._parse_bone(index)
@@ -243,8 +248,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # ? Not parsed
         # Facial Bone Names
         if self.data.version >= 15.0:
-            count = self._readb(F.U16)
-            [self._readutf8() for _ in range(count)]
+            self.ctx["COUNT_CHANNELS"] = self._readb(F.U16)
+            [self._readutf8() for _ in range(self.ctx["COUNT_CHANNELS"])]
 
     def _parse_bone(self, index: int):
         bone = S.SkeletonBone()
@@ -274,16 +279,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip.frames = self._readcount(F.U32, Limit.FRAMES)
         clip.rate = self._readb(F.F32)
 
+        channels = self._readb(F.U16) if self.data.version >= 15.0 else 0
         transforms = clip.frames * self.ctx["COUNT_BONES"]
         self._checklimit(transforms, Limit.TRANSFORMS)
+        self._checklimit(clip.frames * channels, Limit.WEIGHTS)
 
-        rotations, translations = self._readclip(clip.frames, self.ctx["COUNT_BONES"])
+        rotations, translations = self._readclip(clip.frames, self.ctx["COUNT_BONES"], channels)
         clip.rotations = rotations
         clip.translations = translations
-
-        # ? Not parsed
-        # # Unknown UINT16
-        if self.data.version >= 15.0:
-            self.read(2)
 
         self.data.scene.animation.clips.append(clip)

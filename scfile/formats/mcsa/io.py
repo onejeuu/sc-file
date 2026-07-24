@@ -80,11 +80,13 @@ class McsaFileIO(StructIO):
         # Reshape to bone[position[3], rotation[3]]
         return data.astype(F.F32).reshape(2, 3)
 
-    def _readclip(self, times_count: int, bones_count: int):
+    def _readclip(self, times_count: int, bones_count: int, channels_count: int = 0):
         units = McsaUnits.FRAMES
+        frame_size = bones_count * units + channels_count
 
         # Read array
-        data = self._readarray(F.I16, times_count * bones_count * units)
+        data = self._readarray(F.I16, times_count * frame_size)
+        data = data.reshape(times_count, frame_size)[:, : bones_count * units]
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(1.0 / Factor.I16)
