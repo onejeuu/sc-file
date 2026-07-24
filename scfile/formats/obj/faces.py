@@ -1,7 +1,7 @@
 from typing import NamedTuple, TypeAlias
 
 
-Template: TypeAlias = str
+Template: TypeAlias = bytes
 
 
 class Flags(NamedTuple):
@@ -10,8 +10,8 @@ class Flags(NamedTuple):
 
 
 TEMPLATE: dict[Flags, Template] = {
-    Flags(uv=True, normals=True): "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}",
-    Flags(uv=True, normals=False): "f {a}/{a} {b}/{b} {c}/{c}",
-    Flags(uv=False, normals=True): "f {a}//{a} {b}//{b} {c}//{c}",
-    Flags(uv=False, normals=False): "f {a} {b} {c}",
+    Flags(uv=True, normals=True): b"f %d/%d/%d %d/%d/%d %d/%d/%d\n",
+    Flags(uv=True, normals=False): b"f %d/%d %d/%d %d/%d\n",
+    Flags(uv=False, normals=True): b"f %d//%d %d//%d %d//%d\n",
+    Flags(uv=False, normals=False): b"f %d %d %d\n",
 }

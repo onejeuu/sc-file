@@ -39,7 +39,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
             offset += len(mesh.vertices)
 
     def _vectorize(self, template: bytes, data: np.ndarray, count: int):
-        return (template * count) % tuple(data.flatten().tolist())
+        return (template * count) % tuple(data.ravel().tolist())
 
     def _add_geometric_vertices(self, mesh: S.ModelMesh):
         template = b"v %.6f %.6f %.6f\n"
@@ -61,5 +61,6 @@ class ObjEncoder(FileEncoder[ModelContent]):
         template = faces.TEMPLATE[flags]
 
         polygons = mesh.polygons + offset
-        self._writeutf8("\n".join([template.format(a=a, b=b, c=c) for a, b, c in polygons.tolist()]))
-        self.write(b"\n\n")
+        indices = np.repeat(polygons, 1 + flags.uv + flags.normals)
+        self.write(self._vectorize(template, indices, len(polygons)))
+        self.write(b"\n" if len(polygons) else b"\n\n")
