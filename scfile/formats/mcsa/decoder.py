@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from scfile import formats
 from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
-from scfile.enums import ByteOrder, F, FileFormat, ModelLimit
+from scfile.enums import ByteOrder, F, FileFormat
+from scfile.enums import SafetyLimit as Limit
 from scfile.structures import models as S
 from scfile.structures.models import Flag
 
@@ -82,7 +83,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
             self.data.scene.scale.uv2 = self._readb(F.F32)
 
     def _parse_meshes(self):
-        self.ctx["COUNT_MESHES"] = self._readcount(F.I32, ModelLimit.MESHES)
+        self.ctx["COUNT_MESHES"] = self._readcount(F.I32, Limit.MESHES)
 
         for _ in range(self.ctx["COUNT_MESHES"]):
             self._parse_mesh()
@@ -106,12 +107,12 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
                 mesh.bones[S.LocalBoneId(index)] = S.SkeletonBoneId(self._readb(F.U8))
 
         # Geometry counts
-        counts.vertices = self._readcount(F.U32, ModelLimit.VERTICES)
+        counts.vertices = self._readcount(F.U32, Limit.VERTICES)
 
         if self.data.version >= 12.0:
             mesh.quads = self._readb(F.BOOL)
 
-        counts.polygons = self._readcount(F.U32, ModelLimit.POLYGONS)
+        counts.polygons = self._readcount(F.U32, Limit.POLYGONS)
 
         # ? Not parsed
         # Blend Shape Table
@@ -261,7 +262,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self.data.scene.skeleton.bones.append(bone)
 
     def _parse_animation(self):
-        self.ctx["COUNT_CLIPS"] = self._readcount(F.I32, ModelLimit.CLIPS)
+        self.ctx["COUNT_CLIPS"] = self._readcount(F.I32, Limit.CLIPS)
 
         for _ in range(self.ctx["COUNT_CLIPS"]):
             self._parse_clip()
@@ -270,11 +271,11 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         clip = S.AnimationClip()
 
         clip.name = self._readutf8()
-        clip.frames = self._readcount(F.U32, ModelLimit.FRAMES)
+        clip.frames = self._readcount(F.U32, Limit.FRAMES)
         clip.rate = self._readb(F.F32)
 
         transforms = clip.frames * self.ctx["COUNT_BONES"]
-        self._checklimit(transforms, ModelLimit.TRANSFORMS)
+        self._checklimit(transforms, Limit.TRANSFORMS)
 
         rotations, translations = self._readclip(clip.frames, self.ctx["COUNT_BONES"])
         clip.rotations = rotations

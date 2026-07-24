@@ -9,6 +9,8 @@ from enum import IntEnum
 from typing import Generic, Optional, Type, TypeVar
 
 from scfile import exceptions
+from scfile.enums import ByteOrder, F
+from scfile.enums import SafetyLimit as Limit
 
 from .base import BaseFile, IOStream
 from .content import ContentType
@@ -149,3 +151,18 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
     def _readcount(self, fmt: str, limit: IntEnum) -> int:
         return self._checklimit(self._readb(fmt), limit)
+
+    def _readutf8(
+        self,
+        prefix: str = F.U16,
+        order: Optional[ByteOrder] = None,
+        limit: Optional[IntEnum] = Limit.STRING,
+    ) -> str:
+        order = order or self.order
+        size = self._readb(prefix, order)
+
+        if limit is not None:
+            self._checklimit(size, limit)
+
+        string = self._unpack(f"{size}s")[0]
+        return string.decode("utf-8", errors=self.unicode_errors)

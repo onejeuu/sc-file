@@ -43,15 +43,6 @@ class FileType(StrEnum):
     REGION = auto()
 
 
-class ModelLimit(IntEnum):
-    MESHES = 10_000
-    VERTICES = 1_000_000
-    POLYGONS = 1_500_000
-    CLIPS = 1_000
-    FRAMES = 100_000
-    TRANSFORMS = 2_000_000
-
-
 class ByteOrder(StrEnum):
     """File data byte order."""
 
@@ -117,6 +108,18 @@ class StructFormat(StrEnum):
 
 F = StructFormat
 """StructFormat Alias."""
+
+
+class SafetyLimit(IntEnum):
+    """Reasonable decoded data limits."""
+
+    STRING = 4_096
+    MESHES = 10_000
+    VERTICES = 1_000_000
+    POLYGONS = 1_500_000
+    CLIPS = 1_000
+    FRAMES = 100_000
+    TRANSFORMS = 2_000_000
 
 
 class ConsoleLabel(StrEnum):
