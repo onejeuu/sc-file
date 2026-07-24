@@ -21,6 +21,11 @@ from scfile.structures.textures import CubemapTexture, DefaultTexture
 Row = tuple[str, object]
 
 
+def _size(value: int) -> str:
+    formatted = decimal(value)
+    return formatted if value < 1000 else f"{formatted} ({value:,} bytes)"
+
+
 def _table(rows: Iterable[Row], error: bool = False) -> Table:
     table = Table(
         box=None,
@@ -42,7 +47,7 @@ def content(source: Path, format: str, size: int, decoder: str, data: BaseConten
     rows: list[Row] = [
         ("Path", source),
         ("Format", format),
-        ("Size", f"{decimal(size)} ({size:,} bytes)"),
+        ("Size", _size(size)),
         ("Decoder", decoder),
         ("Content", type(data).__name__),
     ]
@@ -55,7 +60,7 @@ def content(source: Path, format: str, size: int, decoder: str, data: BaseConten
             rows.extend(_texture(data))
 
         case ImageContent():
-            rows.append(("Image", f"{decimal(len(data.image))} ({len(data.image):,} bytes)"))
+            rows.append(("Image", _size(len(data.image))))
 
         case TexarrContent():
             rows.extend(
@@ -96,7 +101,7 @@ def failure(
     rows: list[Row] = [
         ("Path", source),
         ("Format", format),
-        ("Size", f"{decimal(size)} ({size:,} bytes)"),
+        ("Size", _size(size)),
         ("Decoder", decoder),
         ("Content", type(data).__name__),
         ("Error", f"{type(exception).__name__}: {exception}"),
@@ -155,7 +160,7 @@ def _texture(data: TextureContent) -> list[Row]:
         ("FourCC", data.fourcc.decode(errors="replace")),
         ("Mipmaps", data.mipmap_count),
         ("Faces", faces),
-        ("Image", f"{decimal(len(data.texture.image))} ({len(data.texture.image):,} bytes)"),
+        ("Image", _size(len(data.texture.image))),
         ("Path Hash", data.path_hash.decode(errors="replace") or "-"),
     ]
 
