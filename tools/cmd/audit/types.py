@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from tools.commands.audit.schemas import Record
+    from tools.cmd.audit.schemas import Record
 
 
 @dataclass(slots=True)

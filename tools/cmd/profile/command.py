@@ -9,8 +9,10 @@ from rich.table import Table
 
 from scfile.convert import converters, decoders, detect, encoders, registry
 from scfile.core import Options
-from tools.commands.profile import profiler
+from tools.cmd import tools
 from tools.paths import ROOT
+
+from . import profiler
 
 
 MODEL = ROOT / "assets" / "profile" / "model.mcsb"
@@ -52,7 +54,7 @@ def clear(path: Path) -> None:
         (path / name).unlink(missing_ok=True)
 
 
-@click.command()
+@tools.command()
 @click.argument(
     "SOURCE",
     required=False,
@@ -96,7 +98,7 @@ def clear(path: Path) -> None:
     type=click.Path(path_type=Path, file_okay=False),
     help="Reports directory.",
 )
-def main(
+def profile(
     source: Path | None,
     target: tuple[str, ...],
     count: int,
@@ -159,7 +161,3 @@ def main(
     if len(stats) == 1:
         console.print()
         stats[0].strip_dirs().sort_stats(sort).print_stats(limit)
-
-
-if __name__ == "__main__":
-    main()

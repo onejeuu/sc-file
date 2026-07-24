@@ -1,5 +1,5 @@
 from scfile.convert import decoders
-from tools.commands.audit.schemas import Animation, Bone, Image, Mesh, Model, Texture
+from tools.cmd.audit.schemas import Animation, Bone, Image, Mesh, Model, Texture
 from tools.paths import ROOT
 
 

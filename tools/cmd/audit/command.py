@@ -10,10 +10,12 @@ from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
-from tools.commands.audit import files, stats
-from tools.commands.audit.config import Config
-from tools.commands.audit.consts import ERRORS_JSONL, FILES, FORMATS
-from tools.commands.audit.types import Error
+from tools.cmd import tools
+
+from . import files, stats
+from .config import Config
+from .consts import ERRORS_JSONL, FILES, FORMATS
+from .types import Error
 
 
 def table(found: Counter, checked: Counter, failed: Counter) -> Table:
@@ -98,7 +100,7 @@ def run(cfg: Config, console: Console) -> int:
     return 0
 
 
-@click.command()
+@tools.command()
 @click.argument(
     "PATH",
     required=False,
@@ -134,7 +136,7 @@ def run(cfg: Config, console: Console) -> int:
     default=None,
     help="Write statistics.",
 )
-def main(
+def audit(
     path: Path | None,
     formats: tuple[str, ...],
     workers: int | None,
@@ -144,7 +146,3 @@ def main(
 ) -> None:
     cfg = Config.load(path, formats, workers, animation, reports, stats)
     raise SystemExit(run(cfg, Console()))
-
-
-if __name__ == "__main__":
-    main()

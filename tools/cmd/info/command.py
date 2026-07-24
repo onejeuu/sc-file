@@ -7,7 +7,9 @@ from rich.console import Console
 
 from scfile.convert import decoders, detect
 from scfile.core import Options
-from tools.commands.info import tables
+from tools.cmd import tools
+
+from . import tables
 
 
 DECODERS = decoders()
@@ -35,12 +37,12 @@ def parser(exception: Exception) -> tuple[str, str, str] | None:
     return found or fallback
 
 
-@click.command()
+@tools.command()
 @click.argument(
     "SOURCE",
     type=click.Path(path_type=Path, exists=True, dir_okay=False),
 )
-def main(source: Path) -> None:
+def info(source: Path) -> None:
     format = detect.format(source)
     decoder_type = DECODERS.get(format)
     if decoder_type is None:
@@ -76,7 +78,3 @@ def main(source: Path) -> None:
             raise click.exceptions.Exit(1)
 
     console.print(tables.content(source, format, size, decoder_type.__name__, data))
-
-
-if __name__ == "__main__":
-    main()
