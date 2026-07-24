@@ -5,6 +5,8 @@ permissions:
 
 on:
   push:
+    branches:
+      - "**"
     paths:
       - "pyproject.toml"
       - "requirements*.txt"
@@ -24,22 +26,6 @@ jobs:
   tests-linux:
     name: Linux
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-
-      - name: Run Tests
-        run: uv run --group dev pytest --cov=scfile --cov-report=term-missing
-
-  tests-windows:
-    name: Windows
-    runs-on: windows-latest
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
     steps:
       - uses: actions/checkout@v4
         with:
