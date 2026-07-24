@@ -6,6 +6,9 @@
 .. warning::
   Formats specifications are based on **reverse-engineering** and may contain inaccuracies.
 
+| Binary structures can be inspected with `010 Editor`_.
+| See the project's `binary templates`_ for installation and usage.
+
 
 ----------------------------------------
 🧊 Model Formats

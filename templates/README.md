@@ -4,6 +4,8 @@
 
 Each `.bt` file uses the 010 Editor template language to map binary data into named structures, fields, and arrays inside the editor.
 
+See [Game Formats](https://sc-file.readthedocs.io/en/latest/formats.html) for detailed descriptions of the formats.
+
 > [!WARNING]
 > The formats are not official specifications. Templates may contain unknown fields, incomplete structures, or assumptions that change in future game versions.
 
