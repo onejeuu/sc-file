@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MDAT.CHUNK.bt
 // Authors: onejeuu, DeTTK
-// Version: 1.0
-// Purpose: Parse world chunk.
+// Version: 1.1
+// Purpose: Parse world chunk data.
 // Category: STALCRAFT
 // File Mask: *.chunk
 //------------------------------------------------
@@ -13,35 +13,35 @@ local int SECTION_SIZE = 16 * 16 * 16;  // 4096
 local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
 
 typedef struct {
-    int32 full_size;
-    int32 sections_mask <format=binary>;
-    int32 add_mask      <format=binary>;
-    int32 fixed_size;
+    int32 fullSize <name="Full Size">;
+    int32 sectionMask <name="Section Mask", format=binary>;
+    int32 addMask <name="Add Mask", format=binary>;
+    int32 fixedSize <name="Fixed Size">;
 } ChunkHeader;
 
-ChunkHeader header;
+ChunkHeader header <name="Header">;
 
-local int sections_count = 0;
-local int add_count = 0;
+local int sectionCount = 0;
+local int addCount = 0;
 local int i;
 for (i = 0; i < 16; i++) {
-    if ((header.sections_mask >> i) & 1) sections_count++;
-    if ((header.add_mask      >> i) & 1) add_count++;
+    if ((header.sectionMask >> i) & 1) sectionCount++;
+    if ((header.addMask >> i) & 1) addCount++;
 }
 
 typedef struct { uchar data[SECTION_SIZE]; } BlockSection;
 typedef struct { uchar data[NIBBLE_SIZE];  } NibbleSection;
 
-BlockSection  blocks[sections_count]      <optimize=false, bgcolor=cLtGreen>;
-NibbleSection meta[sections_count]        <optimize=false, bgcolor=cLtBlue>;
-NibbleSection block_light[sections_count] <optimize=false, bgcolor=cGray>;
-NibbleSection sky_light[sections_count*2]   <optimize=false, bgcolor=cDkGray>;
+BlockSection blocks[sectionCount] <name="Blocks", optimize=false, bgcolor=cLtGreen>;
+NibbleSection meta[sectionCount] <name="Metadata", optimize=false, bgcolor=cLtBlue>;
+NibbleSection blockLight[sectionCount] <name="Block Light", optimize=false, bgcolor=cGray>;
+NibbleSection skyLight[sectionCount*2] <name="Sky Light", optimize=false, bgcolor=cDkGray>;
 
-if (add_count > 0) {
-    NibbleSection add[add_count] <optimize=false, bgcolor=cDkYellow>;
+if (addCount > 0) {
+    NibbleSection add[addCount] <name="Add", optimize=false, bgcolor=cDkYellow>;
 }
 
-local int extra_size = FileSize() - FTell();
-if (extra_size > 0) {
-    uchar extra[extra_size] <bgcolor=cDkGreen>;
+local int extraSize = FileSize() - FTell();
+if (extraSize > 0) {
+    uchar extra[extraSize] <name="Extra", bgcolor=cDkGreen>;
 }

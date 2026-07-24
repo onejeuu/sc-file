@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MDAT.bt
 // Authors: onejeuu, DeTTK
-// Version: 1.0
-// Purpose: Parse world region cache.
+// Version: 1.1
+// Purpose: Parse world region caches.
 // Category: STALCRAFT
 // File Mask: *.mdat
 //------------------------------------------------
@@ -12,20 +12,20 @@ local uint32 SIZE = 32*32;
 BigEndian();
 
 typedef struct {
-    int32 offsets;
-    int32 counts;
-    GUID uuid <fgcolor=cLtBlue>;
+    int32 offset <name="Offset">;
+    int32 sectorCount <name="Sector Count">;
+    GUID uuid <name="UUID", fgcolor=cLtBlue>;
 } Metadata;
 
 typedef struct {
-    int32 full_size;
-    int32 sections_mask;
-    int32 add_mask;
-    int32 fixed_size;
-    int32 compressed_size <fgcolor=cDkGreen>;
+    int32 fullSize <name="Full Size">;
+    int32 sectionMask <name="Section Mask">;
+    int32 addMask <name="Add Mask">;
+    int32 fixedSize <name="Fixed Size">;
+    int32 compressedSize <name="Compressed Size", fgcolor=cDkGreen>;
 
     // ZSTD compressed data
-    char data[compressed_size] <bgcolor=cDkGreen>;
+    char data[compressedSize] <name="Data", bgcolor=cDkGreen>;
     // тут почему то хвост бывает из данных, непонятно откуда
 
     // padding
@@ -39,11 +39,11 @@ typedef struct {
 } Chunk;
 
 // metadata
-Metadata metadata[SIZE];
+Metadata metadata[SIZE] <name="Metadata">;
 
 // terrain chunks
 local uint _counter;
 while(_counter < SIZE & !FEof()) {
-    Chunk chunk;
+    Chunk chunk <name="Chunk">;
     _counter++;
 }

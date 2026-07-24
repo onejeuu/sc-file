@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: EFKMODEL.bt
 // Authors: onejeuu
-// Version: 1.0
-// Purpose: Parse effects model scenes.
+// Version: 1.1
+// Purpose: Parse Effekseer models.
 // Category: STALCRAFT
 // File Mask: *.efkmodel
 //------------------------------------------------
@@ -27,7 +27,7 @@ struct Header {
     float scale <name="Scale">;
     int meshCount <name="Mesh Count", bgcolor=cAqua>;
     int unknownCount <name="Unknown Count", bgcolor=cBlue>;
-} header;
+} header <name="Header">;
 
 
 // Model Meshes

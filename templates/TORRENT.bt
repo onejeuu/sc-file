@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: TORRENT.bt
 // Authors: Art3mLapa
-// Version: 2.0
-// Purpose: Parse torrent.
+// Version: 2.1
+// Purpose: Parse launcher torrent metadata.
 // Category: STALCRAFT
 // File Mask: *.torrent.bin
 //------------------------------------------------
@@ -21,7 +21,7 @@ typedef struct {
 } TorrentFile <read=(exists(path.data) ? path.data : ""), optimize=false>;
 
 typedef struct {
-    uint64 totalFilesSize <name="Total Files Size", fgcolor=cAqua, bgcolor=cDkAqua>;
+    uint64 totalFilesSize <name="Total File Size", fgcolor=cAqua, bgcolor=cDkAqua>;
     String comment <name="Comment", fgcolor=cPurple>;
     uint32 trackerCount <name="Tracker Count", bgcolor=cLtGreen>;
     String trackers[trackerCount] <name="Tracker", fgcolor=cLtGreen, optimize=false>;
@@ -35,7 +35,7 @@ typedef struct {
     uint32 hashCount <name="Piece Hash Count", bgcolor=cRed>;
 } TorrentMeta;
 
-TorrentMeta meta <name="Meta">;
+TorrentMeta meta <name="Metadata">;
 
 typedef struct {
     char sha1[20];

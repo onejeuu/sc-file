@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MCAL.bt
 // Authors: onejeuu
-// Version: 2.0
-// Purpose: Parse animations library.
+// Version: 2.1
+// Purpose: Parse skeletal animation libraries.
 // Category: STALCRAFT
 // File Mask: *.mcal
 // ID Bytes: 4D 43 41 4C // MCAL
@@ -57,6 +57,6 @@ typedef struct {
 struct Animation {
     uint boneCount <name="Bone Count", bgcolor=cPurple>;
     ubyte unknown <fgcolor=cBlack, comment="Often 64. Maybe some buffer size?">;
-    int  clipCount <name="Clips Count", bgcolor=cBlue>;
+    int  clipCount <name="Clip Count", bgcolor=cBlue>;
     if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
-} animation <name="Animation">;
+} animation <name="Animation Library">;

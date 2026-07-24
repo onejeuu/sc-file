@@ -14,7 +14,7 @@ See [Game Formats](https://sc-file.readthedocs.io/en/latest/formats.html) for de
 | Template                       | Files                        | Contents                          |
 | ------------------------------ | ---------------------------- | --------------------------------- |
 | [MCSA.bt](MCSA.bt)             | `*.mcsa`, `*.mcsb`, `*.mcvd` | Models, skeletons, and animations |
-| [EFKMODEL.bt](EFKMODEL.bt)     | `*.efkmodel`                 | Effect model geometry             |
+| [EFKMODEL.bt](EFKMODEL.bt)     | `*.efkmodel`                 | Effekseer model geometry          |
 | [MCAL.bt](MCAL.bt)             | `*.mcal`                     | Animation libraries               |
 | [OL.bt](OL.bt)                 | `*.ol`                       | Textures and cubemaps             |
 | [TEXARR.bt](TEXARR.bt)         | `*.texarr`                   | Texture arrays                    |

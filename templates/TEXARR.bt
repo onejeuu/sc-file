@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: TEXARR.bt
 // Authors: onejeuu
-// Version: 2.0
-// Purpose: Parse texture arrays.
+// Version: 2.1
+// Purpose: Parse DDS texture arrays.
 // Category: STALCRAFT
 // File Mask: *.texarr
 //------------------------------------------------
@@ -20,13 +20,13 @@ typedef struct {
 } String <read=(exists(data) ? data : "")>;
 
 typedef struct {
-    String id;
-    uint filesize <bgcolor=cDkGreen>;
-    byte image[filesize] <bgcolor=cLtGreen>;
+    String id <name="Reference">;
+    uint filesize <name="File Size", bgcolor=cDkGreen>;
+    byte image[filesize] <name="DDS", bgcolor=cLtGreen>;
 } Texture <read=(exists(this.id.data) ? this.id.data : "")>;
 
 
 // File
 
-uint textureCount <bgcolor=cAqua>;
+uint textureCount <name="Texture Count", bgcolor=cAqua>;
 Texture textures[textureCount] <name="Texture", optimize=false>;

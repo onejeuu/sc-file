@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: OL.bt
 // Authors: onejeuu
-// Version: 3.1
-// Purpose: Parse textures.
+// Version: 3.2
+// Purpose: Parse GPU textures.
 // Category: STALCRAFT
 // File Mask: *.ol
 // ID Bytes: 0A 95 23 FD
@@ -73,9 +73,9 @@ switch (textureKind) {
 String pathHash <name="Path Hash">;
 
 
-// LZ4 packed mipmaps images
+// LZ4-compressed mipmaps
 
-struct MipMaps {
+struct Mipmaps {
     local uint i, f;
 
     switch (textureKind) {
@@ -97,4 +97,4 @@ struct MipMaps {
             }
             break;
     }
-} mipmaps <name="MipMaps">;
+} mipmaps <name="Mipmaps">;

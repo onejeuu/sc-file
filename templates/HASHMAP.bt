@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: HASHMAP.bt
 // Authors: onejeuu
-// Version: 2.0
-// Purpose: Parse hash mapping.
+// Version: 2.1
+// Purpose: Parse launcher hash mappings.
 // Category: STALCRAFT
 // File Mask: *.map
 //------------------------------------------------
@@ -22,11 +22,11 @@ typedef struct {
 
 typedef struct {
     String path <name="Path">;
-    char sha1[20] <name="Hash", fgcolor=cGreen, bgcolor=cDkGreen>;
+    char sha1[20] <name="SHA-1", fgcolor=cGreen, bgcolor=cDkGreen>;
 } FileEntry;
 
 
 // File
 
-uint count <name="Entries Count", bgcolor=cPurple>;
-FileEntry entries[count] <name="File Entries", optimize=false>;
+uint count <name="Entry Count", bgcolor=cPurple>;
+FileEntry entries[count] <name="Entry", optimize=false>;
