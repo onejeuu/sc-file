@@ -4,6 +4,22 @@ from xml.etree.ElementTree import Element, SubElement
 import numpy as np
 
 
+def array_text(data: np.ndarray) -> str:
+    values = data.ravel().tolist()
+
+    match data.dtype.kind:
+        case "f":
+            template = "%.9g "
+
+        case "i" | "u":
+            template = "%d "
+
+        case _:
+            return " ".join(map(str, values))
+
+    return ((template * len(values)) % tuple(values)).rstrip()
+
+
 def create_source(
     parent: Element,
     id: str,
@@ -12,10 +28,10 @@ def create_source(
     tag: str = "float_array",
     count: Optional[int] = None,
 ) -> Element:
-    count = count or len(data)
+    count = data.size if count is None else count
     source = SubElement(parent, "source", id=f"{id}-{name}")
     array = SubElement(source, tag, id=f"{id}-{name}-array", count=str(count))
-    array.text = " ".join(map(str, data.flatten()))
+    array.text = array_text(data)
     return source
 
 

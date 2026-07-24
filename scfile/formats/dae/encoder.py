@@ -103,7 +103,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
         # ABC Polygons
         p = SubElement(triangles, "p")
-        p.text = " ".join(map(str, mesh.polygons.flatten()))
+        p.text = utils.array_text(mesh.polygons)
 
     def _add_geometries(self):
         library = SubElement(self.ctx["ROOT"], "library_geometries")
