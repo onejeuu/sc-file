@@ -29,7 +29,7 @@ msgstr "Бинарные шаблоны для `010 Editor`_ доступны в
 msgid "🧊 Model Formats"
 msgstr "🧊 Модели"
 
-#: ../../source/formats.rst:19
+#: ../../source/formats.rst:19 ../../source/formats.rst:26
 msgid "Used for model scenes."
 msgstr "Используется для сцен моделей."
 
@@ -40,10 +40,6 @@ msgstr "Геометрия: позиции, UVs, нормали, тангенс�
 #: ../../source/formats.rst:21
 msgid "Optional: Skeleton, Animations, Blend shapes."
 msgstr "Опционально: скелет, анимации, бленд-шейпы."
-
-#: ../../source/formats.rst:26
-msgid "Used for model scenes."
-msgstr "Используется для сцен моделей."
 
 #: ../../source/formats.rst:27
 msgid "Same structure as ``.mcsa`` with a hash before the signature."
@@ -75,7 +71,9 @@ msgstr "Используется для клипов скелетных аним
 
 #: ../../source/formats.rst:41
 msgid "Shared by multiple models with matching skeletons."
-msgstr "Файл может использоваться сразу несколькими моделями с совместимыми скелетами."
+msgstr ""
+"Файл может использоваться сразу несколькими моделями с совместимыми "
+"скелетами."
 
 #: ../../source/formats.rst:47
 msgid "Used for particle geometry."
@@ -83,9 +81,7 @@ msgstr "Используется для геометрии эффектов."
 
 #: ../../source/formats.rst:48
 msgid "Geometry: Positions, Normals, Binormals, Tangents, UVs, Colors, Polygons."
-msgstr ""
-"Геометрия: позиции, нормали, бинормали, тангенсы, UV, цвета, "
-"полигоны."
+msgstr "Геометрия: позиции, нормали, бинормали, тангенсы, UV, цвета, полигоны."
 
 #: ../../source/formats.rst:49
 msgid "Standard `Effekseer <EFFEKSEER_>`_ model resource."

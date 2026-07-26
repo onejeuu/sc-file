@@ -154,8 +154,11 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             mode: File mode (binary).
         """
 
-        self.save_as(path=path, mode=mode)
-        self.close()
+        try:
+            self.save_as(path=path, mode=mode)
+
+        finally:
+            self.close()
 
     def export(
         self,
@@ -170,8 +173,11 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             mode: File mode (binary).
         """
 
-        self.save(path=f"{path}{self.suffix}", mode=mode)
-        self.close()
+        try:
+            self.export_as(path=path, mode=mode)
+
+        finally:
+            self.close()
 
     def getvalue(self) -> bytes:
         if self.size() == 0:

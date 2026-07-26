@@ -157,14 +157,16 @@ Decoding and encoding are separate operations:
   with ObjEncoder(model) as obj:
       obj.save("model.obj")
 
-``save()`` encodes automatically because the encoder stream is empty.
-Call ``encode()`` explicitly when serialization must happen before persistence.
+.. note::
+
+  | ``save()`` encodes automatically because the encoder stream is empty.
+  | Call ``encode()`` explicitly when serialization must happen before persistence.
 
 
 Shortcuts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:class:`~scfile.core.decoder.FileDecoder` provides three levels of shorthand:
+:class:`~scfile.core.decoder.FileDecoder` provides syntactic sugar:
 
 * ``convert_to(ObjEncoder)`` decodes and returns an encoder without encoding it.
 * ``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``.
@@ -176,16 +178,19 @@ Shortcuts
 
   with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder) as obj:
-          obj.export("model")
+          obj.export_as("model")
 
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
 
   with McsbDecoder("model.mcsb") as mcsb:
-      mcsb.as_obj().save("model.obj")
+      with mcsb.as_obj() as obj:
+          obj.save_as("model.obj")
 
-These methods do not close the decoder.
-Its lifecycle is still controlled by its context manager.
+.. note::
+
+  | Wrap encoders returned by ``convert_to()`` and ``as_*()`` in a context manager.
+  | This ensures they close if a later operation fails.
 
 
 Persistence
@@ -214,7 +219,7 @@ Encoder persistence methods differ in file naming and ownership:
 
 All four methods encode automatically when the encoder stream is empty.
 The ``_as`` variants are useful for writing the same encoded data more than once.
-An encoder represents one serialization; do not call ``encode()`` repeatedly to duplicate its output.
+An encoder represents one serialization.
 
 
 Binary Streams
@@ -238,4 +243,9 @@ Encoders use an in-memory stream by default or accept an output stream explicitl
           obj.encode()
           data = output.getvalue()
 
-When an external output stream is passed to an encoder, read it before the encoder closes because it owns that stream.
+.. warning::
+
+  In this case, the encoder owns the external output stream.
+  Read it before the encoder closes.
+
+For complete method signatures and available modules, see :doc:`API Reference <../scfile>`.

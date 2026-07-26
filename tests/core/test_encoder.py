@@ -1,6 +1,8 @@
 from io import BytesIO
 from pathlib import Path
 
+import pytest
+
 from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
 from scfile.core.options import Options
@@ -68,6 +70,23 @@ def test_export(temp: Path):
     enc.encode()
     enc.export(temp / "out")
     assert (temp / "out.obj").read_bytes() == DATA
+    assert enc.closed
+
+
+@pytest.mark.parametrize(
+    ("method", "path"),
+    (("save", OUTPUT), ("export", "out")),
+)
+def test_persistence_closes_on_serialization_error(temp: Path, method: str, path: str):
+    class _BrokenEncoder(FakeEncoder):
+        def serialize(self) -> None:
+            raise RuntimeError("broken")
+
+    enc = _BrokenEncoder(FakeContent(parsed=DATA))
+
+    with pytest.raises(RuntimeError, match="broken"):
+        getattr(enc, method)(temp / path)
+
     assert enc.closed
 
 
