@@ -179,7 +179,7 @@ Default command. Converts game assets to standard formats.
 
 
 Output Structure
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Examples of how ``--relative`` and ``--parent`` change output layout.
 
