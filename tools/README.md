@@ -1,6 +1,6 @@
 # Development Tools
 
-Commands for validating and profiling `scfile` during development.
+A command-line toolkit for developing and maintaining `scfile`.
 
 ## Usage
 
@@ -13,14 +13,15 @@ uv run -m tools profile --help
 
 ## Audit
 
-Decodes game assets to verify supported formats against real data.
+Parses game assets to detect errors in supported decoders.
 
 ```bash
 uv run -m tools audit "C:/EXBO/runtime/stalcraft/modassets/assets"
 uv run -m tools audit "C:/assets" -F mcsb -F ol
 ```
 
-Persistent settings can be stored in `configs/audit.toml`. Copy `configs/audit.example.toml` as a starting point.
+Persistent settings can be stored in `configs/audit.toml`.
+You can copy `configs/audit.example.toml` as a starting point.
 
 ```toml
 path = "C:/EXBO/runtime/stalcraft/modassets/assets"
@@ -32,7 +33,11 @@ stats = true
 exclude = ["path/to/file.mcsb"]
 ```
 
-Command-line arguments override the config. When `formats` is omitted, every registered decoder is checked. Errors are written to `errors.jsonl`; optional statistics are written to CSV files. Known report files are replaced on each run.
+Command-line arguments override the config.
+When `formats` is omitted, every registered decoder is checked.
+Found errors are written to `errors.jsonl`.
+With statistics enabled, CSV files are written.
+Report files are replaced on each run.
 
 ## Info
 
@@ -43,7 +48,9 @@ uv run -m tools info "C:/assets/model.mcsb"
 uv run -m tools info "C:/assets/model" -F mcsb
 ```
 
-Use `--format` when source has no suffix or its format must be overridden. Models are decoded with skeletons and animations. If decoding fails, the command shows the stream offset and the corresponding parser method, source statement, and module location.
+Use `-F`/`--format` when source has no suffix or its format must be overridden.
+Models are decoded with skeletons and animations.
+On failure, the command provides parser diagnostics.
 
 ## Profile
 
@@ -56,6 +63,10 @@ uv run -m tools profile -T full
 uv run -m tools profile "C:/assets/model.mcsb" -T obj -N 10
 ```
 
-Without arguments, the reference model in `assets/profile` is decoded. Without `--target`, only decoding is measured. Each operation writes a separate `.prof` file to `reports/profile`.
+Without arguments, the reference model in `assets/profile` is decoded.
+Without `-T`/`--target`, only decoding is measured.
+Use `-T full` to profile conversion to every output format supported by the source.
+Each operation writes a separate `.prof` file to `reports/profile`.
 
-Timing runs are measured without `cProfile`; profile data is collected in a separate run.
+Timing runs are measured without `cProfile`.
+Profile data is collected in a separate run.

@@ -7,7 +7,7 @@
 🧊 Model Formats
 ----------------------------------------
 
-``.mcsb`` ``.mcsa`` ``.mcvd``
+``.mcsb`` ``.mcsa``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``
@@ -51,6 +51,14 @@
 | ``➖ Not supported by format``
 
 | \* Conversion time for the reference model. Results for game assets vary with model complexity.
+
+``.mcvd``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Same structure as ``.mcsa``.
+| Output (Geometry): ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``.
+| Animation-only files produce empty model output.
+
 
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

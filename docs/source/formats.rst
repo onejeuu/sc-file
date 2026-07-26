@@ -16,32 +16,37 @@
 ``.mcsa`` Scene Assets (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Geometry: Positions, UVs, Normals, Tangents, Vertex colors, Polygons.
+| Used for model scenes.
+| Geometry: Positions, UVs, Normals, Tangents, Colors, Polygons.
 | Optional: Skeleton, Animations, Blend shapes.
 
 ``.mcsb`` Scene Bundle (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Same structure as ``.mcsa``.
-| Contains a length-prefixed hash before the signature.
+| Used for model scenes.
+| Same structure as ``.mcsa`` with a hash before the signature.
 
 ``.mcvd`` Vector Dynamic (MCSA.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+| Used for trace models **or** standalone animation sets.
 | Same structure as ``.mcsa``.
-| Used for collision models and standalone animation sets.
+| Trace models provide geometry for collisions, physics and animated objects.
+| Each standalone animation set is specific to one model.
 
 ``.mcal`` Animation Library (MCAL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Reusable skeletal animation clips stored separately from models.
-| Applied to models with matching skeletons.
+| Used for skeletal animation clips.
+| Shared by multiple models with matching skeletons.
+
 
 ``.efkmodel`` Effekseer Model (EFKMODEL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standard `Effekseer <EFFEKSEER_>`_ model resource used as particle geometry.
-| Geometry: Positions, Normals, Binormals, Tangents, UVs, Vertex colors, Polygons.
+| Used for particle geometry.
+| Geometry: Positions, Normals, Binormals, Tangents, UVs, Colors, Polygons.
+| Standard `Effekseer <EFFEKSEER_>`_ model resource.
 
 
 ----------------------------------------
@@ -51,7 +56,7 @@
 ``.ol`` Object Layer (OL.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| `GPU texture data <KHRONOS_DATA_FORMAT_>`_ compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
+| `Mipmapped texel data <KHRONOS_>`_ compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
 | `Mipmaps <MIPMAP_>`_ compressed with `LZ4`_.
 | Texture kinds: Default (2D), Cubemap.
 | Metadata: Path hash.
@@ -111,7 +116,7 @@
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Region container for 32×32 terrain chunks, based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
+| Region container for 32×32 terrain chunks, historically based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
 | Uses 4 KiB sectors with allocation and UUID metadata for each chunk.
 | Chunk data includes blocks, metadata, lighting and extended data compressed with `ZSTD`_.
 

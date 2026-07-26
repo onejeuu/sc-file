@@ -34,7 +34,7 @@ msgid ""
 "The shortest way to use the library is :mod:`scfile.convert`. It selects "
 "handlers, manages their streams, and writes the result."
 msgstr ""
-"Самый простой способ использовать библиотеку — :mod:`scfile.convert`. "
+"Самый простой способ использовать библиотеку это :mod:`scfile.convert`. "
 "Модуль выбирает обработчики, управляет их потоками и записывает "
 "результат."
 
@@ -53,10 +53,10 @@ msgstr ""
 #: ../../source/api/usage/conversion.rst:20
 msgid ""
 "When ``output`` is omitted, the result is written alongside the source. "
-"For automatic conversion, ``output`` is a directory."
+"For automatic conversion, ``output`` must be a directory."
 msgstr ""
 "Если ``output`` не указан, результат записывается рядом с исходным "
-"файлом. При автоматической конвертации ``output`` является каталогом."
+"файлом. При автоматической конвертации ``output`` должен быть каталогом."
 
 #: ../../source/api/usage/conversion.rst:25
 msgid "Named Conversion"
@@ -100,34 +100,33 @@ msgstr "Высокоуровневая конвертация состоит и�
 msgid ""
 "A decoder reads one binary format into content. An encoder writes "
 "compatible content into another binary format. Content is the shared "
-"representation between them. This separation allows decoded content to be"
-" inspected or passed to any compatible encoder without reading the source"
-" again."
+"representation between them. This separation lets content be inspected, "
+"changed, or encoded independently of its source."
 msgstr ""
 "Декодер читает бинарный формат в содержимое. Энкодер записывает "
 "совместимое содержимое в другой бинарный формат. Содержимое служит общим "
-"представлением между ними. Благодаря этому его можно изучить или передать"
-" любому совместимому энкодеру без повторного чтения исходного файла."
+"представлением между ними. Такое разделение позволяет изучать, изменять и"
+" кодировать содержимое независимо от источника."
 
 #: ../../source/api/usage/handlers.rst:19
 msgid ""
 "Format handlers inherit from :class:`~scfile.core.decoder.FileDecoder` or"
-" :class:`~scfile.core.encoder.FileEncoder`. The commonly used handlers "
-"are available directly from :mod:`scfile.formats`."
+" :class:`~scfile.core.encoder.FileEncoder`. Handlers for individual "
+"formats are available directly from :mod:`scfile.formats`."
 msgstr ""
 "Обработчики форматов наследуются от "
 ":class:`~scfile.core.decoder.FileDecoder` или "
-":class:`~scfile.core.encoder.FileEncoder`. Часто используемые обработчики"
-" доступны напрямую из :mod:`scfile.formats`."
+":class:`~scfile.core.encoder.FileEncoder`. Обработчики конкретных "
+"форматов доступны напрямую из :mod:`scfile.formats`."
 
 #: ../../source/api/usage/handlers.rst:30
 msgid ""
-"A decoder does not return format-specific wrapper objects. It returns a "
-"content DTO such as :class:`~scfile.core.content.ModelContent` or "
+":meth:`~scfile.core.decoder.FileDecoder.decode` returns a content DTO "
+"such as :class:`~scfile.core.content.ModelContent` or "
 ":class:`~scfile.core.content.TextureContent`."
 msgstr ""
-"Декодер возвращает не обёртку конкретного формата, а DTO содержимого, "
-"например :class:`~scfile.core.content.ModelContent` или "
+"Метод :meth:`~scfile.core.decoder.FileDecoder.decode` возвращает DTO "
+"содержимого, например :class:`~scfile.core.content.ModelContent` или "
 ":class:`~scfile.core.content.TextureContent`."
 
 #: ../../source/api/usage/handlers.rst:36
@@ -136,13 +135,12 @@ msgstr "Содержимое"
 
 #: ../../source/api/usage/handlers.rst:38
 msgid ""
-"Content contains ordinary Python objects and NumPy arrays that may be "
-"inspected or changed before encoding. It remains usable after the decoder"
-" is closed."
+"Content is a hierarchy of dataclasses. Model data also uses NumPy arrays."
+" It remains usable after the decoder is closed."
 msgstr ""
-"Содержимое состоит из обычных объектов Python и массивов NumPy, которые "
-"можно изучить или изменить перед кодированием. Оно остаётся доступным "
-"после закрытия декодера."
+"Содержимое представляет собой иерархию датаклассов. В данных моделей "
+"также используются массивы NumPy. Оно остаётся доступным после закрытия "
+"декодера."
 
 #: ../../source/api/usage/handlers.rst:56
 msgid "Resource Safety"
@@ -172,8 +170,8 @@ msgstr ""
 "потока обработчик получает владение им и закрывает вместе с собой."
 
 #: ../../source/api/usage/handlers.rst:66
-msgid "Use a context manager whenever possible:"
-msgstr "По возможности используйте контекстный менеджер:"
+msgid "Use a context manager (the ``with`` statement) whenever possible:"
+msgstr "По возможности используйте контекстный менеджер (оператор ``with``):"
 
 #: ../../source/api/usage/handlers.rst:77
 msgid ""
@@ -224,8 +222,7 @@ msgid ""
 "persistence."
 msgstr ""
 "``save()`` выполняет кодирование автоматически, поскольку поток энкодера "
-"пуст. Вызывайте ``encode()`` явно, только если сериализация нужна до "
-"сохранения."
+"пуст. Вызывайте ``encode()`` явно, если сериализация нужна до сохранения."
 
 #: ../../source/api/usage/pipeline.rst:27
 msgid "Shortcuts"
@@ -248,12 +245,12 @@ msgstr ""
 " кодирования."
 
 #: ../../source/api/usage/pipeline.rst:32
-msgid "``as_obj()`` is the format-specific form of ``convert_to()``."
-msgstr "``as_obj()`` — вариант ``convert_to()`` для конкретного формата."
-
-#: ../../source/api/usage/pipeline.rst:33
 msgid "``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``."
 msgstr "``convert(ObjEncoder)`` декодирует, кодирует и возвращает ``bytes``."
+
+#: ../../source/api/usage/pipeline.rst:33
+msgid "``as_obj()`` is the format-specific form of ``convert_to()``."
+msgstr "``as_obj()`` вызывает ``convert_to()`` для конкретного формата."
 
 #: ../../source/api/usage/pipeline.rst:49
 msgid ""
@@ -325,11 +322,11 @@ msgstr ""
 
 #: ../../source/api/usage/pipeline.rst:103
 msgid ""
-"Read an external output stream before the encoder closes, because the "
-"encoder owns that stream."
+"When an external output stream is passed to an encoder, read it before "
+"the encoder closes because it owns that stream."
 msgstr ""
-"Читайте внешний выходной поток до закрытия энкодера, поскольку энкодер "
-"владеет этим потоком."
+"Если энкодеру передан внешний выходной поток, прочитайте его до закрытия:"
+" этот поток принадлежит энкодеру."
 
 # ============================================================================
 # No translation required.

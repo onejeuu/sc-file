@@ -2,7 +2,7 @@
 OL Format.
 
 :Name: **Object Layer**
-:Type: **🧱 Texture and Cubemap Decoder**
+:Type: **🧱 Texture Decoder**
 :Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#ol-object-layer-ol-bt>`_
 :Suffix: ``.ol``
 :Support: ``✅ Full``

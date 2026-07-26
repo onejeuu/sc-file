@@ -18,7 +18,7 @@ Automatic Conversion
   convert.auto("model.mcsb", output="path/to/output")
 
 When ``output`` is omitted, the result is written alongside the source.
-For automatic conversion, ``output`` is a directory.
+For automatic conversion, ``output`` must be a directory.
 
 
 Named Conversion

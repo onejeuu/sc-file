@@ -10,7 +10,7 @@ High-level conversion is built from three independent parts:
 A decoder reads one binary format into content.
 An encoder writes compatible content into another binary format.
 Content is the shared representation between them.
-This separation allows decoded content to be inspected or passed to any compatible encoder without reading the source again.
+This separation lets content be inspected, changed, or encoded independently of its source.
 
 
 Handlers
@@ -18,7 +18,7 @@ Handlers
 
 Format handlers inherit from :class:`~scfile.core.decoder.FileDecoder` or
 :class:`~scfile.core.encoder.FileEncoder`.
-The commonly used handlers are available directly from :mod:`scfile.formats`.
+Handlers for individual formats are available directly from :mod:`scfile.formats`.
 
 .. code-block:: python
 
@@ -27,15 +27,14 @@ The commonly used handlers are available directly from :mod:`scfile.formats`.
   with McsbDecoder("model.mcsb") as mcsb:
       content = mcsb.decode()
 
-A decoder does not return format-specific wrapper objects.
-It returns a content DTO such as :class:`~scfile.core.content.ModelContent` or
-:class:`~scfile.core.content.TextureContent`.
+:meth:`~scfile.core.decoder.FileDecoder.decode` returns a content DTO such as
+:class:`~scfile.core.content.ModelContent` or :class:`~scfile.core.content.TextureContent`.
 
 
 Content
 ----------------------------------------
 
-Content contains ordinary Python objects and NumPy arrays that may be inspected or changed before encoding.
+Content is a hierarchy of dataclasses. Model data also uses NumPy arrays.
 It remains usable after the decoder is closed.
 
 .. code-block:: python
@@ -61,7 +60,7 @@ Creating a handler from a path opens the file immediately.
 Raw bytes are wrapped in an in-memory stream.
 Passing an existing binary stream transfers its ownership to the handler, which closes the stream when it closes.
 
-Use a context manager whenever possible:
+Use a context manager (the ``with`` statement) whenever possible:
 
 .. code-block:: python
 

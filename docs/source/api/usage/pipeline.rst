@@ -29,15 +29,12 @@ Shortcuts
 :class:`~scfile.core.decoder.FileDecoder` provides three levels of shorthand:
 
 * ``convert_to(ObjEncoder)`` decodes and returns an encoder without encoding it.
-* ``as_obj()`` is the format-specific form of ``convert_to()``.
 * ``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``.
+* ``as_obj()`` is the format-specific form of ``convert_to()``.
 
 .. code-block:: python
 
   from scfile.formats import McsbDecoder, ObjEncoder
-
-  with McsbDecoder("model.mcsb") as mcsb:
-      mcsb.as_obj().save("model.obj")
 
   with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder) as obj:
@@ -45,6 +42,9 @@ Shortcuts
 
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
+
+  with McsbDecoder("model.mcsb") as mcsb:
+      mcsb.as_obj().save("model.obj")
 
 These methods do not close the decoder.
 Its lifecycle is still controlled by its context manager.
@@ -100,4 +100,4 @@ Encoders use an in-memory stream by default or accept an output stream explicitl
           obj.encode()
           data = output.getvalue()
 
-Read an external output stream before the encoder closes, because the encoder owns that stream.
+When an external output stream is passed to an encoder, read it before the encoder closes because it owns that stream.
