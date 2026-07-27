@@ -17,12 +17,11 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.core import Options
-from scfile.core.options import ON_CONFLICT_OPTIONS
 from scfile.gui import workers
 from scfile.gui.shared import consts, strings
 from scfile.gui.shared.consts import FT
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import PathInputWidget, SourcesWidget, WarningsWidget
+from scfile.gui.widgets import ConflictWidget, PathInputWidget, SourcesWidget, WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertWorker
 from scfile.gui.workers.counter import CounterWorker
 
@@ -277,43 +276,9 @@ class ConverterTab(QWidget):
         self.right.addWidget(self.structure)
 
     def _build_onconflict(self):
-        group = QWidget()
-        layout = QVBoxLayout(group)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(2)
-
-        label = QLabel(strings.get("label.onconflict"))
-        label.setStyleSheet(Styles.LABEL)
-        layout.addWidget(label)
-
-        toggle_group = QWidget()
-        toggle_layout = QHBoxLayout(toggle_group)
-        toggle_layout.setContentsMargins(0, 0, 0, 0)
-        toggle_layout.setSpacing(0)
-
-        self.on_conflict = QButtonGroup(self)
-        self.on_conflict.setExclusive(True)
-
-        for option in ON_CONFLICT_OPTIONS:
-            btn = QPushButton(strings.get(f"option.onconflict.{option}"))
-            btn.setCheckable(True)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setProperty("conflict_option", option)
-            btn.setStyleSheet(Styles.TOGGLE_ITEM)
-            self.on_conflict.addButton(btn)
-            toggle_layout.addWidget(btn)
-
-        self.on_conflict.buttons()[0].setChecked(True)
-        toggle_group.setStyleSheet(Styles.TOGGLE_GROUP)
-
-        hint = QLabel(strings.get("hint.onconflict"))
-        hint.setStyleSheet(Styles.HINT)
-
-        layout.addWidget(toggle_group)
-        layout.addWidget(hint)
-
+        self.on_conflict = ConflictWidget()
         self.right.addSpacing(10)
-        self.right.addWidget(group)
+        self.right.addWidget(self.on_conflict)
 
     def _handle_sources(self):
         self._sync_counter()
@@ -396,15 +361,13 @@ class ConverterTab(QWidget):
         ft_skeleton = self.feat_checks[FT.SKELETON.id]
         ft_animation = self.feat_checks[FT.ANIMATION.id]
 
-        on_conflict = self.on_conflict.checkedButton()
-
         context = ConvertContext(
             whitelist=self._get_suffixes(),
             options=Options(
                 model_formats=[fmt.id] if fmt else None,
                 skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
                 animation=ft_animation.isEnabled() and ft_animation.isChecked(),
-                on_conflict=on_conflict.property("conflict_option") if on_conflict else "overwrite",
+                on_conflict=self.on_conflict.value(),
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),

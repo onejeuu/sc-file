@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
@@ -9,12 +10,28 @@ from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 
 
+PathMode = Literal["directory", "open", "save"]
+
+
 class PathInputWidget(QWidget):
     changed = Signal(str)
 
-    def __init__(self, placeholder: str, caption: str, parent=None):
+    def __init__(
+        self,
+        placeholder: str,
+        caption: str,
+        mode: PathMode = "directory",
+        file_filter: str = "",
+        default_suffix: str = "",
+        initial_path: str = "",
+        parent=None,
+    ):
         super().__init__(parent)
         self.caption = caption
+        self.mode = mode
+        self.file_filter = file_filter
+        self.default_suffix = default_suffix
+        self.initial_path = initial_path
         self._setup_ui(placeholder)
 
     def _setup_ui(self, placeholder):
@@ -31,7 +48,8 @@ class PathInputWidget(QWidget):
         self.browse_btn.setStyleSheet(Styles.BUTTON)
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedSize(30, 30)
-        self.browse_btn.setToolTip(strings.get("tooltip.path_browse"))
+        tooltip = "tooltip.path_browse" if self.mode == "directory" else "tooltip.file_browse"
+        self.browse_btn.setToolTip(strings.get(tooltip))
 
         self.browse_btn.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.browse_btn.customContextMenuRequested.connect(self._open_in_explorer)
@@ -41,10 +59,21 @@ class PathInputWidget(QWidget):
         layout.addWidget(self.browse_btn)
 
     def _browse(self):
-        directory = QFileDialog.getExistingDirectory(self, self.caption)
-        if directory:
-            self.line_edit.setText(directory)
-            self.changed.emit(directory)
+        initial_path = self.text().strip() or self.initial_path
+
+        match self.mode:
+            case "open":
+                path, _ = QFileDialog.getOpenFileName(self, self.caption, initial_path, self.file_filter)
+            case "save":
+                path, _ = QFileDialog.getSaveFileName(self, self.caption, initial_path, self.file_filter)
+                if path and self.default_suffix and not Path(path).suffix:
+                    path += self.default_suffix
+            case _:
+                path = QFileDialog.getExistingDirectory(self, self.caption, initial_path)
+
+        if path:
+            self.line_edit.setText(path)
+            self.changed.emit(path)
 
     def _open_in_explorer(self):
         text = self.line_edit.text().strip()
@@ -54,6 +83,8 @@ class PathInputWidget(QWidget):
 
         try:
             path = Path(text)
+            if self.mode != "directory" and (path.is_file() or path.suffix):
+                path = path.parent
 
             if not path.exists() and not path.is_file():
                 path.mkdir(exist_ok=True, parents=True)

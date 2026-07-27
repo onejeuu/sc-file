@@ -5,15 +5,11 @@ Model animation export.
 from collections import defaultdict
 from dataclasses import replace
 from pathlib import Path
-from typing import Optional
 
 from scfile import exceptions, formats, types
 from scfile.core import ModelContent, Options
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
-
-from .convert import ensure_unique_path
-
 
 ANIMATION_MODELS_LIMIT = 8
 
@@ -57,7 +53,6 @@ def animate(
     animation: types.PathLike,
     *models: types.PathLike,
     output: types.OutputLike = None,
-    options: Optional[Options] = None,
 ) -> None:
     """Export model geometry with MCVD animations to GLB."""
 
@@ -87,13 +82,7 @@ def animate(
     out_dir.mkdir(exist_ok=True, parents=True)
     output_path = out_dir / out_name
 
-    options = replace(options or Options(), skeleton=True, animation=True)
-
-    match options.on_conflict:
-        case "skip" if output_path.exists():
-            return
-        case "rename":
-            output_path = ensure_unique_path(output_path)
+    options = Options(skeleton=True, animation=True)
 
     # Decode animation and geometry sources
     with formats.McvdDecoder(animation_path, options) as mcvd:

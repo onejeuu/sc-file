@@ -18,6 +18,7 @@ from scfile.utils import files
 
 from .shared import consts, strings
 from .shared.styles import Styles
+from .tabs.animate import AnimateTab
 from .tabs.convert import ConverterTab
 from .tabs.mapcache import MapCacheTab
 
@@ -72,6 +73,11 @@ class MainWindow(QMainWindow):
             widget=ConverterTab(),
             name=strings.get("tab.converter"),
             icon="assets/converter.png",
+        )
+        self._add_tab(
+            widget=AnimateTab(),
+            name=strings.get("tab.animate"),
+            icon="assets/animate.png",
         )
         self._add_tab(
             widget=MapCacheTab(),
