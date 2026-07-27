@@ -128,25 +128,25 @@ class GlbEncoder(FileEncoder[ModelContent]):
                     self._create_accessor(len(mesh.vertices), "VEC3", array=shape.deltas)
 
             # UV Texture
-            if self.data.flags[Flag.UV]:
+            if self.data.flags[Flag.UV] and mesh.uv1.size:
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC2")
 
             # UV Texture (2)
-            if self.data.flags[Flag.UV2]:
+            if self.data.flags[Flag.UV2] and mesh.uv2.size:
                 primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC2")
 
             # XYZ Normals
-            if self.data.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS] and mesh.normals.size:
                 primitive["attributes"]["NORMAL"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC3")
 
             # XYZW Tangents
-            if self.data.flags[Flag.TANGENTS]:
+            if self.data.flags[Flag.TANGENTS] and mesh.tangents.size:
                 primitive["attributes"]["TANGENT"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC4")
@@ -343,19 +343,19 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 self.write(shape.deltas.tobytes())
 
             # UV Texture
-            if self.data.flags[Flag.UV]:
+            if self.data.flags[Flag.UV] and mesh.uv1.size:
                 self.write(mesh.uv1.tobytes())
 
             # UV Texture (2)
-            if self.data.flags[Flag.UV2]:
+            if self.data.flags[Flag.UV2] and mesh.uv2.size:
                 self.write(mesh.uv2.tobytes())
 
             # XYZ Normals
-            if self.data.flags[Flag.NORMALS]:
+            if self.data.flags[Flag.NORMALS] and mesh.normals.size:
                 self.write(mesh.normals.tobytes())
 
             # XYZW Tangents
-            if self.data.flags[Flag.TANGENTS]:
+            if self.data.flags[Flag.TANGENTS] and mesh.tangents.size:
                 self.write(mesh.tangents.tobytes())
 
             # Bone Links
