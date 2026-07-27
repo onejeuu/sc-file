@@ -1,6 +1,7 @@
 from io import BytesIO
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from scfile.core import Options
@@ -12,6 +13,7 @@ from scfile.formats.fbx import FbxEncoder
 from scfile.formats.glb import GlbEncoder
 from scfile.formats.mcal.decoder import McalDecoder
 from scfile.formats.mcsa.exceptions import McsaVersionUnsupported
+from scfile.formats.mcsa.io import McsaFileIO
 from scfile.formats.mcsb import McsbDecoder
 from scfile.formats.ms3d import Ms3dEncoder
 from scfile.formats.ms3d.exceptions import Ms3dCountsLimit
@@ -81,6 +83,7 @@ def test_animodel():
     with McalDecoder(src) as dec:
         data = dec.decode()
 
+    assert data.scene.scale.position == 2.0
     assert len(data.scene.animation.clips) >= 1
 
 
@@ -105,3 +108,13 @@ def test_ms3d_writecount_limit():
 
     with pytest.raises(Ms3dCountsLimit):
         _Enc()._writecount("vertices", 1000, 512)
+
+
+def test_mcsa_readclip_scale():
+    class _IO(McsaFileIO, BytesIO):
+        pass
+
+    frame = np.array([0, 0, 0, 16384, 16384, -16384, 32767], dtype="<i2")
+    _, translations = _IO(frame.tobytes())._readclip(1, 1, 0, 2.0)
+
+    assert np.allclose(translations[0, 0], frame[4:] * (2.0 / 32767.0))

@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCAL.bt
 // Authors: onejeuu
-// Version: 2.1
+// Version: 2.2
 // Purpose: Parse skeletal animation libraries.
 // Category: STALCRAFT
 // File Mask: *.mcal
@@ -40,7 +40,7 @@ float version <name="Version", fgcolor=cRed>;
 
 struct BoneTransform {
     Vec4s rotation <name="Rotation", bgcolor=cGray>;
-    Vec3s translation <name="Translation", bgcolor=cWhite>;
+    Vec3s translation <name="Translation", bgcolor=cWhite;
 };
 
 struct KeyFrame {
@@ -55,8 +55,8 @@ typedef struct {
 } Clip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Animation {
-    uint boneCount <name="Bone Count", bgcolor=cPurple>;
-    ubyte unknown <fgcolor=cBlack, comment="Often 64. Maybe some buffer size?">;
+    ubyte boneCount <name="Bone Count", bgcolor=cPurple>;
+    float positionScale <name="Position Scale">;
     int  clipCount <name="Clip Count", bgcolor=cBlue>;
     if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
 } animation <name="Animation Library">;

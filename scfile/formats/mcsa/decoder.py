@@ -292,7 +292,13 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         self._checklimit(transforms, Limit.TRANSFORMS)
         self._checklimit(clip.frames * channels, Limit.WEIGHTS)
 
-        rotations, translations = self._readclip(clip.frames, self.ctx["COUNT_BONES"], channels)
+        rotations, translations = self._readclip(
+            clip.frames,
+            self.ctx["COUNT_BONES"],
+            channels,
+            self.data.scene.scale.position,
+        )
+
         clip.rotations = rotations
         clip.translations = translations
 
