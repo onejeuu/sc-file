@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 from scfile.gui import workers
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import PathInputWidget
+from scfile.gui.widgets import PathInputWidget, WarningsWidget
 from scfile.gui.workers.animate import AnimateWorker
 
 
@@ -16,7 +16,17 @@ class AnimateTab(QWidget):
         super().__init__()
         self._worker: AnimateWorker | None = None
         self._worker_thread: QThread | None = None
+        self._setup_warnings()
         self._build_ui()
+
+    def _setup_warnings(self) -> None:
+        self.warnings = WarningsWidget()
+        self.warnings.add_rule(self._warn_not_fp_animation)
+
+    def _warn_not_fp_animation(self) -> str | None:
+        animation = Path(self.animation.text().strip())
+        if animation.suffix.lower() == ".mcvd" and "fp_" not in animation.stem.lower():
+            return strings.get("warning.animate.not_fp")
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -29,6 +39,7 @@ class AnimateTab(QWidget):
             caption=strings.get("dialog.animate.animation"),
             file_filter="MCVD (*.mcvd)",
         )
+        layout.addWidget(self.warnings)
         self.model = self._add_path(
             layout,
             label=strings.get("label.animate.model"),
@@ -105,6 +116,8 @@ class AnimateTab(QWidget):
         self.additional_model.setEnabled(is_mcvd)
         if animation:
             self.output.initial_path = Path(animation).with_suffix(".glb").name
+
+        self.warnings.update_state()
 
         animation_ok = self._valid_file(animation, ".mcvd")
         model_ok = self._valid_file(model, ".mcsb")
