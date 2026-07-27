@@ -16,7 +16,6 @@ class SceneScales:
     position: float = 1.0
     uv: float = 1.0
     uv2: float = 1.0
-    filtering: float = 0.1
 
 
 @dataclass

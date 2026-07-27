@@ -128,7 +128,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # ? Not exported
         if self.data.flags[Flag.UV]:
-            self.data.scene.scale.filtering = self._readb(F.F32)
+            mesh.mip_factor = self._readb(F.F32)
 
         if self.data.version >= 10.0:
             mesh.bounds.min = self._readarray(F.F32, 3)

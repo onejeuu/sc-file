@@ -37,6 +37,7 @@ class ModelMesh:
     bounds: MeshBounds = field(default_factory=MeshBounds)
     polygon_quads: bool = False
     has_blend_shapes: bool = False
+    mip_factor: float = 0.1
 
     bones: BonesMapping = field(default_factory=dict)
 

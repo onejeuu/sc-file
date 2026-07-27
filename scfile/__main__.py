@@ -21,8 +21,10 @@ def _run_gui() -> None:  # pragma: no cover
     except ImportError:
         print(traceback.format_exc())
         print(f"{L.ERROR} GUI is not available")
-        print(f"{L.INFO} Try install with: pip install {escape('sc-file[gui]')}")
-        print(f"{L.INFO} Or if your system does not support graphical interfaces, use command line: scfile --help")
+        print(f"{L.INFO} Try install with: pip install {escape('sc-file[gui]')} -U")
+        print(f"{L.INFO} Or in local environment: uv sync --extra gui")
+        print()
+        print(f"{L.HINT} If your system does not support graphical interfaces, use command line: scfile --help")
         input("\nPress Enter to exit...")
         sys.exit(1)
 
