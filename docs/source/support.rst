@@ -10,7 +10,7 @@
 ``.mcsb`` ``.mcsa``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``
+| Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
 
 .. list-table::
   :header-rows: 1
@@ -63,8 +63,8 @@
 ``.efkmodel``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Supported versions: ``5``
-| Output: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``
+| Supported versions: ``5``.
+| Output: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``.
 
 
 ----------------------------------------
@@ -74,8 +74,8 @@
 ``.ol``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)
-| Texture kinds: ``Default (2D)``, ``Cubemap``
+| Output: ``.dds`` (`DirectDraw Surface <DDS_>`_).
+| Texture kinds: ``Default (2D)``, ``Cubemap``.
 
 .. list-table::
   :header-rows: 1
@@ -125,8 +125,7 @@
 ``.mic``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Output: ``.png`` (`Portable Network Graphics <PNG_>`_)
-| Only difference from standard PNG is the file signature.
+| Output: ``.png`` (`Portable Network Graphics <PNG_>`_).
 
 
 ----------------------------------------
@@ -136,8 +135,8 @@
 ``.texarr``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Output: ``.zip`` (`ZIP <ZIP_>`_)
-| Contains ``.dds`` textures.
+| Output: ``.zip`` (`ZIP <ZIP_>`_).
+| Contains ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
 
 
 ----------------------------------------
@@ -155,6 +154,6 @@
 ⚙️ NBT Formats
 ----------------------------------------
 
-| Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)
-| Compression: ``RAW``, ``GZIP``, ``ZSTD``
-| Supported files: ``stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0..4``
+| Output: ``.json`` (`JavaScript Object Notation <JSON_>`_).
+| Compression: ``RAW``, ``GZIP``, ``ZSTD``.
+| Supported files: ``stalker/itemnames.dat``, ``config/prefs``, ``config/%Name%/common``, ``config/%Name%/sd0..4``.

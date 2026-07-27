@@ -59,7 +59,6 @@
 | `Mipmapped texel data <KHRONOS_>`_ compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
 | `Mipmaps <MIPMAP_>`_ compressed with `LZ4`_.
 | Texture kinds: Default (2D), Cubemap.
-| Metadata: Path hash.
 | Normal map textures may be inverted.
 
 .. list-table:: Texture Suffix Conventions
@@ -72,19 +71,19 @@
   * - ``_diff``
     - Diffuse
     - Base Color
-    - Raw surface color without lighting or reflections.
+    - Raw surface color
   * - ``_spek``
     - Specular
     - Reflectivity Control
-    - Intensity and sharpness of highlights.
+    - Intensity of highlights
   * - ``_nrm``
     - Normal
     - Surface Detail
-    - Simulates bumps and dents without changing geometry.
+    - Simulates bumps and dents
   * - ``_emi``
     - Emission
     - Self Illumination
-    - Makes parts glow or emit light independently.
+    - Creates independent glow
 
 
 ----------------------------------------
@@ -95,7 +94,7 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | ``.png`` (`Portable Network Graphics <PNG_>`_) image with an ``MIC`` file signature.
-| Primarily used for GUI atlases and composed images.
+| Primarily used for GUI and composed images.
 
 
 ----------------------------------------
@@ -105,7 +104,7 @@
 ``.texarr`` Texture Array (TEXARR.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Container for ``.dds`` textures.
+| Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
 | Textures referenced as ``group:path`` (e.g., ``probuilder:general/generic``).
 
 
@@ -116,17 +115,18 @@
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Region container for 32×32 terrain chunks, historically based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
-| Uses 4 KiB sectors with allocation and UUID metadata for each chunk.
-| Chunk data includes blocks, metadata, lighting and extended data compressed with `ZSTD`_.
+| Region container for 32×32 terrain chunks.
+| Historically based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
+| Chunk data includes blocks, metadata, lighting and extended data.
+| Chunk data compressed with `ZSTD`_.
 
 
 ----------------------------------------
 ⚙️ NBT Formats
 ----------------------------------------
 
-| **NBT** (`Named Binary Tag <NBT_>`_) format, viewable with tools like `NBT Explorer <NBTE_>`_.
-| In game assets used `GZIP`_ or `ZSTD`_ compression.
+| **NBT** (`Named Binary Tag <NBT_>`_) format.
+| Used `GZIP`_ or `ZSTD`_ compression.
 
 Assets
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -139,7 +139,7 @@ Assets
     - Purpose
   * - ``stalker/itemnames.dat``
     - ``GZIP``
-    - Quest item descriptions.
+    - Some quest item descriptions
 
 Configs
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -153,7 +153,7 @@ Configs
     - Keys (examples)
   * - ``prefs``
     - ``ZSTD``
-    - UI read state cache.
+    - UI read state cache
     - ``seenArticleLinks[], seenExperiences[], hasSeen*``
 
 Per-Character Configs
@@ -171,31 +171,33 @@ Per-Character Configs
     - Keys (examples)
   * - ``common``
     - ``ZSTD``
-    - General settings and UI states.
+    - General settings and UI states
     - ``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``
   * - ``sd0``
     - ``ZSTD``
-    - Incoming friend requests.
+    - Incoming friend requests
     - ``requests[]``
   * - ``sd1``
     - ``ZSTD``
-    - Recent interactions (last 200 players).
+    - Recent interactions (last 200 players)
     - ``interacts[{allianceId, type, username}]``
   * - ``sd2``
     - ``ZSTD``
-    - Notifications history (last 100 popups).
+    - Notifications history (last 100 popups)
     - ``notifications[{isRead, receivedMoment, notification{...}}]``
   * - ``sd3``
     - ``ZSTD``
-    - Donate shop view history.
+    - Donate shop view history
     - ``observedOffers[]``
   * - ``sd4``
     - ``ZSTD``
-    - Profile customization UI state.
+    - Profile customization UI state
     - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
 
-Config Formats
-^^^^^^^^^^^^^^^^^^^^^^
+
+----------------------------------------
+🛠️ Config Formats
+----------------------------------------
 
 .. list-table::
   :header-rows: 1
@@ -204,52 +206,53 @@ Config Formats
     - Format
     - Purpose
   * - ``display``
-    - Text
-    - Selected display ID.
+    - TEXT
+    - Selected display ID
   * - ``keybindings``
     - JSON
-    - Keyboard control mappings.
+    - Keyboard control mappings
   * - ``options.json``
     - JSON
-    - Game settings (graphics, audio, gameplay).
+    - Game settings (graphics, audio, gameplay)
   * - ``quests.json``
     - JSON
-    - Quest visibility toggles.
+    - Quest visibility toggles
   * - ``waypoints.cfg``
     - JSON
-    - Custom map markers.
+    - Custom map markers
 
 
 ----------------------------------------
-Other Formats
+🗂️ Other Formats
 ----------------------------------------
 
 ``.xeon`` Encrypted Object Notation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Sensitive client data bundle. `AES Encrypted <AES_>`_.
+| `AES Encrypted <AES_>`_.
+| Sensitive client data bundle.
 | Mirrors the assets folder structure.
 
 ``.mcws`` World Slice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| `AES-encrypted <AES_>`_ world slice used to render scene in settlement progression screens.
-| Loaded as a separate local world with its own renderer and camera.
+| `AES Encrypted <AES_>`_.
+| World slice used to render scene in settlement progression screens.
 
 
 ----------------------------------------
-Launcher Formats
+🕹️ Launcher Formats
 ----------------------------------------
 
 ``.map`` Hash Mappings (HASHMAP.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Hash Mapping (SHA-1) for game files.
-| Used by launcher to verify game assets integrity.
+| Hash Mapping (SHA-1) for game assets.
+| Used by launcher to verify files integrity.
 
 ``.torrent.bin`` Torrent Binary (TORRENT.bt_)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
-| Used by launcher for content delivery.
+| Used by launcher for game content delivery.
 | Trackers block unauthorized access (token required).

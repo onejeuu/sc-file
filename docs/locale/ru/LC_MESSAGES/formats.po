@@ -107,10 +107,6 @@ msgstr "`Мипмапы <MIPMAP_>`_ сжаты с помощью `LZ4`_."
 msgid "Texture kinds: Default (2D), Cubemap."
 msgstr "Виды текстур: Default (2D), Cubemap."
 
-#: ../../source/formats.rst:62
-msgid "Metadata: Path hash."
-msgstr "Метаданные: хеш пути."
-
 #: ../../source/formats.rst:63
 msgid "Normal map textures may be inverted."
 msgstr "Текстуры карт нормалей могут быть инвертированы."
@@ -137,53 +133,21 @@ msgstr "Тип"
 msgid "Purpose"
 msgstr "Назначение"
 
-#: ../../source/formats.rst:73
-msgid "Diffuse"
-msgstr "Диффузная"
-
-#: ../../source/formats.rst:74
-msgid "Base Color"
-msgstr "Базовый цвет"
-
 #: ../../source/formats.rst:75
-msgid "Raw surface color without lighting or reflections."
-msgstr "Необработанный цвет поверхности."
-
-#: ../../source/formats.rst:77
-msgid "Specular"
-msgstr "Блики"
-
-#: ../../source/formats.rst:78
-msgid "Reflectivity Control"
-msgstr "Управление отражениями"
+msgid "Raw surface color"
+msgstr "Цвет поверхности"
 
 #: ../../source/formats.rst:79
-msgid "Intensity and sharpness of highlights."
-msgstr "Интенсивность и резкость подсветки"
-
-#: ../../source/formats.rst:81
-msgid "Normal"
-msgstr "Нормали"
-
-#: ../../source/formats.rst:82
-msgid "Surface Detail"
-msgstr "Детали поверхности"
+msgid "Intensity of highlights"
+msgstr "Интенсивность подсветки"
 
 #: ../../source/formats.rst:83
-msgid "Simulates bumps and dents without changing geometry."
-msgstr "Имитирует неровности и вмятины без изменения геометрии"
-
-#: ../../source/formats.rst:85
-msgid "Emission"
-msgstr "Эмиссия"
-
-#: ../../source/formats.rst:86
-msgid "Self Illumination"
-msgstr "Самосвечение"
+msgid "Simulates bumps and dents"
+msgstr "Имитирует неровности и вмятины"
 
 #: ../../source/formats.rst:87
-msgid "Makes parts glow or emit light independently."
-msgstr "Заставляет части светиться независимо"
+msgid "Creates independent glow"
+msgstr "Создает независимое свечение"
 
 #: ../../source/formats.rst:92
 msgid "🖼️ Image Formats"
@@ -198,23 +162,23 @@ msgstr ""
 "файла ``MIC``."
 
 #: ../../source/formats.rst:98
-msgid "Primarily used for GUI atlases and composed images."
-msgstr "В основном используется для атласов GUI и составных изображений."
+msgid "Primarily used for GUI and composed images."
+msgstr "В основном используется для GUI и составных изображений."
 
 #: ../../source/formats.rst:103
 msgid "🗃️ TextureArray Formats"
 msgstr "🗃️ Массив Текстур"
 
 #: ../../source/formats.rst:108
-msgid "Container for ``.dds`` textures."
-msgstr "Контейнер для ``.dds`` текстур."
+msgid "Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures."
+msgstr "Контейнер для ``.dds`` (`DirectDraw Surface <DDS_>`_) текстур."
 
 #: ../../source/formats.rst:109
 msgid ""
 "Textures referenced as ``group:path`` (e.g., "
 "``probuilder:general/generic``)."
 msgstr ""
-"Текстуры, ссылающиеся как ``group:path`` (например, "
+"Текстуры ссылаются как ``group:path`` (например, "
 "``probuilder:general/generic``)."
 
 #: ../../source/formats.rst:114
@@ -222,40 +186,32 @@ msgid "🗺 Region Formats"
 msgstr "🗺 Регион"
 
 #: ../../source/formats.rst:119
-msgid ""
-"Region container for 32×32 terrain chunks, historically based on ``.mca``"
-" (`Minecraft Chunks Anvil <ANVIL_>`_)."
-msgstr ""
-"Контейнер регионов для 32×32 чанков местности, исторически основанный на "
-"``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_)."
+msgid "Region container for 32×32 terrain chunks."
+msgstr "Контейнер регионов для 32×32 чанков мира."
 
 #: ../../source/formats.rst:120
-msgid "Uses 4 KiB sectors with allocation and UUID metadata for each chunk."
-msgstr "Использует секторы по 4 КиБ с данными размещения и UUID каждого чанка."
+msgid "Historically based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_)."
+msgstr "Исторически основан на ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_)."
 
 #: ../../source/formats.rst:121
-msgid ""
-"Chunk data includes blocks, metadata, lighting and extended data "
-"compressed with `ZSTD`_."
-msgstr ""
-"Данные чанков содержат блоки, метаданные, освещение и расширенные данные,"
-" сжатые с помощью `ZSTD`_."
+msgid "Chunk data includes blocks, metadata, lighting and extended data."
+msgstr "Чанки содержат блоки, метаданные, освещение и доп. данные."
+
+#: ../../source/formats.rst:122
+msgid "Chunk data compressed with `ZSTD`_."
+msgstr "Чанки сжаты с помощью `ZSTD`_."
 
 #: ../../source/formats.rst:126
 msgid "⚙️ NBT Formats"
 msgstr "⚙️ NBT"
 
 #: ../../source/formats.rst:128
-msgid ""
-"**NBT** (`Named Binary Tag <NBT_>`_) format, viewable with tools like "
-"`NBT Explorer <NBTE_>`_."
-msgstr ""
-"Формат **NBT** (`Named Binary Tag <NBT_>`_), можно просматривать "
-"инструментами такими как `NBT Explorer <NBTE_>`_."
+msgid "**NBT** (`Named Binary Tag <NBT_>`_) format."
+msgstr "Формат **NBT** (`Named Binary Tag <NBT_>`_)."
 
 #: ../../source/formats.rst:129
-msgid "In game assets used `GZIP`_ or `ZSTD`_ compression."
-msgstr "В игровых ассетах используются сжатия `GZIP`_ или `ZSTD`_."
+msgid "Used `GZIP`_ or `ZSTD`_ compression."
+msgstr "Используются сжатия `GZIP`_ или `ZSTD`_."
 
 #: ../../source/formats.rst:132
 msgid "Assets"
@@ -264,7 +220,7 @@ msgstr "Ассеты"
 #: ../../source/formats.rst:137 ../../source/formats.rst:150
 #: ../../source/formats.rst:168 ../../source/formats.rst:203
 msgid "Filename"
-msgstr "Имя файла"
+msgstr "Файл"
 
 #: ../../source/formats.rst:138 ../../source/formats.rst:151
 #: ../../source/formats.rst:169
@@ -272,8 +228,8 @@ msgid "Compression"
 msgstr "Сжатие"
 
 #: ../../source/formats.rst:142
-msgid "Quest item descriptions."
-msgstr "Описания предметов квестов."
+msgid "Some quest item descriptions"
+msgstr "Описания некоторых квестовых предметов"
 
 #: ../../source/formats.rst:145
 msgid "Configs"
@@ -284,12 +240,12 @@ msgid "Keys (examples)"
 msgstr "Ключи (примеры)"
 
 #: ../../source/formats.rst:156
-msgid "UI read state cache."
-msgstr "Кэш состояния UI."
+msgid "UI read state cache"
+msgstr "Кэш состояния UI"
 
 #: ../../source/formats.rst:160
 msgid "Per-Character Configs"
-msgstr "Конфиги персонажа."
+msgstr "Конфиги персонажа"
 
 #: ../../source/formats.rst:162
 msgid "Located in ``/config/%CharacterName%/``."
@@ -304,68 +260,68 @@ msgstr ""
 "состояние UI игрока, кэшированные локально."
 
 #: ../../source/formats.rst:174
-msgid "General settings and UI states."
-msgstr "Общие настройки и состояния UI."
+msgid "General settings and UI states"
+msgstr "Общие настройки и состояния UI"
 
 #: ../../source/formats.rst:178
-msgid "Incoming friend requests."
-msgstr "Входящие запросы на дружбу."
+msgid "Incoming friend requests"
+msgstr "Входящие запросы на дружбу"
 
 #: ../../source/formats.rst:182
-msgid "Recent interactions (last 200 players)."
-msgstr "Последние взаимодействия (последние 200 игроков)."
+msgid "Recent interactions (last 200 players)"
+msgstr "Последние взаимодействия (последние 200 игроков)"
 
 #: ../../source/formats.rst:186
-msgid "Notifications history (last 100 popups)."
-msgstr "История уведомлений (последние 100 окон)."
+msgid "Notifications history (last 100 popups)"
+msgstr "История уведомлений (последние 100 окон)"
 
 #: ../../source/formats.rst:190
-msgid "Donate shop view history."
-msgstr "История просмотра магазина."
+msgid "Donate shop view history"
+msgstr "История просмотра магазина"
 
 #: ../../source/formats.rst:194
-msgid "Profile customization UI state."
-msgstr "Состояние UI для кастомизации профиля."
+msgid "Profile customization UI state"
+msgstr "Состояние UI кастомизации профиля"
 
 #: ../../source/formats.rst:198
-msgid "Config Formats"
-msgstr "Форматы конфигов."
+msgid "🛠️ Config Formats"
+msgstr "🛠️ Конфиги"
 
 #: ../../source/formats.rst:204
 msgid "Format"
 msgstr "Формат"
 
-#: ../../source/formats.rst:207
-msgid "Text"
-msgstr "Текст"
-
 #: ../../source/formats.rst:208
-msgid "Selected display ID."
-msgstr "Выбранный ID дисплея."
+msgid "Selected display ID"
+msgstr "ID монитора"
 
 #: ../../source/formats.rst:211
-msgid "Keyboard control mappings."
+msgid "Keyboard control mappings"
 msgstr "Назначения клавиш управления"
 
 #: ../../source/formats.rst:214
-msgid "Game settings (graphics, audio, gameplay)."
+msgid "Game settings (graphics, audio, gameplay)"
 msgstr "Настройки игры (графика, звук, геймплей)"
 
 #: ../../source/formats.rst:217
-msgid "Quest visibility toggles."
+msgid "Quest visibility toggles"
 msgstr "Переключатели видимости квестов"
 
 #: ../../source/formats.rst:220
-msgid "Custom map markers."
+msgid "Custom map markers"
 msgstr "Пользовательские метки на карте"
 
 #: ../../source/formats.rst:225
-msgid "Other Formats"
-msgstr "Прочие форматы"
+msgid "🗂️ Other Formats"
+msgstr "🗂️ Прочее"
 
 #: ../../source/formats.rst:230
-msgid "Sensitive client data bundle. `AES Encrypted <AES_>`_."
-msgstr "Чувствительные данные клиента. `Зашифровано AES <AES_>`_."
+msgid "`AES Encrypted <AES_>`_."
+msgstr "`Зашифровано AES <AES_>`_."
+
+#: ../../source/formats.rst:230
+msgid "Sensitive client data bundle."
+msgstr "Чувствительные данные клиента."
 
 #: ../../source/formats.rst:231
 msgid "Mirrors the assets folder structure."
@@ -373,39 +329,35 @@ msgstr "Отражает структуру папки ассетов."
 
 #: ../../source/formats.rst:236
 msgid ""
-"`AES-encrypted <AES_>`_ world slice used to render scene in settlement "
+"World slice used to render scene in settlement "
 "progression screens."
 msgstr ""
-"`Зашифрованный AES <AES_>`_ фрагмент мира для отображения сцены на "
-"экранах прогресса поселения."
-
-#: ../../source/formats.rst:237
-msgid "Loaded as a separate local world with its own renderer and camera."
-msgstr "Загружается как отдельный локальный мир со своими рендерером и камерой."
+"Фрагмент мира для отображения сцены на "
+"экранах прогресса безопасной зоны."
 
 #: ../../source/formats.rst:242
-msgid "Launcher Formats"
-msgstr "Лаунчер"
+msgid "🕹️ Launcher Formats"
+msgstr "🕹️ Лаунчер"
 
 #: ../../source/formats.rst:247
-msgid "Hash Mapping (SHA-1) for game files."
-msgstr "Hash Mapping (SHA-1) для файлов игры."
+msgid "Hash Mapping (SHA-1) for game assets."
+msgstr "Hash Mapping (SHA-1) ассетов игры."
 
 #: ../../source/formats.rst:248
-msgid "Used by launcher to verify game assets integrity."
-msgstr "Используется лаунчером для проверки целостности ассетов игры."
+msgid "Used by launcher to verify files integrity."
+msgstr "Используется лаунчером для проверки целостности файлов."
 
 #: ../../source/formats.rst:253
 msgid "Modified ``.torrent`` (`Torrent <TORRENT_>`_) file."
-msgstr "Изменённый ``.torrent`` (`Torrent <TORRENT_>`_) файл."
+msgstr "Модифицированный ``.torrent`` (`Torrent <TORRENT_>`_) файл."
 
 #: ../../source/formats.rst:254
-msgid "Used by launcher for content delivery."
-msgstr "Используется лаунчером для доставки контента."
+msgid "Used by launcher for game content delivery."
+msgstr "Используется лаунчером для скачивания игрового контента."
 
 #: ../../source/formats.rst:255
 msgid "Trackers block unauthorized access (token required)."
-msgstr "Трекеры блокируют доступ без токена."
+msgstr "Трекеры блокируют доступ без авторизации (требуется токен)."
 
 # ============================================================================
 # No translation required.

@@ -18,10 +18,10 @@ msgstr "🧊 Модели"
 #: ../../source/support.rst:13
 msgid ""
 "Supported versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, "
-"``12.0``, ``15.0``"
+"``12.0``, ``15.0``."
 msgstr ""
 "Поддерживаемые версии: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, "
-"``12.0``, ``15.0``"
+"``12.0``, ``15.0``."
 
 #: ../../source/support.rst:18
 msgid "Suffix"
@@ -92,24 +92,24 @@ msgid "Animation-only files produce empty model output."
 msgstr "Файлы только с анимациями создают пустую модель."
 
 #: ../../source/support.rst:66
-msgid "Supported versions: ``5``"
-msgstr "Поддерживаемые версии: ``5``"
+msgid "Supported versions: ``5``."
+msgstr "Поддерживаемые версии: ``5``."
 
 #: ../../source/support.rst:67
-msgid "Output: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``"
-msgstr "Вывод: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``"
+msgid "Output: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``."
+msgstr "Вывод: ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``."
 
 #: ../../source/support.rst:72
 msgid "🧱 Texture Formats"
 msgstr "🧱 Текстуры"
 
 #: ../../source/support.rst:77
-msgid "Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
-msgstr "Вывод: ``.dds`` (`DirectDraw Surface <DDS_>`_)"
+msgid "Output: ``.dds`` (`DirectDraw Surface <DDS_>`_)."
+msgstr "Вывод: ``.dds`` (`DirectDraw Surface <DDS_>`_)."
 
 #: ../../source/support.rst:78
-msgid "Texture kinds: ``Default (2D)``, ``Cubemap``"
-msgstr "Виды текстур: ``Default (2D)``, ``Cubemap``"
+msgid "Texture kinds: ``Default (2D)``, ``Cubemap``."
+msgstr "Виды текстур: ``Default (2D)``, ``Cubemap``."
 
 #: ../../source/support.rst:83
 msgid "Encoded"
@@ -132,24 +132,20 @@ msgid "🖼️ Image Formats"
 msgstr "🖼️ Изображения"
 
 #: ../../source/support.rst:128
-msgid "Output: ``.png`` (`Portable Network Graphics <PNG_>`_)"
-msgstr "Вывод: ``.png`` (`Portable Network Graphics <PNG_>`_)"
-
-#: ../../source/support.rst:129
-msgid "Only difference from standard PNG is the file signature."
-msgstr "Единственное различие от стандартного PNG это сигнатура файла."
+msgid "Output: ``.png`` (`Portable Network Graphics <PNG_>`_)."
+msgstr "Вывод: ``.png`` (`Portable Network Graphics <PNG_>`_)."
 
 #: ../../source/support.rst:134
 msgid "🗃️ TextureArray Formats"
 msgstr "🗃️ Массив Текстур"
 
 #: ../../source/support.rst:139
-msgid "Output: ``.zip`` (`ZIP <ZIP_>`_)"
-msgstr "Вывод: ``.zip`` (`ZIP <ZIP_>`_)"
+msgid "Output: ``.zip`` (`ZIP <ZIP_>`_)."
+msgstr "Вывод: ``.zip`` (`ZIP <ZIP_>`_)."
 
 #: ../../source/support.rst:140
-msgid "Contains ``.dds`` textures."
-msgstr "Содержит текстуры ``.dds``."
+msgid "Contains ``.dds`` (`DirectDraw Surface <DDS_>`_) textures."
+msgstr "Содержит текстуры ``.dds`` (`DirectDraw Surface <DDS_>`_)."
 
 #: ../../source/support.rst:145
 msgid "🗺 Region Formats"
@@ -172,20 +168,20 @@ msgid "⚙️ NBT Formats"
 msgstr "⚙️ NBT"
 
 #: ../../source/support.rst:158
-msgid "Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)"
-msgstr "Вывод: ``.json`` (`JavaScript Object Notation <JSON_>`_)"
+msgid "Output: ``.json`` (`JavaScript Object Notation <JSON_>`_)."
+msgstr "Вывод: ``.json`` (`JavaScript Object Notation <JSON_>`_)."
 
 #: ../../source/support.rst:159
-msgid "Compression: ``RAW``, ``GZIP``, ``ZSTD``"
-msgstr "Сжатие: ``RAW``, ``GZIP``, ``ZSTD``"
+msgid "Compression: ``RAW``, ``GZIP``, ``ZSTD``."
+msgstr "Сжатие: ``RAW``, ``GZIP``, ``ZSTD``."
 
 #: ../../source/support.rst:160
 msgid ""
 "Supported files: ``stalker/itemnames.dat``, ``config/prefs``, "
-"``config/%Name%/common``, ``config/%Name%/sd0..4``"
+"``config/%Name%/common``, ``config/%Name%/sd0..4``."
 msgstr ""
 "Поддерживаемые файлы: ``stalker/itemnames.dat``, ``config/prefs``, "
-"``config/%Name%/common``, ``config/%Name%/sd0..4``"
+"``config/%Name%/common``, ``config/%Name%/sd0..4``."
 
 # ============================================================================
 # No translation required.
