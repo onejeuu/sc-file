@@ -118,8 +118,8 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         counts.polygons = self._readcount(F.U32, Limit.POLYGONS)
 
-        # ? Not exported
-        # TODO Blend Shape Tree
+        # ? Not parsed
+        # Blend Shape Tree
         if self.data.version >= 15.0:
             mesh.has_blend_shapes = self._readb(F.BOOL)
             if mesh.has_blend_shapes:
@@ -173,7 +173,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         # Polygon faces
         mesh.polygons = self._readpolygons(counts.polygons, mesh.polygon_quads)
 
-        # Blend Shape Data
+        # Blend Shape Deltas
         if mesh.has_blend_shapes:
             self._parse_blend_shapes(mesh)
 
