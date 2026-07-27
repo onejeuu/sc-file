@@ -144,6 +144,7 @@ L = ConsoleLabel
 class CliCommand(StrEnum):
     """CLI command names."""
 
+    ANIMATE = auto()
     CONVERT = auto()
     MAPCACHE = auto()
 

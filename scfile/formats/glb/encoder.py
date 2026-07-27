@@ -92,7 +92,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
         if self._skeleton_presented:
             self._create_bones()
-            self._create_bindmatrix()
+            self._create_bindmatrices()
 
         if self._animation_presented:
             self._create_animation()
@@ -173,7 +173,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             node: Node = {"name": mesh.name, "mesh": index}
 
             if skeleton_presented:
-                node["skin"] = 0
+                node["skin"] = self.ctx["MESH_SKINS"][index] if "MESH_SKINS" in self.ctx else 0
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
@@ -210,16 +210,20 @@ class GlbEncoder(FileEncoder[ModelContent]):
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
 
-    def _create_bindmatrix(self):
-        self.ctx["GLTF"]["skins"].append(
-            dict(
-                name="Armature",
-                inverseBindMatrices=self._accessor_index(),
-                joints=self.ctx["BONE_INDEXES"],
+    def _create_bindmatrices(self):
+        skins = self.ctx.get("SKINS", (None,))
+
+        for _ in skins:
+            self.ctx["GLTF"]["skins"].append(
+                dict(
+                    name="Armature",
+                    inverseBindMatrices=self._accessor_index(),
+                    joints=self.ctx["BONE_INDEXES"],
+                )
             )
-        )
-        self._create_bufferview(byte_length=len(self.data.scene.skeleton.bones) * 16 * 4, target=None)
-        self._create_accessor(len(self.data.scene.skeleton.bones), "MAT4", ComponentType.FLOAT)
+            count = len(self.data.scene.skeleton.bones)
+            self._create_bufferview(byte_length=count * 16 * 4, target=None)
+            self._create_accessor(count, "MAT4", ComponentType.FLOAT)
 
     def _create_animation(self):
         for clip in self.data.scene.animation.clips:
@@ -302,8 +306,13 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self._add_meshes()
 
         if self._skeleton_presented:
-            bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
-            self.write(bindpose.tobytes())
+            # Animated model sources may require separate bind poses
+            if "SKINS" in self.ctx:
+                for bindpose in self.ctx["SKINS"]:
+                    self.write(bindpose.transpose(0, 2, 1).tobytes())
+            else:
+                bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
+                self.write(bindpose.tobytes())
 
         if self._animation_presented:
             self._add_animation()

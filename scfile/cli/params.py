@@ -17,6 +17,21 @@ Files = click.Path(
     resolve_path=True,
 )
 
+File = click.Path(
+    path_type=types.Path,
+    dir_okay=False,
+    file_okay=True,
+    exists=True,
+    resolve_path=True,
+)
+
+OutputPath = click.Path(
+    path_type=types.Path,
+    dir_okay=True,
+    file_okay=True,
+    resolve_path=True,
+)
+
 Output = click.Path(
     path_type=types.Path,
     dir_okay=True,

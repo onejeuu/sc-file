@@ -4,7 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scfile.__main__ import main
+from scfile.__main__ import _default_command, main
+from scfile.enums import CliCommand
 from tests.conftest import ASSETS
 
 
@@ -50,6 +51,26 @@ def test_main_implicit_convert(temp: Path):
         with pytest.raises(SystemExit):
             main()
     assert (temp / "model_v12.obj").exists()
+
+
+@pytest.mark.parametrize(
+    "models",
+    [
+        ["model.mcsb"],
+        ["hands.mcsb", "weapon.mcsb"],
+    ],
+)
+def test_implicit_animate(models: list[str]):
+    assert _default_command(["animation.mcvd", *models]) == CliCommand.ANIMATE
+
+
+def test_many_models_implicit_convert():
+    models = [f"model_{index}.mcsb" for index in range(3)]
+    assert _default_command(["animation.mcvd", *models]) == CliCommand.CONVERT
+
+
+def test_mixed_sources_implicit_convert():
+    assert _default_command(["animation.mcvd", "model.mcsb", "texture.ol"]) == CliCommand.CONVERT
 
 
 def test_main_no_args():

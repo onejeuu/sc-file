@@ -3,6 +3,7 @@ Format conversion utilities and auto-detection.
 """
 
 from . import convert, detect, factory, formats
+from .animate import animate
 from .detect import auto
 from .factory import converters, decoders, encoders, registry
 from .formats import (
@@ -40,6 +41,7 @@ __all__ = (
     "detect",
     "formats",
     "auto",
+    "animate",
     "factory",
     "converters",
     "decoders",

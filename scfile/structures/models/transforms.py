@@ -8,9 +8,10 @@ from typing import Callable, TypeAlias
 import numpy as np
 
 from scfile.consts import ModelDefaults
+from scfile.exceptions import AnimationError
 from scfile.structures.models.animation import AnimationClip
 
-from .enums import AnimationTranslation, SkeletonHierarchy, SkeletonSpace, UVOrigin, UVSign
+from .enums import AnimationTranslation, LinkSpace, SkeletonHierarchy, SkeletonSpace, UVOrigin, UVSign
 from .mesh import ModelMesh
 from .scene import ModelScene
 from .skeleton import SkeletonBone
@@ -146,3 +147,50 @@ def animation_to_absolute(scene: ModelScene) -> ModelScene:
         translation=AnimationTranslation.ABSOLUTE,
     )
     return replace(scene, animation=new_animation)
+
+
+def apply_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
+    """Combine model geometry with animation rig."""
+
+    if not animation.animation.clips:
+        raise AnimationError("Animation contains no clips.")
+
+    if not models:
+        raise AnimationError("No models provided.")
+
+    target_ids = {bone.name: bone.id for bone in animation.skeleton.bones}
+    if len(target_ids) != len(animation.skeleton.bones):
+        raise AnimationError("Animation skeleton contains duplicate bone names.")
+
+    meshes = list(animation.meshes)
+
+    for model in models:
+        for mesh in model.meshes:
+            used_ids = {
+                int(bone_id)
+                for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat)
+                if weight > 0.0
+            }
+
+            for source_id in used_ids:
+                if source_id >= len(model.skeleton.bones):
+                    raise AnimationError(f"Model references unknown bone {source_id}.")
+
+                name = model.skeleton.bones[source_id].name
+                if name not in target_ids:
+                    raise AnimationError(f"Animation skeleton has no bone '{name}'.")
+
+        source_ids = np.zeros(len(model.skeleton.bones), dtype=np.uint8)
+
+        for bone in model.skeleton.bones:
+            if bone.name in target_ids:
+                source_ids[bone.id] = target_ids[bone.name]
+
+        for mesh in model.meshes:
+            new_mesh = replace(mesh)
+            if mesh.max_influences:
+                new_mesh.links_ids = source_ids[mesh.links_ids]
+                new_mesh.link_space = LinkSpace.GLOBAL
+            meshes.append(new_mesh)
+
+    return replace(animation, meshes=meshes)

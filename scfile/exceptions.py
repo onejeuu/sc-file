@@ -32,6 +32,12 @@ class UnsupportedError(ScFileException):
     ...
 
 
+class AnimationError(ScFileException):
+    """Raised when animation cannot be applied to a model."""
+
+    ...
+
+
 class BaseIOError(ScFileException):
     """Base exception occurring i/o operations."""
 

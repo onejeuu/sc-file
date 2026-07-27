@@ -1,5 +1,6 @@
 import sys
 import traceback
+from pathlib import Path
 from typing import Never
 
 import click
@@ -7,6 +8,7 @@ from rich import print
 from rich.markup import escape
 
 from scfile.cli.cmd import scfile
+from scfile.consts import SUPPORTED_SUFFIXES
 from scfile.enums import CliCommand, L
 
 
@@ -52,6 +54,13 @@ def _default_command(args: list[str]) -> CliCommand | None:
     # Use map cache if path detected
     if "map_cache" in first_arg:
         return CliCommand.MAPCACHE
+
+    # Infer animation only for its common unambiguous source combinations
+    sources = tuple(suffix for arg in args if (suffix := Path(arg).suffix.lower()) in SUPPORTED_SUFFIXES)
+
+    match sources:
+        case (".mcvd", ".mcsb" | ".mcsa") | (".mcvd", ".mcsb" | ".mcsa", ".mcsb" | ".mcsa"):
+            return CliCommand.ANIMATE
 
     return CliCommand.CONVERT  # Fallback
 
