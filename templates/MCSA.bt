@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 3.2
+// Version: 3.3
 // Purpose: Parse models, skeletons, and animations.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcsb,*.mcvd
@@ -243,8 +243,8 @@ LittleEndian();
 typedef struct {
     String name <name="Name">;
     ubyte parentId <name="Parent ID", fgcolor=cAqua>;
-    Vec3f position <name="Position", bgcolor=cWhite>;
-    Vec3f rotation <name="Rotation", bgcolor=cGray>;
+    Vec3f head <name="Head", bgcolor=cWhite>;
+    Vec3f tail <name="Tail", bgcolor=cGray>;
 } Bone <read=(exists(this.name.data) ? this.name.data : "")>;
 
 if ( flags.SKELETON )

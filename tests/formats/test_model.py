@@ -1,3 +1,4 @@
+import struct
 from io import BytesIO
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from scfile.formats.efkmodel import EfkmodelDecoder
 from scfile.formats.fbx import FbxEncoder
 from scfile.formats.glb import GlbEncoder
 from scfile.formats.mcal.decoder import McalDecoder
+from scfile.formats.mcsa import McsaDecoder
 from scfile.formats.mcsa.exceptions import McsaVersionUnsupported
 from scfile.formats.mcsa.io import McsaFileIO
 from scfile.formats.mcsb import McsbDecoder
@@ -118,3 +120,16 @@ def test_mcsa_readclip_scale():
     _, translations = _IO(frame.tobytes())._readclip(1, 1, 0, 2.0)
 
     assert np.allclose(translations[0, 0], frame[4:] * (2.0 / 32767.0))
+
+
+def test_mcsa_bone_tail():
+    data = np.arange(6, dtype="<f4")
+    stream = struct.pack("<H4sB6f", 4, b"bone", 0, *data)
+
+    with McsaDecoder(stream) as dec:
+        dec._parse_bone(0)
+        bone = dec.data.scene.skeleton.bones[0]
+
+    assert np.array_equal(bone.position, data[:3])
+    assert np.array_equal(bone.tail, data[3:])
+    assert not np.any(bone.rotation)

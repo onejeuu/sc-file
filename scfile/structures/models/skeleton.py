@@ -24,6 +24,7 @@ class SkeletonBone:
 
     position: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     rotation: EulerAngles = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
+    tail: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
 
     children: List[Self] = field(default_factory=list, repr=False)
 

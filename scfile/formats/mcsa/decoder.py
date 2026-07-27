@@ -270,7 +270,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         parent_id = self._readb(F.U8)
         bone.parent_id = parent_id if parent_id != index else ModelDefaults.ROOT_BONE_ID
 
-        bone.position, bone.rotation = self._readbone()
+        bone.position, bone.tail = self._readbone()
 
         self.data.scene.skeleton.bones.append(bone)
 

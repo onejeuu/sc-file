@@ -89,7 +89,7 @@ class McsaFileIO(StructIO):
         # Read array
         data = self._readarray(F.F32, units)
 
-        # Reshape to bone[position[3], rotation[3]]
+        # Reshape to bone[head[3], tail[3]]
         return data.astype(F.F32).reshape(2, 3)
 
     def _readclip(
