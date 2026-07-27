@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .enums import LinkSpace, UVOrigin, UVSign
-from .types import BonesMapping, Colors, LinksIds, LinksWeights, Polygons, Vector2D, Vector3D, Vector4D
+from .types import BlendVertexMap, BonesMapping, Colors, LinksIds, LinksWeights, Polygons, Vector2D, Vector3D, Vector4D
 
 
 @dataclass
@@ -20,6 +20,14 @@ class MeshBounds:
 
 
 @dataclass
+class BlendShape:
+    """Mesh deformation target."""
+
+    name: str = "name"
+    deltas: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
+
+
+@dataclass
 class ModelMesh:
     """Mesh geometry container."""
 
@@ -27,7 +35,8 @@ class ModelMesh:
     material: str = "material"
 
     bounds: MeshBounds = field(default_factory=MeshBounds)
-    quads: bool = False
+    polygon_quads: bool = False
+    has_blend_shapes: bool = False
 
     bones: BonesMapping = field(default_factory=dict)
 
@@ -37,6 +46,9 @@ class ModelMesh:
     normals: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
     tangents: Vector4D = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
     colors: Colors = field(default_factory=lambda: np.zeros((0, 4), dtype=np.uint8))
+
+    blend_vertex_map: BlendVertexMap = field(default_factory=lambda: np.zeros(0, dtype=np.uint16))
+    blend_shapes: list[BlendShape] = field(default_factory=list)
 
     links_ids: LinksIds = field(default_factory=lambda: np.zeros((0, 4), dtype=np.uint8))
     links_weights: LinksWeights = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
@@ -52,3 +64,7 @@ class ModelMesh:
         if self.links_weights.size == 0:
             return 0
         return int((self.links_weights > 0).sum(axis=1).max())
+
+    @property
+    def quads(self) -> bool:
+        return self.polygon_quads

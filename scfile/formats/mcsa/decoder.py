@@ -114,16 +114,15 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         counts.vertices = self._readcount(F.U32, Limit.VERTICES)
 
         if self.data.version >= 12.0:
-            mesh.quads = self._readb(F.BOOL)
+            mesh.polygon_quads = self._readb(F.BOOL)
 
         counts.polygons = self._readcount(F.U32, Limit.POLYGONS)
 
-        # ? Not parsed
-        # Blend Shape Table
-        blend_shapes = False
+        # ? Not exported
+        # TODO Blend Shape Tree
         if self.data.version >= 15.0:
-            blend_shapes = self._readb(F.BOOL)
-            if blend_shapes:
+            mesh.has_blend_shapes = self._readb(F.BOOL)
+            if mesh.has_blend_shapes:
                 counts.blend_shapes = self._readb(F.U8)
                 self.skip(counts.blend_shapes * 2)
 
@@ -167,24 +166,33 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
         if self.data.flags[Flag.SKELETON]:
             self._parse_links(mesh, counts.vertices, counts.max_influences)
 
-        # ? Not parsed
         # Blend Shape Mapping
-        if self.data.version >= 15.0 and blend_shapes:
-            self.skip(counts.vertices * 2)
+        if mesh.has_blend_shapes:
+            mesh.blend_vertex_map = self._readarray(F.U16, counts.vertices)
 
         # Polygon faces
-        mesh.polygons = self._readpolygons(counts.polygons, mesh.quads)
+        mesh.polygons = self._readpolygons(counts.polygons, mesh.polygon_quads)
 
-        # ? Not parsed
         # Blend Shape Data
-        if self.data.version >= 15.0 and blend_shapes:
-            self._readutf8()
-            active_shape_count = self._readb(F.U8)
-            base_vertex_count = self._readb(F.U16)
-            [self._readutf8() for _ in range(active_shape_count)]
-            self.skip(active_shape_count * base_vertex_count * 4)
+        if mesh.has_blend_shapes:
+            self._parse_blend_shapes(mesh)
 
         self.data.scene.meshes.append(mesh)
+
+    def _parse_blend_shapes(self, mesh: S.ModelMesh):
+        # # Unknown: Skip reference string
+        self._readutf8()
+
+        count = self._readb(F.U8)
+        vertices = self._readcount(F.U16, Limit.VERTICES)
+        names = [self._readutf8() for _ in range(count)]
+
+        self._checklimit(count * vertices, Limit.BLEND_DELTAS)
+        deltas = self._readblendshapes(count, vertices, mesh.blend_vertex_map)
+
+        for name, delta in zip(names, deltas):
+            if name != "Basis":
+                mesh.blend_shapes.append(S.BlendShape(name, delta))
 
     def _parse_positions(self, mesh: S.ModelMesh, count: int):
         mesh.vertices = self._readvertex(

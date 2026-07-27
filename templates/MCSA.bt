@@ -206,7 +206,7 @@ typedef struct {
         }
 
     if ( version >= 15.0 ) {
-        if ( hasBlendShapes ) ushort baseVertexMap[vertexCount];
+        if ( hasBlendShapes ) ushort blendVertexMap[vertexCount];
     }
 
     if ( version >= 12.0 && polygonQuads ) {

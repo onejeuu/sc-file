@@ -37,6 +37,9 @@ Links: TypeAlias = tuple[LinksIds, LinksWeights]
 Polygons: TypeAlias = Annotated[NDArray[np.uint32], (..., 3)]
 """Triangle indices."""
 
+BlendVertexMap: TypeAlias = Annotated[NDArray[np.uint16], (...,)]
+"""Blend shape base vertex index per mesh vertex."""
+
 Colors: TypeAlias = Annotated[NDArray[np.uint8], (..., 4)]
 """RGBA vertex colors."""
 

@@ -51,6 +51,18 @@ class McsaFileIO(StructIO):
 
         return tangents
 
+    def _readblendshapes(self, count: int, vertices: int, blend_vertex_map: S.BlendVertexMap):
+        # Read shape[base vertex][xyz + padding]
+        data = self._readarray(F.U8, count * vertices * 4).reshape(count, vertices, 4)
+
+        # Center and normalize position deltas
+        deltas = data[:, :, :3].astype(F.F32)
+        deltas -= Factor.I8
+        deltas /= Factor.U8
+
+        # Expand base vertices to mesh vertices
+        return deltas[:, blend_vertex_map]
+
     def _readpolygons(self, count: int, quads: bool = False):
         units = McsaUnits.QUADS if quads else McsaUnits.TRIANGLES
 

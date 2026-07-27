@@ -14,7 +14,7 @@ from .enums import (
     UVSign,
 )
 from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat
-from .mesh import MeshBounds, ModelMesh
+from .mesh import BlendShape, MeshBounds, ModelMesh
 from .scene import ModelScene, SceneScales
 from .skeleton import ModelSkeleton, SkeletonBone
 from .types import (
@@ -22,6 +22,7 @@ from .types import (
     AnimationTimes,
     AnimationTranslations,
     BindPose,
+    BlendVertexMap,
     BonesMapping,
     Colors,
     EulerAngles,
@@ -44,6 +45,7 @@ from .types import (
 
 __all__ = (
     "AnimationClip",
+    "BlendShape",
     "MeshBounds",
     "ModelAnimation",
     "ModelMesh",
@@ -56,6 +58,7 @@ __all__ = (
     "AnimationTimes",
     "AnimationTranslations",
     "BindPose",
+    "BlendVertexMap",
     "BonesMapping",
     "Colors",
     "EulerAngles",

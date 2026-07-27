@@ -118,6 +118,15 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
             self._create_accessor(len(mesh.vertices), "VEC3", array=mesh.vertices)
 
+            # Blend Shapes
+            if mesh.blend_shapes:
+                primitive["targets"] = []
+
+                for shape in mesh.blend_shapes:
+                    primitive["targets"].append({"POSITION": self._accessor_index()})
+                    self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
+                    self._create_accessor(len(mesh.vertices), "VEC3", array=shape.deltas)
+
             # UV Texture
             if self.data.flags[Flag.UV]:
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
@@ -168,7 +177,13 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # Add to GLTF
             self.ctx["GLTF"]["nodes"].append(node)
-            self.ctx["GLTF"]["meshes"].append(dict(name=mesh.name, primitives=[primitive]))
+            gltf_mesh: Node = dict(name=mesh.name, primitives=[primitive])
+
+            if mesh.blend_shapes:
+                gltf_mesh["weights"] = [0.0] * len(mesh.blend_shapes)
+                gltf_mesh["extras"] = {"targetNames": [shape.name for shape in mesh.blend_shapes]}
+
+            self.ctx["GLTF"]["meshes"].append(gltf_mesh)
             self.ctx["GLTF"]["materials"].append(dict(name=mesh.material, pbrMetallicRoughness=base.PBR))
 
     def _create_bones(self):
@@ -313,6 +328,10 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
             # XYZ Position
             self.write(mesh.vertices.tobytes())
+
+            # Blend Shapes
+            for shape in mesh.blend_shapes:
+                self.write(shape.deltas.tobytes())
 
             # UV Texture
             if self.data.flags[Flag.UV]:

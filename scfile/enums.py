@@ -116,11 +116,12 @@ class SafetyLimit(IntEnum):
     STRING = 4_096
     MESHES = 10_000
     VERTICES = 1_000_000
-    POLYGONS = 1_500_000
+    POLYGONS = 2_000_000
     CLIPS = 1_000
     FRAMES = 100_000
-    TRANSFORMS = 2_000_000
+    TRANSFORMS = 5_000_000
     WEIGHTS = 10_000_000
+    BLEND_DELTAS = 10_000_000
 
 
 class ConsoleLabel(StrEnum):
