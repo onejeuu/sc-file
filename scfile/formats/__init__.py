@@ -14,6 +14,7 @@ from . import (
     mcal,
     mcsa,
     mcsb,
+    mcvd,
     mdat,
     mic,
     ms3d,
@@ -34,6 +35,7 @@ from .mca import McaEncoder
 from .mcal import McalDecoder
 from .mcsa import McsaDecoder
 from .mcsb import McsbDecoder
+from .mcvd import McvdDecoder
 from .mdat import MdatDecoder
 from .mic import MicDecoder
 from .ms3d import Ms3dEncoder
@@ -57,6 +59,7 @@ __all__ = (
     "mcal",
     "mcsa",
     "mcsb",
+    "mcvd",
     "mdat",
     "mic",
     "ms3d",
@@ -76,6 +79,7 @@ __all__ = (
     "McalDecoder",
     "McsaDecoder",
     "McsbDecoder",
+    "McvdDecoder",
     "MdatDecoder",
     "MicDecoder",
     "Ms3dEncoder",

@@ -112,11 +112,7 @@ def mcsb_to_fbx(
     """
 
 
-@converter(
-    formats.mcsa.McsaDecoder,
-    formats.obj.ObjEncoder,
-    aliases=("mcvd",),
-)
+@converter(formats.mcsa.McsaDecoder, formats.obj.ObjEncoder)
 def mcsa_to_obj(
     source: PathLike,
     output: Optional[PathLike] = None,
@@ -213,6 +209,106 @@ def mcsa_to_fbx(
     Example:
         - ``mcsa_to_fbx("model.mcsa", "model.fbx")``
         - ``mcsa_to_fbx("model.mcsa", "path/to/output/dir")``
+    """
+
+
+@converter(formats.mcvd.McvdDecoder, formats.obj.ObjEncoder)
+def mcvd_to_obj(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[Options] = None,
+):
+    """
+    Converts model from ``.mcvd`` to ``.obj`` format.
+
+    Arguments:
+        source: Path to source ``.mcvd`` file.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
+
+    Example:
+        - ``mcvd_to_obj("model.mcvd", "model.obj")``
+        - ``mcvd_to_obj("model.mcvd", "path/to/output/dir")``
+    """
+
+
+@converter(formats.mcvd.McvdDecoder, formats.glb.GlbEncoder)
+def mcvd_to_glb(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[Options] = None,
+):
+    """
+    Converts model from ``.mcvd`` to ``.glb`` format.
+
+    Arguments:
+        source: Path to source ``.mcvd`` file.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
+
+    Example:
+        - ``mcvd_to_glb("model.mcvd", "model.glb")``
+        - ``mcvd_to_glb("model.mcvd", "path/to/output/dir")``
+    """
+
+
+@converter(formats.mcvd.McvdDecoder, formats.dae.DaeEncoder)
+def mcvd_to_dae(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[Options] = None,
+):
+    """
+    Converts model from ``.mcvd`` to ``.dae`` format.
+
+    Arguments:
+        source: Path to source ``.mcvd`` file.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
+
+    Example:
+        - ``mcvd_to_dae("model.mcvd", "model.dae")``
+        - ``mcvd_to_dae("model.mcvd", "path/to/output/dir")``
+    """
+
+
+@converter(formats.mcvd.McvdDecoder, formats.ms3d.Ms3dEncoder)
+def mcvd_to_ms3d(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[Options] = None,
+):
+    """
+    Converts model from ``.mcvd`` to ``.ms3d`` format.
+
+    Arguments:
+        source: Path to source ``.mcvd`` file.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
+
+    Example:
+        - ``mcvd_to_ms3d("model.mcvd", "model.ms3d")``
+        - ``mcvd_to_ms3d("model.mcvd", "path/to/output/dir")``
+    """
+
+
+@converter(formats.mcvd.McvdDecoder, formats.fbx.FbxEncoder)
+def mcvd_to_fbx(
+    source: PathLike,
+    output: Optional[PathLike] = None,
+    options: Optional[Options] = None,
+):
+    """
+    Converts model from ``.mcvd`` to ``.fbx`` format.
+
+    Arguments:
+        source: Path to source ``.mcvd`` file.
+        output (optional): Path to file or directory. Defaults to same location as source.
+        options (optional): Shared handlers options.
+
+    Example:
+        - ``mcvd_to_fbx("model.mcvd", "model.fbx")``
+        - ``mcvd_to_fbx("model.mcvd", "path/to/output/dir")``
     """
 
 
