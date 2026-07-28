@@ -61,9 +61,7 @@ def test_main_implicit_convert(temp: Path):
     ],
 )
 def test_implicit_animate(models: list[str]):
-    assert _default_command(["animation.mcvd", *models]) == CliCommand.ANIMATE
-
-
+    assert _default_command(["wpn_fp_animation.mcvd", *models]) == CliCommand.ANIMATE
 def test_many_models_implicit_convert():
     models = [f"model_{index}.mcsb" for index in range(3)]
     assert _default_command(["animation.mcvd", *models]) == CliCommand.CONVERT

@@ -2,6 +2,7 @@ import json
 import time
 from collections import Counter
 from contextlib import nullcontext
+from itertools import chain
 from pathlib import Path
 
 import click
@@ -12,7 +13,7 @@ from rich.table import Table
 
 from tools.cmd import tools
 
-from . import files, stats
+from . import files, relations, stats
 from .config import Config
 from .consts import ERRORS_JSONL, FILES, FORMATS
 from .types import Error
@@ -33,6 +34,15 @@ def table(found: Counter, checked: Counter, failed: Counter) -> Table:
     return output
 
 
+def summary(
+    progress: Progress,
+    found: Counter,
+    checked: Counter,
+    failed: Counter,
+) -> Group:
+    return Group(progress, table(found, checked, failed))
+
+
 def clear(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     for name in FILES:
@@ -51,7 +61,10 @@ def save(errors: list[Error], path: Path) -> None:
 
 def run(cfg: Config, console: Console) -> int:
     assets = files.find_assets(cfg, console)
-    found = Counter(asset.format for asset in assets)
+    asset_found = Counter(asset.format for asset in assets)
+    relation_sources = relations.find(cfg.path)
+    relation_found = relations.found(relation_sources, cfg.formats)
+    found = asset_found + relation_found
     checked: Counter = Counter()
     failed: Counter = Counter()
     errors: list[Error] = []
@@ -63,15 +76,25 @@ def run(cfg: Config, console: Console) -> int:
         TimeElapsedColumn(),
         console=console,
     )
-    task = progress.add_task("Checking", total=len(assets))
+    task = progress.add_task("Checking", total=len(assets) + relation_found.total())
 
     clear(cfg.reports)
     output = stats.Writer(cfg.reports) if cfg.stats else nullcontext()
-    initial = Group(progress, table(found, checked, failed))
+    initial = summary(progress, found, checked, failed)
     with output as writer, Live(initial, console=console, refresh_per_second=10) as live:
         updated = time.monotonic()
 
-        for result in files.decode_assets(assets, cfg):
+        def refresh(force: bool = False) -> None:
+            live.update(
+                summary(progress, found, checked, failed),
+                refresh=force,
+            )
+
+        results = chain(
+            files.decode_assets(assets, cfg),
+            relations.validate(relation_sources, cfg.path, set(relation_found)),
+        )
+        for result in results:
             checked[result.format] += 1
             if result.error:
                 failed[result.format] += 1
@@ -82,13 +105,13 @@ def run(cfg: Config, console: Console) -> int:
             progress.advance(task)
             now = time.monotonic()
             if now - updated >= 0.1:
-                live.update(Group(progress, table(found, checked, failed)))
+                refresh()
                 updated = now
 
-        live.update(Group(progress, table(found, checked, failed)), refresh=True)
+        refresh(force=True)
 
         if writer:
-            writer.formats(found, checked, failed)
+            writer.formats(asset_found, checked, failed)
 
     save(errors, cfg.reports / ERRORS_JSONL)
 

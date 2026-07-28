@@ -9,7 +9,7 @@ from rich.markup import escape
 
 from scfile.cli.cmd import scfile
 from scfile.consts import SUPPORTED_SUFFIXES
-from scfile.enums import CliCommand, L
+from scfile.enums import CliCommand, FileFormat, L
 
 
 def _run_gui() -> None:  # pragma: no cover
@@ -44,6 +44,8 @@ def _ensure_command() -> None:
     # Backfill command if missing
     if command := _default_command(args):
         sys.argv.insert(1, command)
+        if command == CliCommand.ANIMATE:
+            sys.argv.insert(2, "arms")
 
 
 def _default_command(args: list[str]) -> CliCommand | None:
@@ -57,14 +59,24 @@ def _default_command(args: list[str]) -> CliCommand | None:
     if "map_cache" in first_arg:
         return CliCommand.MAPCACHE
 
-    # Infer animation only for its common unambiguous source combinations
-    sources = tuple(suffix for arg in args if (suffix := Path(arg).suffix.lower()) in SUPPORTED_SUFFIXES)
-
-    match sources:
-        case (".mcvd", ".mcsb" | ".mcsa") | (".mcvd", ".mcsb" | ".mcsa", ".mcsb" | ".mcsa"):
-            return CliCommand.ANIMATE
+    sources = [Path(arg) for arg in args if Path(arg).suffix.lower() in SUPPORTED_SUFFIXES]
+    if _is_fp_animation_sources(sources):
+        return CliCommand.ANIMATE
 
     return CliCommand.CONVERT  # Fallback
+
+
+def _is_fp_animation_sources(sources: list[Path]) -> bool:
+    if len(sources) not in (2, 3):
+        return False
+
+    animation, *models = sources
+    name = animation.stem.lower()
+    return (
+        animation.suffix.lower() == FileFormat.MCVD.suffix
+        and all(model.suffix.lower() == FileFormat.MCSB.suffix for model in models)
+        and ("fp_" in name or "wpn_" in name)
+    )
 
 
 def main() -> Never:

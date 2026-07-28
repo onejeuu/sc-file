@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from io import BytesIO
 from typing import Generic, Optional, Self, TypeAlias
 
-from scfile.structures.models import Flag
+from scfile.structures.models import AnimationClip, Flag
 from scfile.structures.models.transforms import SceneTransform
 from scfile.types import PathLike
 
@@ -192,6 +192,17 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
 
     @property
     def _animation_presented(self) -> bool:
-        if isinstance(self.data, ModelContent):
-            return self._skeleton_presented and self.options.animation
-        return False
+        return (
+            isinstance(self.data, ModelContent)
+            and self.options.animation
+            and (self._skeleton_presented or self._morph_animation_presented)
+        )
+
+    @property
+    def _morph_animation_presented(self) -> bool:
+        if not isinstance(self.data, ModelContent):
+            return False
+        return any(clip.morph_weights.size for clip in self.data.scene.animation.clips)
+
+    def _bone_animation_presented(self, clip: AnimationClip) -> bool:
+        return self._skeleton_presented and bool(clip.translations.size and clip.rotations.size)

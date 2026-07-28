@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 
@@ -25,3 +26,13 @@ class Result:
     format: str
     error: Error | None = None
     records: list[Record] | None = None
+
+
+@dataclass(slots=True)
+class Relations:
+    hands: Path | None
+    arms: list[Path]
+    face: list[Path]
+    heads: list[Path]
+    body: list[Path]
+    models: list[Path]

@@ -3,7 +3,6 @@ import struct
 from collections import defaultdict
 
 import numpy as np
-
 from scfile.core import ModelContent, Options
 from scfile.formats import GlbEncoder
 from scfile.structures import models as S

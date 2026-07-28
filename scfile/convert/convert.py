@@ -34,24 +34,9 @@ def convert(
         - ``convert(McsaDecoder, ObjEncoder, "model.mcsb", "path/to/output/dir")``
     """
 
-    src_path = Path(source)
-    out_path = Path(output or src_path.parent)
+    src_path = validate_sources(source)[0]
+    output_path = destination(src_path, output, encoder.format.suffix)
     options = options or Options()
-
-    if not src_path.exists() or not src_path.is_file():
-        raise exceptions.FileNotFound(str(src_path))
-
-    if out_path.suffix == encoder.format.suffix:
-        out_dir = out_path.parent
-        out_name = out_path.name
-    else:
-        out_dir = out_path
-        out_name = f"{src_path.stem}{encoder.format.suffix}"
-
-    if not out_dir.exists():
-        out_dir.mkdir(exist_ok=True, parents=True)
-
-    output_path = out_dir / out_name
 
     match options.on_conflict:
         case "skip" if output_path.exists():
@@ -62,6 +47,34 @@ def convert(
     with decoder(src_path, options) as src:
         with src.convert_to(encoder=encoder) as out:
             out.save(path=output_path)
+
+
+def validate_sources(*sources: types.PathLike) -> list[Path]:
+    """Resolve source paths and require regular files."""
+
+    paths = [Path(source) for source in sources]
+    for path in paths:
+        if not path.exists() or not path.is_file():
+            raise exceptions.FileNotFound(str(path))
+
+    return paths
+
+
+def destination(
+    source: Path,
+    output: types.OutputLike,
+    suffix: str,
+) -> Path:
+    """Resolve output file path and create its directory."""
+
+    path = Path(output or source.parent)
+    if path.suffix == suffix:
+        result = path
+    else:
+        result = path / f"{source.stem}{suffix}"
+
+    result.parent.mkdir(exist_ok=True, parents=True)
+    return result
 
 
 def ensure_unique_path(path: Path) -> Path:

@@ -11,7 +11,7 @@ Example::
 
     from scfile import formats
 
-    with formats.mca.McalDecoder("anims.mcal") as mcal:
+    with formats.McalDecoder("anims.mcal") as mcal:
         data = mcal.decode()
 """
 

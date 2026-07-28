@@ -7,7 +7,7 @@ import numpy as np
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.models import Flag
+from scfile.structures.models import AnimationClip, BlendShape, Flag, MorphWeights
 from scfile.structures.models import transforms as T
 
 from . import base
@@ -227,6 +227,11 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _create_animation(self):
         for clip in self.data.scene.animation.clips:
+            morph_targets = self._morph_animation_targets(clip)
+            bone_animation = self._bone_animation_presented(clip)
+            if not bone_animation and not morph_targets:
+                continue
+
             times = clip.times
             time_idx = self._accessor_index()
             self._create_bufferview(byte_length=clip.frames * 4, target=None)
@@ -236,30 +241,78 @@ class GlbEncoder(FileEncoder[ModelContent]):
             samplers = []
             channels = []
 
-            for node_index in self.ctx["BONE_INDEXES"]:
-                translation_idx = self._accessor_index()
-                self._create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
-                self._create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
+            if bone_animation:
+                for node_index in self.ctx["BONE_INDEXES"]:
+                    translation_idx = self._accessor_index()
+                    self._create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
+                    self._create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
 
-                rotation_idx = self._accessor_index()
-                self._create_bufferview(byte_length=clip.frames * 4 * 4, target=None)
-                self._create_accessor(clip.frames, "VEC4", ComponentType.FLOAT)
+                    rotation_idx = self._accessor_index()
+                    self._create_bufferview(byte_length=clip.frames * 4 * 4, target=None)
+                    self._create_accessor(clip.frames, "VEC4", ComponentType.FLOAT)
 
-                samplers.extend(
-                    [
-                        dict(input=time_idx, output=translation_idx, interpolation="LINEAR"),
-                        dict(input=time_idx, output=rotation_idx, interpolation="LINEAR"),
-                    ]
-                )
-                channels.extend(
-                    [
-                        dict(sampler=sampler_idx, target=dict(node=node_index, path="translation")),
-                        dict(sampler=sampler_idx + 1, target=dict(node=node_index, path="rotation")),
-                    ]
-                )
-                sampler_idx += 2
+                    samplers.extend(
+                        [
+                            dict(input=time_idx, output=translation_idx, interpolation="LINEAR"),
+                            dict(input=time_idx, output=rotation_idx, interpolation="LINEAR"),
+                        ]
+                    )
+                    channels.extend(
+                        [
+                            dict(sampler=sampler_idx, target=dict(node=node_index, path="translation")),
+                            dict(sampler=sampler_idx + 1, target=dict(node=node_index, path="rotation")),
+                        ]
+                    )
+                    sampler_idx += 2
+
+            for node_index, weights in morph_targets:
+                weights_idx = self._accessor_index()
+                self._create_bufferview(byte_length=weights.nbytes, target=None)
+                self._create_accessor(weights.size, "SCALAR", ComponentType.FLOAT)
+
+                samplers.append(dict(input=time_idx, output=weights_idx, interpolation="LINEAR"))
+                channels.append(dict(sampler=sampler_idx, target=dict(node=node_index, path="weights")))
+                sampler_idx += 1
 
             self.ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
+
+    def _morph_animation_targets(self, clip: AnimationClip) -> list[tuple[int, MorphWeights]]:
+        if not clip.morph_weights.size:
+            return []
+
+        channels = {name: index for index, name in enumerate(self.data.scene.animation.morph_channels)}
+        targets = []
+
+        for node_index, mesh in enumerate(self.data.scene.meshes):
+            weights = self._morph_weights(clip, mesh.blend_shapes, channels)
+            if weights is None:
+                continue
+
+            targets.append((node_index, weights))
+
+        return targets
+
+    @staticmethod
+    def _morph_weights(
+        clip: AnimationClip,
+        shapes: list[BlendShape],
+        channels: dict[str, int],
+    ) -> MorphWeights | None:
+        weights = np.zeros((clip.frames, len(shapes)), dtype=np.float32)
+        mapped = False
+
+        for target_index, shape in enumerate(shapes):
+            if shape.channel is None:
+                continue
+
+            channel_index = channels.get(shape.channel)
+            if channel_index is None:
+                continue
+
+            weights[:, target_index] = clip.morph_weights[:, channel_index]
+            mapped = True
+
+        return weights if mapped else None
 
     def _create_bufferview(
         self,
@@ -371,8 +424,17 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:
+            morph_targets = self._morph_animation_targets(clip)
+            bone_animation = self._bone_animation_presented(clip)
+            if not bone_animation and not morph_targets:
+                continue
+
             self.write(clip.times.tobytes())
 
-            for bone in self.data.scene.skeleton.bones:
-                self.write(clip.translations[:, bone.id, :].tobytes())
-                self.write(clip.rotations[:, bone.id, :].tobytes())
+            if bone_animation:
+                for bone in self.data.scene.skeleton.bones:
+                    self.write(clip.translations[:, bone.id, :].tobytes())
+                    self.write(clip.rotations[:, bone.id, :].tobytes())
+
+            for _, weights in morph_targets:
+                self.write(weights.tobytes())

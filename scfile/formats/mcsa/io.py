@@ -102,17 +102,20 @@ class McsaFileIO(StructIO):
         units = McsaUnits.FRAMES
         frame_size = bones_count * units + channels_count
 
-        # Read array
-        data = self._readarray(F.I16, times_count * frame_size)
-        data = data.reshape(times_count, frame_size)[:, : bones_count * units]
+        # Read bone transforms and morph weights
+        data = self._readarray(F.U16, times_count * frame_size)
+        data = data.reshape(times_count, frame_size)
+        transforms = data[:, : bones_count * units].view(f"{self.order}{F.I16}")
+        morph_weights = data[:, bones_count * units :].astype(F.F32)
+        morph_weights *= np.float32(1.0 / Factor.I16)
 
         # Reshape to clip[frames][bones][transforms[7]]
         # transforms = [rotation[4], translation[3]]
-        data = data.astype(F.F32).reshape(times_count, bones_count, units)
+        data = transforms.astype(F.F32).reshape(times_count, bones_count, units)
         rotations = data[:, :, :4] * np.float32(1.0 / Factor.I16)
         translations = data[:, :, 4:7] * np.float32(position_scale / Factor.I16)
 
-        return rotations, translations
+        return rotations, translations, morph_weights
 
     def _readpackedlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
         units = McsaUnits.LINKS

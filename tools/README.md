@@ -35,6 +35,7 @@ exclude = ["path/to/file.mcsb"]
 
 Command-line arguments override the config.
 When `formats` is omitted, every registered decoder is checked.
+Full asset roots also validate arms, face, and body animation compatibility.
 Found errors are written to `errors.jsonl`.
 With statistics enabled, CSV files are written.
 Report files are replaced on each run.

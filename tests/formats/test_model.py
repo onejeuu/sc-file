@@ -87,8 +87,6 @@ def test_animodel():
 
     assert data.scene.scale.position == 2.0
     assert len(data.scene.animation.clips) >= 1
-
-
 def test_invalid_version():
     with pytest.raises(McsaVersionUnsupported):
         McsbDecoder(ASSETS / "invalid" / "unsuported.mcsb").decode()
@@ -117,11 +115,9 @@ def test_mcsa_readclip_scale():
         pass
 
     frame = np.array([0, 0, 0, 16384, 16384, -16384, 32767], dtype="<i2")
-    _, translations = _IO(frame.tobytes())._readclip(1, 1, 0, 2.0)
+    _, translations, _ = _IO(frame.tobytes())._readclip(1, 1, 0, 2.0)
 
     assert np.allclose(translations[0, 0], frame[4:] * (2.0 / 32767.0))
-
-
 def test_mcsa_bone_tail():
     data = np.arange(6, dtype="<f4")
     stream = struct.pack("<H4sB6f", 4, b"bone", 0, *data)

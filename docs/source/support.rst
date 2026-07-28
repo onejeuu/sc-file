@@ -57,7 +57,8 @@
 
 | Same structure as ``.mcsa``.
 | Output (Geometry): ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``.
-| Animation-only files produce empty model output.
+| Standalone skeletal and facial animations can be applied to compatible models and exported to ``.glb``.
+| Direct format conversion exports geometry only.
 
 
 ``.efkmodel``

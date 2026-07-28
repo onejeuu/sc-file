@@ -6,6 +6,8 @@ from . import convert, detect, factory, formats
 from .animate import animate
 from .detect import auto
 from .factory import converters, decoders, encoders, registry
+from .lipsync import lipsync
+from .mcal import apply_mcal
 from .formats import (
     efkmodel_to_dae,
     efkmodel_to_fbx,
@@ -42,6 +44,8 @@ __all__ = (
     "formats",
     "auto",
     "animate",
+    "apply_mcal",
+    "lipsync",
     "factory",
     "converters",
     "decoders",

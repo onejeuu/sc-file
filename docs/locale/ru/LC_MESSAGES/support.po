@@ -88,8 +88,16 @@ msgid "Output (Geometry): ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``."
 msgstr "Вывод (Геометрия): ``.obj``, ``.glb``, ``.dae``, ``.ms3d``, ``.fbx``"
 
 #: ../../source/support.rst:60
-msgid "Animation-only files produce empty model output."
-msgstr "Файлы только с анимациями создают пустую модель."
+msgid ""
+"Standalone skeletal and facial animations can be applied to compatible "
+"models and exported to ``.glb``."
+msgstr ""
+"Отдельные скелетные и лицевые анимации можно применить к совместимым "
+"моделям и экспортировать в ``.glb``."
+
+#: ../../source/support.rst:61
+msgid "Direct format conversion exports geometry only."
+msgstr "Прямая конвертация формата экспортирует только геометрию."
 
 #: ../../source/support.rst:66
 msgid "Supported versions: ``5``."

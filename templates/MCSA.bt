@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 3.3
+// Version: 3.4
 // Purpose: Parse models, skeletons, and animations.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcsb,*.mcvd
@@ -135,8 +135,8 @@ typedef struct {
 
 typedef struct {
     ubyte count <name="Blend Shape Count">;
-    short parentIndex[count] <name="Parent Index">;
-} BlendShapeTree;
+    short channelIds[count] <name="Morph Channel ID">;
+} BlendShapeMapping;
 
 typedef struct {
     byte deltaX, deltaY, deltaZ;
@@ -167,7 +167,7 @@ typedef struct {
 
     if ( version >= 15.0 ) {
         bool hasBlendShapes <name="Blend Shape Flag">;
-        if ( hasBlendShapes ) BlendShapeTree blendShapeTree <name="Blend Shape Tree">;
+        if ( hasBlendShapes ) BlendShapeMapping blendShapeMapping <name="Blend Shape Mapping">;
     }
 
     if ( flags.UV )
@@ -273,7 +273,7 @@ struct BoneTransform {
     Vec3s translation <name="Translation", bgcolor=cWhite>;
 };
 
-typedef ushort MorphWeight <read=Str("%f", nUS(this))>;
+typedef ushort MorphWeight <read=Str("%f", (float)this / 32767.0f)>;
 
 struct KeyFrame {
     BoneTransform transforms[skeleton.boneCount];

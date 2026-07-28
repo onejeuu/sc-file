@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 

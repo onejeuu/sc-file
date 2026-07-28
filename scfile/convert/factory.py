@@ -5,7 +5,7 @@ Decorator for registering named format converters.
 from collections import defaultdict
 from copy import deepcopy
 from functools import wraps
-from typing import Callable, Optional, Type, TypeAlias
+from typing import Callable, Optional, Type, TypeAlias, TypeVar
 
 from scfile.core import ContentType, FileDecoder, FileEncoder, Options
 from scfile.types import PathLike
@@ -20,6 +20,7 @@ EncoderMap: TypeAlias = dict[str, type[FileEncoder]]
 
 Decoder: TypeAlias = Type[FileDecoder[ContentType]]
 Encoder: TypeAlias = Type[FileEncoder[ContentType]]
+Handler = TypeVar("Handler", bound=type[FileDecoder] | type[FileEncoder])
 
 _REGISTRY: ConverterRegistry = defaultdict(dict)
 _DECODERS: DecoderMap = {}
@@ -27,13 +28,24 @@ _ENCODERS: EncoderMap = {}
 
 
 def decoders() -> DecoderMap:
-    """Copy of registered format decoders."""
-    return deepcopy(_DECODERS)
+    """Available format decoders."""
+    return deepcopy({**_handlers(FileDecoder), **_DECODERS})
 
 
 def encoders() -> EncoderMap:
-    """Copy of registered format encoders."""
-    return deepcopy(_ENCODERS)
+    """Available format encoders."""
+    return deepcopy({**_handlers(FileEncoder), **_ENCODERS})
+
+
+def _handlers(base: Handler) -> dict[str, Handler]:
+    from scfile import formats
+
+    result = {}
+    for name in formats.__all__:
+        handler = getattr(formats, name)
+        if isinstance(handler, type) and issubclass(handler, base):
+            result[handler.format.lower()] = handler
+    return result
 
 
 def registry() -> ConverterRegistry:

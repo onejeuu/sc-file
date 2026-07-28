@@ -4,14 +4,44 @@ Model animation export.
 
 from collections import defaultdict
 from dataclasses import replace
-from pathlib import Path
+from typing import Callable, TypeAlias
 
 from scfile import exceptions, formats, types
 from scfile.core import ModelContent, Options
+from scfile.core.types import ModelDecoder
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
+from .convert import destination, validate_sources
+
 ANIMATION_MODELS_LIMIT = 8
+AnimationTransform: TypeAlias = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
+
+
+def apply_external(
+    decoder: ModelDecoder,
+    transform: AnimationTransform,
+    animation: types.PathLike,
+    model: types.PathLike,
+    output: types.OutputLike = None,
+) -> None:
+    """Apply external animation data to one model and export GLB."""
+
+    animation_path, model_path = validate_sources(animation, model)
+    output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
+    options = Options(skeleton=True, animation=True)
+
+    with decoder(animation_path, options) as source:
+        animation_data = source.decode()
+
+    with formats.McsbDecoder(model_path, options) as mcsb:
+        model_data = mcsb.decode()
+
+    scene = transform(animation_data.scene, model_data.scene)
+    data = replace(model_data, scene=scene)
+
+    with formats.GlbEncoder(data, options) as glb:
+        glb.save(output_path)
 
 
 def _skin_context(
@@ -56,31 +86,14 @@ def animate(
 ) -> None:
     """Export model geometry with MCVD animations to GLB."""
 
-    animation_path = Path(animation)
-    model_paths = [Path(model) for model in models]
-
-    if not model_paths:
+    if not models:
         raise exceptions.AnimationError("No models provided.")
 
-    if len(model_paths) > ANIMATION_MODELS_LIMIT:
-        raise exceptions.AnimationError(f"Too many models: {len(model_paths)} (max: {ANIMATION_MODELS_LIMIT}).")
+    if len(models) > ANIMATION_MODELS_LIMIT:
+        raise exceptions.AnimationError(f"Too many models: {len(models)} (max: {ANIMATION_MODELS_LIMIT}).")
 
-    for path in (animation_path, *model_paths):
-        if not path.exists() or not path.is_file():
-            raise exceptions.FileNotFound(str(path))
-
-    out_path = Path(output or animation_path.parent)
-    out_format = formats.GlbEncoder.format
-
-    if out_path.suffix == out_format.suffix:
-        out_dir = out_path.parent
-        out_name = out_path.name
-    else:
-        out_dir = out_path
-        out_name = f"{animation_path.stem}{out_format.suffix}"
-
-    out_dir.mkdir(exist_ok=True, parents=True)
-    output_path = out_dir / out_name
+    animation_path, *model_paths = validate_sources(animation, *models)
+    output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
 
     options = Options(skeleton=True, animation=True)
 

@@ -64,3 +64,5 @@ AnimationRotations: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
 """Animation rotations per frame."""
 AnimationTimes: TypeAlias = Annotated[NDArray[np.float32], (...)]
 """Animation times per frame."""
+MorphWeights: TypeAlias = NDArray[np.float32]
+"""Morph channel weights per frame."""

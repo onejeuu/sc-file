@@ -8,23 +8,23 @@ from .base import Worker
 from .logs import logger
 
 
-class AnimateWorker(Worker):
+class LipsyncWorker(Worker):
     def __init__(
         self,
         animation: Path,
-        models: list[Path],
+        model: Path,
         output: Path,
     ):
         super().__init__()
         self.animation = animation
-        self.models = models
+        self.model = model
         self.output = output
 
     def run(self) -> None:
         try:
-            convert.animate(
+            convert.lipsync(
                 self.animation,
-                *self.models,
+                self.model,
                 output=self.output,
             )
             logger.done(f"'{self.animation}'")

@@ -137,6 +137,10 @@ def animation_to_absolute(scene: ModelScene) -> ModelScene:
     new_clips: list[AnimationClip] = []
 
     for clip in scene.animation.clips:
+        if not clip.translations.size:
+            new_clips.append(clip)
+            continue
+
         new_translations = clip.translations.copy()
         new_translations += positions[np.newaxis, :, :]
         new_clips.append(replace(clip, translations=new_translations))
@@ -194,3 +198,50 @@ def apply_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
             meshes.append(new_mesh)
 
     return replace(animation, meshes=meshes)
+
+
+def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScene:
+    """Apply index-mapped skeletal animation clips to model."""
+
+    if not library.animation.clips:
+        raise AnimationError("Animation library contains no clips.")
+
+    bones = len(model.skeleton.bones)
+    for clip in library.animation.clips:
+        if clip.translations.shape != (clip.frames, bones, 3):
+            raise AnimationError(f"Animation clip '{clip.name}' has invalid translations.")
+        if clip.rotations.shape != (clip.frames, bones, 4):
+            raise AnimationError(f"Animation clip '{clip.name}' has invalid rotations.")
+
+    return replace(model, animation=replace(library.animation))
+
+
+def apply_morph_animation(animation: ModelScene, model: ModelScene) -> ModelScene:
+    """Apply morph animation clips to compatible model blend shapes."""
+
+    clips = animation.animation.clips
+    channels = animation.animation.morph_channels
+
+    if not clips or not any(clip.morph_weights.size for clip in clips):
+        raise AnimationError("Animation contains no morph clips.")
+
+    if len(set(channels)) != len(channels):
+        raise AnimationError("Animation contains duplicate morph channel names.")
+
+    for clip in clips:
+        if clip.morph_weights.shape != (clip.frames, len(channels)):
+            raise AnimationError(f"Animation clip '{clip.name}' has invalid morph weights.")
+
+    mapped = {
+        shape.channel
+        for mesh in model.meshes
+        for shape in mesh.blend_shapes
+        if shape.channel is not None
+    }
+    if not mapped:
+        raise AnimationError("Model contains no mapped blend shapes.")
+
+    if not mapped.intersection(channels):
+        raise AnimationError("Animation has no channels compatible with model blend shapes.")
+
+    return replace(model, animation=replace(animation.animation))

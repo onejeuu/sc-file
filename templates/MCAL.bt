@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCAL.bt
 // Authors: onejeuu
-// Version: 2.2
+// Version: 2.3
 // Purpose: Parse skeletal animation libraries.
 // Category: STALCRAFT
 // File Mask: *.mcal
@@ -52,6 +52,7 @@ typedef struct {
     int frameCount <name="Keyframe Count", bgcolor=cGreen>;
     float frameInterval <name="Frame Interval", fgcolor=cPurple>;
     if ( frameCount > 0 ) KeyFrame frame[frameCount] <optimize=false>;
+    if ( version >= 14.0 ) short unknown <name="Unknown">;
 } Clip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Animation {

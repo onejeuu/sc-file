@@ -25,6 +25,7 @@ class BlendShape:
 
     name: str = "name"
     deltas: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
+    channel: str | None = None
 
 
 @dataclass
