@@ -2,7 +2,7 @@ from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
-from scfile.exceptions import InvalidStructureError
+from scfile.exceptions import BinaryStructureError
 from scfile.formats.mcsa.io import McsaReader
 from scfile.structures import models as S
 
@@ -20,7 +20,7 @@ class McalDecoder(FileDecoder[ModelContent, McsaReader]):
         self._parse_header()
         self._parse_animation()
         if not self.io.eof():
-            raise InvalidStructureError(self.location, self.io.tell())
+            raise BinaryStructureError(location=self.location, offset=self.io.tell())
 
     def _parse_header(self):
         self.data.version = self.io.value(F.F32)

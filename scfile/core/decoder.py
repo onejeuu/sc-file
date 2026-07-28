@@ -5,9 +5,7 @@ Defines the contract for parsing binary data into structured content.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Generic, Optional, Type, cast
-
-from typing_extensions import TypeVar
+from typing import Any, ClassVar, Generic, Optional, Type, TypeVar, cast
 
 from scfile import exceptions
 
@@ -138,14 +136,20 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         Validate file signature.
 
         Raises:
-            `EmptyFileError` or `InvalidSignatureError` on failure.
+            `EmptyFileError` or `SignatureMismatchError` on failure.
         """
 
         if self.io.size() <= len(self.signature or bytes()):
             raise exceptions.EmptyFileError(self.location)
 
         if self.signature:
+            offset = self.io.tell()
             read = self.io.read(len(self.signature))
 
             if read != self.signature:
-                raise exceptions.InvalidSignatureError(self.location, read, self.signature)
+                raise exceptions.SignatureMismatchError(
+                    read,
+                    self.signature,
+                    location=self.location,
+                    offset=offset,
+                )

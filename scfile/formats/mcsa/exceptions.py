@@ -1,21 +1,27 @@
-from dataclasses import dataclass
+"""
+MCSA decoding exceptions.
+"""
 
-from scfile import exceptions
+from typing import Optional
 
-
-class McsaDecodingError(exceptions.FileError, exceptions.DecodingError):
-    """Base exception for MCSA model related errors."""
-
-    @property
-    def prefix(self):
-        return "Model"
+from scfile.exceptions import DecodingError
 
 
-@dataclass
-class McsaVersionUnsupported(McsaDecodingError, exceptions.UnsupportedError):
-    """Raised when attempting to parse unsupported model version."""
+class ModelVersionError(DecodingError):
+    """Raised when a model version is not supported."""
 
-    version: float
+    unsupported = True
 
-    def __str__(self):
-        return f"{super().__str__()} has unsupported version: {self.version}."
+    def __init__(
+        self,
+        version: float,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported model version: {version}.",
+            location=location,
+            offset=offset,
+        )
+        self.version = version

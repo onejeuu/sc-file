@@ -8,7 +8,7 @@ from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 from .enums import TextureKind
-from .exceptions import OlFormatUnsupported, OlKindUnsupported
+from .exceptions import TextureFormatError, TextureKindError
 from .formats import SUPPORTED_FORMATS
 from .io import OlReader
 
@@ -40,7 +40,11 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
         self.data.format = self.io.format()
 
         if self.data.format not in SUPPORTED_FORMATS:
-            raise OlFormatUnsupported(self.location, self.data.format)
+            raise TextureFormatError(
+                self.data.format,
+                location=self.location,
+                offset=self.io.tell(),
+            )
 
     def _parse_kind(self):
         kind = self.io.value(F.U8)
@@ -53,7 +57,11 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
                 self.data.texture = CubemapTexture()
 
             case _:
-                raise OlKindUnsupported(self.location, kind)
+                raise TextureKindError(
+                    kind,
+                    location=self.location,
+                    offset=self.io.tell(),
+                )
 
     def _parse_sizes(self):
         match self.data.texture:
@@ -95,4 +103,7 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
             return lz4.block.decompress(self.io.read(compressed), uncompressed)
 
         except lz4.block.LZ4BlockError:
-            raise exceptions.InvalidStructureError(self.location, position=position) from None
+            raise exceptions.BinaryStructureError(
+                location=self.location,
+                offset=position,
+            ) from None

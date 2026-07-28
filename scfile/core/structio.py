@@ -13,7 +13,7 @@ from numpy.typing import NDArray
 
 from scfile.enums import ByteOrder, F, UnicodeErrors
 from scfile.enums import SafetyLimit as Limit
-from scfile.exceptions import InvalidStructureError, LimitError
+from scfile.exceptions import BinaryStructureError, SafetyLimitError
 from scfile.types import PathLike
 
 
@@ -131,9 +131,9 @@ class StructReader(StructIO):
             return struct.unpack(fmt, self.read(size))
 
         except struct.error:
-            raise InvalidStructureError(
-                self.location,
-                position=self.tell(),
+            raise BinaryStructureError(
+                location=self.location,
+                offset=self.tell(),
             ) from None
 
     def value(
@@ -200,11 +200,12 @@ class StructReader(StructIO):
 
         maximum = int(limit)
         if value > maximum:
-            raise LimitError(
-                self.location,
+            raise SafetyLimitError(
                 limit.name.lower(),
                 value,
                 maximum,
+                location=self.location,
+                offset=self.tell(),
             )
         return value
 

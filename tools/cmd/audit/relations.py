@@ -62,8 +62,7 @@ def found(relations: Relations, formats: tuple[str, ...]) -> Counter:
 
 def _error(path: Path, root: Path, error: Exception) -> Error:
     relative = os.path.relpath(path, root).replace("\\", "/")
-    message = str(error).replace(str(path), relative)
-    return Error(path=relative, error=f"{type(error).__name__}: {message}")
+    return Error(path=relative, error=f"{type(error).__name__}: {error}")
 
 
 def _decode(

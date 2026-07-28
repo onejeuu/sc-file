@@ -29,11 +29,11 @@ class AnimateWorker(Worker):
             )
             logger.done(f"'{self.animation}'")
 
-        except exceptions.InvalidStructureError as err:
-            logger.error(f"{str(err)} {Text.EXCEPTION}")
+        except exceptions.BinaryStructureError as err:
+            logger.error(f"'{err.location or self.animation}': {err} {Text.EXCEPTION}")
 
         except exceptions.ScFileException as err:
-            logger.error(str(err))
+            logger.error(f"'{err.location or self.animation}': {err}")
 
         except Exception as err:
             logger.exception(repr(err))

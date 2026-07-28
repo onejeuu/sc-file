@@ -1,33 +1,136 @@
-from dataclasses import dataclass
-from typing import Optional
+"""
+Library exceptions and diagnostic context.
+"""
+
+from typing import ClassVar, Optional
 
 
 class ScFileException(Exception):
     """Base exception for scfile library."""
 
+    unsupported: ClassVar[bool] = False
+    """Whether the condition is intentionally unsupported."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(message)
+        self.location = location
+        self.offset = offset
+
+    def __str__(self) -> str:
+        message = super().__str__()
+        if self.offset is None:
+            return message
+        return f"{message} (offset: {self.offset})."
+
+
+class FileError(ScFileException):
+    """Base exception for source file access and recognition."""
+
     ...
+
+
+class FileNotFound(FileError):
+    """Raised when a source file does not exist."""
+
+    def __init__(
+        self,
+        location: str,
+    ) -> None:
+        super().__init__("File not found.", location=location)
+
+
+class EmptyFileError(FileError):
+    """Raised when a source file is empty."""
+
+    def __init__(
+        self,
+        location: str,
+    ) -> None:
+        super().__init__("File is empty.", location=location)
+
+
+class UnknownFormatError(FileError):
+    """Raised when a source file format cannot be identified."""
+
+    def __init__(
+        self,
+        location: str,
+        format: str,
+    ) -> None:
+        super().__init__(f"Unknown format '{format}'.", location=location)
+        self.format = format
 
 
 class DecodingError(ScFileException):
-    """Base exception occurring while file decoding."""
+    """Base exception raised while decoding a file."""
 
     ...
+
+
+class SignatureMismatchError(DecodingError):
+    """Raised when a file signature differs from the expected value."""
+
+    def __init__(
+        self,
+        actual: bytes,
+        expected: bytes,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Signature mismatch: {actual.hex().upper()} != {expected.hex().upper()}.",
+            location=location,
+            offset=offset,
+        )
+        self.actual = actual
+        self.expected = expected
+
+
+class BinaryStructureError(DecodingError):
+    """Raised when binary data does not match the expected structure."""
+
+    def __init__(
+        self,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(self._message(), location=location, offset=offset)
+
+    def _message(self) -> str:
+        return "Invalid binary structure."
+
+
+class SafetyLimitError(BinaryStructureError):
+    """Raised when a decoded value exceeds a safety limit."""
+
+    def __init__(
+        self,
+        subject: str,
+        count: int,
+        maximum: int,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        self.subject = subject
+        self.count = count
+        self.maximum = maximum
+        super().__init__(location=location, offset=offset)
+
+    def _message(self) -> str:
+        return f"Safety limit exceeded: {self.count:,} {self.subject} (max: {self.maximum:,})."
 
 
 class EncodingError(ScFileException):
-    """Base exception occurring while file encoding."""
-
-    ...
-
-
-class ParsingError(ScFileException):
-    """Base exception occurring due to unexpected file structure."""
-
-    ...
-
-
-class UnsupportedError(ScFileException):
-    """Base exception occurring intentionally for unsupported formats."""
+    """Base exception raised while encoding a file."""
 
     ...
 
@@ -44,112 +147,24 @@ class RegistryError(ScFileException):
     ...
 
 
-class BaseIOError(ScFileException):
-    """Base exception occurring i/o operations."""
-
-    @property
-    def prefix(self) -> str:
-        return "File"
-
-    def __str__(self):
-        return f"{self.prefix}"
-
-
-@dataclass
-class FileError(BaseIOError):
-    """Base exception occurring file i/o operations."""
-
-    location: str
-
-    def __str__(self):
-        return f"{super().__str__()} {self.location}"
-
-
-@dataclass
-class FileNotFound(FileError):
-    """Raised when file doesn't exist."""
-
-    def __str__(self):
-        return f"{super().__str__()} not found or doesn't exist."
-
-
-@dataclass
-class EmptyFileError(FileError):
-    """Raised when file is empty."""
-
-    def __str__(self):
-        return f"{super().__str__()} is empty."
-
-
-@dataclass
-class UnsupportedFormatError(FileError):
-    """Raised when file format (by suffix) is not supported."""
-
-    suffix: str
-
-    def __str__(self):
-        return f"{super().__str__()} has unsupported suffix '{self.suffix}'."
-
-
-@dataclass
-class InvalidSignatureError(FileError):
-    """Raised when file signature doesn't match expected."""
-
-    actual: bytes
-    expected: bytes
-
-    def __str__(self):
-        return (
-            f"{super().__str__()} has invalid signature - "
-            f"'{self.actual.hex().upper()}' != '{self.expected.hex().upper()}'. "
-            "(file suffix doesn't match file content)."
-        )
-
-
-@dataclass
-class InvalidStructureError(FileError):
-    """Raised when file structure is invalid."""
-
-    position: Optional[int] = None
-
-    def __str__(self):
-        return f"{super().__str__()} parsing failed{f' at position {self.position}' if self.position else ''}."
-
-
-@dataclass
-class LimitError(FileError, ParsingError):
-    """Raised when a decoded value exceeds its safety limit."""
-
-    type: str
-    count: int
-    maximum: int
-
-    def __str__(self) -> str:
-        return (
-            f"{super().__str__()} has invalid structure - "
-            f"{self.count:,} {self.type} "
-            f"(max reasonable: {self.maximum:,})."
-        )
-
-
 class RegionError(ScFileException):
     """Base exception for region operations."""
 
-    pass
+    ...
 
 
-@dataclass
 class RegionFileError(RegionError):
     """Raised when a region file fails to decode."""
 
-    path: str
-
-    def __str__(self):
-        return f"Region '{self.path}'"
+    def __init__(
+        self,
+        location: str,
+    ) -> None:
+        super().__init__("Region file failed to decode.", location=location)
 
 
 class MergeInterrupted(RegionError):
     """Raised when region merge is interrupted by user."""
 
-    def __str__(self):
-        return "Merge interrupted"
+    def __init__(self) -> None:
+        super().__init__("Merge interrupted.")

@@ -30,12 +30,11 @@ def _decode(asset: Asset, config: Config, options: Options) -> Result:
 
     except Exception as error:
         relative = os.path.relpath(asset.path, config.path).replace("\\", "/")
-        message = str(error).replace(asset.path, relative)
         return Result(
             format=asset.format,
             error=Error(
                 path=relative,
-                error=f"{type(error).__name__}: {message}",
+                error=f"{type(error).__name__}: {error}",
             ),
         )
 

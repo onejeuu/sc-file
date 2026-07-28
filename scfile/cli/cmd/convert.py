@@ -110,11 +110,11 @@ def convert_command(
             convert.auto(source=entry.path, output=dest, options=options)
             print(L.DONE, f"'{entry.path}'")
 
-        except exceptions.InvalidStructureError as err:
-            print(L.ERROR, str(err), Text.EXCEPTION)
+        except exceptions.BinaryStructureError as err:
+            print(L.ERROR, f"'{err.location or entry.path}': {err}", Text.EXCEPTION)
 
         except exceptions.ScFileException as err:
-            print(L.ERROR, str(err))
+            print(L.ERROR, f"'{err.location or entry.path}': {err}")
 
         except Exception as err:
             print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", Text.EXCEPTION)

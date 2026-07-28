@@ -6,9 +6,7 @@ Defines the contract for serializing structured content into binary data.
 
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import ClassVar, Generic, Optional, Self, TypeAlias, cast
-
-from typing_extensions import TypeVar
+from typing import ClassVar, Generic, Optional, Self, TypeAlias, TypeVar, cast
 
 from scfile.structures.models import AnimationClip, Flag
 from scfile.structures.models.transforms import SceneTransform

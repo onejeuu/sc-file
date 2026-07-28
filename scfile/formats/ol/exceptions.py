@@ -1,31 +1,47 @@
-from dataclasses import dataclass
+"""
+OL decoding exceptions.
+"""
 
-from scfile import exceptions
+from typing import Optional
 
-
-class OlDecodingError(exceptions.FileError, exceptions.ParsingError):
-    """Base exception for OL texture related errors."""
-
-    @property
-    def prefix(self):
-        return "Texture"
+from scfile.exceptions import DecodingError
 
 
-@dataclass
-class OlFormatUnsupported(OlDecodingError, exceptions.UnsupportedError):
-    """Raised when texture contains unsupported format."""
+class TextureFormatError(DecodingError):
+    """Raised when a texture format is not supported."""
 
-    format: bytes
+    unsupported = True
 
-    def __str__(self):
-        return f"{super().__str__()} has unsupported format: {self.format}."
+    def __init__(
+        self,
+        format: bytes,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported texture format: {format!r}.",
+            location=location,
+            offset=offset,
+        )
+        self.format = format
 
 
-@dataclass
-class OlKindUnsupported(OlDecodingError, exceptions.UnsupportedError):
-    """Raised when texture contains unsupported kind."""
+class TextureKindError(DecodingError):
+    """Raised when a texture kind is not supported."""
 
-    kind: int
+    unsupported = True
 
-    def __str__(self):
-        return f"{super().__str__()} has unsupported kind: {self.kind}."
+    def __init__(
+        self,
+        kind: int,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported texture kind: {kind}.",
+            location=location,
+            offset=offset,
+        )
+        self.kind = kind

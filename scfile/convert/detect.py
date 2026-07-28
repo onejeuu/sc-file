@@ -36,8 +36,8 @@ def auto(
         options (optional): Shared handlers options.
 
     Raises:
-        InvalidStructureError: Source file is corrupted.
-        UnsupportedFormatError: Source file format not supported.
+        BinaryStructureError: Source file is corrupted.
+        UnknownFormatError: Source file format cannot be detected.
 
     Example:
         - ``auto("model.mcsb", "model.obj")``
@@ -48,11 +48,11 @@ def auto(
     src_path = Path(source)
     source_spec = RESOLVER.resolve(src_path)
     if source_spec is None or source_spec.decoder is None:
-        raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
+        raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
 
     options = options or Options()
     targets = RESOLVER.targets(source_spec, options)
     if not targets:
-        raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
+        raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
 
     return [convert(source_spec.decoder, encoder, src_path, output, options) for encoder in targets.values()]

@@ -4,7 +4,7 @@ description = "Utility & Library for decoding stalcraft assets"
 
 dynamic = ["version"]
 
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 
 authors = [{ name = "onejeuu", email = "mail@66rk.ru" }]
 
@@ -16,7 +16,6 @@ dependencies = [
     "lz4>=4.4.5,<5.0.0",
     "numpy>=2.4.6,<3.0.0",
     "rich>=15.0.0,<16.0.0",
-    "typing_extensions>=4.12.0,<5.0.0",
     "zstandard>=0.25.0,<1.0.0",
 ]
 

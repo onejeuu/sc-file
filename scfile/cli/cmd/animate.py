@@ -8,6 +8,12 @@ from scfile.enums import AnimateCommand, CliCommand, L
 from . import scfile
 
 
+def _error_message(error: exceptions.ScFileException) -> str:
+    if error.location:
+        return f"'{error.location}': {error}"
+    return str(error)
+
+
 @scfile.group(name=CliCommand.ANIMATE)
 def animate() -> None:
     """Export models with external animations."""
@@ -47,7 +53,7 @@ def arms(
         print(L.DONE, f"'{animation}'")
 
     except exceptions.ScFileException as err:
-        raise click.ClickException(str(err)) from None
+        raise click.ClickException(_error_message(err)) from None
 
 
 @animate.command(name=AnimateCommand.FACE)
@@ -82,7 +88,7 @@ def face(
         print(L.DONE, f"'{animation}'")
 
     except exceptions.ScFileException as err:
-        raise click.ClickException(str(err)) from None
+        raise click.ClickException(_error_message(err)) from None
 
 
 @animate.command(name=AnimateCommand.BODY)
@@ -117,4 +123,4 @@ def body(
         print(L.DONE, f"'{library}'")
 
     except exceptions.ScFileException as err:
-        raise click.ClickException(str(err)) from None
+        raise click.ClickException(_error_message(err)) from None

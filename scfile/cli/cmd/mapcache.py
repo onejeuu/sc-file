@@ -20,7 +20,7 @@ def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: Opt
         print(L.DONE, f"{filename} merged {chunks} chunks")
 
     except exceptions.RegionFileError as err:
-        print(L.ERROR, repr(err))
+        print(L.ERROR, f"'{err.location}': {err}")
 
 
 @scfile.command(name=CliCommand.MAPCACHE)

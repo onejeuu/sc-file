@@ -39,7 +39,7 @@ class MergeTask(QRunnable):
             pass
 
         except exceptions.RegionFileError as err:
-            logger.error(str(err))
+            logger.error(f"'{err.location}': {err}")
 
         except Exception as err:
             logger.error(f"Region ({self.key}): {repr(err)}")

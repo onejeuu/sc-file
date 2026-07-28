@@ -5,7 +5,7 @@ Extensions for MS3D file format with custom struct-based I/O methods.
 from scfile.core import StructWriter
 from scfile.enums import F
 
-from .exceptions import Ms3dCountsLimit
+from .exceptions import Ms3dCapacityError
 
 
 class Ms3dWriter(StructWriter):
@@ -16,7 +16,7 @@ class Ms3dWriter(StructWriter):
         limit: int,
     ) -> None:
         if count > limit:
-            raise Ms3dCountsLimit(type, count, limit)
+            raise Ms3dCapacityError(type, count, limit)
         self.value(F.U16, count)
 
     def write_fixed_string(

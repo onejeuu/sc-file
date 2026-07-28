@@ -1,23 +1,31 @@
-from dataclasses import dataclass
+"""
+MS3D encoding exceptions.
+"""
 
-from scfile import exceptions
+from typing import Optional
 
-
-class Ms3dEncodingError(exceptions.BaseIOError, exceptions.EncodingError):
-    """Base exception for MS3D model related errors."""
-
-    @property
-    def prefix(self):
-        return "MS3D Model"
+from scfile.exceptions import EncodingError
 
 
-@dataclass
-class Ms3dCountsLimit(Ms3dEncodingError, exceptions.UnsupportedError):
-    """Raised when model exceeds format limitations."""
+class Ms3dCapacityError(EncodingError):
+    """Raised when a model exceeds MS3D format capacity."""
 
-    type: str
-    count: int
-    limit: int
+    unsupported = True
 
-    def __str__(self) -> str:
-        return f"{super().__str__()} - {self.type} count exceeds limit: {self.count:,} > {self.limit:,}"
+    def __init__(
+        self,
+        subject: str,
+        count: int,
+        capacity: int,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"MS3D capacity exceeded: {count:,} {subject} (max: {capacity:,}).",
+            location=location,
+            offset=offset,
+        )
+        self.subject = subject
+        self.count = count
+        self.capacity = capacity

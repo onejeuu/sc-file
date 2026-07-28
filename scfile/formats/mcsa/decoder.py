@@ -8,12 +8,12 @@ from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
-from scfile.exceptions import InvalidStructureError
+from scfile.exceptions import BinaryStructureError
 from scfile.structures import models as S
 from scfile.structures.models import Flag
 
 from .consts import McsaUnits
-from .exceptions import McsaVersionUnsupported
+from .exceptions import ModelVersionError
 from .io import McsaReader
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
@@ -74,7 +74,11 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
         self.data.version = self.io.value(F.F32)
 
         if self.data.version not in SUPPORTED_VERSIONS:
-            raise McsaVersionUnsupported(self.location, self.data.version)
+            raise ModelVersionError(
+                self.data.version,
+                location=self.location,
+                offset=self.io.tell(),
+            )
 
     def _parse_flags(self):
         latest = max(VERSION_MAP.keys())
@@ -202,7 +206,7 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
         names = [self.io.string() for _ in range(count)]
 
         if len(channel_ids) != count:
-            raise InvalidStructureError(self.location, position=self.io.tell())
+            raise BinaryStructureError(location=self.location, offset=self.io.tell())
 
         self.io.check(count * vertices, Limit.BLEND_DELTAS)
         deltas = self.io.blend_shapes(count, vertices, mesh.blend_vertex_map)
@@ -289,7 +293,7 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
                 continue
 
             if channel_id >= len(channels):
-                raise InvalidStructureError(self.location, position=self.io.tell())
+                raise BinaryStructureError(location=self.location, offset=self.io.tell())
 
             shape.channel = channels[channel_id]
 
