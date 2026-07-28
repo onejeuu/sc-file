@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 from scfile.enums import F
 from scfile.formats.fbx.enums import PropertyType as Prop
 
-from .structio import StructWriter
+from .base import StructWriter
 
 
 Scalar: TypeAlias = bool | int | float | str | bytes | np.integer | np.floating

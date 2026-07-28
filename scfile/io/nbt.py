@@ -4,7 +4,7 @@ from scfile.core.content import NbtValue
 from scfile.enums import ByteOrder, F
 from scfile.formats.nbt.enums import Tag
 
-from .structio import StructReader
+from .base import StructReader
 
 
 class NbtReader(StructReader):

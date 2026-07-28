@@ -2,7 +2,7 @@
 Structured binary I/O.
 """
 
-from .structio import FileMode, IOStream, StructIO, StructReader, StructWriter
+from .base import FileMode, IOStream, StructIO, StructReader, StructWriter
 
 
 __all__ = (

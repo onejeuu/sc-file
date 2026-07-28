@@ -9,7 +9,7 @@ from scfile.enums import F
 from scfile.structures import models as S
 from scfile.structures.models import ModelUnits as Units
 
-from .structio import StructReader
+from .base import StructReader
 
 
 class ModelReader(StructReader):

@@ -5,7 +5,7 @@ Extensions for MS3D file format with custom struct-based I/O methods.
 from scfile.enums import F
 from scfile.exceptions import Ms3dCapacityError
 
-from .structio import StructWriter
+from .base import StructWriter
 
 
 class Ms3dWriter(StructWriter):

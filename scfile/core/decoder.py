@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Generic, Optional, Type, TypeVar, cast
 
 from scfile import exceptions
-from scfile.io.structio import IOStream, StructReader
+from scfile.io.base import IOStream, StructReader
 
 from .base import BaseFile
 from .content import BaseContent, ContentType
