@@ -1,15 +1,14 @@
 import sys
 import traceback
-from pathlib import Path
 from typing import Never
 
 import click
 from rich import print
 from rich.markup import escape
 
+from scfile.cli import routing
 from scfile.cli.cmd import scfile
-from scfile.consts import SUPPORTED_SUFFIXES
-from scfile.enums import CliCommand, FileFormat, L
+from scfile.enums import L
 
 
 def _run_gui() -> None:  # pragma: no cover
@@ -43,40 +42,17 @@ def _ensure_command() -> None:
 
     # Backfill command if missing
     if command := _default_command(args):
-        sys.argv.insert(1, command)
-        if command == CliCommand.ANIMATE:
-            sys.argv.insert(2, "arms")
+        sys.argv[1:1] = command
 
 
-def _default_command(args: list[str]) -> CliCommand | None:
+def _default_command(args: list[str]) -> list[str] | None:
     first_arg = args[0]
 
     # Use explicit command
     if first_arg in scfile.commands:
         return None
 
-    # Use map cache if path detected
-    if "map_cache" in first_arg:
-        return CliCommand.MAPCACHE
-
-    sources = [Path(arg) for arg in args if Path(arg).suffix.lower() in SUPPORTED_SUFFIXES]
-    if _is_fp_animation_sources(sources):
-        return CliCommand.ANIMATE
-
-    return CliCommand.CONVERT  # Fallback
-
-
-def _is_fp_animation_sources(sources: list[Path]) -> bool:
-    if len(sources) not in (2, 3):
-        return False
-
-    animation, *models = sources
-    name = animation.stem.lower()
-    return (
-        animation.suffix.lower() == FileFormat.MCVD.suffix
-        and all(model.suffix.lower() == FileFormat.MCSB.suffix for model in models)
-        and ("fp_" in name or "wpn_" in name)
-    )
+    return routing.resolve(args)
 
 
 def main() -> Never:

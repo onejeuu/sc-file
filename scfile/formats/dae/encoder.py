@@ -24,6 +24,7 @@ DEFAULT_COLOR = "1 1 1 1"
 
 
 class DaeEncoder(FileEncoder[ModelContent]):
+    content_type = ModelContent
     format = FileFormat.DAE
     order = ByteOrder.LITTLE
 

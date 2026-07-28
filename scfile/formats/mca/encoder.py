@@ -36,6 +36,7 @@ _PAYLOAD_CHUNK = (
 
 
 class McaEncoder(FileEncoder[RegionContent]):
+    content_type = RegionContent
     format = FileFormat.MCA
     order = ByteOrder.BIG
 

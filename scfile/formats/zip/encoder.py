@@ -5,6 +5,7 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class TexarrEncoder(FileEncoder[TexarrContent]):
+    content_type = TexarrContent
     format = FileFormat.ZIP
     order = ByteOrder.LITTLE
 

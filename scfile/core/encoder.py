@@ -6,14 +6,14 @@ Defines the contract for serializing structured content into binary data.
 
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Generic, Optional, Self, TypeAlias
+from typing import ClassVar, Generic, Optional, Self, TypeAlias
 
 from scfile.structures.models import AnimationClip, Flag
 from scfile.structures.models.transforms import SceneTransform
 from scfile.types import PathLike
 
 from .base import BaseFile, FileMode, IOStream
-from .content import ContentType, ModelContent
+from .content import BaseContent, ContentType, ModelContent
 from .options import Options
 
 
@@ -26,6 +26,9 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
 
     Subclasses define the format-specific serialization logic.
     """
+
+    content_type: ClassVar[type[BaseContent]]
+    """Content type accepted by encoder."""
 
     transforms: EncoderTransforms = None
     """Format-specific transforms applied to model data before serialization."""

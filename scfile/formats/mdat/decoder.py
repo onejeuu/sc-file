@@ -15,7 +15,7 @@ class MdatDecoder(FileDecoder[RegionContent]):
     format = FileFormat.MDAT
     order = ByteOrder.BIG
 
-    _content = RegionContent
+    content_factory = RegionContent
 
     def as_mca(self):
         return self.convert_to(formats.mca.McaEncoder)

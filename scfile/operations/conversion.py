@@ -1,38 +1,22 @@
 """
-Basic implementation of converting one format to another.
+Single file conversion.
 """
 
 from pathlib import Path
-from typing import Optional, Type
+from typing import Optional
 
 from scfile import exceptions, types
 from scfile.core import ContentType, FileDecoder, FileEncoder, Options
 
 
 def convert(
-    decoder: Type[FileDecoder[ContentType]],
-    encoder: Type[FileEncoder[ContentType]],
+    decoder: type[FileDecoder[ContentType]],
+    encoder: type[FileEncoder[ContentType]],
     source: types.PathLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
-) -> None:
-    """
-    Convert one file between formats.
-
-    Args:
-        decoder: Decoder class for source format.
-        encoder: Encoder class for output format.
-        source: Path to source file.
-        output (optional): Path to output file or directory. Defaults to source directory.
-        options (optional): Shared handlers options.
-
-    Raises:
-        FileNotFound: Source file does not exist.
-
-    Example:
-        - ``convert(McsaDecoder, ObjEncoder, "model.mcsb", "model.obj")``
-        - ``convert(McsaDecoder, ObjEncoder, "model.mcsb", "path/to/output/dir")``
-    """
+) -> Path:
+    """Convert one file between two formats."""
 
     src_path = validate_sources(source)[0]
     output_path = destination(src_path, output, encoder.format.suffix)
@@ -40,7 +24,7 @@ def convert(
 
     match options.on_conflict:
         case "skip" if output_path.exists():
-            return
+            return output_path
         case "rename":
             output_path = ensure_unique_path(output_path)
 
@@ -48,8 +32,12 @@ def convert(
         with src.convert_to(encoder=encoder) as out:
             out.save(path=output_path)
 
+    return output_path
 
-def validate_sources(*sources: types.PathLike) -> list[Path]:
+
+def validate_sources(
+    *sources: types.PathLike,
+) -> list[Path]:
     """Resolve source paths and require regular files."""
 
     paths = [Path(source) for source in sources]
@@ -77,7 +65,9 @@ def destination(
     return result
 
 
-def ensure_unique_path(path: Path) -> Path:
+def ensure_unique_path(
+    path: Path,
+) -> Path:
     """Append a counter to path if a file already exists."""
 
     filename, suffix = path.stem, path.suffix

@@ -32,7 +32,7 @@ class McsaDecoder(FileDecoder[ModelContent], McsaFileIO):
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE
 
-    _content = ModelContent
+    content_factory = ModelContent
 
     def as_obj(self):
         return self.convert_to(formats.obj.ObjEncoder)

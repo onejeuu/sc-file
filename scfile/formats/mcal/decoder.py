@@ -12,7 +12,8 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
     signature = FileSignature.MCAL
     order = ByteOrder.LITTLE
 
-    _content = ModelContent
+    content_factory = ModelContent
+    convertible = False
 
     def parse(self):
         self._parse_header()

@@ -9,6 +9,7 @@ from .header import DDS
 
 
 class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
+    content_type = TextureContent
     format = FileFormat.DDS
     signature = FileSignature.DDS
     order = ByteOrder.LITTLE

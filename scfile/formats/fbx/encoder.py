@@ -14,6 +14,7 @@ from .io import FbxFileIO
 
 
 class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
+    content_type = ModelContent
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
 

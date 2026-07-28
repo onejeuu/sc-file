@@ -1,9 +1,9 @@
 import click
 from rich import print
 
-from scfile import convert, exceptions, types
+from scfile import exceptions, operations, types
 from scfile.cli import params
-from scfile.enums import CliCommand, L
+from scfile.enums import AnimateCommand, CliCommand, L
 
 from . import scfile
 
@@ -13,7 +13,7 @@ def animate() -> None:
     """Export models with external animations."""
 
 
-@animate.command()
+@animate.command(name=AnimateCommand.ARMS)
 @click.argument(
     "ANIMATION",
     type=params.File,
@@ -39,7 +39,7 @@ def arms(
     """Apply first-person animation to weapon and hands models."""
 
     try:
-        convert.animate(
+        operations.arms(
             animation,
             *models,
             output=output,
@@ -50,7 +50,7 @@ def arms(
         raise click.ClickException(str(err)) from None
 
 
-@animate.command()
+@animate.command(name=AnimateCommand.FACE)
 @click.argument(
     "ANIMATION",
     type=params.File,
@@ -74,7 +74,7 @@ def face(
     """Apply facial animation to a head model."""
 
     try:
-        convert.lipsync(
+        operations.face(
             animation,
             model,
             output=output,
@@ -85,7 +85,7 @@ def face(
         raise click.ClickException(str(err)) from None
 
 
-@animate.command()
+@animate.command(name=AnimateCommand.BODY)
 @click.argument(
     "LIBRARY",
     type=params.File,
@@ -109,7 +109,7 @@ def body(
     """Apply animation library to a model."""
 
     try:
-        convert.apply_mcal(
+        operations.body(
             library,
             model,
             output=output,

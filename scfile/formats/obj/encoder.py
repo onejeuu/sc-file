@@ -10,6 +10,7 @@ from . import faces
 
 
 class ObjEncoder(FileEncoder[ModelContent]):
+    content_type = ModelContent
     format = FileFormat.OBJ
     order = ByteOrder.LITTLE
 

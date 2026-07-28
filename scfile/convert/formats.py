@@ -9,7 +9,7 @@ from scfile import formats
 from scfile.core import Options
 from scfile.types import PathLike
 
-from .factory import converter
+from .named import converter
 
 
 @converter(formats.mcsb.McsbDecoder, formats.obj.ObjEncoder)

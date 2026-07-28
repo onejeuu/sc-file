@@ -18,7 +18,7 @@ class OlDecoder(FileDecoder[TextureContent[TextureData]], OlFileIO):
     signature = FileSignature.OL
     order = ByteOrder.BIG
 
-    _content = TextureContent
+    content_factory = TextureContent
 
     def as_dds(self):
         return self.convert_to(formats.dds.DdsEncoder)

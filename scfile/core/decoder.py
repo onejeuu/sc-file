@@ -6,14 +6,14 @@ Defines the contract for parsing binary data into structured content.
 
 from abc import ABC, abstractmethod
 from enum import IntEnum
-from typing import Generic, Optional, Type, TypeVar
+from typing import ClassVar, Generic, Optional, Type, TypeVar, cast
 
 from scfile import exceptions
 from scfile.enums import ByteOrder, F
 from scfile.enums import SafetyLimit as Limit
 
 from .base import BaseFile, IOStream
-from .content import ContentType
+from .content import BaseContent, ContentType
 from .encoder import FileEncoder
 from .options import Options
 
@@ -28,7 +28,11 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
     Subclasses define format-specific parsing logic.
     """
 
-    _content: type[ContentType]
+    content_factory: ClassVar[type[BaseContent]]
+    """Factory for decoded content."""
+
+    convertible: bool = True
+    """Allow direct conversion into compatible output formats."""
 
     def __init__(
         self,
@@ -47,7 +51,7 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
             Call :meth:`decode` to perform the actual parsing.
         """
 
-        self.data: ContentType = self._content()
+        self.data = cast(ContentType, self.content_factory())
         self.options: Options = options or Options()
 
         super().__init__(stream=stream, mode="rb")

@@ -5,6 +5,7 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class JsonEncoder(FileEncoder[NbtContent]):
+    content_type = NbtContent
     format = FileFormat.JSON
     order = ByteOrder.LITTLE
 

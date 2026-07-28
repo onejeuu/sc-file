@@ -1,11 +1,12 @@
-__version__ = "5.3.0"
+__version__ = "6.0.0"
 __author__ = "onejeuu"
 __license__ = "MIT"
 
 __repository__ = "onejeuu/sc-file"
 
 from .core import Options
-from . import cli, consts, convert, enums, exceptions, formats, structures, types
+from . import consts, enums, exceptions, structures, types
+from . import formats, operations, registry, convert, cli
 
 
 __all__ = (
@@ -15,6 +16,8 @@ __all__ = (
     "core",
     "exceptions",
     "formats",
+    "operations",
+    "registry",
     "structures",
     "consts",
     "enums",

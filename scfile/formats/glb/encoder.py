@@ -22,6 +22,7 @@ Accessor: TypeAlias = dict[str, str | int]
 
 
 class GlbEncoder(FileEncoder[ModelContent]):
+    content_type = ModelContent
     format = FileFormat.GLB
     signature = FileSignature.GLTF
     order = ByteOrder.LITTLE

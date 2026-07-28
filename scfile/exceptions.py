@@ -38,6 +38,12 @@ class AnimationError(ScFileException):
     ...
 
 
+class RegistryError(ScFileException):
+    """Raised when registry lookup or registration fails."""
+
+    ...
+
+
 class BaseIOError(ScFileException):
     """Base exception occurring i/o operations."""
 

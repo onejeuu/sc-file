@@ -11,7 +11,7 @@ class TexarrDecoder(FileDecoder[TexarrContent]):
     format = FileFormat.TEXARR
     order = ByteOrder.BIG
 
-    _content = TexarrContent
+    content_factory = TexarrContent
 
     def as_zip(self):
         return self.convert_to(formats.zip.TexarrEncoder)

@@ -1,4 +1,4 @@
-from scfile.convert import decoders
+from scfile.registry import REGISTRY
 from tools.cmd.audit.schemas import Animation, Bone, Image, Mesh, Model, Texture
 from tools.paths import ROOT
 
@@ -6,7 +6,7 @@ from tools.paths import ROOT
 CONFIG = ROOT / "configs" / "audit.toml"
 REPORTS = ROOT / "reports" / "audit"
 
-DECODERS = decoders()
+DECODERS = {str(fmt): decoder for fmt, decoder in REGISTRY.decoders().items()}
 FORMATS = tuple(sorted(DECODERS))
 
 # Broken files in game assets

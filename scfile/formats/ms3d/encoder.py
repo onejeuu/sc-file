@@ -38,6 +38,7 @@ TRIANGLE_DTYPE = np.dtype(
 
 
 class Ms3dEncoder(FileEncoder[ModelContent], Ms3dFileIO):
+    content_type = ModelContent
     format = FileFormat.MS3D
     signature = FileSignature.MS3D
     order = ByteOrder.LITTLE

@@ -149,6 +149,14 @@ class CliCommand(StrEnum):
     MAPCACHE = auto()
 
 
+class AnimateCommand(StrEnum):
+    """Animate subcommand names."""
+
+    ARMS = auto()
+    BODY = auto()
+    FACE = auto()
+
+
 class UpdateStatus(StrEnum):
     """Update check result status."""
 

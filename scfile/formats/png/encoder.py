@@ -4,6 +4,7 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class PngEncoder(FileEncoder[ImageContent]):
+    content_type = ImageContent
     format = FileFormat.PNG
     signature = FileSignature.PNG
     order = ByteOrder.LITTLE

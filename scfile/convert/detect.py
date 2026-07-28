@@ -2,35 +2,31 @@
 Format auto-detection by file extension.
 """
 
-import os
 from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
-from scfile.consts import SUPPORTED_NBT
 from scfile.core import Options
-from scfile.enums import FileFormat
-
-from . import factory, formats
+from scfile.operations import convert
+from scfile.registry import RESOLVER
 
 
 def format(
     source: types.PathLike,
 ) -> str:
     """Detect input file format."""
-    name = os.path.basename(os.fspath(source)).lower()
 
-    if name in SUPPORTED_NBT:
-        return str(FileFormat.NBT)
+    if spec := RESOLVER.resolve(source):
+        return str(spec.format)
 
-    return os.path.splitext(name)[1].lstrip(".")
+    return Path(source).suffix.lower().lstrip(".")
 
 
 def auto(
     source: types.PathLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
-) -> None:
+) -> list[Path]:
     """
     Automatically convert one file between formats based on its extension.
 
@@ -50,35 +46,13 @@ def auto(
     """
 
     src_path = Path(source)
-    src_format = format(source)
+    source_spec = RESOLVER.resolve(src_path)
+    if source_spec is None or source_spec.decoder is None:
+        raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
 
     options = options or Options()
-    model_formats = options.model_formats or options.default_model_formats
+    targets = RESOLVER.targets(source_spec, options)
+    if not targets:
+        raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
 
-    # Detect format by file suffix
-    match src_format:
-        case FileFormat.MCSB | FileFormat.MCSA | FileFormat.MCVD | FileFormat.EFKMODEL:
-            # Get converters mapping from mapping
-            converters = factory.converters(src_format)
-
-            # Convert model to all requested formats
-            for fmt in model_formats:
-                converters[fmt](source, output, options)
-
-        case FileFormat.OL:
-            formats.ol_to_dds(source, output, options)
-
-        case FileFormat.MIC:
-            formats.mic_to_png(source, output, options)
-
-        case FileFormat.TEXARR:
-            formats.texarr_to_zip(source, output, options)
-
-        case FileFormat.NBT:
-            formats.nbt_to_json(source, output, options)
-
-        case FileFormat.MDAT:
-            formats.mdat_to_mca(source, output, options)
-
-        case _:
-            raise exceptions.UnsupportedFormatError(str(src_path), src_path.suffix)
+    return [convert(source_spec.decoder, encoder, src_path, output, options) for encoder in targets.values()]

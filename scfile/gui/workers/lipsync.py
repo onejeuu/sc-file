@@ -1,7 +1,7 @@
 import traceback
 from pathlib import Path
 
-from scfile import convert, exceptions
+from scfile import exceptions, operations
 from scfile.consts import Text
 
 from .base import Worker
@@ -22,7 +22,7 @@ class LipsyncWorker(Worker):
 
     def run(self) -> None:
         try:
-            convert.lipsync(
+            operations.face(
                 self.animation,
                 self.model,
                 output=self.output,

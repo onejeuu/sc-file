@@ -7,8 +7,9 @@ from rich.console import Console
 from rich.filesize import decimal
 from rich.table import Table
 
-from scfile.convert import converters, decoders, detect, encoders, registry
+from scfile.convert import detect
 from scfile.core import Options
+from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 from tools.paths import ROOT
 
@@ -17,13 +18,10 @@ from . import profiler
 
 MODEL = ROOT / "assets" / "profile" / "model.mcsb"
 REPORTS = ROOT / "reports" / "profile"
-DECODERS = decoders()
-ENCODERS = encoders()
-REGISTRY = registry()
 PROFILES = tuple(
     sorted(
-        {f"{source}-decode.prof" for source in DECODERS}
-        | {f"{source}-{target}.prof" for source, targets in REGISTRY.items() for target in targets}
+        {f"{source}-decode.prof" for source in REGISTRY.decoders()}
+        | {f"{source}-{target}.prof" for source in REGISTRY.decoders() for target in REGISTRY.targets(source)}
     )
 )
 
@@ -117,12 +115,13 @@ def profile(
     if not source.is_file():
         raise click.UsageError(f"Reference file not found: '{source}'.")
 
-    source_format = detect.format(source)
-    decoder = DECODERS.get(source_format)
-    if decoder is None:
-        raise click.UsageError(f"Unsupported source format: '{source_format}'.")
+    source_spec = RESOLVER.resolve(source)
+    if source_spec is None or source_spec.decoder is None:
+        raise click.UsageError(f"Unsupported source format: '{detect.format(source)}'.")
 
-    available = converters(source_format)
+    source_format = str(source_spec.format)
+    decoder = source_spec.decoder
+    available = {str(fmt): encoder for fmt, encoder in RESOLVER.targets(source_spec).items()}
     targets = tuple(dict.fromkeys(value.lower().lstrip(".") for value in target))
     if "full" in targets:
         targets = tuple(sorted(available))
@@ -138,7 +137,7 @@ def profile(
     if targets:
         for value in targets:
             name = f"{source_format} to {value}"
-            operation = partial(profiler.convert, source, decoder, ENCODERS[value], options)
+            operation = partial(profiler.convert, source, decoder, available[value], options)
             cases.append((name, operation, reports / f"{source_format}-{value}.prof"))
     else:
         name = f"{source_format} decode"

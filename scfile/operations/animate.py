@@ -1,9 +1,10 @@
 """
-Model animation export.
+External model animation.
 """
 
 from collections import defaultdict
 from dataclasses import replace
+from pathlib import Path
 from typing import Callable, TypeAlias
 
 from scfile import exceptions, formats, types
@@ -12,21 +13,20 @@ from scfile.core.types import ModelDecoder
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
-from .convert import destination, validate_sources
+from .conversion import destination, validate_sources
 
-ANIMATION_MODELS_LIMIT = 8
+
+MODELS_LIMIT = 8
 AnimationTransform: TypeAlias = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
 
 
-def apply_external(
+def _apply_external(
     decoder: ModelDecoder,
     transform: AnimationTransform,
     animation: types.PathLike,
     model: types.PathLike,
     output: types.OutputLike = None,
-) -> None:
-    """Apply external animation data to one model and export GLB."""
-
+) -> Path:
     animation_path, model_path = validate_sources(animation, model)
     output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
     options = Options(skeleton=True, animation=True)
@@ -42,6 +42,8 @@ def apply_external(
 
     with formats.GlbEncoder(data, options) as glb:
         glb.save(output_path)
+
+    return output_path
 
 
 def _skin_context(
@@ -73,31 +75,28 @@ def _skin_context(
 
             skins.append(bind)
 
-        # Match merged mesh order from apply_animation()
         mesh_skins.extend(skin_index if mesh.max_influences else None for mesh in model.scene.meshes)
 
     return skins, mesh_skins
 
 
-def animate(
+def arms(
     animation: types.PathLike,
     *models: types.PathLike,
     output: types.OutputLike = None,
-) -> None:
-    """Export model geometry with MCVD animations to GLB."""
+) -> Path:
+    """Apply first-person animation to weapon and hands models."""
 
     if not models:
         raise exceptions.AnimationError("No models provided.")
 
-    if len(models) > ANIMATION_MODELS_LIMIT:
-        raise exceptions.AnimationError(f"Too many models: {len(models)} (max: {ANIMATION_MODELS_LIMIT}).")
+    if len(models) > MODELS_LIMIT:
+        raise exceptions.AnimationError(f"Too many models: {len(models)} (max: {MODELS_LIMIT}).")
 
     animation_path, *model_paths = validate_sources(animation, *models)
     output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
-
     options = Options(skeleton=True, animation=True)
 
-    # Decode animation and geometry sources
     with formats.McvdDecoder(animation_path, options) as mcvd:
         animation_data = mcvd.decode()
 
@@ -106,7 +105,6 @@ def animate(
         with formats.McsbDecoder(model_path, options) as mcsb:
             model_data.append(mcsb.decode())
 
-    # Combine content while preserving bind poses for each source
     flags: S.ModelFlags = defaultdict(bool, animation_data.flags)
     for model in model_data:
         for flag, enabled in model.flags.items():
@@ -120,3 +118,37 @@ def animate(
         glb.ctx["SKINS"] = skins
         glb.ctx["MESH_SKINS"] = mesh_skins
         glb.save(output_path)
+
+    return output_path
+
+
+def face(
+    animation: types.PathLike,
+    model: types.PathLike,
+    output: types.OutputLike = None,
+) -> Path:
+    """Apply facial animation to a head model."""
+
+    return _apply_external(
+        formats.McvdDecoder,
+        T.apply_morph_animation,
+        animation,
+        model,
+        output,
+    )
+
+
+def body(
+    library: types.PathLike,
+    model: types.PathLike,
+    output: types.OutputLike = None,
+) -> Path:
+    """Apply animation library to a model."""
+
+    return _apply_external(
+        formats.McalDecoder,
+        T.apply_animation_library,
+        library,
+        model,
+        output,
+    )

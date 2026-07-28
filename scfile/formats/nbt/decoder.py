@@ -14,7 +14,7 @@ class NbtDecoder(FileDecoder[NbtContent]):
     format = FileFormat.NBT
     order = ByteOrder.LITTLE
 
-    _content = NbtContent
+    content_factory = NbtContent
 
     def as_json(self):
         return self.convert_to(formats.json.JsonEncoder)
