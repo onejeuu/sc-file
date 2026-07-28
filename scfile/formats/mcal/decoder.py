@@ -3,17 +3,17 @@ from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError
-from scfile.formats.mcsa.io import McsaReader
+from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
 
-class McalDecoder(FileDecoder[ModelContent, McsaReader]):
+class McalDecoder(FileDecoder[ModelContent, ModelReader]):
     format = FileFormat.MCAL
     signature = FileSignature.MCAL
     order = ByteOrder.LITTLE
 
     content_factory = ModelContent
-    io_factory = McsaReader
+    io_factory = ModelReader
     convertible = False
 
     def parse(self):

@@ -1,5 +1,5 @@
 """
-Binary stream ownership and structured I/O.
+Structured binary I/O.
 """
 
 import os

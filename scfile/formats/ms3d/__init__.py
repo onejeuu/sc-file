@@ -16,11 +16,9 @@ Example::
         ms3d.encode().save("output.ms3d")
 """
 
-from . import exceptions
 from .encoder import Ms3dEncoder
 
 
 __all__ = (
     "Ms3dEncoder",
-    "exceptions",
 )

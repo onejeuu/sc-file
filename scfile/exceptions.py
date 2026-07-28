@@ -73,6 +73,66 @@ class DecodingError(ScFileException):
     ...
 
 
+class ModelVersionError(DecodingError):
+    """Raised when a model version is not supported."""
+
+    unsupported = True
+
+    def __init__(
+        self,
+        version: float,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported model version: {version}.",
+            location=location,
+            offset=offset,
+        )
+        self.version = version
+
+
+class TextureFormatError(DecodingError):
+    """Raised when a texture format is not supported."""
+
+    unsupported = True
+
+    def __init__(
+        self,
+        format: bytes,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported texture format: {format!r}.",
+            location=location,
+            offset=offset,
+        )
+        self.format = format
+
+
+class TextureKindError(DecodingError):
+    """Raised when a texture kind is not supported."""
+
+    unsupported = True
+
+    def __init__(
+        self,
+        kind: int,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported texture kind: {kind}.",
+            location=location,
+            offset=offset,
+        )
+        self.kind = kind
+
+
 class SignatureMismatchError(DecodingError):
     """Raised when a file signature differs from the expected value."""
 
@@ -133,6 +193,30 @@ class EncodingError(ScFileException):
     """Base exception raised while encoding a file."""
 
     ...
+
+
+class Ms3dCapacityError(EncodingError):
+    """Raised when a model exceeds MS3D format capacity."""
+
+    unsupported = True
+
+    def __init__(
+        self,
+        subject: str,
+        count: int,
+        capacity: int,
+        *,
+        location: Optional[str] = None,
+        offset: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            f"MS3D capacity exceeded: {count:,} {subject} (max: {capacity:,}).",
+            location=location,
+            offset=offset,
+        )
+        self.subject = subject
+        self.count = count
+        self.capacity = capacity
 
 
 class AnimationError(ScFileException):

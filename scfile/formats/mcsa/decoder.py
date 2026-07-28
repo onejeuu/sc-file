@@ -8,13 +8,11 @@ from scfile.consts import Factor, FileSignature, ModelDefaults
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
-from scfile.exceptions import BinaryStructureError
+from scfile.exceptions import BinaryStructureError, ModelVersionError
 from scfile.structures import models as S
-from scfile.structures.models import Flag
+from scfile.structures.models import Flag, ModelUnits as Units
 
-from .consts import McsaUnits
-from .exceptions import ModelVersionError
-from .io import McsaReader
+from scfile.io.models import ModelReader
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
 
@@ -27,13 +25,13 @@ class MeshCounts:
     blend_shapes: int = 0
 
 
-class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
+class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
     format = FileFormat.MCSA
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE
 
     content_factory = ModelContent
-    io_factory = McsaReader
+    io_factory = ModelReader
 
     def as_obj(self):
         return self.convert_to(formats.obj.ObjEncoder)
@@ -224,7 +222,7 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
         mesh.vertices = self.io.vertex(
             fmt=F.I16,
             factor=Factor.I16,
-            units=McsaUnits.POSITIONS,
+            units=Units.POSITIONS,
             scale=self.data.scene.scale.position,
             count=count,
         )[:, :3]
@@ -233,7 +231,7 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
         mesh.uv1 = self.io.vertex(
             fmt=F.I16,
             factor=Factor.I16,
-            units=McsaUnits.TEXTURES,
+            units=Units.TEXTURES,
             scale=self.data.scene.scale.uv,
             count=count,
         )
@@ -242,7 +240,7 @@ class McsaDecoder(FileDecoder[ModelContent, McsaReader]):
         mesh.uv2 = self.io.vertex(
             fmt=F.I16,
             factor=Factor.I16,
-            units=McsaUnits.TEXTURES,
+            units=Units.TEXTURES,
             scale=self.data.scene.scale.uv2,
             count=count,
         )

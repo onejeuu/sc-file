@@ -3,10 +3,10 @@ from typing import TypeAlias
 import numpy as np
 from numpy.typing import NDArray
 
-from scfile.core import StructWriter
 from scfile.enums import F
+from scfile.formats.fbx.enums import PropertyType as Prop
 
-from .enums import PropertyType as Prop
+from .structio import StructWriter
 
 
 Scalar: TypeAlias = bool | int | float | str | bytes | np.integer | np.floating
@@ -19,50 +19,51 @@ Value: TypeAlias = Scalar | Array | list[Scalar]
 
 
 class FbxWriter(StructWriter):
-    def write_property(
+    def property(
         self,
         value: Value,
     ) -> None:
         match value:
             case bool():
-                self._write_bool(value)
+                self._bool(value)
             case int():
-                self._write_int32(value)
+                self._int32(value)
             case np.integer():
-                self._write_int64(value)
+                self._int64(value)
             case float() | np.floating():
-                self._write_double(value)
+                self._double(value)
             case str() | bytes():
-                self._write_string(value)
+                self._string(value)
             case np.ndarray():
-                self._write_array(value)
+                self._array(value)
             case list():
-                self._write_array(np.array(value, dtype=np.float64))
+                self._array(np.array(value, dtype=np.float64))
 
-    def _write_bool(self, value: bool) -> None:
+    # Serialize individual FBX property payloads selected by property()
+    def _bool(self, value: bool) -> None:
         self.value(F.U8, Prop.BOOL)
         self.value(F.U8, 1 if value else 0)
 
-    def _write_int32(self, value: int) -> None:
+    def _int32(self, value: int) -> None:
         self.value(F.U8, Prop.INT32)
         self.value(F.I32, value)
 
-    def _write_int64(self, value: np.integer) -> None:
+    def _int64(self, value: np.integer) -> None:
         self.value(F.U8, Prop.INT64)
         self.value(F.I64, int(value))
 
-    def _write_double(self, value: float | np.floating) -> None:
+    def _double(self, value: float | np.floating) -> None:
         self.value(F.U8, Prop.DOUBLE)
         self.value(F.F64, float(value))
 
-    def _write_string(self, value: str | bytes) -> None:
+    def _string(self, value: str | bytes) -> None:
         if isinstance(value, str):
             value = value.encode("utf-8")
         self.value(F.U8, Prop.STRING)
         self.value(F.U32, len(value))
         self.write(value)
 
-    def _write_array(self, arr: Array) -> None:
+    def _array(self, arr: Array) -> None:
         prop, size = 0, 0
 
         match arr.dtype:

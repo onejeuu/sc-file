@@ -7,7 +7,7 @@ from scfile.core import FileDecoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 
 from .enums import Tag
-from .io import NbtReader
+from scfile.io.nbt import NbtReader
 
 
 class NbtDecoder(FileDecoder[NbtContent]):

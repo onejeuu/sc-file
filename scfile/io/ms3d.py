@@ -2,24 +2,24 @@
 Extensions for MS3D file format with custom struct-based I/O methods.
 """
 
-from scfile.core import StructWriter
 from scfile.enums import F
+from scfile.exceptions import Ms3dCapacityError
 
-from .exceptions import Ms3dCapacityError
+from .structio import StructWriter
 
 
 class Ms3dWriter(StructWriter):
-    def write_count(
+    def count(
         self,
-        type: str,
+        subject: str,
         count: int,
         limit: int,
     ) -> None:
         if count > limit:
-            raise Ms3dCapacityError(type, count, limit)
+            raise Ms3dCapacityError(subject, count, limit)
         self.value(F.U16, count)
 
-    def write_fixed_string(
+    def fixed_string(
         self,
         text: str,
     ) -> None:

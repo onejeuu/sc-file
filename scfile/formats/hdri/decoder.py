@@ -1,7 +1,8 @@
 import warnings
 from typing import Optional
 
-from scfile.core import IOStream, Options
+from scfile.core import Options
+from scfile.io import IOStream
 from scfile.formats.ol import OlDecoder
 
 

@@ -8,12 +8,12 @@ from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Generic, Optional, Type, TypeVar, cast
 
 from scfile import exceptions
+from scfile.io.structio import IOStream, StructReader
 
-from .base import BaseFile, IOStream
+from .base import BaseFile
 from .content import BaseContent, ContentType
 from .encoder import FileEncoder
 from .options import Options
-from .structio import StructReader
 
 
 EncoderType = TypeVar("EncoderType", bound=FileEncoder[Any, Any])

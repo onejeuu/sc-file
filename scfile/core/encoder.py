@@ -10,12 +10,12 @@ from typing import ClassVar, Generic, Optional, Self, TypeAlias, TypeVar, cast
 
 from scfile.structures.models import AnimationClip, Flag
 from scfile.structures.models.transforms import SceneTransform
+from scfile.io.structio import FileMode, IOStream, StructWriter
 from scfile.types import PathLike
 
-from .base import BaseFile, FileMode, IOStream
+from .base import BaseFile
 from .content import BaseContent, ContentType, ModelContent
 from .options import Options
-from .structio import StructWriter
 
 
 EncoderTransforms: TypeAlias = Optional[list[SceneTransform]]

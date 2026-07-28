@@ -2,8 +2,8 @@
 Abstract core classes for reading and writing binary formats.
 """
 
-from . import base, decoder, encoder, options, structio, types
-from .base import BaseFile, FileMode, IOStream
+from . import base, decoder, encoder, options, types
+from .base import BaseFile
 from .content import (
     BaseContent,
     ContentType,
@@ -18,7 +18,6 @@ from .content import (
 from .decoder import FileDecoder
 from .encoder import FileEncoder
 from .options import Options
-from .structio import StructIO, StructReader, StructWriter
 
 
 __all__ = (
@@ -26,15 +25,11 @@ __all__ = (
     "decoder",
     "encoder",
     "options",
-    "structio",
     "types",
     "BaseFile",
     "FileDecoder",
     "FileEncoder",
     "Options",
-    "StructIO",
-    "StructReader",
-    "StructWriter",
     "ContentType",
     "BaseContent",
     "ModelContent",
@@ -43,7 +38,5 @@ __all__ = (
     "RegionContent",
     "TexarrContent",
     "NbtContent",
-    "FileMode",
-    "IOStream",
     "NbtValue",
 )

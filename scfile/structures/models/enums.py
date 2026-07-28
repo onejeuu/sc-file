@@ -2,7 +2,7 @@
 Enums for model data structures.
 """
 
-from enum import StrEnum, auto
+from enum import IntEnum, StrEnum, auto
 
 
 class Flag(StrEnum):
@@ -14,6 +14,20 @@ class Flag(StrEnum):
     NORMALS = auto()
     TANGENTS = auto()
     COLORS = auto()
+
+
+class ModelUnits(IntEnum):
+    """Model structure element counts."""
+
+    POSITIONS = 4
+    TEXTURES = 2
+    NORMALS = 4
+    TANGENTS = 4
+    TRIANGLES = 3
+    QUADS = 4
+    LINKS = 4
+    BONES = 6
+    FRAMES = 7
 
 
 class UVOrigin(StrEnum):

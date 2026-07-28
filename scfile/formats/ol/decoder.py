@@ -5,12 +5,12 @@ from scfile.consts import CubemapFaces, FileSignature
 from scfile.core import FileDecoder, TextureContent
 from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.exceptions import TextureFormatError, TextureKindError
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 from .enums import TextureKind
-from .exceptions import TextureFormatError, TextureKindError
 from .formats import SUPPORTED_FORMATS
-from .io import OlReader
+from scfile.io.ol import OlReader
 
 
 class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):

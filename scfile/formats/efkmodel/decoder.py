@@ -3,16 +3,16 @@ from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.formats.mcsa.decoder import MeshCounts
-from scfile.formats.mcsa.io import McsaReader
+from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
 
-class EfkmodelDecoder(FileDecoder[ModelContent, McsaReader]):
+class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
     format = FileFormat.EFKMODEL
     order = ByteOrder.LITTLE
 
     content_factory = ModelContent
-    io_factory = McsaReader
+    io_factory = ModelReader
 
     def as_obj(self):
         return self.convert_to(formats.obj.ObjEncoder)

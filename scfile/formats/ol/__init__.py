@@ -17,7 +17,7 @@ Example::
         data = ol.decode()
 """
 
-from . import enums, exceptions, formats
+from . import enums, formats
 from .decoder import OlDecoder
 from .enums import TextureKind
 
@@ -26,6 +26,5 @@ __all__ = (
     "OlDecoder",
     "TextureKind",
     "enums",
-    "exceptions",
     "formats",
 )

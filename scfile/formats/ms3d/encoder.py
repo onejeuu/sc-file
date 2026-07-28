@@ -5,7 +5,7 @@ from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.models import transforms as T
 
-from .io import Ms3dWriter
+from scfile.io.ms3d import Ms3dWriter
 
 
 VERSION = 4
@@ -58,7 +58,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
 
     def _add_vertices(self):
         # vertices count
-        self.io.write_count("vertices", self.data.scene.total_vertices, MAX_VERTICES)
+        self.io.count("vertices", self.data.scene.total_vertices, MAX_VERTICES)
 
         reference_count = 0xFF  # ? necessary only for optimization, calculation too expensive
 
@@ -72,7 +72,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
 
     def _add_triangles(self):
         # polygons count
-        self.io.write_count("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
+        self.io.count("polygons", self.data.scene.total_polygons, MAX_TRIANGLES)
 
         offset = 0
         for index, mesh in enumerate(self.data.scene.meshes):
@@ -96,7 +96,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
         offset = 0
         for index, mesh in enumerate(self.data.scene.meshes):
             self.io.value(F.U8, 0)  # flags
-            self.io.write_fixed_string(mesh.name)  # group name
+            self.io.fixed_string(mesh.name)  # group name
 
             count = len(mesh.polygons)
             self.io.value(F.U16, count)  # triangles count
@@ -118,7 +118,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
         diffuse = (0.8, 0.8, 0.8, 1.0)
 
         for mesh in self.data.scene.meshes:
-            self.io.write_fixed_string(mesh.material)  # material name
+            self.io.fixed_string(mesh.material)  # material name
             self.io.value(fmt, *empty, *diffuse, *empty, *empty, 0.0, 1.0, 1)
             self.io.null(size=128)  # texture
             self.io.null(size=128)  # alphamap
@@ -130,11 +130,11 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
 
         for bone in self.data.scene.skeleton.bones:
             self.io.value(F.U8, 0)  # flags
-            self.io.write_fixed_string(bone.name)  # bone name
+            self.io.fixed_string(bone.name)  # bone name
 
             parent = self.data.scene.skeleton.bones[bone.parent_id]
             parent_name = parent.name if bone.parent_id != ModelDefaults.ROOT_BONE_ID else ""
-            self.io.write_fixed_string(parent_name)  # parent name
+            self.io.fixed_string(parent_name)  # parent name
 
             # f32 bone rotation[3], f32 bone position[3]
             # u16 keyframes rotations, u16 keyframes transitions

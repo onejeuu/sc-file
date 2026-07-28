@@ -16,12 +16,11 @@ Example::
         data = mcsa.decode()
 """
 
-from . import exceptions, versions
+from . import versions
 from .decoder import McsaDecoder
 
 
 __all__ = (
     "McsaDecoder",
-    "exceptions",
     "versions",
 )

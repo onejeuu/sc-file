@@ -7,8 +7,9 @@ from typing import Any, Generic, Optional, Self, TypeAlias, TypeVar
 
 from scfile.enums import ByteOrder, FileFormat, UnicodeErrors
 
+from scfile.io.structio import FileMode, IOStream, StructIO
+
 from .options import Options
-from .structio import FileMode, IOStream, StructIO
 
 
 TempContext: TypeAlias = dict[str, Any]

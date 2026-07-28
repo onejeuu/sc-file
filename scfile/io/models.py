@@ -1,18 +1,18 @@
 """
-Extensions for MCSA file format with custom struct-based I/O methods.
+Model-specific structured I/O.
 """
 
 import numpy as np
 
 from scfile.consts import Factor
-from scfile.core import StructReader
 from scfile.enums import F
 from scfile.structures import models as S
+from scfile.structures.models import ModelUnits as Units
 
-from .consts import McsaUnits
+from .structio import StructReader
 
 
-class McsaReader(StructReader):
+class ModelReader(StructReader):
     def vertex(
         self,
         fmt: str,
@@ -38,7 +38,7 @@ class McsaReader(StructReader):
         normals = self.vertex(
             fmt=F.I8,
             factor=Factor.I8,
-            units=McsaUnits.NORMALS,
+            units=Units.NORMALS,
             count=count,
         )[:, :3]
         norm = np.linalg.norm(normals, axis=1, keepdims=True)
@@ -51,7 +51,7 @@ class McsaReader(StructReader):
         tangents = self.vertex(
             fmt=F.I8,
             factor=Factor.I8,
-            units=McsaUnits.TANGENTS,
+            units=Units.TANGENTS,
             count=count,
         )
 
@@ -86,7 +86,7 @@ class McsaReader(StructReader):
         count: int,
         quads: bool = False,
     ) -> S.Polygons:
-        units = McsaUnits.QUADS if quads else McsaUnits.TRIANGLES
+        units = Units.QUADS if quads else Units.TRIANGLES
 
         # ? Validate that indexes fits into U16 range, otherwise use U32.
         indexes = count * units
@@ -97,7 +97,7 @@ class McsaReader(StructReader):
 
         # Reshape to face[indices[3]]
         if quads:
-            data = data.reshape(-1, McsaUnits.QUADS)
+            data = data.reshape(-1, Units.QUADS)
             tri1 = data[:, [0, 1, 2]]
             tri2 = data[:, [0, 2, 3]]
             return np.concatenate([tri1, tri2]).astype(F.U32)
@@ -106,7 +106,7 @@ class McsaReader(StructReader):
         return data.astype(F.U32).reshape(-1, units)
 
     def bone(self) -> S.Vector3D:
-        units = McsaUnits.BONES
+        units = Units.BONES
 
         # Read array
         data = self.array(F.F32, units)
@@ -121,7 +121,7 @@ class McsaReader(StructReader):
         channels_count: int,
         position_scale: float,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        units = McsaUnits.FRAMES
+        units = Units.FRAMES
         frame_size = bones_count * units + channels_count
 
         # Read bone transforms and morph weights
@@ -144,7 +144,7 @@ class McsaReader(StructReader):
         count: int,
         bones: S.BonesMapping,
     ) -> S.Links:
-        units = McsaUnits.LINKS
+        units = Units.LINKS
 
         # Read array
         data = self.array(F.U8, count * units)
@@ -163,7 +163,7 @@ class McsaReader(StructReader):
         count: int,
         bones: S.BonesMapping,
     ) -> S.Links:
-        units = McsaUnits.LINKS
+        units = Units.LINKS
 
         # Read arrays: bone_ids[vertex][units], weights[vertex][units]
         ids = self.array(F.U8, count * units)

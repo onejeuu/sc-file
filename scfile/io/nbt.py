@@ -1,10 +1,10 @@
 from typing import Callable, ClassVar, Self
 
-from scfile.core import StructReader
 from scfile.core.content import NbtValue
 from scfile.enums import ByteOrder, F
+from scfile.formats.nbt.enums import Tag
 
-from .enums import Tag
+from .structio import StructReader
 
 
 class NbtReader(StructReader):

@@ -3,8 +3,9 @@ Extensions for OL file format with custom struct-based I/O methods.
 """
 
 from scfile.consts import CubemapFaces
-from scfile.core import StructReader
 from scfile.enums import F
+
+from .structio import StructReader
 
 
 XOR = ord("g")

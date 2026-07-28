@@ -10,7 +10,7 @@ from scfile.structures.models import Flag
 from scfile.structures.models import transforms as T
 
 from .consts import DEFAULT, FBX, Props
-from .io import FbxWriter
+from scfile.io.fbx import FbxWriter
 
 
 class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
@@ -217,7 +217,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
         props_start = self.io.tell()
         prop_count = 0
         for prop in properties:
-            self.io.write_property(prop)
+            self.io.property(prop)
             prop_count += 1
 
         prop_len = self.io.tell() - props_start
