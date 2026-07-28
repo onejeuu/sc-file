@@ -1,84 +1,272 @@
 """
-Low-level binary I/O with structured packing and unpacking operations.
-
-Provides a base class for reading and writing binary data in various formats
-using :mod:`struct` and :mod:`numpy`. Designed to be subclassed by format-specific I/O classes.
+Binary stream ownership and structured I/O.
 """
 
-import io
+import os
 import struct
-from typing import Any, Optional
+from enum import IntEnum
+from io import SEEK_CUR, SEEK_END, BytesIO, IOBase
+from typing import IO, Any, BinaryIO, Literal, Optional, TypeAlias, cast
 
 import numpy as np
+from numpy.typing import NDArray
 
 from scfile.enums import ByteOrder, F, UnicodeErrors
+from scfile.enums import SafetyLimit as Limit
+from scfile.exceptions import InvalidStructureError, LimitError
+from scfile.types import PathLike
 
 
-class StructIO(io.IOBase):
-    """
-    Base class for structured binary I/O.
+IOStream: TypeAlias = PathLike | bytes | BinaryIO
+FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
-    Extends :class:`io.IOBase` with methods for packed binary operations.
-    Subclasses must implement :class:`io.IOBase` interface.
-    """
+
+class StructIO:
+    """Own a binary stream used for structured I/O."""
 
     order: ByteOrder = ByteOrder.LITTLE
-    """Default byte order for pack/unpack operations."""
+    """Default byte order."""
 
     unicode_errors: str = UnicodeErrors.REPLACE
-    """Error handling mode for UTF-8 encoding/decoding."""
+    """UTF-8 error handling mode."""
 
-    def _pack(self, fmt: str, *values: Any) -> bytes:
-        """Serialize *values* to bytes."""
+    def __init__(
+        self,
+        stream: IOStream,
+        mode: FileMode,
+        order: Optional[ByteOrder] = None,
+        unicode_errors: Optional[str] = None,
+        location: Optional[str] = None,
+    ):
+        self.order = order or self.order
+        self.unicode_errors = unicode_errors or self.unicode_errors
 
-        return struct.pack(str(fmt), *values)
+        if isinstance(stream, (str, os.PathLike)):
+            path = os.fspath(stream)
+            self._location = location or path
+            self._stream = open(path, mode)
+            return
 
-    def _unpack(self, fmt: str) -> tuple[Any, ...]:
-        """Deserialize bytes."""
+        if isinstance(stream, bytes):
+            self._stream = BytesIO(stream)
+            self._location = location or f"<bytes at {hex(id(self._stream))}>"
+            return
 
-        size = struct.calcsize(str(fmt))
-        data = self.read(size)
-        return struct.unpack(fmt, data)
+        if isinstance(stream, IOBase):
+            self._stream = cast(IO[bytes], stream)
+            name = getattr(self._stream, "name", None)
+            fallback = f"<{type(stream).__name__} at {hex(id(stream))}>"
+            self._location = location or (str(name) if name is not None else fallback)
+            return
 
-    def _readarray(self, dtype: str, count: int, order: Optional[ByteOrder] = None):
-        """Read an array of *count* elements of type *dtype*."""
+        raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
+
+    @property
+    def stream(self) -> IO[bytes]:
+        return self._stream
+
+    @property
+    def location(self) -> str:
+        return self._location
+
+    @property
+    def closed(self) -> bool:
+        return self._stream.closed
+
+    def seek(
+        self,
+        position: int,
+        whence: int = 0,
+    ) -> int:
+        return self._stream.seek(position, whence)
+
+    def tell(self) -> int:
+        return self._stream.tell()
+
+    def size(self) -> int:
+        position = self.tell()
+        size = self.seek(0, SEEK_END)
+        self.seek(position)
+        return size
+
+    def seekable(self) -> bool:
+        return self._stream.seekable()
+
+    def close(self) -> None:
+        self._stream.close()
+
+
+class StructReader(StructIO):
+    """Read structured values from a binary stream."""
+
+    def read(
+        self,
+        size: int = -1,
+    ) -> bytes:
+        return self._stream.read(size)
+
+    def skip(
+        self,
+        size: int,
+    ) -> int:
+        return self.seek(size, SEEK_CUR)
+
+    def eof(self) -> bool:
+        return self.tell() >= self.size()
+
+    def readable(self) -> bool:
+        return self._stream.readable()
+
+    def unpack(
+        self,
+        fmt: str,
+        order: Optional[ByteOrder] = None,
+    ) -> tuple[Any, ...]:
+        """Read and unpack structured values."""
+
+        try:
+            order = order or self.order
+            fmt = f"{order}{fmt}"
+            size = struct.calcsize(fmt)
+            return struct.unpack(fmt, self.read(size))
+
+        except struct.error:
+            raise InvalidStructureError(
+                self.location,
+                position=self.tell(),
+            ) from None
+
+    def value(
+        self,
+        fmt: str,
+        order: Optional[ByteOrder] = None,
+    ) -> Any:
+        """Read one structured value."""
+
+        return self.unpack(fmt, order)[0]
+
+    def array(
+        self,
+        dtype: str,
+        count: int,
+        order: Optional[ByteOrder] = None,
+    ) -> NDArray[Any]:
+        """Read a NumPy array."""
 
         order = order or self.order
         datatype = np.dtype(f"{order}{dtype}")
-        datasize = count * datatype.itemsize
-        return np.frombuffer(self.read(datasize), dtype=datatype, count=count)
+        size = count * datatype.itemsize
+        return np.frombuffer(self.read(size), dtype=datatype, count=count)
 
-    def _readb(self, fmt: str, order: Optional[ByteOrder] = None) -> Any:
-        """Read single primitive value."""
+    def string(
+        self,
+        prefix: str = F.U16,
+        order: Optional[ByteOrder] = None,
+        limit: Optional[IntEnum] = Limit.STRING,
+    ) -> str:
+        """Read a length-prefixed UTF-8 string."""
+
+        data = self.prefixed(prefix, order, limit)
+        return data.decode("utf-8", errors=self.unicode_errors)
+
+    def prefixed(
+        self,
+        prefix: str = F.U16,
+        order: Optional[ByteOrder] = None,
+        limit: Optional[IntEnum] = None,
+    ) -> bytes:
+        """Read length-prefixed bytes."""
+
+        size = self.value(prefix, order)
+        if limit is not None:
+            self.check(size, limit)
+        return self.unpack(f"{size}s")[0]
+
+    def count(
+        self,
+        fmt: str,
+        limit: IntEnum,
+    ) -> int:
+        """Read and validate a bounded count."""
+
+        return self.check(self.value(fmt), limit)
+
+    def check(
+        self,
+        value: int,
+        limit: IntEnum,
+    ) -> int:
+        """Validate a decoded count."""
+
+        maximum = int(limit)
+        if value > maximum:
+            raise LimitError(
+                self.location,
+                limit.name.lower(),
+                value,
+                maximum,
+            )
+        return value
+
+
+class StructWriter(StructIO):
+    """Write structured values to a binary stream."""
+
+    def write(
+        self,
+        data: bytes,
+    ) -> int:
+        return self._stream.write(data)
+
+    def writable(self) -> bool:
+        return self._stream.writable()
+
+    def flush(self) -> None:
+        self._stream.flush()
+
+    def getvalue(self) -> bytes:
+        if isinstance(self._stream, BytesIO):
+            return self._stream.getvalue()
+
+        position = self.tell()
+        self.seek(0)
+        data = self._stream.read()
+        self.seek(position)
+        return data
+
+    def pack(
+        self,
+        fmt: str,
+        *values: Any,
+        order: Optional[ByteOrder] = None,
+    ) -> bytes:
+        """Pack structured values."""
 
         order = order or self.order
-        return self._unpack(f"{order}{fmt}")[0]
+        return struct.pack(f"{order}{fmt}", *values)
 
-    def _reads(self, prefix: str = F.U16, order: Optional[ByteOrder] = None) -> bytes:
-        """Read length prefixed string."""
+    def value(
+        self,
+        fmt: str,
+        *values: Any,
+        order: Optional[ByteOrder] = None,
+    ) -> None:
+        """Write structured values."""
 
-        order = order or self.order
-        size = self._readb(prefix, order)
-        return self._unpack(f"{size}s")[0]
+        self.write(self.pack(fmt, *values, order=order))
 
-    def _readutf8(self, prefix: str = F.U16, order: Optional[ByteOrder] = None) -> str:
-        """Read a length prefixed UTF-8 string."""
-
-        return self._reads(prefix=prefix, order=order).decode("utf-8", errors=self.unicode_errors)
-
-    def _writeb(self, fmt: str, *values: Any, order: Optional[ByteOrder] = None) -> None:
-        """Serialize and write *values*."""
-
-        order = order or self.order
-        data = self._pack(f"{order}{fmt}", *values)
-        self.write(data)
-
-    def _writenull(self, size: int = 4) -> None:
-        """Write *size* null bytes."""
+    def null(
+        self,
+        size: int = 4,
+    ) -> None:
+        """Write null bytes."""
 
         self.write(bytes(size))
 
-    def _writeutf8(self, string: str) -> None:
-        """Write UTF-8 encoded *string*."""
+    def string(
+        self,
+        string: str,
+    ) -> None:
+        """Write a UTF-8 string."""
 
         self.write(string.encode("utf-8", errors=self.unicode_errors))

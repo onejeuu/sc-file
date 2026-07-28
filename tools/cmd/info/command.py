@@ -68,7 +68,7 @@ def info(source: Path, format: str | None) -> None:
             position = getattr(exception, "position", None)
 
             if position is None:
-                position = decoder.tell()
+                position = decoder.io.tell()
 
             console.print("[bold red]Decode failed[/]")
             console.print(

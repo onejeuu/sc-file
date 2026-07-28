@@ -69,7 +69,7 @@ class McaEncoder(FileEncoder[RegionContent]):
 
             current_sector += sectors_needed
 
-        self.write(b"".join(payload))
+        self.io.write(b"".join(payload))
 
     def _chunk(self, cx: int, cz: int, chunk: RegionChunk) -> bytes:
         blocks = chunk.blocks if self.options.raw_blocks else chunk.blocks.translate(BLOCKS_MAPPING)

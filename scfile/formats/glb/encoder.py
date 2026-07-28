@@ -37,15 +37,15 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self._update_total_size()
 
     def _add_header(self):
-        self._writeb(F.U32, VERSION)
+        self.io.value(F.U32, VERSION)
 
         # Total Size Placeholder
-        self.ctx["TOTAL_SIZE_POS"] = self.tell()
-        self._writeb(F.U32, 0)
+        self.ctx["TOTAL_SIZE_POS"] = self.io.tell()
+        self.io.value(F.U32, 0)
 
     def _update_total_size(self):
-        self.seek(self.ctx["TOTAL_SIZE_POS"])
-        self._writeb(F.U32, len(self.getvalue()))
+        self.io.seek(self.ctx["TOTAL_SIZE_POS"])
+        self.io.value(F.U32, len(self.getvalue()))
 
     def _add_json_chunk(self):
         # Serialize gltf json
@@ -57,13 +57,13 @@ class GlbEncoder(FileEncoder[ModelContent]):
         padding_length = (4 - (json_length % 4)) % 4
 
         # Write json
-        self._writeb(F.U32, json_length + padding_length)
-        self.write(b"JSON")
-        self.write(gltf_bytes)
+        self.io.value(F.U32, json_length + padding_length)
+        self.io.write(b"JSON")
+        self.io.write(gltf_bytes)
 
         # Add padding if necessary
         if padding_length > 0:
-            self.write(b"\x20" * padding_length)
+            self.io.write(b"\x20" * padding_length)
 
     def _create_gltf(self):
         self.ctx["GLTF"] = deepcopy(base.GLTF)
@@ -355,7 +355,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _add_binary_chunk(self):
         self._add_bin_size()
-        self.ctx["BIN_START"] = self.tell()
+        self.ctx["BIN_START"] = self.io.tell()
 
         self._add_meshes()
 
@@ -363,65 +363,65 @@ class GlbEncoder(FileEncoder[ModelContent]):
             # Animated model sources may require separate bind poses
             if "SKINS" in self.ctx:
                 for bindpose in self.ctx["SKINS"]:
-                    self.write(bindpose.transpose(0, 2, 1).tobytes())
+                    self.io.write(bindpose.transpose(0, 2, 1).tobytes())
             else:
                 bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
-                self.write(bindpose.tobytes())
+                self.io.write(bindpose.tobytes())
 
         if self._animation_presented:
             self._add_animation()
 
-        self.ctx["BIN_END"] = self.tell()
+        self.ctx["BIN_END"] = self.io.tell()
         self._update_bin_size()
 
     def _add_bin_size(self):
         # BIN Size Placeholder
-        self.ctx["BIN_SIZE_POS"] = self.tell()
-        self._writeb(F.U32, 0)
-        self.write(b"BIN\0")
+        self.ctx["BIN_SIZE_POS"] = self.io.tell()
+        self.io.value(F.U32, 0)
+        self.io.write(b"BIN\0")
 
     def _update_bin_size(self):
         size = self.ctx["BIN_END"] - self.ctx["BIN_START"]
-        self.seek(self.ctx["BIN_SIZE_POS"])
-        self._writeb(F.U32, size)
+        self.io.seek(self.ctx["BIN_SIZE_POS"])
+        self.io.value(F.U32, size)
 
     def _add_meshes(self):
         for mesh in self.data.scene.meshes:
             skeleton_presented = self._skeleton_presented and mesh.max_influences > 0
 
             # XYZ Position
-            self.write(mesh.vertices.tobytes())
+            self.io.write(mesh.vertices.tobytes())
 
             # Blend Shapes
             for shape in mesh.blend_shapes:
-                self.write(shape.deltas.tobytes())
+                self.io.write(shape.deltas.tobytes())
 
             # UV Texture
             if self.data.flags[Flag.UV] and mesh.uv1.size:
-                self.write(mesh.uv1.tobytes())
+                self.io.write(mesh.uv1.tobytes())
 
             # UV Texture (2)
             if self.data.flags[Flag.UV2] and mesh.uv2.size:
-                self.write(mesh.uv2.tobytes())
+                self.io.write(mesh.uv2.tobytes())
 
             # XYZ Normals
             if self.data.flags[Flag.NORMALS] and mesh.normals.size:
-                self.write(mesh.normals.tobytes())
+                self.io.write(mesh.normals.tobytes())
 
             # XYZW Tangents
             if self.data.flags[Flag.TANGENTS] and mesh.tangents.size:
-                self.write(mesh.tangents.tobytes())
+                self.io.write(mesh.tangents.tobytes())
 
             # Bone Links
             if skeleton_presented:
                 # Joint Indices
-                self.write(mesh.links_ids.tobytes())
+                self.io.write(mesh.links_ids.tobytes())
 
                 # Joint Weights
-                self.write(mesh.links_weights.tobytes())
+                self.io.write(mesh.links_weights.tobytes())
 
             # ABC Polygons
-            self.write(mesh.polygons.flatten().astype(F.U32).tobytes())
+            self.io.write(mesh.polygons.flatten().astype(F.U32).tobytes())
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:
@@ -430,12 +430,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
             if not bone_animation and not morph_targets:
                 continue
 
-            self.write(clip.times.tobytes())
+            self.io.write(clip.times.tobytes())
 
             if bone_animation:
                 for bone in self.data.scene.skeleton.bones:
-                    self.write(clip.translations[:, bone.id, :].tobytes())
-                    self.write(clip.rotations[:, bone.id, :].tobytes())
+                    self.io.write(clip.translations[:, bone.id, :].tobytes())
+                    self.io.write(clip.rotations[:, bone.id, :].tobytes())
 
             for _, weights in morph_targets:
-                self.write(weights.tobytes())
+                self.io.write(weights.tobytes())

@@ -12,4 +12,4 @@ class JsonEncoder(FileEncoder[NbtContent]):
     def serialize(self):
         data = json.dumps(self.data.value, default=str, ensure_ascii=False, indent=2)
         data = data.encode()
-        self.write(data)
+        self.io.write(data)

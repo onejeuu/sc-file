@@ -3,15 +3,15 @@ Single file conversion.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from scfile import exceptions, types
 from scfile.core import ContentType, FileDecoder, FileEncoder, Options
 
 
 def convert(
-    decoder: type[FileDecoder[ContentType]],
-    encoder: type[FileEncoder[ContentType]],
+    decoder: type[FileDecoder[ContentType, Any]],
+    encoder: type[FileEncoder[ContentType, Any]],
     source: types.PathLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,

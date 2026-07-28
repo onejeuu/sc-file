@@ -3,7 +3,7 @@ from typing import TypeAlias
 import numpy as np
 from numpy.typing import NDArray
 
-from scfile.core import StructIO
+from scfile.core import StructWriter
 from scfile.enums import F
 
 from .enums import PropertyType as Prop
@@ -18,8 +18,11 @@ Array: TypeAlias = Float32Array | Float64Array | Int32Array | Int64Array
 Value: TypeAlias = Scalar | Array | list[Scalar]
 
 
-class FbxFileIO(StructIO):
-    def _write_property(self, value: Value) -> None:
+class FbxWriter(StructWriter):
+    def write_property(
+        self,
+        value: Value,
+    ) -> None:
         match value:
             case bool():
                 self._write_bool(value)
@@ -37,26 +40,26 @@ class FbxFileIO(StructIO):
                 self._write_array(np.array(value, dtype=np.float64))
 
     def _write_bool(self, value: bool) -> None:
-        self._writeb(F.U8, Prop.BOOL)
-        self._writeb(F.U8, 1 if value else 0)
+        self.value(F.U8, Prop.BOOL)
+        self.value(F.U8, 1 if value else 0)
 
     def _write_int32(self, value: int) -> None:
-        self._writeb(F.U8, Prop.INT32)
-        self._writeb(F.I32, value)
+        self.value(F.U8, Prop.INT32)
+        self.value(F.I32, value)
 
     def _write_int64(self, value: np.integer) -> None:
-        self._writeb(F.U8, Prop.INT64)
-        self._writeb(F.I64, int(value))
+        self.value(F.U8, Prop.INT64)
+        self.value(F.I64, int(value))
 
     def _write_double(self, value: float | np.floating) -> None:
-        self._writeb(F.U8, Prop.DOUBLE)
-        self._writeb(F.F64, float(value))
+        self.value(F.U8, Prop.DOUBLE)
+        self.value(F.F64, float(value))
 
     def _write_string(self, value: str | bytes) -> None:
         if isinstance(value, str):
             value = value.encode("utf-8")
-        self._writeb(F.U8, Prop.STRING)
-        self._writeb(F.U32, len(value))
+        self.value(F.U8, Prop.STRING)
+        self.value(F.U32, len(value))
         self.write(value)
 
     def _write_array(self, arr: Array) -> None:
@@ -72,8 +75,8 @@ class FbxFileIO(StructIO):
             case np.int32:
                 prop, size = Prop.ARRAY_INT32, 4
 
-        self._writeb(F.U8, prop)
-        self._writeb(F.U32, len(arr))
-        self._writeb(F.U32, 0)
-        self._writeb(F.U32, len(arr) * size)
+        self.value(F.U8, prop)
+        self.value(F.U32, len(arr))
+        self.value(F.U32, 0)
+        self.value(F.U32, len(arr) * size)
         self.write(arr.tobytes())

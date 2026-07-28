@@ -5,17 +5,24 @@ Extensions for MCSA file format with custom struct-based I/O methods.
 import numpy as np
 
 from scfile.consts import Factor
-from scfile.core import StructIO
+from scfile.core import StructReader
 from scfile.enums import F
 from scfile.structures import models as S
 
 from .consts import McsaUnits
 
 
-class McsaFileIO(StructIO):
-    def _readvertex(self, fmt: str, factor: float, units: int, count: int, scale: float = 1.0):
+class McsaReader(StructReader):
+    def vertex(
+        self,
+        fmt: str,
+        factor: float,
+        units: int,
+        count: int,
+        scale: float = 1.0,
+    ) -> np.ndarray:
         # Read array
-        data = self._readarray(fmt, count * units)
+        data = self.array(fmt, count * units)
 
         # Scale values to floats
         data = data.astype(F.F32) * np.float32(scale / factor)
@@ -24,8 +31,11 @@ class McsaFileIO(StructIO):
         # attribute = position[3] / normal[3] / uv[2]
         return data.reshape(-1, units)
 
-    def _readnormals(self, count: int):
-        normals = self._readvertex(
+    def normals(
+        self,
+        count: int,
+    ) -> S.Vector3D:
+        normals = self.vertex(
             fmt=F.I8,
             factor=Factor.I8,
             units=McsaUnits.NORMALS,
@@ -34,8 +44,11 @@ class McsaFileIO(StructIO):
         norm = np.linalg.norm(normals, axis=1, keepdims=True)
         return np.divide(normals, norm, out=np.zeros_like(normals), where=norm != 0)
 
-    def _readtangents(self, count: int):
-        tangents = self._readvertex(
+    def tangents(
+        self,
+        count: int,
+    ) -> S.Vector4D:
+        tangents = self.vertex(
             fmt=F.I8,
             factor=Factor.I8,
             units=McsaUnits.TANGENTS,
@@ -51,9 +64,14 @@ class McsaFileIO(StructIO):
 
         return tangents
 
-    def _readblendshapes(self, count: int, vertices: int, blend_vertex_map: S.BlendVertexMap):
+    def blend_shapes(
+        self,
+        count: int,
+        vertices: int,
+        blend_vertex_map: S.BlendVertexMap,
+    ) -> S.Vector3D:
         # Read shape[base vertex][xyz + padding]
-        data = self._readarray(F.U8, count * vertices * 4).reshape(count, vertices, 4)
+        data = self.array(F.U8, count * vertices * 4).reshape(count, vertices, 4)
 
         # Center and normalize position deltas
         deltas = data[:, :, :3].astype(F.F32)
@@ -63,7 +81,11 @@ class McsaFileIO(StructIO):
         # Expand base vertices to mesh vertices
         return deltas[:, blend_vertex_map]
 
-    def _readpolygons(self, count: int, quads: bool = False):
+    def polygons(
+        self,
+        count: int,
+        quads: bool = False,
+    ) -> S.Polygons:
         units = McsaUnits.QUADS if quads else McsaUnits.TRIANGLES
 
         # ? Validate that indexes fits into U16 range, otherwise use U32.
@@ -71,7 +93,7 @@ class McsaFileIO(StructIO):
         fmt = F.U16 if indexes <= Factor.U16 else F.U32
 
         # Read array
-        data = self._readarray(fmt, count * units)
+        data = self.array(fmt, count * units)
 
         # Reshape to face[indices[3]]
         if quads:
@@ -83,27 +105,27 @@ class McsaFileIO(StructIO):
         # Reshape to face[indices[3]]
         return data.astype(F.U32).reshape(-1, units)
 
-    def _readbone(self):
+    def bone(self) -> S.Vector3D:
         units = McsaUnits.BONES
 
         # Read array
-        data = self._readarray(F.F32, units)
+        data = self.array(F.F32, units)
 
         # Reshape to bone[head[3], tail[3]]
         return data.astype(F.F32).reshape(2, 3)
 
-    def _readclip(
+    def clip(
         self,
         times_count: int,
         bones_count: int,
         channels_count: int,
         position_scale: float,
-    ):
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         units = McsaUnits.FRAMES
         frame_size = bones_count * units + channels_count
 
         # Read bone transforms and morph weights
-        data = self._readarray(F.U16, times_count * frame_size)
+        data = self.array(F.U16, times_count * frame_size)
         data = data.reshape(times_count, frame_size)
         transforms = data[:, : bones_count * units].view(f"{self.order}{F.I16}")
         morph_weights = data[:, bones_count * units :].astype(F.F32)
@@ -117,11 +139,15 @@ class McsaFileIO(StructIO):
 
         return rotations, translations, morph_weights
 
-    def _readpackedlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
+    def packed_links(
+        self,
+        count: int,
+        bones: S.BonesMapping,
+    ) -> S.Links:
         units = McsaUnits.LINKS
 
         # Read array
-        data = self._readarray(F.U8, count * units)
+        data = self.array(F.U8, count * units)
 
         # Reshape to vertex[skin[2][2]]
         # skin = [bone_ids[2], weights[2]]
@@ -132,12 +158,16 @@ class McsaFileIO(StructIO):
 
         return _links(ids.flatten(), weights.flatten(), bones)
 
-    def _readplainlinks(self, count: int, bones: S.BonesMapping) -> S.Links:
+    def plain_links(
+        self,
+        count: int,
+        bones: S.BonesMapping,
+    ) -> S.Links:
         units = McsaUnits.LINKS
 
         # Read arrays: bone_ids[vertex][units], weights[vertex][units]
-        ids = self._readarray(F.U8, count * units)
-        weights = self._readarray(F.U8, count * units)
+        ids = self.array(F.U8, count * units)
+        weights = self.array(F.U8, count * units)
 
         return _links(ids, weights, bones)
 

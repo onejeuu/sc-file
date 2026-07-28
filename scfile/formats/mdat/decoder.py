@@ -21,7 +21,7 @@ class MdatDecoder(FileDecoder[RegionContent]):
         return self.convert_to(formats.mca.McaEncoder)
 
     def parse(self):
-        table = [(self._readb(F.I32), self._readb(F.I32), self.read(16)) for _ in range(CHUNKS_COUNT)]
+        table = [(self.io.value(F.I32), self.io.value(F.I32), self.io.read(16)) for _ in range(CHUNKS_COUNT)]
         offsets, counts, uuids = map(list, zip(*table))
 
         dctx = zstd.ZstdDecompressor()
@@ -32,13 +32,16 @@ class MdatDecoder(FileDecoder[RegionContent]):
             if offset == 0:
                 continue
 
-            self.seek(offset * SECTION_SIZE)
+            self.io.seek(offset * SECTION_SIZE)
 
             # header
-            full_size, blocks_mask, add_mask, fixed_size, compressed_size = self._readarray(F.U32, 5).tolist()
+            full_size, blocks_mask, add_mask, fixed_size, compressed_size = self.io.array(
+                F.U32,
+                5,
+            ).tolist()
 
             # read raw data
-            compressed = self.read(compressed_size)
+            compressed = self.io.read(compressed_size)
             decompressed = dctx.decompress(compressed)
 
             # split data

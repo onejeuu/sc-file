@@ -22,10 +22,10 @@ class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
         if self.data.fourcc == b"DX10":
             self._add_dxgi()
 
-        self.write(self.data.texture.image)
+        self.io.write(self.data.texture.image)
 
     def _add_header(self):
-        self._writeb(
+        self.io.value(
             f"{7}{F.U32}",
             DDS.HEADER.SIZE,  # dwSize
             self._flags,  # dwFlags
@@ -35,10 +35,10 @@ class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
             0,  # dwDepth
             self.data.mipmap_count,  # dwMipMapCount
         )
-        self._writenull(size=4 * 11)  # dwReserved1[11]
+        self.io.null(size=4 * 11)  # dwReserved1[11]
 
     def _add_pixelformat(self):
-        self._writeb(F.U32, DDS.PF.SIZE)  # dwSize
+        self.io.value(F.U32, DDS.PF.SIZE)  # dwSize
 
         if self.data.is_compressed:
             self._add_pf_fourcc()
@@ -46,28 +46,28 @@ class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
             self._add_pf_rgb()
 
     def _add_pf_fourcc(self):
-        self._writeb(F.U32, DDS.PF.FLAG.FOURCC)  # dwFlags
-        self.write(self.data.fourcc)  # dwFourCC
-        self._writenull(size=4 * 5)  # dwRGBBitCount, RGBA bit masks (unused)
+        self.io.value(F.U32, DDS.PF.FLAG.FOURCC)  # dwFlags
+        self.io.write(self.data.fourcc)  # dwFourCC
+        self.io.null(size=4 * 5)  # dwRGBBitCount, RGBA bit masks (unused)
 
     def _add_pf_rgb(self):
-        self._writeb(F.U32, DDS.PF.RGB)  # dwFlags
-        self._writenull(size=4)  # dwFourCC (unused)
-        self._writeb(F.U32, DDS.PF.BIT_COUNT)  # dwRGBBitCount
+        self.io.value(F.U32, DDS.PF.RGB)  # dwFlags
+        self.io.null(size=4)  # dwFourCC (unused)
+        self.io.value(F.U32, DDS.PF.BIT_COUNT)  # dwRGBBitCount
 
         bitmask = BGRA8 if self.data.fourcc == b"BGRA8" else RGBA8
-        self._writeb(F.U32 * 4, *bitmask)  # RGBA bit masks
+        self.io.value(F.U32 * 4, *bitmask)  # RGBA bit masks
 
     def _add_caps(self):
-        self._writeb(
+        self.io.value(
             f"{2}{F.U32}",
             DDS.CAPS1,  # dwCaps1
             self._caps2,  # dwCaps2
         )
-        self._writenull(size=4 * 3)  # dwCaps3, dwCaps4, Reserved
+        self.io.null(size=4 * 3)  # dwCaps3, dwCaps4, Reserved
 
     def _add_dxgi(self):
-        self._writeb(
+        self.io.value(
             f"{5}{F.U32}",
             DXGIFormat.FLOAT_R32G32B32A32,  # dxgiFormat
             DXGIDimension.TEXTURE2D,  # resourceDimension

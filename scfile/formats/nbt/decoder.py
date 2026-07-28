@@ -7,7 +7,7 @@ from scfile.core import FileDecoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 
 from .enums import Tag
-from .io import NbtBufferIO
+from .io import NbtReader
 
 
 class NbtDecoder(FileDecoder[NbtContent]):
@@ -21,18 +21,22 @@ class NbtDecoder(FileDecoder[NbtContent]):
 
     def parse(self):
         data = self._decompress()
-        stream = NbtBufferIO(data)
+        reader = NbtReader(data, "rb", location=self.location)
 
-        # Read root tag
-        tag = stream._read_tag()
-        if tag == Tag.END:
-            return
+        try:
+            # Read root tag
+            tag = reader.tag()
+            if tag == Tag.END:
+                return
 
-        _ = stream._readutf8()  # Skip name
-        self.data.value = stream._parse_tag(tag)
+            reader.string(limit=None)  # Skip name
+            self.data.value = reader.parse(tag)
+
+        finally:
+            reader.close()
 
     def _decompress(self):
-        data = self.read()
+        data = self.io.read()
 
         try:
             # Gzip is standard nbt compression

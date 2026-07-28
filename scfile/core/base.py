@@ -1,33 +1,22 @@
 """
-Binary stream adapter for file-like sources.
-
-Wraps any binary source (file path, bytes, or IO stream)
-into a unified interface for reading and writing structured binary data.
+Base class for resource-owning format handlers.
 """
 
-import io
-import os
-import struct
 from abc import ABC
-from io import BytesIO, IOBase
-from pathlib import Path
-from typing import IO, Any, BinaryIO, Literal, Optional, TypeAlias, cast
+from typing import Any, Generic, Optional, Self, TypeAlias, TypeVar
 
-from scfile.enums import FileFormat
-from scfile.exceptions import InvalidStructureError
-from scfile.types import PathLike
+from scfile.enums import ByteOrder, FileFormat, UnicodeErrors
 
 from .options import Options
-from .structio import StructIO
+from .structio import FileMode, IOStream, StructIO
 
 
-IOStream: TypeAlias = str | bytes | PathLike | BinaryIO
-FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 TempContext: TypeAlias = dict[str, Any]
+IOType = TypeVar("IOType", bound=StructIO)
 
 
-class BaseFile(StructIO, ABC):
-    """Unified binary stream handler."""
+class BaseFile(Generic[IOType], ABC):
+    """Base class for handlers that own an open binary resource."""
 
     format: FileFormat = FileFormat.NONE
     """Associated file format."""
@@ -35,11 +24,20 @@ class BaseFile(StructIO, ABC):
     signature: Optional[bytes] = None
     """Expected file signature."""
 
+    io_factory: type[IOType]
+    """Binary I/O used by the handler."""
+
+    io: IOType
+    """Owned binary I/O instance."""
+
+    order: ByteOrder = ByteOrder.LITTLE
+    """Default byte order."""
+
+    unicode_errors: str = UnicodeErrors.REPLACE
+    """UTF-8 error handling mode."""
+
     options: Options
     """Shared handlers options."""
-
-    _location: str
-    _stream: IO[bytes]
 
     def __init__(
         self,
@@ -52,23 +50,12 @@ class BaseFile(StructIO, ABC):
             mode: File mode (binary) for opening when ``stream`` is path.
         """
 
-        if isinstance(stream, (str, Path)):
-            self._location = os.fspath(stream)
-            self._stream = open(self._location, mode)
-
-        elif isinstance(stream, bytes):
-            self._stream = BytesIO(stream)
-            self._location = f"<bytes at {hex(id(self._stream))}>"
-
-        elif isinstance(stream, IOBase):
-            self._stream = cast(IO[bytes], stream)
-
-            name = self._stream.name if hasattr(self._stream, "name") else None
-            self._location = name or f"<{type(stream).__name__} at {hex(id(stream))}>"
-
-        else:
-            raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
-
+        self.io = self.io_factory(
+            stream,
+            mode,
+            order=self.order,
+            unicode_errors=self.unicode_errors,
+        )
         self.ctx: TempContext = {}
 
     @property
@@ -77,68 +64,24 @@ class BaseFile(StructIO, ABC):
 
     @property
     def location(self) -> str:
-        return self._location
+        return self.io.location
 
     @property
     def closed(self) -> bool:
-        return self._stream.closed
-
-    def size(self) -> int:
-        current = self.tell()
-        self.seek(0, 2)
-        size = self.tell()
-        self.seek(current)
-        return size
-
-    def read(self, size: int = -1) -> bytes:
-        return self._stream.read(size)
-
-    def write(self, data: bytes) -> int:
-        return self._stream.write(data)
-
-    def seek(self, pos: int, whence: int = 0) -> int:
-        return self._stream.seek(pos, whence)
-
-    def skip(self, size: int):
-        self.seek(size, io.SEEK_CUR)
-
-    def tell(self) -> int:
-        return self._stream.tell()
-
-    def readable(self) -> bool:
-        return self._stream.readable()
-
-    def writable(self) -> bool:
-        return self._stream.writable()
-
-    def seekable(self) -> bool:
-        return self._stream.seekable()
-
-    def flush(self) -> None:
-        self._stream.flush()
+        return self.io.closed
 
     def close(self) -> None:
         self.ctx = {}
-        self._stream.close()
+        self.io.close()
 
-    def getvalue(self) -> bytes:
-        if isinstance(self._stream, BytesIO):
-            return self._stream.getvalue()
-        current = self.tell()
-        self.seek(0)
-        data = self.read()
-        self.seek(current)
-        return data
+    def __enter__(self) -> Self:
+        return self
 
-    def is_eof(self) -> bool:
-        return self.size() <= self.tell()
-
-    def _unpack(self, fmt: str) -> tuple[Any, ...]:
-        try:
-            return super()._unpack(fmt)
-
-        except struct.error:
-            raise InvalidStructureError(self.location, position=self.tell())
+    def __exit__(
+        self,
+        *_,
+    ) -> None:
+        self.close()
 
     def __repr__(self) -> str:
         closed = "closed" if self.closed else "open"

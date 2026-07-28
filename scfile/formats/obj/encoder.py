@@ -23,8 +23,8 @@ class ObjEncoder(FileEncoder[ModelContent]):
         offset = 1
 
         for mesh in self.data.scene.meshes:
-            self._writeutf8(f"o {mesh.name}\n")
-            self._writeutf8(f"usemtl {mesh.material}\n")
+            self.io.string(f"o {mesh.name}\n")
+            self.io.string(f"usemtl {mesh.material}\n")
 
             self._add_geometric_vertices(mesh)
 
@@ -34,7 +34,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
             if self.data.flags[Flag.NORMALS] or self.data.flags[Flag.TANGENTS]:
                 self._add_vertex_normals(mesh)
 
-            self._writeutf8(f"g {mesh.name}\n")
+            self.io.string(f"g {mesh.name}\n")
             self._add_polygonal_faces(mesh, offset)
 
             offset += len(mesh.vertices)
@@ -44,18 +44,18 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
     def _add_geometric_vertices(self, mesh: S.ModelMesh):
         template = b"v %.6f %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.vertices, len(mesh.vertices)))
-        self.write(b"\n")
+        self.io.write(self._vectorize(template, mesh.vertices, len(mesh.vertices)))
+        self.io.write(b"\n")
 
     def _add_texture_coordinates(self, mesh: S.ModelMesh):
         template = b"vt %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.uv1, len(mesh.vertices)))
-        self.write(b"\n")
+        self.io.write(self._vectorize(template, mesh.uv1, len(mesh.vertices)))
+        self.io.write(b"\n")
 
     def _add_vertex_normals(self, mesh: S.ModelMesh):
         template = b"vn %.6f %.6f %.6f\n"
-        self.write(self._vectorize(template, mesh.normals, len(mesh.vertices)))
-        self.write(b"\n")
+        self.io.write(self._vectorize(template, mesh.normals, len(mesh.vertices)))
+        self.io.write(b"\n")
 
     def _add_polygonal_faces(self, mesh: S.ModelMesh, offset: int):
         flags = faces.Flags(uv=self.data.flags[Flag.UV], normals=self.data.flags[Flag.NORMALS])
@@ -63,5 +63,5 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
         polygons = mesh.polygons + offset
         indices = np.repeat(polygons, 1 + flags.uv + flags.normals)
-        self.write(self._vectorize(template, indices, len(polygons)))
-        self.write(b"\n" if len(polygons) else b"\n\n")
+        self.io.write(self._vectorize(template, indices, len(polygons)))
+        self.io.write(b"\n" if len(polygons) else b"\n\n")

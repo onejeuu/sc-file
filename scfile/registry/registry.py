@@ -11,8 +11,8 @@ from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
 
 
-Decoder: TypeAlias = type[FileDecoder[Any]]
-Encoder: TypeAlias = type[FileEncoder[Any]]
+Decoder: TypeAlias = type[FileDecoder[Any, Any]]
+Encoder: TypeAlias = type[FileEncoder[Any, Any]]
 Handler: TypeAlias = Decoder | Encoder
 FormatLike: TypeAlias = str | FileFormat
 

@@ -10,4 +10,4 @@ class PngEncoder(FileEncoder[ImageContent]):
     order = ByteOrder.LITTLE
 
     def serialize(self):
-        self.write(self.data.image)
+        self.io.write(self.data.image)

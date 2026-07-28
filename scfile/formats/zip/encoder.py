@@ -10,6 +10,6 @@ class TexarrEncoder(FileEncoder[TexarrContent]):
     order = ByteOrder.LITTLE
 
     def serialize(self):
-        with zipfile.ZipFile(self, mode="w", compression=zipfile.ZIP_STORED) as zip:
+        with zipfile.ZipFile(self.io, mode="w", compression=zipfile.ZIP_STORED) as zip:
             for path, data in self.data.textures:
                 zip.writestr(path, data)

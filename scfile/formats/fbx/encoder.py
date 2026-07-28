@@ -10,13 +10,14 @@ from scfile.structures.models import Flag
 from scfile.structures.models import transforms as T
 
 from .consts import DEFAULT, FBX, Props
-from .io import FbxFileIO
+from .io import FbxWriter
 
 
-class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
+class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
     content_type = ModelContent
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
+    io_factory = FbxWriter
 
     transforms = [T.unique_names, T.flip_uv]
 
@@ -30,11 +31,11 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
         self._write_header()
         self._write_nodes()
-        self.write(FBX.NULL_NODE)
+        self.io.write(FBX.NULL_NODE)
 
     def _write_header(self):
-        self.write(FBX.HEADER)
-        self._writeb(F.U32, FBX.VERSION)
+        self.io.write(FBX.HEADER)
+        self.io.value(F.U32, FBX.VERSION)
 
     def _write_nodes(self):
         # FBX Header Extension
@@ -203,23 +204,23 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
 
     def _start_node(self, name: bytes, properties: list | None = None, root: bool = False):
         properties = properties or []
-        node_start = self.tell()
+        node_start = self.io.tell()
 
         # Placeholder header
-        self._writeb(F.U32, 0)  # endOffset
-        self._writeb(F.U32, 0)  # numProperties
-        self._writeb(F.U32, 0)  # propertyListLen
-        self._writeb(F.U8, len(name))
-        self.write(name)
+        self.io.value(F.U32, 0)  # endOffset
+        self.io.value(F.U32, 0)  # numProperties
+        self.io.value(F.U32, 0)  # propertyListLen
+        self.io.value(F.U8, len(name))
+        self.io.write(name)
 
         # Properties
-        props_start = self.tell()
+        props_start = self.io.tell()
         prop_count = 0
         for prop in properties:
-            self._write_property(prop)
+            self.io.write_property(prop)
             prop_count += 1
 
-        prop_len = self.tell() - props_start
+        prop_len = self.io.tell() - props_start
 
         self.ctx["NODES"].append(
             dict(
@@ -235,16 +236,16 @@ class FbxEncoder(FileEncoder[ModelContent], FbxFileIO):
         node = self.ctx["NODES"].pop()
 
         if node["root"] or node["children"]:
-            self.write(FBX.NULL_NODE)
+            self.io.write(FBX.NULL_NODE)
 
-        end_pos = self.tell()
+        end_pos = self.io.tell()
 
         # Update node header
-        self.seek(node["start"])
-        self._writeb(F.U32, end_pos)
-        self._writeb(F.U32, node["prop_count"])
-        self._writeb(F.U32, node["prop_len"])
-        self.seek(end_pos)
+        self.io.seek(node["start"])
+        self.io.value(F.U32, end_pos)
+        self.io.value(F.U32, node["prop_count"])
+        self.io.value(F.U32, node["prop_len"])
+        self.io.seek(end_pos)
 
     def _next_id(self) -> np.int64:
         self.ctx["NEXT_ID"] += 1

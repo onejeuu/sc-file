@@ -5,23 +5,24 @@ Defines the contract for parsing binary data into structured content.
 """
 
 from abc import ABC, abstractmethod
-from enum import IntEnum
-from typing import ClassVar, Generic, Optional, Type, TypeVar, cast
+from typing import Any, ClassVar, Generic, Optional, Type, cast
+
+from typing_extensions import TypeVar
 
 from scfile import exceptions
-from scfile.enums import ByteOrder, F
-from scfile.enums import SafetyLimit as Limit
 
 from .base import BaseFile, IOStream
 from .content import BaseContent, ContentType
 from .encoder import FileEncoder
 from .options import Options
+from .structio import StructReader
 
 
-EncoderType = TypeVar("EncoderType", bound=FileEncoder)
+EncoderType = TypeVar("EncoderType", bound=FileEncoder[Any, Any])
+ReaderType = TypeVar("ReaderType", bound=StructReader, default=StructReader)
 
 
-class FileDecoder(BaseFile, Generic[ContentType], ABC):
+class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
     """
     Base class for decoding binary data into structured content.
 
@@ -30,6 +31,8 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
 
     content_factory: ClassVar[type[BaseContent]]
     """Factory for decoded content."""
+
+    io_factory = cast(type[ReaderType], StructReader)
 
     convertible: bool = True
     """Allow direct conversion into compatible output formats."""
@@ -74,7 +77,7 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
         self.validate_signature()
         self.parse()
         if seek:
-            self.seek(0)
+            self.io.seek(0)
         return self.data
 
     def convert_to(
@@ -138,35 +141,11 @@ class FileDecoder(BaseFile, Generic[ContentType], ABC):
             `EmptyFileError` or `InvalidSignatureError` on failure.
         """
 
-        if self.size() <= len(self.signature or bytes()):
+        if self.io.size() <= len(self.signature or bytes()):
             raise exceptions.EmptyFileError(self.location)
 
         if self.signature:
-            read = self.read(len(self.signature))
+            read = self.io.read(len(self.signature))
 
             if read != self.signature:
                 raise exceptions.InvalidSignatureError(self.location, read, self.signature)
-
-    def _checklimit(self, value: int, limit: IntEnum) -> int:
-        maximum = int(limit)
-        if value > maximum:
-            raise exceptions.LimitError(self.location, limit.name.lower(), value, maximum)
-        return value
-
-    def _readcount(self, fmt: str, limit: IntEnum) -> int:
-        return self._checklimit(self._readb(fmt), limit)
-
-    def _readutf8(
-        self,
-        prefix: str = F.U16,
-        order: Optional[ByteOrder] = None,
-        limit: Optional[IntEnum] = Limit.STRING,
-    ) -> str:
-        order = order or self.order
-        size = self._readb(prefix, order)
-
-        if limit is not None:
-            self._checklimit(size, limit)
-
-        string = self._unpack(f"{size}s")[0]
-        return string.decode("utf-8", errors=self.unicode_errors)

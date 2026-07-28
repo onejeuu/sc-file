@@ -6,7 +6,9 @@ Defines the contract for serializing structured content into binary data.
 
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import ClassVar, Generic, Optional, Self, TypeAlias
+from typing import ClassVar, Generic, Optional, Self, TypeAlias, cast
+
+from typing_extensions import TypeVar
 
 from scfile.structures.models import AnimationClip, Flag
 from scfile.structures.models.transforms import SceneTransform
@@ -15,12 +17,14 @@ from scfile.types import PathLike
 from .base import BaseFile, FileMode, IOStream
 from .content import BaseContent, ContentType, ModelContent
 from .options import Options
+from .structio import StructWriter
 
 
 EncoderTransforms: TypeAlias = Optional[list[SceneTransform]]
+WriterType = TypeVar("WriterType", bound=StructWriter, default=StructWriter)
 
 
-class FileEncoder(BaseFile, Generic[ContentType], ABC):
+class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
     """
     Base class for encoding structured content into binary data.
 
@@ -29,6 +33,8 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
 
     content_type: ClassVar[type[BaseContent]]
     """Content type accepted by encoder."""
+
+    io_factory = cast(type[WriterType], StructWriter)
 
     transforms: EncoderTransforms = None
     """Format-specific transforms applied to model data before serialization."""
@@ -98,7 +104,7 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
         """Write the format signature to the output stream."""
 
         if self.signature:
-            self.write(self.signature)
+            self.io.write(self.signature)
 
     @abstractmethod
     def serialize(self) -> None:
@@ -118,11 +124,11 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             mode: File mode (binary).
         """
 
-        if self.size() == 0:
+        if self.io.size() == 0:
             self.encode()
 
         with open(path, mode=mode) as fp:
-            fp.write(self.getvalue())
+            fp.write(self.io.getvalue())
 
         return self
 
@@ -183,9 +189,9 @@ class FileEncoder(BaseFile, Generic[ContentType], ABC):
             self.close()
 
     def getvalue(self) -> bytes:
-        if self.size() == 0:
+        if self.io.size() == 0:
             self.encode()
-        return super().getvalue()
+        return self.io.getvalue()
 
     @property
     def _skeleton_presented(self) -> bool:

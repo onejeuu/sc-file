@@ -15,4 +15,4 @@ class MicDecoder(FileDecoder[ImageContent]):
         return self.convert_to(formats.png.PngEncoder)
 
     def parse(self):
-        self.data.image = self.read()
+        self.data.image = self.io.read()

@@ -3,31 +3,32 @@ from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import InvalidStructureError
-from scfile.formats.mcsa.io import McsaFileIO
+from scfile.formats.mcsa.io import McsaReader
 from scfile.structures import models as S
 
 
-class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
+class McalDecoder(FileDecoder[ModelContent, McsaReader]):
     format = FileFormat.MCAL
     signature = FileSignature.MCAL
     order = ByteOrder.LITTLE
 
     content_factory = ModelContent
+    io_factory = McsaReader
     convertible = False
 
     def parse(self):
         self._parse_header()
         self._parse_animation()
-        if not self.is_eof():
-            raise InvalidStructureError(self.location, self.tell())
+        if not self.io.eof():
+            raise InvalidStructureError(self.location, self.io.tell())
 
     def _parse_header(self):
-        self.data.version = self._readb(F.F32)
-        self.ctx["COUNT_BONES"] = self._readb(F.U8)
-        self.data.scene.scale.position = self._readb(F.F32)
+        self.data.version = self.io.value(F.F32)
+        self.ctx["COUNT_BONES"] = self.io.value(F.U8)
+        self.data.scene.scale.position = self.io.value(F.F32)
 
     def _parse_animation(self):
-        self.ctx["COUNT_CLIPS"] = self._readcount(F.I32, Limit.CLIPS)
+        self.ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
 
         for _ in range(self.ctx["COUNT_CLIPS"]):
             self._parse_clip()
@@ -35,12 +36,12 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
     def _parse_clip(self):
         clip = S.AnimationClip()
 
-        clip.name = self._readutf8()
-        clip.frames = self._readcount(F.U32, Limit.FRAMES)
-        clip.rate = self._readb(F.F32)
+        clip.name = self.io.string()
+        clip.frames = self.io.count(F.U32, Limit.FRAMES)
+        clip.rate = self.io.value(F.F32)
 
-        self._checklimit(clip.frames * self.ctx["COUNT_BONES"], Limit.TRANSFORMS)
-        rotations, translations, _ = self._readclip(
+        self.io.check(clip.frames * self.ctx["COUNT_BONES"], Limit.TRANSFORMS)
+        rotations, translations, _ = self.io.clip(
             clip.frames,
             self.ctx["COUNT_BONES"],
             0,
@@ -51,6 +52,6 @@ class McalDecoder(FileDecoder[ModelContent], McsaFileIO):
 
         # ? Version 14 clip metadata
         if self.data.version >= 14.0:
-            self.skip(2)
+            self.io.skip(2)
 
         self.data.scene.animation.clips.append(clip)

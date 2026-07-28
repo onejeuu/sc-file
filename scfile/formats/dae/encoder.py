@@ -32,7 +32,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
     def serialize(self):
         self.ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)
-        self.write(DECLARATION)
+        self.io.write(DECLARATION)
 
         self._add_asset()
         self._add_effects()
@@ -46,7 +46,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
 
         # Render XML
         etree.indent(self.ctx["ROOT"])
-        self.write(etree.tostring(self.ctx["ROOT"]))
+        self.io.write(etree.tostring(self.ctx["ROOT"]))
 
     def _add_asset(self):
         asset = SubElement(self.ctx["ROOT"], "asset")

@@ -1,3 +1,5 @@
+from typing import Any
+
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 from .content import ImageContent, ModelContent, NbtContent, RegionContent, TexarrContent, TextureContent
@@ -5,28 +7,28 @@ from .decoder import FileDecoder
 from .encoder import FileEncoder
 
 
-ModelDecoder = type[FileDecoder[ModelContent]]
-ModelEncoder = type[FileEncoder[ModelContent]]
+ModelDecoder = type[FileDecoder[ModelContent, Any]]
+ModelEncoder = type[FileEncoder[ModelContent, Any]]
 
 TextureData = DefaultTexture | CubemapTexture
 
-TextureDecoder = type[FileDecoder[TextureContent[TextureData]]]
-TextureEncoder = type[FileEncoder[TextureContent[TextureData]]]
+TextureDecoder = type[FileDecoder[TextureContent[TextureData], Any]]
+TextureEncoder = type[FileEncoder[TextureContent[TextureData], Any]]
 
-CubemapDecoder = type[FileDecoder[TextureContent[CubemapTexture]]]
-CubemapEncoder = type[FileEncoder[TextureContent[CubemapTexture]]]
+CubemapDecoder = type[FileDecoder[TextureContent[CubemapTexture], Any]]
+CubemapEncoder = type[FileEncoder[TextureContent[CubemapTexture], Any]]
 
 AnyTextureDecoder = TextureDecoder
 AnyTextureEncoder = TextureEncoder
 
-ImageDecoder = type[FileDecoder[ImageContent]]
-ImageEncoder = type[FileEncoder[ImageContent]]
+ImageDecoder = type[FileDecoder[ImageContent, Any]]
+ImageEncoder = type[FileEncoder[ImageContent, Any]]
 
-TexarrDecoder = type[FileDecoder[TexarrContent]]
-TexarrEncoder = type[FileEncoder[TexarrContent]]
+TexarrDecoder = type[FileDecoder[TexarrContent, Any]]
+TexarrEncoder = type[FileEncoder[TexarrContent, Any]]
 
-NbtDecoder = type[FileDecoder[NbtContent]]
-NbtEncoder = type[FileEncoder[NbtContent]]
+NbtDecoder = type[FileDecoder[NbtContent, Any]]
+NbtEncoder = type[FileEncoder[NbtContent, Any]]
 
-RegionDecoder = type[FileDecoder[RegionContent]]
-RegionEncoder = type[FileEncoder[RegionContent]]
+RegionDecoder = type[FileDecoder[RegionContent, Any]]
+RegionEncoder = type[FileEncoder[RegionContent, Any]]
