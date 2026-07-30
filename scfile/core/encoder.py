@@ -15,7 +15,7 @@ from scfile.types import PathLike
 
 from .base import BaseFile
 from .content import BaseContent, ContentType, ModelContent
-from .options import Options
+from scfile.options import Options
 
 
 ContentTransform: TypeAlias = Callable[[ContentType], ContentType]
@@ -180,7 +180,13 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
     ) -> bool:
         """Return whether a feature will be serialized."""
 
-        return self.options.includes(feature) and any(
+        if feature.parent is Feature.ANIMATION and not self.options.animation:
+            return False
+
+        if feature is Feature.SKELETON and not self.options.skeleton_enabled:
+            return False
+
+        return any(
             self.has(member) and self.supports(member) and all(self.includes(required) for required in member.requires)
             for member in feature.members
         )

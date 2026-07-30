@@ -6,7 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import exceptions
-from scfile.core import Options
+from scfile.options import Options
 from scfile.utils import regions
 from scfile.utils.regions import CancelEvent, RegionKey
 

@@ -5,7 +5,7 @@ Named conversion functions for specific format pairs.
 from typing import Optional
 
 from scfile import formats
-from scfile.core import Options
+from scfile.options import Options
 from scfile.types import PathLike
 
 from .named import converter

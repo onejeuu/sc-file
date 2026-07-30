@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from scfile.convert.convert import convert, ensure_unique_path
-from scfile.core.options import Options
+from scfile.options import Options
 from scfile.exceptions import FileNotFound
 from tests.conftest import FakeDecoder, FakeEncoder
 

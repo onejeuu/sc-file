@@ -1,4 +1,4 @@
-from scfile import Options
+from scfile.options import Options
 from scfile.formats.mca import McaEncoder
 from scfile.formats.mdat import MdatDecoder
 

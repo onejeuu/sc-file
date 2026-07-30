@@ -3,7 +3,7 @@ from typing import cast
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QButtonGroup, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.core.options import ON_CONFLICT_OPTIONS, OnConflict
+from scfile.options import ON_CONFLICT_OPTIONS, OnConflict
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 

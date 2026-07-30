@@ -8,7 +8,7 @@ from rich.console import Console
 
 from scfile.consts import SUPPORTED_NBT
 from scfile.convert import detect
-from scfile.core import Options
+from scfile.options import Options
 from scfile.exceptions import EmptyFileError
 from scfile.utils.files import walk
 from tools.cmd.audit import stats

@@ -6,7 +6,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, cast
 
-from scfile.core import Options
+from scfile.options import Options
 from scfile.operations import convert
 from scfile.registry import Decoder, Encoder
 from scfile.types import PathLike

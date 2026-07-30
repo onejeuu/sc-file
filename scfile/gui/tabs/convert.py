@@ -16,12 +16,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.core import Options
+from scfile.options import Options
 from scfile.gui import workers
 from scfile.gui.shared import consts, strings
 from scfile.gui.shared.consts import FT
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import ConflictWidget, PathInputWidget, SourcesWidget, WarningsWidget
+from scfile.gui.widgets.conflict import ConflictWidget
+from scfile.gui.widgets.path import PathInputWidget
+from scfile.gui.widgets.sources import SourcesWidget
+from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertWorker
 from scfile.gui.workers.counter import CounterWorker
 from scfile.structures.models import Feature

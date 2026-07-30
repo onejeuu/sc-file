@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from scfile.core import Options
+from scfile.options import Options
 from scfile.core.types import ModelEncoder
 from scfile.exceptions import LimitError
 from scfile.formats.dae import DaeEncoder

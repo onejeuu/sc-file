@@ -3,7 +3,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterator
 
-from scfile.core import ModelContent, Options
+from scfile.options import Options
+from scfile.core import ModelContent
 from scfile.core.types import ModelDecoder
 from scfile.exceptions import AnimationError
 from scfile.formats import McalDecoder, McsbDecoder, McvdDecoder

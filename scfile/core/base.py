@@ -10,7 +10,7 @@ from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import FileMode, IOStream, StructIO
 
-from .options import Options
+from scfile.options import Options
 
 
 HandlerContext: TypeAlias = dict[str, Any]

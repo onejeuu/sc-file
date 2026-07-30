@@ -7,7 +7,7 @@ from rich import print
 
 from scfile import exceptions, types
 from scfile.cli import params
-from scfile.core import Options
+from scfile.options import Options
 from scfile.enums import CliCommand, L
 from scfile.utils import regions
 

@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Callable, TypeAlias
 
 from scfile import exceptions, formats, types
-from scfile.core import ModelContent, Options
+from scfile.options import Options
+from scfile.core import ModelContent
 from scfile.core.types import ModelDecoder
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T

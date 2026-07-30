@@ -4,11 +4,13 @@ from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.core import Options
+from scfile.options import Options
 from scfile.gui import workers
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import OptionWidget, PathInputWidget, WarningsWidget
+from scfile.gui.widgets.option import OptionWidget
+from scfile.gui.widgets.path import PathInputWidget
+from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.mapcache import MapCacheWorker
 
 

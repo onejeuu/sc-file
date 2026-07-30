@@ -51,11 +51,11 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         self._parse_header()
         self._parse_meshes()
 
-        if self.data.flags.get(Feature.SKELETON, False) and self.options.includes(Feature.SKELETON):
+        if self.data.flags.get(Feature.SKELETON, False) and self.options.skeleton_enabled:
             self._parse_skeleton()
 
             if (
-                self.options.includes(Feature.ANIMATION)
+                self.options.animation
                 and (self._ctx["COUNT_BONES"] > 0 or self._ctx["COUNT_CHANNELS"] > 0)
                 and not self.io.eof()
             ):
@@ -257,7 +257,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
                 return
 
     def _parse_packed_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.includes(Feature.SKELETON):
+        if self.options.skeleton_enabled:
             links = self.io.packed_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 
@@ -265,7 +265,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
             self.io.skip(count * 4)
 
     def _parse_plain_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.includes(Feature.SKELETON):
+        if self.options.skeleton_enabled:
             links = self.io.plain_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 

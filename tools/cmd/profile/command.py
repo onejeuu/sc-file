@@ -8,7 +8,7 @@ from rich.filesize import decimal
 from rich.table import Table
 
 from scfile.convert import detect
-from scfile.core import Options
+from scfile.options import Options
 from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 from tools.paths import ROOT

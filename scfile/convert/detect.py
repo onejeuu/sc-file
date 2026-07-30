@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
-from scfile.core import Options
+from scfile.options import Options
 from scfile.operations import convert
 from scfile.registry import RESOLVER
 

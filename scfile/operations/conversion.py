@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 from scfile import exceptions, types
-from scfile.core import ContentType, FileDecoder, FileEncoder, Options
+from scfile.options import Options
+from scfile.core import ContentType, FileDecoder, FileEncoder
 
 
 def convert(

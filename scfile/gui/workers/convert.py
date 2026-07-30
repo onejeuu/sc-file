@@ -6,7 +6,7 @@ from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import convert, exceptions, types
 from scfile.consts import INVALID_INPUT_HINT
-from scfile.core import Options
+from scfile.options import Options
 from scfile.utils import files
 
 from .base import Worker

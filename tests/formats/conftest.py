@@ -1,6 +1,6 @@
 from typing import NamedTuple, Optional
 
-from scfile import Options
+from scfile.options import Options
 from scfile.core import ContentType, FileDecoder, FileEncoder
 from tests.conftest import ASSETS
 

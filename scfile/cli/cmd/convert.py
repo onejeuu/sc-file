@@ -7,8 +7,8 @@ from rich import print
 from scfile import convert, exceptions, types
 from scfile.cli import params
 from scfile.consts import INVALID_INPUT_HINT
-from scfile.core import Options
-from scfile.core.options import OnConflict
+from scfile.options import Options
+from scfile.options import OnConflict
 from scfile.enums import CliCommand, L
 from scfile.structures.models import Feature
 from scfile.utils import files

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from scfile.core import Options
+from scfile import Options
 from scfile.exceptions import EmptyFileError, InvalidSignatureError
 from tests.conftest import DATA, OUTPUT, SOURCE, FakeContent, FakeDecoder, FakeEncoder
 

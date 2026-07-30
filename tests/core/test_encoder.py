@@ -5,7 +5,7 @@ import pytest
 
 from scfile.core.content import ModelContent
 from scfile.core.encoder import FileEncoder
-from scfile.core.options import Options
+from scfile.options import Options
 from scfile.structures.models import Flag, ModelScene
 from tests.conftest import DATA, OUTPUT, FakeContent, FakeEncoder, FakeModelEncoder
 

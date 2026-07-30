@@ -1,4 +1,1 @@
-from . import window
-
-
-__all__ = ("window",)
+"""Graphical user interface."""

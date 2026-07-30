@@ -5,7 +5,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable, Iterable, NamedTuple, Optional, TypeAlias
 
-from scfile import Options, exceptions, formats
+from scfile import exceptions, formats
+from scfile.options import Options
 from scfile.core import RegionContent
 
 

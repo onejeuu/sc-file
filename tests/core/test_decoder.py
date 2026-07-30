@@ -1,6 +1,6 @@
 import pytest
 
-from scfile.core.options import Options
+from scfile.options import Options
 from scfile.exceptions import EmptyFileError, InvalidSignatureError
 from tests.conftest import DATA, FakeDecoder, FakeEncoder
 

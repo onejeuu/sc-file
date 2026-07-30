@@ -7,7 +7,8 @@ from PySide6.QtWidgets import QButtonGroup, QHBoxLayout, QLabel, QPushButton, QV
 from scfile.gui import workers
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets import PathInputWidget, WarningsWidget
+from scfile.gui.widgets.path import PathInputWidget
+from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.animate import AnimateWorker
 from scfile.gui.workers.base import Worker
 from scfile.gui.workers.lipsync import LipsyncWorker

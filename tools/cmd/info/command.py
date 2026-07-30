@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from rich.console import Console
 
-from scfile.core import Options
+from scfile.options import Options
 from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 

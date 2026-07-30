@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 from scfile.enums import FileFormat
-from scfile.structures.models import Feature
 from scfile.types import Formats
 
 
@@ -14,10 +13,10 @@ OnConflict = Literal["overwrite", "rename", "skip"]
 ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
 
 DEFAULT_MODEL_FORMATS: Formats = (FileFormat.OBJ,)
-"""Default output formats when skeleton parsing is disabled."""
+"""Default output formats when skeleton processing is disabled."""
 
 DEFAULT_SKELETON_FORMATS: Formats = (FileFormat.GLB,)
-"""Default output formats when skeleton parsing is enabled."""
+"""Default output formats when skeleton processing is enabled."""
 
 
 @dataclass
@@ -48,25 +47,17 @@ class Options:
     - `"rename"` Add a numeric suffix (e.g. `model (1).obj`).
     """
 
-    def includes(
-        self,
-        feature: Feature,
-    ) -> bool:
-        """Return whether processing a feature is enabled."""
+    @property
+    def skeleton_enabled(self) -> bool:
+        """Whether skeleton processing is enabled directly or by animation processing."""
 
-        if feature is Feature.ANIMATION or feature.parent is Feature.ANIMATION:
-            return self.animation
-
-        if feature is Feature.SKELETON:
-            return self.skeleton or self.animation
-
-        return True
+        return self.skeleton or self.animation
 
     @property
     def default_model_formats(self) -> Formats:
         """Default output formats for models based on current options."""
 
-        if self.includes(Feature.SKELETON):
+        if self.skeleton_enabled:
             return DEFAULT_SKELETON_FORMATS
 
         return DEFAULT_MODEL_FORMATS

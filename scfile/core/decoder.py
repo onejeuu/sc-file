@@ -14,7 +14,7 @@ from scfile.io.base import IOStream, StructReader
 from .base import BaseFile
 from .content import BaseContent, ContentType
 from .encoder import FileEncoder
-from .options import Options
+from scfile.options import Options
 
 
 EncoderType = TypeVar("EncoderType", bound=FileEncoder[Any, Any])

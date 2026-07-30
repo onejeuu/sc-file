@@ -4,7 +4,8 @@ from collections.abc import Callable
 from pathlib import Path
 from time import perf_counter
 
-from scfile.core import FileDecoder, FileEncoder, Options
+from scfile.options import Options
+from scfile.core import FileDecoder, FileEncoder
 
 
 def decode(
