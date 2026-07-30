@@ -41,8 +41,3 @@ class LipsyncWorker(Worker):
 
         finally:
             self.finished.emit()
-
-    def stop(self) -> None:
-        self.thread().requestInterruption()
-        self.thread().quit()
-        self.thread().wait()

@@ -24,6 +24,7 @@ from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets import ConflictWidget, PathInputWidget, SourcesWidget, WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertWorker
 from scfile.gui.workers.counter import CounterWorker
+from scfile.structures.models import Feature
 
 
 class ConverterTab(QWidget):
@@ -120,7 +121,7 @@ class ConverterTab(QWidget):
         self.right.addSpacing(10)
 
         # File types groups
-        self.feat_checks: dict[str, QCheckBox] = {}
+        self.feat_checks: dict[Feature, QCheckBox] = {}
         self.kind_checks: dict[str, QCheckBox] = {}
         self._build_format()
         self._build_file_types()
@@ -183,12 +184,12 @@ class ConverterTab(QWidget):
                 options_layout.addWidget(self.format)
 
             # Feature specific checkboxes
-            for feat_id, feat_title in kind.feature_map.items():
-                cb_feat = QCheckBox(feat_title)
+            for feature, title in kind.feature_map.items():
+                cb_feat = QCheckBox(title)
                 cb_feat.setStyleSheet(Styles.CHECKBOX)
                 cb_feat.setCursor(Qt.CursorShape.PointingHandCursor)
                 options_layout.addWidget(cb_feat)
-                self.feat_checks[feat_id] = cb_feat
+                self.feat_checks[feature] = cb_feat
 
             toggle.toggled.connect(options.setEnabled)
 
@@ -200,6 +201,9 @@ class ConverterTab(QWidget):
             layout.addWidget(suffixes)
             layout.addWidget(options)
             self.right.addWidget(group)
+
+        self.feat_checks[Feature.SKELETON].toggled.connect(self._handle_skeleton)
+        self.feat_checks[Feature.ANIMATION].toggled.connect(self._handle_animation)
 
     def _build_output(self):
         label = QLabel(strings.get("label.output"))
@@ -296,6 +300,14 @@ class ConverterTab(QWidget):
     def _handle_formats(self):
         self._sync_feature_widgets()
 
+    def _handle_skeleton(self, enabled: bool):
+        if not enabled:
+            self.feat_checks[Feature.ANIMATION].setChecked(False)
+
+    def _handle_animation(self, enabled: bool):
+        if enabled:
+            self.feat_checks[Feature.SKELETON].setChecked(True)
+
     def _handle_counter(self, text: str, count: int, busy: bool):
         label = strings.get("button.convert")
         self.convert.setText(f"{label} ({text})")
@@ -334,10 +346,10 @@ class ConverterTab(QWidget):
 
     def _sync_feature_widgets(self):
         if fmt := self.format.currentData():
-            for fid, w in self.feat_checks.items():
-                ok = any(f.id == fid for f in fmt.features)
-                w.setEnabled(ok)
-                w.setChecked(ok)
+            for feature, widget in self.feat_checks.items():
+                supported = fmt.supports(feature)
+                widget.setEnabled(supported)
+                widget.setChecked(supported)
 
     def _get_sources(self) -> list[str]:
         return [self.sources.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.sources.count())]
@@ -358,8 +370,8 @@ class ConverterTab(QWidget):
     def _convert(self):
         fmt: consts.ModelFormat = self.format.currentData()
 
-        ft_skeleton = self.feat_checks[FT.SKELETON.id]
-        ft_animation = self.feat_checks[FT.ANIMATION.id]
+        ft_skeleton = self.feat_checks[FT.SKELETON.feature]
+        ft_animation = self.feat_checks[FT.ANIMATION.feature]
 
         context = ConvertContext(
             whitelist=self._get_suffixes(),
@@ -402,7 +414,7 @@ class ConverterTab(QWidget):
     def closeEvent(self, event: QCloseEvent):
         self._counter.stop()
 
-        if self._converter:
-            self._converter.stop()
+        if self._converter and self._converter_thread:
+            workers.stop(self._converter, self._converter_thread)
 
         super().closeEvent(event)

@@ -2,8 +2,10 @@
 Scene transformation functions.
 """
 
+from __future__ import annotations
+
 from dataclasses import replace
-from typing import Callable, TypeAlias
+from typing import TYPE_CHECKING, Callable, TypeAlias
 
 import numpy as np
 
@@ -16,8 +18,26 @@ from .mesh import ModelMesh
 from .scene import ModelScene
 from .skeleton import SkeletonBone
 
+if TYPE_CHECKING:
+    from scfile.core.content import ModelContent
+
 
 SceneTransform: TypeAlias = Callable[[ModelScene], ModelScene]
+ModelTransform: TypeAlias = Callable[["ModelContent"], "ModelContent"]
+
+
+def scene_transforms(
+    *transforms: SceneTransform,
+) -> tuple[ModelTransform, ...]:
+    """Adapt scene transformations to model content."""
+
+    def adapt(transform: SceneTransform) -> ModelTransform:
+        def apply(data: ModelContent) -> ModelContent:
+            return replace(data, scene=transform(data.scene))
+
+        return apply
+
+    return tuple(adapt(transform) for transform in transforms)
 
 
 def unique_names(scene: ModelScene) -> ModelScene:

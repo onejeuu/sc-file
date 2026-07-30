@@ -9,6 +9,7 @@ from typing import Any, Mapping, Self, TypeAlias
 from scfile.core import BaseContent, FileDecoder, FileEncoder
 from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
+from scfile.structures.models import Feature, Features
 
 
 Decoder: TypeAlias = type[FileDecoder[Any, Any]]
@@ -30,6 +31,20 @@ class FormatSpec:
     decoder: Decoder | None = None
     encoder: Encoder | None = None
     convertible: bool = True
+
+    @property
+    def features(self) -> Features:
+        """Features supported by encoder."""
+
+        return self.encoder.features if self.encoder else ()
+
+    def supports(
+        self,
+        feature: Feature,
+    ) -> bool:
+        """Return whether encoder supports a feature."""
+
+        return bool(self.encoder and self.encoder.supports(feature))
 
 
 class Registry:

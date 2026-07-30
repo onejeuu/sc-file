@@ -7,6 +7,8 @@ from scfile import __version__ as SEMVER
 from scfile import types
 from scfile.consts import Text
 from scfile.enums import L, UpdateStatus
+from scfile.registry import REGISTRY
+from scfile.structures.models import Feature
 
 from . import updates
 from .versions import Version
@@ -14,12 +16,15 @@ from .versions import Version
 
 def check_feature_unsupported(
     user_formats: types.Formats,
-    unsupported_formats: types.Formats,
-    feature: str,
+    feature: Feature,
 ) -> None:
-    matching_formats = list(filter(lambda fmt: fmt in unsupported_formats, user_formats))
+    matching_formats = [
+        fmt
+        for fmt in user_formats
+        if not (entry := REGISTRY.get(fmt)) or not entry.supports(feature)
+    ]
 
-    if bool(matching_formats):
+    if matching_formats:
         suffixes = ", ".join(map(lambda fmt: fmt.suffix, matching_formats))
         print(L.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
 

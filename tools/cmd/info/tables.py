@@ -14,7 +14,6 @@ from scfile.core import (
     TexarrContent,
     TextureContent,
 )
-from scfile.structures.models import Flag
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 
@@ -123,7 +122,7 @@ def failure(
 
 def _model(data: ModelContent) -> list[Row]:
     scene = data.scene
-    flags = ", ".join(flag.name for flag in Flag if data.flags.get(flag)) or "-"
+    flags = ", ".join(feature.name for feature, enabled in data.flags.items() if enabled) or "-"
 
     return [
         ("Version", data.version),

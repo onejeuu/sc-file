@@ -237,7 +237,7 @@ class MapCacheTab(QWidget):
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
 
     def closeEvent(self, event: QCloseEvent):
-        if self._merger:
-            self._merger.stop()
+        if self._merger and self._merger_thread:
+            workers.stop(self._merger, self._merger_thread)
 
         super().closeEvent(event)

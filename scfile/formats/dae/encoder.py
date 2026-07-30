@@ -7,7 +7,7 @@ import numpy as np
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
-from scfile.structures.models import Flag
+from scfile.structures.models import Feature
 from scfile.structures.models import transforms as T
 
 from . import utils
@@ -28,7 +28,17 @@ class DaeEncoder(FileEncoder[ModelContent]):
     format = FileFormat.DAE
     order = ByteOrder.LITTLE
 
-    transforms = [T.unique_names, T.invert_uv, T.skeleton_to_local, T.build_hierarchy]
+    features = (
+        Feature.UV,
+        Feature.NORMALS,
+        Feature.SKELETON,
+    )
+    transforms = T.scene_transforms(
+        T.unique_names,
+        T.invert_uv,
+        T.skeleton_to_local,
+        T.build_hierarchy,
+    )
 
     def serialize(self):
         self.ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)
@@ -39,7 +49,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         self._add_materials()
         self._add_geometries()
 
-        if self._skeleton_presented:
+        if self.includes(Feature.SKELETON):
             self._add_controllers()
 
         self._add_scenes()
@@ -78,12 +88,12 @@ class DaeEncoder(FileEncoder[ModelContent]):
         utils.add_accessor(pos_source, mesh.name, "positions", len(mesh.vertices), ["X", "Y", "Z"], "float")
 
         # UV Texture
-        if self.data.flags[Flag.UV]:
+        if self.includes(Feature.UV) and mesh.uv1.size:
             tex_source = utils.create_source(node, mesh.name, "texture", mesh.uv1)
             utils.add_accessor(tex_source, mesh.name, "texture", len(mesh.uv1), ["S", "T"], "float")
 
         # XYZ Normals
-        if self.data.flags[Flag.NORMALS]:
+        if self.includes(Feature.NORMALS) and mesh.normals.size:
             norm_source = utils.create_source(node, mesh.name, "normals", mesh.normals)
             utils.add_accessor(norm_source, mesh.name, "normals", len(mesh.normals), ["X", "Y", "Z"], "float")
 
@@ -96,10 +106,10 @@ class DaeEncoder(FileEncoder[ModelContent]):
         # Inputs
         SubElement(triangles, "input", semantic="VERTEX", source=f"#{mesh.name}-vertices", offset="0")
 
-        if self.data.flags[Flag.UV]:
+        if self.includes(Feature.UV) and mesh.uv1.size:
             SubElement(triangles, "input", semantic="TEXCOORD", source=f"#{mesh.name}-texture", offset="0")
 
-        if self.data.flags[Flag.NORMALS]:
+        if self.includes(Feature.NORMALS) and mesh.normals.size:
             SubElement(triangles, "input", semantic="NORMAL", source=f"#{mesh.name}-normals", offset="0")
 
         # ABC Polygons
@@ -163,7 +173,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         library = SubElement(self.ctx["ROOT"], "library_visual_scenes")
         visual_scene = SubElement(library, "visual_scene", id="scene", name="Scene")
 
-        if self._skeleton_presented:
+        if self.includes(Feature.SKELETON):
             visual_scene = self._add_armature(visual_scene)
 
         self._add_mesh_instances(visual_scene)
@@ -192,9 +202,9 @@ class DaeEncoder(FileEncoder[ModelContent]):
     def _add_mesh_instances(self, parent: Element):
         for mesh in self.data.scene.meshes:
             node = SubElement(parent, "node", id=mesh.name, name=mesh.name, type="NODE")
-            skeleton_presented = self._skeleton_presented and mesh.max_influences > 0
+            has_skin = self.includes(Feature.SKELETON) and mesh.max_influences > 0
 
-            if skeleton_presented:
+            if has_skin:
                 bone = self.data.scene.skeleton.roots[0]
                 instance = SubElement(node, "instance_controller", url=f"#{mesh.name}-skin")
                 SubElement(instance, "skeleton").text = f"#armature-{bone.name}"

@@ -6,7 +6,7 @@ from typing import Any, TextIO
 
 from scfile.core import BaseContent, ImageContent, ModelContent, TextureContent
 from scfile.formats.ol.enums import TextureKind
-from scfile.structures.models import Flag
+from scfile.structures.models import Feature
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 from tools.cmd.audit.consts import FORMATS_CSV, TABLES
 from tools.cmd.audit.schemas import Animation, Bone, Image, Mesh, Model, Record, Texture
@@ -80,12 +80,12 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
         bones=len(bones) if animation else "-",
         clips=len(animations) if animation else "-",
         frames=sum(clip.frames for clip in animations) if animation else "-",
-        skeleton=bool(flags.get(Flag.SKELETON)),
-        uv=bool(flags.get(Flag.UV)),
-        uv2=bool(flags.get(Flag.UV2)),
-        normals=bool(flags.get(Flag.NORMALS)),
-        tangents=bool(flags.get(Flag.TANGENTS)),
-        colors=bool(flags.get(Flag.COLORS)),
+        skeleton=bool(flags.get(Feature.SKELETON)),
+        uv=bool(flags.get(Feature.UV)),
+        uv2=bool(flags.get(Feature.UV2)),
+        normals=bool(flags.get(Feature.NORMALS)),
+        tangents=bool(flags.get(Feature.TANGENTS)),
+        colors=bool(flags.get(Feature.COLORS)),
         scale=scale.position,
         scale_uv=scale.uv,
         scale_uv2=scale.uv2,

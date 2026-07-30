@@ -30,7 +30,8 @@ class AnimateTab(QWidget):
             return None
 
         animation = Path(self.animation.text().strip())
-        if animation.suffix.lower() == ".mcvd" and "fp_" not in animation.stem.lower():
+        stem = animation.stem.lower()
+        if animation.suffix.lower() == ".mcvd" and ("fp_" not in stem or "wpn_" not in stem):
             return strings.get("warning.animate.not_fp")
 
     def _build_ui(self) -> None:
@@ -214,7 +215,7 @@ class AnimateTab(QWidget):
         self._sync_ui()
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self._worker:
-            self._worker.stop()
+        if self._worker and self._worker_thread:
+            workers.stop(self._worker, self._worker_thread)
 
         super().closeEvent(event)

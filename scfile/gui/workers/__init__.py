@@ -1,4 +1,4 @@
-from .base import execute
+from .base import execute, stop
 
 
-__all__ = ("execute",)
+__all__ = ("execute", "stop")

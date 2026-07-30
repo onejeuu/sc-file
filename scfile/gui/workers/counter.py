@@ -112,5 +112,6 @@ class CounterWorker(QObject):
     def stop(self):
         if self._thread and self._thread.isRunning():
             self._task.abort = True
+            self._thread.requestInterruption()
             self._thread.quit()
             self._thread.wait()

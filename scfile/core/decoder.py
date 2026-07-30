@@ -57,10 +57,7 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
 
         super().__init__(stream=stream, mode="rb")
 
-    def decode(
-        self,
-        seek: bool = True,
-    ) -> ContentType:
+    def decode(self) -> ContentType:
         """
         Runs decoding pipeline.
 
@@ -74,8 +71,6 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         self.prelude()
         self.validate_signature()
         self.parse()
-        if seek:
-            self.io.seek(0)
         return self.data
 
     def convert_to(

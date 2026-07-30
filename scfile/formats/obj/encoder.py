@@ -3,7 +3,7 @@ import numpy as np
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
-from scfile.structures.models import Flag
+from scfile.structures.models import Feature
 from scfile.structures.models import transforms as T
 
 from . import faces
@@ -14,7 +14,11 @@ class ObjEncoder(FileEncoder[ModelContent]):
     format = FileFormat.OBJ
     order = ByteOrder.LITTLE
 
-    transforms = [T.unique_names, T.flip_uv]
+    features = (
+        Feature.UV,
+        Feature.NORMALS,
+    )
+    transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
     def serialize(self):
         self._add_meshes()
@@ -28,10 +32,10 @@ class ObjEncoder(FileEncoder[ModelContent]):
 
             self._add_geometric_vertices(mesh)
 
-            if self.data.flags[Flag.UV]:
+            if self.includes(Feature.UV) and mesh.uv1.size:
                 self._add_texture_coordinates(mesh)
 
-            if self.data.flags[Flag.NORMALS] or self.data.flags[Flag.TANGENTS]:
+            if self.includes(Feature.NORMALS) and mesh.normals.size:
                 self._add_vertex_normals(mesh)
 
             self.io.string(f"g {mesh.name}\n")
@@ -58,7 +62,10 @@ class ObjEncoder(FileEncoder[ModelContent]):
         self.io.write(b"\n")
 
     def _add_polygonal_faces(self, mesh: S.ModelMesh, offset: int):
-        flags = faces.Flags(uv=self.data.flags[Flag.UV], normals=self.data.flags[Flag.NORMALS])
+        flags = faces.Flags(
+            uv=self.includes(Feature.UV) and bool(mesh.uv1.size),
+            normals=self.includes(Feature.NORMALS) and bool(mesh.normals.size),
+        )
         template = faces.TEMPLATE[flags]
 
         polygons = mesh.polygons + offset

@@ -4,7 +4,9 @@ Data structures for scenes.
 
 from dataclasses import dataclass, field
 
+from . import features
 from .animation import ModelAnimation
+from .enums import Feature
 from .mesh import ModelMesh
 from .skeleton import ModelSkeleton
 
@@ -27,6 +29,14 @@ class ModelScene:
     meshes: list[ModelMesh] = field(default_factory=list)
     skeleton: ModelSkeleton = field(default_factory=ModelSkeleton)
     animation: ModelAnimation = field(default_factory=ModelAnimation)
+
+    def has(
+        self,
+        feature: Feature,
+    ) -> bool:
+        """Return whether scene contains a feature."""
+
+        return features.has(self, feature)
 
     @property
     def total_vertices(self):

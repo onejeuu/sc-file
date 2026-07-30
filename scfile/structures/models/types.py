@@ -7,11 +7,15 @@ from typing import Annotated, NewType, TypeAlias
 import numpy as np
 from numpy.typing import NDArray
 
-from .enums import Flag
+from .enums import Feature
 
 
-ModelFlags: TypeAlias = dict[Flag, bool]
-"""Per-feature presence flags."""
+Features: TypeAlias = tuple[Feature, ...]
+"""Model feature collection."""
+
+FeatureFlags: TypeAlias = dict[Feature, bool]
+"""Feature flags declared by source model."""
+
 
 LocalBoneId = NewType("LocalBoneId", int)
 """Bone index within mesh."""

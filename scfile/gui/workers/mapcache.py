@@ -99,9 +99,6 @@ class MapCacheWorker(Worker):
             else:
                 logger.done("Regions Merging\n")
 
-    def stop(self):
+    def stop(self) -> None:
         self.cancelled.set()
         self.pool.clear()
-        self.thread().requestInterruption()
-        self.thread().quit()
-        self.thread().wait()

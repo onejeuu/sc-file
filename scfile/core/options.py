@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 from scfile.consts import DefaultModelFormats, Formats
+from scfile.structures.models import Feature
 
 
 OnConflict = Literal["overwrite", "rename", "skip"]
@@ -39,6 +40,24 @@ class Options:
     - `"skip"` Keep the existing file.
     - `"rename"` Add a numeric suffix (e.g. `model (1).obj`).
     """
+
+    def __post_init__(self) -> None:
+        if self.animation:
+            self.skeleton = True
+
+    def includes(
+        self,
+        feature: Feature,
+    ) -> bool:
+        """Return whether processing a feature is enabled."""
+
+        if feature.parent is Feature.ANIMATION:
+            return self.animation
+
+        if feature is Feature.SKELETON:
+            return self.skeleton
+
+        return True
 
     @property
     def default_model_formats(self) -> Formats:

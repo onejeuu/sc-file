@@ -6,10 +6,11 @@ from rich import print
 
 from scfile import convert, exceptions, types
 from scfile.cli import params
-from scfile.consts import CLI, Formats, Text
+from scfile.consts import Formats, Text
 from scfile.core import Options
 from scfile.core.options import OnConflict
 from scfile.enums import CliCommand, L
+from scfile.structures.models import Feature
 from scfile.utils import files
 from scfile.utils.cli import check_feature_unsupported
 
@@ -74,22 +75,21 @@ def convert_command(
 ) -> None:
     # Normalize options
     model_formats = mdlformat or None
-    if parent:
-        relative = True
-    if animation:
-        skeleton = True
+    relative = relative or parent
 
+    # TODO: rework
     # Relative flag is useless without output path
     if relative and not output:
         print(L.WARN, "Flag [b]--relative[/] requires [b]--output[/] option.")
 
+    # TODO: rework
     # Warn if specified formats has unsupported features
     if model_formats:
         if skeleton:
-            check_feature_unsupported(model_formats, CLI.NON_SKELETAL_FORMATS, "skeleton")
+            check_feature_unsupported(model_formats, Feature.SKELETON)
 
         if animation:
-            check_feature_unsupported(model_formats, CLI.NON_ANIMATION_FORMATS, "animation")
+            check_feature_unsupported(model_formats, Feature.ANIMATION)
 
     # Prepare options
     options = Options(

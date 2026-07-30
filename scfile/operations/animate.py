@@ -2,7 +2,6 @@
 External model animation.
 """
 
-from collections import defaultdict
 from dataclasses import replace
 from pathlib import Path
 from typing import Callable, TypeAlias
@@ -105,13 +104,8 @@ def arms(
         with formats.McsbDecoder(model_path, options) as mcsb:
             model_data.append(mcsb.decode())
 
-    flags: S.ModelFlags = defaultdict(bool, animation_data.flags)
-    for model in model_data:
-        for flag, enabled in model.flags.items():
-            flags[flag] |= enabled
-
     scene = T.apply_animation(animation_data.scene, *(model.scene for model in model_data))
-    data = replace(animation_data, flags=flags, scene=scene)
+    data = replace(animation_data, scene=scene)
     skins, mesh_skins = _skin_context(animation_data, *model_data)
 
     with formats.GlbEncoder(data, options) as glb:

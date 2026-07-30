@@ -16,7 +16,7 @@ from .content import (
     TextureContent,
 )
 from .decoder import FileDecoder
-from .encoder import FileEncoder
+from .encoder import ContentTransform, FileEncoder
 from .options import Options
 
 
@@ -31,6 +31,7 @@ __all__ = (
     "FileEncoder",
     "Options",
     "ContentType",
+    "ContentTransform",
     "BaseContent",
     "ModelContent",
     "TextureContent",

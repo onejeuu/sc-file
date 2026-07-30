@@ -4,16 +4,14 @@ Defines data structures that hold parsed file contents.
 """
 
 from abc import ABC
-from collections import defaultdict
 from dataclasses import MISSING, dataclass, field, fields
 from typing import Generic, TypeAlias, TypeVar, cast
 from uuid import UUID
 
 from scfile.enums import FileType
-from scfile.structures.models import ModelFlags, ModelScene
+from scfile.structures.models import Feature, FeatureFlags, ModelScene
 from scfile.structures.regions import RegionChunk
 from scfile.structures.textures import CubemapTexture, DefaultTexture, TextureType
-
 
 NbtValue: TypeAlias = None | int | float | bytes | str | list[int] | list["NbtValue"] | dict[str, "NbtValue"]
 
@@ -43,8 +41,14 @@ class ModelContent(BaseContent):
     type: FileType = field(default=FileType.MODEL)
 
     version: float = 0.0
-    flags: ModelFlags = field(default_factory=lambda: defaultdict(bool))
+    flags: FeatureFlags = field(default_factory=dict)
     scene: ModelScene = field(default_factory=ModelScene)
+
+    def has(
+        self,
+        feature: Feature,
+    ) -> bool:
+        return self.scene.has(feature)
 
 
 @dataclass

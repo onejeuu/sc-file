@@ -3,6 +3,8 @@ from pathlib import Path
 
 from scfile.consts import SUPPORTED_NBT
 from scfile.enums import FileFormat
+from scfile.registry import REGISTRY
+from scfile.structures.models import Feature
 
 from . import strings
 
@@ -12,8 +14,10 @@ DEFAULT_OUTPUT = Path.home() / "scfile" / "export"
 
 
 @dataclass
-class Feature:
-    id: str
+class FeatureView:
+    """GUI presentation for model feature."""
+
+    feature: Feature
     icon: str
     label: str
 
@@ -23,8 +27,22 @@ class Feature:
 
 
 class FT:
-    SKELETON = Feature(id="skeleton", icon="🦴", label=strings.get("feature.skeleton"))
-    ANIMATION = Feature(id="animation", icon="🌀", label=strings.get("feature.animation"))
+    SKELETON = FeatureView(
+        feature=Feature.SKELETON,
+        icon="🦴",
+        label=strings.get("feature.skeleton"),
+    )
+    ANIMATION = FeatureView(
+        feature=Feature.ANIMATION,
+        icon="🌀",
+        label=strings.get("feature.animation"),
+    )
+
+
+FEATURE_VIEWS = (
+    FT.SKELETON,
+    FT.ANIMATION,
+)
 
 
 @dataclass
@@ -33,15 +51,15 @@ class FileKind:
     icon: str
     label: str
     suffixes: list[str]
-    features: list[Feature] = field(default_factory=list)
+    features: list[FeatureView] = field(default_factory=list)
 
     @property
     def title(self) -> str:
         return f"{self.icon} {self.label}"
 
     @property
-    def feature_map(self) -> dict[str, str]:
-        return {f.id: f.title for f in self.features}
+    def feature_map(self) -> dict[Feature, str]:
+        return {view.feature: view.title for view in self.features}
 
 
 FILE_KINDS: list[FileKind] = [
@@ -82,17 +100,23 @@ FILE_KINDS: list[FileKind] = [
 @dataclass
 class ModelFormat:
     id: FileFormat
-    features: list[Feature] = field(default_factory=list)
+
+    def supports(
+        self,
+        feature: Feature,
+    ) -> bool:
+        entry = REGISTRY.get(self.id)
+        return bool(entry and entry.supports(feature))
 
     def __str__(self) -> str:
-        icons = " ".join(f.icon for f in self.features)
+        icons = " ".join(view.icon for view in FEATURE_VIEWS if self.supports(view.feature))
         return f"{self.id.upper()} {icons}".strip()
 
 
 MODEL_FORMATS = [
     ModelFormat(FileFormat.OBJ),
-    ModelFormat(FileFormat.GLB, features=[FT.SKELETON, FT.ANIMATION]),
-    ModelFormat(FileFormat.DAE, features=[FT.SKELETON]),
-    ModelFormat(FileFormat.MS3D, features=[FT.SKELETON]),
+    ModelFormat(FileFormat.GLB),
+    ModelFormat(FileFormat.DAE),
+    ModelFormat(FileFormat.MS3D),
     ModelFormat(FileFormat.FBX),
 ]

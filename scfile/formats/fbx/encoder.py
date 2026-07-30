@@ -5,12 +5,12 @@ import numpy as np
 
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.io.fbx import FbxWriter
 from scfile.structures import models as S
-from scfile.structures.models import Flag
+from scfile.structures.models import Feature
 from scfile.structures.models import transforms as T
 
 from .consts import DEFAULT, FBX, Props
-from scfile.io.fbx import FbxWriter
 
 
 class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
@@ -19,7 +19,12 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
     order = ByteOrder.LITTLE
     io_factory = FbxWriter
 
-    transforms = [T.unique_names, T.flip_uv]
+    features = (
+        Feature.UV,
+        Feature.UV2,
+        Feature.NORMALS,
+    )
+    transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
     def serialize(self):
         self.ctx["NODES"] = []
@@ -121,7 +126,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
                 self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
                 self._leaf(b"Materials", [np.array([0], dtype=np.int32)])
 
-            if self.data.flags[Flag.UV]:
+            if self.includes(Feature.UV) and mesh.uv1.size:
                 with self._node(b"LayerElementUV", [0]):
                     self._leaf(b"Version", [101])
                     self._leaf(b"Name", [b"UVMap"])
@@ -130,7 +135,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
                     self._leaf(b"UV", [mesh.uv1.flatten().astype(np.float64)])
                     self._leaf(b"UVIndex", [indexes])
 
-            if self.data.flags[Flag.UV2]:
+            if self.includes(Feature.UV2) and mesh.uv2.size:
                 with self._node(b"LayerElementUV", [0]):
                     self._leaf(b"Version", [101])
                     self._leaf(b"Name", [b"UVMap_2"])
@@ -139,7 +144,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
                     self._leaf(b"UV", [mesh.uv2.flatten().astype(np.float64)])
                     self._leaf(b"UVIndex", [indexes])
 
-            if self.data.flags[Flag.NORMALS]:
+            if self.includes(Feature.NORMALS) and mesh.normals.size:
                 with self._node(b"LayerElementNormal", [0]):
                     self._leaf(b"Version", [101])
                     self._leaf(b"Name", [b""])
@@ -155,17 +160,17 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
                     self._leaf(b"Type", [b"Material"])
                     self._leaf(b"TypedIndex", [0])
 
-                if self.data.flags[Flag.UV]:
+                if self.includes(Feature.UV) and mesh.uv1.size:
                     with self._node(b"LayerElement", []):
                         self._leaf(b"Type", [b"UV"])
                         self._leaf(b"TypedIndex", [0])
 
-                if self.data.flags[Flag.UV2]:
+                if self.includes(Feature.UV2) and mesh.uv2.size:
                     with self._node(b"LayerElement", []):
                         self._leaf(b"Type", [b"UV"])
                         self._leaf(b"TypedIndex", [1])
 
-                if self.data.flags[Flag.NORMALS]:
+                if self.includes(Feature.NORMALS) and mesh.normals.size:
                     with self._node(b"LayerElement", []):
                         self._leaf(b"Type", [b"Normal"])
                         self._leaf(b"TypedIndex", [0])

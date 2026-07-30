@@ -3,9 +3,9 @@ import numpy as np
 from scfile.consts import FileSignature, ModelDefaults
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.models import transforms as T
-
 from scfile.io.ms3d import Ms3dWriter
+from scfile.structures.models import Feature
+from scfile.structures.models import transforms as T
 
 
 VERSION = 4
@@ -44,7 +44,12 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
     order = ByteOrder.LITTLE
     io_factory = Ms3dWriter
 
-    transforms = [T.unique_names, T.skeleton_to_local]
+    features = (
+        Feature.UV,
+        Feature.NORMALS,
+        Feature.SKELETON,
+    )
+    transforms = T.scene_transforms(T.unique_names, T.skeleton_to_local)
 
     def serialize(self):
         self.io.value(F.I32, VERSION)
@@ -66,7 +71,11 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
             vertices = np.empty(len(mesh.vertices), dtype=VERTEX_DTYPE)
             vertices["flags"] = 0
             vertices["position"] = mesh.vertices
-            vertices["bone_id"] = mesh.links_ids[:, 0] if self._skeleton_presented else ModelDefaults.ROOT_BONE_ID
+            vertices["bone_id"] = (
+                mesh.links_ids[:, 0]
+                if self.includes(Feature.SKELETON)
+                else ModelDefaults.ROOT_BONE_ID
+            )
             vertices["reference_count"] = reference_count
             self.io.write(vertices.tobytes())
 
@@ -124,11 +133,13 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
             self.io.null(size=128)  # alphamap
 
     def _add_bones(self):
+        bones = self.data.scene.skeleton.bones if self.includes(Feature.SKELETON) else ()
+
         # f32 fps, f32 frame, f32 framesCount, u16 bonesCount
         fmt = f"{F.F32 * 3}{F.U16}"
-        self.io.value(fmt, 24, 1, 30, len(self.data.scene.skeleton.bones))
+        self.io.value(fmt, 24, 1, 30, len(bones))
 
-        for bone in self.data.scene.skeleton.bones:
+        for bone in bones:
             self.io.value(F.U8, 0)  # flags
             self.io.fixed_string(bone.name)  # bone name
 
@@ -155,8 +166,16 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
         fmt = f"{F.I8 * 3}{F.U8 * 3}"
 
         for mesh in self.data.scene.meshes:
-            links_ids = mesh.links_ids.astype(F.I8)
-            links_weights = (mesh.links_weights * 255).astype(F.U8)
+            if self.includes(Feature.SKELETON):
+                links_ids = mesh.links_ids.astype(F.I8)
+                links_weights = (mesh.links_weights * 255).astype(F.U8)
+            else:
+                links_ids = np.full(
+                    (len(mesh.vertices), 4),
+                    ModelDefaults.ROOT_BONE_ID,
+                    dtype=F.I8,
+                )
+                links_weights = np.zeros((len(mesh.vertices), 4), dtype=F.U8)
 
             for ids, weights in zip(links_ids, links_weights):
                 self.io.value(fmt, *ids[:3], *weights[:3])

@@ -34,7 +34,7 @@ class _PathLineEdit(QLineEdit):
         if path := self._local_path(data):
             self.insert(path)
         else:
-            super().insertFromMimeData(data)
+            self.insert(data.text())
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if self._local_path(event.mimeData()):

@@ -1,4 +1,3 @@
-from collections import defaultdict
 from dataclasses import dataclass
 
 import numpy as np
@@ -9,10 +8,10 @@ from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
-from scfile.structures import models as S
-from scfile.structures.models import Flag, ModelUnits as Units
-
 from scfile.io.models import ModelReader
+from scfile.structures import models as S
+from scfile.structures.models import Feature, ModelUnits as Units
+
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
 
@@ -52,7 +51,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         self._parse_header()
         self._parse_meshes()
 
-        if self.data.flags[Flag.SKELETON] and self.options.skeleton:
+        if self.data.flags.get(Feature.SKELETON, False) and self.options.skeleton:
             self._parse_skeleton()
 
             if (
@@ -82,15 +81,18 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         latest = max(VERSION_MAP.keys())
         mapping = VERSION_MAP.get(self.data.version, VERSION_MAP[latest])
 
-        self.data.flags = defaultdict(bool, {flag: bool(self.io.value(F.BOOL)) for flag in mapping})
+        self.data.flags = {
+            feature: bool(self.io.value(F.BOOL))
+            for feature in mapping
+        }
 
     def _parse_scales(self):
         self.data.scene.scale.position = self.io.value(F.F32)
 
-        if self.data.flags[Flag.UV]:
+        if self.data.flags.get(Feature.UV, False):
             self.data.scene.scale.uv = self.io.value(F.F32)
 
-        if self.data.flags[Flag.UV2]:
+        if self.data.flags.get(Feature.UV2, False):
             self.data.scene.scale.uv2 = self.io.value(F.F32)
 
     def _parse_meshes(self):
@@ -109,7 +111,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         counts = MeshCounts()
 
         # Skeleton bone indexes
-        if self.data.flags[Flag.SKELETON]:
+        if self.data.flags.get(Feature.SKELETON, False):
             counts.max_influences = self.io.value(F.U8)
             counts.local_bones = self.io.value(F.U8)
 
@@ -128,7 +130,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         channel_ids = self._parse_blend_shape_mapping(mesh, counts)
 
         # ? Not exported
-        if self.data.flags[Flag.UV]:
+        if self.data.flags.get(Feature.UV, False):
             mesh.mip_factor = self.io.value(F.F32)
 
         if self.data.version >= 10.0:
@@ -142,29 +144,29 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         self._parse_positions(mesh, counts.vertices)
 
         # Texture coordinates (atlas)
-        if self.data.flags[Flag.UV]:
+        if self.data.flags.get(Feature.UV, False):
             self._parse_uv1(mesh, counts.vertices)
 
         # Texture coordinates (AO)
-        if self.data.flags[Flag.UV2]:
+        if self.data.flags.get(Feature.UV2, False):
             self._parse_uv2(mesh, counts.vertices)
 
         # Vertices normals
-        if self.data.flags[Flag.NORMALS]:
+        if self.data.flags.get(Feature.NORMALS, False):
             mesh.normals = self.io.normals(counts.vertices)
 
         # ? Not parsed
         # Vertices tangents
-        if self.data.flags[Flag.TANGENTS]:
+        if self.data.flags.get(Feature.TANGENTS, False):
             mesh.tangents = self.io.tangents(counts.vertices)
 
         # ? Not parsed
         # Vertices rgba colors
-        if self.data.flags[Flag.COLORS]:
+        if self.data.flags.get(Feature.COLORS, False):
             self.io.skip(counts.vertices * 4)
 
         # Vertices bones links
-        if self.data.flags[Flag.SKELETON]:
+        if self.data.flags.get(Feature.SKELETON, False):
             self._parse_links(mesh, counts.vertices, counts.max_influences)
 
         # Blend Shape Mapping

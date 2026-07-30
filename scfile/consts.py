@@ -39,13 +39,6 @@ class FileSignature:
     MS3D = b"MS3D000000"
 
 
-class CLI:
-    """Command line interface constants."""
-
-    NON_SKELETAL_FORMATS: Formats = (FileFormat.OBJ, FileFormat.FBX)
-    NON_ANIMATION_FORMATS: Formats = (FileFormat.OBJ, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
-
-
 class OutputFormats:
     """Supported output formats for file data types."""
 

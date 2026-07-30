@@ -88,8 +88,5 @@ class ConvertWorker(Worker):
             else:
                 logger.done("Converting\n")
 
-    def stop(self):
+    def stop(self) -> None:
         self.pool.clear()
-        self.thread().requestInterruption()
-        self.thread().quit()
-        self.thread().wait()
