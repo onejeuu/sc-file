@@ -151,5 +151,13 @@ class PathInputWidget(QWidget):
         self.line_edit.setText(text)
 
     @property
+    def placeholder(self) -> str:
+        return self.line_edit.placeholderText()
+
+    @placeholder.setter
+    def placeholder(self, text: str) -> None:
+        self.line_edit.setPlaceholderText(text)
+
+    @property
     def textChanged(self):
         return self.line_edit.textChanged

@@ -8,7 +8,7 @@ from .base import Worker
 from .logs import logger
 
 
-class AnimateWorker(Worker):
+class ArmsWorker(Worker):
     def __init__(
         self,
         animation: Path,

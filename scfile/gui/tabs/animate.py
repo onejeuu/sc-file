@@ -1,4 +1,6 @@
+from enum import IntEnum
 from pathlib import Path
+from typing import assert_never
 
 from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent
@@ -9,9 +11,18 @@ from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 from scfile.gui.widgets.path import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
-from scfile.gui.workers.animate import AnimateWorker
+from scfile.gui.workers.arms import ArmsWorker
 from scfile.gui.workers.base import Worker
+from scfile.gui.workers.body import BodyWorker
 from scfile.gui.workers.lipsync import LipsyncWorker
+
+
+class AnimateMode(IntEnum):
+    """External animation source kinds."""
+
+    BODY = 0
+    ARMS = 1
+    LIPSYNC = 2
 
 
 class AnimateTab(QWidget):
@@ -27,12 +38,12 @@ class AnimateTab(QWidget):
         self.warnings.add_rule(self._warn_not_fp_animation)
 
     def _warn_not_fp_animation(self) -> str | None:
-        if not self.fp_mode.isChecked():
+        if self._mode is not AnimateMode.ARMS:
             return None
 
         animation = Path(self.animation.text().strip())
         stem = animation.stem.lower()
-        if animation.suffix.lower() == ".mcvd" and ("fp_" not in stem or "wpn_" not in stem):
+        if animation.suffix.lower() == ".mcvd" and "fp_" not in stem and "wpn_" not in stem:
             return strings.get("warning.animate.not_fp")
 
     def _build_ui(self) -> None:
@@ -41,12 +52,13 @@ class AnimateTab(QWidget):
         layout.setSpacing(10)
 
         self._add_modes(layout)
-        self.animation = self._add_path(
-            layout,
+        self.animation_label, self.animation = self._create_path(
             label=strings.get("label.animate.animation"),
             caption=strings.get("dialog.animate.animation"),
             file_filter="MCVD (*.mcvd)",
         )
+        layout.addWidget(self.animation_label)
+        layout.addWidget(self.animation)
         layout.addWidget(self.warnings)
 
         self.model_label, self.model = self._create_path(
@@ -61,7 +73,7 @@ class AnimateTab(QWidget):
             label=strings.get("label.animate.additional"),
             caption=strings.get("dialog.animate.additional"),
             file_filter="MCSB (*.mcsb)",
-            placeholder=strings.get("placeholder.optional"),
+            placeholder="assets/highpoly/hands.mcsb",
         )
         layout.addWidget(self.additional_label)
         layout.addWidget(self.additional_model)
@@ -69,7 +81,7 @@ class AnimateTab(QWidget):
         output_label = QLabel(strings.get("label.animate.output"))
         output_label.setStyleSheet(Styles.LABEL)
         self.output = PathInputWidget(
-            placeholder=strings.get("placeholder.animate.output"),
+            placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.animate.output"),
             mode="save",
             file_filter="GLB (*.glb)",
@@ -100,35 +112,32 @@ class AnimateTab(QWidget):
 
         self.fp_mode = QPushButton(strings.get("mode.animate.fp"))
         self.lipsync_mode = QPushButton(strings.get("mode.animate.lipsync"))
+        self.body_mode = QPushButton(strings.get("mode.animate.body"))
         self.mode = QButtonGroup(self)
         self.mode.setExclusive(True)
 
-        for index, button in enumerate((self.fp_mode, self.lipsync_mode)):
+        buttons = {
+            AnimateMode.BODY: self.body_mode,
+            AnimateMode.ARMS: self.fp_mode,
+            AnimateMode.LIPSYNC: self.lipsync_mode,
+        }
+        for mode, button in buttons.items():
             button.setCheckable(True)
             button.setStyleSheet(Styles.TOGGLE_ITEM)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             modes.addWidget(button)
-            self.mode.addButton(button, index)
+            self.mode.addButton(button, int(mode))
 
-        self.fp_mode.setChecked(True)
+        self.body_mode.setChecked(True)
         self.mode.idClicked.connect(self._change_mode)
         layout.addWidget(widget)
 
     def _change_mode(self, _: int) -> None:
         self._sync_ui()
 
-    def _add_path(
-        self,
-        layout: QVBoxLayout,
-        label: str,
-        caption: str,
-        file_filter: str,
-        placeholder: str | None = None,
-    ) -> PathInputWidget:
-        title, path = self._create_path(label, caption, file_filter, placeholder)
-        layout.addWidget(title)
-        layout.addWidget(path)
-        return path
+    @property
+    def _mode(self) -> AnimateMode:
+        return AnimateMode(self.mode.checkedId())
 
     @staticmethod
     def _create_path(
@@ -153,25 +162,64 @@ class AnimateTab(QWidget):
         return bool(value.strip()) and path.is_file() and path.suffix.lower() == suffix
 
     def _sync_ui(self) -> None:
-        is_fp = self.fp_mode.isChecked()
+        mode = self._mode
+        is_arms = mode is AnimateMode.ARMS
+        is_body = mode is AnimateMode.BODY
         animation = self.animation.text().strip()
         model = self.model.text().strip()
         additional = self.additional_model.text().strip()
         output = self.output.text().strip()
 
-        self.model_label.setText(strings.get("label.animate.model" if is_fp else "label.animate.head"))
-        self.model.caption = strings.get("dialog.animate.model" if is_fp else "dialog.animate.head")
-        self.additional_label.setVisible(is_fp)
-        self.additional_model.setVisible(is_fp)
+        match mode:
+            case AnimateMode.ARMS:
+                animation_label = "label.animate.animation"
+                animation_caption = "dialog.animate.animation"
+                animation_placeholder = "highpoly/animations/wpn_fp_gun.mcvd"
+                model_label = "label.animate.model"
+                model_caption = "dialog.animate.model"
+                model_placeholder = "weapons/models/gun/gun.mcsb"
+                animation_suffix = ".mcvd"
+
+            case AnimateMode.LIPSYNC:
+                animation_label = "label.animate.animation"
+                animation_caption = "dialog.animate.animation"
+                animation_placeholder = "highpoly/lipsync/character.mcvd"
+                model_label = "label.animate.head"
+                model_caption = "dialog.animate.head"
+                model_placeholder = "stalkerplayer/heads/character.mcsb"
+                animation_suffix = ".mcvd"
+
+            case AnimateMode.BODY:
+                animation_label = "label.animate.library"
+                animation_caption = "dialog.animate.library"
+                animation_placeholder = "highpoly/character/pack.mcal"
+                model_label = "label.animate.character"
+                model_caption = "dialog.animate.character"
+                model_placeholder = "highpoly/character/model.mcsb"
+                animation_suffix = ".mcal"
+
+            case _:
+                assert_never(mode)
+
+        self.animation_label.setText(strings.get(animation_label))
+        self.animation.caption = strings.get(animation_caption)
+        self.animation.placeholder = animation_placeholder
+        self.animation.file_filter = f"{animation_suffix.removeprefix('.').upper()} (*{animation_suffix})"
+        self.model_label.setText(strings.get(model_label))
+        self.model.caption = strings.get(model_caption)
+        self.model.placeholder = model_placeholder
+        self.additional_label.setVisible(is_arms)
+        self.additional_model.setVisible(is_arms)
+        self.additional_model.placeholder = "assets/highpoly/hands.mcsb"
 
         if animation:
             self.output.initial_path = Path(animation).with_suffix(".glb").name
 
         self.warnings.update_state()
 
-        animation_ok = self._valid_file(animation, ".mcvd")
+        animation_ok = self._valid_file(animation, animation_suffix)
         model_ok = self._valid_file(model, ".mcsb")
-        additional_ok = not is_fp or not additional or self._valid_file(additional, ".mcsb")
+        additional_ok = not is_arms or not additional or self._valid_file(additional, ".mcsb")
         output_ok = Path(output).suffix.lower() == ".glb"
         ready = animation_ok and model_ok and additional_ok and output_ok and self._worker is None
 
@@ -179,7 +227,7 @@ class AnimateTab(QWidget):
             output_ok: "tooltip.animate.invalid.output",
             additional_ok: "tooltip.animate.invalid.additional",
             model_ok: "tooltip.animate.invalid.model",
-            animation_ok: "tooltip.animate.invalid.animation",
+            animation_ok: "tooltip.animate.invalid.library" if is_body else "tooltip.animate.invalid.animation",
         }.get(False, "")
 
         self.export.setEnabled(ready)
@@ -191,22 +239,35 @@ class AnimateTab(QWidget):
         model = Path(self.model.text().strip())
         output = Path(self.output.text().strip())
 
-        if self.fp_mode.isChecked():
-            models = [model]
-            if additional := self.additional_model.text().strip():
-                models.append(Path(additional))
+        match self._mode:
+            case AnimateMode.ARMS:
+                models = [model]
+                if additional := self.additional_model.text().strip():
+                    models.append(Path(additional))
 
-            self._worker = AnimateWorker(
-                animation=animation,
-                models=models,
-                output=output,
-            )
-        else:
-            self._worker = LipsyncWorker(
-                animation=animation,
-                model=model,
-                output=output,
-            )
+                self._worker = ArmsWorker(
+                    animation=animation,
+                    models=models,
+                    output=output,
+                )
+
+            case AnimateMode.LIPSYNC:
+                self._worker = LipsyncWorker(
+                    animation=animation,
+                    model=model,
+                    output=output,
+                )
+
+            case AnimateMode.BODY:
+                self._worker = BodyWorker(
+                    library=animation,
+                    model=model,
+                    output=output,
+                )
+
+            case _:
+                assert_never(self._mode)
+
         self._worker_thread = workers.execute(self._worker, on_done=self._on_finish)
         self._sync_ui()
 

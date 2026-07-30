@@ -3,11 +3,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterator
 
-from scfile.options import Options
 from scfile.core import ModelContent
 from scfile.core.types import ModelDecoder
 from scfile.exceptions import AnimationError
 from scfile.formats import McalDecoder, McsbDecoder, McvdDecoder
+from scfile.options import Options
 from scfile.structures.models import transforms
 
 from .types import Error, Relations, Result
@@ -34,9 +34,7 @@ def find(root: Path) -> Relations:
         heads=sorted(heads.rglob("*.mcsb")) if heads.is_dir() else [],
         body=(
             # Avoid decoding large packs twice
-            sorted(path for path in character.rglob("*.mcal") if path.name != "pack.mcal")
-            if character.is_dir()
-            else []
+            sorted(path for path in character.rglob("*.mcal") if path.name != "pack.mcal") if character.is_dir() else []
         ),
         models=sorted(character.glob("*.mcsb")) if character.is_dir() else [],
     )
@@ -48,11 +46,7 @@ def found(relations: Relations, formats: tuple[str, ...]) -> Counter:
     if {"mcsb", "mcvd"}.issubset(formats) and relations.hands:
         result[ARMS] = len(relations.arms)
 
-    if (
-        {"mcsb", "mcvd"}.issubset(formats)
-        and relations.face
-        and relations.heads
-    ):
+    if {"mcsb", "mcvd"}.issubset(formats) and relations.face and relations.heads:
         result[FACE] = len(relations.face) + len(relations.heads)
 
     if {"mcal", "mcsb"}.issubset(formats) and relations.models:
