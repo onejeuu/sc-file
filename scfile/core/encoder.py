@@ -109,82 +109,52 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
         """Write ``self.data`` to the output stream. Called by :meth:`encode`."""
         ...
 
-    def save_as(
-        self,
-        path: PathLike,
-        mode: FileMode = "wb",
-    ) -> Self:
-        """
-        Write encoded data to file by name. Keeps encoder open.
-
-        Args:
-            path: Output file path.
-            mode: File mode (binary).
-        """
-
-        if self.io.size() == 0:
-            self.encode()
-
-        with open(path, mode=mode) as fp:
-            fp.write(self.io.getvalue())
-
-        return self
-
-    def export_as(
-        self,
-        path: PathLike,
-        mode: FileMode = "wb",
-    ) -> Self:
-        """
-        Write encoded data to file by stem. Format suffix appended. Keeps the encoder open.
-
-        Args:
-            path: Output file path.
-            mode: File mode (binary).
-        """
-
-        return self.save_as(
-            path=f"{path}{self.suffix}",
-            mode=mode,
-        )
-
     def save(
         self,
         path: PathLike,
         mode: FileMode = "wb",
+        close: bool = True,
     ) -> None:
         """
-        Write encoded data to file by name. Closes encoder.
+        Write encoded data to file by name.
 
         Args:
             path: Output file path.
             mode: File mode (binary).
+            close: Close encoder after writing.
         """
 
         try:
-            self.save_as(path=path, mode=mode)
+            if self.io.size() == 0:
+                self.encode()
+
+            with open(path, mode=mode) as fp:
+                fp.write(self.io.getvalue())
 
         finally:
-            self.close()
+            if close:
+                self.close()
 
     def export(
         self,
         path: PathLike,
         mode: FileMode = "wb",
+        close: bool = True,
     ) -> None:
         """
-        Write encoded data to file by stem. Format suffix appended. Closes encoder.
+        Write encoded data to file by stem. Format suffix appended.
 
         Args:
             path: Output file path.
             mode: File mode (binary).
+            close: Close encoder after writing.
         """
 
-        try:
-            self.export_as(path=path, mode=mode)
-
-        finally:
-            self.close()
+        self.save(
+            path=f"{path}{self.suffix}",
+            mode=mode,
+            close=close,
+        )
 
     def getvalue(self) -> bytes:
         if self.io.size() == 0:
