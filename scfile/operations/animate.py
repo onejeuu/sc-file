@@ -109,8 +109,8 @@ def arms(
     skins, mesh_skins = _skin_context(animation_data, *model_data)
 
     with formats.GlbEncoder(data, options) as glb:
-        glb.ctx["SKINS"] = skins
-        glb.ctx["MESH_SKINS"] = mesh_skins
+        glb._ctx["SKINS"] = skins
+        glb._ctx["MESH_SKINS"] = mesh_skins
         glb.save(output_path)
 
     return output_path

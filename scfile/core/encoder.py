@@ -34,6 +34,7 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
     """Content type accepted by encoder."""
 
     io_factory = cast(type[WriterType], StructWriter)
+    """Writer factory used to wrap the output stream."""
 
     features: ClassVar[Features] = ()
     """Optional content features supported by format."""
@@ -84,7 +85,7 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
 
         self._validate_state("encode", HandlerState.INITIAL)
 
-        self.state = HandlerState.RUNNING
+        self._state = HandlerState.RUNNING
 
         try:
             self._prelude()
@@ -93,10 +94,10 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
             self._serialize()
 
         except BaseException:
-            self.state = HandlerState.FAILED
+            self._state = HandlerState.FAILED
             raise
 
-        self.state = HandlerState.SUCCEEDED
+        self._state = HandlerState.SUCCEEDED
         return self
 
     def to_bytes(self) -> bytes:

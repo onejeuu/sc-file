@@ -1,14 +1,12 @@
 import pytest
 
 from scfile.formats.efkmodel.decoder import EfkmodelDecoder
-from scfile.formats.hdri import OlCubemapDecoder
 from scfile.formats.mcsb import McsbDecoder
 from scfile.formats.mdat.decoder import MdatDecoder
 from scfile.formats.mic import MicDecoder
 from scfile.formats.nbt import NbtDecoder
 from scfile.formats.ol import OlDecoder
 from scfile.formats.texarr import TexarrDecoder
-from scfile.structures.textures import CubemapTexture
 from tests.conftest import ASSETS, CUBEMAP, IMAGE, MODEL, MODEL_EFK, NBT, REGION, TEXARR, TEXTURE
 
 
@@ -45,13 +43,6 @@ def test_sugar_cubemap():
     with OlDecoder(src) as dec:
         with dec.as_dds() as enc:
             assert len(enc.getvalue()) > 0
-
-
-def test_sugar_cubemap_deprecated():
-    src = ASSETS / "source" / CUBEMAP
-    with pytest.warns(DeprecationWarning):
-        with OlCubemapDecoder(src) as dec:
-            assert isinstance(dec.decode().texture, CubemapTexture)
 
 
 def test_sugar_image():

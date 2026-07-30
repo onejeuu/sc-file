@@ -53,6 +53,9 @@ def auto(
     options = options or Options()
     targets = RESOLVER.targets(source_spec, options)
     if not targets:
-        raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
+        raise exceptions.ConversionError(
+            f"No standalone output format available for '{source_spec.format}'.",
+            location=str(src_path),
+        )
 
     return [convert(source_spec.decoder, encoder, src_path, output, options) for encoder in targets.values()]

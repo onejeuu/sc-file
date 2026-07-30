@@ -9,14 +9,13 @@ from typing import TYPE_CHECKING, Callable, TypeAlias
 
 import numpy as np
 
-from scfile.consts import ModelDefaults
 from scfile.exceptions import AnimationError
 from scfile.structures.models.animation import AnimationClip
 
 from .enums import AnimationTranslation, LinkSpace, SkeletonHierarchy, SkeletonSpace, UVOrigin, UVSign
 from .mesh import ModelMesh
 from .scene import ModelScene
-from .skeleton import SkeletonBone
+from .skeleton import ROOT_BONE_ID, SkeletonBone
 
 if TYPE_CHECKING:
     from scfile.core.content import ModelContent
@@ -118,7 +117,7 @@ def skeleton_to_local(scene: ModelScene) -> ModelScene:
         new_bone.position = bone.position.copy()
 
         parent_id = bone.parent_id
-        while parent_id > ModelDefaults.ROOT_BONE_ID:
+        while parent_id > ROOT_BONE_ID:
             parent = new_bones[parent_id]
             new_bone.position -= parent.position
             parent_id = parent.parent_id
@@ -135,7 +134,7 @@ def build_hierarchy(scene: ModelScene) -> ModelScene:
     if scene.skeleton.hierarchy == SkeletonHierarchy.BUILT:
         return scene
 
-    new_bones: list[SkeletonBone] = [replace(bone) for bone in scene.skeleton.bones]
+    new_bones = [replace(bone, children=[]) for bone in scene.skeleton.bones]
 
     for bone in new_bones:
         if not bone.is_root:

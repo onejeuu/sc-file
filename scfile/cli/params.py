@@ -5,8 +5,8 @@ Click parameter types for commands.
 import click
 
 from scfile import types
-from scfile.consts import OutputFormats
 from scfile.core.options import ON_CONFLICT_OPTIONS
+from scfile.enums import FileFormat
 
 
 Files = click.Path(
@@ -48,8 +48,16 @@ MapCacheDir = click.Path(
 )
 
 
+MODEL_FORMAT_ORDER = (
+    FileFormat.OBJ,
+    FileFormat.GLB,
+    FileFormat.FBX,
+    FileFormat.DAE,
+    FileFormat.MS3D,
+)
+
 Formats = click.Choice(
-    choices=list(OutputFormats.MODELS),
+    choices=list(MODEL_FORMAT_ORDER),
     case_sensitive=False,
 )
 

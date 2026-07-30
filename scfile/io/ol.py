@@ -2,8 +2,8 @@
 Extensions for OL file format with custom struct-based I/O methods.
 """
 
-from scfile.consts import CubemapFaces
 from scfile.enums import F
+from scfile.structures.textures import CUBEMAP_FACE_COUNT
 
 from .base import StructReader
 
@@ -23,7 +23,7 @@ class OlReader(StructReader):
         self,
         mipmap_count: int,
     ) -> list[list[int]]:
-        return [[self.value(F.U32) for _ in range(CubemapFaces.COUNT)] for _ in range(mipmap_count)]
+        return [[self.value(F.U32) for _ in range(CUBEMAP_FACE_COUNT)] for _ in range(mipmap_count)]
 
     def format(self) -> bytes:
         string = self.read(16)

@@ -66,7 +66,3 @@ class ModelMesh:
         if self.links_weights.size == 0:
             return 0
         return int((self.links_weights > 0).sum(axis=1).max())
-
-    @property
-    def quads(self) -> bool:
-        return self.polygon_quads

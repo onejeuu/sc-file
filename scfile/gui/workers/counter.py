@@ -13,26 +13,35 @@ class CounterTask(QObject):
 
     def __init__(self):
         super().__init__()
-        self.request_id = 0
         self._mutex = QMutex()
+        self._request_id = 0
         self._abort = False
+
+    def cancel(self, request_id: int) -> None:
+        """Cancel current count and invalidate queued requests."""
+
+        with QMutexLocker(self._mutex):
+            self._request_id = request_id
+            self._abort = True
+
+    def _begin(self, request_id: int) -> bool:
+        with QMutexLocker(self._mutex):
+            if request_id != self._request_id:
+                return False
+
+            self._abort = False
+            return True
 
     @property
     def abort(self) -> bool:
         with QMutexLocker(self._mutex):
             return self._abort
 
-    @abort.setter
-    def abort(self, value: bool):
-        with QMutexLocker(self._mutex):
-            self._abort = value
-
     @Slot(int, list, tuple)
     def count(self, request_id: int, sources: list[str], whitelist: types.FilesWhitelist):
-        if request_id != self.request_id:
+        if not self._begin(request_id):
             return
 
-        self.abort = False
         total = 0
         gamedir = False
 
@@ -88,8 +97,7 @@ class CounterWorker(QObject):
     def refresh(self, sources: list[str], whitelist: types.FilesWhitelist):
         self._request_id += 1
 
-        self._task.request_id = self._request_id
-        self._task.abort = True
+        self._task.cancel(self._request_id)
 
         if not sources:
             self._apply(count=0, gamedir=False, busy=False)
@@ -111,7 +119,7 @@ class CounterWorker(QObject):
 
     def stop(self):
         if self._thread and self._thread.isRunning():
-            self._task.abort = True
+            self._task.cancel(self._request_id + 1)
             self._thread.requestInterruption()
             self._thread.quit()
             self._thread.wait()

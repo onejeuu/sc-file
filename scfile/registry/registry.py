@@ -80,7 +80,11 @@ class Registry:
     ) -> None:
         """Add another name for a registered format."""
 
-        self._aliases[_format_name(alias)] = self.resolve(target)
+        fmt = self.resolve(target)
+        if fmt not in self._formats:
+            raise RegistryError(f"Cannot alias unregistered format '{target}'.")
+
+        self._aliases[_format_name(alias)] = fmt
 
     def resolve(
         self,
@@ -167,12 +171,19 @@ class Registry:
         copied._aliases.update(self._aliases)
         return copied
 
-    def _register_handler(self, handler: Handler) -> None:
+    def _register_handler(self, handler: object) -> None:
+        if not isinstance(handler, type):
+            raise RegistryError(f"{type(handler).__name__} is not a file format handler.")
+
         if issubclass(handler, FileDecoder):
             self._set_decoder(handler)
             return
 
-        self._set_encoder(handler)
+        if issubclass(handler, FileEncoder):
+            self._set_encoder(handler)
+            return
+
+        raise RegistryError(f"{handler.__name__} is not a file format handler.")
 
     def _set_decoder(self, decoder: Decoder) -> None:
         entry = self._entry(decoder.format, decoder.content_type)

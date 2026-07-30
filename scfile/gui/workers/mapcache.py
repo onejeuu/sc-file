@@ -61,6 +61,8 @@ class MapCacheWorker(Worker):
         self.cancelled = threading.Event()
 
     def run(self) -> None:
+        completed = False
+
         try:
             mdats = regions.resolve(self.source)
             if not mdats:
@@ -86,6 +88,8 @@ class MapCacheWorker(Worker):
                 task = MergeTask(key, paths, self.output, self.options, self.cancelled)
                 self.pool.start(task)
 
+            completed = not self.thread().isInterruptionRequested()
+
         except Exception as err:
             logger.exception(repr(err))
             logger.message.emit(traceback.format_exc())
@@ -96,7 +100,7 @@ class MapCacheWorker(Worker):
 
             if self.thread().isInterruptionRequested():
                 logger.aborted("Regions Merging\n")
-            else:
+            elif completed:
                 logger.done("Regions Merging\n")
 
     def stop(self) -> None:

@@ -47,13 +47,6 @@ def test_formats_convert(temp: Path):
     assert out.exists()
 
 
-def test_ol_cubemap_to_dds_deprecated(temp: Path):
-    src = ASSETS / "source" / CUBEMAP
-    with pytest.warns(DeprecationWarning):
-        convert.formats.ol_cubemap_to_dds(src, temp)
-    assert (temp / "texture_cubemap.dds").exists()
-
-
 @pytest.mark.parametrize("converter", [convert.auto, convert.formats.ol_to_dds])
 def test_invalid_texture(temp: Path, converter):
     with pytest.raises(InvalidStructureError):

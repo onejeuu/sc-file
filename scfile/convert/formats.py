@@ -2,7 +2,6 @@
 Named conversion functions for specific format pairs.
 """
 
-import warnings
 from typing import Optional
 
 from scfile import formats
@@ -430,34 +429,6 @@ def ol_to_dds(
         - ``ol_to_dds("texture.ol", "texture.dds")``
         - ``ol_to_dds("texture.ol", "path/to/output/dir")``
     """
-
-
-def ol_cubemap_to_dds(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[Options] = None,
-) -> None:
-    """
-    Converts cubemap texture from ``.ol`` to ``.dds`` format.
-
-    .. deprecated:: 5.2.0
-        Use :func:`~scfile.convert.formats.ol_to_dds` instead.
-
-    Arguments:
-        source: Path to source ``.ol`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``ol_cubemap_to_dds("cubemap.ol", "cubemap.dds")``
-        - ``ol_cubemap_to_dds("cubemap.ol", "path/to/output/dir")``
-    """
-    warnings.warn(
-        "ol_cubemap_to_dds is deprecated and will be removed in a future release; use ol_to_dds instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    ol_to_dds(source, output, options)
 
 
 @converter(formats.mic.MicDecoder, formats.png.PngEncoder)

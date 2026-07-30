@@ -7,11 +7,13 @@ from typing import List, Self
 
 import numpy as np
 
-from scfile.consts import ModelDefaults
-
 from .enums import SkeletonHierarchy, SkeletonSpace
 from .matrices import create_transform_matrix, euler_to_quat
 from .types import BindPose, EulerAngles, InverseBindMatrices, Quaternion, Vector3D
+
+
+ROOT_BONE_ID = -1
+"""Parent ID used by root bones."""
 
 
 @dataclass
@@ -20,7 +22,7 @@ class SkeletonBone:
 
     id: int = 0
     name: str = "bone"
-    parent_id: int = ModelDefaults.ROOT_BONE_ID
+    parent_id: int = ROOT_BONE_ID
 
     position: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     rotation: EulerAngles = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
@@ -30,7 +32,7 @@ class SkeletonBone:
 
     @property
     def is_root(self) -> bool:
-        return self.parent_id == ModelDefaults.ROOT_BONE_ID
+        return self.parent_id == ROOT_BONE_ID
 
     @property
     def quaternion(self) -> Quaternion:

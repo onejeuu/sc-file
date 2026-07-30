@@ -69,6 +69,9 @@ def walk(
             try:
                 with os.scandir(current) as it:
                     for entry in it:
+                        if entry.is_symlink() or entry.is_junction():
+                            continue
+
                         if entry.is_dir():
                             stack.append(entry.path)
 

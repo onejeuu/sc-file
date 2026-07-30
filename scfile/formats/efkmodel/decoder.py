@@ -32,11 +32,11 @@ class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
     def _parse(self):
         self.data.version = self.io.value(F.U32)
 
-        self.ctx["SCALE"] = self.io.value(F.F32)
-        self.ctx["COUNT_MESHES"] = self.io.count(F.I32, Limit.MESHES)
-        self.ctx["COUNT_UNKNOWN"] = self.io.value(F.I32)
+        self._ctx["SCALE"] = self.io.value(F.F32)
+        self._ctx["COUNT_MESHES"] = self.io.count(F.I32, Limit.MESHES)
+        self._ctx["COUNT_UNKNOWN"] = self.io.value(F.I32)
 
-        for _ in range(self.ctx["COUNT_MESHES"]):
+        for _ in range(self._ctx["COUNT_MESHES"]):
             mesh = S.ModelMesh()
             counts = MeshCounts()
 

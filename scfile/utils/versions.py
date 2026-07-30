@@ -31,7 +31,7 @@ class Version:
         return f"{self.major}.{self.minor}.{self.patch}{f'-{self.suffix}' if self.suffix else ''}"
 
     def _key(self):
-        return self.major, self.minor, self.patch, self.suffix is not None, self.suffix or ""
+        return self.major, self.minor, self.patch, self.suffix is None, self.suffix or ""
 
     def __lt__(self, other: Self):
         return self._key() < other._key()

@@ -27,7 +27,7 @@ class StructIO:
     order: ByteOrder = ByteOrder.LITTLE
     """Default byte order."""
 
-    unicode_errors: str = UnicodeErrors.REPLACE
+    errors: str = UnicodeErrors.REPLACE
     """UTF-8 error handling mode."""
 
     def __init__(
@@ -35,11 +35,11 @@ class StructIO:
         stream: IOStream,
         mode: FileMode,
         order: Optional[ByteOrder] = None,
-        unicode_errors: Optional[str] = None,
+        errors: Optional[str] = None,
         location: Optional[str] = None,
     ):
         self.order = order or self.order
-        self.unicode_errors = unicode_errors or self.unicode_errors
+        self.errors = errors or self.errors
 
         if isinstance(stream, (str, os.PathLike)):
             path = os.fspath(stream)
@@ -117,6 +117,21 @@ class StructReader(StructIO):
     def readable(self) -> bool:
         return self._stream.readable()
 
+    def read_exact(
+        self,
+        size: int,
+    ) -> bytes:
+        offset = self.tell()
+        data = self.read(size)
+
+        if len(data) != size:
+            raise BinaryStructureError(
+                location=self.location,
+                offset=offset,
+            )
+
+        return data
+
     def unpack(
         self,
         fmt: str,
@@ -128,7 +143,7 @@ class StructReader(StructIO):
             order = order or self.order
             fmt = f"{order}{fmt}"
             size = struct.calcsize(fmt)
-            return struct.unpack(fmt, self.read(size))
+            return struct.unpack(fmt, self.read_exact(size))
 
         except struct.error:
             raise BinaryStructureError(
@@ -156,7 +171,7 @@ class StructReader(StructIO):
         order = order or self.order
         datatype = np.dtype(f"{order}{dtype}")
         size = count * datatype.itemsize
-        return np.frombuffer(self.read(size), dtype=datatype, count=count)
+        return np.frombuffer(self.read_exact(size), dtype=datatype, count=count)
 
     def string(
         self,
@@ -167,7 +182,7 @@ class StructReader(StructIO):
         """Read a length-prefixed UTF-8 string."""
 
         data = self.prefixed(prefix, order, limit)
-        return data.decode("utf-8", errors=self.unicode_errors)
+        return data.decode("utf-8", errors=self.errors)
 
     def prefixed(
         self,
@@ -270,4 +285,4 @@ class StructWriter(StructIO):
     ) -> None:
         """Write a UTF-8 string."""
 
-        self.write(string.encode("utf-8", errors=self.unicode_errors))
+        self.write(string.encode("utf-8", errors=self.errors))

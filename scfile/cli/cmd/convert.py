@@ -6,7 +6,7 @@ from rich import print
 
 from scfile import convert, exceptions, types
 from scfile.cli import params
-from scfile.consts import Formats, Text
+from scfile.consts import INVALID_INPUT_HINT
 from scfile.core import Options
 from scfile.core.options import OnConflict
 from scfile.enums import CliCommand, L
@@ -66,7 +66,7 @@ from . import scfile
 def convert_command(
     paths: types.FilesPaths,
     output: types.Output,
-    mdlformat: Optional[Formats],
+    mdlformat: Optional[types.Formats],
     relative: bool,
     parent: bool,
     skeleton: bool,
@@ -111,12 +111,12 @@ def convert_command(
             print(L.DONE, f"'{entry.path}'")
 
         except exceptions.BinaryStructureError as err:
-            print(L.ERROR, f"'{err.location or entry.path}': {err}", Text.EXCEPTION)
+            print(L.ERROR, f"'{err.location or entry.path}': {err}", INVALID_INPUT_HINT)
 
         except exceptions.ScFileException as err:
             print(L.ERROR, f"'{err.location or entry.path}': {err}")
 
         except Exception as err:
-            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", Text.EXCEPTION)
+            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", INVALID_INPUT_HINT)
             print(traceback.format_exc())
             print()

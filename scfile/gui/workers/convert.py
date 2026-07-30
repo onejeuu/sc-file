@@ -5,7 +5,7 @@ from pathlib import Path
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import convert, exceptions, types
-from scfile.consts import Text
+from scfile.consts import INVALID_INPUT_HINT
 from scfile.core import Options
 from scfile.utils import files
 
@@ -39,7 +39,7 @@ class ConvertTask(QRunnable):
             logger.done(f"'{self.src}'")
 
         except exceptions.BinaryStructureError as err:
-            logger.error(f"'{err.location or self.src}': {err} {Text.EXCEPTION}")
+            logger.error(f"'{err.location or self.src}': {err} {INVALID_INPUT_HINT}")
 
         except exceptions.ScFileException as err:
             logger.error(f"'{err.location or self.src}': {err}")
@@ -61,6 +61,8 @@ class ConvertWorker(Worker):
         self.pool = QThreadPool()
 
     def run(self):
+        completed = False
+
         try:
             if self.context.output:
                 self.context.output.mkdir(exist_ok=True, parents=True)
@@ -75,6 +77,8 @@ class ConvertWorker(Worker):
                 dst = files.destination(relpath=entry.relpath, relative=self.context.relative, output=output)
                 self.pool.start(ConvertTask(src=entry.path, dst=dst, options=self.context.options))
 
+            completed = not self.thread().isInterruptionRequested()
+
         except Exception as err:
             logger.exception(repr(err))
             logger.message.emit(traceback.format_exc())
@@ -85,7 +89,7 @@ class ConvertWorker(Worker):
 
             if self.thread().isInterruptionRequested():
                 logger.aborted("Converting\n")
-            else:
+            elif completed:
                 logger.done("Converting\n")
 
     def stop(self) -> None:

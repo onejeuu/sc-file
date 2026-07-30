@@ -24,13 +24,13 @@ class McalDecoder(FileDecoder[ModelContent, ModelReader]):
 
     def _parse_header(self):
         self.data.version = self.io.value(F.F32)
-        self.ctx["COUNT_BONES"] = self.io.value(F.U8)
+        self._ctx["COUNT_BONES"] = self.io.value(F.U8)
         self.data.scene.scale.position = self.io.value(F.F32)
 
     def _parse_animation(self):
-        self.ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
+        self._ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
 
-        for _ in range(self.ctx["COUNT_CLIPS"]):
+        for _ in range(self._ctx["COUNT_CLIPS"]):
             self._parse_clip()
 
     def _parse_clip(self):
@@ -40,10 +40,10 @@ class McalDecoder(FileDecoder[ModelContent, ModelReader]):
         clip.frames = self.io.count(F.U32, Limit.FRAMES)
         clip.rate = self.io.value(F.F32)
 
-        self.io.check(clip.frames * self.ctx["COUNT_BONES"], Limit.TRANSFORMS)
+        self.io.check(clip.frames * self._ctx["COUNT_BONES"], Limit.TRANSFORMS)
         rotations, translations, _ = self.io.clip(
             clip.frames,
-            self.ctx["COUNT_BONES"],
+            self._ctx["COUNT_BONES"],
             0,
             self.data.scene.scale.position,
         )

@@ -2,7 +2,7 @@ import traceback
 from pathlib import Path
 
 from scfile import exceptions, operations
-from scfile.consts import Text
+from scfile.consts import INVALID_INPUT_HINT
 
 from .base import Worker
 from .logs import logger
@@ -30,7 +30,7 @@ class AnimateWorker(Worker):
             logger.done(f"'{self.animation}'")
 
         except exceptions.BinaryStructureError as err:
-            logger.error(f"'{err.location or self.animation}': {err} {Text.EXCEPTION}")
+            logger.error(f"'{err.location or self.animation}': {err} {INVALID_INPUT_HINT}")
 
         except exceptions.ScFileException as err:
             logger.error(f"'{err.location or self.animation}': {err}")

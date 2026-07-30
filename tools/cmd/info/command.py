@@ -65,7 +65,7 @@ def info(source: Path, format: str | None) -> None:
             data = decoder.decode()
 
         except Exception as exception:
-            position = getattr(exception, "position", None)
+            position = getattr(exception, "offset", None)
 
             if position is None:
                 position = decoder.io.tell()

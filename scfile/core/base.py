@@ -3,16 +3,17 @@ Base class for resource-owning format handlers.
 """
 
 from abc import ABC
-from typing import Any, Generic, Optional, Self, TypeAlias, TypeVar
+from types import MappingProxyType
+from typing import Any, Generic, Mapping, Optional, Self, TypeAlias, TypeVar
 
 from scfile import exceptions
-from scfile.enums import ByteOrder, FileFormat, HandlerState, UnicodeErrors
+from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import FileMode, IOStream, StructIO
 
 from .options import Options
 
 
-TempContext: TypeAlias = dict[str, Any]
+HandlerContext: TypeAlias = dict[str, Any]
 IOType = TypeVar("IOType", bound=StructIO)
 
 
@@ -34,14 +35,8 @@ class BaseFile(Generic[IOType], ABC):
     order: ByteOrder = ByteOrder.LITTLE
     """Default byte order."""
 
-    unicode_errors: str = UnicodeErrors.REPLACE
-    """UTF-8 error handling mode."""
-
     options: Options
     """Shared handlers options."""
-
-    state: HandlerState
-    """Current operation lifecycle state."""
 
     def __init__(
         self,
@@ -58,10 +53,9 @@ class BaseFile(Generic[IOType], ABC):
             stream,
             mode,
             order=self.order,
-            unicode_errors=self.unicode_errors,
         )
-        self.ctx: TempContext = {}
-        self.state = HandlerState.INITIAL
+        self._ctx: HandlerContext = {}
+        self._state = HandlerState.INITIAL
 
     @property
     def suffix(self) -> str:
@@ -75,8 +69,19 @@ class BaseFile(Generic[IOType], ABC):
     def closed(self) -> bool:
         return self.io.closed
 
+    @property
+    def state(self) -> HandlerState:
+        """Current operation lifecycle state."""
+
+        return self._state
+
+    @property
+    def context(self) -> Mapping[str, Any]:
+        """Format-specific processing context for diagnostics."""
+
+        return MappingProxyType(self._ctx)
+
     def close(self) -> None:
-        self.ctx = {}
         self.io.close()
 
     def _validate_state(

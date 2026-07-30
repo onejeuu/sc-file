@@ -1,5 +1,4 @@
 from .enums import FileFormat
-from .types import Formats
 
 
 SUPPORTED_FORMATS: set[FileFormat] = {
@@ -24,6 +23,9 @@ SUPPORTED_NBT: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd
 ALLOWED_SUFFIXES: set[str] = SUPPORTED_SUFFIXES | SUPPORTED_NBT
 """All path suffixes available for conversion."""
 
+INVALID_INPUT_HINT = "[b yellow]Input file appears to be corrupted or invalid.[/]"
+"""Hint shown when binary parsing suggests invalid input."""
+
 
 class FileSignature:
     """Format magic bytes."""
@@ -39,25 +41,7 @@ class FileSignature:
     MS3D = b"MS3D000000"
 
 
-class OutputFormats:
-    """Supported output formats for file data types."""
-
-    MODELS: Formats = (FileFormat.OBJ, FileFormat.GLB, FileFormat.FBX, FileFormat.DAE, FileFormat.MS3D)
-    TEXTURES: Formats = (FileFormat.DDS,)
-    IMAGES: Formats = (FileFormat.PNG,)
-    REGIONS: Formats = (FileFormat.MCA,)
-    TEXARR: Formats = (FileFormat.ZIP,)
-    NBT: Formats = (FileFormat.JSON,)
-
-
-class DefaultModelFormats:
-    """Default model formats for unset options."""
-
-    STANDARD: Formats = (FileFormat.OBJ,)
-    ON_SKELETON: Formats = (FileFormat.GLB,)
-
-
-class Factor:
+class IntegerFactor:
     """Integer range limits."""
 
     I8 = 0x7F
@@ -66,25 +50,3 @@ class Factor:
     U16 = 0xFFFF
     I32 = 0x7FFFFFFF
     U32 = 0xFFFFFFFF
-
-
-class CubemapFaces:
-    """DDS cubemap faces."""
-
-    FACES = {"+x", "-x", "+y", "-y", "+z", "-z"}
-    COUNT = len(FACES)
-
-
-class ModelDefaults:
-    """Model default constants."""
-
-    DECIMALS = 6
-    ROOT_BONE_ID = -1
-
-
-class Text:
-    """Shared text constants."""
-
-    FORMATS = f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}"
-    NBT = f"Supported NBTs: {sorted(SUPPORTED_NBT)}"
-    EXCEPTION = "[b yellow]Input file appears to be corrupted or invalid.[/]"

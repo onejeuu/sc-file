@@ -78,7 +78,6 @@ class UnicodeErrors(StrEnum):
     """Replace with \\N{...} escape sequences"""
     XMLCHARREFREPLACE = XML = auto()
     """Replace with XML/HTML numeric entities (&#...;)"""
-
     SURROGATEESCAPE = SURROGATE = auto()
     """Preserve invalid bytes as surrogate codes"""
 

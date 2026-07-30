@@ -32,6 +32,7 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
     """Factory for decoded content."""
 
     io_factory = cast(type[ReaderType], StructReader)
+    """Reader factory used to wrap the source stream."""
 
     convertible: bool = True
     """Allow direct conversion into compatible output formats."""
@@ -66,18 +67,19 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
 
         self._validate_state("decode", HandlerState.INITIAL)
 
-        self.state = HandlerState.RUNNING
+        self._state = HandlerState.RUNNING
 
         try:
+            self._verify_filesize()
             self._prelude()
             self._verify_signature()
             self._parse()
 
         except BaseException:
-            self.state = HandlerState.FAILED
+            self._state = HandlerState.FAILED
             raise
 
-        self.state = HandlerState.SUCCEEDED
+        self._state = HandlerState.SUCCEEDED
         return self.data
 
     def convert_to(
@@ -126,16 +128,19 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         """Hook called before signature and parsing."""
         pass
 
+    def _verify_filesize(self) -> None:
+        """Verify source contains data before format-specific parsing."""
+
+        if self.io.size() == 0:
+            raise exceptions.EmptyFileError(self.location)
+
     def _verify_signature(self) -> None:
         """
         Validate file signature.
 
         Raises:
-            `EmptyFileError` or `SignatureMismatchError` on failure.
+            `SignatureMismatchError` on failure.
         """
-
-        if self.io.size() <= len(self.signature or bytes()):
-            raise exceptions.EmptyFileError(self.location)
 
         if self.signature:
             offset = self.io.tell()

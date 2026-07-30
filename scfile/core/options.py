@@ -5,12 +5,19 @@ Shared options for handlers.
 from dataclasses import dataclass
 from typing import Literal, Optional
 
-from scfile.consts import DefaultModelFormats, Formats
+from scfile.enums import FileFormat
 from scfile.structures.models import Feature
+from scfile.types import Formats
 
 
 OnConflict = Literal["overwrite", "rename", "skip"]
 ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
+
+DEFAULT_MODEL_FORMATS: Formats = (FileFormat.OBJ,)
+"""Default output formats when skeleton parsing is disabled."""
+
+DEFAULT_SKELETON_FORMATS: Formats = (FileFormat.GLB,)
+"""Default output formats when skeleton parsing is enabled."""
 
 
 @dataclass
@@ -47,7 +54,7 @@ class Options:
     ) -> bool:
         """Return whether processing a feature is enabled."""
 
-        if feature.parent is Feature.ANIMATION:
+        if feature is Feature.ANIMATION or feature.parent is Feature.ANIMATION:
             return self.animation
 
         if feature is Feature.SKELETON:
@@ -60,6 +67,6 @@ class Options:
         """Default output formats for models based on current options."""
 
         if self.includes(Feature.SKELETON):
-            return DefaultModelFormats.ON_SKELETON
+            return DEFAULT_SKELETON_FORMATS
 
-        return DefaultModelFormats.STANDARD
+        return DEFAULT_MODEL_FORMATS

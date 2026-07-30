@@ -5,7 +5,7 @@ from rich import print
 
 from scfile import __version__ as SEMVER
 from scfile import types
-from scfile.consts import Text
+from scfile.consts import SUPPORTED_NBT, SUPPORTED_SUFFIXES
 from scfile.enums import L, UpdateStatus
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature
@@ -40,8 +40,8 @@ def version_callback(
     version = Version.parse(SEMVER)
 
     print(f"scfile, version {str(version)} {version.emoji if version else ''}")
-    print(Text.FORMATS)
-    print(Text.NBT)
+    print(f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}")
+    print(f"Supported NBTs: {sorted(SUPPORTED_NBT)}")
 
     ctx.exit()
 

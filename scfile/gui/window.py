@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 from scfile.gui.widgets.footer import FooterWidget
 from scfile.utils import files
 
+from . import workers
 from .shared import consts, strings
 from .shared.styles import Styles
 from .tabs.animate import AnimateTab
@@ -115,6 +116,7 @@ class MainWindow(QMainWindow):
         for widget in self.tabs.values():
             widget.close()
 
+        workers.stop_all()
         event.accept()
 
 

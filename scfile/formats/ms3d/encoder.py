@@ -1,10 +1,10 @@
 import numpy as np
 
-from scfile.consts import FileSignature, ModelDefaults
+from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.io.ms3d import Ms3dWriter
-from scfile.structures.models import Feature
+from scfile.structures.models import Feature, ROOT_BONE_ID
 from scfile.structures.models import transforms as T
 
 
@@ -74,7 +74,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
             vertices["bone_id"] = (
                 mesh.links_ids[:, 0]
                 if self.includes(Feature.SKELETON)
-                else ModelDefaults.ROOT_BONE_ID
+                else ROOT_BONE_ID
             )
             vertices["reference_count"] = reference_count
             self.io.write(vertices.tobytes())
@@ -144,7 +144,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
             self.io.fixed_string(bone.name)  # bone name
 
             parent = self.data.scene.skeleton.bones[bone.parent_id]
-            parent_name = parent.name if bone.parent_id != ModelDefaults.ROOT_BONE_ID else ""
+            parent_name = parent.name if bone.parent_id != ROOT_BONE_ID else ""
             self.io.fixed_string(parent_name)  # parent name
 
             # f32 bone rotation[3], f32 bone position[3]
@@ -172,7 +172,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
             else:
                 links_ids = np.full(
                     (len(mesh.vertices), 4),
-                    ModelDefaults.ROOT_BONE_ID,
+                    ROOT_BONE_ID,
                     dtype=F.I8,
                 )
                 links_weights = np.zeros((len(mesh.vertices), 4), dtype=F.U8)

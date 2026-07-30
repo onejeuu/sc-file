@@ -3,9 +3,8 @@ Shared content data containers for handlers.
 Defines data structures that hold parsed file contents.
 """
 
-from abc import ABC
-from dataclasses import MISSING, dataclass, field, fields
-from typing import Generic, TypeAlias, TypeVar, cast
+from dataclasses import dataclass, field
+from typing import ClassVar, Generic, TypeAlias, TypeVar, cast
 from uuid import UUID
 
 from scfile.enums import FileType
@@ -16,19 +15,10 @@ from scfile.structures.textures import CubemapTexture, DefaultTexture, TextureTy
 NbtValue: TypeAlias = None | int | float | bytes | str | list[int] | list["NbtValue"] | dict[str, "NbtValue"]
 
 
-@dataclass
-class BaseContent(ABC):
-    """Base class for file content types."""
+class BaseContent:
+    """Base type for structured handler content."""
 
-    type: FileType = field(default=FileType.NONE)
-
-    def reset(self):
-        for f in fields(self):
-            if f.default_factory is not MISSING:
-                setattr(self, f.name, f.default_factory())
-
-            elif f.default is not MISSING:
-                setattr(self, f.name, f.default)
+    type: ClassVar[FileType]
 
 
 ContentType = TypeVar("ContentType", bound=BaseContent)
@@ -38,7 +28,7 @@ ContentType = TypeVar("ContentType", bound=BaseContent)
 class ModelContent(BaseContent):
     """Content container for 3D models."""
 
-    type: FileType = field(default=FileType.MODEL)
+    type: ClassVar[FileType] = FileType.MODEL
 
     version: float = 0.0
     flags: FeatureFlags = field(default_factory=dict)
@@ -55,7 +45,7 @@ class ModelContent(BaseContent):
 class TextureContent(BaseContent, Generic[TextureType]):
     """Content container for textures (2D or cubemap)."""
 
-    type: FileType = field(default=FileType.TEXTURE)
+    type: ClassVar[FileType] = FileType.TEXTURE
 
     width: int = 0
     height: int = 0
@@ -89,7 +79,7 @@ class TextureContent(BaseContent, Generic[TextureType]):
 class ImageContent(BaseContent):
     """Content container for images."""
 
-    type: FileType = field(default=FileType.IMAGE)
+    type: ClassVar[FileType] = FileType.IMAGE
 
     image: bytes = field(default_factory=bytes)
 
@@ -98,7 +88,7 @@ class ImageContent(BaseContent):
 class TexarrContent(BaseContent):
     """Content container for texture arrays."""
 
-    type: FileType = field(default=FileType.TEXARR)
+    type: ClassVar[FileType] = FileType.TEXARR
 
     count: int = 0
     textures: list[tuple[str, bytes]] = field(default_factory=list)
@@ -108,7 +98,7 @@ class TexarrContent(BaseContent):
 class NbtContent(BaseContent):
     """Content container for NBT (Named Binary Tag) data."""
 
-    type: FileType = field(default=FileType.NBT)
+    type: ClassVar[FileType] = FileType.NBT
 
     value: NbtValue = None
 
@@ -117,7 +107,7 @@ class NbtContent(BaseContent):
 class RegionContent(BaseContent):
     """Content container for regions (world terrain)."""
 
-    type: FileType = field(default=FileType.REGION)
+    type: ClassVar[FileType] = FileType.REGION
 
     rx: int = 0
     rz: int = 0

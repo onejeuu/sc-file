@@ -1,7 +1,7 @@
 import lz4.block
 
 from scfile import exceptions, formats
-from scfile.consts import CubemapFaces, FileSignature
+from scfile.consts import FileSignature
 from scfile.core import FileDecoder, TextureContent
 from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
@@ -11,6 +11,7 @@ from scfile.structures.textures import CubemapTexture, DefaultTexture
 from .enums import TextureKind
 from .formats import SUPPORTED_FORMATS
 from scfile.io.ol import OlReader
+from scfile.structures.textures import CUBEMAP_FACE_COUNT
 
 
 class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
@@ -88,7 +89,7 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
 
             case CubemapTexture() as texture:
                 for mipmap in range(self.data.mipmap_count):
-                    for face in range(CubemapFaces.COUNT):
+                    for face in range(CUBEMAP_FACE_COUNT):
                         texture.faces[face].append(
                             self._parse_mipmap(
                                 texture.compressed[mipmap][face],

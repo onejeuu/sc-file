@@ -17,7 +17,7 @@ from .enums import (
 from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat
 from .mesh import BlendShape, MeshBounds, ModelMesh
 from .scene import ModelScene, SceneScales
-from .skeleton import ModelSkeleton, SkeletonBone
+from .skeleton import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
 from .types import (
     AnimationRotations,
     AnimationTimes,
@@ -56,6 +56,7 @@ __all__ = (
     "SceneScales",
     "SkeletonBone",
     "ModelSkeleton",
+    "ROOT_BONE_ID",
     "ModelUnits",
     "Feature",
     "AnimationRotations",

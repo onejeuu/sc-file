@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from scfile import formats
-from scfile.consts import Factor, FileSignature, ModelDefaults
+from scfile.consts import FileSignature, IntegerFactor as Factor
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
@@ -51,12 +51,12 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         self._parse_header()
         self._parse_meshes()
 
-        if self.data.flags.get(Feature.SKELETON, False) and self.options.skeleton:
+        if self.data.flags.get(Feature.SKELETON, False) and self.options.includes(Feature.SKELETON):
             self._parse_skeleton()
 
             if (
-                self.options.animation
-                and (self.ctx["COUNT_BONES"] > 0 or self.ctx["COUNT_CHANNELS"] > 0)
+                self.options.includes(Feature.ANIMATION)
+                and (self._ctx["COUNT_BONES"] > 0 or self._ctx["COUNT_CHANNELS"] > 0)
                 and not self.io.eof()
             ):
                 self._parse_animation()
@@ -65,7 +65,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         self._parse_version()
         self._parse_flags()
         self._parse_scales()
-        self.ctx["BLEND_SHAPE_CHANNELS"] = []
+        self._ctx["BLEND_SHAPE_CHANNELS"] = []
 
     def _parse_version(self):
         self.data.version = self.io.value(F.F32)
@@ -96,9 +96,9 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
             self.data.scene.scale.uv2 = self.io.value(F.F32)
 
     def _parse_meshes(self):
-        self.ctx["COUNT_MESHES"] = self.io.count(F.I32, Limit.MESHES)
+        self._ctx["COUNT_MESHES"] = self.io.count(F.I32, Limit.MESHES)
 
-        for _ in range(self.ctx["COUNT_MESHES"]):
+        for _ in range(self._ctx["COUNT_MESHES"]):
             self._parse_mesh()
 
     def _parse_mesh(self):
@@ -218,7 +218,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
 
             shape = S.BlendShape(name, delta)
             mesh.blend_shapes.append(shape)
-            self.ctx["BLEND_SHAPE_CHANNELS"].append((shape, int(channel_id)))
+            self._ctx["BLEND_SHAPE_CHANNELS"].append((shape, int(channel_id)))
 
     def _parse_positions(self, mesh: S.ModelMesh, count: int):
         mesh.vertices = self.io.vertex(
@@ -257,7 +257,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
                 return
 
     def _parse_packed_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.skeleton:
+        if self.options.includes(Feature.SKELETON):
             links = self.io.packed_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 
@@ -265,7 +265,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
             self.io.skip(count * 4)
 
     def _parse_plain_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.skeleton:
+        if self.options.includes(Feature.SKELETON):
             links = self.io.plain_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 
@@ -273,22 +273,22 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
             self.io.skip(count * 8)
 
     def _parse_skeleton(self):
-        self.ctx["COUNT_BONES"] = self.io.value(F.U8)
-        self.ctx["COUNT_CHANNELS"] = 0
+        self._ctx["COUNT_BONES"] = self.io.value(F.U8)
+        self._ctx["COUNT_CHANNELS"] = 0
 
-        for index in range(self.ctx["COUNT_BONES"]):
+        for index in range(self._ctx["COUNT_BONES"]):
             self._parse_bone(index)
 
         if self.data.version >= 15.0:
-            self.ctx["COUNT_CHANNELS"] = self.io.value(F.U16)
+            self._ctx["COUNT_CHANNELS"] = self.io.value(F.U16)
             animation = self.data.scene.animation
-            animation.morph_channels = [self.io.string() for _ in range(self.ctx["COUNT_CHANNELS"])]
+            animation.morph_channels = [self.io.string() for _ in range(self._ctx["COUNT_CHANNELS"])]
             self._resolve_blend_shape_channels()
 
     def _resolve_blend_shape_channels(self):
         channels = self.data.scene.animation.morph_channels
 
-        for shape, channel_id in self.ctx["BLEND_SHAPE_CHANNELS"]:
+        for shape, channel_id in self._ctx["BLEND_SHAPE_CHANNELS"]:
             if channel_id < 0:
                 continue
 
@@ -306,16 +306,16 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         # ? Bone is root if parent_id points to itself
         # ? self-reference would cause invalid recursion
         parent_id = self.io.value(F.U8)
-        bone.parent_id = parent_id if parent_id != index else ModelDefaults.ROOT_BONE_ID
+        bone.parent_id = parent_id if parent_id != index else S.ROOT_BONE_ID
 
         bone.position, bone.tail = self.io.bone()
 
         self.data.scene.skeleton.bones.append(bone)
 
     def _parse_animation(self):
-        self.ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
+        self._ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
 
-        for _ in range(self.ctx["COUNT_CLIPS"]):
+        for _ in range(self._ctx["COUNT_CLIPS"]):
             self._parse_clip()
 
     def _parse_clip(self):
@@ -326,13 +326,13 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
         clip.rate = self.io.value(F.F32)
 
         channels = self.io.value(F.U16) if self.data.version >= 15.0 else 0
-        transforms = clip.frames * self.ctx["COUNT_BONES"]
+        transforms = clip.frames * self._ctx["COUNT_BONES"]
         self.io.check(transforms, Limit.TRANSFORMS)
         self.io.check(clip.frames * channels, Limit.WEIGHTS)
 
         rotations, translations, morph_weights = self.io.clip(
             clip.frames,
-            self.ctx["COUNT_BONES"],
+            self._ctx["COUNT_BONES"],
             channels,
             self.data.scene.scale.position,
         )

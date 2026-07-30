@@ -4,7 +4,7 @@ Model-specific structured I/O.
 
 import numpy as np
 
-from scfile.consts import Factor
+from scfile.consts import IntegerFactor as Factor
 from scfile.enums import F
 from scfile.structures import models as S
 from scfile.structures.models import ModelUnits as Units

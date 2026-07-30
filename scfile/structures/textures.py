@@ -6,7 +6,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TypeVar
 
-from scfile.consts import CubemapFaces
+CUBEMAP_FACES = ("+x", "-x", "+y", "-y", "+z", "-z")
+"""Cubemap face order."""
+
+CUBEMAP_FACE_COUNT = len(CUBEMAP_FACES)
+"""Number of faces in a cubemap."""
 
 
 @dataclass
@@ -48,7 +52,7 @@ class CubemapTexture(Texture):
 
     uncompressed: list[list[int]] = field(default_factory=list)
     compressed: list[list[int]] = field(default_factory=list)
-    faces: list[list[bytes]] = field(default_factory=lambda: [[] for _ in range(CubemapFaces.COUNT)])
+    faces: list[list[bytes]] = field(default_factory=lambda: [[] for _ in range(CUBEMAP_FACE_COUNT)])
 
     @property
     def image(self):

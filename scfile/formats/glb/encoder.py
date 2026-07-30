@@ -55,16 +55,16 @@ class GlbEncoder(FileEncoder[ModelContent]):
         self.io.value(F.U32, VERSION)
 
         # Total Size Placeholder
-        self.ctx["TOTAL_SIZE_POS"] = self.io.tell()
+        self._ctx["TOTAL_SIZE_POS"] = self.io.tell()
         self.io.value(F.U32, 0)
 
     def _update_total_size(self):
-        self.io.seek(self.ctx["TOTAL_SIZE_POS"])
+        self.io.seek(self._ctx["TOTAL_SIZE_POS"])
         self.io.value(F.U32, len(self.io.getvalue()))
 
     def _add_json_chunk(self):
         # Serialize gltf json
-        gltf = json.dumps(self.ctx["GLTF"])
+        gltf = json.dumps(self._ctx["GLTF"])
         gltf_bytes = gltf.encode()
         json_length = len(gltf_bytes)
 
@@ -81,27 +81,27 @@ class GlbEncoder(FileEncoder[ModelContent]):
             self.io.write(b"\x20" * padding_length)
 
     def _create_gltf(self):
-        self.ctx["GLTF"] = deepcopy(base.GLTF)
-        self.ctx["BUFFER_VIEW_OFFSET"] = 0
+        self._ctx["GLTF"] = deepcopy(base.GLTF)
+        self._ctx["BUFFER_VIEW_OFFSET"] = 0
 
         # Create scene
         scene: Node = deepcopy(base.SCENE)
-        self.ctx["GLTF"]["scenes"].append(scene)
+        self._ctx["GLTF"]["scenes"].append(scene)
 
         # Create skeleton keys
         if self.includes(Feature.SKELETON):
-            self.ctx["GLTF"]["skins"] = []
+            self._ctx["GLTF"]["skins"] = []
 
         if self.includes(Feature.ANIMATION):
-            self.ctx["GLTF"]["animations"] = []
+            self._ctx["GLTF"]["animations"] = []
 
         # Create nodes
         self._create_nodes()
         self._count_nodes()
 
         # Write length in buffers
-        self.ctx["GLTF"]["buffers"].append(deepcopy(base.BUFFER))
-        self.ctx["GLTF"]["buffers"][0]["byteLength"] = self.ctx["BUFFER_VIEW_OFFSET"]
+        self._ctx["GLTF"]["buffers"].append(deepcopy(base.BUFFER))
+        self._ctx["GLTF"]["buffers"][0]["byteLength"] = self._ctx["BUFFER_VIEW_OFFSET"]
 
     def _create_nodes(self):
         self._create_meshes()
@@ -117,12 +117,12 @@ class GlbEncoder(FileEncoder[ModelContent]):
         nodes = list(range(len(self.data.scene.meshes)))
 
         if self.includes(Feature.SKELETON):
-            nodes += self.ctx["ROOT_INDEXES"]
+            nodes += self._ctx["ROOT_INDEXES"]
 
-        self.ctx["GLTF"]["scenes"][0]["nodes"] = nodes
+        self._ctx["GLTF"]["scenes"][0]["nodes"] = nodes
 
     def _accessor_index(self) -> int:
-        return len(self.ctx["GLTF"]["accessors"])
+        return len(self._ctx["GLTF"]["accessors"])
 
     def _create_meshes(self):
         for index, mesh in enumerate(self.data.scene.meshes):
@@ -189,22 +189,22 @@ class GlbEncoder(FileEncoder[ModelContent]):
             node: Node = {"name": mesh.name, "mesh": index}
 
             if has_skin:
-                node["skin"] = self.ctx["MESH_SKINS"][index] if "MESH_SKINS" in self.ctx else 0
+                node["skin"] = self._ctx["MESH_SKINS"][index] if "MESH_SKINS" in self._ctx else 0
 
             # Add to GLTF
-            self.ctx["GLTF"]["nodes"].append(node)
+            self._ctx["GLTF"]["nodes"].append(node)
             gltf_mesh: Node = dict(name=mesh.name, primitives=[primitive])
 
             if self.includes(Feature.BLEND_SHAPES) and mesh.blend_shapes:
                 gltf_mesh["weights"] = [0.0] * len(mesh.blend_shapes)
                 gltf_mesh["extras"] = {"targetNames": [shape.name for shape in mesh.blend_shapes]}
 
-            self.ctx["GLTF"]["meshes"].append(gltf_mesh)
-            self.ctx["GLTF"]["materials"].append(dict(name=mesh.material, pbrMetallicRoughness=base.PBR))
+            self._ctx["GLTF"]["meshes"].append(gltf_mesh)
+            self._ctx["GLTF"]["materials"].append(dict(name=mesh.material, pbrMetallicRoughness=base.PBR))
 
     def _create_bones(self):
-        self.ctx["BONE_INDEXES"] = []
-        self.ctx["ROOT_INDEXES"] = []
+        self._ctx["BONE_INDEXES"] = []
+        self._ctx["ROOT_INDEXES"] = []
 
         node_index_offset = len(self.data.scene.meshes)
 
@@ -215,26 +215,26 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 rotation=bone.quaternion.tolist(),
             )
 
-            self.ctx["BONE_INDEXES"].append(index)
+            self._ctx["BONE_INDEXES"].append(index)
 
             if bone.is_root:
-                self.ctx["ROOT_INDEXES"].append(index)
+                self._ctx["ROOT_INDEXES"].append(index)
 
             if bone.children:
                 node["children"] = [node_index_offset + child.id for child in bone.children]
 
             # Add to GLTF
-            self.ctx["GLTF"]["nodes"].append(node)
+            self._ctx["GLTF"]["nodes"].append(node)
 
     def _create_bindmatrices(self):
-        skins = self.ctx.get("SKINS", (None,))
+        skins = self._ctx.get("SKINS", (None,))
 
         for _ in skins:
-            self.ctx["GLTF"]["skins"].append(
+            self._ctx["GLTF"]["skins"].append(
                 dict(
                     name="Armature",
                     inverseBindMatrices=self._accessor_index(),
-                    joints=self.ctx["BONE_INDEXES"],
+                    joints=self._ctx["BONE_INDEXES"],
                 )
             )
             count = len(self.data.scene.skeleton.bones)
@@ -262,7 +262,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
             channels = []
 
             if bone_animation:
-                for node_index in self.ctx["BONE_INDEXES"]:
+                for node_index in self._ctx["BONE_INDEXES"]:
                     translation_idx = self._accessor_index()
                     self._create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
                     self._create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
@@ -294,7 +294,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
                 channels.append(dict(sampler=sampler_idx, target=dict(node=node_index, path="weights")))
                 sampler_idx += 1
 
-            self.ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
+            self._ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
 
     def _morph_animation_targets(self, clip: AnimationClip) -> list[tuple[int, MorphWeights]]:
         if not self.includes(Feature.MORPH_ANIMATION) or not clip.morph_weights.size:
@@ -342,14 +342,14 @@ class GlbEncoder(FileEncoder[ModelContent]):
         view: BufferView = dict(
             buffer=0,
             byteLength=byte_length,
-            byteOffset=self.ctx["BUFFER_VIEW_OFFSET"],
+            byteOffset=self._ctx["BUFFER_VIEW_OFFSET"],
         )
 
         if target:
             view["target"] = target.value
 
-        self.ctx["GLTF"]["bufferViews"].append(view)
-        self.ctx["BUFFER_VIEW_OFFSET"] += byte_length
+        self._ctx["GLTF"]["bufferViews"].append(view)
+        self._ctx["BUFFER_VIEW_OFFSET"] += byte_length
 
     def _create_accessor(
         self,
@@ -358,7 +358,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         component_type: ComponentType = ComponentType.FLOAT,
         array: Optional[np.ndarray] = None,
     ):
-        buffer_view_idx = len(self.ctx["GLTF"]["bufferViews"]) - 1
+        buffer_view_idx = len(self._ctx["GLTF"]["bufferViews"]) - 1
         accessor: Accessor = dict(
             bufferView=buffer_view_idx,
             count=count,
@@ -370,18 +370,18 @@ class GlbEncoder(FileEncoder[ModelContent]):
             accessor["min"] = np.min(array, axis=0).tolist()
             accessor["max"] = np.max(array, axis=0).tolist()
 
-        self.ctx["GLTF"]["accessors"].append(accessor)
+        self._ctx["GLTF"]["accessors"].append(accessor)
 
     def _add_binary_chunk(self):
         self._add_bin_size()
-        self.ctx["BIN_START"] = self.io.tell()
+        self._ctx["BIN_START"] = self.io.tell()
 
         self._add_meshes()
 
         if self.includes(Feature.SKELETON):
             # Animated model sources may require separate bind poses
-            if "SKINS" in self.ctx:
-                for bindpose in self.ctx["SKINS"]:
+            if "SKINS" in self._ctx:
+                for bindpose in self._ctx["SKINS"]:
                     self.io.write(bindpose.transpose(0, 2, 1).tobytes())
             else:
                 bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
@@ -390,18 +390,18 @@ class GlbEncoder(FileEncoder[ModelContent]):
         if self.includes(Feature.ANIMATION):
             self._add_animation()
 
-        self.ctx["BIN_END"] = self.io.tell()
+        self._ctx["BIN_END"] = self.io.tell()
         self._update_bin_size()
 
     def _add_bin_size(self):
         # BIN Size Placeholder
-        self.ctx["BIN_SIZE_POS"] = self.io.tell()
+        self._ctx["BIN_SIZE_POS"] = self.io.tell()
         self.io.value(F.U32, 0)
         self.io.write(b"BIN\0")
 
     def _update_bin_size(self):
-        size = self.ctx["BIN_END"] - self.ctx["BIN_START"]
-        self.io.seek(self.ctx["BIN_SIZE_POS"])
+        size = self._ctx["BIN_END"] - self._ctx["BIN_START"]
+        self.io.seek(self._ctx["BIN_SIZE_POS"])
         self.io.value(F.U32, size)
 
     def _add_meshes(self):

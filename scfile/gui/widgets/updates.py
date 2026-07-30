@@ -1,6 +1,6 @@
 import time
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QThread, Qt, QTimer
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -8,6 +8,7 @@ from scfile import __version__ as SEMVER
 from scfile.enums import UpdateStatus
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Colors, Styles
+from scfile.gui.workers import execute
 from scfile.gui.workers.updates import UpdatesWorker
 from scfile.utils.updates import UpdateCheck
 from scfile.utils.versions import Version
@@ -112,6 +113,7 @@ class VersionWidget(QWidget):
 
         self.popup: UpdatePopup | None = None
         self.worker: UpdatesWorker | None = None
+        self.worker_thread: QThread | None = None
 
         self._cached: UpdateCheck | None = None
         self._cache_timestamp: float = 0.0
@@ -139,14 +141,18 @@ class VersionWidget(QWidget):
             self.popup.show_status(*self._cached)
             return
 
-        if self.worker and self.worker.isRunning():
+        if self.worker_thread and self.worker_thread.isRunning():
             return
 
         self.popup.show_loading()
 
         self.worker = UpdatesWorker()
         self.worker.status.connect(self.handle_status)
-        self.worker.start()
+        self.worker_thread = execute(self.worker, on_done=self._on_finished)
+
+    def _on_finished(self) -> None:
+        self.worker = None
+        self.worker_thread = None
 
     def handle_status(self, status: UpdateStatus, message: str, url: str):
         if status in (UpdateStatus.UPTODATE, UpdateStatus.AVAILABLE):

@@ -242,6 +242,12 @@ class Ms3dCapacityError(EncodingError):
         self.capacity = capacity
 
 
+class ConversionError(ScFileException):
+    """Raised when requested format conversion is unavailable."""
+
+    ...
+
+
 class AnimationError(ScFileException):
     """Raised when animation cannot be applied to a model."""
 

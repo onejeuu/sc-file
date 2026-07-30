@@ -27,12 +27,12 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
     transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
     def _serialize(self):
-        self.ctx["NODES"] = []
-        self.ctx["CLIPS"] = []
-        self.ctx["BONES"] = {}
-        self.ctx["MESHES"] = defaultdict(dict)
-        self.ctx["ROOT_ID"] = 0
-        self.ctx["NEXT_ID"] = 0
+        self._ctx["NODES"] = []
+        self._ctx["CLIPS"] = []
+        self._ctx["BONES"] = {}
+        self._ctx["MESHES"] = defaultdict(dict)
+        self._ctx["ROOT_ID"] = 0
+        self._ctx["NEXT_ID"] = 0
 
         self._write_header()
         self._write_nodes()
@@ -87,17 +87,17 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
 
         # Connections
         with self._node(b"Connections", root=True):
-            root_id = np.int64(self.ctx["ROOT_ID"])
+            root_id = np.int64(self._ctx["ROOT_ID"])
 
             for mesh in self.data.scene.meshes:
-                ids = self.ctx["MESHES"][mesh.name]
+                ids = self._ctx["MESHES"][mesh.name]
                 self._leaf(b"C", [b"OO", ids["mesh"], root_id])
                 self._leaf(b"C", [b"OO", ids["geometry"], ids["mesh"]])
                 self._leaf(b"C", [b"OO", ids["material"], ids["mesh"]])
 
     def _write_mesh(self, mesh: S.ModelMesh):
         fbx_id = self._next_id()
-        self.ctx["MESHES"][mesh.name]["mesh"] = fbx_id
+        self._ctx["MESHES"][mesh.name]["mesh"] = fbx_id
 
         model_name = mesh.name.encode() + b"\x00\x01" + b"Model"
         with self._node(b"Model", [fbx_id, model_name, b"Mesh"]):
@@ -175,7 +175,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
                         self._leaf(b"Type", [b"Normal"])
                         self._leaf(b"TypedIndex", [0])
 
-        self.ctx["MESHES"][mesh.name]["geometry"] = geom_id
+        self._ctx["MESHES"][mesh.name]["geometry"] = geom_id
 
         mat_id = self._next_id()
         material_name = mesh.material.encode() + b"\x00\x01" + b"Material"
@@ -183,12 +183,12 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
             self._leaf(b"Version", [102])
             self._props70(DEFAULT.MATERIAL)
 
-        self.ctx["MESHES"][mesh.name]["material"] = mat_id
+        self._ctx["MESHES"][mesh.name]["material"] = mat_id
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
-        if self.ctx["NODES"]:
-            self.ctx["NODES"][-1]["children"] = True
+        if self._ctx["NODES"]:
+            self._ctx["NODES"][-1]["children"] = True
 
         self._start_node(name, properties, root)
 
@@ -227,7 +227,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
 
         prop_len = self.io.tell() - props_start
 
-        self.ctx["NODES"].append(
+        self._ctx["NODES"].append(
             dict(
                 start=node_start,
                 prop_count=prop_count,
@@ -238,7 +238,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
         )
 
     def _end_node(self):
-        node = self.ctx["NODES"].pop()
+        node = self._ctx["NODES"].pop()
 
         if node["root"] or node["children"]:
             self.io.write(FBX.NULL_NODE)
@@ -253,8 +253,8 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
         self.io.seek(end_pos)
 
     def _next_id(self) -> np.int64:
-        self.ctx["NEXT_ID"] += 1
-        return np.int64(self.ctx["NEXT_ID"])
+        self._ctx["NEXT_ID"] += 1
+        return np.int64(self._ctx["NEXT_ID"])
 
     def _fbx_polygon_indices(self, polygons: np.ndarray) -> np.ndarray:
         indices = polygons.flatten().astype(np.int32)

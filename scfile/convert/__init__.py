@@ -30,7 +30,6 @@ from .formats import (
     mdat_to_mca,
     mic_to_png,
     nbt_to_json,
-    ol_cubemap_to_dds,
     ol_to_dds,
     texarr_to_zip,
 )
@@ -62,7 +61,6 @@ __all__ = (
     "efkmodel_to_ms3d",
     "efkmodel_to_obj",
     "ol_to_dds",
-    "ol_cubemap_to_dds",
     "mic_to_png",
     "texarr_to_zip",
     "mdat_to_mca",

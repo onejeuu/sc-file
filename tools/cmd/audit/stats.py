@@ -43,7 +43,7 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
             material=mesh.material,
             vertices=len(mesh.vertices),
             polygons=len(mesh.polygons),
-            quads=mesh.quads,
+            quads=mesh.polygon_quads,
             max_influences=mesh.max_influences if animation else "-",
         )
         for index, mesh in enumerate(scene.meshes)
