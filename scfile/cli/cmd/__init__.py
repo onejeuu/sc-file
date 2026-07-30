@@ -1,6 +1,6 @@
 import click
 
-from scfile.utils.cli import updates_callback, version_callback
+from scfile.cli.callbacks import updates_callback, version_callback
 
 
 @click.group()

@@ -26,8 +26,8 @@ def test_relative_no_output():
     src = ASSETS / "cli" / MODEL
     with patch("scfile.cli.cmd.convert.convert.auto"):
         result = runner.invoke(convert_command, [str(src), "--relative"])
-        assert result.exit_code == 0
-        assert result.output
+        assert result.exit_code == 2
+        assert "require --output" in result.output
 
 
 def test_convert_single_file(temp: Path):

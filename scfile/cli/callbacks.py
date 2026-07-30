@@ -1,39 +1,24 @@
+"""Click callbacks for global command options."""
+
 from typing import Optional
 
 import click
 from rich import print
 
 from scfile import __version__ as SEMVER
-from scfile import types
 from scfile.consts import SUPPORTED_NBT, SUPPORTED_SUFFIXES
-from scfile.enums import L, UpdateStatus
-from scfile.registry import REGISTRY
-from scfile.structures.models import Feature
-
-from . import updates
-from .versions import Version
-
-
-def check_feature_unsupported(
-    user_formats: types.Formats,
-    feature: Feature,
-) -> None:
-    matching_formats = [
-        fmt
-        for fmt in user_formats
-        if not (entry := REGISTRY.get(fmt)) or not entry.supports(feature)
-    ]
-
-    if matching_formats:
-        suffixes = ", ".join(map(lambda fmt: fmt.suffix, matching_formats))
-        print(L.WARN, f"Specified formats [b]({suffixes})[/] doesn't support {feature}.")
+from scfile.enums import UpdateStatus
+from scfile.utils import updates
+from scfile.utils.versions import Version
 
 
 def version_callback(
     ctx: click.Context,
     param: Optional[click.Parameter],
     value: bool,
-):
+) -> None:
+    """Print version information and exit."""
+
     if not value:
         return
 
@@ -50,7 +35,9 @@ def updates_callback(
     ctx: click.Context,
     param: Optional[click.Parameter],
     value: bool,
-):
+) -> None:
+    """Check for updates and exit."""
+
     if not value:
         return
 

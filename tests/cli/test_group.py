@@ -16,6 +16,6 @@ def test_version_flag():
 
 
 def test_updates_flag():
-    with patch("scfile.utils.cli.updates.check", return_value=UpdateCheck(UpdateStatus.UPTODATE, "", "")):
+    with patch("scfile.cli.callbacks.updates.check", return_value=UpdateCheck(UpdateStatus.UPTODATE, "", "")):
         result = runner.invoke(scfile, ["--updates"])
         assert result.exit_code == 0
