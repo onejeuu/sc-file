@@ -9,7 +9,7 @@ class TexarrEncoder(FileEncoder[TexarrContent]):
     format = FileFormat.ZIP
     order = ByteOrder.LITTLE
 
-    def serialize(self):
+    def _serialize(self):
         with zipfile.ZipFile(self.io, mode="w", compression=zipfile.ZIP_STORED) as zip:
             for path, data in self.data.textures:
                 zip.writestr(path, data)

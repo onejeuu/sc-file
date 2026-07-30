@@ -18,13 +18,13 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
     signature = FileSignature.OL
     order = ByteOrder.BIG
 
-    content_factory = TextureContent
+    content_type = TextureContent
     io_factory = OlReader
 
     def as_dds(self):
         return self.convert_to(formats.dds.DdsEncoder)
 
-    def parse(self):
+    def _parse(self):
         self._parse_header()
         self._parse_format()
         self._parse_kind()

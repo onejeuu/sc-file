@@ -14,7 +14,7 @@ class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
     signature = FileSignature.DDS
     order = ByteOrder.LITTLE
 
-    def serialize(self):
+    def _serialize(self):
         self._add_header()
         self._add_pixelformat()
         self._add_caps()

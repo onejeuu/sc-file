@@ -23,7 +23,7 @@ IGNORED_EXCEPTIONS = (EmptyFileError,)
 def _decode(asset: Asset, config: Config, options: Options) -> Result:
     try:
         with DECODERS[asset.format](asset.path, options) as decoder:
-            content = decoder.decode(seek=False)
+            content = decoder.decode()
 
     except IGNORED_EXCEPTIONS:
         return Result(format=asset.format)

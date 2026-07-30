@@ -4,6 +4,8 @@ Library exceptions and diagnostic context.
 
 from typing import ClassVar, Optional
 
+from scfile.enums import HandlerState
+
 
 class ScFileException(Exception):
     """Base exception for scfile library."""
@@ -27,6 +29,27 @@ class ScFileException(Exception):
         if self.offset is None:
             return message
         return f"{message} (offset: {self.offset})."
+
+
+class HandlerStateError(ScFileException):
+    """Raised when an operation is unavailable in the current handler state."""
+
+    def __init__(
+        self,
+        operation: str,
+        state: HandlerState,
+        *,
+        closed: bool = False,
+        location: Optional[str] = None,
+    ) -> None:
+        condition = "handler is closed" if closed else f"handler is in '{state}' state"
+        super().__init__(
+            f"Cannot {operation}: {condition}.",
+            location=location,
+        )
+        self.operation = operation
+        self.state = state
+        self.closed = closed
 
 
 class FileError(ScFileException):

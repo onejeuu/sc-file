@@ -15,12 +15,12 @@ class MdatDecoder(FileDecoder[RegionContent]):
     format = FileFormat.MDAT
     order = ByteOrder.BIG
 
-    content_factory = RegionContent
+    content_type = RegionContent
 
     def as_mca(self):
         return self.convert_to(formats.mca.McaEncoder)
 
-    def parse(self):
+    def _parse(self):
         table = [(self.io.value(F.I32), self.io.value(F.I32), self.io.read(16)) for _ in range(CHUNKS_COUNT)]
         offsets, counts, uuids = map(list, zip(*table))
 

@@ -44,7 +44,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         T.animation_to_absolute,
     )
 
-    def serialize(self):
+    def _serialize(self):
         self._add_header()
         self._create_gltf()
         self._add_json_chunk()
@@ -60,7 +60,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
 
     def _update_total_size(self):
         self.io.seek(self.ctx["TOTAL_SIZE_POS"])
-        self.io.value(F.U32, len(self.getvalue()))
+        self.io.value(F.U32, len(self.io.getvalue()))
 
     def _add_json_chunk(self):
         # Serialize gltf json

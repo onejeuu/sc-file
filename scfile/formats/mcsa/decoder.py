@@ -29,7 +29,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE
 
-    content_factory = ModelContent
+    content_type = ModelContent
     io_factory = ModelReader
 
     def as_obj(self):
@@ -47,7 +47,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
     def as_ms3d(self):
         return self.convert_to(formats.ms3d.Ms3dEncoder)
 
-    def parse(self):
+    def _parse(self):
         self._parse_header()
         self._parse_meshes()
 

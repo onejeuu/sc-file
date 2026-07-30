@@ -5,7 +5,8 @@ Base class for resource-owning format handlers.
 from abc import ABC
 from typing import Any, Generic, Optional, Self, TypeAlias, TypeVar
 
-from scfile.enums import ByteOrder, FileFormat, UnicodeErrors
+from scfile import exceptions
+from scfile.enums import ByteOrder, FileFormat, HandlerState, UnicodeErrors
 from scfile.io.base import FileMode, IOStream, StructIO
 
 from .options import Options
@@ -39,6 +40,9 @@ class BaseFile(Generic[IOType], ABC):
     options: Options
     """Shared handlers options."""
 
+    state: HandlerState
+    """Current operation lifecycle state."""
+
     def __init__(
         self,
         stream: IOStream,
@@ -57,6 +61,7 @@ class BaseFile(Generic[IOType], ABC):
             unicode_errors=self.unicode_errors,
         )
         self.ctx: TempContext = {}
+        self.state = HandlerState.INITIAL
 
     @property
     def suffix(self) -> str:
@@ -73,6 +78,21 @@ class BaseFile(Generic[IOType], ABC):
     def close(self) -> None:
         self.ctx = {}
         self.io.close()
+
+    def _validate_state(
+        self,
+        operation: str,
+        expected: HandlerState,
+    ) -> None:
+        if self.state is expected and not self.closed:
+            return
+
+        raise exceptions.HandlerStateError(
+            operation,
+            self.state,
+            closed=self.closed,
+            location=self.location,
+        )
 
     def __enter__(self) -> Self:
         return self

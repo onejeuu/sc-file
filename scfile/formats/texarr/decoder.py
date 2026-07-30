@@ -11,12 +11,12 @@ class TexarrDecoder(FileDecoder[TexarrContent]):
     format = FileFormat.TEXARR
     order = ByteOrder.BIG
 
-    content_factory = TexarrContent
+    content_type = TexarrContent
 
     def as_zip(self):
         return self.convert_to(formats.zip.TexarrEncoder)
 
-    def parse(self):
+    def _parse(self):
         self.data.count = self.io.value(F.U32)
 
         for _ in range(self.data.count):

@@ -41,10 +41,6 @@ class Options:
     - `"rename"` Add a numeric suffix (e.g. `model (1).obj`).
     """
 
-    def __post_init__(self) -> None:
-        if self.animation:
-            self.skeleton = True
-
     def includes(
         self,
         feature: Feature,
@@ -55,7 +51,7 @@ class Options:
             return self.animation
 
         if feature is Feature.SKELETON:
-            return self.skeleton
+            return self.skeleton or self.animation
 
         return True
 
@@ -63,7 +59,7 @@ class Options:
     def default_model_formats(self) -> Formats:
         """Default output formats for models based on current options."""
 
-        if self.skeleton:
+        if self.includes(Feature.SKELETON):
             return DefaultModelFormats.ON_SKELETON
 
         return DefaultModelFormats.STANDARD

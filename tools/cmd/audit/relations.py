@@ -70,7 +70,7 @@ def _decode(
     decoder: ModelDecoder,
 ) -> ModelContent:
     with decoder(path, _OPTIONS) as source:
-        return source.decode(seek=False)
+        return source.decode()
 
 
 def _arms(relations: Relations, root: Path) -> Iterator[Result]:

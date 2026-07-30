@@ -40,7 +40,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         T.build_hierarchy,
     )
 
-    def serialize(self):
+    def _serialize(self):
         self.ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)
         self.io.write(DECLARATION)
 

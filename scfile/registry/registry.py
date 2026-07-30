@@ -175,7 +175,7 @@ class Registry:
         self._set_encoder(handler)
 
     def _set_decoder(self, decoder: Decoder) -> None:
-        entry = self._entry(decoder.format, decoder.content_factory)
+        entry = self._entry(decoder.format, decoder.content_type)
         if entry.decoder is not None and entry.decoder is not decoder:
             raise RegistryError(f"{decoder.format} already has decoder {entry.decoder.__name__}.")
 

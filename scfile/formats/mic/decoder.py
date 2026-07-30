@@ -9,10 +9,10 @@ class MicDecoder(FileDecoder[ImageContent]):
     signature = FileSignature.MIC
     order = ByteOrder.LITTLE
 
-    content_factory = ImageContent
+    content_type = ImageContent
 
     def as_png(self):
         return self.convert_to(formats.png.PngEncoder)
 
-    def parse(self):
+    def _parse(self):
         self.data.image = self.io.read()

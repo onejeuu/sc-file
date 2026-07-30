@@ -40,7 +40,7 @@ class McaEncoder(FileEncoder[RegionContent]):
     format = FileFormat.MCA
     order = ByteOrder.BIG
 
-    def serialize(self):
+    def _serialize(self):
         locations = bytearray(4096)
         timestamps = _TIMESTAMPS
 

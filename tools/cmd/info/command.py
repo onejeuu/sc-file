@@ -62,7 +62,7 @@ def info(source: Path, format: str | None) -> None:
 
     with decoder_type(source, options) as decoder:
         try:
-            data = decoder.decode(seek=False)
+            data = decoder.decode()
 
         except Exception as exception:
             position = getattr(exception, "position", None)

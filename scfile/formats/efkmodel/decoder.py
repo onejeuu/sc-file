@@ -11,7 +11,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
     format = FileFormat.EFKMODEL
     order = ByteOrder.LITTLE
 
-    content_factory = ModelContent
+    content_type = ModelContent
     io_factory = ModelReader
 
     def as_obj(self):
@@ -29,7 +29,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
     def as_ms3d(self):
         return self.convert_to(formats.ms3d.Ms3dEncoder)
 
-    def parse(self):
+    def _parse(self):
         self.data.version = self.io.value(F.U32)
 
         self.ctx["SCALE"] = self.io.value(F.F32)

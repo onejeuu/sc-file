@@ -51,7 +51,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
     )
     transforms = T.scene_transforms(T.unique_names, T.skeleton_to_local)
 
-    def serialize(self):
+    def _serialize(self):
         self.io.value(F.I32, VERSION)
         self._add_vertices()
         self._add_triangles()

@@ -9,5 +9,5 @@ class PngEncoder(FileEncoder[ImageContent]):
     signature = FileSignature.PNG
     order = ByteOrder.LITTLE
 
-    def serialize(self):
+    def _serialize(self):
         self.io.write(self.data.image)

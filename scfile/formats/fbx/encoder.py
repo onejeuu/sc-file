@@ -26,7 +26,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
     )
     transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
-    def serialize(self):
+    def _serialize(self):
         self.ctx["NODES"] = []
         self.ctx["CLIPS"] = []
         self.ctx["BONES"] = {}

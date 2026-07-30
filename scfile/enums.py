@@ -43,6 +43,15 @@ class FileType(StrEnum):
     REGION = auto()
 
 
+class HandlerState(StrEnum):
+    """Handler operation lifecycle state."""
+
+    INITIAL = auto()
+    RUNNING = auto()
+    SUCCEEDED = auto()
+    FAILED = auto()
+
+
 class ByteOrder(StrEnum):
     """File data byte order."""
 

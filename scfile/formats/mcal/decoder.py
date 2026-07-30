@@ -12,11 +12,11 @@ class McalDecoder(FileDecoder[ModelContent, ModelReader]):
     signature = FileSignature.MCAL
     order = ByteOrder.LITTLE
 
-    content_factory = ModelContent
+    content_type = ModelContent
     io_factory = ModelReader
     convertible = False
 
-    def parse(self):
+    def _parse(self):
         self._parse_header()
         self._parse_animation()
         if not self.io.eof():

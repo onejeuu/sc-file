@@ -14,12 +14,12 @@ class NbtDecoder(FileDecoder[NbtContent]):
     format = FileFormat.NBT
     order = ByteOrder.LITTLE
 
-    content_factory = NbtContent
+    content_type = NbtContent
 
     def as_json(self):
         return self.convert_to(formats.json.JsonEncoder)
 
-    def parse(self):
+    def _parse(self):
         data = self._decompress()
         reader = NbtReader(data, "rb", location=self.location)
 

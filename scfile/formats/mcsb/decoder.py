@@ -5,7 +5,7 @@ from scfile.formats.mcsa.decoder import McsaDecoder
 class McsbDecoder(McsaDecoder):
     format = FileFormat.MCSB
 
-    def prelude(self):
+    def _prelude(self):
         self._skip_hash_prefix()
 
     def _skip_hash_prefix(self):

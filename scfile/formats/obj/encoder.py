@@ -20,7 +20,7 @@ class ObjEncoder(FileEncoder[ModelContent]):
     )
     transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
-    def serialize(self):
+    def _serialize(self):
         self._add_meshes()
 
     def _add_meshes(self):

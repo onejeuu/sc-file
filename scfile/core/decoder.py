@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Generic, Optional, Type, TypeVar, cast
 
 from scfile import exceptions
+from scfile.enums import HandlerState
 from scfile.io.base import IOStream, StructReader
 
 from .base import BaseFile
@@ -27,7 +28,7 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
     Subclasses define format-specific parsing logic.
     """
 
-    content_factory: ClassVar[type[BaseContent]]
+    content_type: ClassVar[type[BaseContent]]
     """Factory for decoded content."""
 
     io_factory = cast(type[ReaderType], StructReader)
@@ -52,25 +53,31 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
             Call :meth:`decode` to perform the actual parsing.
         """
 
-        self.data = cast(ContentType, self.content_factory())
+        self.data = cast(ContentType, self.content_type())
         self.options: Options = options or Options()
 
         super().__init__(stream=stream, mode="rb")
 
     def decode(self) -> ContentType:
-        """
-        Runs decoding pipeline.
+        """Decode source data once and return parsed content."""
 
-        Args:
-            seek: Reset stream position to the beginning after parsing.
+        if self.state is HandlerState.SUCCEEDED:
+            return self.data
 
-        Returns:
-            Parsed content data.
-        """
+        self._validate_state("decode", HandlerState.INITIAL)
 
-        self.prelude()
-        self.validate_signature()
-        self.parse()
+        self.state = HandlerState.RUNNING
+
+        try:
+            self._prelude()
+            self._verify_signature()
+            self._parse()
+
+        except BaseException:
+            self.state = HandlerState.FAILED
+            raise
+
+        self.state = HandlerState.SUCCEEDED
         return self.data
 
     def convert_to(
@@ -88,7 +95,7 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
             output (optional): File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
-            Clear encoder instance.
+            Open encoder instance.
         """
 
         options = options or self.options
@@ -100,7 +107,6 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         self,
         encoder: Type[EncoderType],
         options: Optional[Options] = None,
-        output: Optional[IOStream] = None,
     ) -> bytes:
         """
         Decode and convert to given encoder format.
@@ -108,25 +114,19 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         Args:
             encoder: Encoder class to use for conversion.
             options (optional): Shared handlers options.
-            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
 
         Returns:
             Encoded file content as bytes.
         """
 
-        with self.convert_to(encoder, options=options, output=output) as enc:
-            return enc.getvalue()
+        with self.convert_to(encoder, options=options) as enc:
+            return enc.to_bytes()
 
-    def prelude(self) -> None:
+    def _prelude(self) -> None:
         """Hook called before signature and parsing."""
         pass
 
-    @abstractmethod
-    def parse(self) -> None:
-        """Parse file content into ``self.data``. Called by :meth:`decode`."""
-        ...
-
-    def validate_signature(self) -> None:
+    def _verify_signature(self) -> None:
         """
         Validate file signature.
 
@@ -143,8 +143,13 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
 
             if read != self.signature:
                 raise exceptions.SignatureMismatchError(
-                    read,
-                    self.signature,
+                    actual=read,
+                    expected=self.signature,
                     location=self.location,
                     offset=offset,
                 )
+
+    @abstractmethod
+    def _parse(self) -> None:
+        """Parse file content into ``self.data``. Called by :meth:`decode`."""
+        ...
