@@ -1,4 +1,3 @@
-from typing import Optional
 
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QMouseEvent, QPixmap
@@ -9,7 +8,7 @@ from scfile.utils import files
 
 
 class LinkWidget(QWidget):
-    def __init__(self, text: str, url: str, icon: Optional[str] = None, parent: Optional[QWidget] = None):
+    def __init__(self, text: str, url: str, icon: str | None = None, parent: QWidget | None = None):
         super().__init__(parent)
         self.url = url
 

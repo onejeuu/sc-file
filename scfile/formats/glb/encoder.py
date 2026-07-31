@@ -1,6 +1,6 @@
 import json
 from copy import deepcopy
-from typing import Any, Optional, TypeAlias
+from typing import Any, override
 
 import numpy as np
 
@@ -16,9 +16,9 @@ from .enums import BufferTarget, ComponentType
 
 VERSION = 2
 
-Node: TypeAlias = dict[str, Any]
-BufferView: TypeAlias = dict[str, int]
-Accessor: TypeAlias = dict[str, str | int]
+type Node = dict[str, Any]
+type BufferView = dict[str, int]
+type Accessor = dict[str, str | int]
 
 
 class GlbEncoder(FileEncoder[ModelContent]):
@@ -44,6 +44,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         T.animation_to_absolute,
     )
 
+    @override
     def _serialize(self):
         self._add_header()
         self._create_gltf()
@@ -337,7 +338,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
     def _create_bufferview(
         self,
         byte_length: int,
-        target: Optional[BufferTarget] = BufferTarget.ARRAY_BUFFER,
+        target: BufferTarget | None = BufferTarget.ARRAY_BUFFER,
     ):
         view: BufferView = dict(
             buffer=0,
@@ -356,7 +357,7 @@ class GlbEncoder(FileEncoder[ModelContent]):
         count: int,
         accessor_type: str,
         component_type: ComponentType = ComponentType.FLOAT,
-        array: Optional[np.ndarray] = None,
+        array: np.ndarray | None = None,
     ):
         buffer_view_idx = len(self._ctx["GLTF"]["bufferViews"]) - 1
         accessor: Accessor = dict(

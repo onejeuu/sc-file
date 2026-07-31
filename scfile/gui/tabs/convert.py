@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent, QKeyEvent
@@ -16,7 +17,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.options import Options
 from scfile.gui import workers
 from scfile.gui.shared import consts, strings
 from scfile.gui.shared.consts import FT
@@ -27,6 +27,7 @@ from scfile.gui.widgets.sources import SourcesWidget
 from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.convert import ConvertContext, ConvertWorker
 from scfile.gui.workers.counter import CounterWorker
+from scfile.options import Options
 from scfile.structures.models import Feature
 
 
@@ -409,11 +410,13 @@ class ConverterTab(QWidget):
             self.sources.add_sources([path])
             self._handle_sources()
 
+    @override
     def keyPressEvent(self, event: QKeyEvent):
         if event.key() == Qt.Key.Key_F5:
             self._handle_sources()
         super().keyPressEvent(event)
 
+    @override
     def closeEvent(self, event: QCloseEvent):
         self._counter.stop()
 

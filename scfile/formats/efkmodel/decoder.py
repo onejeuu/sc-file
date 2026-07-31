@@ -1,3 +1,5 @@
+from typing import override
+
 from scfile import formats
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -29,6 +31,7 @@ class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
     def as_ms3d(self):
         return self.convert_to(formats.ms3d.Ms3dEncoder)
 
+    @override
     def _parse(self):
         self.data.version = self.io.value(F.U32)
 

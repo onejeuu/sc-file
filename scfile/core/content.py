@@ -4,24 +4,22 @@ Defines data structures that hold parsed file contents.
 """
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Generic, TypeAlias, TypeVar, cast
+from typing import ClassVar, cast
 from uuid import UUID
 
 from scfile.enums import FileType
 from scfile.structures.models import Feature, FeatureFlags, ModelScene
 from scfile.structures.regions import RegionChunk
-from scfile.structures.textures import CubemapTexture, DefaultTexture, TextureType
+from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
 
-NbtValue: TypeAlias = None | int | float | bytes | str | list[int] | list["NbtValue"] | dict[str, "NbtValue"]
+
+type NbtValue = None | int | float | bytes | str | list[int] | list[NbtValue] | dict[str, NbtValue]
 
 
 class BaseContent:
     """Base type for structured handler content."""
 
     type: ClassVar[FileType]
-
-
-ContentType = TypeVar("ContentType", bound=BaseContent)
 
 
 @dataclass
@@ -42,7 +40,7 @@ class ModelContent(BaseContent):
 
 
 @dataclass
-class TextureContent(BaseContent, Generic[TextureType]):
+class TextureContent[TextureType: Texture = DefaultTexture](BaseContent):
     """Content container for textures (2D or cubemap)."""
 
     type: ClassVar[FileType] = FileType.TEXTURE

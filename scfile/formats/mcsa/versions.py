@@ -1,9 +1,8 @@
-from typing import TypeAlias
 
 from scfile.structures.models import Feature, Features
 
 
-Version: TypeAlias = float
+type Version = float
 
 SUPPORTED_VERSIONS: list[Version] = [
     7.0,

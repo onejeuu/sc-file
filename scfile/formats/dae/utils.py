@@ -1,4 +1,3 @@
-from typing import Optional
 from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
@@ -26,7 +25,7 @@ def create_source(
     name: str,
     data: np.ndarray,
     tag: str = "float_array",
-    count: Optional[int] = None,
+    count: int | None = None,
 ) -> Element:
     count = data.size if count is None else count
     source = SubElement(parent, "source", id=f"{id}-{name}")
@@ -42,7 +41,7 @@ def add_accessor(
     count: int,
     components: list[str],
     datatype: str,
-    stride: Optional[int] = None,
+    stride: int | None = None,
 ) -> None:
     array_id = f"#{id}-{name}-array"
     stride = stride or len(components)

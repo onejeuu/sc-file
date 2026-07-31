@@ -1,7 +1,5 @@
 """Click callbacks for global command options."""
 
-from typing import Optional
-
 import click
 from rich import print
 
@@ -14,7 +12,7 @@ from scfile.utils.versions import Version
 
 def version_callback(
     ctx: click.Context,
-    param: Optional[click.Parameter],
+    param: click.Parameter | None,
     value: bool,
 ) -> None:
     """Print version information and exit."""
@@ -33,7 +31,7 @@ def version_callback(
 
 def updates_callback(
     ctx: click.Context,
-    param: Optional[click.Parameter],
+    param: click.Parameter | None,
     value: bool,
 ) -> None:
     """Check for updates and exit."""

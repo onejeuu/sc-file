@@ -1,3 +1,5 @@
+from typing import override
+
 from scfile import formats
 from scfile.core import FileDecoder, TexarrContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -16,6 +18,7 @@ class TexarrDecoder(FileDecoder[TexarrContent]):
     def as_zip(self):
         return self.convert_to(formats.zip.TexarrEncoder)
 
+    @override
     def _parse(self):
         self.data.count = self.io.value(F.U32)
 

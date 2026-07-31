@@ -1,28 +1,30 @@
 import os
 import pathlib
-from typing import Iterable, Iterator, NamedTuple, Optional, Sequence, TypeAlias
+from collections.abc import Iterable, Iterator, Sequence
+from typing import NamedTuple, Optional
 
 from .enums import FileFormat
 
 
-Formats: TypeAlias = Sequence[FileFormat]
-"""Sequence of file formats."""
-
 Path = pathlib.Path
-PathLike: TypeAlias = str | Path | os.PathLike[str]
+type PathLike = str | Path | os.PathLike[str]
 """Path represented as string, pathlib.Path, or OS path-like object."""
 
-Output: TypeAlias = Optional[Path]
+
+type Output = Path | None
 """Optional output path."""
-OutputLike: TypeAlias = Optional[PathLike]
+type OutputLike = Optional[PathLike]
 """Optional path-like output."""
 
-FilesWhitelist: TypeAlias = Iterable[str]
+type FilesWhitelist = Iterable[str]
 """Iterable of file suffixes for filtering."""
-FilesPaths: TypeAlias = Iterable[Path]
+type FilesPaths = Iterable[Path]
 """Iterable of file paths."""
-FilesSources: TypeAlias = Iterable[PathLike]
+type FilesSources = Iterable[PathLike]
 """Iterable of path-like sources."""
+
+type Formats = Sequence[FileFormat]
+"""Sequence of file formats."""
 
 
 class FileEntry(NamedTuple):
@@ -33,5 +35,5 @@ class FileEntry(NamedTuple):
     relpath: str
 
 
-FilesWalk: TypeAlias = Iterator[FileEntry]
+type FilesWalk = Iterator[FileEntry]
 """Iterator over file entries."""

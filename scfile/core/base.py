@@ -3,27 +3,26 @@ Base class for resource-owning format handlers.
 """
 
 from abc import ABC
+from collections.abc import Mapping
 from types import MappingProxyType
-from typing import Any, Generic, Mapping, Optional, Self, TypeAlias, TypeVar
+from typing import Any, Self
 
 from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import FileMode, IOStream, StructIO
-
 from scfile.options import Options
 
 
-HandlerContext: TypeAlias = dict[str, Any]
-IOType = TypeVar("IOType", bound=StructIO)
+type HandlerContext = dict[str, Any]
 
 
-class BaseFile(Generic[IOType], ABC):
+class BaseFile[IOType: StructIO](ABC):
     """Base class for handlers that own an open binary resource."""
 
     format: FileFormat = FileFormat.NONE
     """Associated file format."""
 
-    signature: Optional[bytes] = None
+    signature: bytes | None = None
     """Expected file signature."""
 
     io_factory: type[IOType]

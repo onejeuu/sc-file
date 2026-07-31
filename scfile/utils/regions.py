@@ -2,18 +2,19 @@
 
 import threading
 from collections import defaultdict
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Callable, Iterable, NamedTuple, Optional, TypeAlias
+from typing import NamedTuple
 
 from scfile import exceptions, formats
-from scfile.options import Options
 from scfile.core import RegionContent
+from scfile.options import Options
 
 
-RegionKey: TypeAlias = tuple[int, int]
-RegionsMapping: TypeAlias = dict[RegionKey, list[Path]]
-LogCallback: TypeAlias = Callable[[str], None]
-CancelEvent: TypeAlias = Optional[threading.Event]
+type RegionKey = tuple[int, int]
+type RegionsMapping = dict[RegionKey, list[Path]]
+type LogCallback = Callable[[str], None]
+type CancelEvent = threading.Event | None
 
 
 class MergeResult(NamedTuple):

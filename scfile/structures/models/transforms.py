@@ -4,8 +4,9 @@ Scene transformation functions.
 
 from __future__ import annotations
 
-from dataclasses import replace
-from typing import TYPE_CHECKING, Callable, TypeAlias
+from collections.abc import Callable
+from copy import replace
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -17,12 +18,13 @@ from .mesh import ModelMesh
 from .scene import ModelScene
 from .skeleton import ROOT_BONE_ID, SkeletonBone
 
+
 if TYPE_CHECKING:
     from scfile.core.content import ModelContent
 
 
-SceneTransform: TypeAlias = Callable[[ModelScene], ModelScene]
-ModelTransform: TypeAlias = Callable[["ModelContent"], "ModelContent"]
+type SceneTransform = Callable[[ModelScene], ModelScene]
+type ModelTransform = Callable[["ModelContent"], "ModelContent"]
 
 
 def scene_transforms(

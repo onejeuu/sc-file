@@ -1,5 +1,6 @@
 import itertools
 import xml.etree.ElementTree as etree
+from typing import override
 from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
@@ -40,6 +41,7 @@ class DaeEncoder(FileEncoder[ModelContent]):
         T.build_hierarchy,
     )
 
+    @override
     def _serialize(self):
         self._ctx["ROOT"] = Element("COLLADA", xmlns=XMLNS, version=VERSION)
         self.io.write(DECLARATION)

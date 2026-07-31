@@ -4,7 +4,7 @@ Data structures for textures.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TypeVar
+from typing import override
 
 CUBEMAP_FACES = ("+x", "-x", "+y", "-y", "+z", "-z")
 """Cubemap face order."""
@@ -26,9 +26,6 @@ class Texture(ABC):
     def linear_size(self) -> int: ...
 
 
-TextureType = TypeVar("TextureType", bound=Texture)
-
-
 @dataclass
 class DefaultTexture(Texture):
     """Standard 2D texture with mipmaps."""
@@ -38,10 +35,12 @@ class DefaultTexture(Texture):
     mipmaps: list[bytes] = field(default_factory=list)
 
     @property
+    @override
     def image(self):
         return b"".join(self.mipmaps)
 
     @property
+    @override
     def linear_size(self):
         return self.uncompressed[0]
 
@@ -55,9 +54,11 @@ class CubemapTexture(Texture):
     faces: list[list[bytes]] = field(default_factory=lambda: [[] for _ in range(CUBEMAP_FACE_COUNT)])
 
     @property
+    @override
     def image(self):
         return b"".join(b"".join(face) for face in self.faces)
 
     @property
+    @override
     def linear_size(self):
         return self.uncompressed[0][0]

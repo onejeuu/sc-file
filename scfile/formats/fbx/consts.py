@@ -1,10 +1,10 @@
-from typing import Any, TypeAlias
+from typing import Any
 
 from scfile import __repository__ as REPO
 from scfile import __version__ as SEMVER
 
 
-Props: TypeAlias = list[tuple[Any, ...]]
+type Props = list[tuple[Any, ...]]
 
 
 class FBX:

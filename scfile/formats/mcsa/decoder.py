@@ -1,16 +1,19 @@
 from dataclasses import dataclass
+from typing import override
 
 import numpy as np
 
 from scfile import formats
-from scfile.consts import FileSignature, IntegerFactor as Factor
+from scfile.consts import FileSignature
+from scfile.consts import IntegerFactor as Factor
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
-from scfile.structures.models import Feature, ModelUnits as Units
+from scfile.structures.models import Feature
+from scfile.structures.models import ModelUnits as Units
 
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
@@ -47,6 +50,7 @@ class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
     def as_ms3d(self):
         return self.convert_to(formats.ms3d.Ms3dEncoder)
 
+    @override
     def _parse(self):
         self._parse_header()
         self._parse_meshes()

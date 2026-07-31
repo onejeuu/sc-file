@@ -1,11 +1,11 @@
-from typing import Callable, Optional, TypeAlias
+from collections.abc import Callable
 
 from PySide6.QtWidgets import QLabel
 
 from scfile.gui.shared.styles import Styles
 
 
-Validator: TypeAlias = Callable[[], Optional[str]]
+type Validator = Callable[[], str | None]
 
 
 class WarningsWidget(QLabel):

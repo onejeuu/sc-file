@@ -6,7 +6,6 @@ from . import base, decoder, encoder, types
 from .base import BaseFile
 from .content import (
     BaseContent,
-    ContentType,
     ImageContent,
     ModelContent,
     NbtContent,
@@ -27,7 +26,6 @@ __all__ = (
     "BaseFile",
     "FileDecoder",
     "FileEncoder",
-    "ContentType",
     "ContentTransform",
     "BaseContent",
     "ModelContent",

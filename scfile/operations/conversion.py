@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import Any, Optional
 
 from scfile import exceptions, types
+from scfile.core import BaseContent, FileDecoder, FileEncoder
 from scfile.options import Options
-from scfile.core import ContentType, FileDecoder, FileEncoder
 
 
-def convert(
+def convert[ContentType: BaseContent](
     decoder: type[FileDecoder[ContentType, Any]],
     encoder: type[FileEncoder[ContentType, Any]],
     source: types.PathLike,

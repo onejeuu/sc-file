@@ -1,6 +1,7 @@
 import time
+from typing import override
 
-from PySide6.QtCore import QThread, Qt, QTimer
+from PySide6.QtCore import Qt, QThread, QTimer
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -80,6 +81,7 @@ class UpdatePopup(QWidget):
         self.adjustSize()
         self.show()
 
+    @override
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.update_position()

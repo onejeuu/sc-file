@@ -2,9 +2,11 @@
 Format handlers registry.
 """
 
-from dataclasses import dataclass, replace
+from collections.abc import Mapping
+from copy import replace
+from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, Mapping, Self, TypeAlias
+from typing import Any, Self, TypeIs
 
 from scfile.core import BaseContent, FileDecoder, FileEncoder
 from scfile.enums import FileFormat
@@ -12,10 +14,18 @@ from scfile.exceptions import RegistryError
 from scfile.structures.models import Feature, Features
 
 
-Decoder: TypeAlias = type[FileDecoder[Any, Any]]
-Encoder: TypeAlias = type[FileEncoder[Any, Any]]
-Handler: TypeAlias = Decoder | Encoder
-FormatLike: TypeAlias = str | FileFormat
+type Decoder = type[FileDecoder[Any, Any]]
+type Encoder = type[FileEncoder[Any, Any]]
+type Handler = Decoder | Encoder
+type FormatLike = str | FileFormat
+
+
+def _is_decoder(handler: object) -> TypeIs[Decoder]:
+    return isinstance(handler, type) and issubclass(handler, FileDecoder)
+
+
+def _is_encoder(handler: object) -> TypeIs[Encoder]:
+    return isinstance(handler, type) and issubclass(handler, FileEncoder)
 
 
 def _format_name(value: str) -> str:
@@ -172,18 +182,16 @@ class Registry:
         return copied
 
     def _register_handler(self, handler: object) -> None:
-        if not isinstance(handler, type):
-            raise RegistryError(f"{type(handler).__name__} is not a file format handler.")
-
-        if issubclass(handler, FileDecoder):
+        if _is_decoder(handler):
             self._set_decoder(handler)
             return
 
-        if issubclass(handler, FileEncoder):
+        if _is_encoder(handler):
             self._set_encoder(handler)
             return
 
-        raise RegistryError(f"{handler.__name__} is not a file format handler.")
+        name = handler.__name__ if isinstance(handler, type) else type(handler).__name__
+        raise RegistryError(f"{name} is not a file format handler.")
 
     def _set_decoder(self, decoder: Decoder) -> None:
         entry = self._entry(decoder.format, decoder.content_type)

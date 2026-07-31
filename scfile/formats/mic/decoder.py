@@ -1,3 +1,5 @@
+from typing import override
+
 from scfile import formats
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ImageContent
@@ -14,5 +16,6 @@ class MicDecoder(FileDecoder[ImageContent]):
     def as_png(self):
         return self.convert_to(formats.png.PngEncoder)
 
+    @override
     def _parse(self):
         self.data.image = self.io.read()

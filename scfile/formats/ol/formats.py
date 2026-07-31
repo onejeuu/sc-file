@@ -1,7 +1,6 @@
-from typing import TypeAlias
 
 
-Format: TypeAlias = bytes
+type Format = bytes
 
 SUPPORTED_FORMATS: list[Format] = [
     b"DXT1",

@@ -3,7 +3,7 @@ Data structures for skeletons.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Self
+from typing import Self
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class SkeletonBone:
     rotation: EulerAngles = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     tail: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
 
-    children: List[Self] = field(default_factory=list, repr=False)
+    children: list[Self] = field(default_factory=list, repr=False)
 
     @property
     def is_root(self) -> bool:
@@ -47,12 +47,12 @@ class SkeletonBone:
 class ModelSkeleton:
     """Skeleton bones container."""
 
-    bones: List[SkeletonBone] = field(default_factory=list)
+    bones: list[SkeletonBone] = field(default_factory=list)
     space: SkeletonSpace = SkeletonSpace.GLOBAL
     hierarchy: SkeletonHierarchy = SkeletonHierarchy.FLAT
 
     @property
-    def roots(self) -> List[SkeletonBone]:
+    def roots(self) -> list[SkeletonBone]:
         return list(filter(lambda bone: bone.is_root, self.bones))
 
     def calculate_global_transforms(self) -> BindPose:

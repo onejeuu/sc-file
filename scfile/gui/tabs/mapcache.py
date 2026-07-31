@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent
@@ -238,6 +239,7 @@ class MapCacheTab(QWidget):
         self.merge.setToolTip(strings.get(tooltip))
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
 
+    @override
     def closeEvent(self, event: QCloseEvent):
         if self._merger and self._merger_thread:
             workers.stop(self._merger, self._merger_thread)

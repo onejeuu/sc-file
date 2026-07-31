@@ -6,7 +6,7 @@ import os
 import struct
 from enum import IntEnum
 from io import SEEK_CUR, SEEK_END, BytesIO, IOBase
-from typing import IO, Any, BinaryIO, Literal, Optional, TypeAlias, cast
+from typing import IO, Any, BinaryIO, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -17,8 +17,8 @@ from scfile.exceptions import BinaryStructureError, SafetyLimitError
 from scfile.types import PathLike
 
 
-IOStream: TypeAlias = PathLike | bytes | BinaryIO
-FileMode: TypeAlias = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
+type IOStream = PathLike | bytes | BinaryIO
+type FileMode = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 
 class StructIO:
@@ -34,14 +34,14 @@ class StructIO:
         self,
         stream: IOStream,
         mode: FileMode,
-        order: Optional[ByteOrder] = None,
-        errors: Optional[str] = None,
-        location: Optional[str] = None,
+        order: ByteOrder | None = None,
+        errors: str | None = None,
+        location: str | None = None,
     ):
         self.order = order or self.order
         self.errors = errors or self.errors
 
-        if isinstance(stream, (str, os.PathLike)):
+        if isinstance(stream, str | os.PathLike):
             path = os.fspath(stream)
             self._location = location or path
             self._stream = open(path, mode)
@@ -135,7 +135,7 @@ class StructReader(StructIO):
     def unpack(
         self,
         fmt: str,
-        order: Optional[ByteOrder] = None,
+        order: ByteOrder | None = None,
     ) -> tuple[Any, ...]:
         """Read and unpack structured values."""
 
@@ -154,7 +154,7 @@ class StructReader(StructIO):
     def value(
         self,
         fmt: str,
-        order: Optional[ByteOrder] = None,
+        order: ByteOrder | None = None,
     ) -> Any:
         """Read one structured value."""
 
@@ -164,7 +164,7 @@ class StructReader(StructIO):
         self,
         dtype: str,
         count: int,
-        order: Optional[ByteOrder] = None,
+        order: ByteOrder | None = None,
     ) -> NDArray[Any]:
         """Read a NumPy array."""
 
@@ -176,8 +176,8 @@ class StructReader(StructIO):
     def string(
         self,
         prefix: str = F.U16,
-        order: Optional[ByteOrder] = None,
-        limit: Optional[IntEnum] = Limit.STRING,
+        order: ByteOrder | None = None,
+        limit: IntEnum | None = Limit.STRING,
     ) -> str:
         """Read a length-prefixed UTF-8 string."""
 
@@ -187,8 +187,8 @@ class StructReader(StructIO):
     def prefixed(
         self,
         prefix: str = F.U16,
-        order: Optional[ByteOrder] = None,
-        limit: Optional[IntEnum] = None,
+        order: ByteOrder | None = None,
+        limit: IntEnum | None = None,
     ) -> bytes:
         """Read length-prefixed bytes."""
 
@@ -254,7 +254,7 @@ class StructWriter(StructIO):
         self,
         fmt: str,
         *values: Any,
-        order: Optional[ByteOrder] = None,
+        order: ByteOrder | None = None,
     ) -> bytes:
         """Pack structured values."""
 
@@ -265,7 +265,7 @@ class StructWriter(StructIO):
         self,
         fmt: str,
         *values: Any,
-        order: Optional[ByteOrder] = None,
+        order: ByteOrder | None = None,
     ) -> None:
         """Write structured values."""
 

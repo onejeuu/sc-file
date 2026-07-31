@@ -1,5 +1,6 @@
 import sys
 from signal import SIGINT, signal
+from typing import override
 
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import QIcon, Qt
@@ -112,6 +113,7 @@ class MainWindow(QMainWindow):
         if widget := self.tabs.get(index):
             self.stack.setCurrentWidget(widget)
 
+    @override
     def closeEvent(self, event):
         for widget in self.tabs.values():
             widget.close()

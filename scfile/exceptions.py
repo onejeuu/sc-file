@@ -2,7 +2,7 @@
 Library exceptions and diagnostic context.
 """
 
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from scfile.enums import HandlerState
 
@@ -17,8 +17,8 @@ class ScFileException(Exception):
         self,
         message: str,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(message)
         self.location = location
@@ -40,7 +40,7 @@ class HandlerStateError(ScFileException):
         state: HandlerState,
         *,
         closed: bool = False,
-        location: Optional[str] = None,
+        location: str | None = None,
     ) -> None:
         condition = "handler is closed" if closed else f"handler is in '{state}' state"
         super().__init__(
@@ -105,8 +105,8 @@ class ModelVersionError(DecodingError):
         self,
         version: float,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(
             f"Unsupported model version: {version}.",
@@ -125,8 +125,8 @@ class TextureFormatError(DecodingError):
         self,
         format: bytes,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(
             f"Unsupported texture format: {format!r}.",
@@ -145,8 +145,8 @@ class TextureKindError(DecodingError):
         self,
         kind: int,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(
             f"Unsupported texture kind: {kind}.",
@@ -164,8 +164,8 @@ class SignatureMismatchError(DecodingError):
         actual: bytes,
         expected: bytes,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(
             f"Signature mismatch: {actual.hex().upper()} != {expected.hex().upper()}.",
@@ -182,8 +182,8 @@ class BinaryStructureError(DecodingError):
     def __init__(
         self,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(self._message(), location=location, offset=offset)
 
@@ -200,8 +200,8 @@ class SafetyLimitError(BinaryStructureError):
         count: int,
         maximum: int,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         self.subject = subject
         self.count = count
@@ -229,8 +229,8 @@ class Ms3dCapacityError(EncodingError):
         count: int,
         capacity: int,
         *,
-        location: Optional[str] = None,
-        offset: Optional[int] = None,
+        location: str | None = None,
+        offset: int | None = None,
     ) -> None:
         super().__init__(
             f"MS3D capacity exceeded: {count:,} {subject} (max: {capacity:,}).",

@@ -5,25 +5,28 @@ Defines the contract for serializing structured content into binary data.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Sequence
 from io import BytesIO
-from typing import Callable, ClassVar, Generic, Optional, Self, Sequence, TypeAlias, TypeVar, cast
+from typing import ClassVar, Optional, Self, cast
 
 from scfile.enums import HandlerState
 from scfile.io.base import FileMode, IOStream, StructWriter
+from scfile.options import Options
 from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
 
 from .base import BaseFile
-from .content import BaseContent, ContentType, ModelContent
-from scfile.options import Options
+from .content import BaseContent, ModelContent
 
 
-ContentTransform: TypeAlias = Callable[[ContentType], ContentType]
-EncoderTransforms: TypeAlias = Optional[Sequence[ContentTransform[ContentType]]]
-WriterType = TypeVar("WriterType", bound=StructWriter, default=StructWriter)
+type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
+type EncoderTransforms[ContentType] = Sequence[ContentTransform[ContentType]]
 
 
-class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
+class FileEncoder[
+    ContentType: BaseContent,
+    WriterType: StructWriter = StructWriter,
+](BaseFile[WriterType], ABC):
     """
     Base class for encoding structured content into binary data.
 
@@ -71,7 +74,7 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
 
     def encode(
         self,
-        transforms: EncoderTransforms = None,
+        transforms: Optional[EncoderTransforms[ContentType]] = None,
     ) -> Self:
         """
         Runs encoding pipeline.
@@ -197,7 +200,7 @@ class FileEncoder(BaseFile[WriterType], Generic[ContentType, WriterType], ABC):
 
     def _transform(
         self,
-        transforms: EncoderTransforms = None,
+        transforms: Optional[EncoderTransforms[ContentType]] = None,
     ) -> None:
         """Apply format-specific content transforms."""
 

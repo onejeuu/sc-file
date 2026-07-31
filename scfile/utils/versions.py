@@ -1,7 +1,7 @@
 """Semantic version object."""
 
 from dataclasses import dataclass
-from typing import Any, Optional, Self
+from typing import Any, Self
 
 
 @dataclass
@@ -9,7 +9,7 @@ class Version:
     major: int
     minor: int
     patch: int
-    suffix: Optional[str] = None
+    suffix: str | None = None
 
     @property
     def emoji(self) -> str:

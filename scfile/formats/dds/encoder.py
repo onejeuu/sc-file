@@ -1,19 +1,22 @@
+from typing import override
+
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
-from scfile.structures.textures import TextureType
+from scfile.structures.textures import Texture
 
 from .enums import BGRA8, RGBA8
 from .header import DDS
 
 
-class DdsEncoder(FileEncoder[TextureContent[TextureType]]):
+class DdsEncoder(FileEncoder[TextureContent[Texture]]):
     content_type = TextureContent
     format = FileFormat.DDS
     signature = FileSignature.DDS
     order = ByteOrder.LITTLE
 
+    @override
     def _serialize(self):
         self._add_header()
         self._add_pixelformat()

@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Optional
 
 from scfile.consts import SUPPORTED_NBT
-from scfile.options import Options
 from scfile.core import ModelContent
 from scfile.enums import FileFormat
+from scfile.options import Options
 from scfile.types import PathLike
 
 from .registry import Encoder, FormatSpec, Registry

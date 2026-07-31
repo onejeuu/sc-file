@@ -2,6 +2,7 @@ import os
 import threading
 import traceback
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import QRunnable, QThreadPool
 
@@ -30,6 +31,7 @@ class MergeTask(QRunnable):
         self.options = options
         self.cancelled = cancelled
 
+    @override
     def run(self):
         try:
             filename, chunks = regions.merge(self.key, self.paths, self.output, self.options, self.cancelled)
@@ -60,6 +62,7 @@ class MapCacheWorker(Worker):
         self.pool = QThreadPool()
         self.cancelled = threading.Event()
 
+    @override
     def run(self) -> None:
         completed = False
 

@@ -1,3 +1,5 @@
+from typing import override
+
 import zstandard as zstd
 
 from scfile import formats
@@ -20,6 +22,7 @@ class MdatDecoder(FileDecoder[RegionContent]):
     def as_mca(self):
         return self.convert_to(formats.mca.McaEncoder)
 
+    @override
     def _parse(self):
         table = [(self.io.value(F.I32), self.io.value(F.I32), self.io.read(16)) for _ in range(CHUNKS_COUNT)]
         offsets, counts, uuids = map(list, zip(*table))

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import QFileInfo, QMimeData, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import (
@@ -106,6 +107,7 @@ class SourcesWidget(QListWidget):
             menu.addAction(remove_action)
             menu.exec(event.globalPos())
 
+    @override
     def keyPressEvent(self, event: QKeyEvent):
         if event.key() == Qt.Key.Key_Delete:
             self._remove_selected()
@@ -116,6 +118,7 @@ class SourcesWidget(QListWidget):
         else:
             super().keyPressEvent(event)
 
+    @override
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
@@ -124,6 +127,7 @@ class SourcesWidget(QListWidget):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
 
+    @override
     def dropEvent(self, event: QDropEvent):
         if self._add_mime(event.mimeData()):
             event.acceptProposedAction()
@@ -143,6 +147,7 @@ class SourcesWidget(QListWidget):
         paint.end()
         return tinted
 
+    @override
     def paintEvent(self, event):
         super().paintEvent(event)
 

@@ -5,23 +5,22 @@ Defines the contract for parsing binary data into structured content.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Generic, Optional, Type, TypeVar, cast
+from typing import Any, ClassVar, Optional, cast
 
 from scfile import exceptions
 from scfile.enums import HandlerState
 from scfile.io.base import IOStream, StructReader
-
-from .base import BaseFile
-from .content import BaseContent, ContentType
-from .encoder import FileEncoder
 from scfile.options import Options
 
+from .base import BaseFile
+from .content import BaseContent
+from .encoder import FileEncoder
 
-EncoderType = TypeVar("EncoderType", bound=FileEncoder[Any, Any])
-ReaderType = TypeVar("ReaderType", bound=StructReader, default=StructReader)
 
-
-class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
+class FileDecoder[
+    ContentType: BaseContent,
+    ReaderType: StructReader = StructReader,
+](BaseFile[ReaderType], ABC):
     """
     Base class for decoding binary data into structured content.
 
@@ -82,9 +81,9 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
         self._state = HandlerState.SUCCEEDED
         return self.data
 
-    def convert_to(
+    def convert_to[EncoderType: FileEncoder[Any, Any]](
         self,
-        encoder: Type[EncoderType],
+        encoder: type[EncoderType],
         options: Optional[Options] = None,
         output: Optional[IOStream] = None,
     ) -> EncoderType:
@@ -105,9 +104,9 @@ class FileDecoder(BaseFile[ReaderType], Generic[ContentType, ReaderType], ABC):
 
         return encoder(data=data, options=options, output=output)
 
-    def convert(
+    def convert[EncoderType: FileEncoder[Any, Any]](
         self,
-        encoder: Type[EncoderType],
+        encoder: type[EncoderType],
         options: Optional[Options] = None,
     ) -> bytes:
         """

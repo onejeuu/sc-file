@@ -1,3 +1,5 @@
+from typing import override
+
 from scfile.consts import FileSignature
 from scfile.core import FileDecoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -16,6 +18,7 @@ class McalDecoder(FileDecoder[ModelContent, ModelReader]):
     io_factory = ModelReader
     convertible = False
 
+    @override
     def _parse(self):
         self._parse_header()
         self._parse_animation()

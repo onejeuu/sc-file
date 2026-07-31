@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QCloseEvent
@@ -349,6 +350,7 @@ class AnimateTab(QWidget):
         self._worker_thread = None
         self._sync_ui()
 
+    @override
     def closeEvent(self, event: QCloseEvent) -> None:
         if self._worker and self._worker_thread:
             workers.stop(self._worker, self._worker_thread)

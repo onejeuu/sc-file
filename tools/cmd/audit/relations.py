@@ -1,7 +1,7 @@
 import os
 from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from scfile.core import ModelContent
 from scfile.core.types import ModelDecoder

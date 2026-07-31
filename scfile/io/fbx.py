@@ -1,4 +1,3 @@
-from typing import TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
@@ -9,13 +8,13 @@ from scfile.formats.fbx.enums import PropertyType as Prop
 from .base import StructWriter
 
 
-Scalar: TypeAlias = bool | int | float | str | bytes | np.integer | np.floating
-Float32Array: TypeAlias = NDArray[np.float32]
-Float64Array: TypeAlias = NDArray[np.float64]
-Int32Array: TypeAlias = NDArray[np.int32]
-Int64Array: TypeAlias = NDArray[np.int64]
-Array: TypeAlias = Float32Array | Float64Array | Int32Array | Int64Array
-Value: TypeAlias = Scalar | Array | list[Scalar]
+type Scalar = bool | int | float | str | bytes | np.integer | np.floating
+type Float32Array = NDArray[np.float32]
+type Float64Array = NDArray[np.float64]
+type Int32Array = NDArray[np.int32]
+type Int64Array = NDArray[np.int64]
+type Array = Float32Array | Float64Array | Int32Array | Int64Array
+type Value = Scalar | Array | list[Scalar]
 
 
 class FbxWriter(StructWriter):

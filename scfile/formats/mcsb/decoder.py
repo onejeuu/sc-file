@@ -1,3 +1,5 @@
+from typing import override
+
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.mcsa.decoder import McsaDecoder
 
@@ -5,6 +7,7 @@ from scfile.formats.mcsa.decoder import McsaDecoder
 class McsbDecoder(McsaDecoder):
     format = FileFormat.MCSB
 
+    @override
     def _prelude(self):
         self._skip_hash_prefix()
 

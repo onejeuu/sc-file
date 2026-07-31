@@ -1,4 +1,5 @@
-from typing import Callable, ClassVar, Self
+from collections.abc import Callable
+from typing import ClassVar, Self
 
 from scfile.core.content import NbtValue
 from scfile.enums import ByteOrder, F

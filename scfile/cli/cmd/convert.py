@@ -1,5 +1,4 @@
 import traceback
-from typing import Optional
 
 import click
 from rich import print
@@ -64,7 +63,7 @@ from . import scfile
 def convert_command(
     paths: types.FilesPaths,
     output: types.Output,
-    mdlformat: Optional[types.Formats],
+    mdlformat: types.Formats | None,
     relative: bool,
     parent: bool,
     skeleton: bool,

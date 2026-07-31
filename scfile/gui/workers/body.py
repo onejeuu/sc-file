@@ -1,5 +1,6 @@
 import traceback
 from pathlib import Path
+from typing import override
 
 from scfile import exceptions, operations
 from scfile.consts import INVALID_INPUT_HINT
@@ -20,6 +21,7 @@ class BodyWorker(Worker):
         self.model = model
         self.output = output
 
+    @override
     def run(self) -> None:
         try:
             operations.body(

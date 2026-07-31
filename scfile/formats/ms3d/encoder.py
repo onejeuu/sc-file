@@ -1,10 +1,12 @@
+from typing import override
+
 import numpy as np
 
 from scfile.consts import FileSignature
 from scfile.core import FileEncoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.io.ms3d import Ms3dWriter
-from scfile.structures.models import Feature, ROOT_BONE_ID
+from scfile.structures.models import ROOT_BONE_ID, Feature
 from scfile.structures.models import transforms as T
 
 
@@ -51,6 +53,7 @@ class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
     )
     transforms = T.scene_transforms(T.unique_names, T.skeleton_to_local)
 
+    @override
     def _serialize(self):
         self.io.value(F.I32, VERSION)
         self._add_vertices()

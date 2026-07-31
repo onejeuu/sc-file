@@ -1,4 +1,4 @@
-from typing import Literal, NamedTuple, TypeAlias
+from typing import Literal, NamedTuple
 
 
 Skip = Literal["-"]
@@ -68,4 +68,4 @@ class Image(NamedTuple):
     filesize: int
 
 
-Record: TypeAlias = Model | Mesh | Bone | Animation | Texture | Image
+type Record = Model | Mesh | Bone | Animation | Texture | Image

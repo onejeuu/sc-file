@@ -1,8 +1,8 @@
 import locale
-from typing import Literal, TypeAlias
+from typing import Literal
 
 
-Lang: TypeAlias = Literal["EN"] | Literal["RU"]
+type Lang = Literal["EN"] | Literal["RU"]
 
 
 def _resolve_lang() -> Lang:

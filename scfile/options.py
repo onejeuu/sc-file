@@ -3,13 +3,13 @@ Shared options for handlers.
 """
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 from scfile.enums import FileFormat
 from scfile.types import Formats
 
 
-OnConflict = Literal["overwrite", "rename", "skip"]
+type OnConflict = Literal["overwrite", "rename", "skip"]
 ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
 
 DEFAULT_MODEL_FORMATS: Formats = (FileFormat.OBJ,)
@@ -23,7 +23,7 @@ DEFAULT_SKELETON_FORMATS: Formats = (FileFormat.GLB,)
 class Options:
     """Shared handlers options."""
 
-    model_formats: Optional[Formats] = None
+    model_formats: Formats | None = None
     """Preferred output formats for models, :meth:`default_model_formats` used on unset."""
 
     skeleton: bool = False

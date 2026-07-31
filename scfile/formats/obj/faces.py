@@ -1,7 +1,7 @@
-from typing import NamedTuple, TypeAlias
+from typing import NamedTuple
 
 
-Template: TypeAlias = bytes
+type Template = bytes
 
 
 class Flags(NamedTuple):

@@ -7,28 +7,28 @@ from .decoder import FileDecoder
 from .encoder import FileEncoder
 
 
-ModelDecoder = type[FileDecoder[ModelContent, Any]]
-ModelEncoder = type[FileEncoder[ModelContent, Any]]
+type ModelDecoder = type[FileDecoder[ModelContent, Any]]
+type ModelEncoder = type[FileEncoder[ModelContent, Any]]
 
-TextureData = DefaultTexture | CubemapTexture
+type TextureData = DefaultTexture | CubemapTexture
 
-TextureDecoder = type[FileDecoder[TextureContent[TextureData], Any]]
-TextureEncoder = type[FileEncoder[TextureContent[TextureData], Any]]
+type TextureDecoder = type[FileDecoder[TextureContent[TextureData], Any]]
+type TextureEncoder = type[FileEncoder[TextureContent[TextureData], Any]]
 
-CubemapDecoder = type[FileDecoder[TextureContent[CubemapTexture], Any]]
-CubemapEncoder = type[FileEncoder[TextureContent[CubemapTexture], Any]]
+type CubemapDecoder = type[FileDecoder[TextureContent[CubemapTexture], Any]]
+type CubemapEncoder = type[FileEncoder[TextureContent[CubemapTexture], Any]]
 
-AnyTextureDecoder = TextureDecoder
-AnyTextureEncoder = TextureEncoder
+type AnyTextureDecoder = TextureDecoder
+type AnyTextureEncoder = TextureEncoder
 
-ImageDecoder = type[FileDecoder[ImageContent, Any]]
-ImageEncoder = type[FileEncoder[ImageContent, Any]]
+type ImageDecoder = type[FileDecoder[ImageContent, Any]]
+type ImageEncoder = type[FileEncoder[ImageContent, Any]]
 
-TexarrDecoder = type[FileDecoder[TexarrContent, Any]]
-TexarrEncoder = type[FileEncoder[TexarrContent, Any]]
+type TexarrDecoder = type[FileDecoder[TexarrContent, Any]]
+type TexarrEncoder = type[FileEncoder[TexarrContent, Any]]
 
-NbtDecoder = type[FileDecoder[NbtContent, Any]]
-NbtEncoder = type[FileEncoder[NbtContent, Any]]
+type NbtDecoder = type[FileDecoder[NbtContent, Any]]
+type NbtEncoder = type[FileEncoder[NbtContent, Any]]
 
-RegionDecoder = type[FileDecoder[RegionContent, Any]]
-RegionEncoder = type[FileEncoder[RegionContent, Any]]
+type RegionDecoder = type[FileDecoder[RegionContent, Any]]
+type RegionEncoder = type[FileEncoder[RegionContent, Any]]

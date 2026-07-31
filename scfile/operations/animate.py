@@ -2,14 +2,14 @@
 External model animation.
 """
 
-from dataclasses import replace
+from collections.abc import Callable
+from copy import replace
 from pathlib import Path
-from typing import Callable, TypeAlias
 
 from scfile import exceptions, formats, types
-from scfile.options import Options
 from scfile.core import ModelContent
 from scfile.core.types import ModelDecoder
+from scfile.options import Options
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
@@ -17,7 +17,7 @@ from .conversion import destination, validate_sources
 
 
 MODELS_LIMIT = 8
-AnimationTransform: TypeAlias = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
+type AnimationTransform = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
 
 
 def _apply_external(

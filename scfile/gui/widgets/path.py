@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Literal, override
 
 from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent
@@ -10,7 +10,7 @@ from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
 
 
-PathMode = Literal["directory", "open", "save"]
+type PathMode = Literal["directory", "open", "save"]
 
 
 class _PathLineEdit(QLineEdit):
@@ -36,6 +36,7 @@ class _PathLineEdit(QLineEdit):
         else:
             self.insert(data.text())
 
+    @override
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if self._local_path(event.mimeData()):
             event.acceptProposedAction()
@@ -44,6 +45,7 @@ class _PathLineEdit(QLineEdit):
         if self._local_path(event.mimeData()):
             event.acceptProposedAction()
 
+    @override
     def dropEvent(self, event: QDropEvent) -> None:
         if path := self._local_path(event.mimeData()):
             self.setText(path)

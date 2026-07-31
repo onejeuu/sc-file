@@ -1,3 +1,5 @@
+from typing import override
+
 import lz4.block
 
 from scfile import exceptions, formats
@@ -6,12 +8,11 @@ from scfile.core import FileDecoder, TextureContent
 from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import TextureFormatError, TextureKindError
-from scfile.structures.textures import CubemapTexture, DefaultTexture
+from scfile.io.ol import OlReader
+from scfile.structures.textures import CUBEMAP_FACE_COUNT, CubemapTexture, DefaultTexture
 
 from .enums import TextureKind
 from .formats import SUPPORTED_FORMATS
-from scfile.io.ol import OlReader
-from scfile.structures.textures import CUBEMAP_FACE_COUNT
 
 
 class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
@@ -25,6 +26,7 @@ class OlDecoder(FileDecoder[TextureContent[TextureData], OlReader]):
     def as_dds(self):
         return self.convert_to(formats.dds.DdsEncoder)
 
+    @override
     def _parse(self):
         self._parse_header()
         self._parse_format()

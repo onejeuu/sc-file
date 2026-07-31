@@ -1,5 +1,6 @@
 import struct
 import zlib
+from typing import override
 
 from scfile.core import FileEncoder, RegionContent
 from scfile.enums import ByteOrder, FileFormat
@@ -40,6 +41,7 @@ class McaEncoder(FileEncoder[RegionContent]):
     format = FileFormat.MCA
     order = ByteOrder.BIG
 
+    @override
     def _serialize(self):
         locations = bytearray(4096)
         timestamps = _TIMESTAMPS

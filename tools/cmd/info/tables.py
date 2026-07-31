@@ -167,6 +167,6 @@ def _texture(data: TextureContent) -> list[Row]:
 def _nbt(data: NbtContent) -> list[Row]:
     value = data.value
     rows: list[Row] = [("Root", type(value).__name__)]
-    if isinstance(value, (bytes, list, dict)):
+    if isinstance(value, bytes | list | dict):
         rows.append(("Entries", len(value)))
     return rows

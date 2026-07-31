@@ -5,8 +5,8 @@ Click parameter types for commands.
 import click
 
 from scfile import types
-from scfile.options import ON_CONFLICT_OPTIONS
 from scfile.enums import FileFormat
+from scfile.options import ON_CONFLICT_OPTIONS
 
 
 Files = click.Path(

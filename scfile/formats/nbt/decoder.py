@@ -1,13 +1,14 @@
 import gzip
+from typing import override
 
 import zstandard as zstd
 
 from scfile import formats
 from scfile.core import FileDecoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
+from scfile.io.nbt import NbtReader
 
 from .enums import Tag
-from scfile.io.nbt import NbtReader
 
 
 class NbtDecoder(FileDecoder[NbtContent]):
@@ -19,6 +20,7 @@ class NbtDecoder(FileDecoder[NbtContent]):
     def as_json(self):
         return self.convert_to(formats.json.JsonEncoder)
 
+    @override
     def _parse(self):
         data = self._decompress()
         reader = NbtReader(data, "rb", location=self.location)

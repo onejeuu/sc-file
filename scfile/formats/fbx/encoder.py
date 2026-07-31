@@ -1,5 +1,6 @@
 from collections import defaultdict
 from contextlib import contextmanager
+from typing import override
 
 import numpy as np
 
@@ -26,6 +27,7 @@ class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
     )
     transforms = T.scene_transforms(T.unique_names, T.flip_uv)
 
+    @override
     def _serialize(self):
         self._ctx["NODES"] = []
         self._ctx["CLIPS"] = []

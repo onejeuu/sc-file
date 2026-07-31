@@ -1,6 +1,7 @@
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
+from typing import override
 
 from PySide6.QtCore import QRunnable, QThreadPool
 
@@ -33,6 +34,7 @@ class ConvertTask(QRunnable):
         self.dst = dst
         self.options = options
 
+    @override
     def run(self):
         try:
             convert.auto(source=self.src, output=self.dst, options=self.options)
@@ -60,6 +62,7 @@ class ConvertWorker(Worker):
         self.context = context
         self.pool = QThreadPool()
 
+    @override
     def run(self):
         completed = False
 

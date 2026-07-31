@@ -2,7 +2,7 @@
 Type aliases for model data structures.
 """
 
-from typing import Annotated, NewType, TypeAlias
+from typing import Annotated, NewType
 
 import numpy as np
 from numpy.typing import NDArray
@@ -10,10 +10,10 @@ from numpy.typing import NDArray
 from .enums import Feature
 
 
-Features: TypeAlias = tuple[Feature, ...]
+type Features = tuple[Feature, ...]
 """Model feature collection."""
 
-FeatureFlags: TypeAlias = dict[Feature, bool]
+type FeatureFlags = dict[Feature, bool]
 """Feature flags declared by source model."""
 
 
@@ -21,52 +21,53 @@ LocalBoneId = NewType("LocalBoneId", int)
 """Bone index within mesh."""
 SkeletonBoneId = NewType("SkeletonBoneId", int)
 """Bone index within skeleton."""
-BonesMapping: TypeAlias = dict[LocalBoneId, SkeletonBoneId]
+
+type BonesMapping = dict[LocalBoneId, SkeletonBoneId]
 """Mapping from mesh local to skeleton bone indices."""
 
-Vector2D: TypeAlias = Annotated[NDArray[np.float32], (..., 2)]
+type Vector2D = Annotated[NDArray[np.float32], (..., 2)]
 """2D float32 vector."""
-Vector3D: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
+type Vector3D = Annotated[NDArray[np.float32], (..., 3)]
 """3D float32 vector."""
-Vector4D: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
+type Vector4D = Annotated[NDArray[np.float32], (..., 4)]
 """4D float32 vector."""
 
-LinksIds: TypeAlias = Annotated[NDArray[np.uint8], (..., 4)]
+type LinksIds = Annotated[NDArray[np.uint8], (..., 4)]
 """Bone indices per vertex."""
-LinksWeights: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
+type LinksWeights = Annotated[NDArray[np.float32], (..., 4)]
 """Bone weights per vertex."""
-Links: TypeAlias = tuple[LinksIds, LinksWeights]
+type Links = tuple[LinksIds, LinksWeights]
 """Bone indices and weights pair."""
 
-Polygons: TypeAlias = Annotated[NDArray[np.uint32], (..., 3)]
+type Polygons = Annotated[NDArray[np.uint32], (..., 3)]
 """Triangle indices."""
 
-BlendVertexMap: TypeAlias = Annotated[NDArray[np.uint16], (...,)]
+type BlendVertexMap = Annotated[NDArray[np.uint16], (...,)]
 """Blend shape base vertex index per mesh vertex."""
 
-Colors: TypeAlias = Annotated[NDArray[np.uint8], (..., 4)]
+type Colors = Annotated[NDArray[np.uint8], (..., 4)]
 """RGBA vertex colors."""
 
-EulerAngles: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
+type EulerAngles = Annotated[NDArray[np.float32], (..., 3)]
 """Euler angles in degrees (XYZ intrinsic)."""
-Quaternion: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
+type Quaternion = Annotated[NDArray[np.float32], (..., 4)]
 """Quaternion rotation (XYZW)."""
 
-RotationMatrix: TypeAlias = Annotated[NDArray[np.float32], (3, 3)]
+type RotationMatrix = Annotated[NDArray[np.float32], (3, 3)]
 """3x3 rotation matrix."""
-TransformMatrix: TypeAlias = Annotated[NDArray[np.float32], (4, 4)]
+type TransformMatrix = Annotated[NDArray[np.float32], (4, 4)]
 """4×4 transformation matrix."""
 
-BindPose: TypeAlias = list[TransformMatrix]
+type BindPose = list[TransformMatrix]
 """Global transform per bone."""
-InverseBindMatrices: TypeAlias = Annotated[NDArray[np.float32], (..., 4, 4)]
+type InverseBindMatrices = Annotated[NDArray[np.float32], (..., 4, 4)]
 """Inverse bind matrices per bone."""
 
-AnimationTranslations: TypeAlias = Annotated[NDArray[np.float32], (..., 3)]
+type AnimationTranslations = Annotated[NDArray[np.float32], (..., 3)]
 """Animation translations per frame."""
-AnimationRotations: TypeAlias = Annotated[NDArray[np.float32], (..., 4)]
+type AnimationRotations = Annotated[NDArray[np.float32], (..., 4)]
 """Animation rotations per frame."""
-AnimationTimes: TypeAlias = Annotated[NDArray[np.float32], (...)]
+type AnimationTimes = Annotated[NDArray[np.float32], (...)]
 """Animation times per frame."""
-MorphWeights: TypeAlias = NDArray[np.float32]
+type MorphWeights = NDArray[np.float32]
 """Morph channel weights per frame."""

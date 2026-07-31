@@ -1,15 +1,15 @@
 import os
 import time
+from collections.abc import Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from itertools import islice
-from typing import Iterator
 
 from rich.console import Console
 
 from scfile.consts import SUPPORTED_NBT
 from scfile.convert import detect
-from scfile.options import Options
 from scfile.exceptions import EmptyFileError
+from scfile.options import Options
 from scfile.utils.files import walk
 from tools.cmd.audit import stats
 from tools.cmd.audit.config import Config
