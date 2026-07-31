@@ -1,8 +1,8 @@
 """
-Shared options for handlers.
+Handler and conversion options.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 from scfile.enums import FileFormat
@@ -20,11 +20,8 @@ DEFAULT_SKELETON_FORMATS: Formats = (FileFormat.GLB,)
 
 
 @dataclass
-class Options:
-    """Shared handlers options."""
-
-    model_formats: Formats | None = None
-    """Preferred output formats for models, :meth:`default_model_formats` used on unset."""
+class HandlerOptions:
+    """Content processing options shared by file handlers."""
 
     skeleton: bool = False
     """Handle skeleton bones from models."""
@@ -38,7 +35,24 @@ class Options:
     full_chunk: bool = False
     """Handle full chunk data including metadata (no export)."""
 
-    on_conflict: OnConflict = "overwrite"
+    @property
+    def skeleton_enabled(self) -> bool:
+        """Whether skeleton processing is enabled directly or by animation processing."""
+
+        return self.skeleton or self.animation
+
+
+@dataclass
+class ConvertOptions:
+    """Options for converting a file between formats."""
+
+    handlers: HandlerOptions = field(default_factory=HandlerOptions)
+    """Content processing options passed to source and output handlers."""
+
+    formats: Formats | None = None
+    """Preferred output formats for models, :attr:`default_formats` used on unset."""
+
+    conflict: OnConflict = "overwrite"
     """
     Action on output file name conflict (if already exists).
 
@@ -48,16 +62,10 @@ class Options:
     """
 
     @property
-    def skeleton_enabled(self) -> bool:
-        """Whether skeleton processing is enabled directly or by animation processing."""
-
-        return self.skeleton or self.animation
-
-    @property
-    def default_model_formats(self) -> Formats:
+    def default_formats(self) -> Formats:
         """Default output formats for models based on current options."""
 
-        if self.skeleton_enabled:
+        if self.handlers.skeleton_enabled:
             return DEFAULT_SKELETON_FORMATS
 
         return DEFAULT_MODEL_FORMATS

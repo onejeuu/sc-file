@@ -13,15 +13,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.gui import workers
-from scfile.gui.shared import strings
-from scfile.gui.shared.styles import Colors, Styles
-from scfile.gui.widgets.path import PathInputWidget
-from scfile.gui.widgets.warnings import WarningsWidget
-from scfile.gui.workers.arms import ArmsWorker
-from scfile.gui.workers.base import Worker
-from scfile.gui.workers.body import BodyWorker
-from scfile.gui.workers.lipsync import LipsyncWorker
+from scfile.app.gui import workers
+from scfile.app.gui.shared import strings
+from scfile.app.gui.shared.styles import Colors, Styles
+from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.gui.workers.arms import ArmsWorker
+from scfile.app.gui.workers.base import Worker
+from scfile.app.gui.workers.body import BodyWorker
+from scfile.app.gui.workers.lipsync import LipsyncWorker
 
 
 def _required_label(label: str) -> str:

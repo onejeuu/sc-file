@@ -17,17 +17,17 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.gui import workers
-from scfile.gui.shared import consts, strings
-from scfile.gui.shared.consts import FT
-from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets.conflict import ConflictWidget
-from scfile.gui.widgets.path import PathInputWidget
-from scfile.gui.widgets.sources import SourcesWidget
-from scfile.gui.widgets.warnings import WarningsWidget
-from scfile.gui.workers.convert import ConvertContext, ConvertWorker
-from scfile.gui.workers.counter import CounterWorker
-from scfile.options import Options
+from scfile.app.gui import workers
+from scfile.app.gui.shared import consts, strings
+from scfile.app.gui.shared.consts import FT
+from scfile.app.gui.shared.styles import Styles
+from scfile.app.gui.widgets.conflict import ConflictWidget
+from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.sources import SourcesWidget
+from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.gui.workers.convert import ConvertContext, ConvertWorker
+from scfile.app.gui.workers.counter import CounterWorker
+from scfile.options import ConvertOptions, HandlerOptions
 from scfile.structures.models import Feature
 
 
@@ -379,11 +379,13 @@ class ConverterTab(QWidget):
 
         context = ConvertContext(
             whitelist=self._get_suffixes(),
-            options=Options(
-                model_formats=[fmt.id] if fmt else None,
-                skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
-                animation=ft_animation.isEnabled() and ft_animation.isChecked(),
-                on_conflict=self.on_conflict.value(),
+            options=ConvertOptions(
+                handlers=HandlerOptions(
+                    skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
+                    animation=ft_animation.isEnabled() and ft_animation.isChecked(),
+                ),
+                formats=[fmt.id] if fmt else None,
+                conflict=self.on_conflict.value(),
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),

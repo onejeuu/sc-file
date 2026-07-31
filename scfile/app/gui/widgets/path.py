@@ -6,8 +6,8 @@ from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDr
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
 from scfile.enums import L
-from scfile.gui.shared import strings
-from scfile.gui.shared.styles import Styles
+from scfile.app.gui.shared import strings
+from scfile.app.gui.shared.styles import Styles
 
 
 type PathMode = Literal["directory", "open", "save"]

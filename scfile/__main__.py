@@ -6,14 +6,14 @@ import click
 from rich import print
 from rich.markup import escape
 
-from scfile.cli import routing
-from scfile.cli.cmd import scfile
+from scfile.app.cli import routing
+from scfile.app.cli.cmd import scfile
 from scfile.enums import L
 
 
 def _run_gui() -> None:  # pragma: no cover
     try:
-        from scfile.gui import window
+        from scfile.app.gui import window
 
         window.run()
 

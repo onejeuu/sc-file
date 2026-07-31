@@ -7,7 +7,7 @@ from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import convert, exceptions, types
 from scfile.consts import INVALID_INPUT_HINT
-from scfile.options import Options
+from scfile.options import ConvertOptions
 from scfile.utils import files
 
 from .base import Worker
@@ -17,7 +17,7 @@ from .logs import logger
 @dataclass
 class ConvertContext:
     whitelist: types.FilesWhitelist
-    options: Options
+    options: ConvertOptions
     output: Path | None
     relative: bool
 
@@ -27,7 +27,7 @@ class ConvertTask(QRunnable):
         self,
         src: str,
         dst: str | None,
-        options: Options,
+        options: ConvertOptions,
     ):
         super().__init__()
         self.src = src
@@ -37,8 +37,11 @@ class ConvertTask(QRunnable):
     @override
     def run(self):
         try:
-            convert.auto(source=self.src, output=self.dst, options=self.options)
-            logger.done(f"'{self.src}'")
+            results = convert.files.auto(source=self.src, output=self.dst, options=self.options)
+            if any(result.status is convert.files.Status.WRITTEN for result in results):
+                logger.done(f"'{self.src}'")
+            else:
+                logger.info(f"Skipped '{self.src}'")
 
         except exceptions.BinaryStructureError as err:
             logger.error(f"'{err.location or self.src}': {err} {INVALID_INPUT_HINT}")

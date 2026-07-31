@@ -11,7 +11,7 @@ from typing import ClassVar, Optional, Self, cast
 
 from scfile.enums import HandlerState
 from scfile.io.base import FileMode, IOStream, StructWriter
-from scfile.options import Options
+from scfile.options import HandlerOptions
 from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
 
@@ -48,7 +48,7 @@ class FileEncoder[
     def __init__(
         self,
         data: ContentType,
-        options: Optional[Options] = None,
+        options: Optional[HandlerOptions] = None,
         output: Optional[IOStream] = None,
     ):
         """
@@ -65,7 +65,7 @@ class FileEncoder[
         """
 
         self.data: ContentType = data
-        self.options: Options = options or Options()
+        self.options: HandlerOptions = options or HandlerOptions()
 
         super().__init__(
             stream=output if output is not None else BytesIO(),

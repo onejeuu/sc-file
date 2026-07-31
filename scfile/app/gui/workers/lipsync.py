@@ -2,40 +2,40 @@ import traceback
 from pathlib import Path
 from typing import override
 
-from scfile import exceptions, operations
+from scfile import convert, exceptions
 from scfile.consts import INVALID_INPUT_HINT
 
 from .base import Worker
 from .logs import logger
 
 
-class BodyWorker(Worker):
+class LipsyncWorker(Worker):
     def __init__(
         self,
-        library: Path,
+        animation: Path,
         model: Path,
         output: Path,
     ):
         super().__init__()
-        self.library = library
+        self.animation = animation
         self.model = model
         self.output = output
 
     @override
     def run(self) -> None:
         try:
-            operations.body(
-                self.library,
+            convert.animation.face(
+                self.animation,
                 self.model,
                 output=self.output,
             )
-            logger.done(f"'{self.library}'")
+            logger.done(f"'{self.animation}'")
 
         except exceptions.BinaryStructureError as err:
-            logger.error(f"'{err.location or self.library}': {err} {INVALID_INPUT_HINT}")
+            logger.error(f"'{err.location or self.animation}': {err} {INVALID_INPUT_HINT}")
 
         except exceptions.ScFileException as err:
-            logger.error(f"'{err.location or self.library}': {err}")
+            logger.error(f"'{err.location or self.animation}': {err}")
 
         except Exception as err:
             logger.exception(repr(err))

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
-from scfile.gui.shared.styles import Styles
+from scfile.app.gui.shared.styles import Styles
 
 
 class OptionWidget(QWidget):

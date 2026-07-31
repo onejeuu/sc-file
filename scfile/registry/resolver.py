@@ -8,7 +8,7 @@ from typing import Optional
 from scfile.consts import SUPPORTED_NBT
 from scfile.core import ModelContent
 from scfile.enums import FileFormat
-from scfile.options import Options
+from scfile.options import ConvertOptions
 from scfile.types import PathLike
 
 from .registry import Encoder, FormatSpec, Registry
@@ -42,7 +42,7 @@ class Resolver:
     def targets(
         self,
         source: FormatSpec,
-        options: Optional[Options] = None,
+        options: Optional[ConvertOptions] = None,
     ) -> dict[FileFormat, Encoder]:
         """Select output handlers for direct conversion."""
 
@@ -50,9 +50,9 @@ class Resolver:
         if not available:
             return {}
 
-        options = options or Options()
+        options = options or ConvertOptions()
         if issubclass(source.content, ModelContent):
-            selected = options.model_formats or options.default_model_formats
+            selected = options.formats or options.default_formats
             return {fmt: available[fmt] for fmt in selected if fmt in available}
 
         if len(available) == 1:

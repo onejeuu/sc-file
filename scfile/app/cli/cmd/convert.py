@@ -4,11 +4,11 @@ import click
 from rich import print
 
 from scfile import convert, exceptions, types
-from scfile.cli import params
-from scfile.cli.messages import warn_unsupported_features
+from scfile.app.cli import params
+from scfile.app.cli.messages import warn_unsupported_features
 from scfile.consts import INVALID_INPUT_HINT
 from scfile.enums import CliCommand, L
-from scfile.options import OnConflict, Options
+from scfile.options import ConvertOptions, HandlerOptions, OnConflict
 from scfile.utils import files
 
 from . import scfile
@@ -78,15 +78,18 @@ def convert_command(
         raise click.UsageError("--relative and --parent require --output.")
 
     # Prepare options
-    options = Options(
-        model_formats=model_formats,
+    handlers = HandlerOptions(
         skeleton=skeleton,
         animation=animation,
-        on_conflict=on_conflict,
+    )
+    options = ConvertOptions(
+        handlers=handlers,
+        formats=model_formats,
+        conflict=on_conflict,
     )
 
     if model_formats:
-        warn_unsupported_features(model_formats, options)
+        warn_unsupported_features(model_formats, handlers)
 
     out = str(output) if output else None
 
@@ -96,8 +99,11 @@ def convert_command(
 
         # Convert source file
         try:
-            convert.auto(source=entry.path, output=dest, options=options)
-            print(L.DONE, f"'{entry.path}'")
+            results = convert.files.auto(source=entry.path, output=dest, options=options)
+            if any(result.status is convert.files.Status.WRITTEN for result in results):
+                print(L.DONE, f"'{entry.path}'")
+            else:
+                print(L.INFO, f"Skipped '{entry.path}'")
 
         except exceptions.BinaryStructureError as err:
             print(L.ERROR, f"'{err.location or entry.path}': {err}", INVALID_INPUT_HINT)

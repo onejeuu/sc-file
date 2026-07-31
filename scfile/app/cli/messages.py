@@ -4,7 +4,7 @@ from rich import print
 
 from scfile import exceptions, types
 from scfile.enums import FileFormat, L
-from scfile.options import Options
+from scfile.options import HandlerOptions
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature, Features
 
@@ -22,7 +22,7 @@ def error_message(
 
 def warn_unsupported_features(
     formats: types.Formats,
-    options: Options,
+    options: HandlerOptions,
 ) -> None:
     """Warn when explicitly selected formats omit requested model data."""
 

@@ -10,7 +10,7 @@ from typing import Any, Self
 from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import FileMode, IOStream, StructIO
-from scfile.options import Options
+from scfile.options import HandlerOptions
 
 
 type HandlerContext = dict[str, Any]
@@ -34,7 +34,7 @@ class BaseFile[IOType: StructIO](ABC):
     order: ByteOrder = ByteOrder.LITTLE
     """Default byte order."""
 
-    options: Options
+    options: HandlerOptions
     """Shared handlers options."""
 
     def __init__(

@@ -1,6 +1,6 @@
-from .options import Options
+from .options import ConvertOptions, HandlerOptions
 
-__all__ = ("Options",)
+__all__ = ("ConvertOptions", "HandlerOptions")
 
 __version__ = "6.0.0-dev"
 __author__ = "onejeuu"

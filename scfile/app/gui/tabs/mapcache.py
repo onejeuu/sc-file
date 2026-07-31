@@ -5,14 +5,14 @@ from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.gui import workers
-from scfile.gui.shared import strings
-from scfile.gui.shared.styles import Styles
-from scfile.gui.widgets.option import OptionWidget
-from scfile.gui.widgets.path import PathInputWidget
-from scfile.gui.widgets.warnings import WarningsWidget
-from scfile.gui.workers.mapcache import MapCacheWorker
-from scfile.options import Options
+from scfile.app.gui import workers
+from scfile.app.gui.shared import strings
+from scfile.app.gui.shared.styles import Styles
+from scfile.app.gui.widgets.option import OptionWidget
+from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.gui.workers.mapcache import MapCacheWorker
+from scfile.options import HandlerOptions
 
 
 DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_cache/5.0"
@@ -182,7 +182,7 @@ class MapCacheTab(QWidget):
     def _merge(self):
         source = Path(self.source.text().strip())
         output = Path(self.output.text().strip())
-        options = Options(raw_blocks=self.raw_blocks.isChecked())
+        options = HandlerOptions(raw_blocks=self.raw_blocks.isChecked())
 
         self.merge.setEnabled(False)
 

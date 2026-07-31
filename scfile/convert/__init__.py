@@ -1,11 +1,6 @@
-"""
-Format conversion utilities and auto-detection.
-"""
+"""High-level file conversion."""
 
-from scfile.operations import convert
-
-from . import detect, formats
-from .detect import auto
+from . import animation, files, formats
 from .formats import (
     efkmodel_to_dae,
     efkmodel_to_fbx,
@@ -36,10 +31,9 @@ from .formats import (
 
 
 __all__ = (
-    "convert",
-    "detect",
+    "animation",
+    "files",
     "formats",
-    "auto",
     "mcsa_to_obj",
     "mcsa_to_glb",
     "mcsa_to_fbx",

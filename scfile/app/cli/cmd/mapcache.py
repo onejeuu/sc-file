@@ -6,15 +6,15 @@ import click
 from rich import print
 
 from scfile import exceptions, types
-from scfile.cli import params
+from scfile.app.cli import params
 from scfile.enums import CliCommand, L
-from scfile.options import Options
+from scfile.options import HandlerOptions
 from scfile.utils import regions
 
 from . import scfile
 
 
-def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: Options):
+def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: HandlerOptions):
     try:
         filename, chunks = regions.merge(key, paths, output, options, cancelled=None)
         print(L.DONE, f"{filename} merged {chunks} chunks")
@@ -78,7 +78,7 @@ def mapcache_command(
     print(L.INFO, f"Found {len(mapping)} unique regions")
     print(L.INFO, "Starting merge...")
 
-    options = Options(raw_blocks=raw)
+    options = HandlerOptions(raw_blocks=raw)
 
     if workers is not None and workers <= 0:
         for key, paths in mapping.items():

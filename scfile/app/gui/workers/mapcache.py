@@ -7,7 +7,7 @@ from typing import override
 from PySide6.QtCore import QRunnable, QThreadPool
 
 from scfile import exceptions
-from scfile.options import Options
+from scfile.options import HandlerOptions
 from scfile.utils import regions
 from scfile.utils.regions import CancelEvent, RegionKey
 
@@ -21,7 +21,7 @@ class MergeTask(QRunnable):
         key: RegionKey,
         paths: list[Path],
         output: Path,
-        options: Options,
+        options: HandlerOptions,
         cancelled: CancelEvent,
     ):
         super().__init__()
@@ -53,7 +53,7 @@ class MapCacheWorker(Worker):
         self,
         source: Path,
         output: Path,
-        options: Options,
+        options: HandlerOptions,
     ):
         super().__init__()
         self.source = source

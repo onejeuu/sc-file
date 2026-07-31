@@ -19,7 +19,7 @@ def resource(
         return Path(meipass) / path
 
     root = Path(__file__).parent.parent.absolute()
-    gui = root / "gui"
+    gui = root / "app/gui"
 
     return gui / path
 

@@ -7,9 +7,9 @@ from itertools import islice
 from rich.console import Console
 
 from scfile.consts import SUPPORTED_NBT
-from scfile.convert import detect
+from scfile.convert import files
 from scfile.exceptions import EmptyFileError
-from scfile.options import Options
+from scfile.options import HandlerOptions
 from scfile.utils.files import walk
 from tools.cmd.audit import stats
 from tools.cmd.audit.config import Config
@@ -20,7 +20,7 @@ from tools.cmd.audit.types import Asset, Error, Result
 IGNORED_EXCEPTIONS = (EmptyFileError,)
 
 
-def _decode(asset: Asset, config: Config, options: Options) -> Result:
+def _decode(asset: Asset, config: Config, options: HandlerOptions) -> Result:
     try:
         with DECODERS[asset.format](asset.path, options) as decoder:
             content = decoder.decode()
@@ -56,7 +56,7 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
             if entry.path.lower().replace("\\", "/").endswith(config.exclude):
                 continue
 
-            format = detect.format(entry.path)
+            format = files.format(entry.path)
             if format not in formats:
                 continue
 
@@ -71,7 +71,7 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
 
 
 def decode_assets(assets: list[Asset], config: Config) -> Iterator[Result]:
-    options = Options(skeleton=config.animation, animation=config.animation)
+    options = HandlerOptions(skeleton=config.animation, animation=config.animation)
 
     if config.workers == 0:
         for asset in assets:

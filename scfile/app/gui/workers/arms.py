@@ -2,31 +2,31 @@ import traceback
 from pathlib import Path
 from typing import override
 
-from scfile import exceptions, operations
+from scfile import convert, exceptions
 from scfile.consts import INVALID_INPUT_HINT
 
 from .base import Worker
 from .logs import logger
 
 
-class LipsyncWorker(Worker):
+class ArmsWorker(Worker):
     def __init__(
         self,
         animation: Path,
-        model: Path,
+        models: list[Path],
         output: Path,
     ):
         super().__init__()
         self.animation = animation
-        self.model = model
+        self.models = models
         self.output = output
 
     @override
     def run(self) -> None:
         try:
-            operations.face(
+            convert.animation.arms(
                 self.animation,
-                self.model,
+                *self.models,
                 output=self.output,
             )
             logger.done(f"'{self.animation}'")

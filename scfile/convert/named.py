@@ -4,16 +4,16 @@ Named conversion functions.
 
 from collections.abc import Callable
 from functools import wraps
-from pathlib import Path
 from typing import Any, Optional, cast
 
-from scfile.operations import convert
-from scfile.options import Options
+from scfile.options import ConvertOptions
 from scfile.registry import Decoder, Encoder
 from scfile.types import PathLike
 
+from .files import Result, manual
 
-type Converter = Callable[[PathLike, Optional[PathLike], Optional[Options]], Path]
+
+type Converter = Callable[[PathLike, Optional[PathLike], Optional[ConvertOptions]], Result]
 
 
 def converter(
@@ -27,9 +27,9 @@ def converter(
         def wrapper(
             source: PathLike,
             output: Optional[PathLike] = None,
-            options: Optional[Options] = None,
-        ) -> Path:
-            return convert(
+            options: Optional[ConvertOptions] = None,
+        ) -> Result:
+            return manual(
                 decoder=decoder,
                 encoder=encoder,
                 source=source,

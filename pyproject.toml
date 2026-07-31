@@ -53,10 +53,10 @@ packages = { find = { include = ["scfile", "scfile.*"] } }
 version = { attr = "scfile.__version__" }
 
 [tool.setuptools.package-data]
-scfile = ["gui/assets/*"]
+scfile = ["app/gui/assets/*"]
 
 [tool.coverage.run]
-omit = ["scfile/gui/*"]
+omit = ["scfile/app/gui/*"]
 
 [build-system]
 requires = ["setuptools"]

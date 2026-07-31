@@ -1,9 +1,9 @@
 import click
 from rich import print
 
-from scfile import exceptions, operations, types
-from scfile.cli import params
-from scfile.cli.messages import error_message
+from scfile import convert, exceptions, types
+from scfile.app.cli import params
+from scfile.app.cli.messages import error_message
 from scfile.enums import AnimateCommand, CliCommand, L
 
 from . import scfile
@@ -40,7 +40,7 @@ def arms(
     """Apply first-person animation to weapon and hands models."""
 
     try:
-        operations.arms(
+        convert.animation.arms(
             animation,
             *models,
             output=output,
@@ -75,7 +75,7 @@ def face(
     """Apply facial animation to a head model."""
 
     try:
-        operations.face(
+        convert.animation.face(
             animation,
             model,
             output=output,
@@ -110,7 +110,7 @@ def body(
     """Apply animation library to a model."""
 
     try:
-        operations.body(
+        convert.animation.body(
             library,
             model,
             output=output,

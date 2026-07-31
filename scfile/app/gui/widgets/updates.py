@@ -7,10 +7,10 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.enums import UpdateStatus
-from scfile.gui.shared import strings
-from scfile.gui.shared.styles import Colors, Styles
-from scfile.gui.workers import execute
-from scfile.gui.workers.updates import UpdatesWorker
+from scfile.app.gui.shared import strings
+from scfile.app.gui.shared.styles import Colors, Styles
+from scfile.app.gui.workers import execute
+from scfile.app.gui.workers.updates import UpdatesWorker
 from scfile.utils.updates import UpdateCheck
 from scfile.utils.versions import Version
 

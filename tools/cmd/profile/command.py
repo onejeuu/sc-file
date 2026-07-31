@@ -7,8 +7,8 @@ from rich.console import Console
 from rich.filesize import decimal
 from rich.table import Table
 
-from scfile.convert import detect
-from scfile.options import Options
+from scfile.convert import files
+from scfile.options import HandlerOptions
 from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 from tools.paths import ROOT
@@ -110,14 +110,14 @@ def profile(
         reports = ROOT / reports
     reports = reports.resolve()
 
-    options = Options(skeleton=animation, animation=animation)
+    options = HandlerOptions(skeleton=animation, animation=animation)
     source = source or MODEL
     if not source.is_file():
         raise click.UsageError(f"Reference file not found: '{source}'.")
 
     source_spec = RESOLVER.resolve(source)
     if source_spec is None or source_spec.decoder is None:
-        raise click.UsageError(f"Unsupported source format: '{detect.format(source)}'.")
+        raise click.UsageError(f"Unsupported source format: '{files.format(source)}'.")
 
     source_format = str(source_spec.format)
     decoder = source_spec.decoder

@@ -25,8 +25,8 @@ from PySide6.QtWidgets import (
 )
 
 from scfile import types
-from scfile.gui.shared import strings
-from scfile.gui.shared.styles import Colors, Styles
+from scfile.app.gui.shared import strings
+from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.utils import files
 
 

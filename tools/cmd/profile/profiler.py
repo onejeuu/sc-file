@@ -5,13 +5,13 @@ from pathlib import Path
 from time import perf_counter
 
 from scfile.core import FileDecoder, FileEncoder
-from scfile.options import Options
+from scfile.options import HandlerOptions
 
 
 def decode(
     source: Path,
     decoder: type[FileDecoder],
-    options: Options,
+    options: HandlerOptions,
 ) -> None:
     with decoder(source, options) as src:
         src.decode()
@@ -21,7 +21,7 @@ def convert(
     source: Path,
     decoder: type[FileDecoder],
     encoder: type[FileEncoder],
-    options: Options,
+    options: HandlerOptions,
 ) -> None:
     with decoder(source, options) as src:
         with src.convert_to(encoder) as out:

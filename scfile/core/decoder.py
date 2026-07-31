@@ -10,7 +10,7 @@ from typing import Any, ClassVar, Optional, cast
 from scfile import exceptions
 from scfile.enums import HandlerState
 from scfile.io.base import IOStream, StructReader
-from scfile.options import Options
+from scfile.options import HandlerOptions
 
 from .base import BaseFile
 from .content import BaseContent
@@ -39,7 +39,7 @@ class FileDecoder[
     def __init__(
         self,
         stream: IOStream,
-        options: Optional[Options] = None,
+        options: Optional[HandlerOptions] = None,
     ):
         """
         Initialize decoder.
@@ -54,7 +54,7 @@ class FileDecoder[
         """
 
         self.data = cast(ContentType, self.content_type())
-        self.options: Options = options or Options()
+        self.options: HandlerOptions = options or HandlerOptions()
 
         super().__init__(stream=stream, mode="rb")
 
@@ -84,7 +84,7 @@ class FileDecoder[
     def convert_to[EncoderType: FileEncoder[Any, Any]](
         self,
         encoder: type[EncoderType],
-        options: Optional[Options] = None,
+        options: Optional[HandlerOptions] = None,
         output: Optional[IOStream] = None,
     ) -> EncoderType:
         """
@@ -107,7 +107,7 @@ class FileDecoder[
     def convert[EncoderType: FileEncoder[Any, Any]](
         self,
         encoder: type[EncoderType],
-        options: Optional[Options] = None,
+        options: Optional[HandlerOptions] = None,
     ) -> bytes:
         """
         Decode and convert to given encoder format.
