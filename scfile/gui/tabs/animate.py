@@ -72,7 +72,6 @@ class AnimationForm(QWidget):
 
     def _notify_changed(self, path: PathInputWidget) -> None:
         self._touched.add(path)
-        self._update_invalid_paths()
         self.changed.emit()
 
     @staticmethod
@@ -96,13 +95,13 @@ class AnimationForm(QWidget):
             paths.append(self.model)
         return tuple(paths)
 
-    def _update_invalid_paths(self) -> None:
-        invalid = self.invalid_paths()
+    def _set_invalid_paths(self, invalid: tuple[PathInputWidget, ...]) -> None:
         for path in self._paths:
             path.invalid = path in self._touched and path in invalid
 
     def validation_error(self) -> str | None:
         invalid = self.invalid_paths()
+        self._set_invalid_paths(invalid)
         if self.source in invalid:
             return self._source_error
         if self.model in invalid:
@@ -183,9 +182,13 @@ class ArmsForm(AnimationForm):
         return tuple(paths)
 
     def validation_error(self) -> str | None:
-        if error := super().validation_error():
-            return error
-        if self.additional_model in self.invalid_paths():
+        invalid = self.invalid_paths()
+        self._set_invalid_paths(invalid)
+        if self.source in invalid:
+            return self._source_error
+        if self.model in invalid:
+            return "tooltip.animate.invalid.model"
+        if self.additional_model in invalid:
             return "tooltip.animate.invalid.additional"
         return None
 

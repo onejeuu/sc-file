@@ -4,7 +4,6 @@ from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.options import Options
 from scfile.gui import workers
 from scfile.gui.shared import strings
 from scfile.gui.shared.styles import Styles
@@ -12,6 +11,7 @@ from scfile.gui.widgets.option import OptionWidget
 from scfile.gui.widgets.path import PathInputWidget
 from scfile.gui.widgets.warnings import WarningsWidget
 from scfile.gui.workers.mapcache import MapCacheWorker
+from scfile.options import Options
 
 
 DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_cache/5.0"
@@ -144,7 +144,7 @@ class MapCacheTab(QWidget):
         self.info.setWordWrap(True)
         layout.addWidget(self.info)
 
-        self.merge = QPushButton(strings.get("button.mapcache.merge"))
+        self.merge = QPushButton(strings.get("button.mapcache"))
         self.merge.setFixedHeight(50)
         self.merge.setStyleSheet(Styles.BUTTON_ACCENT)
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor)
