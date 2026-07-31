@@ -105,6 +105,8 @@ class Styles:
     INPUT = f"""
         QLineEdit {{ background: {Colors.BACKGROUND}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; padding: 4px; }}
         QLineEdit:hover {{ border: 1px solid {Colors.ACCENT}; }}
+        QLineEdit[invalid="true"] {{ border: 1px solid {Colors.ERROR}; }}
+        QLineEdit[invalid="true"]:hover {{ border: 1px solid {Colors.ERROR.light}; }}
         QLineEdit:disabled {{ background: {Colors.CARD.darker}; color: {Colors.TEXT.darker}; border: 1px solid {Colors.CARD}; }}
     """
 

@@ -151,6 +151,17 @@ class PathInputWidget(QWidget):
         self.line_edit.setText(text)
 
     @property
+    def invalid(self) -> bool:
+        return bool(self.line_edit.property("invalid"))
+
+    @invalid.setter
+    def invalid(self, value: bool) -> None:
+        self.line_edit.setProperty("invalid", value)
+        style = self.line_edit.style()
+        style.unpolish(self.line_edit)
+        style.polish(self.line_edit)
+
+    @property
     def placeholder(self) -> str:
         return self.line_edit.placeholderText()
 
