@@ -49,13 +49,13 @@ def _suffixes(path: Path) -> Iterator[Path]:
 
 def _candidates(path: Path) -> Iterator[Path]:
     source = path if path.is_dir() else path.parent
-    bases = (source, *source.parents)
-    yield from bases
+    yield source
+    yield from source.parents
 
+    # Complete known layouts only below the path selected by the user
     suffixes = tuple(suffix for pattern in _ROOT_PATTERNS for suffix in _suffixes(pattern))
-    for base in bases:
-        for suffix in suffixes:
-            yield base / suffix
+    for suffix in suffixes:
+        yield source / suffix
 
 
 def resolve(path: Path) -> Installation | None:
