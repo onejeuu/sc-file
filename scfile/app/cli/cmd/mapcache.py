@@ -58,3 +58,6 @@ def mapcache_command(
     feedback = TaskFeedback(verbose)
     summary = Job(source, output, options, workers).run(Context(report=feedback))
     feedback.finish(summary)
+
+    if summary.failed:
+        raise click.exceptions.Exit(1)

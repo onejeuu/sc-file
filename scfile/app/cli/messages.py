@@ -55,10 +55,49 @@ def _message(
     console.print(f"[bold {color}]{label}:[/] {escape(message)}", highlight=False)
 
 
+def echo(
+    message: str,
+    style: str | None = None,
+) -> None:
+    """Render plain command-line text with an optional style."""
+
+    CONSOLE.print(escape(message), style=style, highlight=False)
+
+
+def info(message: str) -> None:
+    """Render an informational command-line message."""
+
+    _message("INFO", message, "blue")
+
+
+def hint(message: str) -> None:
+    """Render a command-line hint."""
+
+    _message("HINT", message, "cyan")
+
+
 def warning(message: str) -> None:
     """Render a command-line warning."""
 
     _message("WARN", message, "yellow")
+
+
+def error(message: str) -> None:
+    """Render a command-line error."""
+
+    _message("ERROR", message, "red")
+
+
+def invalid(message: str) -> None:
+    """Render invalid command input."""
+
+    _message("INVALID INPUT", message, "red")
+
+
+def aborted(message: str) -> None:
+    """Render an aborted command operation."""
+
+    _message("ABORTED", message, "yellow")
 
 
 def warn_unsupported_features(
@@ -238,7 +277,7 @@ class TaskFeedback:
             if summary.failed:
                 details.append(f"[red]Failed {summary.failed:,}[/]")
             if details:
-                self.console.print(f"[bold]Stats:[/] {' · '.join(details)}", highlight=False)
+                self.console.print(f"[bold]Details:[/] {' · '.join(details)}", highlight=False)
         elif summary.kind is TaskKind.MAPCACHE and summary.failed:
             self.console.print(f"Failed {summary.failed:,}", highlight=False)
 

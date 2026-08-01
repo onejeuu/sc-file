@@ -5,9 +5,9 @@ from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
-from scfile.enums import L
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Styles
+from scfile.app.gui.workers.logs import logger
 
 
 type PathMode = Literal["directory", "open", "save"]
@@ -144,7 +144,7 @@ class PathInputWidget(QWidget):
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
         except Exception as err:
-            print(L.ERROR, repr(err))
+            logger.exception(repr(err))
 
     def text(self) -> str:
         return self.line_edit.text()

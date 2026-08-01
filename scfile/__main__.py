@@ -3,12 +3,9 @@ import traceback
 from typing import Never
 
 import click
-from rich import print
-from rich.markup import escape
 
-from scfile.app.cli import routing
+from scfile.app.cli import messages, routing
 from scfile.app.cli.cmd import scfile
-from scfile.enums import L
 
 
 def _run_gui() -> None:  # pragma: no cover
@@ -18,12 +15,12 @@ def _run_gui() -> None:  # pragma: no cover
         window.run()
 
     except ImportError:
-        print(traceback.format_exc())
-        print(f"{L.ERROR} GUI is not available")
-        print(f"{L.INFO} Try install with: pip install {escape('sc-file[gui]')} -U")
-        print(f"{L.INFO} Or in local environment: uv sync --extra gui")
-        print()
-        print(f"{L.HINT} If your system does not support graphical interfaces, use command line: scfile --help")
+        messages.echo(traceback.format_exc())
+        messages.error("GUI is not available")
+        messages.info("Try install with: pip install sc-file[gui] -U")
+        messages.info("Or in local environment: uv sync --extra gui")
+        messages.echo("")
+        messages.hint("If your system does not support graphical interfaces, use command line: scfile --help")
         input("\nPress Enter to exit...")
         sys.exit(1)
 
@@ -58,17 +55,22 @@ def _default_command(args: list[str]) -> list[str] | None:
 def main() -> Never:
     """Program entrypoint."""
 
+    status = 0
     try:
         _ensure_command()
-        scfile(standalone_mode=False)
+        result = scfile(standalone_mode=False)
+        if isinstance(result, int):
+            status = result
 
-    except click.ClickException as err:
-        print(L.INVALID, str(err))
+    except click.ClickException as error:
+        messages.invalid(str(error))
+        status = error.exit_code
 
     except (KeyboardInterrupt, click.exceptions.Abort):
-        print("[yellow]Operation aborted.[/]")
+        messages.aborted("Operation aborted.")
+        status = 130
 
-    sys.exit()
+    sys.exit(status)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -132,23 +132,6 @@ class SafetyLimit(IntEnum):
     BLEND_DELTAS = 10_000_000
 
 
-class ConsoleLabel(StrEnum):
-    """Colored console output labels."""
-
-    INFO = "[b blue]INFO:[/]"
-    HINT = "[b cyan]HINT:[/]"
-    DONE = "[b green]DONE:[/]"
-    WARN = "[b yellow]WARN:[/]"
-    ABORTED = "[b yellow]ABORTED:[/]"
-    ERROR = "[b red]ERROR:[/]"
-    INVALID = "[b red]INVALID INPUT:[/]"
-    EXCEPTION = "[b red]UNEXPECTED ERROR:[/]"
-
-
-L = ConsoleLabel
-"""ConsoleLabel Alias."""
-
-
 class CliCommand(StrEnum):
     """CLI command names."""
 

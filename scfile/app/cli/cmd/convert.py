@@ -115,3 +115,6 @@ def convert_command(
     feedback = TaskFeedback(verbose)
     summary = job.run(Context(report=feedback))
     feedback.finish(summary)
+
+    if summary.failed:
+        raise click.exceptions.Exit(1)

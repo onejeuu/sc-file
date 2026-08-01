@@ -1,31 +1,36 @@
 from PySide6.QtCore import QObject, Signal
-from rich import print
+from rich.console import Console
 from rich.markup import escape
 
 from scfile import exceptions
 from scfile.app.tasks import Failure, Item, Started, TaskKind
 from scfile.consts import INVALID_INPUT_HINT
-from scfile.enums import L
+
+
+CONSOLE = Console()
 
 
 class _Logger(QObject):
     message = Signal(str)
 
+    def _emit(self, label: str, color: str, message: str) -> None:
+        self.message.emit(f"[b {color}]{label}:[/] {escape(message)}")
+
     def result(self, label: str, message: str) -> None:
-        self.message.emit(f"[b green]{label}:[/] {escape(message)}")
+        self._emit(label, "green", message)
 
     def skipped(self, message: str) -> None:
-        self.message.emit(f"[b blue]SKIPPED:[/] {escape(message)}")
+        self._emit("SKIPPED", "blue", message)
 
     def error(self, message: str) -> None:
-        self.message.emit(f"{L.ERROR} {escape(message)}")
+        self._emit("ERROR", "red", message)
 
     def exception(self, message: str) -> None:
-        self.message.emit(f"{L.EXCEPTION} {escape(message)}")
+        self._emit("UNEXPECTED ERROR", "red", message)
 
 
 logger = _Logger()
-logger.message.connect(lambda message: print(message))
+logger.message.connect(CONSOLE.print)
 
 
 class _Reporter:
