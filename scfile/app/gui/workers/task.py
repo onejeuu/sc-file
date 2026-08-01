@@ -11,7 +11,7 @@ from scfile.app.tasks.base import failure
 class TaskWorker(QObject):
     """Run an application task in a Qt thread."""
 
-    event = Signal(object)
+    reported = Signal(object)
     completed = Signal(object)
     finished = Signal()
 
@@ -29,20 +29,20 @@ class TaskWorker(QObject):
             return
 
         if not isinstance(event, Progress):
-            self.event.emit(event)
+            self.reported.emit(event)
             return
 
         self._progress = event
         now = monotonic()
         final = event.total is not None and event.completed >= event.total
         if event.completed == 0 or final or now - self._reported_at >= 0.1:
-            self.event.emit(event)
+            self.reported.emit(event)
             self._emitted = event
             self._reported_at = now
 
     def _flush_progress(self) -> None:
         if self._progress is not None and self._progress != self._emitted:
-            self.event.emit(self._progress)
+            self.reported.emit(self._progress)
             self._emitted = self._progress
 
     @Slot()
@@ -50,7 +50,7 @@ class TaskWorker(QObject):
         try:
             summary = self.task.run(self.context)
         except Exception as error:
-            self.event.emit(failure(type(self.task).__name__, error, unexpected=True))
+            self.reported.emit(failure(type(self.task).__name__, error, unexpected=True))
             summary = Summary(
                 name=type(self.task).__name__,
                 total=0,
@@ -69,7 +69,7 @@ class TaskWorker(QObject):
 class TaskManager(QObject):
     """Own the single active heavy GUI task."""
 
-    event = Signal(object)
+    reported = Signal(object)
     completed = Signal(object)
     busy_changed = Signal(bool)
 
@@ -95,7 +95,7 @@ class TaskManager(QObject):
         worker = TaskWorker(task)
         worker.moveToThread(thread)
 
-        worker.event.connect(self.event.emit)
+        worker.reported.connect(self.reported.emit)
         worker.completed.connect(self.completed.emit)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)

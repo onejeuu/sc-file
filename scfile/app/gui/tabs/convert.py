@@ -39,7 +39,7 @@ class ConverterTab(QWidget):
         self._active = False
         self._setup_counter()
         self._setup_warnings()
-        self.tasks.event.connect(self._on_task_event)
+        self.tasks.reported.connect(self._on_task_event)
         self.tasks.completed.connect(self._on_convert_finish)
         self.tasks.busy_changed.connect(self._sync_button)
         self._build_ui()

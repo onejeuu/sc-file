@@ -1,6 +1,7 @@
 """High-level file conversion."""
 
 from . import animation, files, formats, types
+from .files import auto, manual
 from .formats import (
     efkmodel_to_dae,
     efkmodel_to_fbx,
@@ -32,8 +33,10 @@ from .formats import (
 
 __all__ = (
     "animation",
+    "auto",
     "files",
     "formats",
+    "manual",
     "types",
     "mcsa_to_obj",
     "mcsa_to_glb",

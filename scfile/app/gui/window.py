@@ -19,11 +19,13 @@ from scfile.app.gui.widgets.footer import FooterWidget
 from scfile.utils import files
 
 from . import workers
+from .settings import Store
 from .shared import consts, strings
 from .shared.styles import Styles
 from .tabs.animate import AnimateTab
 from .tabs.convert import ConverterTab
 from .tabs.mapcache import MapCacheTab
+from .tabs.settings import SettingsTab
 from .workers import logs
 
 
@@ -32,8 +34,10 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.tabs: dict[int, QWidget] = {}
         self._closing = False
+        self.store = Store()
+        self.settings = self.store.load()
         self.tasks = workers.TaskManager(self)
-        self.tasks.event.connect(logs.report)
+        self.tasks.reported.connect(logs.report)
         self.tasks.busy_changed.connect(self._on_task_busy)
         self._build_ui()
 
@@ -56,9 +60,8 @@ class MainWindow(QMainWindow):
         sidebar.setFixedWidth(54)
 
         self.sidebar = QVBoxLayout(sidebar)
-        self.sidebar.setContentsMargins(0, 16, 0, 0)
+        self.sidebar.setContentsMargins(0, 16, 0, 16)
         self.sidebar.setSpacing(8)
-        self.sidebar.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         content = QWidget()
         content_layout = QVBoxLayout(content)
@@ -87,10 +90,20 @@ class MainWindow(QMainWindow):
             name=strings.get("tab.animate"),
             icon="assets/animate.png",
         )
+        mapcache = MapCacheTab(self.tasks, self.settings)
         self._add_tab(
-            widget=MapCacheTab(self.tasks),
+            widget=mapcache,
             name=strings.get("tab.mapcache"),
             icon="assets/mapcache.png",
+        )
+        self.sidebar.addStretch()
+
+        settings = SettingsTab(self.settings, self.store)
+        settings.root_changed.connect(mapcache.apply_game_root)
+        self._add_tab(
+            widget=settings,
+            name=strings.get("tab.settings"),
+            icon="assets/settings.png",
         )
 
         if self.button_group.buttons():

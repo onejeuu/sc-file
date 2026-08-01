@@ -3,8 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from scfile import exceptions, types
-from scfile.convert import files as conversion
+from scfile import convert, exceptions, types
 from scfile.convert.types import Status
 from scfile.options import ConvertOptions
 from scfile.utils import files
@@ -30,7 +29,7 @@ class Job:
         destination = files.destination(entry.relpath, self.relative, output)
 
         try:
-            results = conversion.auto(entry.path, destination, self.options)
+            results = convert.auto(entry.path, destination, self.options)
             written = sum(result.status is Status.WRITTEN for result in results)
             skipped = len(results) - written
             return Item(

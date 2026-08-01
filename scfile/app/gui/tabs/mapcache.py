@@ -3,6 +3,8 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
+from scfile.app.gui import game
+from scfile.app.gui.settings import Settings
 from scfile.app.gui.workers import TaskManager
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Styles
@@ -14,44 +16,8 @@ from scfile.app.tasks.mapcache import Job
 from scfile.options import HandlerOptions
 
 
-DEFAULT_CACHE_PATH = Path.home() / "AppData/Roaming/EXBO/runtime/stalcraft/map_cache/5.0"
-
-
-def is_mapcache(path: Path) -> bool:
-    if not (path.exists() and path.is_dir()):
-        return False
-
-    if any(path.glob("*/*.mdat")):
-        return True
-
-    return False
-
-
 def is_minecraft(path: Path) -> bool:
     return (path / "level.dat").exists()
-
-
-def resolve_mapcache_path(path: Path) -> Path:
-    if is_mapcache(path):
-        return path
-
-    for root in ["EXBO/runtime/stalcraft/map_cache/5.0", "stalcraft/map_cache/5.0"]:
-        required = Path(root)
-
-        target = path / required
-        if is_mapcache(target):
-            return target
-
-        candidate = required
-        while candidate.parts:
-            if path.match(f"*{candidate}"):
-                target = path / required.relative_to(candidate)
-                if is_mapcache(target):
-                    return target
-                break
-            candidate = candidate.parent
-
-    return path
 
 
 def resolve_output_path(path: Path) -> Path:
@@ -65,13 +31,14 @@ def resolve_output_path(path: Path) -> Path:
 
 
 class MapCacheTab(QWidget):
-    def __init__(self, tasks: TaskManager):
+    def __init__(self, tasks: TaskManager, settings: Settings):
         super().__init__()
         self.tasks = tasks
+        self.settings = settings
         self._active = False
 
         self._setup_warnings()
-        self.tasks.event.connect(self._on_task_event)
+        self.tasks.reported.connect(self._on_task_event)
         self.tasks.completed.connect(self._on_merge_finish)
         self.tasks.busy_changed.connect(self._sync_ui)
         self._build_ui()
@@ -80,6 +47,12 @@ class MapCacheTab(QWidget):
         self.warnings = WarningsWidget()
         self.warnings.add_rule(self._warn_not_minecraft_world)
         self.warnings.add_rule(self._warn_overwrite)
+
+    def _game_map_cache(self) -> Path | None:
+        installation = game.resolve(self.settings.game_root or Path.home())
+        if installation and game.is_map_cache(installation.map_cache):
+            return installation.map_cache
+        return None
 
     def _warn_not_minecraft_world(self):
         if not bool(self.output.text().strip()):
@@ -116,8 +89,8 @@ class MapCacheTab(QWidget):
             caption=strings.get("dialog.mapcache.source"),
         )
 
-        if is_mapcache(DEFAULT_CACHE_PATH):
-            self.source.setText(DEFAULT_CACHE_PATH.as_posix())
+        if path := self._game_map_cache():
+            self.source.setText(path.as_posix())
 
         self.source.changed.connect(self._on_source_changed)
 
@@ -160,20 +133,12 @@ class MapCacheTab(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        self.auto_resolve = OptionWidget(
-            text=strings.get("option.mapcache.resolve"),
-            hint=strings.get("hint.mapcache.resolve"),
-            checked=True,
-        )
-        self.auto_resolve.changed.connect(self._on_autoresolve_changed)
-
         self.raw_blocks = OptionWidget(
             text=strings.get("option.mapcache.raw"),
             hint=strings.get("hint.mapcache.raw"),
             checked=False,
         )
 
-        layout.addWidget(self.auto_resolve)
         layout.addWidget(self.raw_blocks)
 
         return group
@@ -206,8 +171,8 @@ class MapCacheTab(QWidget):
     def _on_source_changed(self):
         path = Path(self.source.text().strip())
 
-        if self.auto_resolve.isChecked() and path.exists():
-            resolved = resolve_mapcache_path(path)
+        if self.settings.resolve_paths and path.exists():
+            resolved = game.resolve_map_cache(path)
 
             if resolved.as_posix() != path.as_posix():
                 self.source.setText(resolved.as_posix())
@@ -217,7 +182,7 @@ class MapCacheTab(QWidget):
     def _on_output_changed(self):
         path = Path(self.output.text().strip())
 
-        if self.auto_resolve.isChecked() and path.exists():
+        if self.settings.resolve_paths and path.exists():
             resolved = resolve_output_path(path)
 
             if resolved.as_posix() != path.as_posix():
@@ -225,9 +190,12 @@ class MapCacheTab(QWidget):
 
         self._sync_ui()
 
-    def _on_autoresolve_changed(self):
-        self._on_source_changed()
-        self._on_output_changed()
+    def apply_game_root(self) -> None:
+        """Use map cache data derived from the configured game root."""
+
+        if path := self._game_map_cache():
+            self.source.setText(path.as_posix())
+            self._sync_ui()
 
     def _sync_ui(self):
         self.warnings.update_state()
@@ -235,7 +203,7 @@ class MapCacheTab(QWidget):
         source = self.source.text().strip()
         output = self.output.text().strip()
 
-        source_ok = bool(source) and is_mapcache(Path(source))
+        source_ok = bool(source) and game.is_map_cache(Path(source))
         output_ok = bool(output) and not Path(output).is_file()
         is_okay = source_ok and output_ok and not self.tasks.busy
 
