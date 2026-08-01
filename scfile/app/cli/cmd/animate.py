@@ -1,10 +1,14 @@
-import click
-from rich import print
+from collections.abc import Callable
+from pathlib import Path
 
-from scfile import convert, exceptions, types
+import click
+
+from scfile import convert, types
 from scfile.app.cli import params
-from scfile.app.cli.messages import error_message
-from scfile.enums import AnimateCommand, CliCommand, L
+from scfile.app.cli.messages import TaskFeedback
+from scfile.app.tasks import Context
+from scfile.app.tasks.animation import Job
+from scfile.enums import AnimateCommand, CliCommand
 
 from . import scfile
 
@@ -12,6 +16,20 @@ from . import scfile
 @scfile.group(name=CliCommand.ANIMATE)
 def animate() -> None:
     """Export models with external animations."""
+
+
+def _execute(
+    operation: Callable[..., Path],
+    source: types.PathLike,
+    models: tuple[types.PathLike, ...],
+    output: types.PathLike,
+) -> None:
+    feedback = TaskFeedback()
+    summary = Job(operation, source, models, output).run(Context(report=feedback))
+    feedback.finish(summary)
+
+    if summary.failed:
+        raise click.exceptions.Exit(1)
 
 
 @animate.command(name=AnimateCommand.ARMS)
@@ -39,16 +57,7 @@ def arms(
 ) -> None:
     """Apply first-person animation to weapon and hands models."""
 
-    try:
-        convert.animation.arms(
-            animation,
-            *models,
-            output=output,
-        )
-        print(L.DONE, f"'{animation}'")
-
-    except exceptions.ScFileException as err:
-        raise click.ClickException(error_message(err)) from None
+    _execute(convert.animation.arms, animation, models, output)
 
 
 @animate.command(name=AnimateCommand.FACE)
@@ -74,16 +83,7 @@ def face(
 ) -> None:
     """Apply facial animation to a head model."""
 
-    try:
-        convert.animation.face(
-            animation,
-            model,
-            output=output,
-        )
-        print(L.DONE, f"'{animation}'")
-
-    except exceptions.ScFileException as err:
-        raise click.ClickException(error_message(err)) from None
+    _execute(convert.animation.face, animation, (model,), output)
 
 
 @animate.command(name=AnimateCommand.BODY)
@@ -109,13 +109,4 @@ def body(
 ) -> None:
     """Apply animation library to a model."""
 
-    try:
-        convert.animation.body(
-            library,
-            model,
-            output=output,
-        )
-        print(L.DONE, f"'{library}'")
-
-    except exceptions.ScFileException as err:
-        raise click.ClickException(error_message(err)) from None
+    _execute(convert.animation.body, library, (model,), output)

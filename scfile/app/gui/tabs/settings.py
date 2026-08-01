@@ -15,6 +15,7 @@ from scfile.app.gui.widgets.path import PathInputWidget
 
 class SettingsTab(QWidget):
     root_changed = Signal()
+    verbose_changed = Signal(bool)
 
     def __init__(self, settings: Settings, store: Store):
         super().__init__()
@@ -65,6 +66,15 @@ class SettingsTab(QWidget):
         layout.addWidget(root_group)
         layout.addSpacing(12)
         layout.addWidget(self.resolve_paths)
+        layout.addSpacing(12)
+
+        self.verbose = OptionWidget(
+            text=strings.get("option.settings.verbose"),
+            hint=strings.get("hint.settings.verbose"),
+            checked=self.settings.verbose,
+        )
+        self.verbose.changed.connect(self._change_verbose)
+        layout.addWidget(self.verbose)
         layout.addStretch()
 
     def _change_root(self, value: str) -> None:
@@ -100,3 +110,8 @@ class SettingsTab(QWidget):
         self.store.save(self.settings)
         if enabled:
             self._change_root(self.root.text())
+
+    def _change_verbose(self, enabled: bool) -> None:
+        self.settings.verbose = enabled
+        self.store.save(self.settings)
+        self.verbose_changed.emit(enabled)

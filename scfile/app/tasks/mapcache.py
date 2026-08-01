@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
+from typing import ClassVar
 
 from scfile import exceptions
 from scfile.options import HandlerOptions
 from scfile.utils import regions
 
-from .base import Context, Failure, Item, Progress, Summary, failure, parallel
+from .base import Context, Failure, Item, Progress, Started, Summary, TaskKind, failure, parallel
 
 
 type Region = tuple[regions.RegionKey, list[Path]]
@@ -17,6 +18,8 @@ type Region = tuple[regions.RegionKey, list[Path]]
 @dataclass(frozen=True, slots=True)
 class Job:
     """Parameters for merging map cache regions."""
+
+    kind: ClassVar[TaskKind] = TaskKind.MAPCACHE
 
     source: Path
     output: Path | None
@@ -48,23 +51,26 @@ class Job:
     ) -> Summary:
         """Merge discovered regions and report individual outcomes."""
 
+        output = (self.output or self.source.with_name(f"{self.source.name}_mca")).resolve()
         paths = regions.resolve(self.source)
         if not paths:
+            context.emit(Started(self.kind, 0, output))
             error = exceptions.RegionError("No MDAT files found.", location=str(self.source))
             context.emit(failure(str(self.source), error))
-            return Summary("Regions Merging", 0, 0, failed=1)
+            return Summary(self.kind, 0, 0, failed=1, output=output)
 
         mapping = regions.parse(paths)
         if not mapping:
+            context.emit(Started(self.kind, 0, output))
             error = exceptions.RegionError("No valid regions found.", location=str(self.source))
             context.emit(failure(str(self.source), error))
-            return Summary("Regions Merging", 0, 0, failed=1)
+            return Summary(self.kind, 0, 0, failed=1, output=output)
 
-        output = self.output or self.source.with_name(f"{self.source.name}_mca")
         output.mkdir(parents=True, exist_ok=True)
 
         total = len(mapping)
-        completed = written = failed = 0
+        completed = succeeded = written = failed = 0
+        context.emit(Started(self.kind, total, output))
         context.emit(Progress(0, total))
         operation = partial(self._merge, context=context)
 
@@ -77,14 +83,18 @@ class Job:
             if isinstance(result, Failure):
                 failed += 1
             else:
+                if result.written:
+                    succeeded += 1
                 written += result.written
             context.emit(Progress(completed, total))
 
         return Summary(
-            name="Regions Merging",
+            kind=self.kind,
             total=total,
             completed=completed,
+            succeeded=succeeded,
             written=written,
             failed=failed,
             cancelled=context.stopped,
+            output=output,
         )

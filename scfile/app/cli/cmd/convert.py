@@ -2,7 +2,7 @@ import click
 
 from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.messages import task_message, warn_unsupported_features
+from scfile.app.cli.messages import TaskFeedback, warn_unsupported_features
 from scfile.app.tasks import Context
 from scfile.app.tasks.convert import Job
 from scfile.enums import CliCommand
@@ -52,6 +52,12 @@ from . import scfile
     is_flag=True,
 )
 @click.option(
+    "--on-conflict",
+    type=params.OnConflict,
+    default="overwrite",
+    help="What to do when output file already exists.",
+)
+@click.option(
     "-W",
     "--workers",
     type=int,
@@ -59,10 +65,10 @@ from . import scfile
     help="Number of worker threads (default: CPU count).",
 )
 @click.option(
-    "--on-conflict",
-    type=params.OnConflict,
-    default="overwrite",
-    help="What to do when output file already exists.",
+    "-v",
+    "--verbose",
+    is_flag=True,
+    help="Show the result of every processed file.",
 )
 def convert_command(
     paths: types.FilesPaths,
@@ -74,6 +80,7 @@ def convert_command(
     animation: bool,
     workers: int | None,
     on_conflict: OnConflict,
+    verbose: bool,
 ) -> None:
     # Normalize options
     model_formats = mdlformat or None
@@ -105,4 +112,6 @@ def convert_command(
         parent=parent,
         workers=workers,
     )
-    job.run(Context(report=task_message))
+    feedback = TaskFeedback(verbose)
+    summary = job.run(Context(report=feedback))
+    feedback.finish(summary)

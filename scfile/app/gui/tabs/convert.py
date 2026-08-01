@@ -26,7 +26,6 @@ from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import CounterWorker
-from scfile.app.tasks import Progress
 from scfile.app.tasks.convert import Job
 from scfile.options import ConvertOptions, HandlerOptions
 from scfile.structures.models import Feature
@@ -39,7 +38,6 @@ class ConverterTab(QWidget):
         self._active = False
         self._setup_counter()
         self._setup_warnings()
-        self.tasks.reported.connect(self._on_task_event)
         self.tasks.completed.connect(self._on_convert_finish)
         self.tasks.busy_changed.connect(self._sync_button)
         self._build_ui()
@@ -403,16 +401,6 @@ class ConverterTab(QWidget):
         if not self.tasks.start(job):
             self._active = False
         self._sync_button()
-
-    def _on_task_event(self, event: object) -> None:
-        if not self._active or not isinstance(event, Progress):
-            return
-
-        label = strings.get("button.convert")
-        if event.total is None:
-            self.convert.setText(f"{label} ({event.completed:,})")
-        else:
-            self.convert.setText(f"{label} ({event.completed:,}/{event.total:,})")
 
     def _on_convert_finish(self, _: object) -> None:
         if not self._active:

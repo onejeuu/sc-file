@@ -11,7 +11,6 @@ from scfile.app.gui.shared.styles import Styles
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.tasks import Progress
 from scfile.app.tasks.mapcache import Job
 from scfile.options import HandlerOptions
 
@@ -38,7 +37,6 @@ class MapCacheTab(QWidget):
         self._active = False
 
         self._setup_warnings()
-        self.tasks.reported.connect(self._on_task_event)
         self.tasks.completed.connect(self._on_merge_finish)
         self.tasks.busy_changed.connect(self._sync_ui)
         self._build_ui()
@@ -152,13 +150,6 @@ class MapCacheTab(QWidget):
         if not self.tasks.start(Job(source, output, options)):
             self._active = False
         self._sync_ui()
-
-    def _on_task_event(self, event: object) -> None:
-        if not self._active or not isinstance(event, Progress) or event.total is None:
-            return
-
-        label = strings.get("button.mapcache")
-        self.merge.setText(f"{label} ({event.completed:,}/{event.total:,})")
 
     def _on_merge_finish(self, _: object) -> None:
         if not self._active:

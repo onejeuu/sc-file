@@ -2,18 +2,21 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 
 from scfile import convert, exceptions, types
 from scfile.convert.types import Status
 from scfile.options import ConvertOptions
 from scfile.utils import files
 
-from .base import Context, Failure, Item, Progress, Summary, failure, parallel
+from .base import Context, Failure, Item, Progress, Started, Summary, TaskKind, failure, parallel
 
 
 @dataclass(frozen=True, slots=True)
 class Job:
     """Parameters for converting file sources."""
+
+    kind: ClassVar[TaskKind] = TaskKind.CONVERT
 
     sources: tuple[types.PathLike, ...]
     whitelist: tuple[str, ...]
@@ -49,9 +52,22 @@ class Job:
     ) -> Summary:
         """Convert matching files and report individual outcomes."""
 
+        total = self.total
+        if total is None:
+            total = sum(
+                1
+                for _ in files.walk(
+                    self.sources,
+                    whitelist=self.whitelist,
+                    parent=self.parent,
+                )
+            )
+
         entries = files.walk(self.sources, whitelist=self.whitelist, parent=self.parent)
-        completed = written = skipped = failed = 0
-        context.emit(Progress(0, self.total))
+        completed = succeeded = written = skipped = failed = 0
+        output = self.output.resolve() if self.output else None
+        context.emit(Started(self.kind, total, output))
+        context.emit(Progress(0, total))
 
         for result in parallel(entries, self._convert, context, self.workers):
             completed += 1
@@ -60,17 +76,21 @@ class Job:
             if isinstance(result, Failure):
                 failed += 1
             else:
+                if result.written:
+                    succeeded += 1
                 written += result.written
                 skipped += result.skipped
 
-            context.emit(Progress(completed, self.total))
+            context.emit(Progress(completed, total))
 
         return Summary(
-            name="Converting",
-            total=self.total if self.total is not None else completed,
+            kind=self.kind,
+            total=total,
             completed=completed,
+            succeeded=succeeded,
             written=written,
             skipped=skipped,
             failed=failed,
             cancelled=context.stopped,
+            output=output,
         )

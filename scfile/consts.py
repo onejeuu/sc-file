@@ -23,7 +23,7 @@ SUPPORTED_NBT: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd
 ALLOWED_SUFFIXES: set[str] = SUPPORTED_SUFFIXES | SUPPORTED_NBT
 """All path suffixes available for conversion."""
 
-INVALID_INPUT_HINT = "[b yellow]Input file appears to be corrupted or invalid.[/]"
+INVALID_INPUT_HINT = "Input file appears to be corrupted or invalid."
 """Hint shown when binary parsing suggests invalid input."""
 
 

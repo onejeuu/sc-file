@@ -5,9 +5,31 @@ import traceback
 from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
+from enum import StrEnum, auto
 from pathlib import Path
 from threading import Event as CancelEvent
 from typing import Protocol
+
+
+PROGRESS_THRESHOLD = 10
+"""Minimum number of items for presenting determinate progress."""
+
+
+class TaskKind(StrEnum):
+    """Application task operation."""
+
+    CONVERT = auto()
+    MAPCACHE = auto()
+    ANIMATE = auto()
+
+
+@dataclass(frozen=True, slots=True)
+class Started:
+    """Resolved task context available before processing begins."""
+
+    kind: TaskKind
+    total: int
+    output: Path | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,7 +60,7 @@ class Failure:
     traceback: str | None = None
 
 
-type TaskEvent = Progress | Item | Failure
+type TaskEvent = Started | Progress | Item | Failure
 type Reporter = Callable[[TaskEvent], None]
 
 
@@ -67,17 +89,22 @@ class Context:
 class Summary:
     """Aggregate result of a completed task."""
 
-    name: str
+    kind: TaskKind
     total: int
     completed: int
+    succeeded: int = 0
     written: int = 0
     skipped: int = 0
     failed: int = 0
     cancelled: bool = False
+    output: Path | None = None
 
 
 class Task(Protocol):
     """Application task executable with a shared context."""
+
+    @property
+    def kind(self) -> TaskKind: ...
 
     def run(
         self,

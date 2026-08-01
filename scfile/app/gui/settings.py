@@ -12,6 +12,7 @@ class Settings:
 
     game_root: Path | None = None
     resolve_paths: bool = True
+    verbose: bool = False
 
 
 class Store:
@@ -36,11 +37,13 @@ class Store:
         value = self.data.value("game/root", "")
         root = Path(str(value)) if value else None
         resolve_paths = self._bool(self.data.value("paths/resolve", True), True)
-        return Settings(game_root=root, resolve_paths=resolve_paths)
+        verbose = self._bool(self.data.value("feedback/verbose", False), False)
+        return Settings(game_root=root, resolve_paths=resolve_paths, verbose=verbose)
 
     def save(self, settings: Settings) -> None:
         """Persist the current settings."""
 
         self.data.setValue("game/root", str(settings.game_root or ""))
         self.data.setValue("paths/resolve", settings.resolve_paths)
+        self.data.setValue("feedback/verbose", settings.verbose)
         self.data.sync()

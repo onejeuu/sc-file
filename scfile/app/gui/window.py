@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.app.gui.widgets.footer import FooterWidget
+from scfile.app.gui.widgets.task import TaskWidget
 from scfile.utils import files
 
 from . import workers
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         self._closing = False
         self.store = Store()
         self.settings = self.store.load()
-        self.tasks = workers.TaskManager(self)
+        self.tasks = workers.TaskManager(self, verbose=self.settings.verbose)
         self.tasks.reported.connect(logs.report)
         self.tasks.busy_changed.connect(self._on_task_busy)
         self._build_ui()
@@ -71,6 +72,7 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
 
         content_layout.addWidget(self.stack)
+        content_layout.addWidget(TaskWidget(self.tasks))
         content_layout.addWidget(FooterWidget())
 
         layout.addWidget(sidebar)
@@ -100,6 +102,7 @@ class MainWindow(QMainWindow):
 
         settings = SettingsTab(self.settings, self.store)
         settings.root_changed.connect(mapcache.apply_game_root)
+        settings.verbose_changed.connect(self.tasks.set_verbose)
         self._add_tab(
             widget=settings,
             name=strings.get("tab.settings"),
