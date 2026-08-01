@@ -1,17 +1,16 @@
 from pathlib import Path
-from typing import override
 
-from PySide6.QtCore import Qt, QThread
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.app.gui import workers
+from scfile.app.gui.workers import TaskManager
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Styles
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.gui.workers.mapcache import MapCacheWorker
+from scfile.app.tasks import Progress
+from scfile.app.tasks.mapcache import Job
 from scfile.options import HandlerOptions
 
 
@@ -66,21 +65,21 @@ def resolve_output_path(path: Path) -> Path:
 
 
 class MapCacheTab(QWidget):
-    def __init__(self):
+    def __init__(self, tasks: TaskManager):
         super().__init__()
+        self.tasks = tasks
+        self._active = False
 
         self._setup_warnings()
-        self._setup_merger()
+        self.tasks.event.connect(self._on_task_event)
+        self.tasks.completed.connect(self._on_merge_finish)
+        self.tasks.busy_changed.connect(self._sync_ui)
         self._build_ui()
 
     def _setup_warnings(self):
         self.warnings = WarningsWidget()
         self.warnings.add_rule(self._warn_not_minecraft_world)
         self.warnings.add_rule(self._warn_overwrite)
-
-    def _setup_merger(self):
-        self._merger: MapCacheWorker | None = None
-        self._merger_thread: QThread | None = None
 
     def _warn_not_minecraft_world(self):
         if not bool(self.output.text().strip()):
@@ -184,15 +183,25 @@ class MapCacheTab(QWidget):
         output = Path(self.output.text().strip())
         options = HandlerOptions(raw_blocks=self.raw_blocks.isChecked())
 
-        self.merge.setEnabled(False)
+        self._active = True
+        if not self.tasks.start(Job(source, output, options)):
+            self._active = False
+        self._sync_ui()
 
-        self._merger = MapCacheWorker(source, output, options)
-        self._merger_thread = workers.execute(self._merger, on_done=self._on_merge_finish)
+    def _on_task_event(self, event: object) -> None:
+        if not self._active or not isinstance(event, Progress) or event.total is None:
+            return
 
-    def _on_merge_finish(self):
-        self._merger = None
-        self._merger_thread = None
-        self.merge.setEnabled(True)
+        label = strings.get("button.mapcache")
+        self.merge.setText(f"{label} ({event.completed:,}/{event.total:,})")
+
+    def _on_merge_finish(self, _: object) -> None:
+        if not self._active:
+            return
+
+        self._active = False
+        self.merge.setText(strings.get("button.mapcache"))
+        self._sync_ui()
 
     def _on_source_changed(self):
         path = Path(self.source.text().strip())
@@ -228,20 +237,16 @@ class MapCacheTab(QWidget):
 
         source_ok = bool(source) and is_mapcache(Path(source))
         output_ok = bool(output) and not Path(output).is_file()
-        is_okay = source_ok and output_ok
+        is_okay = source_ok and output_ok and not self.tasks.busy
 
-        tooltip = {
-            output_ok: "tooltip.mapcache.invalid.output",
-            source_ok: "tooltip.mapcache.invalid.source",
-        }.get(False, "")
+        if self.tasks.busy:
+            tooltip = "tooltip.task.busy"
+        else:
+            tooltip = {
+                output_ok: "tooltip.mapcache.invalid.output",
+                source_ok: "tooltip.mapcache.invalid.source",
+            }.get(False, "")
 
         self.merge.setEnabled(is_okay)
         self.merge.setToolTip(strings.get(tooltip))
         self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
-
-    @override
-    def closeEvent(self, event: QCloseEvent):
-        if self._merger and self._merger_thread:
-            workers.stop(self._merger, self._merger_thread)
-
-        super().closeEvent(event)

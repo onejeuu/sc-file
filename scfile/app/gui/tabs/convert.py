@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import override
 
-from PySide6.QtCore import Qt, QThread
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent, QKeyEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.app.gui import workers
+from scfile.app.gui.workers import TaskManager
 from scfile.app.gui.shared import consts, strings
 from scfile.app.gui.shared.consts import FT
 from scfile.app.gui.shared.styles import Styles
@@ -25,18 +25,23 @@ from scfile.app.gui.widgets.conflict import ConflictWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.gui.workers.convert import ConvertContext, ConvertWorker
 from scfile.app.gui.workers.counter import CounterWorker
+from scfile.app.tasks import Progress
+from scfile.app.tasks.convert import Job
 from scfile.options import ConvertOptions, HandlerOptions
 from scfile.structures.models import Feature
 
 
 class ConverterTab(QWidget):
-    def __init__(self):
+    def __init__(self, tasks: TaskManager):
         super().__init__()
+        self.tasks = tasks
+        self._active = False
         self._setup_counter()
         self._setup_warnings()
-        self._setup_converter()
+        self.tasks.event.connect(self._on_task_event)
+        self.tasks.completed.connect(self._on_convert_finish)
+        self.tasks.busy_changed.connect(self._sync_button)
         self._build_ui()
 
     def _setup_counter(self):
@@ -47,10 +52,6 @@ class ConverterTab(QWidget):
         self._warnings = WarningsWidget()
         self._warnings.add_rule(self._warn_gamedir)
         self._warnings.add_rule(self._warn_collision)
-
-    def _setup_converter(self):
-        self._converter: ConvertWorker | None = None
-        self._converter_thread: QThread | None = None
 
     def _warn_gamedir(self) -> str | None:
         custom = self.output_to_custom.isChecked()
@@ -313,28 +314,32 @@ class ConverterTab(QWidget):
             self.feat_checks[Feature.SKELETON].setChecked(True)
 
     def _handle_counter(self, text: str, count: int, busy: bool):
-        label = strings.get("button.convert")
-        self.convert.setText(f"{label} ({text})")
+        if not self._active:
+            label = strings.get("button.convert")
+            self.convert.setText(f"{label} ({text})")
         self._sync_button()
         self._sync_warnings()
 
     def _sync_counter(self):
         self._counter.refresh(
             sources=self._get_sources(),
-            whitelist=self._get_suffixes(),
+            whitelist=tuple(self._get_suffixes()),
         )
 
     def _sync_button(self):
         has_sources = self.sources.count() > 0
         has_targets = self._counter.busy or self._counter.count > 0
         output_valid = self._get_output_valid()
-        ok = has_sources and has_targets and output_valid
+        ok = has_sources and has_targets and output_valid and not self.tasks.busy
 
-        tooltip = {
-            output_valid: "tooltip.invalid.output",
-            has_targets: "tooltip.invalid.targets",
-            has_sources: "tooltip.invalid.sources",
-        }.get(False, "")
+        if self.tasks.busy:
+            tooltip = "tooltip.task.busy"
+        else:
+            tooltip = {
+                output_valid: "tooltip.invalid.output",
+                has_targets: "tooltip.invalid.targets",
+                has_sources: "tooltip.invalid.sources",
+            }.get(False, "")
 
         self.convert.setEnabled(ok)
         self.convert.setToolTip(strings.get(tooltip))
@@ -377,8 +382,9 @@ class ConverterTab(QWidget):
         ft_skeleton = self.feat_checks[FT.SKELETON.feature]
         ft_animation = self.feat_checks[FT.ANIMATION.feature]
 
-        context = ConvertContext(
-            whitelist=self._get_suffixes(),
+        job = Job(
+            sources=tuple(self._get_sources()),
+            whitelist=tuple(self._get_suffixes()),
             options=ConvertOptions(
                 handlers=HandlerOptions(
                     skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
@@ -389,16 +395,33 @@ class ConverterTab(QWidget):
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
             relative=self.output_tree.isChecked(),
+            parent=self.output_tree.isChecked(),
+            total=None if self._counter.busy else self._counter.count,
         )
 
-        self._converter = ConvertWorker(sources=self._get_sources(), context=context)
-        self._converter_thread = workers.execute(self._converter, on_done=self._on_convert_finish)
-        self.convert.setEnabled(False)
+        self._active = True
+        if not self.tasks.start(job):
+            self._active = False
+        self._sync_button()
 
-    def _on_convert_finish(self):
-        self._converter = None
-        self._converter_thread = None
-        self.convert.setEnabled(True)
+    def _on_task_event(self, event: object) -> None:
+        if not self._active or not isinstance(event, Progress):
+            return
+
+        label = strings.get("button.convert")
+        if event.total is None:
+            self.convert.setText(f"{label} ({event.completed:,})")
+        else:
+            self.convert.setText(f"{label} ({event.completed:,}/{event.total:,})")
+
+    def _on_convert_finish(self, _: object) -> None:
+        if not self._active:
+            return
+
+        self._active = False
+        label = strings.get("button.convert")
+        self.convert.setText(f"{label} ({self._counter.count:,})")
+        self._sync_button()
 
     def _browse_files(self):
         files, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.add_files"))
@@ -421,8 +444,4 @@ class ConverterTab(QWidget):
     @override
     def closeEvent(self, event: QCloseEvent):
         self._counter.stop()
-
-        if self._converter and self._converter_thread:
-            workers.stop(self._converter, self._converter_thread)
-
         super().closeEvent(event)

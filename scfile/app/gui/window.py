@@ -24,12 +24,17 @@ from .shared.styles import Styles
 from .tabs.animate import AnimateTab
 from .tabs.convert import ConverterTab
 from .tabs.mapcache import MapCacheTab
+from .workers import logs
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.tabs: dict[int, QWidget] = {}
+        self._closing = False
+        self.tasks = workers.TaskManager(self)
+        self.tasks.event.connect(logs.report)
+        self.tasks.busy_changed.connect(self._on_task_busy)
         self._build_ui()
 
     def _build_ui(self):
@@ -73,17 +78,17 @@ class MainWindow(QMainWindow):
         self.button_group.idClicked.connect(self._on_tab_changed)
 
         self._add_tab(
-            widget=ConverterTab(),
+            widget=ConverterTab(self.tasks),
             name=strings.get("tab.converter"),
             icon="assets/converter.png",
         )
         self._add_tab(
-            widget=AnimateTab(),
+            widget=AnimateTab(self.tasks),
             name=strings.get("tab.animate"),
             icon="assets/animate.png",
         )
         self._add_tab(
-            widget=MapCacheTab(),
+            widget=MapCacheTab(self.tasks),
             name=strings.get("tab.mapcache"),
             icon="assets/mapcache.png",
         )
@@ -113,12 +118,27 @@ class MainWindow(QMainWindow):
         if widget := self.tabs.get(index):
             self.stack.setCurrentWidget(widget)
 
-    @override
-    def closeEvent(self, event):
+    def _on_task_busy(self, busy: bool) -> None:
+        if self._closing and not busy:
+            self._shutdown()
+            QApplication.quit()
+
+    def _shutdown(self) -> None:
         for widget in self.tabs.values():
             widget.close()
 
         workers.stop_all()
+
+    @override
+    def closeEvent(self, event):
+        if self.tasks.busy:
+            self._closing = True
+            self.tasks.cancel()
+            self.hide()
+            event.ignore()
+            return
+
+        self._shutdown()
         event.accept()
 
 

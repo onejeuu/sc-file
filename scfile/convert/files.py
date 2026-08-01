@@ -2,8 +2,6 @@
 File conversion.
 """
 
-from dataclasses import dataclass
-from enum import StrEnum, auto
 from pathlib import Path
 from typing import Any, Optional
 
@@ -12,20 +10,7 @@ from scfile.core import BaseContent, FileDecoder, FileEncoder
 from scfile.options import ConvertOptions
 from scfile.registry import RESOLVER
 
-
-class Status(StrEnum):
-    """File conversion outcome."""
-
-    WRITTEN = auto()
-    SKIPPED = auto()
-
-
-@dataclass(frozen=True)
-class Result:
-    """Output path and conversion outcome."""
-
-    path: Path
-    status: Status
+from .types import Result, Status
 
 
 def format(

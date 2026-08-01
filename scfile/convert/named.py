@@ -10,7 +10,8 @@ from scfile.options import ConvertOptions
 from scfile.registry import Decoder, Encoder
 from scfile.types import PathLike
 
-from .files import Result, manual
+from .files import manual
+from .types import Result
 
 
 type Converter = Callable[[PathLike, Optional[PathLike], Optional[ConvertOptions]], Result]

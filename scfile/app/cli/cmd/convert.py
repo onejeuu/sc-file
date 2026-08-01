@@ -1,15 +1,12 @@
-import traceback
-
 import click
-from rich import print
 
-from scfile import convert, exceptions, types
+from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.messages import warn_unsupported_features
-from scfile.consts import INVALID_INPUT_HINT
-from scfile.enums import CliCommand, L
+from scfile.app.cli.messages import task_message, warn_unsupported_features
+from scfile.app.tasks import Context
+from scfile.app.tasks.convert import Job
+from scfile.enums import CliCommand
 from scfile.options import ConvertOptions, HandlerOptions, OnConflict
-from scfile.utils import files
 
 from . import scfile
 
@@ -55,6 +52,13 @@ from . import scfile
     is_flag=True,
 )
 @click.option(
+    "-W",
+    "--workers",
+    type=int,
+    default=None,
+    help="Number of worker threads (default: CPU count).",
+)
+@click.option(
     "--on-conflict",
     type=params.OnConflict,
     default="overwrite",
@@ -68,6 +72,7 @@ def convert_command(
     parent: bool,
     skeleton: bool,
     animation: bool,
+    workers: int | None,
     on_conflict: OnConflict,
 ) -> None:
     # Normalize options
@@ -91,27 +96,13 @@ def convert_command(
     if model_formats:
         warn_unsupported_features(model_formats, handlers)
 
-    out = str(output) if output else None
-
-    # Iterate over each directory to their supported files
-    for entry in files.walk(paths, parent=parent):
-        dest = files.destination(relpath=entry.relpath, relative=relative, output=out)
-
-        # Convert source file
-        try:
-            results = convert.files.auto(source=entry.path, output=dest, options=options)
-            if any(result.status is convert.files.Status.WRITTEN for result in results):
-                print(L.DONE, f"'{entry.path}'")
-            else:
-                print(L.INFO, f"Skipped '{entry.path}'")
-
-        except exceptions.BinaryStructureError as err:
-            print(L.ERROR, f"'{err.location or entry.path}': {err}", INVALID_INPUT_HINT)
-
-        except exceptions.ScFileException as err:
-            print(L.ERROR, f"'{err.location or entry.path}': {err}")
-
-        except Exception as err:
-            print(L.EXCEPTION, f"File '{entry.path}' {repr(err)}.", INVALID_INPUT_HINT)
-            print(traceback.format_exc())
-            print()
+    job = Job(
+        sources=tuple(paths),
+        whitelist=(),
+        options=options,
+        output=output,
+        relative=relative,
+        parent=parent,
+        workers=workers,
+    )
+    job.run(Context(report=task_message))

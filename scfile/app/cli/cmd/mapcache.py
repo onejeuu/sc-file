@@ -1,26 +1,23 @@
-import os
-from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
-
 import click
 from rich import print
 
-from scfile import exceptions, types
+from scfile import types
 from scfile.app.cli import params
+from scfile.app.cli.messages import task_message
+from scfile.app.tasks import Context, Progress
+from scfile.app.tasks.mapcache import Job
 from scfile.enums import CliCommand, L
 from scfile.options import HandlerOptions
-from scfile.utils import regions
 
 from . import scfile
 
 
-def _merge(key: regions.RegionKey, paths: list[Path], output: Path, options: HandlerOptions):
-    try:
-        filename, chunks = regions.merge(key, paths, output, options, cancelled=None)
-        print(L.DONE, f"{filename} merged {chunks} chunks")
-
-    except exceptions.RegionFileError as err:
-        print(L.ERROR, f"'{err.location}': {err}")
+def _report(event: object) -> None:
+    if isinstance(event, Progress) and event.completed == 0 and event.total is not None:
+        print(L.INFO, f"Found {event.total} unique regions")
+        print(L.INFO, "Starting merge...")
+        return
+    task_message(event)
 
 
 @scfile.command(name=CliCommand.MAPCACHE)
@@ -60,32 +57,5 @@ def mapcache_command(
         "Expect broken visuals up close. Full compatibility is unlikely.[/]",
     )
 
-    mdats = regions.resolve(source)
-    if not mdats:
-        print(L.ERROR, f"No MDAT files found in '{source}'")
-        return
-
-    mapping = regions.parse(mdats)
-
-    if not mapping:
-        print(L.ERROR, f"No valid regions found in '{source}'")
-        return
-
-    if not output:
-        output = source.with_name(f"{source.name}_mca")
-        output.mkdir(parents=True, exist_ok=True)
-
-    print(L.INFO, f"Found {len(mapping)} unique regions")
-    print(L.INFO, "Starting merge...")
-
     options = HandlerOptions(raw_blocks=raw)
-
-    if workers is not None and workers <= 0:
-        for key, paths in mapping.items():
-            _merge(key, paths, output, options)
-
-    else:
-        max_workers = (workers or os.cpu_count() or 4) * 2
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            for key, paths in mapping.items():
-                executor.submit(_merge, key, paths, output, options)
+    Job(source, output, options, workers).run(Context(report=_report))

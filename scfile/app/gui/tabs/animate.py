@@ -1,8 +1,6 @@
 from pathlib import Path
-from typing import override
 
-from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QHBoxLayout,
@@ -13,15 +11,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.app.gui import workers
+from scfile import convert
+from scfile.app.gui.workers import TaskManager
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.gui.workers.arms import ArmsWorker
-from scfile.app.gui.workers.base import Worker
-from scfile.app.gui.workers.body import BodyWorker
-from scfile.app.gui.workers.lipsync import LipsyncWorker
+from scfile.app.tasks.animation import Job
 
 
 def _required_label(label: str) -> str:
@@ -129,10 +125,11 @@ class BodyForm(AnimationForm):
             "highpoly/character/model.mcsb",
         )
 
-    def create_worker(self, output: Path) -> Worker:
-        return BodyWorker(
-            library=self.source_path,
-            model=self.model_path,
+    def create_task(self, output: Path) -> Job:
+        return Job(
+            operation=convert.animation.body,
+            source=self.source_path,
+            models=(self.model_path,),
             output=output,
         )
 
@@ -193,14 +190,15 @@ class ArmsForm(AnimationForm):
             return "tooltip.animate.invalid.additional"
         return None
 
-    def create_worker(self, output: Path) -> Worker:
+    def create_task(self, output: Path) -> Job:
         models = [self.model_path]
         if additional := self.additional_model.text().strip():
             models.append(Path(additional))
 
-        return ArmsWorker(
-            animation=self.source_path,
-            models=models,
+        return Job(
+            operation=convert.animation.arms,
+            source=self.source_path,
+            models=tuple(models),
             output=output,
         )
 
@@ -224,20 +222,23 @@ class FaceForm(AnimationForm):
             "stalkerplayer/heads/character.mcsb",
         )
 
-    def create_worker(self, output: Path) -> Worker:
-        return LipsyncWorker(
-            animation=self.source_path,
-            model=self.model_path,
+    def create_task(self, output: Path) -> Job:
+        return Job(
+            operation=convert.animation.face,
+            source=self.source_path,
+            models=(self.model_path,),
             output=output,
         )
 
 
 class AnimateTab(QWidget):
-    def __init__(self):
+    def __init__(self, tasks: TaskManager):
         super().__init__()
-        self._worker: Worker | None = None
-        self._worker_thread: QThread | None = None
+        self.tasks = tasks
+        self._active = False
         self._output_touched = False
+        self.tasks.busy_changed.connect(self._sync_ui)
+        self.tasks.completed.connect(self._on_finish)
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -335,24 +336,22 @@ class AnimateTab(QWidget):
         if error is None and output_invalid:
             error = "tooltip.animate.invalid.output"
 
-        ready = error is None and self._worker is None
+        ready = error is None and not self.tasks.busy
+        if self.tasks.busy:
+            error = "tooltip.task.busy"
         self.export.setEnabled(ready)
         self.export.setToolTip(strings.get(error or ""))
         self.export.setCursor(Qt.CursorShape.PointingHandCursor if ready else Qt.CursorShape.ForbiddenCursor)
 
     def _animate(self) -> None:
-        self._worker = self._form.create_worker(Path(self.output.text().strip()))
-        self._worker_thread = workers.execute(self._worker, on_done=self._on_finish)
+        self._active = True
+        task = self._form.create_task(Path(self.output.text().strip()))
+        if not self.tasks.start(task):
+            self._active = False
         self._sync_ui()
 
-    def _on_finish(self) -> None:
-        self._worker = None
-        self._worker_thread = None
+    def _on_finish(self, _: object) -> None:
+        if not self._active:
+            return
+        self._active = False
         self._sync_ui()
-
-    @override
-    def closeEvent(self, event: QCloseEvent) -> None:
-        if self._worker and self._worker_thread:
-            workers.stop(self._worker, self._worker_thread)
-
-        super().closeEvent(event)

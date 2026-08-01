@@ -66,6 +66,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.invalid.output": "Specify an output folder",
         "tooltip.invalid.sources": "Add sources to convert",
         "tooltip.invalid.targets": "No compatible files found",
+        "tooltip.task.busy": "A task is running",
         "tooltip.animate.invalid.animation": "Specify an MCVD animation",
         "tooltip.animate.invalid.library": "Specify an MCAL animation library",
         "tooltip.animate.invalid.model": "Specify an MCSB model",
@@ -97,7 +98,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.manual": "Check manually",
         "placeholder.path": "Specify path...",
         "converter.hint": "Drag & Drop files and folders\nor use buttons above",
-        "mapcache.info": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview.\nFull environment replication or accurate block states are NOT planned.",
+        "mapcache.info": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview.",
     },
     "RU": {
         "tab.converter": "Конвертер файлов",
@@ -148,6 +149,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.invalid.output": "Укажите папку для сохранения",
         "tooltip.invalid.sources": "Добавьте источники для конвертации",
         "tooltip.invalid.targets": "Подходящие файлы не найдены",
+        "tooltip.task.busy": "Выполняется задача",
         "tooltip.animate.invalid.animation": "Укажите анимацию MCVD",
         "tooltip.animate.invalid.library": "Укажите библиотеку анимаций MCAL",
         "tooltip.animate.invalid.model": "Укажите модель MCSB",
@@ -179,7 +181,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.manual": "Проверьте вручную",
         "placeholder.path": "Укажите путь...",
         "converter.hint": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
-        "mapcache.info": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.\nИдеальное воссоздание окружения и состояний блоков НЕ планируется.",
+        "mapcache.info": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии.",
     },
 }
 

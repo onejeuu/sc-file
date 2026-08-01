@@ -1,4 +1,5 @@
 from .base import execute, stop, stop_all
+from .task import TaskManager
 
 
-__all__ = ("execute", "stop", "stop_all")
+__all__ = ("TaskManager", "execute", "stop", "stop_all")
