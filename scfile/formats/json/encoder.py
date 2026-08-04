@@ -1,11 +1,11 @@
 import json
 from typing import override
 
-from scfile.core import FileEncoder, NbtContent
+from scfile.core import Encoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 
 
-class JsonEncoder(FileEncoder[NbtContent]):
+class JsonEncoder(Encoder[NbtContent]):
     content_type = NbtContent
     format = FileFormat.JSON
     order = ByteOrder.LITTLE

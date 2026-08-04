@@ -6,7 +6,7 @@ import numpy as np
 from scfile import formats
 from scfile.consts import FileSignature
 from scfile.consts import IntegerFactor as Factor
-from scfile.core import FileDecoder, ModelContent
+from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
@@ -27,7 +27,7 @@ class MeshCounts:
     blend_shapes: int = 0
 
 
-class McsaDecoder(FileDecoder[ModelContent, ModelReader]):
+class McsaDecoder(Decoder[ModelContent, ModelReader]):
     format = FileFormat.MCSA
     signature = FileSignature.MCSA
     order = ByteOrder.LITTLE

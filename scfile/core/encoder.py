@@ -15,7 +15,7 @@ from scfile.options import HandlerOptions
 from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
 
-from .base import BaseFile
+from .base import Handler
 from .content import BaseContent, ModelContent
 
 
@@ -23,10 +23,10 @@ type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
 type EncoderTransforms[ContentType] = Sequence[ContentTransform[ContentType]]
 
 
-class FileEncoder[
+class Encoder[
     ContentType: BaseContent,
     WriterType: StructWriter = StructWriter,
-](BaseFile[WriterType], ABC):
+](Handler[WriterType], ABC):
     """
     Base class for encoding structured content into binary data.
 
@@ -161,7 +161,7 @@ class FileEncoder[
         )
 
     def has(
-        self: "FileEncoder[ModelContent, WriterType]",
+        self: "Encoder[ModelContent, WriterType]",
         feature: Feature,
     ) -> bool:
         """Return whether input content contains a feature."""
@@ -178,7 +178,7 @@ class FileEncoder[
         return any(member in cls.features for member in feature.members)
 
     def includes(
-        self: "FileEncoder[ModelContent, WriterType]",
+        self: "Encoder[ModelContent, WriterType]",
         feature: Feature,
     ) -> bool:
         """Return whether a feature will be serialized."""

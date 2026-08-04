@@ -1,7 +1,7 @@
 from typing import override
 
 from scfile import formats
-from scfile.core import FileDecoder, ModelContent
+from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.formats.mcsa.decoder import MeshCounts
@@ -9,7 +9,7 @@ from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
 
-class EfkmodelDecoder(FileDecoder[ModelContent, ModelReader]):
+class EfkmodelDecoder(Decoder[ModelContent, ModelReader]):
     format = FileFormat.EFKMODEL
     order = ByteOrder.LITTLE
 

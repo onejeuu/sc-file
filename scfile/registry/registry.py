@@ -8,24 +8,19 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Self, TypeIs
 
-from scfile.core import BaseContent, FileDecoder, FileEncoder
+from scfile.core import BaseContent, Decoder, Encoder
 from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
 from scfile.structures.models import Feature, Features
+from scfile.types import FormatLike
 
 
-type Decoder = type[FileDecoder[Any, Any]]
-type Encoder = type[FileEncoder[Any, Any]]
-type Handler = Decoder | Encoder
-type FormatLike = str | FileFormat
+def _is_decoder(handler: object) -> TypeIs[type[Decoder[Any, Any]]]:
+    return isinstance(handler, type) and issubclass(handler, Decoder)
 
 
-def _is_decoder(handler: object) -> TypeIs[Decoder]:
-    return isinstance(handler, type) and issubclass(handler, FileDecoder)
-
-
-def _is_encoder(handler: object) -> TypeIs[Encoder]:
-    return isinstance(handler, type) and issubclass(handler, FileEncoder)
+def _is_encoder(handler: object) -> TypeIs[type[Encoder[Any, Any]]]:
+    return isinstance(handler, type) and issubclass(handler, Encoder)
 
 
 def _format_name(value: str) -> str:
@@ -38,8 +33,8 @@ class FormatSpec:
 
     format: FileFormat
     content: type[BaseContent]
-    decoder: Decoder | None = None
-    encoder: Encoder | None = None
+    decoder: type[Decoder[Any, Any]] | None = None
+    encoder: type[Encoder[Any, Any]] | None = None
     convertible: bool = True
 
     @property
@@ -62,7 +57,7 @@ class Registry:
 
     def __init__(
         self,
-        *handlers: Handler,
+        *handlers: type[Decoder[Any, Any]] | type[Encoder[Any, Any]],
     ):
         self._formats: dict[FileFormat, FormatSpec] = {}
         self._aliases: dict[str, FileFormat] = {}
@@ -76,7 +71,7 @@ class Registry:
 
     def register(
         self,
-        *handlers: Handler,
+        *handlers: type[Decoder[Any, Any]] | type[Encoder[Any, Any]],
     ) -> None:
         """Register format handlers."""
 
@@ -132,7 +127,7 @@ class Registry:
     def decoder(
         self,
         value: FormatLike,
-    ) -> Decoder | None:
+    ) -> type[Decoder[Any, Any]] | None:
         """Get decoder for format."""
 
         entry = self.get(value)
@@ -141,18 +136,18 @@ class Registry:
     def encoder(
         self,
         value: FormatLike,
-    ) -> Encoder | None:
+    ) -> type[Encoder[Any, Any]] | None:
         """Get encoder for format."""
 
         entry = self.get(value)
         return entry.encoder if entry else None
 
-    def decoders(self) -> dict[FileFormat, Decoder]:
+    def decoders(self) -> dict[FileFormat, type[Decoder[Any, Any]]]:
         """Registered decoders."""
 
         return {fmt: entry.decoder for fmt, entry in self._formats.items() if entry.decoder is not None}
 
-    def encoders(self) -> dict[FileFormat, Encoder]:
+    def encoders(self) -> dict[FileFormat, type[Encoder[Any, Any]]]:
         """Registered encoders."""
 
         return {fmt: entry.encoder for fmt, entry in self._formats.items() if entry.encoder is not None}
@@ -160,7 +155,7 @@ class Registry:
     def targets(
         self,
         source: FormatLike,
-    ) -> dict[FileFormat, Encoder]:
+    ) -> dict[FileFormat, type[Encoder[Any, Any]]]:
         """Encoders compatible with direct conversion from source format."""
 
         entry = self.get(source)
@@ -193,7 +188,7 @@ class Registry:
         name = handler.__name__ if isinstance(handler, type) else type(handler).__name__
         raise RegistryError(f"{name} is not a file format handler.")
 
-    def _set_decoder(self, decoder: Decoder) -> None:
+    def _set_decoder(self, decoder: type[Decoder[Any, Any]]) -> None:
         entry = self._entry(decoder.format, decoder.content_type)
         if entry.decoder is not None and entry.decoder is not decoder:
             raise RegistryError(f"{decoder.format} already has decoder {entry.decoder.__name__}.")
@@ -204,7 +199,7 @@ class Registry:
             convertible=decoder.convertible,
         )
 
-    def _set_encoder(self, encoder: Encoder) -> None:
+    def _set_encoder(self, encoder: type[Encoder[Any, Any]]) -> None:
         entry = self._entry(encoder.format, encoder.content_type)
         if entry.encoder is not None and entry.encoder is not encoder:
             raise RegistryError(f"{encoder.format} already has encoder {entry.encoder.__name__}.")

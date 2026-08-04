@@ -2,11 +2,11 @@ from typing import override
 
 from scfile import formats
 from scfile.consts import FileSignature
-from scfile.core import FileDecoder, ImageContent
+from scfile.core import Decoder, ImageContent
 from scfile.enums import ByteOrder, FileFormat
 
 
-class MicDecoder(FileDecoder[ImageContent]):
+class MicDecoder(Decoder[ImageContent]):
     format = FileFormat.MIC
     signature = FileSignature.MIC
     order = ByteOrder.LITTLE

@@ -2,7 +2,7 @@ import struct
 import zlib
 from typing import override
 
-from scfile.core import FileEncoder, RegionContent
+from scfile.core import Encoder, RegionContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.formats.nbt import nbt
 from scfile.formats.nbt.enums import Tag
@@ -36,7 +36,7 @@ _PAYLOAD_CHUNK = (
 )
 
 
-class McaEncoder(FileEncoder[RegionContent]):
+class McaEncoder(Encoder[RegionContent]):
     content_type = RegionContent
     format = FileFormat.MCA
     order = ByteOrder.BIG

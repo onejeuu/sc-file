@@ -4,23 +4,31 @@ from collections.abc import Callable
 from pathlib import Path
 from time import perf_counter
 
-from scfile.core import FileDecoder, FileEncoder
+from scfile.core import BaseContent, Decoder, Encoder
+from scfile.io import StructReader, StructWriter
 from scfile.options import HandlerOptions
 
 
-def decode(
+def decode[
+    ContentType: BaseContent,
+    ReaderType: StructReader,
+](
     source: Path,
-    decoder: type[FileDecoder],
+    decoder: type[Decoder[ContentType, ReaderType]],
     options: HandlerOptions,
 ) -> None:
     with decoder(source, options) as src:
         src.decode()
 
 
-def convert(
+def convert[
+    ContentType: BaseContent,
+    ReaderType: StructReader,
+    WriterType: StructWriter,
+](
     source: Path,
-    decoder: type[FileDecoder],
-    encoder: type[FileEncoder],
+    decoder: type[Decoder[ContentType, ReaderType]],
+    encoder: type[Encoder[ContentType, WriterType]],
     options: HandlerOptions,
 ) -> None:
     with decoder(source, options) as src:

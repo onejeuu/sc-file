@@ -3,7 +3,7 @@ from typing import override
 import zstandard as zstd
 
 from scfile import formats
-from scfile.core import FileDecoder, RegionContent
+from scfile.core import Decoder, RegionContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import regions as S
 
@@ -13,7 +13,7 @@ SECTION_SIZE = 16 * 16 * 16  # 4096
 NIBBLE_SIZE = 16 * 16 * 8  # 2048
 
 
-class MdatDecoder(FileDecoder[RegionContent]):
+class MdatDecoder(Decoder[RegionContent]):
     format = FileFormat.MDAT
     order = ByteOrder.BIG
 

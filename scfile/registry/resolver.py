@@ -3,15 +3,15 @@ Format resolution.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from scfile.consts import SUPPORTED_NBT
-from scfile.core import ModelContent
+from scfile.core import Encoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.options import ConvertOptions
 from scfile.types import PathLike
 
-from .registry import Encoder, FormatSpec, Registry
+from .registry import FormatSpec, Registry
 
 
 class Resolver:
@@ -43,7 +43,7 @@ class Resolver:
         self,
         source: FormatSpec,
         options: Optional[ConvertOptions] = None,
-    ) -> dict[FileFormat, Encoder]:
+    ) -> dict[FileFormat, type[Encoder[Any, Any]]]:
         """Select output handlers for direct conversion."""
 
         available = self.registry.targets(source.format)

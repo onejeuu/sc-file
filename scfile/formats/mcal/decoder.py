@@ -1,7 +1,7 @@
 from typing import override
 
 from scfile.consts import FileSignature
-from scfile.core import FileDecoder, ModelContent
+from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError
@@ -9,7 +9,7 @@ from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
 
-class McalDecoder(FileDecoder[ModelContent, ModelReader]):
+class McalDecoder(Decoder[ModelContent, ModelReader]):
     format = FileFormat.MCAL
     signature = FileSignature.MCAL
     order = ByteOrder.LITTLE

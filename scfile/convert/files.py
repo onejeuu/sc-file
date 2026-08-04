@@ -3,10 +3,11 @@ File conversion.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from scfile import exceptions, types
-from scfile.core import BaseContent, FileDecoder, FileEncoder
+from scfile.core import BaseContent, Decoder, Encoder
+from scfile.io import StructReader, StructWriter
 from scfile.options import ConvertOptions
 from scfile.registry import RESOLVER
 
@@ -24,9 +25,13 @@ def format(
     return Path(source).suffix.lower().lstrip(".")
 
 
-def manual[ContentType: BaseContent](
-    decoder: type[FileDecoder[ContentType, Any]],
-    encoder: type[FileEncoder[ContentType, Any]],
+def manual[
+    ContentType: BaseContent,
+    ReaderType: StructReader,
+    WriterType: StructWriter,
+](
+    decoder: type[Decoder[ContentType, ReaderType]],
+    encoder: type[Encoder[ContentType, WriterType]],
     source: types.PathLike,
     output: types.OutputLike = None,
     options: Optional[ConvertOptions] = None,

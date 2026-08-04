@@ -4,7 +4,7 @@ from typing import override
 
 import numpy as np
 
-from scfile.core import FileEncoder, ModelContent
+from scfile.core import Encoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.io.fbx import FbxWriter
 from scfile.structures import models as S
@@ -14,7 +14,7 @@ from scfile.structures.models import transforms as T
 from .consts import DEFAULT, FBX, Props
 
 
-class FbxEncoder(FileEncoder[ModelContent, FbxWriter]):
+class FbxEncoder(Encoder[ModelContent, FbxWriter]):
     content_type = ModelContent
     format = FileFormat.FBX
     order = ByteOrder.LITTLE

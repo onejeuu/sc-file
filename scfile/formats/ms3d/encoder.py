@@ -3,7 +3,7 @@ from typing import override
 import numpy as np
 
 from scfile.consts import FileSignature
-from scfile.core import FileEncoder, ModelContent
+from scfile.core import Encoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.io.ms3d import Ms3dWriter
 from scfile.structures.models import ROOT_BONE_ID, Feature
@@ -39,7 +39,7 @@ TRIANGLE_DTYPE = np.dtype(
 )
 
 
-class Ms3dEncoder(FileEncoder[ModelContent, Ms3dWriter]):
+class Ms3dEncoder(Encoder[ModelContent, Ms3dWriter]):
     content_type = ModelContent
     format = FileFormat.MS3D
     signature = FileSignature.MS3D

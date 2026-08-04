@@ -1,11 +1,11 @@
 import zipfile
 from typing import override
 
-from scfile.core import FileEncoder, TexarrContent
+from scfile.core import Encoder, TexarrContent
 from scfile.enums import ByteOrder, FileFormat
 
 
-class TexarrEncoder(FileEncoder[TexarrContent]):
+class TexarrEncoder(Encoder[TexarrContent]):
     content_type = TexarrContent
     format = FileFormat.ZIP
     order = ByteOrder.LITTLE

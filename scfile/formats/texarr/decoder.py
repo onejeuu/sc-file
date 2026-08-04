@@ -1,7 +1,7 @@
 from typing import override
 
 from scfile import formats
-from scfile.core import FileDecoder, TexarrContent
+from scfile.core import Decoder, TexarrContent
 from scfile.enums import ByteOrder, F, FileFormat
 
 
@@ -9,7 +9,7 @@ DELIMITER = ":"
 FORMAT = FileFormat.DDS.suffix
 
 
-class TexarrDecoder(FileDecoder[TexarrContent]):
+class TexarrDecoder(Decoder[TexarrContent]):
     format = FileFormat.TEXARR
     order = ByteOrder.BIG
 

@@ -1,5 +1,5 @@
 """
-Base class for resource-owning format handlers.
+Base class for format handlers that own a binary resource.
 """
 
 from abc import ABC
@@ -16,7 +16,7 @@ from scfile.options import HandlerOptions
 type HandlerContext = dict[str, Any]
 
 
-class BaseFile[IOType: StructIO](ABC):
+class Handler[IOType: StructIO](ABC):
     """Base class for handlers that own an open binary resource."""
 
     format: FileFormat = FileFormat.NONE

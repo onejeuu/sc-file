@@ -26,6 +26,9 @@ type FilesSources = Iterable[PathLike]
 type Formats = Sequence[FileFormat]
 """Sequence of file formats."""
 
+type FormatLike = str | FileFormat
+"""File format represented by its enum, value, or suffix."""
+
 
 class FileEntry(NamedTuple):
     """File entry from directory walk."""

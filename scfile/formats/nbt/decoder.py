@@ -4,14 +4,14 @@ from typing import override
 import zstandard as zstd
 
 from scfile import formats
-from scfile.core import FileDecoder, NbtContent
+from scfile.core import Decoder, NbtContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.io.nbt import NbtReader
 
 from .enums import Tag
 
 
-class NbtDecoder(FileDecoder[NbtContent]):
+class NbtDecoder(Decoder[NbtContent]):
     format = FileFormat.NBT
     order = ByteOrder.LITTLE
 

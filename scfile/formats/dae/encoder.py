@@ -5,7 +5,7 @@ from xml.etree.ElementTree import Element, SubElement
 
 import numpy as np
 
-from scfile.core import FileEncoder, ModelContent
+from scfile.core import Encoder, ModelContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Feature
@@ -24,7 +24,7 @@ UP_AXIS = "Y_UP"
 DEFAULT_COLOR = "1 1 1 1"
 
 
-class DaeEncoder(FileEncoder[ModelContent]):
+class DaeEncoder(Encoder[ModelContent]):
     content_type = ModelContent
     format = FileFormat.DAE
     order = ByteOrder.LITTLE
