@@ -38,7 +38,7 @@ class FileType(StrEnum):
     MODEL = auto()
     TEXTURE = auto()
     IMAGE = auto()
-    TEXARR = auto()
+    ARCHIVE = auto()
     DOCUMENT = auto()
     REGION = auto()
 

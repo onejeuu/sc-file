@@ -1,24 +1,25 @@
 from typing import override
 
-from scfile.core import Decoder, TexarrContent
+from scfile.core import ArchiveContent, Decoder
 from scfile.enums import ByteOrder, F, FileFormat
 
 
 DELIMITER = ":"
-FORMAT = FileFormat.DDS.suffix
+FORMAT = ".dds"
 
 
-class TexarrDecoder(Decoder[TexarrContent]):
+class TexarrDecoder(Decoder[ArchiveContent]):
     format = FileFormat.TEXARR
     order = ByteOrder.BIG
 
-    content_type = TexarrContent
+    content_type = ArchiveContent
 
     @override
     def _parse(self):
-        self.data.count = self.io.value(F.U32)
+        count = self.io.value(F.U32)
+        self._ctx["COUNT_ENTRIES"] = count
 
-        for _ in range(self.data.count):
+        for _ in range(count):
             self._parse_texture()
 
     def _parse_texture(self):
@@ -26,4 +27,4 @@ class TexarrDecoder(Decoder[TexarrContent]):
         size = self.io.value(F.U32)
         texture = self.io.read(size)
 
-        self.data.textures.append((path, texture))
+        self.data.entries.append((path, texture))

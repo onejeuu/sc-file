@@ -43,7 +43,7 @@ from .obj import ObjEncoder
 from .ol import OlDecoder
 from .png import PngEncoder
 from .texarr import TexarrDecoder
-from .zip import TexarrEncoder
+from .zip import ZipEncoder
 
 
 __all__ = (
@@ -86,5 +86,5 @@ __all__ = (
     "OlDecoder",
     "PngEncoder",
     "TexarrDecoder",
-    "TexarrEncoder",
+    "ZipEncoder",
 )

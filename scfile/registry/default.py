@@ -28,7 +28,7 @@ REGISTRY = Registry(
     formats.OlDecoder,
     formats.PngEncoder,
     formats.TexarrDecoder,
-    formats.TexarrEncoder,
+    formats.ZipEncoder,
 )
 
 RESOLVER = Resolver(REGISTRY)

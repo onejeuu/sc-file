@@ -16,6 +16,8 @@ from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
 type DocumentPrimitive = int | float | bytes | str
 type DocumentValue = None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]
 
+type ArchiveEntry = tuple[str, bytes]
+
 
 class BaseContent:
     """Base type for structured handler content."""
@@ -84,13 +86,12 @@ class ImageContent(BaseContent):
 
 
 @dataclass
-class TexarrContent(BaseContent):
-    """Content container for texture arrays."""
+class ArchiveContent(BaseContent):
+    """Content container for named binary entries."""
 
-    type: ClassVar[FileType] = FileType.TEXARR
+    type: ClassVar[FileType] = FileType.ARCHIVE
 
-    count: int = 0
-    textures: list[tuple[str, bytes]] = field(default_factory=list)
+    entries: list[ArchiveEntry] = field(default_factory=list)
 
 
 @dataclass

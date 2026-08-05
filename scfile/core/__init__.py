@@ -5,13 +5,14 @@ Abstract core classes for reading and writing binary formats.
 from . import base, decoder, encoder, types
 from .base import Handler
 from .content import (
+    ArchiveContent,
+    ArchiveEntry,
     BaseContent,
     DocumentContent,
     DocumentValue,
     ImageContent,
     ModelContent,
     RegionContent,
-    TexarrContent,
     TextureContent,
 )
 from .decoder import Decoder
@@ -27,6 +28,8 @@ __all__ = (
     "Decoder",
     "Encoder",
     "ContentTransform",
+    "ArchiveContent",
+    "ArchiveEntry",
     "BaseContent",
     "DocumentContent",
     "DocumentValue",
@@ -34,5 +37,4 @@ __all__ = (
     "TextureContent",
     "ImageContent",
     "RegionContent",
-    "TexarrContent",
 )

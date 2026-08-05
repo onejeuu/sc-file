@@ -6,12 +6,12 @@ from rich.table import Table
 from rich.text import Text
 
 from scfile.core import (
+    ArchiveContent,
     BaseContent,
+    DocumentContent,
     ImageContent,
     ModelContent,
-    NbtContent,
     RegionContent,
-    TexarrContent,
     TextureContent,
 )
 from scfile.structures.textures import CubemapTexture, DefaultTexture
@@ -61,15 +61,15 @@ def content(source: Path, format: str, size: int, decoder: str, data: BaseConten
         case ImageContent():
             rows.append(("Image", _size(len(data.image))))
 
-        case TexarrContent():
+        case ArchiveContent():
             rows.extend(
                 (
-                    ("Textures", len(data.textures)),
-                    ("Images", decimal(sum(len(image) for _, image in data.textures))),
+                    ("Entries", len(data.entries)),
+                    ("Data", decimal(sum(len(payload) for _, payload in data.entries))),
                 )
             )
-        case NbtContent():
-            rows.extend(_nbt(data))
+        case DocumentContent():
+            rows.extend(_document(data))
 
         case RegionContent():
             rows.extend(
@@ -164,7 +164,7 @@ def _texture(data: TextureContent) -> list[Row]:
     ]
 
 
-def _nbt(data: NbtContent) -> list[Row]:
+def _document(data: DocumentContent) -> list[Row]:
     value = data.value
     rows: list[Row] = [("Root", type(value).__name__)]
     if isinstance(value, bytes | list | dict):

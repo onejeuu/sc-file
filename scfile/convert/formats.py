@@ -451,7 +451,7 @@ def mic_to_png(
     """
 
 
-@converter(formats.texarr.TexarrDecoder, formats.zip.TexarrEncoder)
+@converter(formats.texarr.TexarrDecoder, formats.zip.ZipEncoder)
 def texarr_to_zip(
     source: PathLike,
     output: Optional[PathLike] = None,
