@@ -2,7 +2,7 @@
 Structured binary I/O.
 """
 
-from .base import FileMode, IOStream, StructIO, StructReader, StructWriter
+from .base import FileMode, IOStream, OutputStream, StructIO, StructReader, StructWriter
 
 
 __all__ = (
@@ -11,4 +11,5 @@ __all__ = (
     "StructWriter",
     "FileMode",
     "IOStream",
+    "OutputStream",
 )

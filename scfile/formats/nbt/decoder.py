@@ -23,9 +23,7 @@ class NbtDecoder(Decoder[DocumentContent]):
     @override
     def _parse(self):
         data = self._decompress()
-        reader = NbtReader(data, "rb", location=self.location)
-
-        try:
+        with NbtReader(data, "rb", location=self.location) as reader:
             # Read root tag
             tag = reader.tag()
             if tag == Tag.END:
@@ -33,9 +31,6 @@ class NbtDecoder(Decoder[DocumentContent]):
 
             reader.string(limit=None)  # Skip name
             self.data.value = reader.parse(tag)
-
-        finally:
-            reader.close()
 
     def _decompress(self):
         data = self.io.read()

@@ -9,7 +9,7 @@ from typing import ClassVar, Optional, cast
 
 from scfile import exceptions
 from scfile.enums import HandlerState
-from scfile.io.base import IOStream, StructReader, StructWriter
+from scfile.io.base import IOStream, OutputStream, StructReader, StructWriter
 from scfile.options import HandlerOptions
 
 from .base import Handler
@@ -85,7 +85,7 @@ class Decoder[
         self,
         encoder: type[Encoder[ContentType, WriterType]],
         options: Optional[HandlerOptions] = None,
-        output: Optional[IOStream] = None,
+        output: Optional[OutputStream] = None,
     ) -> Encoder[ContentType, WriterType]:
         """
         Decode and convert to given encoder format.

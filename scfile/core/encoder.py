@@ -10,7 +10,7 @@ from io import BytesIO
 from typing import ClassVar, Optional, Self, cast
 
 from scfile.enums import HandlerState
-from scfile.io.base import FileMode, IOStream, StructWriter
+from scfile.io.base import FileMode, OutputStream, StructWriter
 from scfile.options import HandlerOptions
 from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
@@ -49,7 +49,7 @@ class Encoder[
         self,
         data: ContentType,
         options: Optional[HandlerOptions] = None,
-        output: Optional[IOStream] = None,
+        output: Optional[OutputStream] = None,
     ):
         """
         Initialize encoder.
@@ -110,7 +110,7 @@ class Encoder[
             self.encode()
 
         self._validate_state("read encoded data", HandlerState.SUCCEEDED)
-        return self.io.getvalue()
+        return self.io.to_bytes()
 
     def save(
         self,

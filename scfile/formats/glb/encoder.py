@@ -61,7 +61,7 @@ class GlbEncoder(Encoder[ModelContent]):
 
     def _update_total_size(self):
         self.io.seek(self._ctx["TOTAL_SIZE_POS"])
-        self.io.value(F.U32, len(self.io.getvalue()))
+        self.io.value(F.U32, self.io.size())
 
     def _add_json_chunk(self):
         # Serialize gltf json

@@ -5,8 +5,8 @@ Structured binary I/O.
 import os
 import struct
 from enum import IntEnum
-from io import SEEK_CUR, SEEK_END, BytesIO, IOBase, TextIOBase
-from typing import IO, Any, Literal, cast
+from io import SEEK_CUR, SEEK_END, BytesIO, IOBase
+from typing import IO, Any, Literal, Self, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -18,6 +18,7 @@ from scfile.types import PathLike
 
 
 type IOStream = PathLike | IOBase | bytes
+type OutputStream = PathLike | IOBase
 type FileMode = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 
@@ -55,9 +56,6 @@ class StructIO:
             return
 
         if isinstance(stream, IOBase):
-            if isinstance(stream, TextIOBase) or not stream.seekable():
-                raise TypeError("Expected a seekable binary stream")
-
             self._stream = cast(IO[bytes], stream)
             name = getattr(self._stream, "name", None)
             fallback = f"<{type(stream).__name__} at {hex(id(stream))}>"
@@ -99,6 +97,15 @@ class StructIO:
 
     def close(self) -> None:
         self._stream.close()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
+        self,
+        *_,
+    ) -> None:
+        self.close()
 
 
 class StructReader(StructIO):
@@ -258,15 +265,21 @@ class StructWriter(StructIO):
     def flush(self) -> None:
         self._stream.flush()
 
-    def getvalue(self) -> bytes:
+    def to_bytes(self) -> bytes:
+        """Return all bytes written to the stream."""
+
         if isinstance(self._stream, BytesIO):
             return self._stream.getvalue()
 
+        self.flush()
         position = self.tell()
-        self.seek(0)
-        data = self._stream.read()
-        self.seek(position)
-        return data
+
+        try:
+            self.seek(0)
+            return self._stream.read()
+
+        finally:
+            self.seek(position)
 
     def pack(
         self,
