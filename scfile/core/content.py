@@ -13,9 +13,8 @@ from scfile.structures.regions import RegionChunk
 from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
 
 
-type DocumentValue = (
-    None | int | float | bytes | str | list[int] | list[DocumentValue] | dict[str, DocumentValue]
-)
+type DocumentPrimitive = int | float | bytes | str
+type DocumentValue = None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]
 
 
 class BaseContent:
