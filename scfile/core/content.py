@@ -4,7 +4,7 @@ Defines data structures that hold parsed file contents.
 """
 
 from dataclasses import dataclass, field
-from typing import ClassVar, cast
+from typing import ClassVar
 from uuid import UUID
 
 from scfile.enums import FileType
@@ -41,7 +41,7 @@ class ModelContent(BaseContent):
 
 
 @dataclass
-class TextureContent[TextureType: Texture = DefaultTexture](BaseContent):
+class TextureContent(BaseContent):
     """Content container for textures (2D or cubemap)."""
 
     type: ClassVar[FileType] = FileType.TEXTURE
@@ -50,7 +50,7 @@ class TextureContent[TextureType: Texture = DefaultTexture](BaseContent):
     height: int = 0
     mipmap_count: int = 0
     format: bytes = field(default_factory=bytes)
-    texture: TextureType = field(default_factory=lambda: cast(TextureType, DefaultTexture()))
+    texture: Texture = field(default_factory=DefaultTexture)
     path_hash: bytes = field(default_factory=bytes)
 
     @property

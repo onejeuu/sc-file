@@ -10,7 +10,7 @@ from io import BytesIO
 from typing import ClassVar, Optional, Self, cast
 
 from scfile.enums import HandlerState
-from scfile.io.base import FileMode, OutputStream, StructWriter
+from scfile.io.base import OutputStream, StructWriter
 from scfile.options import HandlerOptions
 from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
@@ -68,8 +68,10 @@ class Encoder[
         self.options: HandlerOptions = options or HandlerOptions()
 
         super().__init__(
-            stream=output if output is not None else BytesIO(),
-            mode="wb+",
+            io=self.io_factory(
+                output if output is not None else BytesIO(),
+                order=self.order,
+            )
         )
 
     def encode(
@@ -115,7 +117,6 @@ class Encoder[
     def save(
         self,
         path: PathLike,
-        mode: FileMode = "wb",
         *,
         close: bool = True,
     ) -> None:
@@ -124,14 +125,13 @@ class Encoder[
 
         Args:
             path: Output file path.
-            mode: File mode (binary).
             close: Close encoder after writing.
         """
 
         try:
             data = self.to_bytes()
 
-            with open(path, mode=mode) as fp:
+            with open(path, "wb") as fp:
                 fp.write(data)
 
         finally:
@@ -141,7 +141,6 @@ class Encoder[
     def export(
         self,
         path: PathLike,
-        mode: FileMode = "wb",
         *,
         close: bool = True,
     ) -> None:
@@ -150,13 +149,11 @@ class Encoder[
 
         Args:
             path: Output file path.
-            mode: File mode (binary).
             close: Close encoder after writing.
         """
 
         self.save(
             path=f"{path}{self.suffix}",
-            mode=mode,
             close=close,
         )
 

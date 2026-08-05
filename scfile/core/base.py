@@ -5,54 +5,45 @@ Base class for format handlers that own a binary resource.
 from abc import ABC
 from collections.abc import Mapping
 from types import MappingProxyType
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
-from scfile.io.base import FileMode, IOStream, StructIO
+from scfile.io.base import StructIO
 from scfile.options import HandlerOptions
 
 
 type HandlerContext = dict[str, Any]
 
 
-class Handler[IOType: StructIO](ABC):
+class Handler[IOType: StructIO[Any]](ABC):
     """Base class for handlers that own an open binary resource."""
 
-    format: FileFormat = FileFormat.NONE
+    format: ClassVar[FileFormat] = FileFormat.NONE
     """Associated file format."""
 
-    signature: bytes | None = None
+    signature: ClassVar[bytes | None] = None
     """Expected file signature."""
 
-    io_factory: type[IOType]
-    """Binary I/O used by the handler."""
+    order: ClassVar[ByteOrder] = ByteOrder.LITTLE
+    """Default byte order."""
 
     io: IOType
     """Owned binary I/O instance."""
-
-    order: ByteOrder = ByteOrder.LITTLE
-    """Default byte order."""
 
     options: HandlerOptions
     """Shared handlers options."""
 
     def __init__(
         self,
-        stream: IOStream,
-        mode: FileMode = "rb",
+        io: IOType,
     ):
         """
         Args:
-            stream: Source input. File path, bytes, or binary IO stream.
-            mode: File mode (binary) for opening when ``stream`` is path.
+            io: Structured binary IO owned by the handler.
         """
 
-        self.io = self.io_factory(
-            stream,
-            mode,
-            order=self.order,
-        )
+        self.io = io
         self._ctx: HandlerContext = {}
         self._state = HandlerState.INITIAL
 

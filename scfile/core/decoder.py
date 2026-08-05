@@ -33,7 +33,7 @@ class Decoder[
     io_factory = cast(type[ReaderType], StructReader)
     """Reader factory used to wrap the source stream."""
 
-    convertible: bool = True
+    convertible: ClassVar[bool] = True
     """Allow direct conversion into compatible output formats."""
 
     def __init__(
@@ -56,7 +56,12 @@ class Decoder[
         self.data = cast(ContentType, self.content_type())
         self.options: HandlerOptions = options or HandlerOptions()
 
-        super().__init__(stream=stream, mode="rb")
+        super().__init__(
+            io=self.io_factory(
+                stream,
+                order=self.order,
+            )
+        )
 
     def decode(self) -> ContentType:
         """Decode source data once and return parsed content."""

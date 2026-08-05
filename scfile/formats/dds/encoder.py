@@ -2,7 +2,6 @@ from typing import override
 
 from scfile.consts import FileSignature
 from scfile.core import Encoder, TextureContent
-from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 
@@ -10,7 +9,7 @@ from .enums import BGRA8, RGBA8
 from .header import DDS
 
 
-class DdsEncoder(Encoder[TextureContent[TextureData]]):
+class DdsEncoder(Encoder[TextureContent]):
     content_type = TextureContent
     format = FileFormat.DDS
     signature = FileSignature.DDS

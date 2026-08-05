@@ -1,7 +1,5 @@
 from typing import Any
 
-from scfile.structures.textures import CubemapTexture, DefaultTexture
-
 from .content import DocumentContent, ImageContent, ModelContent, RegionContent, TexarrContent, TextureContent
 from .decoder import Decoder
 from .encoder import Encoder
@@ -10,13 +8,8 @@ from .encoder import Encoder
 type ModelDecoder = type[Decoder[ModelContent, Any]]
 type ModelEncoder = type[Encoder[ModelContent, Any]]
 
-type TextureData = DefaultTexture | CubemapTexture
-
-type TextureDecoder = type[Decoder[TextureContent[TextureData], Any]]
-type TextureEncoder = type[Encoder[TextureContent[TextureData], Any]]
-
-type CubemapDecoder = type[Decoder[TextureContent[CubemapTexture], Any]]
-type CubemapEncoder = type[Encoder[TextureContent[CubemapTexture], Any]]
+type TextureDecoder = type[Decoder[TextureContent, Any]]
+type TextureEncoder = type[Encoder[TextureContent, Any]]
 
 type ImageDecoder = type[Decoder[ImageContent, Any]]
 type ImageEncoder = type[Encoder[ImageContent, Any]]

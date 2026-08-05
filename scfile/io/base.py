@@ -5,8 +5,8 @@ Structured binary I/O.
 import os
 import struct
 from enum import IntEnum
-from io import SEEK_CUR, SEEK_END, BytesIO, IOBase
-from typing import IO, Any, Literal, Self, cast
+from io import SEEK_CUR, SEEK_END, BytesIO, IOBase, TextIOBase
+from typing import IO, Any, ClassVar, Self, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -19,11 +19,13 @@ from scfile.types import PathLike
 
 type IOStream = PathLike | IOBase | bytes
 type OutputStream = PathLike | IOBase
-type FileMode = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 
-class StructIO:
+class StructIO[StreamType: IOStream]:
     """Own a seekable binary stream used for structured I/O."""
+
+    mode: ClassVar[str]
+    """Binary mode used when opening a path."""
 
     order: ByteOrder = ByteOrder.LITTLE
     """Default byte order."""
@@ -33,36 +35,19 @@ class StructIO:
 
     def __init__(
         self,
-        stream: IOStream,
-        mode: FileMode,
+        stream: StreamType,
         order: ByteOrder | None = None,
         errors: str | None = None,
         location: str | None = None,
     ):
         """Open or take ownership of a seekable binary stream."""
 
-        self.order = order or self.order
-        self.errors = errors or self.errors
+        self.order = self.order if order is None else order
+        self.errors = self.errors if errors is None else errors
 
-        if isinstance(stream, str | os.PathLike):
-            path = os.fspath(stream)
-            self._location = location or path
-            self._stream = open(path, mode)
-            return
-
-        if isinstance(stream, bytes):
-            self._stream = BytesIO(stream)
-            self._location = location or f"<bytes at {hex(id(self._stream))}>"
-            return
-
-        if isinstance(stream, IOBase):
-            self._stream = cast(IO[bytes], stream)
-            name = getattr(self._stream, "name", None)
-            fallback = f"<{type(stream).__name__} at {hex(id(stream))}>"
-            self._location = location or (str(name) if name is not None else fallback)
-            return
-
-        raise TypeError(f"Expected IOStream, got {type(stream).__name__}")
+        resource = self._open(stream)
+        self._stream = cast(IO[bytes], resource)
+        self._location = self._resolve_location(resource, location)
 
     @property
     def stream(self) -> IO[bytes]:
@@ -98,6 +83,44 @@ class StructIO:
     def close(self) -> None:
         self._stream.close()
 
+    def _open(
+        self,
+        stream: object,
+    ) -> IOBase:
+        resource = stream
+        if isinstance(resource, str | os.PathLike):
+            resource = cast(IOBase, open(resource, self.mode))
+
+        if isinstance(resource, bytes):
+            resource = BytesIO(resource)
+
+        if isinstance(resource, IOBase):
+            self._validate_stream(resource)
+            return resource
+
+        raise TypeError(f"Expected IOStream, got {type(resource).__name__}")
+
+    def _validate_stream(
+        self,
+        stream: IOBase,
+    ) -> None:
+        if isinstance(stream, TextIOBase) or not stream.seekable():
+            raise TypeError("Expected a seekable binary stream")
+
+    def _resolve_location(
+        self,
+        stream: IOBase,
+        location: str | None,
+    ) -> str:
+        if location is not None:
+            return location
+
+        name = getattr(stream, "name", None)
+        if name is not None:
+            return str(name)
+
+        return f"<{type(stream).__name__} at {hex(id(stream))}>"
+
     def __enter__(self) -> Self:
         return self
 
@@ -108,8 +131,10 @@ class StructIO:
         self.close()
 
 
-class StructReader(StructIO):
+class StructReader(StructIO[IOStream]):
     """Read structured values from a binary stream."""
+
+    mode = "rb"
 
     def read(
         self,
@@ -250,8 +275,10 @@ class StructReader(StructIO):
         return value
 
 
-class StructWriter(StructIO):
+class StructWriter(StructIO[OutputStream]):
     """Write structured values to a binary stream."""
+
+    mode = "w+b"
 
     def write(
         self,

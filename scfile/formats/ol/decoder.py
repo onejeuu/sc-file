@@ -5,7 +5,6 @@ import lz4.block
 from scfile import exceptions, formats
 from scfile.consts import FileSignature
 from scfile.core import Decoder, TextureContent
-from scfile.core.types import TextureData
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import TextureFormatError, TextureKindError
 from scfile.io.ol import OlReader
@@ -15,7 +14,7 @@ from .enums import TextureKind
 from .formats import SUPPORTED_FORMATS
 
 
-class OlDecoder(Decoder[TextureContent[TextureData], OlReader]):
+class OlDecoder(Decoder[TextureContent, OlReader]):
     format = FileFormat.OL
     signature = FileSignature.OL
     order = ByteOrder.BIG
