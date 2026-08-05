@@ -3,7 +3,6 @@ from typing import override
 
 import numpy as np
 
-from scfile import formats
 from scfile.consts import FileSignature
 from scfile.consts import IntegerFactor as Factor
 from scfile.core import Decoder, ModelContent
@@ -34,21 +33,6 @@ class McsaDecoder(Decoder[ModelContent, ModelReader]):
 
     content_type = ModelContent
     io_factory = ModelReader
-
-    def as_obj(self):
-        return self.convert_to(formats.obj.ObjEncoder)
-
-    def as_glb(self):
-        return self.convert_to(formats.glb.GlbEncoder)
-
-    def as_fbx(self):
-        return self.convert_to(formats.fbx.FbxEncoder)
-
-    def as_dae(self):
-        return self.convert_to(formats.dae.DaeEncoder)
-
-    def as_ms3d(self):
-        return self.convert_to(formats.ms3d.Ms3dEncoder)
 
     @override
     def _parse(self):

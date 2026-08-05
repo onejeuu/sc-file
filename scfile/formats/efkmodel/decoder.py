@@ -1,6 +1,5 @@
 from typing import override
 
-from scfile import formats
 from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
@@ -15,21 +14,6 @@ class EfkmodelDecoder(Decoder[ModelContent, ModelReader]):
 
     content_type = ModelContent
     io_factory = ModelReader
-
-    def as_obj(self):
-        return self.convert_to(formats.obj.ObjEncoder)
-
-    def as_glb(self):
-        return self.convert_to(formats.glb.GlbEncoder)
-
-    def as_fbx(self):
-        return self.convert_to(formats.fbx.FbxEncoder)
-
-    def as_dae(self):
-        return self.convert_to(formats.dae.DaeEncoder)
-
-    def as_ms3d(self):
-        return self.convert_to(formats.ms3d.Ms3dEncoder)
 
     @override
     def _parse(self):

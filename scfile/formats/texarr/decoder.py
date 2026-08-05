@@ -1,6 +1,5 @@
 from typing import override
 
-from scfile import formats
 from scfile.core import Decoder, TexarrContent
 from scfile.enums import ByteOrder, F, FileFormat
 
@@ -14,9 +13,6 @@ class TexarrDecoder(Decoder[TexarrContent]):
     order = ByteOrder.BIG
 
     content_type = TexarrContent
-
-    def as_zip(self):
-        return self.convert_to(formats.zip.TexarrEncoder)
 
     @override
     def _parse(self):

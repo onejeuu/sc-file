@@ -2,7 +2,6 @@ from typing import override
 
 import zstandard as zstd
 
-from scfile import formats
 from scfile.core import Decoder, RegionContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures import regions as S
@@ -18,9 +17,6 @@ class MdatDecoder(Decoder[RegionContent]):
     order = ByteOrder.BIG
 
     content_type = RegionContent
-
-    def as_mca(self):
-        return self.convert_to(formats.mca.McaEncoder)
 
     @override
     def _parse(self):

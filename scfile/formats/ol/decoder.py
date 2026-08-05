@@ -2,7 +2,7 @@ from typing import override
 
 import lz4.block
 
-from scfile import exceptions, formats
+from scfile import exceptions
 from scfile.consts import FileSignature
 from scfile.core import Decoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
@@ -21,9 +21,6 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
 
     content_type = TextureContent
     io_factory = OlReader
-
-    def as_dds(self):
-        return self.convert_to(formats.dds.DdsEncoder)
 
     @override
     def _parse(self):
