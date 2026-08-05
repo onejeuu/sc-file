@@ -5,8 +5,8 @@ Structured binary I/O.
 import os
 import struct
 from enum import IntEnum
-from io import SEEK_CUR, SEEK_END, BytesIO, IOBase
-from typing import IO, Any, BinaryIO, Literal, cast
+from io import SEEK_CUR, SEEK_END, BytesIO, IOBase, TextIOBase
+from typing import IO, Any, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -17,12 +17,12 @@ from scfile.exceptions import BinaryStructureError, SafetyLimitError
 from scfile.types import PathLike
 
 
-type IOStream = PathLike | bytes | BinaryIO
+type IOStream = PathLike | IOBase | bytes
 type FileMode = Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"]
 
 
 class StructIO:
-    """Own a binary stream used for structured I/O."""
+    """Own a seekable binary stream used for structured I/O."""
 
     order: ByteOrder = ByteOrder.LITTLE
     """Default byte order."""
@@ -38,6 +38,8 @@ class StructIO:
         errors: str | None = None,
         location: str | None = None,
     ):
+        """Open or take ownership of a seekable binary stream."""
+
         self.order = order or self.order
         self.errors = errors or self.errors
 
@@ -53,6 +55,9 @@ class StructIO:
             return
 
         if isinstance(stream, IOBase):
+            if isinstance(stream, TextIOBase) or not stream.seekable():
+                raise TypeError("Expected a seekable binary stream")
+
             self._stream = cast(IO[bytes], stream)
             name = getattr(self._stream, "name", None)
             fallback = f"<{type(stream).__name__} at {hex(id(stream))}>"
@@ -122,6 +127,13 @@ class StructReader(StructIO):
         size: int,
     ) -> bytes:
         offset = self.tell()
+
+        if size < 0:
+            raise BinaryStructureError(
+                location=self.location,
+                offset=offset,
+            )
+
         data = self.read(size)
 
         if len(data) != size:
@@ -212,6 +224,12 @@ class StructReader(StructIO):
         limit: IntEnum,
     ) -> int:
         """Validate a decoded count."""
+
+        if value < 0:
+            raise BinaryStructureError(
+                location=self.location,
+                offset=self.tell(),
+            )
 
         maximum = int(limit)
         if value > maximum:
