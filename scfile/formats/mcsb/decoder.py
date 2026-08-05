@@ -12,5 +12,5 @@ class McsbDecoder(McsaDecoder):
         self._skip_hash_prefix()
 
     def _skip_hash_prefix(self):
-        size = self.io.value(F.I32, ByteOrder.BIG)
-        self.io.read(size)
+        if size := self.io.value(F.I32, ByteOrder.BIG) > 0:
+            self.io.read(size)

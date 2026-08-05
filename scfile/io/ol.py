@@ -26,5 +26,5 @@ class OlReader(StructReader):
         return [[self.value(F.U32) for _ in range(CUBEMAP_FACE_COUNT)] for _ in range(mipmap_count)]
 
     def format(self) -> bytes:
-        string = self.read(16)
+        string = self.read_exact(16)
         return bytes(byte ^ XOR for byte in string if byte != NULL)

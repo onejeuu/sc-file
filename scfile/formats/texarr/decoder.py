@@ -25,6 +25,6 @@ class TexarrDecoder(Decoder[ArchiveContent]):
     def _parse_texture(self):
         path = self.io.string().replace(DELIMITER, "/") + FORMAT
         size = self.io.value(F.U32)
-        texture = self.io.read(size)
+        texture = self.io.read_exact(size)
 
         self.data.entries.append((path, texture))

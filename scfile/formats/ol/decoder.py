@@ -99,7 +99,10 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
         position = self.io.tell()
 
         try:
-            return lz4.block.decompress(self.io.read(compressed), uncompressed)
+            return lz4.block.decompress(
+                self.io.read_exact(compressed),
+                uncompressed,
+            )
 
         except lz4.block.LZ4BlockError:
             raise exceptions.BinaryStructureError(
