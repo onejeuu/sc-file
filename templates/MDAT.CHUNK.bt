@@ -11,12 +11,13 @@ BigEndian();
 
 local int SECTION_SIZE = 16 * 16 * 16;  // 4096
 local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
+local int BIOME_SIZE   = 16 * 16;       // 256
 
 typedef struct {
-    int32 fullSize <name="Full Size">;
+    int32 recordSize <name="Record Size">;
     int32 sectionMask <name="Section Mask", format=binary>;
     int32 addMask <name="Add Mask", format=binary>;
-    int32 fixedSize <name="Fixed Size">;
+    int32 terrainSize <name="Terrain Size">;
 } ChunkHeader;
 
 ChunkHeader header <name="Header">;
@@ -41,7 +42,9 @@ if (addCount > 0) {
     NibbleSection add[addCount] <name="Add", optimize=false, bgcolor=cDkYellow>;
 }
 
+uchar biomes[BIOME_SIZE] <name="Biomes", bgcolor=cPurple>;
+
 local int extraSize = FileSize() - FTell();
 if (extraSize > 0) {
-    uchar extra[extraSize] <name="Extra", bgcolor=cDkGreen>;
+    uchar extra[extraSize] <name="Extra Data", bgcolor=cDkGreen>;
 }

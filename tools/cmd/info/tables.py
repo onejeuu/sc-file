@@ -75,7 +75,7 @@ def content(source: Path, format: str, size: int, decoder: str, data: BaseConten
             rows.extend(
                 (
                     ("Chunks", len(data.chunks)),
-                    ("Slots", sum(offset != 0 for offset in data.offsets)),
+                    ("Slots", sum(offset != 0 for offset in data.sector_offsets)),
                 )
             )
 

@@ -9,10 +9,10 @@ from dataclasses import dataclass, field
 class ChunkHeader:
     """Header of compressed world chunk."""
 
-    full_size: int = 0
-    blocks_mask: int = 0
+    record_size: int = 0
+    section_mask: int = 0
     add_mask: int = 0
-    fixed_size: int = 0
+    terrain_size: int = 0
     compressed_size: int = 0
 
 
@@ -28,4 +28,5 @@ class RegionChunk:
     meta: bytes = field(default_factory=bytes)
     light: bytes = field(default_factory=bytes)
     add: bytes = field(default_factory=bytes)
+    biomes: bytes = field(default_factory=bytes)
     extra: bytes = field(default_factory=bytes)

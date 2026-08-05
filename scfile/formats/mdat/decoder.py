@@ -4,12 +4,15 @@ import zstandard as zstd
 
 from scfile.core import Decoder, RegionContent
 from scfile.enums import ByteOrder, F, FileFormat
+from scfile.exceptions import BinaryStructureError
 from scfile.structures import regions as S
 
 
-CHUNKS_COUNT = 32 * 32  # 1024
-SECTION_SIZE = 16 * 16 * 16  # 4096
-NIBBLE_SIZE = 16 * 16 * 8  # 2048
+CHUNK_COUNT = 32 * 32
+SECTOR_SIZE = 4096
+SECTION_SIZE = 16 * 16 * 16
+NIBBLE_SIZE = SECTION_SIZE // 2
+BIOME_SIZE = 16 * 16
 
 
 class MdatDecoder(Decoder[RegionContent]):
@@ -20,50 +23,69 @@ class MdatDecoder(Decoder[RegionContent]):
 
     @override
     def _parse(self):
-        table = [(self.io.value(F.I32), self.io.value(F.I32), self.io.read(16)) for _ in range(CHUNKS_COUNT)]
-        offsets, counts, uuids = map(list, zip(*table))
+        table = [
+            (
+                self.io.value(F.I32),
+                self.io.value(F.I32),
+                self.io.read(16),
+            )
+            for _ in range(CHUNK_COUNT)
+        ]
+        sector_offsets, sector_counts, uuids = map(list, zip(*table))
 
-        dctx = zstd.ZstdDecompressor()
+        zctx = zstd.ZstdDecompressor()
         chunks: list[S.RegionChunk] = []
 
-        for index in range(CHUNKS_COUNT):
-            offset = offsets[index]
-            if offset == 0:
+        for index, sector in enumerate(sector_offsets):
+            if sector == 0:
                 continue
 
-            self.io.seek(offset * SECTION_SIZE)
+            chunks.append(self._parse_chunk(index, sector, zctx))
 
-            # header
-            full_size, blocks_mask, add_mask, fixed_size, compressed_size = self.io.array(
-                F.U32,
-                5,
-            ).tolist()
-
-            # read raw data
-            compressed = self.io.read(compressed_size)
-            decompressed = dctx.decompress(compressed)
-
-            # split data
-            pos = 0
-            sections_count = bin(blocks_mask).count("1")
-            blocks = decompressed[pos : (pos := pos + sections_count * SECTION_SIZE)]
-
-            chunk = S.RegionChunk(
-                index=index,
-                header=S.ChunkHeader(full_size, blocks_mask, add_mask, fixed_size, compressed_size),
-                blocks=blocks,
-            )
-
-            if self.options.full_chunk:
-                add_count = bin(add_mask).count("1")
-                chunk.meta = decompressed[pos : (pos := pos + sections_count * NIBBLE_SIZE)]
-                chunk.light = decompressed[pos : (pos := pos + sections_count * NIBBLE_SIZE * 3)]
-                chunk.add = decompressed[pos : (pos := pos + add_count * NIBBLE_SIZE)]
-                chunk.extra = decompressed[pos:]
-
-            chunks.append(chunk)
-
-        self.data.offsets = offsets
-        self.data.counts = counts
+        self.data.sector_offsets = sector_offsets
+        self.data.sector_counts = sector_counts
         self.data.uuids = uuids
         self.data.chunks = chunks
+
+    def _parse_chunk(
+        self,
+        index: int,
+        sector: int,
+        zctx: zstd.ZstdDecompressor,
+    ) -> S.RegionChunk:
+        self.io.seek(sector * SECTOR_SIZE)
+        header = S.ChunkHeader(*self.io.array(F.U32, 5).tolist())
+
+        position = self.io.tell()
+        compressed = self.io.read_exact(header.compressed_size)
+
+        try:
+            payload = zctx.decompress(compressed)
+
+        except zstd.ZstdError as error:
+            raise BinaryStructureError(
+                location=self.location,
+                offset=position,
+            ) from error
+
+        section_count = header.section_mask.bit_count()
+        cursor = section_count * SECTION_SIZE
+        chunk = S.RegionChunk(
+            index=index,
+            header=header,
+            blocks=payload[:cursor],
+        )
+
+        if not self.options.full_chunk:
+            return chunk
+
+        # Section layout:
+        # blocks | metadata | block/sky light | add blocks | biomes | trailing data
+        metadata_size = section_count * NIBBLE_SIZE
+        add_size = header.add_mask.bit_count() * NIBBLE_SIZE
+        chunk.meta = payload[cursor : (cursor := cursor + metadata_size)]
+        chunk.light = payload[cursor : (cursor := cursor + metadata_size * 3)]
+        chunk.add = payload[cursor : (cursor := cursor + add_size)]
+        chunk.biomes = payload[cursor : (cursor := cursor + BIOME_SIZE)]
+        chunk.extra = payload[cursor:]
+        return chunk

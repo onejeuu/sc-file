@@ -111,8 +111,8 @@ class RegionContent(BaseContent):
     rx: int = 0
     rz: int = 0
 
-    offsets: list[int] = field(default_factory=list)
-    counts: list[int] = field(default_factory=list)
+    sector_offsets: list[int] = field(default_factory=list)
+    sector_counts: list[int] = field(default_factory=list)
     uuids: list[bytes] = field(default_factory=list)
 
     chunks: list[RegionChunk] = field(default_factory=list)
