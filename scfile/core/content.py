@@ -13,7 +13,9 @@ from scfile.structures.regions import RegionChunk
 from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
 
 
-type NbtValue = None | int | float | bytes | str | list[int] | list[NbtValue] | dict[str, NbtValue]
+type DocumentValue = (
+    None | int | float | bytes | str | list[int] | list[DocumentValue] | dict[str, DocumentValue]
+)
 
 
 class BaseContent:
@@ -93,12 +95,12 @@ class TexarrContent(BaseContent):
 
 
 @dataclass
-class NbtContent(BaseContent):
-    """Content container for NBT (Named Binary Tag) data."""
+class DocumentContent(BaseContent):
+    """Content container for structured document data."""
 
-    type: ClassVar[FileType] = FileType.NBT
+    type: ClassVar[FileType] = FileType.DOCUMENT
 
-    value: NbtValue = None
+    value: DocumentValue = None
 
 
 @dataclass

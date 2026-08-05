@@ -39,7 +39,7 @@ class FileType(StrEnum):
     TEXTURE = auto()
     IMAGE = auto()
     TEXARR = auto()
-    NBT = auto()
+    DOCUMENT = auto()
     REGION = auto()
 
 

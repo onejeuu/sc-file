@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import ClassVar, Self
 
-from scfile.core.content import NbtValue
+from scfile.core.content import DocumentValue
 from scfile.enums import ByteOrder, F
 from scfile.formats.nbt.enums import Tag
 
@@ -11,7 +11,7 @@ from .base import StructReader
 class NbtReader(StructReader):
     order: ByteOrder = ByteOrder.BIG
 
-    _HANDLERS: ClassVar[dict[Tag, Callable[[Self], NbtValue]]] = {
+    _HANDLERS: ClassVar[dict[Tag, Callable[[Self], DocumentValue]]] = {
         Tag.END: lambda _: None,
         Tag.BYTE: lambda s: s.value(F.I8),
         Tag.SHORT: lambda s: s.value(F.I16),
@@ -30,7 +30,7 @@ class NbtReader(StructReader):
     def parse(
         self,
         tag: Tag,
-    ) -> NbtValue:
+    ) -> DocumentValue:
         return self._HANDLERS[tag](self)
 
     def tag(self) -> Tag:
@@ -40,7 +40,7 @@ class NbtReader(StructReader):
         length = self.value(F.I32)
         return self.read(length)
 
-    def _list(self) -> list[NbtValue]:
+    def _list(self) -> list[DocumentValue]:
         tag = self.tag()
         length = self.value(F.I32)
         return [self.parse(tag) for _ in range(length)]
@@ -53,7 +53,7 @@ class NbtReader(StructReader):
         length = self.value(F.I32)
         return [self.value(F.I64) for _ in range(length)]
 
-    def _compound(self) -> dict[str, NbtValue]:
+    def _compound(self) -> dict[str, DocumentValue]:
         data = {}
         while True:
             tag = self.tag()

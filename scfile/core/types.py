@@ -2,7 +2,7 @@ from typing import Any
 
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
-from .content import ImageContent, ModelContent, NbtContent, RegionContent, TexarrContent, TextureContent
+from .content import DocumentContent, ImageContent, ModelContent, RegionContent, TexarrContent, TextureContent
 from .decoder import Decoder
 from .encoder import Encoder
 
@@ -24,8 +24,8 @@ type ImageEncoder = type[Encoder[ImageContent, Any]]
 type TexarrDecoder = type[Decoder[TexarrContent, Any]]
 type TexarrEncoder = type[Encoder[TexarrContent, Any]]
 
-type NbtDecoder = type[Decoder[NbtContent, Any]]
-type NbtEncoder = type[Encoder[NbtContent, Any]]
+type DocumentDecoder = type[Decoder[DocumentContent, Any]]
+type DocumentEncoder = type[Encoder[DocumentContent, Any]]
 
 type RegionDecoder = type[Decoder[RegionContent, Any]]
 type RegionEncoder = type[Encoder[RegionContent, Any]]

@@ -6,10 +6,10 @@ from . import base, decoder, encoder, types
 from .base import Handler
 from .content import (
     BaseContent,
+    DocumentContent,
+    DocumentValue,
     ImageContent,
     ModelContent,
-    NbtContent,
-    NbtValue,
     RegionContent,
     TexarrContent,
     TextureContent,
@@ -28,11 +28,11 @@ __all__ = (
     "Encoder",
     "ContentTransform",
     "BaseContent",
+    "DocumentContent",
+    "DocumentValue",
     "ModelContent",
     "TextureContent",
     "ImageContent",
     "RegionContent",
     "TexarrContent",
-    "NbtContent",
-    "NbtValue",
 )
