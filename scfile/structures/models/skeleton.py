@@ -3,11 +3,10 @@ Data structures for skeletons.
 """
 
 from dataclasses import dataclass, field
-from typing import Self
 
 import numpy as np
 
-from .enums import SkeletonHierarchy, SkeletonSpace
+from .enums import SkeletonSpace
 from .matrices import create_transform_matrix, euler_to_quat
 from .types import BindPose, EulerAngles, InverseBindMatrices, Quaternion, Vector3D
 
@@ -28,8 +27,6 @@ class SkeletonBone:
     rotation: EulerAngles = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
     tail: Vector3D = field(default_factory=lambda: np.zeros(3, dtype=np.float32))
 
-    children: list[Self] = field(default_factory=list, repr=False)
-
     @property
     def is_root(self) -> bool:
         return self.parent_id == ROOT_BONE_ID
@@ -49,11 +46,10 @@ class ModelSkeleton:
 
     bones: list[SkeletonBone] = field(default_factory=list)
     space: SkeletonSpace = SkeletonSpace.GLOBAL
-    hierarchy: SkeletonHierarchy = SkeletonHierarchy.FLAT
 
     @property
     def roots(self) -> list[SkeletonBone]:
-        return list(filter(lambda bone: bone.is_root, self.bones))
+        return [bone for bone in self.bones if bone.is_root]
 
     def calculate_global_transforms(self) -> BindPose:
         """Compute global transformation matrix for each bone."""

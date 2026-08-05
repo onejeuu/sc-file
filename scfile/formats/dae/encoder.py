@@ -38,7 +38,6 @@ class DaeEncoder(Encoder[ModelContent]):
         T.unique_names,
         T.invert_uv,
         T.skeleton_to_local,
-        T.build_hierarchy,
     )
 
     @override
@@ -187,19 +186,31 @@ class DaeEncoder(Encoder[ModelContent]):
         node = SubElement(scene, "node", id="armature", name="Armature", type="NODE")
         SubElement(node, "matrix", sid="transform").text = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
 
+        bones = self.data.scene.skeleton.bones
+        children: list[list[S.SkeletonBone]] = [[] for _ in bones]
+
+        for bone in bones:
+            if not bone.is_root:
+                children[bone.parent_id].append(bone)
+
         for root in self.data.scene.skeleton.roots:
-            self._add_bone(node, root)
+            self._add_bone(node, root, children)
 
         return node
 
-    def _add_bone(self, parent: Element, bone: S.SkeletonBone):
+    def _add_bone(
+        self,
+        parent: Element,
+        bone: S.SkeletonBone,
+        children: list[list[S.SkeletonBone]],
+    ):
         joint = SubElement(parent, "node", id=f"armature-{bone.name}", sid=bone.name, name=bone.name, type="JOINT")
 
         matrix = S.create_transform_matrix(bone.position, bone.rotation)
         SubElement(joint, "matrix", sid="transform").text = " ".join(map(str, matrix.flatten()))
 
-        for child in bone.children:
-            self._add_bone(joint, child)
+        for child in children[bone.id]:
+            self._add_bone(joint, child, children)
 
     def _add_mesh_instances(self, parent: Element):
         for mesh in self.data.scene.meshes:

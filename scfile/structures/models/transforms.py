@@ -13,7 +13,7 @@ import numpy as np
 from scfile.exceptions import AnimationError
 from scfile.structures.models.animation import AnimationClip
 
-from .enums import AnimationTranslation, LinkSpace, SkeletonHierarchy, SkeletonSpace, UVOrigin, UVSign
+from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVSign
 from .mesh import ModelMesh
 from .scene import ModelScene
 from .skeleton import ROOT_BONE_ID, SkeletonBone
@@ -130,23 +130,6 @@ def skeleton_to_local(scene: ModelScene) -> ModelScene:
     return replace(scene, skeleton=new_skeleton)
 
 
-def build_hierarchy(scene: ModelScene) -> ModelScene:
-    """Build bone children tree (FLAT → BUILT)."""
-
-    if scene.skeleton.hierarchy == SkeletonHierarchy.BUILT:
-        return scene
-
-    new_bones = [replace(bone, children=[]) for bone in scene.skeleton.bones]
-
-    for bone in new_bones:
-        if not bone.is_root:
-            parent = new_bones[bone.parent_id]
-            parent.children.append(bone)
-
-    new_skeleton = replace(scene.skeleton, bones=new_bones, hierarchy=SkeletonHierarchy.BUILT)
-    return replace(scene, skeleton=new_skeleton)
-
-
 def animation_to_absolute(scene: ModelScene) -> ModelScene:
     """Add rest pose positions to animation deltas (DELTA → ABSOLUTE)."""
 
@@ -192,9 +175,7 @@ def apply_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
     for model in models:
         for mesh in model.meshes:
             used_ids = {
-                int(bone_id)
-                for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat)
-                if weight > 0.0
+                int(bone_id) for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat) if weight > 0.0
             }
 
             for source_id in used_ids:
@@ -253,12 +234,7 @@ def apply_morph_animation(animation: ModelScene, model: ModelScene) -> ModelScen
         if clip.morph_weights.shape != (clip.frames, len(channels)):
             raise AnimationError(f"Animation clip '{clip.name}' has invalid morph weights.")
 
-    mapped = {
-        shape.channel
-        for mesh in model.meshes
-        for shape in mesh.blend_shapes
-        if shape.channel is not None
-    }
+    mapped = {shape.channel for mesh in model.meshes for shape in mesh.blend_shapes if shape.channel is not None}
     if not mapped:
         raise AnimationError("Model contains no mapped blend shapes.")
 

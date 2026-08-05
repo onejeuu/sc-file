@@ -39,7 +39,6 @@ class GlbEncoder(Encoder[ModelContent]):
     )
     transforms = T.scene_transforms(
         T.unique_names,
-        T.build_hierarchy,
         T.skeleton_to_local,
         T.animation_to_absolute,
     )
@@ -208,8 +207,14 @@ class GlbEncoder(Encoder[ModelContent]):
         self._ctx["ROOT_INDEXES"] = []
 
         node_index_offset = len(self.data.scene.meshes)
+        bones = self.data.scene.skeleton.bones
+        children: list[list[int]] = [[] for _ in bones]
 
-        for index, bone in enumerate(self.data.scene.skeleton.bones, start=node_index_offset):
+        for bone in bones:
+            if not bone.is_root:
+                children[bone.parent_id].append(node_index_offset + bone.id)
+
+        for index, bone in enumerate(bones, start=node_index_offset):
             node: Node = dict(
                 name=bone.name,
                 translation=bone.position.tolist(),
@@ -221,8 +226,8 @@ class GlbEncoder(Encoder[ModelContent]):
             if bone.is_root:
                 self._ctx["ROOT_INDEXES"].append(index)
 
-            if bone.children:
-                node["children"] = [node_index_offset + child.id for child in bone.children]
+            if children[bone.id]:
+                node["children"] = children[bone.id]
 
             # Add to GLTF
             self._ctx["GLTF"]["nodes"].append(node)
@@ -246,9 +251,7 @@ class GlbEncoder(Encoder[ModelContent]):
         for clip in self.data.scene.animation.clips:
             morph_targets = self._morph_animation_targets(clip)
             bone_animation = (
-                self.includes(Feature.BONE_ANIMATION)
-                and bool(clip.translations.size)
-                and bool(clip.rotations.size)
+                self.includes(Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
             )
             if not bone_animation and not morph_targets:
                 continue
@@ -448,9 +451,7 @@ class GlbEncoder(Encoder[ModelContent]):
         for clip in self.data.scene.animation.clips:
             morph_targets = self._morph_animation_targets(clip)
             bone_animation = (
-                self.includes(Feature.BONE_ANIMATION)
-                and bool(clip.translations.size)
-                and bool(clip.rotations.size)
+                self.includes(Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
             )
             if not bone_animation and not morph_targets:
                 continue

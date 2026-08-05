@@ -92,13 +92,6 @@ class SkeletonSpace(StrEnum):
     LOCAL = auto()
 
 
-class SkeletonHierarchy(StrEnum):
-    """Skeleton bones hierarchy state."""
-
-    FLAT = auto()
-    BUILT = auto()
-
-
 class AnimationTranslation(StrEnum):
     """Animation translation mode."""
 
