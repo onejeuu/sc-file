@@ -5,7 +5,6 @@ Defines data structures that hold parsed file contents.
 
 from dataclasses import dataclass, field
 from typing import ClassVar
-from uuid import UUID
 
 from scfile.enums import FileType
 from scfile.structures.models import Feature, FeatureFlags, ModelScene
@@ -114,6 +113,6 @@ class RegionContent(BaseContent):
 
     offsets: list[int] = field(default_factory=list)
     counts: list[int] = field(default_factory=list)
-    uuid: list[UUID] = field(default_factory=list)
+    uuids: list[bytes] = field(default_factory=list)
 
     chunks: list[RegionChunk] = field(default_factory=list)

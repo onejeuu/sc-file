@@ -65,5 +65,5 @@ class MdatDecoder(Decoder[RegionContent]):
 
         self.data.offsets = offsets
         self.data.counts = counts
-        self.data.uuid = uuids
+        self.data.uuids = uuids
         self.data.chunks = chunks

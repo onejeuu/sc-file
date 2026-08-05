@@ -36,13 +36,13 @@ class DefaultTexture(Texture):
 
     @property
     @override
-    def image(self):
+    def image(self) -> bytes:
         return b"".join(self.mipmaps)
 
     @property
     @override
-    def linear_size(self):
-        return self.uncompressed[0]
+    def linear_size(self) -> int:
+        return self.uncompressed[0] if self.uncompressed else 0
 
 
 @dataclass
@@ -55,10 +55,10 @@ class CubemapTexture(Texture):
 
     @property
     @override
-    def image(self):
+    def image(self) -> bytes:
         return b"".join(b"".join(face) for face in self.faces)
 
     @property
     @override
-    def linear_size(self):
-        return self.uncompressed[0][0]
+    def linear_size(self) -> int:
+        return self.uncompressed[0][0] if self.uncompressed and self.uncompressed[0] else 0
