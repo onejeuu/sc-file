@@ -6,9 +6,10 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class ZipEncoder(Encoder[ArchiveContent]):
-    content_type = ArchiveContent
     format = FileFormat.ZIP
     order = ByteOrder.LITTLE
+
+    content_type = ArchiveContent
 
     @override
     def _serialize(self):

@@ -6,9 +6,10 @@ from scfile.enums import ByteOrder, FileFormat
 
 
 class JsonEncoder(Encoder[DocumentContent]):
-    content_type = DocumentContent
     format = FileFormat.JSON
     order = ByteOrder.LITTLE
+
+    content_type = DocumentContent
 
     @override
     def _serialize(self):

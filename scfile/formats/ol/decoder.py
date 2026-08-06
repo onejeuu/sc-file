@@ -3,7 +3,7 @@ from typing import override
 import lz4.block
 
 from scfile import exceptions
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Decoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import TextureFormatError, TextureKindError
@@ -16,7 +16,7 @@ from .formats import SUPPORTED_FORMATS
 
 class OlDecoder(Decoder[TextureContent, OlReader]):
     format = FileFormat.OL
-    signature = FileSignature.OL
+    signature = FormatSignature.OL
     order = ByteOrder.BIG
 
     content_type = TextureContent

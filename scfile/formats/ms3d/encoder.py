@@ -2,7 +2,7 @@ from typing import override
 
 import numpy as np
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Encoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.io.ms3d import Ms3dWriter
@@ -40,10 +40,11 @@ TRIANGLE_DTYPE = np.dtype(
 
 
 class Ms3dEncoder(Encoder[ModelContent, Ms3dWriter]):
-    content_type = ModelContent
     format = FileFormat.MS3D
-    signature = FileSignature.MS3D
+    signature = FormatSignature.MS3D
     order = ByteOrder.LITTLE
+
+    content_type = ModelContent
     io_factory = Ms3dWriter
 
     features = (
@@ -74,11 +75,7 @@ class Ms3dEncoder(Encoder[ModelContent, Ms3dWriter]):
             vertices = np.empty(len(mesh.vertices), dtype=VERTEX_DTYPE)
             vertices["flags"] = 0
             vertices["position"] = mesh.vertices
-            vertices["bone_id"] = (
-                mesh.links_ids[:, 0]
-                if self.includes(Feature.SKELETON)
-                else ROOT_BONE_ID
-            )
+            vertices["bone_id"] = mesh.links_ids[:, 0] if self.includes(Feature.SKELETON) else ROOT_BONE_ID
             vertices["reference_count"] = reference_count
             self.io.write(vertices.tobytes())
 

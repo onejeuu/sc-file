@@ -5,7 +5,6 @@ Format resolution.
 from pathlib import Path
 from typing import Any, Optional
 
-from scfile.consts import SUPPORTED_NBT
 from scfile.core import Encoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.options import ConvertOptions
@@ -30,11 +29,7 @@ class Resolver:
         """Resolve a registered source format from file path."""
 
         path = Path(source)
-        name = path.name.lower()
-        if name in SUPPORTED_NBT:
-            return self.registry.get(FileFormat.NBT)
-
-        entry = self.registry.get(path.suffix)
+        entry = self.registry.get(path.name) or self.registry.get(path.suffix)
         if entry is None or entry.decoder is None:
             return None
         return entry

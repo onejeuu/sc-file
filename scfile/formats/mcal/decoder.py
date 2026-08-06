@@ -1,6 +1,6 @@
 from typing import override
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
@@ -11,7 +11,7 @@ from scfile.structures import models as S
 
 class McalDecoder(Decoder[ModelContent, ModelReader]):
     format = FileFormat.MCAL
-    signature = FileSignature.MCAL
+    signature = FormatSignature.MCAL
     order = ByteOrder.LITTLE
 
     content_type = ModelContent

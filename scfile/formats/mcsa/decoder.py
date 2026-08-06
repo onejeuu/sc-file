@@ -3,11 +3,11 @@ from typing import override
 
 import numpy as np
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.consts import IntegerFactor as Factor
+from scfile.enums import SafetyLimit as Limit
 from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
@@ -28,7 +28,7 @@ class MeshCounts:
 
 class McsaDecoder(Decoder[ModelContent, ModelReader]):
     format = FileFormat.MCSA
-    signature = FileSignature.MCSA
+    signature = FormatSignature.MCSA
     order = ByteOrder.LITTLE
 
     content_type = ModelContent
@@ -69,10 +69,7 @@ class McsaDecoder(Decoder[ModelContent, ModelReader]):
         latest = max(VERSION_MAP.keys())
         mapping = VERSION_MAP.get(self.data.version, VERSION_MAP[latest])
 
-        self.data.flags = {
-            feature: bool(self.io.value(F.BOOL))
-            for feature in mapping
-        }
+        self.data.flags = {feature: bool(self.io.value(F.BOOL)) for feature in mapping}
 
     def _parse_scales(self):
         self.data.scene.scale.position = self.io.value(F.F32)

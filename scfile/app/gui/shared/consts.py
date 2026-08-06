@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from scfile.consts import SUPPORTED_NBT
 from scfile.enums import FileFormat
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature
@@ -92,7 +91,7 @@ FILE_KINDS: list[FileKind] = [
         id="nbt",
         icon="⚙️",
         label=strings.get("format.nbt"),
-        suffixes=list(sorted(SUPPORTED_NBT)),
+        suffixes=sorted(REGISTRY.aliases_for(FileFormat.NBT)),
     ),
 ]
 

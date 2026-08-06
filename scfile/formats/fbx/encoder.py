@@ -15,9 +15,10 @@ from .consts import DEFAULT, FBX, Props
 
 
 class FbxEncoder(Encoder[ModelContent, FbxWriter]):
-    content_type = ModelContent
     format = FileFormat.FBX
     order = ByteOrder.LITTLE
+
+    content_type = ModelContent
     io_factory = FbxWriter
 
     features = (

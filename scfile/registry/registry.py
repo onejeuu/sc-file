@@ -15,6 +15,7 @@ from scfile.structures.models import Feature, Features
 from scfile.types import FormatLike
 
 
+# TODO: rework
 def _is_decoder(handler: object) -> TypeIs[type[Decoder[Any, Any]]]:
     return isinstance(handler, type) and issubclass(handler, Decoder)
 
@@ -69,6 +70,38 @@ class Registry:
 
         return MappingProxyType(self._formats)
 
+    @property
+    def aliases(self) -> Mapping[str, FileFormat]:
+        """Registered format aliases."""
+
+        return MappingProxyType(self._aliases)
+
+    @property
+    def supported_formats(self) -> frozenset[FileFormat]:
+        """Formats with a registered decoder."""
+
+        return frozenset(
+            fmt for fmt, spec in self._formats.items() if spec.decoder is not None
+        )
+
+    @property
+    def supported_suffixes(self) -> frozenset[str]:
+        """Input suffixes supported by registered decoders."""
+
+        return frozenset(fmt.suffix for fmt in self.supported_formats)
+
+    @property
+    def supported_aliases(self) -> frozenset[str]:
+        """Input names registered as format aliases."""
+
+        return frozenset(self._aliases)
+
+    @property
+    def supported_inputs(self) -> frozenset[str]:
+        """All input filename filters supported by registered decoders."""
+
+        return self.supported_suffixes | self.supported_aliases
+
     def register(
         self,
         *handlers: type[Decoder[Any, Any]] | type[Encoder[Any, Any]],
@@ -80,16 +113,26 @@ class Registry:
 
     def alias(
         self,
-        alias: str,
         target: FormatLike,
+        *aliases: str,
     ) -> None:
-        """Add another name for a registered format."""
+        """Add alternative names for a registered format."""
 
         fmt = self.resolve(target)
         if fmt not in self._formats:
             raise RegistryError(f"Cannot alias unregistered format '{target}'.")
 
-        self._aliases[_format_name(alias)] = fmt
+        for alias in aliases:
+            self._aliases[_format_name(alias)] = fmt
+
+    def aliases_for(
+        self,
+        target: FormatLike,
+    ) -> frozenset[str]:
+        """Return registered aliases for one format."""
+
+        fmt = self.resolve(target)
+        return frozenset(alias for alias, value in self._aliases.items() if value is fmt)
 
     def resolve(
         self,

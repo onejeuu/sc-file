@@ -3,6 +3,7 @@ Built-in file formats registry.
 """
 
 from scfile import formats
+from scfile.enums import FileFormat
 
 from .registry import Registry
 from .resolver import Resolver
@@ -30,5 +31,7 @@ REGISTRY = Registry(
     formats.TexarrDecoder,
     formats.ZipEncoder,
 )
+
+REGISTRY.alias(FileFormat.NBT, *formats.nbt.SUPPORTED_FILENAMES)
 
 RESOLVER = Resolver(REGISTRY)

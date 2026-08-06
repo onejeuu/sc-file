@@ -16,6 +16,7 @@ Example::
 
 from .decoder import NbtDecoder
 from .enums import Tag
+from .filenames import SUPPORTED_FILENAMES
 
 
-__all__ = ("NbtDecoder", "Tag")
+__all__ = ("SUPPORTED_FILENAMES", "NbtDecoder", "Tag")

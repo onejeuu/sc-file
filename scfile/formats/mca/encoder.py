@@ -39,9 +39,10 @@ SECTION_PAYLOAD = (
 
 
 class McaEncoder(Encoder[RegionContent]):
-    content_type = RegionContent
     format = FileFormat.MCA
     order = ByteOrder.BIG
+
+    content_type = RegionContent
 
     @override
     def _serialize(self):

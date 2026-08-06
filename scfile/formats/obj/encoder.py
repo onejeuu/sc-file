@@ -12,9 +12,10 @@ from . import faces
 
 
 class ObjEncoder(Encoder[ModelContent]):
-    content_type = ModelContent
     format = FileFormat.OBJ
     order = ByteOrder.LITTLE
+
+    content_type = ModelContent
 
     features = (
         Feature.UV,

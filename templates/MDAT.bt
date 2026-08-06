@@ -18,10 +18,10 @@ typedef struct {
 } Metadata;
 
 typedef struct {
-    int32 fullSize <name="Full Size">;
+    int32 recordSize <name="Record Size">;
     int32 sectionMask <name="Section Mask">;
     int32 addMask <name="Add Mask">;
-    int32 fixedSize <name="Fixed Size">;
+    int32 terrainSize <name="Terrain Size">;
     int32 compressedSize <name="Compressed Size", fgcolor=cDkGreen>;
 
     // ZSTD compressed data

@@ -118,20 +118,6 @@ F = StructFormat
 """StructFormat Alias."""
 
 
-class SafetyLimit(IntEnum):
-    """Reasonable decoded data limits."""
-
-    STRING = 4_096
-    MESHES = 10_000
-    VERTICES = 1_000_000
-    POLYGONS = 2_000_000
-    CLIPS = 50_000
-    FRAMES = 100_000
-    TRANSFORMS = 5_000_000
-    WEIGHTS = 10_000_000
-    BLEND_DELTAS = 10_000_000
-
-
 class CliCommand(StrEnum):
     """CLI command names."""
 
@@ -154,3 +140,17 @@ class UpdateStatus(StrEnum):
     ERROR = auto()
     UPTODATE = auto()
     AVAILABLE = auto()
+
+
+class SafetyLimit(IntEnum):
+    """Named limits for decoded binary data."""
+
+    STRING = 4_096
+    MESHES = 10_000
+    VERTICES = 1_000_000
+    POLYGONS = 2_000_000
+    CLIPS = 50_000
+    FRAMES = 100_000
+    TRANSFORMS = 5_000_000
+    WEIGHTS = 10_000_000
+    BLEND_DELTAS = 10_000_000

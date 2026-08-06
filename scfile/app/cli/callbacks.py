@@ -4,8 +4,8 @@ import click
 
 from scfile import __version__ as SEMVER
 from scfile.app.cli import messages
-from scfile.consts import SUPPORTED_NBT, SUPPORTED_SUFFIXES
-from scfile.enums import UpdateStatus
+from scfile.enums import FileFormat, UpdateStatus
+from scfile.registry import REGISTRY
 from scfile.utils import updates
 from scfile.utils.versions import Version
 
@@ -21,10 +21,12 @@ def version_callback(
         return
 
     version = Version.parse(SEMVER)
-
-    messages.echo(f"scfile, version {str(version)} {version.emoji if version else ''}")
-    messages.echo(f"Supported Formats: {sorted(SUPPORTED_SUFFIXES)}")
-    messages.echo(f"Supported NBTs: {sorted(SUPPORTED_NBT)}")
+    messages.version(
+        str(version),
+        version.emoji if version else "",
+        REGISTRY.supported_suffixes,
+        REGISTRY.aliases_for(FileFormat.NBT),
+    )
 
     ctx.exit()
 

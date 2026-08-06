@@ -1,34 +1,5 @@
-from .enums import FileFormat
-
-
-SUPPORTED_FORMATS: set[FileFormat] = {
-    FileFormat.EFKMODEL,
-    FileFormat.MCSA,
-    FileFormat.MCSB,
-    FileFormat.MCVD,
-    FileFormat.MIC,
-    FileFormat.OL,
-    FileFormat.TEXARR,
-    FileFormat.NBT,
-    FileFormat.MDAT,
-}
-"""Formats available for conversion."""
-
-SUPPORTED_SUFFIXES: set[str] = set(map(lambda fmt: fmt.suffix, SUPPORTED_FORMATS))
-"""Formats suffixes available for conversion."""
-
-SUPPORTED_NBT: set[str] = {"itemnames.dat", "prefs", "common", "sd0", "sd1", "sd2", "sd3", "sd4"}
-"""NBT filenames available for conversion."""
-
-ALLOWED_SUFFIXES: set[str] = SUPPORTED_SUFFIXES | SUPPORTED_NBT
-"""All path suffixes available for conversion."""
-
-INVALID_INPUT_HINT = "Input file appears to be corrupted or invalid."
-"""Hint shown when binary parsing suggests invalid input."""
-
-
-class FileSignature:
-    """Format magic bytes."""
+class FormatSignature:
+    """Known binary format signatures."""
 
     MCSA = b"MCSA"
     MCAL = b"MCAL"
@@ -39,6 +10,9 @@ class FileSignature:
     PNG = b"\x89PNG"
     GLTF = b"glTF"
     MS3D = b"MS3D000000"
+
+    GZIP = b"\x1f\x8b"
+    ZSTD = b"\x28\xb5\x2f\xfd"
 
 
 class IntegerFactor:

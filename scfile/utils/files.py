@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from scfile import types
-from scfile.consts import ALLOWED_SUFFIXES
+from scfile.registry import REGISTRY
 
 
 def resource(
@@ -49,13 +49,17 @@ def walk(
 
     paths = resolve(sources)
     paths = list(map(str, paths))
-    whitelist = tuple(whitelist or ALLOWED_SUFFIXES)
+    filters = whitelist or REGISTRY.supported_inputs
+    allowed = tuple(value.lower() for value in filters)
+    suffixes = tuple(value for value in allowed if value.startswith("."))
+    names = {value for value in allowed if not value.startswith(".")}
 
     for root in paths:
         base = os.path.dirname(root) if parent else root
 
         if os.path.isfile(root):
-            if root.lower().endswith(whitelist):
+            name = os.path.basename(root).lower()
+            if name in names or name.endswith(suffixes):
                 yield types.FileEntry(
                     root=root,
                     path=root,
@@ -76,7 +80,8 @@ def walk(
                             stack.append(entry.path)
 
                         elif entry.is_file():
-                            if entry.name.lower().endswith(whitelist):
+                            name = entry.name.lower()
+                            if name in names or name.endswith(suffixes):
                                 yield types.FileEntry(
                                     root=root,
                                     path=entry.path,

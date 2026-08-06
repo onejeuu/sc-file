@@ -4,7 +4,6 @@ Structured binary I/O.
 
 import os
 import struct
-from enum import IntEnum
 from io import SEEK_CUR, SEEK_END, BytesIO, IOBase, TextIOBase
 from typing import IO, Any, ClassVar, Self, cast
 
@@ -221,7 +220,7 @@ class StructReader(StructIO[IOStream]):
         self,
         prefix: str = F.U16,
         order: ByteOrder | None = None,
-        limit: IntEnum | None = Limit.STRING,
+        limit: int | None = Limit.STRING,
     ) -> str:
         """Read a length-prefixed UTF-8 string."""
 
@@ -232,7 +231,7 @@ class StructReader(StructIO[IOStream]):
         self,
         prefix: str = F.U16,
         order: ByteOrder | None = None,
-        limit: IntEnum | None = None,
+        limit: int | None = None,
     ) -> bytes:
         """Read length-prefixed bytes."""
 
@@ -244,7 +243,7 @@ class StructReader(StructIO[IOStream]):
     def count(
         self,
         fmt: str,
-        limit: IntEnum,
+        limit: Limit | int,
     ) -> int:
         """Read and validate a bounded count."""
 
@@ -253,7 +252,7 @@ class StructReader(StructIO[IOStream]):
     def check(
         self,
         value: int,
-        limit: IntEnum,
+        limit: Limit | int,
     ) -> int:
         """Validate a decoded count."""
 
@@ -263,12 +262,12 @@ class StructReader(StructIO[IOStream]):
                 offset=self.tell(),
             )
 
-        maximum = int(limit)
-        if value > maximum:
+        if value > limit:
+            subject = limit.name.lower() if isinstance(limit, Limit) else "value"
             raise SafetyLimitError(
-                limit.name.lower(),
+                subject,
                 value,
-                maximum,
+                limit,
                 location=self.location,
                 offset=self.tell(),
             )
@@ -278,7 +277,7 @@ class StructReader(StructIO[IOStream]):
 class StructWriter(StructIO[OutputStream]):
     """Write structured values to a binary stream."""
 
-    mode = "w+b"
+    mode = "wb+"
 
     def write(
         self,

@@ -3,8 +3,8 @@ from rich.console import Console
 from rich.markup import escape
 
 from scfile import exceptions
+from scfile.app.consts import CORRUPTED_INPUT_HINT
 from scfile.app.tasks import Failure, Item, Started, TaskKind
-from scfile.consts import INVALID_INPUT_HINT
 
 
 CONSOLE = Console()
@@ -65,7 +65,7 @@ class _Reporter:
         message = f"'{location or event.source}': {error}"
 
         if isinstance(error, exceptions.BinaryStructureError):
-            logger.error(f"{message} {INVALID_INPUT_HINT}")
+            logger.error(f"{message} {CORRUPTED_INPUT_HINT}")
         elif isinstance(error, exceptions.ScFileException):
             logger.error(message)
         else:

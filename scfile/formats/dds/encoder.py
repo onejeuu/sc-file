@@ -1,6 +1,6 @@
 from typing import override
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Encoder, TextureContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
@@ -10,10 +10,11 @@ from .header import DDS
 
 
 class DdsEncoder(Encoder[TextureContent]):
-    content_type = TextureContent
     format = FileFormat.DDS
-    signature = FileSignature.DDS
+    signature = FormatSignature.DDS
     order = ByteOrder.LITTLE
+
+    content_type = TextureContent
 
     @override
     def _serialize(self):

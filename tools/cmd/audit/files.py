@@ -6,10 +6,11 @@ from itertools import islice
 
 from rich.console import Console
 
-from scfile.consts import SUPPORTED_NBT
 from scfile.convert import files
+from scfile.enums import FileFormat
 from scfile.exceptions import EmptyFileError
 from scfile.options import HandlerOptions
+from scfile.registry import REGISTRY
 from scfile.utils.files import walk
 from tools.cmd.audit import stats
 from tools.cmd.audit.config import Config
@@ -47,7 +48,7 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
     formats = set(config.formats)
     whitelist = [f".{format}" for format in formats if format != "nbt"]
     if "nbt" in formats:
-        whitelist.extend(SUPPORTED_NBT)
+        whitelist.extend(REGISTRY.aliases_for(FileFormat.NBT))
 
     with console.status("Searching... 0 files") as status:
         updated = time.monotonic()

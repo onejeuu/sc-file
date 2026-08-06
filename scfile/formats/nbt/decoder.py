@@ -5,15 +5,12 @@ from typing import override
 import zstandard as zstd
 
 from scfile.core import Decoder, DocumentContent
+from scfile.consts import FormatSignature
 from scfile.enums import ByteOrder, FileFormat
 from scfile.exceptions import BinaryStructureError
 from scfile.io.nbt import NbtReader
 
 from .enums import Tag
-
-
-GZIP_MAGIC = b"\x1f\x8b"
-ZSTD_MAGIC = b"\x28\xb5\x2f\xfd"
 
 
 class NbtDecoder(Decoder[DocumentContent]):
@@ -39,10 +36,10 @@ class NbtDecoder(Decoder[DocumentContent]):
         data = self.io.read()
 
         try:
-            if data.startswith(GZIP_MAGIC):
+            if data.startswith(FormatSignature.GZIP):
                 return gzip.decompress(data)
 
-            if data.startswith(ZSTD_MAGIC):
+            if data.startswith(FormatSignature.ZSTD):
                 return zstd.decompress(data)
 
         except (gzip.BadGzipFile, EOFError, zlib.error, zstd.ZstdError) as error:

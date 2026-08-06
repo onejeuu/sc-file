@@ -1,15 +1,16 @@
 from typing import override
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Encoder, ImageContent
 from scfile.enums import ByteOrder, FileFormat
 
 
 class PngEncoder(Encoder[ImageContent]):
-    content_type = ImageContent
     format = FileFormat.PNG
-    signature = FileSignature.PNG
+    signature = FormatSignature.PNG
     order = ByteOrder.LITTLE
+
+    content_type = ImageContent
 
     @override
     def _serialize(self):

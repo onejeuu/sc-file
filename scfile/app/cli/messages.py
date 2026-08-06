@@ -7,15 +7,19 @@ from rich.markup import escape
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
-    Progress as RichProgress,
     TaskID,
     TaskProgressColumn,
     TextColumn,
     TimeElapsedColumn,
 )
+from rich.progress import (
+    Progress as RichProgress,
+)
+from rich.table import Table
 from rich.text import Text
 
 from scfile import exceptions, types
+from scfile.app.consts import CORRUPTED_INPUT_HINT
 from scfile.app.tasks import (
     PROGRESS_THRESHOLD,
     Failure,
@@ -25,13 +29,13 @@ from scfile.app.tasks import (
     Summary,
     TaskKind,
 )
-from scfile.consts import INVALID_INPUT_HINT
 from scfile.enums import FileFormat
 from scfile.options import HandlerOptions
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature, Features
 
 
+# TODO: rework module
 CONSOLE = Console()
 
 
@@ -62,6 +66,30 @@ def echo(
     """Render plain command-line text with an optional style."""
 
     CONSOLE.print(escape(message), style=style, highlight=False)
+
+
+def version(
+    value: str,
+    emoji: str,
+    formats: Iterable[str],
+    nbt: Iterable[str],
+) -> None:
+    """Render version and supported input formats."""
+
+    title = Text("scfile", style="bold yellow")
+    title.append(f" {value}")
+    if emoji:
+        title.append(f" {emoji}")
+
+    support = Table.grid(padding=(0, 2))
+    support.add_column(style="bold")
+    support.add_column(style="cyan")
+    support.add_row("Formats", "  ".join(sorted(formats)))
+    support.add_row("NBT", "  ".join(sorted(nbt)))
+
+    CONSOLE.print(title)
+    CONSOLE.print()
+    CONSOLE.print(support)
 
 
 def info(message: str) -> None:
@@ -156,11 +184,11 @@ def task_message(
     location = error.location if isinstance(error, exceptions.ScFileException) else None
     message = f"'{location or event.source}': {error}"
     if isinstance(error, exceptions.BinaryStructureError):
-        _message("ERROR", f"{message} {INVALID_INPUT_HINT}", "red", console)
+        _message("ERROR", f"{message} {CORRUPTED_INPUT_HINT}", "red", console)
     elif isinstance(error, exceptions.ScFileException):
         _message("ERROR", message, "red", console)
     else:
-        _message("UNEXPECTED ERROR", f"File '{event.source}' {error!r}. {INVALID_INPUT_HINT}", "red", console)
+        _message("UNEXPECTED ERROR", f"File '{event.source}' {error!r}. {CORRUPTED_INPUT_HINT}", "red", console)
 
     if event.traceback:
         console.print(event.traceback, markup=False, highlight=False)

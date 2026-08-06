@@ -4,7 +4,7 @@ from typing import Any, override
 
 import numpy as np
 
-from scfile.consts import FileSignature
+from scfile.consts import FormatSignature
 from scfile.core import Encoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.structures.models import AnimationClip, BlendShape, Feature, MorphWeights
@@ -22,10 +22,11 @@ type Accessor = dict[str, str | int]
 
 
 class GlbEncoder(Encoder[ModelContent]):
-    content_type = ModelContent
     format = FileFormat.GLB
-    signature = FileSignature.GLTF
+    signature = FormatSignature.GLTF
     order = ByteOrder.LITTLE
+
+    content_type = ModelContent
 
     features = (
         Feature.UV,
