@@ -9,8 +9,6 @@ class FormatSignature:
     DDS = b"DDS "
     PNG = b"\x89PNG"
     GLTF = b"glTF"
-    MS3D = b"MS3D000000"
-
     GZIP = b"\x1f\x8b"
     ZSTD = b"\x28\xb5\x2f\xfd"
 

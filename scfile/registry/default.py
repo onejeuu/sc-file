@@ -10,7 +10,6 @@ from .resolver import Resolver
 
 
 REGISTRY = Registry(
-    formats.DaeEncoder,
     formats.DdsEncoder,
     formats.EfkmodelDecoder,
     formats.FbxEncoder,
@@ -23,7 +22,6 @@ REGISTRY = Registry(
     formats.McvdDecoder,
     formats.MdatDecoder,
     formats.MicDecoder,
-    formats.Ms3dEncoder,
     formats.NbtDecoder,
     formats.ObjEncoder,
     formats.OlDecoder,

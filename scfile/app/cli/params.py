@@ -47,13 +47,11 @@ MapCacheDir = click.Path(
     resolve_path=True,
 )
 
-
+# TODO: rework
 MODEL_FORMAT_ORDER = (
     FileFormat.OBJ,
     FileFormat.GLB,
     FileFormat.FBX,
-    FileFormat.DAE,
-    FileFormat.MS3D,
 )
 
 Formats = click.Choice(

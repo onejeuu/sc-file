@@ -5,7 +5,6 @@ class FileFormat(StrEnum):
     """File extension without dot."""
 
     NONE = ""
-    DAE = auto()
     DDS = auto()
     EFKMODEL = auto()
     FBX = auto()
@@ -18,7 +17,6 @@ class FileFormat(StrEnum):
     MCVD = auto()
     MDAT = auto()
     MIC = auto()
-    MS3D = auto()
     NBT = auto()
     OBJ = auto()
     OL = auto()

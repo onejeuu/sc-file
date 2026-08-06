@@ -51,46 +51,6 @@ def mcsb_to_glb(
     """
 
 
-@converter(formats.mcsb.McsbDecoder, formats.dae.DaeEncoder)
-def mcsb_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcsb`` to ``.dae`` format.
-
-    Arguments:
-        source: Path to source ``.mcsb`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcsb_to_dae("model.mcsb", "model.dae")``
-        - ``mcsb_to_dae("model.mcsb", "path/to/output/dir")``
-    """
-
-
-@converter(formats.mcsb.McsbDecoder, formats.ms3d.Ms3dEncoder)
-def mcsb_to_ms3d(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcsb`` to ``.ms3d`` format.
-
-    Arguments:
-        source: Path to source ``.mcsb`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcsb_to_ms3d("model.mcsb", "model.ms3d")``
-        - ``mcsb_to_ms3d("model.mcsb", "path/to/output/dir")``
-    """
-
-
 @converter(formats.mcsb.McsbDecoder, formats.fbx.FbxEncoder)
 def mcsb_to_fbx(
     source: PathLike,
@@ -148,46 +108,6 @@ def mcsa_to_glb(
     Example:
         - ``mcsa_to_glb("model.mcsa", "model.glb")``
         - ``mcsa_to_glb("model.mcsa", "path/to/output/dir")``
-    """
-
-
-@converter(formats.mcsa.McsaDecoder, formats.dae.DaeEncoder)
-def mcsa_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcsa`` to ``.dae`` format.
-
-    Arguments:
-        source: Path to source ``.mcsa`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcsa_to_dae("model.mcsa", "model.dae")``
-        - ``mcsa_to_dae("model.mcsa", "path/to/output/dir")``
-    """
-
-
-@converter(formats.mcsa.McsaDecoder, formats.ms3d.Ms3dEncoder)
-def mcsa_to_ms3d(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcsa`` to ``.ms3d`` format.
-
-    Arguments:
-        source: Path to source ``.mcsa`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcsa_to_ms3d("model.mcsa", "model.ms3d")``
-        - ``mcsa_to_ms3d("model.mcsa", "path/to/output/dir")``
     """
 
 
@@ -251,46 +171,6 @@ def mcvd_to_glb(
     """
 
 
-@converter(formats.mcvd.McvdDecoder, formats.dae.DaeEncoder)
-def mcvd_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcvd`` to ``.dae`` format.
-
-    Arguments:
-        source: Path to source ``.mcvd`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcvd_to_dae("model.mcvd", "model.dae")``
-        - ``mcvd_to_dae("model.mcvd", "path/to/output/dir")``
-    """
-
-
-@converter(formats.mcvd.McvdDecoder, formats.ms3d.Ms3dEncoder)
-def mcvd_to_ms3d(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.mcvd`` to ``.ms3d`` format.
-
-    Arguments:
-        source: Path to source ``.mcvd`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``mcvd_to_ms3d("model.mcvd", "model.ms3d")``
-        - ``mcvd_to_ms3d("model.mcvd", "path/to/output/dir")``
-    """
-
-
 @converter(formats.mcvd.McvdDecoder, formats.fbx.FbxEncoder)
 def mcvd_to_fbx(
     source: PathLike,
@@ -348,46 +228,6 @@ def efkmodel_to_glb(
     Example:
         - ``efkmodel_to_glb("model.efkmodel", "model.glb")``
         - ``efkmodel_to_glb("model.efkmodel", "path/to/output/dir")``
-    """
-
-
-@converter(formats.efkmodel.EfkmodelDecoder, formats.dae.DaeEncoder)
-def efkmodel_to_dae(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.efkmodel`` to ``.dae`` format.
-
-    Arguments:
-        source: Path to source ``.efkmodel`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``efkmodel_to_dae("model.efkmodel", "model.dae")``
-        - ``efkmodel_to_dae("model.efkmodel", "path/to/output/dir")``
-    """
-
-
-@converter(formats.efkmodel.EfkmodelDecoder, formats.ms3d.Ms3dEncoder)
-def efkmodel_to_ms3d(
-    source: PathLike,
-    output: Optional[PathLike] = None,
-    options: Optional[ConvertOptions] = None,
-):
-    """
-    Converts model from ``.efkmodel`` to ``.ms3d`` format.
-
-    Arguments:
-        source: Path to source ``.efkmodel`` file.
-        output (optional): Path to file or directory. Defaults to same location as source.
-        options (optional): Shared handlers options.
-
-    Example:
-        - ``efkmodel_to_ms3d("model.efkmodel", "model.ms3d")``
-        - ``efkmodel_to_ms3d("model.efkmodel", "path/to/output/dir")``
     """
 
 

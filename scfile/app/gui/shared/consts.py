@@ -117,7 +117,5 @@ class ModelFormat:
 MODEL_FORMATS = [
     ModelFormat(FileFormat.OBJ),
     ModelFormat(FileFormat.GLB),
-    ModelFormat(FileFormat.DAE),
-    ModelFormat(FileFormat.MS3D),
     ModelFormat(FileFormat.FBX),
 ]

@@ -17,7 +17,6 @@ from scfile import exceptions
         exceptions.SignatureMismatchError(b"bad", b"MIC"),
         exceptions.BinaryStructureError(),
         exceptions.SafetyLimitError("vertices", 2_000_000, 1_000_000),
-        exceptions.Ms3dCapacityError("vertices", 513, 512),
         exceptions.ConversionError("conversion failed"),
         exceptions.AnimationError("animation failed"),
         exceptions.RegistryError("registry failed"),
