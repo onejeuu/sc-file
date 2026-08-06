@@ -16,6 +16,8 @@ VERTEX_EXTRA_VERSION = 1
 
 MAX_VERTICES = 0xFFFF
 MAX_TRIANGLES = 0xFFFF
+MAX_MESHES = 0x80
+MAX_BONES = 0x80
 
 VERTEX_DTYPE = np.dtype(
     [
@@ -99,7 +101,7 @@ class Ms3dEncoder(ModelEncoder[Ms3dWriter]):
             offset += len(mesh.vertices)
 
     def _add_groups(self):
-        self.io.value(F.U16, len(self.data.scene.meshes))  # groups count
+        self.io.count("meshes", len(self.data.scene.meshes), MAX_MESHES)
 
         offset = 0
         for index, mesh in enumerate(self.data.scene.meshes):
@@ -133,6 +135,7 @@ class Ms3dEncoder(ModelEncoder[Ms3dWriter]):
 
     def _add_bones(self):
         bones = self.data.scene.skeleton.bones if self.includes(Feature.SKELETON) else ()
+        self.io.check("bones", len(bones), MAX_BONES)
 
         # f32 fps, f32 frame, f32 framesCount, u16 bonesCount
         fmt = f"{F.F32 * 3}{F.U16}"

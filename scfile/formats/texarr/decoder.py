@@ -5,7 +5,7 @@ from scfile.enums import ByteOrder, F, FileFormat
 
 
 DELIMITER = ":"
-FORMAT = ".dds"
+SUFFIX = ".dds"
 
 
 class TexarrDecoder(Decoder[ArchiveContent]):
@@ -23,7 +23,7 @@ class TexarrDecoder(Decoder[ArchiveContent]):
             self._parse_texture()
 
     def _parse_texture(self):
-        path = self.io.string().replace(DELIMITER, "/") + FORMAT
+        path = self.io.string().replace(DELIMITER, "/") + SUFFIX
         size = self.io.value(F.U32)
         texture = self.io.read_exact(size)
 
