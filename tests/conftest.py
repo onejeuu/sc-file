@@ -1,63 +1,30 @@
-import shutil
-import tempfile
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Generator
+from dataclasses import dataclass
+from typing import ClassVar
 
-import pytest
-
-from scfile.core.content import BaseContent, ModelContent
-from scfile.core.decoder import FileDecoder
-from scfile.core.encoder import FileEncoder
+from scfile.core import BaseContent, Decoder, Encoder
 from scfile.enums import FileFormat, FileType
 
 
-@pytest.fixture
-def temp() -> Generator[Path, None, None]:
-    path = Path(tempfile.mkdtemp(prefix="scfiletest"))
-    yield path
-    shutil.rmtree(path)
-
-
 @dataclass
-class FakeContent(BaseContent):
-    type: FileType = field(default=FileType.NONE)
-    parsed: bytes = field(default_factory=bytes)
+class StubContent(BaseContent):
+    type: ClassVar[FileType] = FileType.NONE
+
+    payload: bytes = b""
 
 
-class FakeDecoder(FileDecoder[FakeContent]):
-    format = FileFormat.MCSA
-    _content = FakeContent
+class BytesDecoder(Decoder[StubContent]):
+    format: ClassVar[FileFormat] = FileFormat.NONE
+    signature = b"STRN"
+    content_type = StubContent
 
-    def parse(self) -> None:
-        self.data.parsed = self.read()
-
-
-class FakeEncoder(FileEncoder[FakeContent]):
-    format = FileFormat.OBJ
-
-    def serialize(self) -> None:
-        self.write(self.data.parsed)
+    def _parse(self) -> None:
+        self.data.payload = self.io.read()
 
 
-class FakeModelEncoder(FileEncoder[ModelContent]):
-    format = FileFormat.OBJ
+class BytesEncoder(Encoder[StubContent]):
+    format: ClassVar[FileFormat] = FileFormat.NONE
+    signature = b"HXGN"
+    content_type = StubContent
 
-    def serialize(self) -> None:
-        pass
-
-
-ASSETS = Path(__file__).resolve().parent / "assets"
-SOURCE = f"file{FakeDecoder.format.suffix}"
-OUTPUT = f"file{FakeEncoder.format.suffix}"
-DATA = b"data"
-
-MODEL = "model/model_v12"
-MODEL_EFK = "model/efkmodel_v5"
-MODEL_LEGACY = "model/legacy/model_v12"
-TEXTURE = "texture/texture_dxt1"
-CUBEMAP = "texture/texture_cubemap"
-TEXARR = "texarr/texarr"
-IMAGE = "image/image"
-NBT = "nbt/nbt"
-REGION = "region/region"
+    def _serialize(self) -> None:
+        self.io.write(self.data.payload)

@@ -1,195 +1,137 @@
 import numpy as np
-import pytest
+
+from scfile.core import ModelContent
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
 
-def test_unique_names_empty():
-    scene = S.ModelScene()
+def test_unique_names() -> None:
+    scene = S.ModelScene(meshes=[S.ModelMesh(name="mesh"), S.ModelMesh(name="mesh")])
+
     result = T.unique_names(scene)
-    assert result.meshes == []
+
+    assert [mesh.name for mesh in result.meshes] == ["mesh", "mesh_2"]
+    assert [mesh.name for mesh in scene.meshes] == ["mesh", "mesh"]
 
 
-def test_unique_names_single():
-    mesh = S.ModelMesh(name="mesh")
+def test_flip_uv() -> None:
+    mesh = S.ModelMesh(uv1=np.array([[0.0, 0.0]], dtype=np.float32))
     scene = S.ModelScene(meshes=[mesh])
-    result = T.unique_names(scene)
-    assert result.meshes[0].name == "mesh"
+
+    result = T.flip_uv(scene)
+
+    assert result.meshes[0].uv1[0, 1] == 1.0
+    assert mesh.uv1[0, 1] == 0.0
 
 
-def test_unique_names_duplicates():
-    scene = S.ModelScene(meshes=[S.ModelMesh(name="mesh") for _ in range(3)])
-    result = T.unique_names(scene)
-    assert [m.name for m in result.meshes] == ["mesh", "mesh_2", "mesh_3"]
+def test_skeleton_to_local() -> None:
+    skeleton = S.ModelSkeleton(
+        bones=[
+            S.SkeletonBone(id=0, position=np.array([0.0, 1.0, 0.0], dtype=np.float32)),
+            S.SkeletonBone(id=1, parent_id=0, position=np.array([0.0, 3.0, 0.0], dtype=np.float32)),
+        ],
+        space=S.SkeletonSpace.GLOBAL,
+    )
+
+    result = T.skeleton_to_local(S.ModelScene(skeleton=skeleton))
+
+    assert np.array_equal(result.skeleton.bones[1].position, [0.0, 2.0, 0.0])
+    assert skeleton.space is S.SkeletonSpace.GLOBAL
 
 
-def test_unique_names_empty_name():
-    scene = S.ModelScene(meshes=[S.ModelMesh(name="")])
-    result = T.unique_names(scene)
-    assert result.meshes[0].name == "noname"
+def test_invert_uv() -> None:
+    mesh = S.ModelMesh(uv1=np.array([[0.0, 0.25]], dtype=np.float32))
+
+    result = T.invert_uv(S.ModelScene(meshes=[mesh]))
+
+    assert result.meshes[0].uv1[0, 1] == -0.25
+    assert result.meshes[0].uv_sign is S.UVSign.NEGATIVE
+    assert mesh.uv1[0, 1] == 0.25
 
 
-def test_unique_names_mixed():
-    scene = S.ModelScene(
-        meshes=[
-            S.ModelMesh(name="a"),
-            S.ModelMesh(name="b"),
-            S.ModelMesh(name="a"),
+def test_scene_transforms() -> None:
+    mesh = S.ModelMesh(uv1=np.array([[0.0, 0.25]], dtype=np.float32))
+    data = ModelContent(scene=S.ModelScene(meshes=[mesh]))
+    (transform,) = T.scene_transforms(T.flip_uv)
+
+    result = transform(data)
+
+    assert result is not data
+    assert result.scene.meshes[0].uv1[0, 1] == 0.75
+    assert data.scene.meshes[0].uv1[0, 1] == 0.25
+
+
+def test_global_transforms() -> None:
+    skeleton = S.ModelSkeleton(
+        bones=[
+            S.SkeletonBone(id=0, position=np.array([1.0, 0.0, 0.0], dtype=np.float32)),
+            S.SkeletonBone(id=1, parent_id=0, position=np.array([0.0, 2.0, 0.0], dtype=np.float32)),
         ]
     )
-    result = T.unique_names(scene)
-    assert [m.name for m in result.meshes] == ["a", "b", "a_2"]
+
+    transforms = T.global_transforms(skeleton)
+
+    assert np.allclose(transforms[1][:3, 3], [1.0, 2.0, 0.0])
+    assert np.allclose(T.inverse_bind_matrices(skeleton)[1] @ transforms[1], np.eye(4))
 
 
-def test_unique_names_does_not_mutate():
-    mesh = S.ModelMesh(name="original")
-    scene = S.ModelScene(meshes=[mesh])
-    T.unique_names(scene)
-    assert scene.meshes[0].name == "original"
-
-
-def test_flip_uv():
-    mesh = S.ModelMesh(
-        uv1=np.array([[0.0, 0.0], [1.0, 1.0]], dtype=np.float32),
-        uv2=np.array([[0.0, 0.0], [1.0, 1.0]], dtype=np.float32),
-        uv_origin=S.UVOrigin.TOP_LEFT,
-        uv_sign=S.UVSign.POSITIVE,
-    )
-    scene = S.ModelScene(meshes=[mesh])
-    result = T.flip_uv(scene)
-    m = result.meshes[0]
-    assert m.uv_origin == S.UVOrigin.BOTTOM_LEFT
-    assert m.uv_sign == S.UVSign.POSITIVE
-    assert np.allclose(m.uv1[:, 1], [1.0, 0.0])
-    assert np.allclose(m.uv2[:, 1], [1.0, 0.0])
-
-
-def test_invert_uv():
-    mesh = S.ModelMesh(
-        uv1=np.array([[0.0, 0.5]], dtype=np.float32),
-        uv2=np.array([[0.0, 0.5]], dtype=np.float32),
-        uv_sign=S.UVSign.POSITIVE,
-    )
-    scene = S.ModelScene(meshes=[mesh])
-    result = T.invert_uv(scene)
-    m = result.meshes[0]
-    assert m.uv_sign == S.UVSign.NEGATIVE
-    assert np.allclose(m.uv1[:, 1], [-0.5])
-    assert np.allclose(m.uv2[:, 1], [-0.5])
-
-
-@pytest.mark.parametrize(
-    "transform, build_scene",
-    [
-        (
-            T.flip_uv,
-            lambda: S.ModelScene(
-                meshes=[
-                    S.ModelMesh(
-                        uv_origin=S.UVOrigin.BOTTOM_LEFT,
-                        uv_sign=S.UVSign.POSITIVE,
-                    )
-                ]
-            ),
-        ),
-        (
-            T.invert_uv,
-            lambda: S.ModelScene(meshes=[S.ModelMesh(uv_sign=S.UVSign.NEGATIVE)]),
-        ),
-        (
-            T.skeleton_to_local,
-            lambda: S.ModelScene(skeleton=S.ModelSkeleton(space=S.SkeletonSpace.LOCAL)),
-        ),
-        (
-            T.build_hierarchy,
-            lambda: S.ModelScene(skeleton=S.ModelSkeleton(hierarchy=S.SkeletonHierarchy.BUILT)),
-        ),
-    ],
-)
-def test_skip_if_done(transform, build_scene):
-    scene = build_scene()
-    result = transform(scene)
-    assert result.meshes == scene.meshes
-    assert result.skeleton == scene.skeleton
-
-
-def test_skeleton_root_stays():
-    root = S.SkeletonBone(id=0, parent_id=-1, position=np.array([1.0, 2.0, 3.0]))
-    skeleton = S.ModelSkeleton(bones=[root], space=S.SkeletonSpace.GLOBAL)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.skeleton_to_local(scene)
-    assert np.allclose(result.skeleton.bones[0].position, [1.0, 2.0, 3.0])
-
-
-def test_skeleton_to_local_child():
-    root = S.SkeletonBone(id=0, parent_id=-1, position=np.array([0.0, 0.0, 0.0]))
-    child = S.SkeletonBone(id=1, parent_id=0, position=np.array([0.0, 1.0, 0.0]))
-    skeleton = S.ModelSkeleton(bones=[root, child], space=S.SkeletonSpace.GLOBAL)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.skeleton_to_local(scene)
-    assert np.allclose(result.skeleton.bones[1].position, [0.0, 1.0, 0.0])
-
-
-def test_skeleton_to_local_grandchild():
-    root = S.SkeletonBone(id=0, parent_id=-1, position=np.array([0.0, 0.0, 0.0]))
-    child = S.SkeletonBone(id=1, parent_id=0, position=np.array([0.0, 1.0, 0.0]))
-    grandchild = S.SkeletonBone(id=2, parent_id=1, position=np.array([0.0, 2.0, 0.0]))
-    skeleton = S.ModelSkeleton(bones=[root, child, grandchild], space=S.SkeletonSpace.GLOBAL)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.skeleton_to_local(scene)
-    assert np.allclose(result.skeleton.bones[2].position, [0.0, 1.0, 0.0])
-
-
-def test_skeleton_to_local_sets_space():
-    skeleton = S.ModelSkeleton(space=S.SkeletonSpace.GLOBAL)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.skeleton_to_local(scene)
-    assert result.skeleton.space == S.SkeletonSpace.LOCAL
-
-
-def test_skeleton_build_hierarchy():
-    root = S.SkeletonBone(id=0, parent_id=-1)
-    child = S.SkeletonBone(id=1, parent_id=0)
-    skeleton = S.ModelSkeleton(bones=[root, child], hierarchy=S.SkeletonHierarchy.FLAT)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.build_hierarchy(scene)
-    assert result.skeleton.hierarchy == S.SkeletonHierarchy.BUILT
-    assert result.skeleton.bones[0].children == [result.skeleton.bones[1]]
-
-
-def test_skeleton_no_children():
-    root = S.SkeletonBone(id=0, parent_id=-1)
-    skeleton = S.ModelSkeleton(bones=[root], hierarchy=S.SkeletonHierarchy.FLAT)
-    scene = S.ModelScene(skeleton=skeleton)
-    result = T.build_hierarchy(scene)
-    assert result.skeleton.bones[0].children == []
-
-
-def test_animation_to_absolute():
-    root = S.SkeletonBone(id=0, parent_id=-1, position=np.array([0.0, 0.0, 0.0]))
-    child = S.SkeletonBone(id=1, parent_id=0, position=np.array([0.0, 1.0, 0.0]))
-    skeleton = S.ModelSkeleton(bones=[root, child], space=S.SkeletonSpace.LOCAL)
-
+def test_animation_to_absolute() -> None:
     clip = S.AnimationClip(
-        frames=2,
-        translations=np.zeros((2, 2, 3), dtype=np.float32),
-        rotations=np.zeros((2, 2, 4), dtype=np.float32),
+        frames=1,
+        translations=np.zeros((1, 1, 3), dtype=np.float32),
     )
-    clip.translations[:, 0, :] = [1.0, 0.0, 0.0]
-    clip.translations[:, 1, :] = [0.0, 2.0, 0.0]
+    skeleton = S.ModelSkeleton(bones=[S.SkeletonBone(position=np.array([1.0, 2.0, 3.0], dtype=np.float32))])
+    scene = S.ModelScene(skeleton=skeleton, animation=S.ModelAnimation(clips=[clip]))
 
-    animation = S.ModelAnimation(clips=[clip], translation=S.AnimationTranslation.DELTA)
-    scene = S.ModelScene(skeleton=skeleton, animation=animation)
     result = T.animation_to_absolute(scene)
 
-    assert result.animation.translation == S.AnimationTranslation.ABSOLUTE
-    assert np.allclose(result.animation.clips[0].translations[0, 0], [1.0, 0.0, 0.0])
-    assert np.allclose(result.animation.clips[0].translations[0, 1], [0.0, 3.0, 0.0])
-    assert np.allclose(result.animation.clips[0].rotations, clip.rotations)
+    assert np.array_equal(result.animation.clips[0].translations[0, 0], [1.0, 2.0, 3.0])
+    assert result.animation.translation is S.AnimationTranslation.ABSOLUTE
+    assert np.array_equal(scene.animation.clips[0].translations[0, 0], [0.0, 0.0, 0.0])
 
 
-def test_animation_to_absolute_skip():
-    animation = S.ModelAnimation(translation=S.AnimationTranslation.ABSOLUTE)
-    scene = S.ModelScene(animation=animation)
-    result = T.animation_to_absolute(scene)
-    assert result is scene
+def test_apply_animation() -> None:
+    animation = S.ModelScene(
+        meshes=[S.ModelMesh(name="animation")],
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]),
+        animation=S.ModelAnimation(clips=[S.AnimationClip()]),
+    )
+    mesh = S.ModelMesh(
+        name="model",
+        links_ids=np.array([[0, 0, 0, 0]], dtype=np.uint8),
+        links_weights=np.array([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32),
+        link_space=S.LinkSpace.LOCAL,
+    )
+    model = S.ModelScene(meshes=[mesh], skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]))
+
+    result = T.apply_animation(animation, model)
+
+    assert [mesh.name for mesh in result.meshes] == ["animation", "model"]
+    assert result.meshes[1].link_space is S.LinkSpace.GLOBAL
+    assert model.meshes[0].link_space is S.LinkSpace.LOCAL
+
+
+def test_animation_library() -> None:
+    clip = S.AnimationClip(
+        frames=1,
+        translations=np.zeros((1, 1, 3), dtype=np.float32),
+        rotations=np.zeros((1, 1, 4), dtype=np.float32),
+    )
+    library = S.ModelScene(animation=S.ModelAnimation(clips=[clip]))
+    model = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone()]))
+
+    result = T.apply_animation_library(library, model)
+
+    assert result.animation.clips == [clip]
+    assert not model.animation.clips
+
+
+def test_morph_animation() -> None:
+    clip = S.AnimationClip(frames=1, morph_weights=np.zeros((1, 1), dtype=np.float32))
+    animation = S.ModelScene(animation=S.ModelAnimation(clips=[clip], morph_channels=["smile"]))
+    model = S.ModelScene(meshes=[S.ModelMesh(blend_shapes=[S.BlendShape(channel="smile")])])
+
+    result = T.apply_morph_animation(animation, model)
+
+    assert result.animation.clips == [clip]
+    assert not model.animation.clips

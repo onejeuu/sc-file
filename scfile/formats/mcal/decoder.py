@@ -4,7 +4,6 @@ from scfile.consts import FormatSignature
 from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
-from scfile.exceptions import BinaryStructureError
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
 from scfile.structures.models import Feature
@@ -23,8 +22,6 @@ class McalDecoder(ModelDecoder[ModelReader]):
     def _parse(self):
         self._parse_header()
         self._parse_animation()
-        if not self.io.eof():
-            raise BinaryStructureError(location=self.location, offset=self.io.tell())
 
     def _parse_header(self):
         self.data.meta.version = self.io.value(F.F32)

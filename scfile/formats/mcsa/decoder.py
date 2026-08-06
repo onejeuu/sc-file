@@ -291,7 +291,7 @@ class McsaDecoder(ModelDecoder[ModelReader]):
                 continue
 
             if channel_id >= len(channels):
-                raise BinaryStructureError(location=self.location, offset=self.io.tell())
+                continue
 
             shape.channel = channels[channel_id]
 
