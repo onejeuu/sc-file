@@ -39,9 +39,9 @@ class ModelScene:
         return features.has(self, feature)
 
     @property
-    def total_vertices(self):
+    def total_vertices(self) -> int:
         return sum(len(mesh.vertices) for mesh in self.meshes)
 
     @property
-    def total_polygons(self):
+    def total_polygons(self) -> int:
         return sum(len(mesh.polygons) for mesh in self.meshes)

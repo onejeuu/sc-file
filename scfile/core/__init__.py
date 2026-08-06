@@ -2,7 +2,7 @@
 Abstract core classes for reading and writing binary formats.
 """
 
-from . import base, decoder, encoder, model
+from . import base, decoder, encoder, models
 from .base import Handler
 from .content import (
     ArchiveContent,
@@ -24,7 +24,7 @@ __all__ = (
     "base",
     "decoder",
     "encoder",
-    "model",
+    "models",
     "Handler",
     "Decoder",
     "Encoder",

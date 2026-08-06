@@ -13,8 +13,8 @@ class AnimationClip:
     name: str = "clip"
     frames: int = 0
     rate: float = 0.33
-    translations: AnimationTranslations = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
-    rotations: AnimationRotations = field(default_factory=lambda: np.zeros(0, dtype=np.float32))
+    translations: AnimationTranslations = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
+    rotations: AnimationRotations = field(default_factory=lambda: np.zeros((0, 4), dtype=np.float32))
     morph_weights: MorphWeights = field(default_factory=lambda: np.zeros((0, 0), dtype=np.float32))
 
     @property
