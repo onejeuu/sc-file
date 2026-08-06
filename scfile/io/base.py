@@ -256,12 +256,6 @@ class StructReader(StructIO[IOStream]):
     ) -> int:
         """Validate a decoded count."""
 
-        if value < 0:
-            raise BinaryStructureError(
-                location=self.location,
-                offset=self.tell(),
-            )
-
         if value > limit:
             subject = limit.name.lower() if isinstance(limit, Limit) else "value"
             raise SafetyLimitError(

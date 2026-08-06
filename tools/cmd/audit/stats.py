@@ -31,7 +31,8 @@ def records(asset: Asset, content: BaseContent, root: Path, animation: bool) -> 
 
 
 def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> list[Record]:
-    flags = content.flags
+    meta = content.meta
+    flags = meta.flags
     scene = content.scene
     scale = content.scene.scale
 
@@ -73,7 +74,7 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
     model = Model(
         path=path,
         filesize=filesize,
-        version=content.version,
+        version=meta.version,
         meshes=len(meshes),
         vertices=scene.total_vertices,
         polygons=scene.total_polygons,

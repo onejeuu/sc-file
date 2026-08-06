@@ -121,11 +121,12 @@ def failure(
 
 
 def _model(data: ModelContent) -> list[Row]:
+    meta = data.meta
     scene = data.scene
-    flags = ", ".join(feature.name for feature, enabled in data.flags.items() if enabled) or "-"
+    flags = ", ".join(feature.name for feature, enabled in meta.flags.items() if enabled) or "-"
 
     return [
-        ("Version", data.version),
+        ("Version", meta.version),
         ("Flags", flags),
         ("Meshes", len(scene.meshes)),
         ("Vertices", f"{scene.total_vertices:,}"),

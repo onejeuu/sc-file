@@ -188,7 +188,7 @@ class BinaryStructureError(DecodingError):
         super().__init__(self._message(), location=location, offset=offset)
 
     def _message(self) -> str:
-        return "Invalid binary structure."
+        return "Unexpected binary structure."
 
 
 class SafetyLimitError(BinaryStructureError):

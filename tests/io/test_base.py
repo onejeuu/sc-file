@@ -52,10 +52,9 @@ def test_exact_read() -> None:
             reader.read_exact(4)
 
 
-def test_negative_count() -> None:
+def test_signed_count() -> None:
     with StructReader(b"\xff\xff\xff\xff") as reader:
-        with pytest.raises(BinaryStructureError):
-            reader.count(F.I32, 10)
+        assert reader.count(F.I32, 10) == -1
 
 
 def test_limit() -> None:

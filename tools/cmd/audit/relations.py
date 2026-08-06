@@ -3,10 +3,10 @@ from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 
-from scfile.core import ModelContent
-from scfile.core.types import ModelDecoder
+from scfile.core import ModelContent, ModelDecoder
 from scfile.exceptions import AnimationError
 from scfile.formats import McalDecoder, McsbDecoder, McvdDecoder
+from scfile.io.models import ModelReader
 from scfile.options import HandlerOptions
 from scfile.structures.models import transforms
 
@@ -62,7 +62,7 @@ def _error(path: Path, root: Path, error: Exception) -> Error:
 
 def _decode(
     path: Path,
-    decoder: ModelDecoder,
+    decoder: type[ModelDecoder[ModelReader]],
 ) -> ModelContent:
     with decoder(path, _OPTIONS) as source:
         return source.decode()

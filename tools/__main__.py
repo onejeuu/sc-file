@@ -1,4 +1,4 @@
-from tools.cmd import tools
+from tools import tools
 
 
 if __name__ == "__main__":

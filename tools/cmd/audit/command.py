@@ -46,7 +46,13 @@ def summary(
 def clear(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     for name in FILES:
-        (path / name).unlink(missing_ok=True)
+        report = path / name
+        try:
+            report.unlink(missing_ok=True)
+        except PermissionError:
+            raise click.ClickException(
+                f"Cannot overwrite '{report}'. Close the file or wait for another audit to finish."
+            ) from None
 
 
 def save(errors: list[Error], path: Path) -> None:
@@ -62,8 +68,8 @@ def save(errors: list[Error], path: Path) -> None:
 def run(cfg: Config, console: Console) -> int:
     assets = files.find_assets(cfg, console)
     asset_found = Counter(asset.format for asset in assets)
-    relation_sources = relations.find(cfg.path)
-    relation_found = relations.found(relation_sources, cfg.formats)
+    relation_sources = relations.find(cfg.path) if cfg.animation else None
+    relation_found = relations.found(relation_sources, cfg.formats) if relation_sources else Counter()
     found = asset_found + relation_found
     checked: Counter = Counter()
     failed: Counter = Counter()
@@ -90,10 +96,10 @@ def run(cfg: Config, console: Console) -> int:
                 refresh=force,
             )
 
-        results = chain(
-            files.decode_assets(assets, cfg),
-            relations.validate(relation_sources, cfg.path, set(relation_found)),
+        relation_results = (
+            relations.validate(relation_sources, cfg.path, set(relation_found)) if relation_sources else ()
         )
+        results = chain(files.decode_assets(assets, cfg), relation_results)
         for result in results:
             checked[result.format] += 1
             if result.error:
