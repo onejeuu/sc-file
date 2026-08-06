@@ -8,4 +8,4 @@ SUPPORTED_FILENAMES = (
     "sd3",
     "sd4",
 )
-"""Supported NBT filenames without a common format suffix."""
+"""Supported NBT filenames."""

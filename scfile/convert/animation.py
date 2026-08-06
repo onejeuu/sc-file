@@ -7,8 +7,8 @@ from copy import replace
 from pathlib import Path
 
 from scfile import exceptions, formats, types
-from scfile.core import ModelContent
-from scfile.core.types import ModelDecoder
+from scfile.core import ModelContent, ModelDecoder
+from scfile.io.models import ModelReader
 from scfile.options import HandlerOptions
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
@@ -21,7 +21,7 @@ type AnimationTransform = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
 
 
 def _apply_external(
-    decoder: ModelDecoder,
+    decoder: type[ModelDecoder[ModelReader]],
     transform: AnimationTransform,
     animation: types.PathLike,
     model: types.PathLike,

@@ -12,11 +12,10 @@ from typing import ClassVar, Optional, Self, cast
 from scfile.enums import HandlerState
 from scfile.io.base import OutputStream, StructWriter
 from scfile.options import HandlerOptions
-from scfile.structures.models import Feature, Features
 from scfile.types import PathLike
 
 from .base import Handler
-from .content import BaseContent, ModelContent
+from .content import BaseContent
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
@@ -38,9 +37,6 @@ class Encoder[
 
     io_factory = cast(type[WriterType], StructWriter)
     """Writer factory used to wrap the output stream."""
-
-    features: ClassVar[Features] = ()
-    """Optional content features supported by format."""
 
     transforms: Sequence[ContentTransform[ContentType]] = ()
     """Format-specific content transforms applied before serialization."""
@@ -155,40 +151,6 @@ class Encoder[
         self.save(
             path=f"{path}{self.suffix}",
             close=close,
-        )
-
-    def has(
-        self: "Encoder[ModelContent, WriterType]",
-        feature: Feature,
-    ) -> bool:
-        """Return whether input content contains a feature."""
-
-        return self.data.has(feature)
-
-    @classmethod
-    def supports(
-        cls,
-        feature: Feature,
-    ) -> bool:
-        """Return whether output format supports a feature."""
-
-        return any(member in cls.features for member in feature.members)
-
-    def includes(
-        self: "Encoder[ModelContent, WriterType]",
-        feature: Feature,
-    ) -> bool:
-        """Return whether a feature will be serialized."""
-
-        if feature.parent is Feature.ANIMATION and not self.options.animation:
-            return False
-
-        if feature is Feature.SKELETON and not self.options.skeleton_enabled:
-            return False
-
-        return any(
-            self.has(member) and self.supports(member) and all(self.includes(required) for required in member.requires)
-            for member in feature.members
         )
 
     def _prelude(self) -> None:

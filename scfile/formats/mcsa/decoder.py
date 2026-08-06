@@ -4,7 +4,7 @@ import numpy as np
 
 from scfile.consts import FormatSignature
 from scfile.consts import IntegerFactor as Factor
-from scfile.core import Decoder, ModelContent
+from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
@@ -16,28 +16,49 @@ from scfile.structures.models import ModelUnits as Units
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 
 
-class McsaDecoder(Decoder[ModelContent, ModelReader]):
+class McsaDecoder(ModelDecoder[ModelReader]):
     format = FileFormat.MCSA
     signature = FormatSignature.MCSA
     order = ByteOrder.LITTLE
 
-    content_type = ModelContent
     io_factory = ModelReader
+    features = (
+        Feature.UV,
+        Feature.UV2,
+        Feature.NORMALS,
+        Feature.TANGENTS,
+        Feature.SKELETON,
+        Feature.BLEND_SHAPES,
+        Feature.BONE_ANIMATION,
+        Feature.MORPH_ANIMATION,
+    )
 
     @override
     def _parse(self):
         self._parse_header()
         self._parse_meshes()
 
-        if self.data.meta.flags.get(Feature.SKELETON) and self.options.skeleton_enabled:
+        if self._should_parse_skeleton():
             self._parse_skeleton()
 
-            if (
-                self.options.animation
-                and (self.data.meta.counts.bones > 0 or self.data.meta.counts.channels > 0)
-                and not self.io.eof()
-            ):
+            if self._should_parse_animation():
                 self._parse_animation()
+
+    def _should_parse_skeleton(self) -> bool:
+        if not self.data.meta.declares(Feature.SKELETON):
+            return False
+
+        return self.options.skeleton_enabled
+
+    def _should_parse_animation(self) -> bool:
+        if not self.options.animation:
+            return False
+
+        counts = self.data.meta.counts
+        if not counts.bones and not counts.channels:
+            return False
+
+        return not self.io.eof()
 
     def _parse_header(self):
         self._parse_version()

@@ -1,22 +1,23 @@
 from typing import override
 
 from scfile.consts import FormatSignature
-from scfile.core import Decoder, ModelContent
+from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
+from scfile.structures.models import Feature
 
 
-class McalDecoder(Decoder[ModelContent, ModelReader]):
+class McalDecoder(ModelDecoder[ModelReader]):
     format = FileFormat.MCAL
     signature = FormatSignature.MCAL
     order = ByteOrder.LITTLE
 
-    content_type = ModelContent
     io_factory = ModelReader
-    convertible = False
+    standalone = False
+    features = (Feature.BONE_ANIMATION,)
 
     @override
     def _parse(self):

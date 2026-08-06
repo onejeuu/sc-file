@@ -33,8 +33,8 @@ class Decoder[
     io_factory = cast(type[ReaderType], StructReader)
     """Reader factory used to wrap the source stream."""
 
-    convertible: ClassVar[bool] = True
-    """Allow direct conversion into compatible output formats."""
+    standalone: ClassVar[bool] = True
+    """Whether decoded content can be converted without a related asset."""
 
     def __init__(
         self,

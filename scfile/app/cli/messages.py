@@ -29,6 +29,7 @@ from scfile.app.tasks import (
     Summary,
     TaskKind,
 )
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.options import HandlerOptions
 from scfile.registry import REGISTRY
@@ -143,7 +144,12 @@ def warn_unsupported_features(
 
     unsupported: dict[FileFormat, Features] = {}
     for fmt in formats:
-        features = tuple(feature for feature in requested if not REGISTRY.formats[fmt].supports(feature))
+        encoder = REGISTRY.formats[fmt].encoder
+        if encoder is None or not issubclass(encoder, ModelEncoder):
+            unsupported[fmt] = requested
+            continue
+
+        features = tuple(feature for feature in requested if not encoder.supports(feature))
         if features:
             unsupported[fmt] = features
 

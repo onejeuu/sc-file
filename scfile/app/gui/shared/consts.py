@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature
@@ -105,7 +106,8 @@ class ModelFormat:
         feature: Feature,
     ) -> bool:
         entry = REGISTRY.get(self.id)
-        return bool(entry and entry.supports(feature))
+        encoder = entry.encoder if entry else None
+        return bool(encoder and issubclass(encoder, ModelEncoder) and encoder.supports(feature))
 
     def __str__(self) -> str:
         icons = " ".join(view.icon for view in FEATURE_VIEWS if self.supports(view.feature))

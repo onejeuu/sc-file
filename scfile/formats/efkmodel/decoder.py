@@ -1,18 +1,21 @@
 from typing import override
 
-from scfile.core import Decoder, ModelContent
+from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
 
-class EfkmodelDecoder(Decoder[ModelContent, ModelReader]):
+class EfkmodelDecoder(ModelDecoder[ModelReader]):
     format = FileFormat.EFKMODEL
     order = ByteOrder.LITTLE
 
-    content_type = ModelContent
     io_factory = ModelReader
+    features = (
+        S.Feature.UV,
+        S.Feature.NORMALS,
+    )
 
     @override
     def _parse(self):

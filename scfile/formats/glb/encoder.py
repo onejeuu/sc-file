@@ -5,9 +5,14 @@ from typing import Any, override
 import numpy as np
 
 from scfile.consts import FormatSignature
-from scfile.core import Encoder, ModelContent
+from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.models import AnimationClip, BlendShape, Feature, MorphWeights
+from scfile.structures.models import (
+    AnimationClip,
+    BlendShape,
+    Feature,
+    MorphWeights,
+)
 from scfile.structures.models import transforms as T
 
 from . import base
@@ -21,12 +26,10 @@ type BufferView = dict[str, int]
 type Accessor = dict[str, str | int]
 
 
-class GlbEncoder(Encoder[ModelContent]):
+class GlbEncoder(ModelEncoder):
     format = FileFormat.GLB
     signature = FormatSignature.GLTF
     order = ByteOrder.LITTLE
-
-    content_type = ModelContent
 
     features = (
         Feature.UV,

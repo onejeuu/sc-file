@@ -11,7 +11,6 @@ from typing import Any, Self, TypeIs
 from scfile.core import BaseContent, Decoder, Encoder
 from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
-from scfile.structures.models import Feature, Features
 from scfile.types import FormatLike
 
 
@@ -36,21 +35,7 @@ class FormatSpec:
     content: type[BaseContent]
     decoder: type[Decoder[Any, Any]] | None = None
     encoder: type[Encoder[Any, Any]] | None = None
-    convertible: bool = True
-
-    @property
-    def features(self) -> Features:
-        """Features supported by encoder."""
-
-        return self.encoder.features if self.encoder else ()
-
-    def supports(
-        self,
-        feature: Feature,
-    ) -> bool:
-        """Return whether encoder supports a feature."""
-
-        return bool(self.encoder and self.encoder.supports(feature))
+    standalone: bool = True
 
 
 class Registry:
@@ -80,9 +65,7 @@ class Registry:
     def supported_formats(self) -> frozenset[FileFormat]:
         """Formats with a registered decoder."""
 
-        return frozenset(
-            fmt for fmt, spec in self._formats.items() if spec.decoder is not None
-        )
+        return frozenset(fmt for fmt, spec in self._formats.items() if spec.decoder is not None)
 
     @property
     def supported_suffixes(self) -> frozenset[str]:
@@ -202,7 +185,7 @@ class Registry:
         """Encoders compatible with direct conversion from source format."""
 
         entry = self.get(source)
-        if entry is None or entry.decoder is None or not entry.convertible:
+        if entry is None or entry.decoder is None or not entry.standalone:
             return {}
 
         return {
@@ -239,7 +222,7 @@ class Registry:
         self._formats[decoder.format] = replace(
             entry,
             decoder=decoder,
-            convertible=decoder.convertible,
+            standalone=decoder.standalone,
         )
 
     def _set_encoder(self, encoder: type[Encoder[Any, Any]]) -> None:
@@ -247,7 +230,10 @@ class Registry:
         if entry.encoder is not None and entry.encoder is not encoder:
             raise RegistryError(f"{encoder.format} already has encoder {entry.encoder.__name__}.")
 
-        self._formats[encoder.format] = replace(entry, encoder=encoder)
+        self._formats[encoder.format] = replace(
+            entry,
+            encoder=encoder,
+        )
 
     def _entry(
         self,

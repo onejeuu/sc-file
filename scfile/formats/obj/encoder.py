@@ -2,7 +2,7 @@ from typing import override
 
 import numpy as np
 
-from scfile.core import Encoder, ModelContent
+from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.structures import models as S
 from scfile.structures.models import Feature
@@ -11,11 +11,9 @@ from scfile.structures.models import transforms as T
 from . import faces
 
 
-class ObjEncoder(Encoder[ModelContent]):
+class ObjEncoder(ModelEncoder):
     format = FileFormat.OBJ
     order = ByteOrder.LITTLE
-
-    content_type = ModelContent
 
     features = (
         Feature.UV,
