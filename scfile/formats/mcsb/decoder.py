@@ -15,4 +15,4 @@ class McsbDecoder(McsaDecoder):
         size = self.io.value(F.I32, ByteOrder.BIG)
 
         if size > 0:
-            self.io.read_exact(size)
+            self.io.read(size)
