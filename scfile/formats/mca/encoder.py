@@ -4,37 +4,45 @@ from typing import override
 
 from scfile.core import Encoder, RegionContent
 from scfile.enums import ByteOrder, FileFormat
-from scfile.formats.nbt import nbt
-from scfile.formats.nbt.enums import Tag
+from scfile.io.nbt import Tag
 from scfile.structures.regions import RegionChunk
 
 from .mapping import BLOCKS_MAPPING
 
 
-VERSION = nbt.encode_int(b"DataVersion", 1343)  # Anvil 1.12.2
+VERSION = Tag.INT.header(b"DataVersion") + struct.pack(">i", 1343)  # Anvil 1.12.2
 
 ZLIB_COMPRESSION = b"\x02"
 
 CURRENT_TIME = 0
 TIMESTAMPS = struct.pack(">I", CURRENT_TIME) * 1024
 
-ROOT = nbt.encode(Tag.COMPOUND, b"")
-LEVEL = nbt.encode(Tag.COMPOUND, b"Level")
-XPOS = nbt.encode(Tag.INT, b"xPos")
-ZPOS = nbt.encode(Tag.INT, b"zPos")
-SECTIONS = nbt.encode(Tag.LIST, b"Sections")
-Y = nbt.encode(Tag.BYTE, b"Y")
-BLOCKS = nbt.encode(Tag.BYTE_ARRAY, b"Blocks")
+ROOT = Tag.COMPOUND.header()
+LEVEL = Tag.COMPOUND.header(b"Level")
+XPOS = Tag.INT.header(b"xPos")
+ZPOS = Tag.INT.header(b"zPos")
+SECTIONS = Tag.LIST.header(b"Sections")
+Y = Tag.BYTE.header(b"Y")
+BLOCKS = Tag.BYTE_ARRAY.header(b"Blocks")
 
 SECTION_LENGTH = struct.pack(">i", 4096)
 Y_VALUES = [struct.pack(">b", y) for y in range(16)]
 
-SECTION_PAYLOAD = (
-    nbt.encode_ba(b"Data", bytes(2048))
-    + nbt.encode_ba(b"BlockLight", bytes(2048))
-    + nbt.encode_ba(b"Add", bytes(2048))
-    + nbt.encode_ba(b"SkyLight", b"\xff" * 2048)
-    + b"\x00"
+EMPTY_NIBBLES = struct.pack(">i", 2048) + bytes(2048)
+SKY_LIGHT = struct.pack(">i", 2048) + b"\xff" * 2048
+
+SECTION_PAYLOAD = b"".join(
+    (
+        Tag.BYTE_ARRAY.header(b"Data"),
+        EMPTY_NIBBLES,
+        Tag.BYTE_ARRAY.header(b"BlockLight"),
+        EMPTY_NIBBLES,
+        Tag.BYTE_ARRAY.header(b"Add"),
+        EMPTY_NIBBLES,
+        Tag.BYTE_ARRAY.header(b"SkyLight"),
+        SKY_LIGHT,
+        bytes((Tag.END,)),
+    )
 )
 
 
@@ -85,15 +93,25 @@ class McaEncoder(Encoder[RegionContent]):
 
         sections: list[bytes] = []
 
-        # Select present sections
-        present = [y for y in range(16) if (mask >> y) & 1]
-        for idx, y in enumerate(present):
-            section = blocks[idx * 4096 : (idx + 1) * 4096]
-            sections.append(b"".join([Y, Y_VALUES[y], BLOCKS, SECTION_LENGTH, section, SECTION_PAYLOAD]))
+        # Build populated vertical sections
+        for index, y in enumerate(y for y in range(16) if (mask >> y) & 1):
+            start = index * 4096
+            sections.append(
+                b"".join(
+                    (
+                        Y,
+                        Y_VALUES[y],
+                        BLOCKS,
+                        SECTION_LENGTH,
+                        blocks[start : start + 4096],
+                        SECTION_PAYLOAD,
+                    )
+                )
+            )
 
-        # Build region NBT
+        # Build one complete Anvil chunk document
         return b"".join(
-            [
+            (
                 ROOT,
                 VERSION,
                 LEVEL,
@@ -102,9 +120,9 @@ class McaEncoder(Encoder[RegionContent]):
                 ZPOS,
                 struct.pack(">i", cz),
                 SECTIONS,
-                b"\x0a",
+                bytes((Tag.COMPOUND,)),
                 struct.pack(">i", len(sections)),
-                b"".join(sections),
-                b"\x00\x00",
-            ]
+                *sections,
+                bytes((Tag.END, Tag.END)),
+            )
         )

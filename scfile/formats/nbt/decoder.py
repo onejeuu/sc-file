@@ -4,13 +4,11 @@ from typing import override
 
 import zstandard as zstd
 
-from scfile.core import Decoder, DocumentContent
 from scfile.consts import FormatSignature
+from scfile.core import Decoder, DocumentContent
 from scfile.enums import ByteOrder, FileFormat
 from scfile.exceptions import BinaryStructureError
 from scfile.io.nbt import NbtReader
-
-from .enums import Tag
 
 
 class NbtDecoder(Decoder[DocumentContent]):
@@ -24,13 +22,7 @@ class NbtDecoder(Decoder[DocumentContent]):
         data = self._decompress()
 
         with NbtReader(data, location=self.location) as reader:
-            # Read root tag
-            tag = reader.tag()
-            if tag == Tag.END:
-                return
-
-            reader.string(limit=None)  # Skip name
-            self.data.value = reader.parse(tag)
+            self.data.value = reader.document()
 
     def _decompress(self) -> bytes:
         data = self.io.read()
