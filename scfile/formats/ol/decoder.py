@@ -33,7 +33,15 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
     def _parse_header(self):
         self.data.width = self.io.value(F.U32)
         self.data.height = self.io.value(F.U32)
+
+        offset = self.io.tell()
         self.data.mipmap_count = self.io.value(F.U32)
+
+        if self.data.mipmap_count > max(self.data.width, self.data.height).bit_length():
+            raise exceptions.BinaryStructureError(
+                location=self.location,
+                offset=offset,
+            )
 
     def _parse_format(self):
         self.data.format = self.io.format()

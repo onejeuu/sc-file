@@ -17,14 +17,24 @@ class OlReader(StructReader):
         self,
         mipmap_count: int,
     ) -> list[int]:
-        return [self.value(F.U32) for _ in range(mipmap_count)]
+        # Read mipmap sizes
+        return self.array(F.U32, mipmap_count).tolist()
 
     def cubemap_sizes(
         self,
         mipmap_count: int,
     ) -> list[list[int]]:
-        return [[self.value(F.U32) for _ in range(CUBEMAP_FACE_COUNT)] for _ in range(mipmap_count)]
+        # Read mipmap sizes for each cubemap face
+        data = self.array(F.U32, mipmap_count * CUBEMAP_FACE_COUNT)
 
-    def format(self) -> bytes:
-        string = self.read_exact(16)
-        return bytes(byte ^ XOR for byte in string if byte != NULL)
+        # Reshape to mipmap[face]
+        return data.reshape(mipmap_count, CUBEMAP_FACE_COUNT).tolist()
+
+    def format(
+        self,
+    ) -> bytes:
+        # Read obfuscated format identifier
+        data = self.read_exact(16)
+
+        # Decode format and remove padding
+        return bytes(byte ^ XOR for byte in data if byte != NULL)

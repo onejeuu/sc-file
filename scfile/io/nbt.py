@@ -34,7 +34,9 @@ class NbtReader(StructReader):
     ) -> DocumentValue:
         return self._HANDLERS[tag](self)
 
-    def tag(self) -> Tag:
+    def tag(
+        self,
+    ) -> Tag:
         try:
             return Tag(self.value(F.I8))
 
