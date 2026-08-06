@@ -392,7 +392,7 @@ class GlbEncoder(ModelEncoder):
                 for bindpose in self._ctx["SKINS"]:
                     self.io.write(bindpose.transpose(0, 2, 1).tobytes())
             else:
-                bindpose = self.data.scene.skeleton.inverse_bind_matrices(transpose=True)
+                bindpose = T.inverse_bind_matrices(self.data.scene.skeleton, transpose=True)
                 self.io.write(bindpose.tobytes())
 
         if self.includes(Feature.ANIMATION):

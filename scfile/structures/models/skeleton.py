@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .enums import SkeletonSpace
-from .matrices import create_transform_matrix, euler_to_quat
-from .types import BindPose, EulerAngles, InverseBindMatrices, Quaternion, Vector3D
+from .matrices import euler_to_quat
+from .types import EulerAngles, Quaternion, Vector3D
 
 
 ROOT_BONE_ID = -1
@@ -50,27 +50,3 @@ class ModelSkeleton:
     @property
     def roots(self) -> list[SkeletonBone]:
         return [bone for bone in self.bones if bone.is_root]
-
-    def calculate_global_transforms(self) -> BindPose:
-        """Compute global transformation matrix for each bone."""
-
-        transforms: BindPose = []
-
-        for bone in self.bones:
-            local_matrix = create_transform_matrix(bone.position, bone.rotation)
-            global_matrix = local_matrix if bone.is_root else transforms[bone.parent_id] @ local_matrix
-            transforms.append(global_matrix)
-
-        return transforms
-
-    def inverse_bind_matrices(self, transpose: bool) -> InverseBindMatrices:
-        """Compute inverse bind matrices for all bones."""
-
-        global_transforms = self.calculate_global_transforms()
-
-        inverse_matrices = [np.linalg.inv(matrix) for matrix in global_transforms]
-
-        if transpose:
-            inverse_matrices = [matrix.T for matrix in inverse_matrices]
-
-        return np.array(inverse_matrices, dtype=np.float32)

@@ -53,7 +53,7 @@ def _skin_context(
     target_bones = animation.scene.skeleton.bones
     target_ids = {bone.name: bone.id for bone in target_bones}
     target_scene = T.skeleton_to_local(animation.scene)
-    target_bind = target_scene.skeleton.inverse_bind_matrices(transpose=False)
+    target_bind = T.inverse_bind_matrices(target_scene.skeleton)
 
     skins: list[S.InverseBindMatrices] = []
     mesh_skins: list[int | None] = []
@@ -66,7 +66,7 @@ def _skin_context(
         if skinned:
             bind = target_bind.copy()
             source_scene = T.skeleton_to_local(model.scene)
-            source_bind = source_scene.skeleton.inverse_bind_matrices(transpose=False)
+            source_bind = T.inverse_bind_matrices(source_scene.skeleton)
 
             # Keep target matrices for bones absent from this model
             for bone in model.scene.skeleton.bones:

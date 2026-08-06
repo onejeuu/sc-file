@@ -14,9 +14,11 @@ from scfile.exceptions import AnimationError
 from scfile.structures.models.animation import AnimationClip
 
 from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVSign
+from .matrices import create_transform_matrix
 from .mesh import ModelMesh
 from .scene import ModelScene
-from .skeleton import ROOT_BONE_ID, SkeletonBone
+from .skeleton import ModelSkeleton, SkeletonBone
+from .types import BindPose, InverseBindMatrices, TransformMatrix
 
 
 if TYPE_CHECKING:
@@ -106,6 +108,46 @@ def invert_uv(scene: ModelScene) -> ModelScene:
     return replace(scene, meshes=meshes)
 
 
+def global_transforms(skeleton: ModelSkeleton) -> BindPose:
+    """Compute global transformation matrices for a valid skeleton."""
+
+    bones = skeleton.bones
+    cache: list[TransformMatrix | None] = [None] * len(bones)
+
+    def resolve(index: int) -> TransformMatrix:
+        if (matrix := cache[index]) is not None:
+            return matrix
+
+        bone = bones[index]
+        matrix = create_transform_matrix(bone.position, bone.rotation)
+
+        if not bone.is_root:
+            matrix = resolve(bone.parent_id) @ matrix
+
+        cache[index] = matrix
+        return matrix
+
+    return [resolve(index) for index in range(len(bones))]
+
+
+def inverse_bind_matrices(
+    skeleton: ModelSkeleton,
+    *,
+    transpose: bool = False,
+) -> InverseBindMatrices:
+    """Compute inverse bind matrices for a valid skeleton."""
+
+    matrices = [np.linalg.inv(matrix) for matrix in global_transforms(skeleton)]
+
+    if not matrices:
+        return np.empty((0, 4, 4), dtype=np.float32)
+
+    if transpose:
+        matrices = [matrix.T for matrix in matrices]
+
+    return np.array(matrices, dtype=np.float32)
+
+
 def skeleton_to_local(scene: ModelScene) -> ModelScene:
     """Convert bone positions (GLOBAL → LOCAL)."""
 
@@ -118,11 +160,8 @@ def skeleton_to_local(scene: ModelScene) -> ModelScene:
         new_bone = replace(bone)
         new_bone.position = bone.position.copy()
 
-        parent_id = bone.parent_id
-        while parent_id > ROOT_BONE_ID:
-            parent = new_bones[parent_id]
-            new_bone.position -= parent.position
-            parent_id = parent.parent_id
+        if not bone.is_root:
+            new_bone.position -= scene.skeleton.bones[bone.parent_id].position
 
         new_bones.append(new_bone)
 
