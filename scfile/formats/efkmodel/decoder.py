@@ -3,7 +3,6 @@ from typing import override
 from scfile.core import Decoder, ModelContent
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
-from scfile.formats.mcsa.decoder import MeshCounts
 from scfile.io.models import ModelReader
 from scfile.structures import models as S
 
@@ -17,15 +16,16 @@ class EfkmodelDecoder(Decoder[ModelContent, ModelReader]):
 
     @override
     def _parse(self):
-        self.data.version = self.io.value(F.U32)
+        self.data.meta.version = self.io.value(F.U32)
 
         self._ctx["SCALE"] = self.io.value(F.F32)
-        self._ctx["COUNT_MESHES"] = self.io.count(F.I32, Limit.MESHES)
-        self._ctx["COUNT_UNKNOWN"] = self.io.value(F.I32)
+        meshes = self.io.count(F.I32, Limit.MESHES)
+        self.data.meta.counts.meshes = meshes
+        self.io.skip(4)
 
-        for _ in range(self._ctx["COUNT_MESHES"]):
+        for _ in range(meshes):
             mesh = S.ModelMesh()
-            counts = MeshCounts()
+            counts = S.MeshCounts()
 
             # Read vertex data
             counts.vertices = self.io.count(F.U32, Limit.VERTICES)

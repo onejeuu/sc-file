@@ -3,6 +3,7 @@ Data structures for 3D model content.
 """
 
 from .animation import AnimationClip, ModelAnimation
+from .counts import MeshCounts, ModelCounts
 from .enums import (
     AnimationRotation,
     AnimationTranslation,
@@ -14,6 +15,7 @@ from .enums import (
     UVSign,
 )
 from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat
+from .meta import ModelMeta
 from .mesh import BlendShape, MeshBounds, ModelMesh
 from .scene import ModelScene, SceneScales
 from .skeleton import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
@@ -49,8 +51,11 @@ __all__ = (
     "AnimationClip",
     "BlendShape",
     "MeshBounds",
+    "MeshCounts",
     "ModelAnimation",
+    "ModelCounts",
     "ModelMesh",
+    "ModelMeta",
     "ModelScene",
     "SceneScales",
     "SkeletonBone",

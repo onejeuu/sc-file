@@ -26,14 +26,15 @@ class McalDecoder(Decoder[ModelContent, ModelReader]):
             raise BinaryStructureError(location=self.location, offset=self.io.tell())
 
     def _parse_header(self):
-        self.data.version = self.io.value(F.F32)
-        self._ctx["COUNT_BONES"] = self.io.value(F.U8)
+        self.data.meta.version = self.io.value(F.F32)
+        self.data.meta.counts.bones = self.io.value(F.U8)
         self.data.scene.scale.position = self.io.value(F.F32)
 
     def _parse_animation(self):
-        self._ctx["COUNT_CLIPS"] = self.io.count(F.I32, Limit.CLIPS)
+        clips = self.io.count(F.I32, Limit.CLIPS)
+        self.data.meta.counts.clips = clips
 
-        for _ in range(self._ctx["COUNT_CLIPS"]):
+        for _ in range(clips):
             self._parse_clip()
 
     def _parse_clip(self):
@@ -43,10 +44,11 @@ class McalDecoder(Decoder[ModelContent, ModelReader]):
         clip.frames = self.io.count(F.U32, Limit.FRAMES)
         clip.rate = self.io.value(F.F32)
 
-        self.io.check(clip.frames * self._ctx["COUNT_BONES"], Limit.TRANSFORMS)
+        bones = self.data.meta.counts.bones
+        self.io.check(clip.frames * bones, Limit.TRANSFORMS)
         rotations, translations, _ = self.io.clip(
             clip.frames,
-            self._ctx["COUNT_BONES"],
+            bones,
             0,
             self.data.scene.scale.position,
         )
@@ -54,7 +56,7 @@ class McalDecoder(Decoder[ModelContent, ModelReader]):
         clip.translations = translations
 
         # ? Version 14 clip metadata
-        if self.data.version >= 14.0:
+        if self.data.meta.version >= 14.0:
             self.io.skip(2)
 
         self.data.scene.animation.clips.append(clip)

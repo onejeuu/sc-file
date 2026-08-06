@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import ClassVar
 
 from scfile.enums import FileType
-from scfile.structures.models import Feature, FeatureFlags, ModelScene
+from scfile.structures.models import Feature, ModelMeta, ModelScene
 from scfile.structures.regions import RegionChunk
 from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
 
@@ -30,8 +30,7 @@ class ModelContent(BaseContent):
 
     type: ClassVar[FileType] = FileType.MODEL
 
-    version: float = 0.0
-    flags: FeatureFlags = field(default_factory=dict)
+    meta: ModelMeta = field(default_factory=ModelMeta)
     scene: ModelScene = field(default_factory=ModelScene)
 
     def has(
