@@ -9,7 +9,7 @@ from rich.console import Console
 from scfile.convert import files
 from scfile.enums import FileFormat
 from scfile.exceptions import EmptyFileError
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.registry import REGISTRY
 from scfile.utils.files import walk
 from tools.cmd.audit import stats
@@ -21,7 +21,7 @@ from tools.cmd.audit.types import Asset, Error, Result
 IGNORED_EXCEPTIONS = (EmptyFileError,)
 
 
-def _decode(asset: Asset, config: Config, options: HandlerOptions) -> Result:
+def _decode(asset: Asset, config: Config, options: Options) -> Result:
     try:
         with DECODERS[asset.format](asset.path, options) as decoder:
             content = decoder.decode()
@@ -72,7 +72,7 @@ def find_assets(config: Config, console: Console) -> list[Asset]:
 
 
 def decode_assets(assets: list[Asset], config: Config) -> Iterator[Result]:
-    options = HandlerOptions(skeleton=config.animation, animation=config.animation)
+    options = Options(model=Options.Model(skeleton=config.animation, animation=config.animation))
 
     if config.workers == 0:
         for asset in assets:

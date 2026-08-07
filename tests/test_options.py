@@ -1,11 +1,30 @@
-from scfile.options import DEFAULT_MODEL_FORMATS, DEFAULT_SKELETON_FORMATS, Options
+from dataclasses import fields
+from typing import get_type_hints
+
+from scfile.options import (
+    DEFAULT_MODEL_FORMAT,
+    DEFAULT_SKELETON_FORMAT,
+    ModelConfig,
+    ModelOptions,
+    Options,
+    RegionConfig,
+    RegionOptions,
+)
 
 
 def test_animation_enables_skeleton() -> None:
     assert Options(model={"animation": True}).model.skeleton_enabled
 
 
-def test_default_formats() -> None:
-    assert Options().default_formats is DEFAULT_MODEL_FORMATS
-    assert Options(model={"skeleton": True}).default_formats is DEFAULT_SKELETON_FORMATS
-    assert Options(model={"animation": True}).default_formats is DEFAULT_SKELETON_FORMATS
+def test_default_format() -> None:
+    assert Options().default_format is DEFAULT_MODEL_FORMAT
+    assert Options(model={"skeleton": True}).default_format is DEFAULT_SKELETON_FORMAT
+    assert Options(model={"animation": True}).default_format is DEFAULT_SKELETON_FORMAT
+
+
+def test_model_config() -> None:
+    assert get_type_hints(ModelConfig) == {field.name: field.type for field in fields(ModelOptions)}
+
+
+def test_region_config() -> None:
+    assert get_type_hints(RegionConfig) == {field.name: field.type for field in fields(RegionOptions)}

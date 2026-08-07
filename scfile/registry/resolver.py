@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 from scfile.core import Encoder, ModelContent
-from scfile.enums import FileFormat
 from scfile.options import Options
 from scfile.types import SourceLike
 
@@ -34,23 +33,23 @@ class Resolver:
             return None
         return entry
 
-    def targets(
+    def target(
         self,
         source: FormatSpec,
         options: Optional[Options] = None,
-    ) -> dict[FileFormat, type[Encoder[Any, Any]]]:
-        """Select output handlers for direct conversion."""
+    ) -> type[Encoder[Any, Any]] | None:
+        """Select one output handler for direct conversion."""
 
         available = self.registry.targets(source.format)
         if not available:
-            return {}
+            return None
 
         options = options or Options()
         if issubclass(source.content, ModelContent):
             selected = options.model_format or options.default_format
-            return {selected: available[selected]} if selected in available else {}
+            return available.get(selected)
 
         if len(available) == 1:
-            return available
+            return next(iter(available.values()))
 
-        return {}
+        return None

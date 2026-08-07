@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 from rich.console import Console
 
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 
@@ -58,7 +58,7 @@ def info(source: Path, format: str | None) -> None:
 
     size = source.stat().st_size
     console = Console()
-    options = HandlerOptions(skeleton=True, animation=True)
+    options = Options(model=Options.Model(skeleton=True, animation=True))
 
     with decoder_type(source, options) as decoder:
         try:

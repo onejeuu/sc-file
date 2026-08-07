@@ -8,7 +8,7 @@ from rich.filesize import decimal
 from rich.table import Table
 
 from scfile.convert import files
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.registry import REGISTRY, RESOLVER
 from tools.cmd import tools
 from tools.paths import ROOT
@@ -110,7 +110,7 @@ def profile(
         reports = ROOT / reports
     reports = reports.resolve()
 
-    options = HandlerOptions(skeleton=animation, animation=animation)
+    options = Options(model=Options.Model(skeleton=animation, animation=animation))
     source = source or MODEL
     if not source.is_file():
         raise click.UsageError(f"Reference file not found: '{source}'.")
@@ -121,7 +121,7 @@ def profile(
 
     source_format = str(source_spec.format)
     decoder = source_spec.decoder
-    available = {str(fmt): encoder for fmt, encoder in RESOLVER.targets(source_spec).items()}
+    available = {str(fmt): encoder for fmt, encoder in REGISTRY.targets(source_spec.format).items()}
     targets = tuple(dict.fromkeys(value.lower().lstrip(".") for value in target))
     if "full" in targets:
         targets = tuple(sorted(available))

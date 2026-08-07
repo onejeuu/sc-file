@@ -32,12 +32,12 @@ class Job:
         destination = files.destination(entry.relpath, self.relative, output)
 
         try:
-            results = convert.auto(entry.path, destination, self.options)
-            written = sum(result.status is Status.WRITTEN for result in results)
-            skipped = len(results) - written
+            result = convert.auto(entry.path, destination, self.options)
+            written = int(result.status is Status.WRITTEN)
+            skipped = int(result.status is Status.SKIPPED)
             return Item(
                 source=entry.path,
-                outputs=tuple(result.path for result in results),
+                outputs=(result.path,),
                 written=written,
                 skipped=skipped,
             )

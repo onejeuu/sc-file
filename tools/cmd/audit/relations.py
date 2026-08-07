@@ -7,13 +7,13 @@ from scfile.core import ModelContent, ModelDecoder
 from scfile.exceptions import AnimationError
 from scfile.formats import McalDecoder, McsbDecoder, McvdDecoder
 from scfile.io.models import ModelReader
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.structures.models import transforms
 
 from .types import Error, Relations, Result
 
 
-_OPTIONS = HandlerOptions(skeleton=True, animation=True)
+_OPTIONS = Options(model=Options.Model(skeleton=True, animation=True))
 
 ARMS = "mcvd+mcsb (arms)"
 FACE = "mcvd+mcsb (face)"

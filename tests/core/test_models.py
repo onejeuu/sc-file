@@ -2,7 +2,7 @@ import numpy as np
 
 from scfile.core import ModelContent, ModelEncoder
 from scfile.enums import FileFormat
-from scfile.options import ModelConfig
+from scfile.options import Options
 from scfile.structures.models import AnimationClip, Feature, ModelMesh, SkeletonBone
 
 
@@ -31,7 +31,7 @@ def test_includes() -> None:
         )
     )
 
-    with ModelEncoderStub(data, ModelConfig(animation=True)) as encoder:
+    with ModelEncoderStub(data, Options(model={"animation": True})) as encoder:
         assert encoder.includes(Feature.UV)
         assert encoder.includes(Feature.SKELETON)
         assert encoder.includes(Feature.BONE_ANIMATION)

@@ -58,7 +58,7 @@ def auto(
     source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
-) -> list[Output]:
+) -> Output:
     """Convert one file using formats resolved from its extension."""
 
     src_path = Path(source)
@@ -67,14 +67,14 @@ def auto(
         raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
 
     options = options or Options()
-    targets = RESOLVER.targets(source_spec, options)
-    if not targets:
+    encoder = RESOLVER.target(source_spec, options)
+    if encoder is None:
         raise exceptions.ConversionError(
             f"No standalone output format available for '{source_spec.format}'.",
             location=str(src_path),
         )
 
-    return [manual(source_spec.decoder, encoder, src_path, output, options) for encoder in targets.values()]
+    return manual(source_spec.decoder, encoder, src_path, output, options)
 
 
 def validate_sources(
