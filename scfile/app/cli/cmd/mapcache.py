@@ -43,8 +43,8 @@ from . import scfile
     help="Show the result of every processed region.",
 )
 def mapcache_command(
-    source: types.Path,
-    output: types.Output,
+    source: types.SourcePath,
+    output: types.OutputPath,
     workers: int | None,
     raw: bool,
     verbose: bool,

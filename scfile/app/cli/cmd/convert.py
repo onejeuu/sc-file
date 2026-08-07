@@ -72,7 +72,7 @@ from . import scfile
 )
 def convert_command(
     paths: types.FilesPaths,
-    output: types.Output,
+    output: types.OutputPath,
     mdlformat: types.Formats | None,
     relative: bool,
     parent: bool,

@@ -9,8 +9,8 @@ from scfile.registry import REGISTRY
 
 
 def resource(
-    path: types.PathLike,
-) -> types.Path:
+    path: types.SourceLike,
+) -> types.SourcePath:
     """Resolve resource path, accounting for MEIPASS environment variable."""
 
     meipass = getattr(sys, "_MEIPASS", None)

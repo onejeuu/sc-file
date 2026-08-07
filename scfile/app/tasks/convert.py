@@ -18,7 +18,7 @@ class Job:
 
     kind: ClassVar[TaskKind] = TaskKind.CONVERT
 
-    sources: tuple[types.PathLike, ...]
+    sources: tuple[types.SourceLike, ...]
     whitelist: tuple[str, ...]
     options: ConvertOptions
     output: Path | None = None

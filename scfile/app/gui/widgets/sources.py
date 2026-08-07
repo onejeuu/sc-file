@@ -39,7 +39,7 @@ _ENV_MAPPING = {
 _ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists() and k != Path(_ENV_STUB)}
 
 
-def normalize_path(source: types.PathLike) -> str:
+def normalize_path(source: types.SourceLike) -> str:
     path = Path(source).resolve()
 
     for env, alias in _ENV_MAPPING.items():

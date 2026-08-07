@@ -12,7 +12,7 @@ from typing import ClassVar, Optional, Self, cast
 from scfile.enums import HandlerState
 from scfile.io.base import OutputStream, StructWriter
 from scfile.options import HandlerOptions
-from scfile.types import PathLike
+from scfile.types import SourceLike
 
 from .base import Handler
 from .content import BaseContent
@@ -112,7 +112,7 @@ class Encoder[
 
     def save(
         self,
-        path: PathLike,
+        path: SourceLike,
         *,
         close: bool = True,
     ) -> None:
@@ -136,7 +136,7 @@ class Encoder[
 
     def export(
         self,
-        path: PathLike,
+        path: SourceLike,
         *,
         close: bool = True,
     ) -> None:

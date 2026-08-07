@@ -13,11 +13,11 @@ from numpy.typing import NDArray
 from scfile.enums import ByteOrder, F, UnicodeErrors
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, SafetyLimitError
-from scfile.types import PathLike
+from scfile.types import SourceLike
 
 
-type IOStream = PathLike | IOBase | bytes
-type OutputStream = PathLike | IOBase
+type IOStream = SourceLike | IOBase | bytes
+type OutputStream = SourceLike | IOBase
 
 
 class StructIO[StreamType: IOStream]:

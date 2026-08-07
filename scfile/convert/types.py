@@ -13,7 +13,7 @@ class Status(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class Result:
+class Output:
     """Output path and conversion outcome."""
 
     path: Path

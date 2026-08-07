@@ -1,26 +1,25 @@
 import os
-import pathlib
 from collections.abc import Iterable, Iterator, Sequence
+from pathlib import Path
 from typing import NamedTuple, Optional
 
 from .enums import FileFormat
 
 
-Path = pathlib.Path
-type PathLike = str | Path | os.PathLike[str]
-"""Path represented as string, pathlib.Path, or OS path-like object."""
-
-
-type Output = Path | None
+type SourcePath = Path
+"""Source path."""
+type SourceLike = str | Path | os.PathLike[str]
+"""Source path-like."""
+type OutputPath = Optional[Path]
 """Optional output path."""
-type OutputLike = Optional[PathLike]
+type OutputLike = Optional[str | Path | os.PathLike[str]]
 """Optional path-like output."""
 
 type FilesWhitelist = Iterable[str]
 """Iterable of file suffixes for filtering."""
-type FilesPaths = Iterable[Path]
+type FilesPaths = Iterable[SourcePath]
 """Iterable of file paths."""
-type FilesSources = Iterable[PathLike]
+type FilesSources = Iterable[SourceLike]
 """Iterable of path-like sources."""
 
 type Formats = Sequence[FileFormat]

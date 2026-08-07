@@ -8,7 +8,7 @@ from typing import Any, Optional
 from scfile.core import Encoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.options import ConvertOptions
-from scfile.types import PathLike
+from scfile.types import SourceLike
 
 from .registry import FormatSpec, Registry
 
@@ -24,7 +24,7 @@ class Resolver:
 
     def resolve(
         self,
-        source: PathLike,
+        source: SourceLike,
     ) -> FormatSpec | None:
         """Resolve a registered source format from file path."""
 

@@ -20,8 +20,8 @@ def animate() -> None:
 
 def _execute(
     operation: Callable[..., Path],
-    source: types.Path,
-    models: tuple[types.Path, ...],
+    source: types.SourcePath,
+    models: tuple[types.SourcePath, ...],
     output: types.OutputLike,
 ) -> None:
     output_path = convert.files.destination(source, output, FileFormat.GLB.suffix)
@@ -52,9 +52,9 @@ def _execute(
     type=params.OutputPath,
 )
 def arms(
-    animation: types.Path,
-    models: tuple[types.Path, ...],
-    output: types.Output,
+    animation: types.SourcePath,
+    models: tuple[types.SourcePath, ...],
+    output: types.OutputPath,
 ) -> None:
     """Apply first-person animation to weapon and hands models."""
 
@@ -78,9 +78,9 @@ def arms(
     type=params.OutputPath,
 )
 def face(
-    animation: types.Path,
-    model: types.Path,
-    output: types.Output,
+    animation: types.SourcePath,
+    model: types.SourcePath,
+    output: types.OutputPath,
 ) -> None:
     """Apply facial animation to a head model."""
 
@@ -104,9 +104,9 @@ def face(
     type=params.OutputPath,
 )
 def body(
-    library: types.Path,
-    model: types.Path,
-    output: types.Output,
+    library: types.SourcePath,
+    model: types.SourcePath,
+    output: types.OutputPath,
 ) -> None:
     """Apply animation library to a model."""
 

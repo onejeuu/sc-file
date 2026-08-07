@@ -11,11 +11,11 @@ from scfile.io import StructReader, StructWriter
 from scfile.options import ConvertOptions
 from scfile.registry import RESOLVER
 
-from .types import Result, Status
+from .types import Output, Status
 
 
 def format(
-    source: types.PathLike,
+    source: types.SourceLike,
 ) -> str:
     """Detect input file format."""
 
@@ -32,10 +32,10 @@ def manual[
 ](
     decoder: type[Decoder[ContentType, ReaderType]],
     encoder: type[Encoder[ContentType, WriterType]],
-    source: types.PathLike,
+    source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[ConvertOptions] = None,
-) -> Result:
+) -> Output:
     """Convert one file using explicitly selected handlers."""
 
     src_path = validate_sources(source)[0]
@@ -44,7 +44,7 @@ def manual[
 
     match options.conflict:
         case "skip" if output_path.exists():
-            return Result(path=output_path, status=Status.SKIPPED)
+            return Output(path=output_path, status=Status.SKIPPED)
         case "rename":
             output_path = ensure_unique_path(output_path)
 
@@ -52,14 +52,14 @@ def manual[
         with src.convert_to(encoder=encoder) as out:
             out.save(path=output_path)
 
-    return Result(path=output_path, status=Status.WRITTEN)
+    return Output(path=output_path, status=Status.WRITTEN)
 
 
 def auto(
-    source: types.PathLike,
+    source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[ConvertOptions] = None,
-) -> list[Result]:
+) -> list[Output]:
     """Convert one file using formats resolved from its extension."""
 
     src_path = Path(source)
@@ -79,7 +79,7 @@ def auto(
 
 
 def validate_sources(
-    *sources: types.PathLike,
+    *sources: types.SourceLike,
 ) -> list[Path]:
     """Resolve source paths and require regular files."""
 

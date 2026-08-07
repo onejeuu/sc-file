@@ -6,15 +6,15 @@ from typing import Optional
 
 from scfile import formats
 from scfile.options import ConvertOptions
-from scfile.types import PathLike
+from scfile.types import OutputLike, SourceLike
 
 from .named import converter
 
 
 @converter(formats.mcsb.McsbDecoder, formats.obj.ObjEncoder)
 def mcsb_to_obj(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -33,8 +33,8 @@ def mcsb_to_obj(
 
 @converter(formats.mcsb.McsbDecoder, formats.glb.GlbEncoder)
 def mcsb_to_glb(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -53,8 +53,8 @@ def mcsb_to_glb(
 
 @converter(formats.mcsb.McsbDecoder, formats.fbx.FbxEncoder)
 def mcsb_to_fbx(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -73,8 +73,8 @@ def mcsb_to_fbx(
 
 @converter(formats.mcsa.McsaDecoder, formats.obj.ObjEncoder)
 def mcsa_to_obj(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -93,8 +93,8 @@ def mcsa_to_obj(
 
 @converter(formats.mcsa.McsaDecoder, formats.glb.GlbEncoder)
 def mcsa_to_glb(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -113,8 +113,8 @@ def mcsa_to_glb(
 
 @converter(formats.mcsa.McsaDecoder, formats.fbx.FbxEncoder)
 def mcsa_to_fbx(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -133,8 +133,8 @@ def mcsa_to_fbx(
 
 @converter(formats.mcvd.McvdDecoder, formats.obj.ObjEncoder)
 def mcvd_to_obj(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -153,8 +153,8 @@ def mcvd_to_obj(
 
 @converter(formats.mcvd.McvdDecoder, formats.glb.GlbEncoder)
 def mcvd_to_glb(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -173,8 +173,8 @@ def mcvd_to_glb(
 
 @converter(formats.mcvd.McvdDecoder, formats.fbx.FbxEncoder)
 def mcvd_to_fbx(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -193,8 +193,8 @@ def mcvd_to_fbx(
 
 @converter(formats.efkmodel.EfkmodelDecoder, formats.obj.ObjEncoder)
 def efkmodel_to_obj(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -213,8 +213,8 @@ def efkmodel_to_obj(
 
 @converter(formats.efkmodel.EfkmodelDecoder, formats.glb.GlbEncoder)
 def efkmodel_to_glb(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -233,8 +233,8 @@ def efkmodel_to_glb(
 
 @converter(formats.efkmodel.EfkmodelDecoder, formats.fbx.FbxEncoder)
 def efkmodel_to_fbx(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -253,8 +253,8 @@ def efkmodel_to_fbx(
 
 @converter(formats.ol.OlDecoder, formats.dds.DdsEncoder)
 def ol_to_dds(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -273,8 +273,8 @@ def ol_to_dds(
 
 @converter(formats.mic.MicDecoder, formats.png.PngEncoder)
 def mic_to_png(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -293,8 +293,8 @@ def mic_to_png(
 
 @converter(formats.texarr.TexarrDecoder, formats.zip.ZipEncoder)
 def texarr_to_zip(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -313,8 +313,8 @@ def texarr_to_zip(
 
 @converter(formats.nbt.NbtDecoder, formats.json.JsonEncoder)
 def nbt_to_json(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """
@@ -333,8 +333,8 @@ def nbt_to_json(
 
 @converter(formats.mdat.MdatDecoder, formats.mca.McaEncoder)
 def mdat_to_mca(
-    source: PathLike,
-    output: Optional[PathLike] = None,
+    source: SourceLike,
+    output: OutputLike = None,
     options: Optional[ConvertOptions] = None,
 ):
     """

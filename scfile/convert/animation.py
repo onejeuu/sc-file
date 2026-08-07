@@ -23,8 +23,8 @@ type AnimationTransform = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
 def _apply_external(
     decoder: type[ModelDecoder[ModelReader]],
     transform: AnimationTransform,
-    animation: types.PathLike,
-    model: types.PathLike,
+    animation: types.SourceLike,
+    model: types.SourceLike,
     output: types.OutputLike = None,
 ) -> Path:
     animation_path, model_path = validate_sources(animation, model)
@@ -81,8 +81,8 @@ def _skin_context(
 
 
 def arms(
-    animation: types.PathLike,
-    *models: types.PathLike,
+    animation: types.SourceLike,
+    *models: types.SourceLike,
     output: types.OutputLike = None,
 ) -> Path:
     """Apply first-person animation to weapon and hands models."""
@@ -118,8 +118,8 @@ def arms(
 
 
 def face(
-    animation: types.PathLike,
-    model: types.PathLike,
+    animation: types.SourceLike,
+    model: types.SourceLike,
     output: types.OutputLike = None,
 ) -> Path:
     """Apply facial animation to a head model."""
@@ -134,8 +134,8 @@ def face(
 
 
 def body(
-    library: types.PathLike,
-    model: types.PathLike,
+    library: types.SourceLike,
+    model: types.SourceLike,
     output: types.OutputLike = None,
 ) -> Path:
     """Apply animation library to a model."""

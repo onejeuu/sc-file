@@ -2,15 +2,16 @@
 Click parameter types for commands.
 """
 
+from pathlib import Path
+
 import click
 
-from scfile import types
 from scfile.enums import FileFormat
 from scfile.options import ON_CONFLICT_OPTIONS
 
 
 Files = click.Path(
-    path_type=types.Path,
+    path_type=Path,
     dir_okay=True,
     file_okay=True,
     exists=True,
@@ -18,7 +19,7 @@ Files = click.Path(
 )
 
 File = click.Path(
-    path_type=types.Path,
+    path_type=Path,
     dir_okay=False,
     file_okay=True,
     exists=True,
@@ -26,21 +27,21 @@ File = click.Path(
 )
 
 OutputPath = click.Path(
-    path_type=types.Path,
+    path_type=Path,
     dir_okay=True,
     file_okay=True,
     resolve_path=True,
 )
 
 Output = click.Path(
-    path_type=types.Path,
+    path_type=Path,
     dir_okay=True,
     file_okay=False,
     resolve_path=True,
 )
 
 MapCacheDir = click.Path(
-    path_type=types.Path,
+    path_type=Path,
     dir_okay=True,
     file_okay=False,
     exists=True,
