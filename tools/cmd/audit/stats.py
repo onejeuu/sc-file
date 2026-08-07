@@ -92,7 +92,10 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
         scale_uv2=scale.uv2,
     )
 
-    return [model, *meshes, *bones, *animations]
+    if animation:
+        return [model, *meshes, *bones, *animations]
+
+    return [model, *meshes]
 
 
 def _texture(path: str, content: TextureContent, filesize: int) -> list[Record]:

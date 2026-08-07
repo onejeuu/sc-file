@@ -1,5 +1,5 @@
 path = "C:/EXBO/runtime/stalcraft/modassets/assets"
 workers = 4
-animation = false
+animation = true
 reports = "reports/audit"
 stats = false
