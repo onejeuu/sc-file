@@ -16,6 +16,7 @@ jobs:
   version:
     name: Check Version
     runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' && !contains(github.ref_name, 'dev')
 
     steps:
       - uses: actions/checkout@v4
@@ -155,7 +156,7 @@ jobs:
           generate_release_notes: true
           body: |
             ## `${{ steps.meta.outputs.date }}` `${{ steps.meta.outputs.time }}`
-            ${{ steps.meta.outputs.prerelease == 'true' || '' }}
+
             ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and intended for testing.' || '' }}
             ${{ steps.meta.outputs.prerelease == 'false' && format('**API Changelog:** [`{0}`](https://sc-file.readthedocs.io/en/latest/v/{1}.html)', github.ref_name, steps.meta.outputs.version) || '' }}
