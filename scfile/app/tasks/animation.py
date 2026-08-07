@@ -22,7 +22,7 @@ class Job:
     operation: Operation
     source: types.PathLike
     models: tuple[types.PathLike, ...]
-    output: types.PathLike
+    output: types.OutputLike
 
     def run(
         self,
@@ -30,20 +30,23 @@ class Job:
     ) -> Summary:
         """Apply animation data and report its output."""
 
-        source = str(self.source)
-        output = Path(self.output).resolve()
+        source = Path(self.source)
+        output = Path(self.output or source.parent).resolve()
         context.emit(Started(self.kind, 1, output))
+
+        src = str(self.source)
+
         if context.stopped:
             return Summary(self.kind, 1, 0, cancelled=True, output=output)
 
         try:
             output = self.operation(self.source, *self.models, output=self.output)
             output = output.resolve()
-            context.emit(Item(source=source, outputs=(output,), written=1))
+            context.emit(Item(source=src, outputs=(output,), written=1))
             return Summary(self.kind, 1, 1, succeeded=1, written=1, output=output)
         except exceptions.ScFileException as error:
-            context.emit(failure(source, error))
+            context.emit(failure(src, error))
         except Exception as error:
-            context.emit(failure(source, error, unexpected=True))
+            context.emit(failure(src, error, unexpected=True))
 
         return Summary(self.kind, 1, 1, failed=1, output=output)

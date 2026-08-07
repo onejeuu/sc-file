@@ -22,7 +22,7 @@ def _execute(
     operation: Callable[..., Path],
     source: types.PathLike,
     models: tuple[types.PathLike, ...],
-    output: types.PathLike,
+    output: types.OutputLike,
 ) -> None:
     feedback = TaskFeedback()
     summary = Job(operation, source, models, output).run(Context(report=feedback))
@@ -32,6 +32,7 @@ def _execute(
         raise click.exceptions.Exit(1)
 
 
+# TODO: rework output
 @animate.command(name=AnimateCommand.ARMS)
 @click.argument(
     "ANIMATION",
@@ -60,6 +61,7 @@ def arms(
     _execute(convert.animation.arms, animation, models, output)
 
 
+# TODO: rework output
 @animate.command(name=AnimateCommand.FACE)
 @click.argument(
     "ANIMATION",
@@ -86,6 +88,7 @@ def face(
     _execute(convert.animation.face, animation, (model,), output)
 
 
+"""
 @animate.command(name=AnimateCommand.BODY)
 @click.argument(
     "LIBRARY",
@@ -107,6 +110,7 @@ def body(
     model: types.Path,
     output: types.Output,
 ) -> None:
-    """Apply animation library to a model."""
+    \"""Apply animation library to a model.\"""
 
     _execute(convert.animation.body, library, (model,), output)
+"""

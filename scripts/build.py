@@ -11,7 +11,7 @@ ROOT = SCRIPTS.parent
 
 ENTRYPOINT = ROOT / "scfile" / "__main__.py"
 FAVICON = ROOT / "assets" / "scfile.ico"
-ASSETS = ROOT / "scfile" / "gui" / "assets"
+ASSETS = ROOT / "scfile" / "app" / "gui" / "assets"
 SPECPATH = ROOT / "build"
 COMMIT = SPECPATH / "commit"
 HOOKS = SCRIPTS / "hooks"
