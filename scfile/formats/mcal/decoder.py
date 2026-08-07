@@ -42,19 +42,19 @@ class McalDecoder(ModelDecoder[ModelReader]):
         clip.frames = self.io.count(F.U32, Limit.FRAMES)
         clip.rate = self.io.value(F.F32)
 
+        channels = self.io.value(F.U16) if self.data.meta.version >= 14.0 else 0
         bones = self.data.meta.counts.bones
         self.io.check(clip.frames * bones, Limit.TRANSFORMS)
-        rotations, translations, _ = self.io.clip(
+        self.io.check(clip.frames * channels, Limit.WEIGHTS)
+
+        rotations, translations, morph_weights = self.io.clip(
             clip.frames,
             bones,
-            0,
+            channels,
             self.data.scene.scale.position,
         )
         clip.rotations = rotations
         clip.translations = translations
-
-        # ? Version 14 clip metadata
-        if self.data.meta.version >= 14.0:
-            self.io.skip(2)
+        clip.morph_weights = morph_weights
 
         self.data.scene.animation.clips.append(clip)

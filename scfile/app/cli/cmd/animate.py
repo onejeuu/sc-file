@@ -8,7 +8,7 @@ from scfile.app.cli import params
 from scfile.app.cli.messages import TaskFeedback
 from scfile.app.tasks import Context
 from scfile.app.tasks.animation import Job
-from scfile.enums import AnimateCommand, CliCommand
+from scfile.enums import AnimateCommand, CliCommand, FileFormat
 
 from . import scfile
 
@@ -20,19 +20,19 @@ def animate() -> None:
 
 def _execute(
     operation: Callable[..., Path],
-    source: types.PathLike,
-    models: tuple[types.PathLike, ...],
+    source: types.Path,
+    models: tuple[types.Path, ...],
     output: types.OutputLike,
 ) -> None:
+    output_path = convert.files.destination(source, output, FileFormat.GLB.suffix)
     feedback = TaskFeedback()
-    summary = Job(operation, source, models, output).run(Context(report=feedback))
+    summary = Job(operation, source, models, output_path).run(Context(report=feedback))
     feedback.finish(summary)
 
     if summary.failed:
         raise click.exceptions.Exit(1)
 
 
-# TODO: rework output
 @animate.command(name=AnimateCommand.ARMS)
 @click.argument(
     "ANIMATION",
@@ -47,7 +47,7 @@ def _execute(
 @click.option(
     "-O",
     "--output",
-    required=True,
+    required=False,
     help="Output GLB file or directory.",
     type=params.OutputPath,
 )
@@ -61,7 +61,6 @@ def arms(
     _execute(convert.animation.arms, animation, models, output)
 
 
-# TODO: rework output
 @animate.command(name=AnimateCommand.FACE)
 @click.argument(
     "ANIMATION",
@@ -74,7 +73,7 @@ def arms(
 @click.option(
     "-O",
     "--output",
-    required=True,
+    required=False,
     help="Output GLB file or directory.",
     type=params.OutputPath,
 )
@@ -88,7 +87,6 @@ def face(
     _execute(convert.animation.face, animation, (model,), output)
 
 
-"""
 @animate.command(name=AnimateCommand.BODY)
 @click.argument(
     "LIBRARY",
@@ -101,7 +99,7 @@ def face(
 @click.option(
     "-O",
     "--output",
-    required=True,
+    required=False,
     help="Output GLB file or directory.",
     type=params.OutputPath,
 )
@@ -110,7 +108,6 @@ def body(
     model: types.Path,
     output: types.Output,
 ) -> None:
-    \"""Apply animation library to a model.\"""
+    """Apply animation library to a model."""
 
     _execute(convert.animation.body, library, (model,), output)
-"""

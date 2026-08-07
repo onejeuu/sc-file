@@ -247,12 +247,11 @@ def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScen
     if not library.animation.clips:
         raise AnimationError("Animation library contains no clips.")
 
-    bones = len(model.skeleton.bones)
-    for clip in library.animation.clips:
-        if clip.translations.shape != (clip.frames, bones, 3):
-            raise AnimationError(f"Animation clip '{clip.name}' has invalid translations.")
-        if clip.rotations.shape != (clip.frames, bones, 4):
-            raise AnimationError(f"Animation clip '{clip.name}' has invalid rotations.")
+    clips = library.animation.clips
+    library_bones = clips[0].translations.shape[1]
+    model_bones = len(model.skeleton.bones)
+    if library_bones != model_bones:
+        raise AnimationError(f"Animation library has {library_bones} bones, model has {model_bones}.")
 
     return replace(model, animation=replace(library.animation))
 
@@ -268,10 +267,6 @@ def apply_morph_animation(animation: ModelScene, model: ModelScene) -> ModelScen
 
     if len(set(channels)) != len(channels):
         raise AnimationError("Animation contains duplicate morph channel names.")
-
-    for clip in clips:
-        if clip.morph_weights.shape != (clip.frames, len(channels)):
-            raise AnimationError(f"Animation clip '{clip.name}' has invalid morph weights.")
 
     mapped = {shape.channel for mesh in model.meshes for shape in mesh.blend_shapes if shape.channel is not None}
     if not mapped:

@@ -12,11 +12,11 @@ from PySide6.QtWidgets import (
 )
 
 from scfile import convert
-from scfile.app.gui.workers import TaskManager
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.gui.workers import TaskManager
 from scfile.app.tasks.animation import Job
 
 

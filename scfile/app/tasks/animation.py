@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 
-from scfile import exceptions, types
+from scfile import exceptions
 
 from .base import Context, Item, Started, Summary, TaskKind, failure
 
@@ -20,9 +20,9 @@ class Job:
     kind: ClassVar[TaskKind] = TaskKind.ANIMATE
 
     operation: Operation
-    source: types.PathLike
-    models: tuple[types.PathLike, ...]
-    output: types.OutputLike
+    source: Path
+    models: tuple[Path, ...]
+    output: Path
 
     def run(
         self,
@@ -30,8 +30,7 @@ class Job:
     ) -> Summary:
         """Apply animation data and report its output."""
 
-        source = Path(self.source)
-        output = Path(self.output or source.parent).resolve()
+        output = self.output.resolve()
         context.emit(Started(self.kind, 1, output))
 
         src = str(self.source)

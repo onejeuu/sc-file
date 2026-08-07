@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: MCAL.bt
 // Authors: onejeuu
-// Version: 2.3
+// Version: 3.0
 // Purpose: Parse skeletal animation libraries.
 // Category: STALCRAFT
 // File Mask: *.mcal
@@ -9,7 +9,7 @@
 //------------------------------------------------
 
 
-// Define Byte Order
+// Byte Order
 
 LittleEndian();
 
@@ -22,9 +22,12 @@ typedef struct {
 } String <read=(exists(data) ? data : "")>;
 
 
-// Vectors
+// Dequantization
 
-float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort (Dequantization)
+float nS(short i) { return (float)i / 32767.0f; } // NormalizeShort
+
+
+// Vectors
 
 typedef struct { short x, y, z; } Vec3s <read=Str("%f, %f, %f", nS(x), nS(y), nS(z))>;
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
@@ -36,28 +39,32 @@ char signature[4] <name="Signature", fgcolor=cGreen>;
 float version <name="Version", fgcolor=cRed>;
 
 
-// Animations
+// Animation Library
 
 struct BoneTransform {
     Vec4s rotation <name="Rotation", bgcolor=cGray>;
-    Vec3s translation <name="Translation", bgcolor=cWhite;
+    Vec3s translation <name="Translation", bgcolor=cWhite>;
 };
+
+typedef ushort MorphWeight <read=Str("%f", (float)this / 32767.0f)>;
 
 struct KeyFrame {
     if ( boneCount > 0 ) BoneTransform transforms[boneCount];
+    if ( version >= 14.0 ) MorphWeight weights[channelCount];
 };
 
 typedef struct {
     String name <name="Name">;
     int frameCount <name="Keyframe Count", bgcolor=cGreen>;
     float frameInterval <name="Frame Interval", fgcolor=cPurple>;
+    if ( version >= 14.0 )
+        ushort channelCount <name="Channel Count", bgcolor=cDkGreen>;
     if ( frameCount > 0 ) KeyFrame frame[frameCount] <optimize=false>;
-    if ( version >= 14.0 ) short unknown <name="Unknown">;
-} Clip <read=(exists(this.name.data) ? this.name.data : "")>;
+} AnimationClip <read=(exists(this.name.data) ? this.name.data : "")>;
 
 struct Animation {
     ubyte boneCount <name="Bone Count", bgcolor=cPurple>;
     float positionScale <name="Position Scale">;
     int  clipCount <name="Clip Count", bgcolor=cBlue>;
-    if ( clipCount > 0 ) Clip clips[clipCount] <name="Clip", optimize=false>;
+    if ( clipCount > 0 ) AnimationClip clips[clipCount] <name="Clip", optimize=false>;
 } animation <name="Animation Library">;
