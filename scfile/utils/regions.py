@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 from scfile import exceptions, formats
 from scfile.core import RegionContent
-from scfile.options import HandlerOptions
+from scfile.options import Options
 
 
 type RegionKey = tuple[int, int]
@@ -31,7 +31,7 @@ def merge(
     key: RegionKey,
     paths: list[Path],
     output: Path,
-    options: HandlerOptions,
+    options: Options,
     cancelled: CancelEvent,
 ) -> MergeResult:
     """Merge multiple map chunks into single region file."""

@@ -6,7 +6,7 @@ from scfile.app.cli.messages import TaskFeedback, warning
 from scfile.app.tasks import Context
 from scfile.app.tasks.mapcache import Job
 from scfile.enums import CliCommand
-from scfile.options import HandlerOptions
+from scfile.options import Options
 
 from . import scfile
 
@@ -54,7 +54,7 @@ def mapcache_command(
         "Full compatibility is unlikely."
     )
 
-    options = HandlerOptions(raw_blocks=raw)
+    options = Options(region={"raw_blocks": raw})
     feedback = TaskFeedback(verbose)
     summary = Job(source, output, options, workers).run(Context(report=feedback))
     feedback.finish(summary)

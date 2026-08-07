@@ -12,7 +12,7 @@ from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.mapcache import Job
-from scfile.options import HandlerOptions
+from scfile.options import Options
 
 
 def is_minecraft(path: Path) -> bool:
@@ -144,7 +144,7 @@ class MapCacheTab(QWidget):
     def _merge(self):
         source = Path(self.source.text().strip())
         output = Path(self.output.text().strip())
-        options = HandlerOptions(raw_blocks=self.raw_blocks.isChecked())
+        options = Options(region={"raw_blocks": self.raw_blocks.isChecked()})
 
         self._active = True
         if not self.tasks.start(Job(source, output, options)):

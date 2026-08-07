@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from scfile import exceptions
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.utils import regions
 
 from .base import Context, Failure, Item, Progress, Started, Summary, TaskKind, failure, parallel
@@ -23,7 +23,7 @@ class Job:
 
     source: Path
     output: Path | None
-    options: HandlerOptions
+    options: Options
     workers: int | None = None
 
     def _merge(self, region: Region, context: Context) -> Item | Failure | None:

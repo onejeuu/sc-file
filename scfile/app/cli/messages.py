@@ -31,7 +31,7 @@ from scfile.app.tasks import (
 )
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
-from scfile.options import HandlerOptions
+from scfile.options import ModelOptions
 from scfile.registry import REGISTRY
 from scfile.structures.models import Feature, Features
 
@@ -131,7 +131,7 @@ def aborted(message: str) -> None:
 
 def warn_unsupported_features(
     formats: types.Formats,
-    options: HandlerOptions,
+    options: ModelOptions,
 ) -> None:
     """Warn when explicitly selected formats omit requested model data."""
 

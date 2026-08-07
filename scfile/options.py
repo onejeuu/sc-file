@@ -1,71 +1,108 @@
-"""
-Handler and conversion options.
-"""
+"""Library processing and conversion options."""
 
-from dataclasses import dataclass, field
-from typing import Literal
+from dataclasses import dataclass
+from typing import ClassVar, Literal, TypedDict
 
 from scfile.enums import FileFormat
-from scfile.types import Formats
 
 
 type OnConflict = Literal["overwrite", "rename", "skip"]
-ON_CONFLICT_OPTIONS: list[OnConflict] = ["overwrite", "rename", "skip"]
+ON_CONFLICT_OPTIONS: tuple[OnConflict, ...] = ("overwrite", "rename", "skip")
+"""Supported actions when an output path already exists."""
 
-DEFAULT_MODEL_FORMATS: Formats = (FileFormat.OBJ,)
-"""Default output formats when skeleton processing is disabled."""
+DEFAULT_MODEL_FORMAT = FileFormat.OBJ
+"""Default output format when skeleton processing is disabled."""
 
-DEFAULT_SKELETON_FORMATS: Formats = (FileFormat.GLB,)
-"""Default output formats when skeleton processing is enabled."""
+DEFAULT_SKELETON_FORMAT = FileFormat.GLB
+"""Default output format when skeleton processing is enabled."""
+
+
+class ModelConfig(TypedDict, total=False):
+    skeleton: bool
+    animation: bool
+
+
+class RegionConfig(TypedDict, total=False):
+    raw_blocks: bool
+    full_chunk: bool
 
 
 @dataclass
-class HandlerOptions:
-    """Content processing options shared by file handlers."""
+class ModelOptions:
+    """Normalized model processing configuration."""
 
     skeleton: bool = False
-    """Handle skeleton bones from models."""
-
     animation: bool = False
-    """Handle built-in animation clips from models."""
-
-    raw_blocks: bool = False
-    """Keep raw block IDs in chunks without lookup table replacement."""
-
-    full_chunk: bool = False
-    """Handle full chunk data including metadata (no export)."""
 
     @property
     def skeleton_enabled(self) -> bool:
-        """Whether skeleton processing is enabled directly or by animation processing."""
+        """Return whether skeleton data is needed."""
 
         return self.skeleton or self.animation
 
 
 @dataclass
-class ConvertOptions:
-    """Options for converting a file between formats."""
+class RegionOptions:
+    """Normalized region processing configuration."""
 
-    handlers: HandlerOptions = field(default_factory=HandlerOptions)
-    """Content processing options passed to source and output handlers."""
+    raw_blocks: bool = False
+    full_chunk: bool = False
 
-    formats: Formats | None = None
-    """Preferred output formats for models, :attr:`default_formats` used on unset."""
 
-    conflict: OnConflict = "overwrite"
+class Options:
+    """Options for library handlers and conversion operations."""
+
+    Model: ClassVar[type[ModelOptions]] = ModelOptions
+    """Normalized model configuration."""
+
+    Region: ClassVar[type[RegionOptions]] = RegionOptions
+    """Normalized region configuration."""
+
+    model: ModelOptions
     """
-    Action on output file name conflict (if already exists).
+    Model content processing options.
 
-    - `"overwrite"` Replace the existing file.
-    - `"skip"` Keep the existing file.
-    - `"rename"` Add a numeric suffix (e.g. `model (1).obj`).
+    - `"skeleton"` Handle skeleton bones from models
+    - `"animation"` Handle built-in animation clips from models
     """
+
+    region: RegionOptions
+    """
+    Region content processing options.
+
+    - `"raw_blocks"` Keep raw block IDs without lookup table replacement
+    - `"full_chunk"` Handle full chunk data including metadata
+    """
+
+    model_format: FileFormat | None
+    """Preferred output format for models. Defaults are selected when unset."""
+
+    on_conflict: OnConflict
+    """
+    Action when an output file already exists.
+
+    - `"overwrite"` Replace the existing file
+    - `"skip"` Keep the existing file
+    - `"rename"` Add a numeric suffix (e.g. `model (1).obj`)
+    """
+
+    def __init__(
+        self,
+        model: ModelConfig | ModelOptions | None = None,
+        region: RegionConfig | RegionOptions | None = None,
+        model_format: FileFormat | None = None,
+        on_conflict: OnConflict = "overwrite",
+    ) -> None:
+        self.model = model if isinstance(model, ModelOptions) else ModelOptions(**(model or {}))
+        self.region = region if isinstance(region, RegionOptions) else RegionOptions(**(region or {}))
+        self.model_format = model_format
+        self.on_conflict = on_conflict
 
     @property
-    def default_formats(self) -> Formats:
-        """Default output formats for models based on current options."""
+    def default_format(self) -> FileFormat:
+        """Default model output format for the current model options."""
 
-        if self.handlers.skeleton_enabled:
-            return DEFAULT_SKELETON_FORMATS
+        if self.model.skeleton_enabled:
+            return DEFAULT_SKELETON_FORMAT
 
-        return DEFAULT_MODEL_FORMATS
+        return DEFAULT_MODEL_FORMAT

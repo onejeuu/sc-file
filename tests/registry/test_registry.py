@@ -3,7 +3,7 @@ import pytest
 from scfile import exceptions
 from scfile.core import DocumentContent, ModelDecoder, ModelEncoder
 from scfile.enums import FileFormat
-from scfile.options import ConvertOptions, HandlerOptions
+from scfile.options import Options
 from scfile.registry import Registry, Resolver
 
 from tests.conftest import BytesDecoder, BytesEncoder
@@ -122,7 +122,7 @@ def test_model_targets() -> None:
 
     assert source is not None
     assert resolver.targets(source) == {FileFormat.OBJ: RegistryObjEncoder}
-    assert resolver.targets(source, ConvertOptions(handlers=HandlerOptions(skeleton=True))) == {
+    assert resolver.targets(source, Options(model={"skeleton": True})) == {
         FileFormat.GLB: RegistryGlbEncoder
     }
 

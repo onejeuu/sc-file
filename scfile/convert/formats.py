@@ -5,7 +5,7 @@ Named conversion functions for specific format pairs.
 from typing import Optional
 
 from scfile import formats
-from scfile.options import ConvertOptions
+from scfile.options import Options
 from scfile.types import OutputLike, SourceLike
 
 from .named import converter
@@ -15,7 +15,7 @@ from .named import converter
 def mcsb_to_obj(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.obj`` format.
@@ -35,7 +35,7 @@ def mcsb_to_obj(
 def mcsb_to_glb(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.glb`` format.
@@ -55,7 +55,7 @@ def mcsb_to_glb(
 def mcsb_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.fbx`` format.
@@ -75,7 +75,7 @@ def mcsb_to_fbx(
 def mcsa_to_obj(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.obj`` format.
@@ -95,7 +95,7 @@ def mcsa_to_obj(
 def mcsa_to_glb(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.glb`` format.
@@ -115,7 +115,7 @@ def mcsa_to_glb(
 def mcsa_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.fbx`` format.
@@ -135,7 +135,7 @@ def mcsa_to_fbx(
 def mcvd_to_obj(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.obj`` format.
@@ -155,7 +155,7 @@ def mcvd_to_obj(
 def mcvd_to_glb(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.glb`` format.
@@ -175,7 +175,7 @@ def mcvd_to_glb(
 def mcvd_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.fbx`` format.
@@ -195,7 +195,7 @@ def mcvd_to_fbx(
 def efkmodel_to_obj(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.obj`` format.
@@ -215,7 +215,7 @@ def efkmodel_to_obj(
 def efkmodel_to_glb(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.glb`` format.
@@ -235,7 +235,7 @@ def efkmodel_to_glb(
 def efkmodel_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.fbx`` format.
@@ -255,7 +255,7 @@ def efkmodel_to_fbx(
 def ol_to_dds(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts texture from ``.ol`` to ``.dds`` format.
@@ -275,7 +275,7 @@ def ol_to_dds(
 def mic_to_png(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts image from ``.mic`` to ``.png`` format.
@@ -295,7 +295,7 @@ def mic_to_png(
 def texarr_to_zip(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts texture array from ``.texarr`` to ``.zip`` format.
@@ -315,7 +315,7 @@ def texarr_to_zip(
 def nbt_to_json(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts data from ``NBT`` to ``.json`` format.
@@ -335,7 +335,7 @@ def nbt_to_json(
 def mdat_to_mca(
     source: SourceLike,
     output: OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ):
     """
     Converts world region from ``.mdat`` to ``.mca`` format.

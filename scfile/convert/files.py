@@ -8,7 +8,7 @@ from typing import Optional
 from scfile import exceptions, types
 from scfile.core import BaseContent, Decoder, Encoder
 from scfile.io import StructReader, StructWriter
-from scfile.options import ConvertOptions
+from scfile.options import Options
 from scfile.registry import RESOLVER
 
 from .types import Output, Status
@@ -34,21 +34,20 @@ def manual[
     encoder: type[Encoder[ContentType, WriterType]],
     source: types.SourceLike,
     output: types.OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ) -> Output:
     """Convert one file using explicitly selected handlers."""
 
     src_path = validate_sources(source)[0]
     output_path = destination(src_path, output, encoder.format.suffix)
-    options = options or ConvertOptions()
-
-    match options.conflict:
+    options = options or Options()
+    match options.on_conflict:
         case "skip" if output_path.exists():
             return Output(path=output_path, status=Status.SKIPPED)
         case "rename":
             output_path = ensure_unique_path(output_path)
 
-    with decoder(src_path, options.handlers) as src:
+    with decoder(src_path, options) as src:
         with src.convert_to(encoder=encoder) as out:
             out.save(path=output_path)
 
@@ -58,7 +57,7 @@ def manual[
 def auto(
     source: types.SourceLike,
     output: types.OutputLike = None,
-    options: Optional[ConvertOptions] = None,
+    options: Optional[Options] = None,
 ) -> list[Output]:
     """Convert one file using formats resolved from its extension."""
 
@@ -67,7 +66,7 @@ def auto(
     if source_spec is None or source_spec.decoder is None:
         raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
 
-    options = options or ConvertOptions()
+    options = options or Options()
     targets = RESOLVER.targets(source_spec, options)
     if not targets:
         raise exceptions.ConversionError(

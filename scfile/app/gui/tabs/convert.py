@@ -27,7 +27,7 @@ from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import CounterWorker
 from scfile.app.tasks.convert import Job
-from scfile.options import ConvertOptions, HandlerOptions
+from scfile.options import Options
 from scfile.structures.models import Feature
 
 
@@ -383,12 +383,12 @@ class ConverterTab(QWidget):
         job = Job(
             sources=tuple(self._get_sources()),
             whitelist=tuple(self._get_suffixes()),
-            options=ConvertOptions(
-                handlers=HandlerOptions(
-                    skeleton=ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
-                    animation=ft_animation.isEnabled() and ft_animation.isChecked(),
-                ),
-                formats=[fmt.id] if fmt else None,
+            options=Options(
+                model={
+                    "skeleton": ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
+                    "animation": ft_animation.isEnabled() and ft_animation.isChecked(),
+                },
+                target=fmt.id if fmt else None,
                 conflict=self.on_conflict.value(),
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),

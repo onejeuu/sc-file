@@ -55,10 +55,10 @@ class ModelEncoder[
     ) -> bool:
         """Return whether a model feature will be serialized."""
 
-        if feature.parent is Feature.ANIMATION and not self.options.animation:
+        if feature.parent is Feature.ANIMATION and not self.options.model.animation:
             return False
 
-        if feature is Feature.SKELETON and not self.options.skeleton_enabled:
+        if feature is Feature.SKELETON and not self.options.model.skeleton_enabled:
             return False
 
         return any(

@@ -5,8 +5,8 @@ from scfile.app.cli import params
 from scfile.app.cli.messages import TaskFeedback, warn_unsupported_features
 from scfile.app.tasks import Context
 from scfile.app.tasks.convert import Job
-from scfile.enums import CliCommand
-from scfile.options import ConvertOptions, HandlerOptions, OnConflict
+from scfile.enums import CliCommand, FileFormat
+from scfile.options import OnConflict, Options
 
 from . import scfile
 
@@ -29,7 +29,6 @@ from . import scfile
     "--mdlformat",
     help="Preferred format for models.",
     type=params.Formats,
-    multiple=True,
 )
 @click.option(
     "--relative",
@@ -73,7 +72,7 @@ from . import scfile
 def convert_command(
     paths: types.FilesPaths,
     output: types.OutputPath,
-    mdlformat: types.Formats | None,
+    mdlformat: FileFormat | None,
     relative: bool,
     parent: bool,
     skeleton: bool,
@@ -83,25 +82,23 @@ def convert_command(
     verbose: bool,
 ) -> None:
     # Normalize options
-    model_formats = mdlformat or None
     relative = relative or parent
 
     if relative and not output:
         raise click.UsageError("--relative and --parent require --output.")
 
     # Prepare options
-    handlers = HandlerOptions(
-        skeleton=skeleton,
-        animation=animation,
-    )
-    options = ConvertOptions(
-        handlers=handlers,
-        formats=model_formats,
+    options = Options(
+        model={
+            "skeleton": skeleton,
+            "animation": animation,
+        },
+        target=mdlformat,
         conflict=on_conflict,
     )
 
-    if model_formats:
-        warn_unsupported_features(model_formats, handlers)
+    if mdlformat:
+        warn_unsupported_features((mdlformat,), options.model)
 
     job = Job(
         sources=tuple(paths),

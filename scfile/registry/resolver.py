@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 from scfile.core import Encoder, ModelContent
 from scfile.enums import FileFormat
-from scfile.options import ConvertOptions
+from scfile.options import Options
 from scfile.types import SourceLike
 
 from .registry import FormatSpec, Registry
@@ -37,7 +37,7 @@ class Resolver:
     def targets(
         self,
         source: FormatSpec,
-        options: Optional[ConvertOptions] = None,
+        options: Optional[Options] = None,
     ) -> dict[FileFormat, type[Encoder[Any, Any]]]:
         """Select output handlers for direct conversion."""
 
@@ -45,10 +45,10 @@ class Resolver:
         if not available:
             return {}
 
-        options = options or ConvertOptions()
+        options = options or Options()
         if issubclass(source.content, ModelContent):
-            selected = options.formats or options.default_formats
-            return {fmt: available[fmt] for fmt in selected if fmt in available}
+            selected = options.model_format or options.default_format
+            return {selected: available[selected]} if selected in available else {}
 
         if len(available) == 1:
             return available

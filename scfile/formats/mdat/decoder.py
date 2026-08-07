@@ -76,7 +76,7 @@ class MdatDecoder(Decoder[RegionContent]):
             blocks=payload[:cursor],
         )
 
-        if not self.options.full_chunk:
+        if not self.options.region.full_chunk:
             return chunk
 
         # Section layout:

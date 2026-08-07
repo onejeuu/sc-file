@@ -9,7 +9,7 @@ from pathlib import Path
 from scfile import exceptions, formats, types
 from scfile.core import ModelContent, ModelDecoder
 from scfile.io.models import ModelReader
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
@@ -29,7 +29,7 @@ def _apply_external(
 ) -> Path:
     animation_path, model_path = validate_sources(animation, model)
     output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
-    options = HandlerOptions(skeleton=True, animation=True)
+    options = Options(model=Options.Model(skeleton=True, animation=True))
 
     with decoder(animation_path, options) as source:
         animation_data = source.decode()
@@ -95,7 +95,7 @@ def arms(
 
     animation_path, *model_paths = validate_sources(animation, *models)
     output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
-    options = HandlerOptions(skeleton=True, animation=True)
+    options = Options(model=Options.Model(skeleton=True, animation=True))
 
     with formats.McvdDecoder(animation_path, options) as mcvd:
         animation_data = mcvd.decode()

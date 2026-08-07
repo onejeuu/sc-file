@@ -11,7 +11,7 @@ from typing import ClassVar, Optional, Self, cast
 
 from scfile.enums import HandlerState
 from scfile.io.base import OutputStream, StructWriter
-from scfile.options import HandlerOptions
+from scfile.options import Options
 from scfile.types import SourceLike
 
 from .base import Handler
@@ -44,7 +44,7 @@ class Encoder[
     def __init__(
         self,
         data: ContentType,
-        options: Optional[HandlerOptions] = None,
+        options: Optional[Options] = None,
         output: Optional[OutputStream] = None,
     ):
         """
@@ -61,13 +61,12 @@ class Encoder[
         """
 
         self.data: ContentType = data
-        self.options: HandlerOptions = options or HandlerOptions()
-
         super().__init__(
             io=self.io_factory(
                 output if output is not None else BytesIO(),
                 order=self.order,
-            )
+            ),
+            options=options if options is not None else Options(),
         )
 
     def encode(

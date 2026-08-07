@@ -6,7 +6,7 @@ from typing import ClassVar
 
 from scfile import convert, exceptions, types
 from scfile.convert.types import Status
-from scfile.options import ConvertOptions
+from scfile.options import Options
 from scfile.utils import files
 
 from .base import Context, Failure, Item, Progress, Started, Summary, TaskKind, failure, parallel
@@ -20,7 +20,7 @@ class Job:
 
     sources: tuple[types.SourceLike, ...]
     whitelist: tuple[str, ...]
-    options: ConvertOptions
+    options: Options
     output: Path | None = None
     relative: bool = False
     parent: bool = False

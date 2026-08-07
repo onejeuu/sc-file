@@ -10,7 +10,7 @@ from typing import Any, ClassVar, Self
 from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import StructIO
-from scfile.options import HandlerOptions
+from scfile.options import Options
 
 
 type HandlerContext = dict[str, Any]
@@ -31,12 +31,13 @@ class Handler[IOType: StructIO[Any]](ABC):
     io: IOType
     """Owned binary I/O instance."""
 
-    options: HandlerOptions
-    """Shared handlers options."""
+    options: Options
+    """Processing and conversion options shared by the handler."""
 
     def __init__(
         self,
         io: IOType,
+        options: Options,
     ):
         """
         Args:
@@ -44,6 +45,7 @@ class Handler[IOType: StructIO[Any]](ABC):
         """
 
         self.io = io
+        self.options = options
         self._ctx: HandlerContext = {}
         self._state = HandlerState.INITIAL
 
