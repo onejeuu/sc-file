@@ -16,7 +16,6 @@ jobs:
   version:
     name: Check Version
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && !contains(github.ref_name, 'dev')
 
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +25,7 @@ jobs:
           enable-cache: true
 
       - name: Check Version
+        if: "!contains(github.ref_name, 'dev')"
         shell: bash
         run: |
           version="$(uv run python -c 'import scfile; print(scfile.__version__)')"
@@ -96,7 +96,7 @@ jobs:
     name: Publish PyPi
     runs-on: ubuntu-latest
     needs: [version, tests, build]
-    if: github.ref_type == 'tag' && !contains(github.ref_name, 'dev')
+    if: "!contains(github.ref_name, 'dev')"
 
     steps:
       - uses: actions/checkout@v4
