@@ -93,8 +93,8 @@ def convert_command(
             "skeleton": skeleton,
             "animation": animation,
         },
-        target=mdlformat,
-        conflict=on_conflict,
+        model_format=mdlformat,
+        on_conflict=on_conflict,
     )
 
     if mdlformat:

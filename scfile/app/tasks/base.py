@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum, auto
 from pathlib import Path
 from threading import Event as CancelEvent
-from typing import Protocol
+from typing import ClassVar, Protocol
 
 
 PROGRESS_THRESHOLD = 10
@@ -103,8 +103,7 @@ class Summary:
 class Task(Protocol):
     """Application task executable with a shared context."""
 
-    @property
-    def kind(self) -> TaskKind: ...
+    kind: ClassVar[TaskKind]
 
     def run(
         self,

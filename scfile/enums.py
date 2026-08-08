@@ -69,7 +69,6 @@ class UnicodeErrors(StrEnum):
     """Skip invalid bytes silently"""
     REPLACE = auto()
     """Replace invalid bytes with a replacement marker (�)"""
-
     BACKSLASHREPLACE = BACKSLASH = auto()
     """Replace with backslash-escaped sequences (\\xHH)"""
     NAMEREPLACE = NAME = auto()

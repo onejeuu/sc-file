@@ -38,9 +38,12 @@ def _execute(
     type=params.File,
 )
 @click.argument(
-    "MODELS",
-    nargs=-1,
-    required=True,
+    "MODEL",
+    type=params.File,
+)
+@click.argument(
+    "HANDS",
+    required=False,
     type=params.File,
 )
 @click.option(
@@ -52,11 +55,13 @@ def _execute(
 )
 def arms(
     animation: types.SourcePath,
-    models: tuple[types.SourcePath, ...],
+    model: types.SourcePath,
+    hands: types.SourcePath | None,
     output: types.OutputPath,
 ) -> None:
     """Apply first-person animation to weapon and hands models."""
 
+    models = (model,) if hands is None else (model, hands)
     _execute(convert.animation.arms, animation, models, output)
 
 

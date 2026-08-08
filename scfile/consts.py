@@ -1,5 +1,5 @@
 class FormatSignature:
-    """Known binary format signatures."""
+    """Binary format signatures."""
 
     MCSA = b"MCSA"
     MCAL = b"MCAL"

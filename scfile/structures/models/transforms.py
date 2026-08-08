@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
 type SceneTransform = Callable[[ModelScene], ModelScene]
 type ModelTransform = Callable[["ModelContent"], "ModelContent"]
+type AnimationTransform = Callable[[ModelScene, ModelScene], ModelScene]
 
 
 def scene_transforms(
@@ -248,10 +249,10 @@ def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScen
         raise AnimationError("Animation library contains no clips.")
 
     clips = library.animation.clips
-    library_bones = clips[0].translations.shape[1]
+    clip_bones = clips[0].translations.shape[1]
     model_bones = len(model.skeleton.bones)
-    if library_bones != model_bones:
-        raise AnimationError(f"Animation library has {library_bones} bones, model has {model_bones}.")
+    if clip_bones != model_bones:
+        raise AnimationError(f"Animation library has {clip_bones} bones, model has {model_bones}.")
 
     return replace(model, animation=replace(library.animation))
 

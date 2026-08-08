@@ -2,10 +2,9 @@
 External model animation.
 """
 
-from collections.abc import Callable
 from copy import replace
 
-from scfile import exceptions, formats, types
+from scfile import formats, types
 from scfile.core import ModelContent, ModelDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
@@ -15,13 +14,9 @@ from scfile.structures.models import transforms as T
 from .files import resolve_output, validate_sources
 
 
-MODELS_LIMIT = 8
-type AnimationTransform = Callable[[S.ModelScene, S.ModelScene], S.ModelScene]
-
-
 def _apply_external(
     decoder: type[ModelDecoder[ModelReader]],
-    transform: AnimationTransform,
+    transform: T.AnimationTransform,
     animation: types.SourceLike,
     model: types.SourceLike,
     output: types.OutputLike = None,
@@ -97,19 +92,15 @@ def _animation_options(
 
 def arms(
     animation: types.SourceLike,
-    *models: types.SourceLike,
+    model: types.SourceLike,
+    hands: types.SourceLike | None = None,
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
     """Apply first-person animation to weapon and hands models."""
 
-    if not models:
-        raise exceptions.AnimationError("No models provided.")
-
-    if len(models) > MODELS_LIMIT:
-        raise exceptions.AnimationError(f"Too many models: {len(models)} (max: {MODELS_LIMIT}).")
-
-    animation_path, *model_paths = validate_sources(animation, *models)
+    sources = (model,) if hands is None else (model, hands)
+    animation_path, *model_paths = validate_sources(animation, *sources)
     options = _animation_options(options)
     output_path = resolve_output(animation_path, output, formats.GlbEncoder.format.suffix, options)
     if output_path is None:

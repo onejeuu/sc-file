@@ -39,7 +39,7 @@ def manual[
     Returns ``None`` when an existing output is skipped.
     """
 
-    src_path = validate_sources(source)[0]
+    src_path = validate_source(source)
     options = options or Options()
     output_path = resolve_output(src_path, output, encoder.format.suffix, options)
     if output_path is None:
@@ -78,17 +78,24 @@ def auto(
     return manual(source_spec.decoder, encoder, src_path, output, options)
 
 
+def validate_source(
+    source: types.SourceLike,
+) -> Path:
+    """Resolve one source path and require a regular file."""
+
+    path = Path(source)
+    if not path.exists() or not path.is_file():
+        raise exceptions.FileNotFound(str(path))
+
+    return path
+
+
 def validate_sources(
     *sources: types.SourceLike,
 ) -> list[Path]:
     """Resolve source paths and require regular files."""
 
-    paths = [Path(source) for source in sources]
-    for path in paths:
-        if not path.exists() or not path.is_file():
-            raise exceptions.FileNotFound(str(path))
-
-    return paths
+    return [validate_source(source) for source in sources]
 
 
 def destination(
