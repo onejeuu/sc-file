@@ -31,9 +31,12 @@ def test_region_config() -> None:
 
 
 def test_copy_is_independent() -> None:
-    options = Options(model={"skeleton": True})
+    options = Options(model={"skeleton": True}, region={"raw_blocks": True})
     copied = options.copy()
     copied.model.animation = True
+    copied.region.full_chunk = True
 
     assert options.model.animation is False
+    assert options.region.full_chunk is False
     assert copied.model.animation is True
+    assert copied.region.full_chunk is True
