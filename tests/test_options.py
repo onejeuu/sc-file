@@ -28,3 +28,12 @@ def test_model_config() -> None:
 
 def test_region_config() -> None:
     assert get_type_hints(RegionConfig) == {field.name: field.type for field in fields(RegionOptions)}
+
+
+def test_copy_is_independent() -> None:
+    options = Options(model={"skeleton": True})
+    copied = options.copy()
+    copied.model.animation = True
+
+    assert options.model.animation is False
+    assert copied.model.animation is True

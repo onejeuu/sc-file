@@ -117,28 +117,22 @@ def test_content() -> None:
 
 
 def test_model_targets() -> None:
-    resolver = Resolver(Registry(RegistryModelDecoder, RegistryObjEncoder, RegistryGlbEncoder))
-    source = resolver.resolve("model.mcsa")
+    registry = Registry(RegistryModelDecoder, RegistryObjEncoder, RegistryGlbEncoder)
 
-    assert source is not None
-    assert resolver.target(source) is RegistryObjEncoder
-    assert resolver.target(source, Options(model={"skeleton": True})) is RegistryGlbEncoder
+    assert registry.target(FileFormat.MCSA) is RegistryObjEncoder
+    assert registry.target(FileFormat.MCSA, Options(model={"skeleton": True})) is RegistryGlbEncoder
 
 
 def test_non_model_target() -> None:
-    resolver = Resolver(Registry(RegistryDecoder, RegistryEncoder))
-    source = resolver.resolve("image.mic")
+    registry = Registry(RegistryDecoder, RegistryEncoder)
 
-    assert source is not None
-    assert resolver.target(source) is RegistryEncoder
+    assert registry.target(FileFormat.MIC) is RegistryEncoder
 
 
 def test_ambiguous_target() -> None:
-    resolver = Resolver(Registry(RegistryDecoder, RegistryEncoder, DdsEncoder))
-    source = resolver.resolve("image.mic")
+    registry = Registry(RegistryDecoder, RegistryEncoder, DdsEncoder)
 
-    assert source is not None
-    assert resolver.target(source) is None
+    assert registry.target(FileFormat.MIC) is None
 
 
 def test_related_source() -> None:

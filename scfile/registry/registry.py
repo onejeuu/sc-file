@@ -6,11 +6,12 @@ from collections.abc import Mapping
 from copy import replace
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, Self, TypeIs
+from typing import Any, Optional, Self, TypeIs
 
-from scfile.core import BaseContent, Decoder, Encoder
+from scfile.core import BaseContent, Decoder, Encoder, ModelContent
 from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
+from scfile.options import Options
 from scfile.types import FormatLike
 
 
@@ -193,6 +194,27 @@ class Registry:
             for fmt, target in self._formats.items()
             if target.encoder is not None and issubclass(entry.content, target.content)
         }
+
+    def target(
+        self,
+        source: FormatLike,
+        options: Optional[Options] = None,
+    ) -> type[Encoder[Any, Any]] | None:
+        """Select one default encoder compatible with a source format."""
+
+        entry = self.get(source)
+        available = self.targets(source)
+        if entry is None or not available:
+            return None
+
+        options = options or Options()
+        if issubclass(entry.content, ModelContent):
+            return available.get(options.model_format or options.default_format)
+
+        if len(available) == 1:
+            return next(iter(available.values()))
+
+        return None
 
     def copy(self) -> Self:
         """Create an independent registry copy."""

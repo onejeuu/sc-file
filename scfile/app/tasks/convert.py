@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import ClassVar
 
 from scfile import convert, exceptions, types
-from scfile.convert.types import Status
 from scfile.options import Options
 from scfile.utils import files
 
@@ -33,14 +32,10 @@ class Job:
 
         try:
             result = convert.auto(entry.path, destination, self.options)
-            written = int(result.status is Status.WRITTEN)
-            skipped = int(result.status is Status.SKIPPED)
-            return Item(
-                source=entry.path,
-                outputs=(result.path,),
-                written=written,
-                skipped=skipped,
-            )
+            if result is None:
+                return Item(source=entry.path, skipped=1)
+
+            return Item(source=entry.path, outputs=(result,), written=1)
         except exceptions.ScFileException as error:
             return failure(entry.path, error)
         except Exception as error:

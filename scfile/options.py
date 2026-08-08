@@ -1,7 +1,7 @@
 """Library processing and conversion options."""
 
-from dataclasses import dataclass
-from typing import ClassVar, Literal, TypedDict
+from dataclasses import dataclass, replace
+from typing import ClassVar, Literal, Self, TypedDict
 
 from scfile.enums import FileFormat
 
@@ -106,3 +106,13 @@ class Options:
             return DEFAULT_SKELETON_FORMAT
 
         return DEFAULT_MODEL_FORMAT
+
+    def copy(self) -> Self:
+        """Create an independent copy of these options."""
+
+        return type(self)(
+            model=replace(self.model),
+            region=replace(self.region),
+            model_format=self.model_format,
+            on_conflict=self.on_conflict,
+        )

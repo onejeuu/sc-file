@@ -1,16 +1,17 @@
 """Single-file animation export task."""
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar
 
-from scfile import exceptions
+from scfile import exceptions, types
+from scfile.options import Options
 
 from .base import Context, Item, Started, Summary, TaskKind, failure
 
 
-type Operation = Callable[..., Path]
+type Operation = Callable[..., types.ResultPath]
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,6 +24,7 @@ class Job:
     source: Path
     models: tuple[Path, ...]
     output: Path
+    options: Options = field(default_factory=Options)
 
     def run(
         self,
@@ -39,8 +41,12 @@ class Job:
             return Summary(self.kind, 1, 0, cancelled=True, output=output)
 
         try:
-            output = self.operation(self.source, *self.models, output=self.output)
-            output = output.resolve()
+            result = self.operation(self.source, *self.models, output=self.output, options=self.options)
+            if result is None:
+                context.emit(Item(source=src, skipped=1))
+                return Summary(self.kind, 1, 1, skipped=1, output=output)
+
+            output = result.resolve()
             context.emit(Item(source=src, outputs=(output,), written=1))
             return Summary(self.kind, 1, 1, succeeded=1, written=1, output=output)
         except exceptions.ScFileException as error:

@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from pathlib import Path
 
 import click
 
@@ -19,7 +18,7 @@ def animate() -> None:
 
 
 def _execute(
-    operation: Callable[..., Path],
+    operation: Callable[..., types.ResultPath],
     source: types.SourcePath,
     models: tuple[types.SourcePath, ...],
     output: types.OutputLike,

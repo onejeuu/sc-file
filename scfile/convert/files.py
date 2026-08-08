@@ -9,9 +9,7 @@ from scfile import exceptions, types
 from scfile.core import BaseContent, Decoder, Encoder
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
-from scfile.registry import RESOLVER
-
-from .types import Output, Status
+from scfile.registry import REGISTRY, RESOLVER
 
 
 def format(
@@ -35,31 +33,34 @@ def manual[
     source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
-) -> Output:
-    """Convert one file using explicitly selected handlers."""
+) -> types.ResultPath:
+    """Convert one file using explicitly selected handlers.
+
+    Returns ``None`` when an existing output is skipped.
+    """
 
     src_path = validate_sources(source)[0]
-    output_path = destination(src_path, output, encoder.format.suffix)
     options = options or Options()
-    match options.on_conflict:
-        case "skip" if output_path.exists():
-            return Output(path=output_path, status=Status.SKIPPED)
-        case "rename":
-            output_path = ensure_unique_path(output_path)
+    output_path = resolve_output(src_path, output, encoder.format.suffix, options)
+    if output_path is None:
+        return None
 
     with decoder(src_path, options) as src:
         with src.convert_to(encoder=encoder) as out:
             out.save(path=output_path)
 
-    return Output(path=output_path, status=Status.WRITTEN)
+    return output_path
 
 
 def auto(
     source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
-) -> Output:
-    """Convert one file using formats resolved from its extension."""
+) -> types.ResultPath:
+    """Convert one file using formats resolved from its extension.
+
+    Returns ``None`` when an existing output is skipped.
+    """
 
     src_path = Path(source)
     source_spec = RESOLVER.resolve(src_path)
@@ -67,7 +68,7 @@ def auto(
         raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
 
     options = options or Options()
-    encoder = RESOLVER.target(source_spec, options)
+    encoder = REGISTRY.target(source_spec.format, options)
     if encoder is None:
         raise exceptions.ConversionError(
             f"No standalone output format available for '{source_spec.format}'.",
@@ -105,6 +106,24 @@ def destination(
 
     result.parent.mkdir(exist_ok=True, parents=True)
     return result
+
+
+def resolve_output(
+    source: Path,
+    output: types.OutputLike,
+    suffix: str,
+    options: Options,
+) -> types.ResultPath:
+    """Resolve one output path and apply its conflict policy."""
+
+    path = destination(source, output, suffix)
+    match options.on_conflict:
+        case "skip" if path.exists():
+            return None
+        case "rename":
+            return ensure_unique_path(path)
+        case _:
+            return path
 
 
 def ensure_unique_path(

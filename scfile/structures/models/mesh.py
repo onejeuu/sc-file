@@ -41,6 +41,7 @@ class ModelMesh:
     mip_factor: float = 0.1
 
     bones: BonesMapping = field(default_factory=dict)
+    skin: int | None = None
 
     vertices: Vector3D = field(default_factory=lambda: np.zeros((0, 3), dtype=np.float32))
     uv1: Vector2D = field(default_factory=lambda: np.zeros((0, 2), dtype=np.float32))

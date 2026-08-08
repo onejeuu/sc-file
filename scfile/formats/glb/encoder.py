@@ -7,12 +7,7 @@ import numpy as np
 from scfile.consts import FormatSignature
 from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.models import (
-    AnimationClip,
-    BlendShape,
-    Feature,
-    MorphWeights,
-)
+from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
 from . import base
@@ -32,14 +27,14 @@ class GlbEncoder(ModelEncoder):
     order = ByteOrder.LITTLE
 
     features = (
-        Feature.UV,
-        Feature.UV2,
-        Feature.NORMALS,
-        Feature.TANGENTS,
-        Feature.SKELETON,
-        Feature.BLEND_SHAPES,
-        Feature.BONE_ANIMATION,
-        Feature.MORPH_ANIMATION,
+        S.Feature.UV,
+        S.Feature.UV2,
+        S.Feature.NORMALS,
+        S.Feature.TANGENTS,
+        S.Feature.SKELETON,
+        S.Feature.BLEND_SHAPES,
+        S.Feature.BONE_ANIMATION,
+        S.Feature.MORPH_ANIMATION,
     )
     transforms = T.scene_transforms(
         T.unique_names,
@@ -93,10 +88,10 @@ class GlbEncoder(ModelEncoder):
         self._ctx["GLTF"]["scenes"].append(scene)
 
         # Create skeleton keys
-        if self.includes(Feature.SKELETON):
+        if self.includes(S.Feature.SKELETON):
             self._ctx["GLTF"]["skins"] = []
 
-        if self.includes(Feature.ANIMATION):
+        if self.includes(S.Feature.ANIMATION):
             self._ctx["GLTF"]["animations"] = []
 
         # Create nodes
@@ -110,17 +105,17 @@ class GlbEncoder(ModelEncoder):
     def _create_nodes(self):
         self._create_meshes()
 
-        if self.includes(Feature.SKELETON):
+        if self.includes(S.Feature.SKELETON):
             self._create_bones()
             self._create_bindmatrices()
 
-        if self.includes(Feature.ANIMATION):
+        if self.includes(S.Feature.ANIMATION):
             self._create_animation()
 
     def _count_nodes(self):
         nodes = list(range(len(self.data.scene.meshes)))
 
-        if self.includes(Feature.SKELETON):
+        if self.includes(S.Feature.SKELETON):
             nodes += self._ctx["ROOT_INDEXES"]
 
         self._ctx["GLTF"]["scenes"][0]["nodes"] = nodes
@@ -131,7 +126,7 @@ class GlbEncoder(ModelEncoder):
     def _create_meshes(self):
         for index, mesh in enumerate(self.data.scene.meshes):
             primitive: Node = deepcopy(base.PRIMITIVE)
-            has_skin = self.includes(Feature.SKELETON) and mesh.max_influences > 0
+            has_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
 
             # XYZ Position
             primitive["attributes"]["POSITION"] = self._accessor_index()
@@ -139,7 +134,7 @@ class GlbEncoder(ModelEncoder):
             self._create_accessor(len(mesh.vertices), "VEC3", array=mesh.vertices)
 
             # Blend Shapes
-            if self.includes(Feature.BLEND_SHAPES) and mesh.blend_shapes:
+            if self.includes(S.Feature.BLEND_SHAPES) and mesh.blend_shapes:
                 primitive["targets"] = []
 
                 for shape in mesh.blend_shapes:
@@ -148,25 +143,25 @@ class GlbEncoder(ModelEncoder):
                     self._create_accessor(len(mesh.vertices), "VEC3", array=shape.deltas)
 
             # UV Texture
-            if self.includes(Feature.UV) and mesh.uv1.size:
+            if self.includes(S.Feature.UV) and mesh.uv1.size:
                 primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC2")
 
             # UV Texture (2)
-            if self.includes(Feature.UV2) and mesh.uv2.size:
+            if self.includes(S.Feature.UV2) and mesh.uv2.size:
                 primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC2")
 
             # XYZ Normals
-            if self.includes(Feature.NORMALS) and mesh.normals.size:
+            if self.includes(S.Feature.NORMALS) and mesh.normals.size:
                 primitive["attributes"]["NORMAL"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC3")
 
             # XYZW Tangents
-            if self.includes(Feature.TANGENTS) and mesh.tangents.size:
+            if self.includes(S.Feature.TANGENTS) and mesh.tangents.size:
                 primitive["attributes"]["TANGENT"] = self._accessor_index()
                 self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
                 self._create_accessor(len(mesh.vertices), "VEC4")
@@ -193,13 +188,13 @@ class GlbEncoder(ModelEncoder):
             node: Node = {"name": mesh.name, "mesh": index}
 
             if has_skin:
-                node["skin"] = self._ctx["MESH_SKINS"][index] if "MESH_SKINS" in self._ctx else 0
+                node["skin"] = mesh.skin if mesh.skin is not None else 0
 
             # Add to GLTF
             self._ctx["GLTF"]["nodes"].append(node)
             gltf_mesh: Node = dict(name=mesh.name, primitives=[primitive])
 
-            if self.includes(Feature.BLEND_SHAPES) and mesh.blend_shapes:
+            if self.includes(S.Feature.BLEND_SHAPES) and mesh.blend_shapes:
                 gltf_mesh["weights"] = [0.0] * len(mesh.blend_shapes)
                 gltf_mesh["extras"] = {"targetNames": [shape.name for shape in mesh.blend_shapes]}
 
@@ -237,7 +232,7 @@ class GlbEncoder(ModelEncoder):
             self._ctx["GLTF"]["nodes"].append(node)
 
     def _create_bindmatrices(self):
-        skins = self._ctx.get("SKINS", (None,))
+        skins = self.data.scene.skins or (None,)
 
         for _ in skins:
             self._ctx["GLTF"]["skins"].append(
@@ -255,7 +250,7 @@ class GlbEncoder(ModelEncoder):
         for clip in self.data.scene.animation.clips:
             morph_targets = self._morph_animation_targets(clip)
             bone_animation = (
-                self.includes(Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
+                self.includes(S.Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
             )
             if not bone_animation and not morph_targets:
                 continue
@@ -304,8 +299,8 @@ class GlbEncoder(ModelEncoder):
 
             self._ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
 
-    def _morph_animation_targets(self, clip: AnimationClip) -> list[tuple[int, MorphWeights]]:
-        if not self.includes(Feature.MORPH_ANIMATION) or not clip.morph_weights.size:
+    def _morph_animation_targets(self, clip: S.AnimationClip) -> list[tuple[int, S.MorphWeights]]:
+        if not self.includes(S.Feature.MORPH_ANIMATION) or not clip.morph_weights.size:
             return []
 
         channels = {name: index for index, name in enumerate(self.data.scene.animation.morph_channels)}
@@ -320,12 +315,12 @@ class GlbEncoder(ModelEncoder):
 
         return targets
 
-    @staticmethod
     def _morph_weights(
-        clip: AnimationClip,
-        shapes: list[BlendShape],
+        self,
+        clip: S.AnimationClip,
+        shapes: list[S.BlendShape],
         channels: dict[str, int],
-    ) -> MorphWeights | None:
+    ) -> S.MorphWeights | None:
         weights = np.zeros((clip.frames, len(shapes)), dtype=np.float32)
         mapped = False
 
@@ -386,16 +381,15 @@ class GlbEncoder(ModelEncoder):
 
         self._add_meshes()
 
-        if self.includes(Feature.SKELETON):
-            # Animated model sources may require separate bind poses
-            if "SKINS" in self._ctx:
-                for bindpose in self._ctx["SKINS"]:
-                    self.io.write(bindpose.transpose(0, 2, 1).tobytes())
+        if self.includes(S.Feature.SKELETON):
+            if self.data.scene.skins:
+                for skin in self.data.scene.skins:
+                    self.io.write(skin.bind_matrices.transpose(0, 2, 1).tobytes())
             else:
                 bindpose = T.inverse_bind_matrices(self.data.scene.skeleton, transpose=True)
                 self.io.write(bindpose.tobytes())
 
-        if self.includes(Feature.ANIMATION):
+        if self.includes(S.Feature.ANIMATION):
             self._add_animation()
 
         self._ctx["BIN_END"] = self.io.tell()
@@ -414,30 +408,30 @@ class GlbEncoder(ModelEncoder):
 
     def _add_meshes(self):
         for mesh in self.data.scene.meshes:
-            has_skin = self.includes(Feature.SKELETON) and mesh.max_influences > 0
+            has_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
 
             # XYZ Position
             self.io.write(mesh.vertices.tobytes())
 
             # Blend Shapes
-            if self.includes(Feature.BLEND_SHAPES) and mesh.blend_shapes:
+            if self.includes(S.Feature.BLEND_SHAPES) and mesh.blend_shapes:
                 for shape in mesh.blend_shapes:
                     self.io.write(shape.deltas.tobytes())
 
             # UV Texture
-            if self.includes(Feature.UV) and mesh.uv1.size:
+            if self.includes(S.Feature.UV) and mesh.uv1.size:
                 self.io.write(mesh.uv1.tobytes())
 
             # UV Texture (2)
-            if self.includes(Feature.UV2) and mesh.uv2.size:
+            if self.includes(S.Feature.UV2) and mesh.uv2.size:
                 self.io.write(mesh.uv2.tobytes())
 
             # XYZ Normals
-            if self.includes(Feature.NORMALS) and mesh.normals.size:
+            if self.includes(S.Feature.NORMALS) and mesh.normals.size:
                 self.io.write(mesh.normals.tobytes())
 
             # XYZW Tangents
-            if self.includes(Feature.TANGENTS) and mesh.tangents.size:
+            if self.includes(S.Feature.TANGENTS) and mesh.tangents.size:
                 self.io.write(mesh.tangents.tobytes())
 
             # Bone Links
@@ -455,7 +449,7 @@ class GlbEncoder(ModelEncoder):
         for clip in self.data.scene.animation.clips:
             morph_targets = self._morph_animation_targets(clip)
             bone_animation = (
-                self.includes(Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
+                self.includes(S.Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
             )
             if not bone_animation and not morph_targets:
                 continue

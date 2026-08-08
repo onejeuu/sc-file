@@ -9,13 +9,10 @@ from typing import Any, Optional, cast
 from scfile.core import BaseContent, Decoder, Encoder
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
-from scfile.types import OutputLike, SourceLike
+from scfile.types import OutputLike, ResultPath, SourceLike
 
 from .files import manual
-from .types import Output
-
-
-type Converter = Callable[[SourceLike, OutputLike, Optional[Options]], Output]
+type Converter = Callable[[SourceLike, OutputLike, Optional[Options]], ResultPath]
 
 
 def converter[
@@ -34,7 +31,7 @@ def converter[
             source: SourceLike,
             output: OutputLike = None,
             options: Optional[Options] = None,
-        ) -> Output:
+        ) -> ResultPath:
             return manual(
                 decoder=decoder,
                 encoder=encoder,

@@ -4,7 +4,6 @@ External model animation.
 
 from collections.abc import Callable
 from copy import replace
-from pathlib import Path
 
 from scfile import exceptions, formats, types
 from scfile.core import ModelContent, ModelDecoder
@@ -13,7 +12,7 @@ from scfile.options import Options
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 
-from .files import destination, validate_sources
+from .files import resolve_output, validate_sources
 
 
 MODELS_LIMIT = 8
@@ -26,10 +25,13 @@ def _apply_external(
     animation: types.SourceLike,
     model: types.SourceLike,
     output: types.OutputLike = None,
-) -> Path:
+    options: Options | None = None,
+) -> types.ResultPath:
     animation_path, model_path = validate_sources(animation, model)
-    output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
-    options = Options(model=Options.Model(skeleton=True, animation=True))
+    options = _animation_options(options)
+    output_path = resolve_output(animation_path, output, formats.GlbEncoder.format.suffix, options)
+    if output_path is None:
+        return None
 
     with decoder(animation_path, options) as source:
         animation_data = source.decode()
@@ -46,10 +48,11 @@ def _apply_external(
     return output_path
 
 
-def _skin_context(
+def _apply_skins(
+    scene: S.ModelScene,
     animation: ModelContent,
     *models: ModelContent,
-) -> tuple[list[S.InverseBindMatrices], list[int | None]]:
+) -> S.ModelScene:
     target_bones = animation.scene.skeleton.bones
     target_ids = {bone.name: bone.id for bone in target_bones}
     target_scene = T.skeleton_to_local(animation.scene)
@@ -77,14 +80,27 @@ def _skin_context(
 
         mesh_skins.extend(skin_index if mesh.max_influences else None for mesh in model.scene.meshes)
 
-    return skins, mesh_skins
+    meshes = [replace(mesh, skin=skin) for mesh, skin in zip(scene.meshes, mesh_skins)]
+    return replace(scene, meshes=meshes, skins=[S.ModelSkin(bind) for bind in skins])
+
+
+def _animation_options(
+    options: Options | None,
+) -> Options:
+    """Enable model data required by external animations."""
+
+    options = (options or Options()).copy()
+    options.model.skeleton = True
+    options.model.animation = True
+    return options
 
 
 def arms(
     animation: types.SourceLike,
     *models: types.SourceLike,
     output: types.OutputLike = None,
-) -> Path:
+    options: Options | None = None,
+) -> types.ResultPath:
     """Apply first-person animation to weapon and hands models."""
 
     if not models:
@@ -94,8 +110,10 @@ def arms(
         raise exceptions.AnimationError(f"Too many models: {len(models)} (max: {MODELS_LIMIT}).")
 
     animation_path, *model_paths = validate_sources(animation, *models)
-    output_path = destination(animation_path, output, formats.GlbEncoder.format.suffix)
-    options = Options(model=Options.Model(skeleton=True, animation=True))
+    options = _animation_options(options)
+    output_path = resolve_output(animation_path, output, formats.GlbEncoder.format.suffix, options)
+    if output_path is None:
+        return None
 
     with formats.McvdDecoder(animation_path, options) as mcvd:
         animation_data = mcvd.decode()
@@ -106,12 +124,10 @@ def arms(
             model_data.append(mcsb.decode())
 
     scene = T.apply_animation(animation_data.scene, *(model.scene for model in model_data))
+    scene = _apply_skins(scene, animation_data, *model_data)
     data = replace(animation_data, scene=scene)
-    skins, mesh_skins = _skin_context(animation_data, *model_data)
 
     with formats.GlbEncoder(data, options) as glb:
-        glb._ctx["SKINS"] = skins
-        glb._ctx["MESH_SKINS"] = mesh_skins
         glb.save(output_path)
 
     return output_path
@@ -121,7 +137,8 @@ def face(
     animation: types.SourceLike,
     model: types.SourceLike,
     output: types.OutputLike = None,
-) -> Path:
+    options: Options | None = None,
+) -> types.ResultPath:
     """Apply facial animation to a head model."""
 
     return _apply_external(
@@ -130,6 +147,7 @@ def face(
         animation,
         model,
         output,
+        options,
     )
 
 
@@ -137,7 +155,8 @@ def body(
     library: types.SourceLike,
     model: types.SourceLike,
     output: types.OutputLike = None,
-) -> Path:
+    options: Options | None = None,
+) -> types.ResultPath:
     """Apply animation library to a model."""
 
     return _apply_external(
@@ -146,4 +165,5 @@ def body(
         library,
         model,
         output,
+        options,
     )
