@@ -23,7 +23,7 @@ def _execute(
     models: tuple[types.SourcePath, ...],
     output: types.OutputLike,
 ) -> None:
-    output_path = convert.files.destination(source, output, FileFormat.GLB.suffix)
+    output_path = convert.paths.destination(source, output, FileFormat.GLB.suffix)
     feedback = TaskFeedback()
     summary = Job(operation, source, models, output_path).run(Context(report=feedback))
     feedback.finish(summary)
@@ -62,7 +62,7 @@ def arms(
     """Apply first-person animation to weapon and hands models."""
 
     models = (model,) if hands is None else (model, hands)
-    _execute(convert.animation.arms, animation, models, output)
+    _execute(convert.animate.arms, animation, models, output)
 
 
 @animate.command(name=AnimateCommand.FACE)
@@ -88,7 +88,7 @@ def face(
 ) -> None:
     """Apply facial animation to a head model."""
 
-    _execute(convert.animation.face, animation, (model,), output)
+    _execute(convert.animate.face, animation, (model,), output)
 
 
 @animate.command(name=AnimateCommand.BODY)
@@ -114,4 +114,4 @@ def body(
 ) -> None:
     """Apply animation library to a model."""
 
-    _execute(convert.animation.body, library, (model,), output)
+    _execute(convert.animate.body, library, (model,), output)

@@ -127,7 +127,7 @@ class BodyForm(AnimationForm):
 
     def create_task(self, output: Path) -> Job:
         return Job(
-            operation=convert.animation.body,
+            operation=convert.animate.body,
             source=self.source_path,
             models=(self.model_path,),
             output=output,
@@ -196,7 +196,7 @@ class ArmsForm(AnimationForm):
             models.append(Path(additional))
 
         return Job(
-            operation=convert.animation.arms,
+            operation=convert.animate.arms,
             source=self.source_path,
             models=tuple(models),
             output=output,
@@ -224,7 +224,7 @@ class FaceForm(AnimationForm):
 
     def create_task(self, output: Path) -> Job:
         return Job(
-            operation=convert.animation.face,
+            operation=convert.animate.face,
             source=self.source_path,
             models=(self.model_path,),
             output=output,
@@ -248,8 +248,8 @@ class AnimateTab(QWidget):
 
         self.forms = QStackedWidget()
         self._forms: tuple[BodyForm | ArmsForm | FaceForm, ...] = (
-            BodyForm(),
             ArmsForm(),
+            BodyForm(),
             FaceForm(),
         )
 
@@ -291,9 +291,10 @@ class AnimateTab(QWidget):
 
         self.mode = QButtonGroup(self)
         self.mode.setExclusive(True)
+        # TODO: autosync with forms order
         titles = (
-            "mode.animate.body",
             "mode.animate.fp",
+            "mode.animate.body",
             "mode.animate.lipsync",
         )
         buttons = []

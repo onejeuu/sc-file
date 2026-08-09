@@ -1,6 +1,4 @@
-"""
-File conversion.
-"""
+"""File conversion."""
 
 from pathlib import Path
 from typing import Optional
@@ -10,6 +8,8 @@ from scfile.core import BaseContent, Decoder, Encoder
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
 from scfile.registry import REGISTRY, RESOLVER
+
+from . import paths
 
 
 def format(
@@ -39,17 +39,22 @@ def manual[
     Returns ``None`` when an existing output is skipped.
     """
 
-    src_path = validate_source(source)
     options = options or Options()
-    output_path = resolve_output(src_path, output, encoder.format.suffix, options)
-    if output_path is None:
-        return None
 
-    with decoder(src_path, options) as src:
-        with src.convert_to(encoder=encoder) as out:
-            out.save(path=output_path)
+    src = paths.source(source)
+    out = paths.output(src, output, encoder.suffix(), options)
 
-    return output_path
+    if out is None:
+        return
+
+    with decoder(src, options) as dec:
+        content = dec.decode()
+
+    with paths.stage(out) as tmp:
+        with encoder(content, options, output=tmp) as enc:
+            enc.encode()
+
+    return out
 
 
 def auto(
@@ -62,87 +67,19 @@ def auto(
     Returns ``None`` when an existing output is skipped.
     """
 
-    src_path = Path(source)
-    source_spec = RESOLVER.resolve(src_path)
-    if source_spec is None or source_spec.decoder is None:
-        raise exceptions.UnknownFormatError(str(src_path), src_path.suffix)
-
     options = options or Options()
-    encoder = REGISTRY.target(source_spec.format, options)
+
+    src = Path(source)
+    spec = RESOLVER.resolve(src)
+
+    if spec is None or spec.decoder is None:
+        raise exceptions.UnknownFormatError(str(src), src.suffix)
+
+    encoder = REGISTRY.target(spec.format, options)
     if encoder is None:
         raise exceptions.ConversionError(
-            f"No standalone output format available for '{source_spec.format}'.",
-            location=str(src_path),
+            f"No standalone output format available for '{spec.format}'.",
+            location=str(src),
         )
 
-    return manual(source_spec.decoder, encoder, src_path, output, options)
-
-
-def validate_source(
-    source: types.SourceLike,
-) -> Path:
-    """Resolve one source path and require a regular file."""
-
-    path = Path(source)
-    if not path.exists() or not path.is_file():
-        raise exceptions.FileNotFound(str(path))
-
-    return path
-
-
-def validate_sources(
-    *sources: types.SourceLike,
-) -> list[Path]:
-    """Resolve source paths and require regular files."""
-
-    return [validate_source(source) for source in sources]
-
-
-def destination(
-    source: Path,
-    output: types.OutputLike,
-    suffix: str,
-) -> Path:
-    """Resolve output file path and create its directory."""
-
-    path = Path(output or source.parent)
-    if path.suffix == suffix:
-        result = path
-    else:
-        result = path / f"{source.stem}{suffix}"
-
-    result.parent.mkdir(exist_ok=True, parents=True)
-    return result
-
-
-def resolve_output(
-    source: Path,
-    output: types.OutputLike,
-    suffix: str,
-    options: Options,
-) -> types.ResultPath:
-    """Resolve one output path and apply its conflict policy."""
-
-    path = destination(source, output, suffix)
-    match options.on_conflict:
-        case "skip" if path.exists():
-            return None
-        case "rename":
-            return ensure_unique_path(path)
-        case _:
-            return path
-
-
-def ensure_unique_path(
-    path: Path,
-) -> Path:
-    """Append a counter to path if a file already exists."""
-
-    filename, suffix = path.stem, path.suffix
-    counter = 1
-
-    while path.exists():
-        path = path.parent / Path(f"{filename} ({counter}){suffix}")
-        counter += 1
-
-    return path
+    return manual(spec.decoder, encoder, src, output, options)

@@ -49,9 +49,11 @@ class Handler[IOType: StructIO[Any]](ABC):
         self._ctx: HandlerContext = {}
         self._state = HandlerState.INITIAL
 
-    @property
-    def suffix(self) -> str:
-        return self.format.suffix
+    @classmethod
+    def suffix(cls) -> str:
+        """Return the suffix associated with this handler format."""
+
+        return cls.format.suffix
 
     @property
     def location(self) -> str:

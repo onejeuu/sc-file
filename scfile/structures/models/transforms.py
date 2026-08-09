@@ -16,7 +16,7 @@ from scfile.structures.models.animation import AnimationClip
 from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVSign
 from .matrices import create_transform_matrix
 from .mesh import ModelMesh
-from .scene import ModelScene
+from .scene import ModelScene, ModelSkin
 from .skeleton import ModelSkeleton, SkeletonBone
 from .types import BindPose, InverseBindMatrices, TransformMatrix
 
@@ -197,7 +197,7 @@ def animation_to_absolute(scene: ModelScene) -> ModelScene:
     return replace(scene, animation=new_animation)
 
 
-def apply_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
+def apply_fp_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
     """Combine model geometry with animation rig."""
 
     if not animation.animation.clips:
@@ -240,6 +240,40 @@ def apply_animation(animation: ModelScene, *models: ModelScene) -> ModelScene:
             meshes.append(new_mesh)
 
     return replace(animation, meshes=meshes)
+
+
+def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -> ModelScene:
+    """Apply source bind poses to the assembled scene."""
+
+    target_bones = animation.skeleton.bones
+    target_ids = {bone.name: bone.id for bone in target_bones}
+    target_scene = skeleton_to_local(animation)
+    target_bind = inverse_bind_matrices(target_scene.skeleton)
+
+    skins: list[InverseBindMatrices] = []
+    mesh_skins: list[int | None] = []
+
+    # Preserve source bind poses against the shared animation skeleton
+    for model in (animation, *models):
+        skinned = any(mesh.max_influences for mesh in model.meshes)
+        skin_index = len(skins) if skinned else None
+
+        if skinned:
+            bind = target_bind.copy()
+            source_scene = skeleton_to_local(model)
+            source_bind = inverse_bind_matrices(source_scene.skeleton)
+
+            # Keep target matrices for bones absent from this model
+            for bone in model.skeleton.bones:
+                if bone.name in target_ids:
+                    bind[target_ids[bone.name]] = source_bind[bone.id]
+
+            skins.append(bind)
+
+        mesh_skins.extend(skin_index if mesh.max_influences else None for mesh in model.meshes)
+
+    meshes = [replace(mesh, skin=skin) for mesh, skin in zip(scene.meshes, mesh_skins)]
+    return replace(scene, meshes=meshes, skins=[ModelSkin(bind) for bind in skins])
 
 
 def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScene:

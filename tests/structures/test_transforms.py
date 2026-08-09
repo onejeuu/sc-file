@@ -90,7 +90,7 @@ def test_animation_to_absolute() -> None:
     assert np.array_equal(scene.animation.clips[0].translations[0, 0], [0.0, 0.0, 0.0])
 
 
-def test_apply_animation() -> None:
+def test_apply_fp_animation() -> None:
     animation = S.ModelScene(
         meshes=[S.ModelMesh(name="animation")],
         skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]),
@@ -104,11 +104,36 @@ def test_apply_animation() -> None:
     )
     model = S.ModelScene(meshes=[mesh], skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]))
 
-    result = T.apply_animation(animation, model)
+    result = T.apply_fp_animation(animation, model)
 
     assert [mesh.name for mesh in result.meshes] == ["animation", "model"]
     assert result.meshes[1].link_space is S.LinkSpace.GLOBAL
     assert model.meshes[0].link_space is S.LinkSpace.LOCAL
+
+
+def test_apply_skins() -> None:
+    def mesh(name: str) -> S.ModelMesh:
+        return S.ModelMesh(
+            name=name,
+            links_ids=np.zeros((1, 4), dtype=np.uint8),
+            links_weights=np.array([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32),
+        )
+
+    animation = S.ModelScene(
+        meshes=[mesh("animation")],
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]),
+    )
+    model = S.ModelScene(
+        meshes=[mesh("model")],
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]),
+    )
+    scene = S.ModelScene(meshes=[*animation.meshes, *model.meshes], skeleton=animation.skeleton)
+
+    result = T.apply_skins(scene, animation, model)
+
+    assert [mesh.skin for mesh in result.meshes] == [0, 1]
+    assert len(result.skins) == 2
+    assert not scene.skins
 
 
 def test_animation_library() -> None:

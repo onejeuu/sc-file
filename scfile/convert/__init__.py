@@ -1,7 +1,7 @@
 """High-level file conversion."""
 
-from . import animation, files, formats
-from .animation import arms, body, face
+from . import animate, files, formats, paths
+from .animate import arms, body, face
 from .files import auto, manual
 from .formats import (
     efkmodel_to_fbx,
@@ -25,7 +25,7 @@ from .formats import (
 
 
 __all__ = (
-    "animation",
+    "animate",
     "arms",
     "auto",
     "body",
@@ -33,6 +33,7 @@ __all__ = (
     "files",
     "formats",
     "manual",
+    "paths",
     "mcsa_to_obj",
     "mcsa_to_glb",
     "mcsa_to_fbx",

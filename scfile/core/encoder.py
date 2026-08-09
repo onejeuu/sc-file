@@ -148,7 +148,7 @@ class Encoder[
         """
 
         self.save(
-            path=f"{path}{self.suffix}",
+            path=f"{path}{self.suffix()}",
             close=close,
         )
 

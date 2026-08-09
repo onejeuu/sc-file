@@ -56,7 +56,8 @@ version = { attr = "scfile.__version__" }
 scfile = ["app/gui/assets/*"]
 
 [tool.coverage.run]
-omit = ["scfile/app/*", "scfile/convert/*"]
+branch = true
+omit = ["scfile/app/*"]
 
 [build-system]
 requires = ["setuptools"]
