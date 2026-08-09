@@ -1,0 +1,49 @@
+{
+  "byte": 127,
+  "short": 32767,
+  "int": 2147483647,
+  "long": 9223372036854775807,
+  "float": 0.5,
+  "double": 2.718281828459045,
+  "string": "always mount a scratch monkey 🐒💾",
+  "byte_array": "b'\\x00\\x01\\x02\\x03\\x04\\xff'",
+  "int_array": [
+    1,
+    -2,
+    3,
+    -4,
+    2147483647
+  ],
+  "long_array": [
+    1000000000,
+    -2000000000,
+    9223372036854775807
+  ],
+  "list_int": [
+    1,
+    2,
+    3
+  ],
+  "list_string": [
+    "one",
+    "two",
+    "three"
+  ],
+  "list_compound": [
+    {
+      "a": 1,
+      "b": "first"
+    },
+    {
+      "x": -128,
+      "y": "second",
+      "z": 3.140000104904175
+    }
+  ],
+  "compound": {
+    "empty": {},
+    "nested": {
+      "message": "sudo rm -rf /"
+    }
+  }
+}
