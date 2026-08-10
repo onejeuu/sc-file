@@ -21,8 +21,8 @@ type OutputLike = PathLike | None
 type ResultPath = Path | None
 """Written result path, or ``None`` when output is skipped."""
 
-type FilesWhitelist = Iterable[str]
-"""Iterable of file suffixes for filtering."""
+type FilesFilters = Iterable[str]
+"""Iterable of filename filters."""
 type FilesPaths = Iterable[SourcePath]
 """Iterable of file paths."""
 type FilesSources = Iterable[SourceLike]
@@ -40,7 +40,6 @@ class FileEntry(NamedTuple):
 
     root: str
     path: str
-    relpath: str
 
 
 type FilesWalk = Iterator[FileEntry]

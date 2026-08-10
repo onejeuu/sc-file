@@ -4,6 +4,7 @@ from dataclasses import dataclass, replace
 from typing import ClassVar, Literal, Self, TypedDict
 
 from scfile.enums import FileFormat
+from scfile.structures.models import Feature, Features
 
 
 type OnConflict = Literal["overwrite", "rename", "skip"]
@@ -39,6 +40,19 @@ class ModelOptions:
         """Return whether skeleton data is needed."""
 
         return self.skeleton or self.animation
+
+    @property
+    def features(self) -> Features:
+        """Features requested for model processing."""
+
+        features: Features = ()
+        if self.skeleton_enabled:
+            features += (Feature.SKELETON,)
+
+        if self.animation:
+            features += (Feature.ANIMATION,)
+
+        return features
 
 
 @dataclass

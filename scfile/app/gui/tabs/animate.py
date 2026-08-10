@@ -17,7 +17,7 @@ from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers import TaskManager
-from scfile.app.tasks.animation import Job
+from scfile.app.tasks.animate import AnimateTask
 
 
 def _required_label(label: str) -> str:
@@ -125,8 +125,8 @@ class BodyForm(AnimationForm):
             "highpoly/character/model.mcsb",
         )
 
-    def create_task(self, output: Path) -> Job:
-        return Job(
+    def create_task(self, output: Path) -> AnimateTask:
+        return AnimateTask(
             operation=convert.animate.body,
             source=self.source_path,
             models=(self.model_path,),
@@ -190,12 +190,12 @@ class ArmsForm(AnimationForm):
             return "tooltip.animate.invalid.additional"
         return None
 
-    def create_task(self, output: Path) -> Job:
+    def create_task(self, output: Path) -> AnimateTask:
         models = [self.model_path]
         if additional := self.additional_model.text().strip():
             models.append(Path(additional))
 
-        return Job(
+        return AnimateTask(
             operation=convert.animate.arms,
             source=self.source_path,
             models=tuple(models),
@@ -222,8 +222,8 @@ class FaceForm(AnimationForm):
             "stalkerplayer/heads/character.mcsb",
         )
 
-    def create_task(self, output: Path) -> Job:
-        return Job(
+    def create_task(self, output: Path) -> AnimateTask:
+        return AnimateTask(
             operation=convert.animate.face,
             source=self.source_path,
             models=(self.model_path,),

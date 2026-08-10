@@ -11,7 +11,7 @@ from scfile.app.gui.shared.styles import Styles
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.tasks.mapcache import Job
+from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
 
@@ -147,7 +147,7 @@ class MapCacheTab(QWidget):
         options = Options(region={"raw_blocks": self.raw_blocks.isChecked()})
 
         self._active = True
-        if not self.tasks.start(Job(source, output, options)):
+        if not self.tasks.start(MapCacheTask(source, output, options)):
             self._active = False
         self._sync_ui()
 

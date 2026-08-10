@@ -5,6 +5,7 @@ from scfile.core import DocumentContent, ModelDecoder, ModelEncoder
 from scfile.enums import FileFormat
 from scfile.options import Options
 from scfile.registry import Registry, Resolver
+from scfile.structures.models import Feature
 
 from tests.conftest import BytesDecoder, BytesEncoder
 
@@ -51,6 +52,7 @@ class RegistryObjEncoder(ModelEncoder):
 
 class RegistryGlbEncoder(ModelEncoder):
     format = FileFormat.GLB
+    features = (Feature.SKELETON,)
 
     def _serialize(self) -> None:
         pass
@@ -80,6 +82,7 @@ def test_inputs() -> None:
     assert registry.supported_suffixes == {".mic"}
     assert registry.supported_aliases == {"thumbnail"}
     assert registry.supported_inputs == {".mic", "thumbnail"}
+    assert registry.filters_for(FileFormat.MIC) == {".mic", "thumbnail"}
 
 
 def test_unknown() -> None:
@@ -121,6 +124,14 @@ def test_model_targets() -> None:
 
     assert registry.target(FileFormat.MCSA) is RegistryObjEncoder
     assert registry.target(FileFormat.MCSA, Options(model={"skeleton": True})) is RegistryGlbEncoder
+
+
+def test_model_supports() -> None:
+    registry = Registry(RegistryObjEncoder, RegistryGlbEncoder)
+
+    assert registry.model_supports(FileFormat.GLB, Feature.SKELETON)
+    assert not registry.model_supports(FileFormat.OBJ, Feature.SKELETON)
+    assert not registry.model_supports(FileFormat.MIC, Feature.SKELETON)
 
 
 def test_non_model_target() -> None:

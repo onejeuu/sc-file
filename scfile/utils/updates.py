@@ -5,7 +5,7 @@ import urllib.request
 from typing import Any, NamedTuple
 
 from scfile import __repository__ as REPO
-from scfile.enums import UpdateStatus as Status
+from scfile.app.enums import UpdateStatus as Status
 
 from . import files
 from .versions import Version

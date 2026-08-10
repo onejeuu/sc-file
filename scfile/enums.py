@@ -115,30 +115,6 @@ F = StructFormat
 """StructFormat Alias."""
 
 
-class CliCommand(StrEnum):
-    """CLI command names."""
-
-    ANIMATE = auto()
-    CONVERT = auto()
-    MAPCACHE = auto()
-
-
-class AnimateCommand(StrEnum):
-    """Animate subcommand names."""
-
-    ARMS = auto()
-    BODY = auto()
-    FACE = auto()
-
-
-class UpdateStatus(StrEnum):
-    """Update check result status."""
-
-    ERROR = auto()
-    UPTODATE = auto()
-    AVAILABLE = auto()
-
-
 class SafetyLimit(IntEnum):
     """Named limits for decoded binary data."""
 

@@ -6,19 +6,19 @@ from pathlib import Path
 
 import click
 
-from scfile.enums import FileFormat
+from scfile.app.enums import OutputLayout
 from scfile.options import ON_CONFLICT_OPTIONS
+from scfile.registry import REGISTRY
 
 
 Files = click.Path(
     path_type=Path,
     dir_okay=True,
     file_okay=True,
-    exists=True,
     resolve_path=True,
 )
 
-File = click.Path(
+SourceFile = click.Path(
     path_type=Path,
     dir_okay=False,
     file_okay=True,
@@ -33,7 +33,7 @@ OutputPath = click.Path(
     resolve_path=True,
 )
 
-Output = click.Path(
+OutputDir = click.Path(
     path_type=Path,
     dir_okay=True,
     file_okay=False,
@@ -48,15 +48,18 @@ MapCacheDir = click.Path(
     resolve_path=True,
 )
 
-# TODO: rework
-MODEL_FORMAT_ORDER = (
-    FileFormat.OBJ,
-    FileFormat.GLB,
-    FileFormat.FBX,
+ModelFormats = click.Choice(
+    choices=sorted(REGISTRY.model_formats),
+    case_sensitive=False,
 )
 
-Formats = click.Choice(
-    choices=list(MODEL_FORMAT_ORDER),
+InputFormats = click.Choice(
+    choices=sorted(REGISTRY.supported_formats),
+    case_sensitive=False,
+)
+
+Layouts = click.Choice(
+    choices=list(OutputLayout),
     case_sensitive=False,
 )
 

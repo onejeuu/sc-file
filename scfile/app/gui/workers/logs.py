@@ -4,7 +4,8 @@ from rich.markup import escape
 
 from scfile import exceptions
 from scfile.app.consts import CORRUPTED_INPUT_HINT
-from scfile.app.tasks import Failure, Item, Started, TaskKind
+from scfile.app.enums import TaskKind
+from scfile.app.tasks import TaskError, TaskFailure, TaskItem, TaskStarted
 
 
 CONSOLE = Console()
@@ -34,16 +35,23 @@ logger.message.connect(CONSOLE.print)
 
 
 class _Reporter:
-    def __init__(self) -> None:
+    def __init__(self, verbose: bool = False) -> None:
         self.kind: TaskKind | None = None
+        self.verbose = verbose
+
+    def set_verbose(self, enabled: bool) -> None:
+        self.verbose = enabled
 
     def __call__(self, event: object) -> None:
-        if isinstance(event, Started):
+        if isinstance(event, TaskStarted):
             self.kind = event.kind
             return
 
-        if isinstance(event, Item):
-            if not event.written and not event.detail:
+        if isinstance(event, TaskItem):
+            if not self.verbose:
+                return
+
+            if event.output is None and not event.detail:
                 logger.skipped(event.source)
                 return
 
@@ -53,23 +61,25 @@ class _Reporter:
                 TaskKind.ANIMATE: "EXPORTED",
             }
             label = labels[self.kind] if self.kind is not None else "DONE"
-            output = f" -> {', '.join(map(str, event.outputs))}" if event.outputs else ""
+            output = f" -> {event.output}" if event.output is not None else ""
             logger.result(label, event.detail or f"{event.source}{output}")
             return
 
-        if not isinstance(event, Failure):
-            return
+        if not isinstance(event, TaskFailure):
+            if not isinstance(event, TaskError):
+                return
 
         error = event.error
-        location = error.location if isinstance(error, exceptions.ScFileException) else None
-        message = f"'{location or event.source}': {error}"
+        source = event.source if isinstance(event, TaskFailure) else None
+        location = error.location if isinstance(error, exceptions.ScFileException) else source
+        message = f"'{location}': {error}"
 
         if isinstance(error, exceptions.BinaryStructureError):
             logger.error(f"{message} {CORRUPTED_INPUT_HINT}")
         elif isinstance(error, exceptions.ScFileException):
             logger.error(message)
         else:
-            logger.exception(f"'{event.source}': {error!r}")
+            logger.exception(f"'{source or 'Task'}': {error!r}")
 
         if event.traceback:
             logger.message.emit(escape(event.traceback))

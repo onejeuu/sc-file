@@ -2,10 +2,11 @@ import click
 
 from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.messages import TaskFeedback, warning
-from scfile.app.tasks import Context
-from scfile.app.tasks.mapcache import Job
-from scfile.enums import CliCommand
+from scfile.app.cli.feedback import TaskFeedback
+from scfile.app.cli.console import warn
+from scfile.app.enums import CliCommand
+from scfile.app.tasks import execute
+from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
 from . import scfile
@@ -22,7 +23,7 @@ from . import scfile
     "-O",
     "--output",
     help="Output results directory.",
-    type=params.Output,
+    type=params.OutputDir,
 )
 @click.option(
     "-W",
@@ -49,15 +50,14 @@ def mapcache_command(
     raw: bool,
     verbose: bool,
 ) -> None:
-    warning(
-        "MDAT decoder is experimental. Blocks representation is not accurate. "
-        "Full compatibility is unlikely."
+    warn(
+        "MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely."
     )
 
     options = Options(region={"raw_blocks": raw})
     feedback = TaskFeedback(verbose)
-    summary = Job(source, output, options, workers).run(Context(report=feedback))
+    summary = execute(MapCacheTask(source, output, options, workers), feedback)
     feedback.finish(summary)
 
-    if summary.failed:
+    if summary.work.failed:
         raise click.exceptions.Exit(1)

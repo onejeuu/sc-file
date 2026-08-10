@@ -38,7 +38,7 @@ class CounterTask(QObject):
             return self._abort
 
     @Slot(int, list, tuple)
-    def count(self, request_id: int, sources: list[str], whitelist: types.FilesWhitelist):
+    def count(self, request_id: int, sources: list[str], filters: types.FilesFilters):
         if not self._begin(request_id):
             return
 
@@ -46,7 +46,7 @@ class CounterTask(QObject):
         gamedir = False
 
         try:
-            for entry in files.walk(sources, whitelist=whitelist):
+            for entry in files.walk(sources, filters=filters):
                 if self.abort:
                     break
 
@@ -94,7 +94,7 @@ class CounterWorker(QObject):
     def busy(self) -> bool:
         return self._busy
 
-    def refresh(self, sources: list[str], whitelist: types.FilesWhitelist):
+    def refresh(self, sources: list[str], filters: types.FilesFilters):
         self._request_id += 1
 
         self._task.cancel(self._request_id)
@@ -104,7 +104,7 @@ class CounterWorker(QObject):
             return
 
         self._apply(count=0, gamedir=False, busy=True)
-        self.requested.emit(self._request_id, sources, whitelist)
+        self.requested.emit(self._request_id, sources, filters)
 
     def _on_done(self, request_id: int, count: int, gamedir: bool):
         if request_id == self._request_id:

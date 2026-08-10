@@ -1,91 +1,67 @@
 """Parallel file conversion task."""
 
+import os
+import traceback
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 
 from scfile import convert, exceptions, types
+from scfile.app.enums import OutputLayout, TaskKind
 from scfile.options import Options
 from scfile.utils import files
 
-from .base import Context, Failure, Item, Progress, Started, Summary, TaskKind, failure, parallel
+from .events import TaskEvent, TaskFailure, TaskItem, TaskStarted
+from .execution import Task, TaskContext
+from .parallel import parallel
 
 
 @dataclass(frozen=True, slots=True)
-class Job:
-    """Parameters for converting file sources."""
+class ConvertTask(Task):
+    """Convert matching file sources."""
 
     kind: ClassVar[TaskKind] = TaskKind.CONVERT
 
     sources: tuple[types.SourceLike, ...]
-    whitelist: tuple[str, ...]
+    filters: tuple[str, ...]
     options: Options
     output: Path | None = None
-    relative: bool = False
-    parent: bool = False
+    layout: OutputLayout = OutputLayout.FLAT
     total: int | None = None
     workers: int | None = None
 
-    def _convert(self, entry: types.FileEntry) -> Item | Failure:
+    def _convert(self, entry: types.FileEntry) -> TaskItem | TaskFailure:
         output = str(self.output) if self.output else None
-        destination = files.destination(entry.relpath, self.relative, output)
+        match self.layout:
+            case OutputLayout.FLAT:
+                base = None
+            case OutputLayout.RELATIVE:
+                base = entry.root
+            case OutputLayout.ROOTED:
+                base = os.path.dirname(entry.root)
+
+        destination = files.destination(entry.path, base, output)
 
         try:
             result = convert.auto(entry.path, destination, self.options)
-            if result is None:
-                return Item(source=entry.path, skipped=1)
+            return TaskItem(entry.path, result)
 
-            return Item(source=entry.path, outputs=(result,), written=1)
         except exceptions.ScFileException as error:
-            return failure(entry.path, error)
+            return TaskFailure(entry.path, error)
+
         except Exception as error:
-            return failure(entry.path, error, unexpected=True)
+            return TaskFailure(entry.path, error, traceback.format_exc())
 
     def run(
         self,
-        context: Context,
-    ) -> Summary:
-        """Convert matching files and report individual outcomes."""
+        context: TaskContext,
+    ) -> Iterator[TaskEvent]:
+        """Yield conversion results for matching files."""
 
-        total = self.total
-        if total is None:
-            total = sum(
-                1
-                for _ in files.walk(
-                    self.sources,
-                    whitelist=self.whitelist,
-                    parent=self.parent,
-                )
-            )
-
-        entries = files.walk(self.sources, whitelist=self.whitelist, parent=self.parent)
-        completed = succeeded = written = skipped = failed = 0
         output = self.output.resolve() if self.output else None
-        context.emit(Started(self.kind, total, output))
-        context.emit(Progress(0, total))
+        total = self.total if self.total is not None else files.count(self.sources, self.filters)
+        yield TaskStarted(self.kind, total, output)
 
-        for result in parallel(entries, self._convert, context, self.workers):
-            completed += 1
-            context.emit(result)
-
-            if isinstance(result, Failure):
-                failed += 1
-            else:
-                if result.written:
-                    succeeded += 1
-                written += result.written
-                skipped += result.skipped
-
-            context.emit(Progress(completed, total))
-
-        return Summary(
-            kind=self.kind,
-            total=total,
-            completed=completed,
-            succeeded=succeeded,
-            written=written,
-            skipped=skipped,
-            failed=failed,
-            cancelled=context.stopped,
-            output=output,
-        )
+        entries = files.walk(self.sources, filters=self.filters)
+        yield from parallel(entries, self._convert, context, self.workers)

@@ -4,7 +4,8 @@ Default command routing.
 
 from pathlib import Path
 
-from scfile.enums import AnimateCommand, CliCommand, FileFormat
+from scfile.app.enums import AnimateCommand, CliCommand
+from scfile.enums import FileFormat
 from scfile.registry import RESOLVER
 
 

@@ -4,10 +4,11 @@ import click
 
 from scfile import convert, types
 from scfile.app.cli import params
-from scfile.app.cli.messages import TaskFeedback
-from scfile.app.tasks import Context
-from scfile.app.tasks.animation import Job
-from scfile.enums import AnimateCommand, CliCommand, FileFormat
+from scfile.app.cli.feedback import TaskFeedback
+from scfile.app.enums import AnimateCommand, CliCommand
+from scfile.app.tasks import execute
+from scfile.app.tasks.animate import AnimateTask
+from scfile.enums import FileFormat
 
 from . import scfile
 
@@ -25,26 +26,26 @@ def _execute(
 ) -> None:
     output_path = convert.paths.destination(source, output, FileFormat.GLB.suffix)
     feedback = TaskFeedback()
-    summary = Job(operation, source, models, output_path).run(Context(report=feedback))
+    summary = execute(AnimateTask(operation, source, models, output_path), feedback)
     feedback.finish(summary)
 
-    if summary.failed:
+    if summary.work.failed:
         raise click.exceptions.Exit(1)
 
 
 @animate.command(name=AnimateCommand.ARMS)
 @click.argument(
     "ANIMATION",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.argument(
     "MODEL",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.argument(
     "HANDS",
     required=False,
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.option(
     "-O",
@@ -68,11 +69,11 @@ def arms(
 @animate.command(name=AnimateCommand.FACE)
 @click.argument(
     "ANIMATION",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.argument(
     "MODEL",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.option(
     "-O",
@@ -94,11 +95,11 @@ def face(
 @animate.command(name=AnimateCommand.BODY)
 @click.argument(
     "LIBRARY",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.argument(
     "MODEL",
-    type=params.File,
+    type=params.SourceFile,
 )
 @click.option(
     "-O",

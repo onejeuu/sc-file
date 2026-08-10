@@ -10,10 +10,12 @@ from scfile.options import (
     RegionConfig,
     RegionOptions,
 )
+from scfile.structures.models import Feature
 
 
 def test_animation_enables_skeleton() -> None:
     assert Options(model={"animation": True}).model.skeleton_enabled
+    assert Options(model={"animation": True}).model.features == (Feature.SKELETON, Feature.ANIMATION)
 
 
 def test_default_format() -> None:

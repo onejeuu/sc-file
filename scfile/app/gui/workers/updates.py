@@ -3,7 +3,7 @@ from typing import override
 from PySide6.QtCore import Signal
 
 from scfile import __version__ as SEMVER
-from scfile.enums import UpdateStatus
+from scfile.app.enums import UpdateStatus
 from scfile.utils import updates
 
 from .base import Worker

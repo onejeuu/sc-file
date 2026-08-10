@@ -8,10 +8,11 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any, Optional, Self, TypeIs
 
-from scfile.core import BaseContent, Decoder, Encoder, ModelContent
+from scfile.core import BaseContent, Decoder, Encoder, ModelContent, ModelEncoder
 from scfile.enums import FileFormat
 from scfile.exceptions import RegistryError
 from scfile.options import Options
+from scfile.structures.models import Feature
 from scfile.types import FormatLike
 
 
@@ -84,7 +85,17 @@ class Registry:
     def supported_inputs(self) -> frozenset[str]:
         """All input filename filters supported by registered decoders."""
 
-        return self.supported_suffixes | self.supported_aliases
+        return self.filters_for()
+
+    @property
+    def model_formats(self) -> frozenset[FileFormat]:
+        """Output formats backed by a model encoder."""
+
+        return frozenset(
+            fmt
+            for fmt, spec in self._formats.items()
+            if spec.encoder is not None and issubclass(spec.encoder, ModelEncoder)
+        )
 
     def register(
         self,
@@ -117,6 +128,25 @@ class Registry:
 
         fmt = self.resolve(target)
         return frozenset(alias for alias, value in self._aliases.items() if value is fmt)
+
+    def filters_for(
+        self,
+        *formats: FormatLike,
+    ) -> frozenset[str]:
+        """Return filename filters for registered source formats."""
+
+        selected = formats or tuple(self.supported_formats)
+        filters: set[str] = set()
+
+        for value in selected:
+            entry = self.get(value)
+            if entry is None or entry.decoder is None:
+                raise RegistryError(f"'{value}' is not a registered source format.")
+
+            filters.add(entry.format.suffix)
+            filters.update(self.aliases_for(entry.format))
+
+        return frozenset(filters)
 
     def resolve(
         self,
@@ -168,6 +198,16 @@ class Registry:
 
         entry = self.get(value)
         return entry.encoder if entry else None
+
+    def model_supports(
+        self,
+        value: FormatLike,
+        feature: Feature,
+    ) -> bool:
+        """Return whether a model output format supports a feature."""
+
+        encoder = self.encoder(value)
+        return bool(encoder and issubclass(encoder, ModelEncoder) and encoder.supports(feature))
 
     def decoders(self) -> dict[FileFormat, type[Decoder[Any, Any]]]:
         """Registered decoders."""

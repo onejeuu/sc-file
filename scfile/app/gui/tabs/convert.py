@@ -26,7 +26,8 @@ from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import CounterWorker
-from scfile.app.tasks.convert import Job
+from scfile.app.enums import OutputLayout
+from scfile.app.tasks.convert import ConvertTask
 from scfile.options import Options
 from scfile.structures.models import Feature
 
@@ -262,21 +263,19 @@ class ConverterTab(QWidget):
         layout.setContentsMargins(25, 0, 0, 0)
         layout.setSpacing(5)
 
-        # Flat or structured output
         self.output_tree = QRadioButton(strings.get("option.output.tree"))
         self.output_tree.setStyleSheet(Styles.RADIO)
         self.output_tree.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.output_tree.setChecked(True)
 
         self.output_flat = QRadioButton(strings.get("option.output.flat"))
         self.output_flat.setStyleSheet(Styles.RADIO)
         self.output_flat.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.output_tree.setChecked(True)
 
         group = QButtonGroup(self)
         group.addButton(self.output_tree)
         group.addButton(self.output_flat)
 
-        # Add to layout
         layout.addWidget(self.output_tree)
         layout.addWidget(self.output_flat)
 
@@ -321,7 +320,7 @@ class ConverterTab(QWidget):
     def _sync_counter(self):
         self._counter.refresh(
             sources=self._get_sources(),
-            whitelist=tuple(self._get_suffixes()),
+            filters=tuple(self._get_suffixes()),
         )
 
     def _sync_button(self):
@@ -380,9 +379,9 @@ class ConverterTab(QWidget):
         ft_skeleton = self.feat_checks[FT.SKELETON.feature]
         ft_animation = self.feat_checks[FT.ANIMATION.feature]
 
-        job = Job(
+        task = ConvertTask(
             sources=tuple(self._get_sources()),
-            whitelist=tuple(self._get_suffixes()),
+            filters=tuple(self._get_suffixes()),
             options=Options(
                 model={
                     "skeleton": ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
@@ -392,13 +391,12 @@ class ConverterTab(QWidget):
                 on_conflict=self.on_conflict.value(),
             ),
             output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
-            relative=self.output_tree.isChecked(),
-            parent=self.output_tree.isChecked(),
+            layout=OutputLayout.ROOTED if self.output_tree.isChecked() else OutputLayout.FLAT,
             total=None if self._counter.busy else self._counter.count,
         )
 
         self._active = True
-        if not self.tasks.start(job):
+        if not self.tasks.start(task):
             self._active = False
         self._sync_button()
 

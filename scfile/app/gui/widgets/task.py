@@ -3,10 +3,11 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QSizePolicy, QWidget
 
+from scfile.app.enums import TaskKind
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.workers import TaskManager
-from scfile.app.tasks import PROGRESS_THRESHOLD, Progress, Started, Summary, TaskKind
+from scfile.app.tasks import TaskError, TaskFailure, TaskItem, TaskStarted, TaskSummary
 
 
 class TaskWidget(QWidget):
@@ -38,6 +39,8 @@ class TaskWidget(QWidget):
         self.cancel.setStyleSheet(Styles.BUTTON)
         self.cancel.setCursor(Qt.CursorShape.PointingHandCursor)
         self.cancel.clicked.connect(self._cancel)
+        self._completed = 0
+        self._total: int | None = None
 
         self.dismiss = QPushButton("×")
         self.dismiss.setFixedWidth(28)
@@ -73,26 +76,32 @@ class TaskWidget(QWidget):
         self.show()
 
     def _on_event(self, event: object) -> None:
-        if isinstance(event, Started):
+        if isinstance(event, TaskStarted):
             self._on_started(event)
             return
 
-        if not isinstance(event, Progress) or event.total is None:
+        if not isinstance(event, (TaskItem, TaskFailure, TaskError)):
             return
 
-        if event.total < PROGRESS_THRESHOLD:
-            self.progress.hide()
-            self.progress_text.hide()
+        if isinstance(event, (TaskItem, TaskFailure)):
+            self._completed += 1
+        if self._total is None:
+            self.progress.setRange(0, 0)
+            self.progress_text.setText(f"{self._completed:,}")
+            self.progress.show()
+            self.progress_text.show()
             return
 
-        self.progress.setRange(0, event.total)
-        self.progress.setValue(event.completed)
-        percent = event.completed / event.total
-        self.progress_text.setText(f"{event.completed:,}/{event.total:,} · {percent:.0%}")
+        self.progress.setRange(0, self._total)
+        self.progress.setValue(self._completed)
+        percent = self._completed / self._total
+        self.progress_text.setText(f"{self._completed:,}/{self._total:,} · {percent:.0%}")
         self.progress.show()
         self.progress_text.show()
 
-    def _on_started(self, event: Started) -> None:
+    def _on_started(self, event: TaskStarted) -> None:
+        self._completed = 0
+        self._total = event.total
         keys = {
             TaskKind.CONVERT: "task.running.convert",
             TaskKind.MAPCACHE: "task.running.mapcache",
@@ -102,7 +111,7 @@ class TaskWidget(QWidget):
         self._set_status(text, event.kind, event.output, Colors.TEXT)
 
     def _on_completed(self, summary: object) -> None:
-        if not isinstance(summary, Summary):
+        if not isinstance(summary, TaskSummary):
             return
 
         self.progress.hide()
@@ -110,12 +119,12 @@ class TaskWidget(QWidget):
         self.cancel.hide()
         self.dismiss.show()
         values = {
-            "completed": f"{summary.completed:,}",
-            "total": f"{summary.total:,}",
-            "converted": f"{summary.succeeded:,}",
-            "written": f"{summary.written:,}",
-            "skipped": f"{summary.skipped:,}",
-            "failed": f"{summary.failed:,}",
+            "completed": f"{summary.work.completed:,}",
+            "total": f"{summary.total:,}" if summary.total is not None else "?",
+            "converted": f"{summary.files.written:,}",
+            "written": f"{summary.files.written:,}",
+            "skipped": f"{summary.files.skipped:,}",
+            "failed": f"{summary.work.failed:,}",
         }
 
         if summary.cancelled:
@@ -128,9 +137,9 @@ class TaskWidget(QWidget):
             color = Colors.WARNING
         else:
             if summary.kind is TaskKind.CONVERT:
-                if not summary.succeeded:
+                if not summary.files.written:
                     key = "task.result.convert.empty"
-                elif summary.failed:
+                elif summary.work.failed:
                     key = "task.result.convert"
                 else:
                     key = "task.result.convert.simple"
@@ -140,12 +149,12 @@ class TaskWidget(QWidget):
                     TaskKind.ANIMATE: "task.result.animate",
                 }
                 key = keys[summary.kind]
-            color = Colors.WARNING if summary.failed else Colors.SUCCESS
+            color = Colors.WARNING if summary.work.failed else Colors.SUCCESS
 
         text = strings.get(key).format(**values)
-        if summary.skipped:
+        if summary.files.skipped:
             text = f'{text} · {strings.get("task.skipped").format(skipped=values["skipped"])}'
-        if summary.failed:
+        if summary.work.failed:
             text = f'{text} · {strings.get("task.errors").format(failed=values["failed"])}'
         self._set_status(text, summary.kind, summary.output, color)
         self.show()

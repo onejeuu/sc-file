@@ -4,7 +4,7 @@ from typing import Never
 
 import click
 
-from scfile.app.cli import messages, routing
+from scfile.app.cli import console, routing
 from scfile.app.cli.cmd import scfile
 
 
@@ -15,12 +15,12 @@ def _run_gui() -> None:  # pragma: no cover
         window.run()
 
     except ImportError:
-        messages.echo(traceback.format_exc())
-        messages.error("GUI is not available")
-        messages.info("Try install with: pip install sc-file[gui] -U")
-        messages.info("Or in local environment: uv sync --extra gui")
-        messages.echo("")
-        messages.hint("If your system does not support graphical interfaces, use command line: scfile --help")
+        console.CONSOLE.print(traceback.format_exc(), markup=False, highlight=False)
+        console.error("GUI is not available")
+        console.info("Try install with: pip install sc-file[gui] -U")
+        console.info("Or in local environment: uv sync --extra gui")
+        console.CONSOLE.print()
+        console.hint("If your system does not support graphical interfaces, use command line: scfile --help")
         input("\nPress Enter to exit...")
         sys.exit(1)
 
@@ -63,11 +63,11 @@ def main() -> Never:
             status = result
 
     except click.ClickException as error:
-        messages.invalid(str(error))
+        console.invalid(str(error))
         status = error.exit_code
 
     except (KeyboardInterrupt, click.exceptions.Abort):
-        messages.aborted("Operation aborted.")
+        console.aborted("Operation aborted.")
         status = 130
 
     sys.exit(status)

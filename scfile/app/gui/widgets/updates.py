@@ -6,7 +6,7 @@ from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
-from scfile.enums import UpdateStatus
+from scfile.app.enums import UpdateStatus
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.workers import execute

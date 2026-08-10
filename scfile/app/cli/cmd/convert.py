@@ -2,11 +2,14 @@ import click
 
 from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.messages import TaskFeedback, warn_unsupported_features
-from scfile.app.tasks import Context
-from scfile.app.tasks.convert import Job
-from scfile.enums import CliCommand, FileFormat
+from scfile.app.cli.feedback import TaskFeedback
+from scfile.app.cli.console import warn
+from scfile.app.enums import CliCommand, OutputLayout
+from scfile.app.tasks import execute
+from scfile.app.tasks.convert import ConvertTask
+from scfile.enums import FileFormat
 from scfile.options import OnConflict, Options
+from scfile.registry import REGISTRY
 
 from . import scfile
 
@@ -22,23 +25,30 @@ from . import scfile
     "-O",
     "--output",
     help="Output results directory.",
-    type=params.Output,
+    type=params.OutputDir,
 )
 @click.option(
     "-F",
     "--mdlformat",
-    help="Preferred format for models.",
-    type=params.Formats,
+    "--model-format",
+    "model_format",
+    help="Preferred output format for models.",
+    type=params.ModelFormats,
 )
 @click.option(
-    "--relative",
-    help="Preserve directory structure from source in output.",
-    is_flag=True,
+    "-I",
+    "--include",
+    "formats",
+    help="Process only these source formats. May be repeated.",
+    type=params.InputFormats,
+    multiple=True,
 )
 @click.option(
-    "--parent",
-    help="Use parent directory as starting point in relative directory.",
-    is_flag=True,
+    "--layout",
+    type=params.Layouts,
+    default=OutputLayout.FLAT,
+    show_default=OutputLayout.FLAT.value,
+    help="Output layout: flat, relative to source, or with source root.",
 )
 @click.option(
     "--skeleton",
@@ -72,46 +82,46 @@ from . import scfile
 def convert_command(
     paths: types.FilesPaths,
     output: types.OutputPath,
-    mdlformat: FileFormat | None,
-    relative: bool,
-    parent: bool,
+    model_format: FileFormat | None,
+    formats: tuple[FileFormat, ...],
+    layout: OutputLayout,
     skeleton: bool,
     animation: bool,
     workers: int | None,
     on_conflict: OnConflict,
     verbose: bool,
 ) -> None:
-    # Normalize options
-    relative = relative or parent
-
-    if relative and not output:
-        raise click.UsageError("--relative and --parent require --output.")
+    if layout is not OutputLayout.FLAT and not output:
+        raise click.UsageError("Non-flat --layout requires --output.")
 
     # Prepare options
     options = Options(
-        model={
-            "skeleton": skeleton,
-            "animation": animation,
-        },
-        model_format=mdlformat,
+        model={"skeleton": skeleton, "animation": animation},
+        model_format=model_format,
         on_conflict=on_conflict,
     )
 
-    if mdlformat:
-        warn_unsupported_features((mdlformat,), options.model)
+    if model_format:
+        unsupported = tuple(
+            feature for feature in options.model.features if not REGISTRY.model_supports(model_format, feature)
+        )
+        if unsupported:
+            features = ", ".join(unsupported)
+            warn(
+                f"Requested model feature is not supported by {model_format.upper()}: {features}."
+            )
 
-    job = Job(
+    task = ConvertTask(
         sources=tuple(paths),
-        whitelist=(),
+        filters=tuple(REGISTRY.filters_for(*formats)),
         options=options,
         output=output,
-        relative=relative,
-        parent=parent,
+        layout=layout,
         workers=workers,
     )
     feedback = TaskFeedback(verbose)
-    summary = job.run(Context(report=feedback))
+    summary = execute(task, feedback)
     feedback.finish(summary)
 
-    if summary.failed:
+    if summary.work.failed:
         raise click.exceptions.Exit(1)

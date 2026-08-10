@@ -37,7 +37,8 @@ class MainWindow(QMainWindow):
         self._closing = False
         self.store = Store()
         self.settings = self.store.load()
-        self.tasks = workers.TaskManager(self, verbose=self.settings.verbose)
+        self.tasks = workers.TaskManager(self)
+        logs.report.set_verbose(self.settings.verbose)
         self.tasks.reported.connect(logs.report)
         self.tasks.busy_changed.connect(self._on_task_busy)
         self._build_ui()
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow):
 
         settings = SettingsTab(self.settings, self.store)
         settings.root_changed.connect(mapcache.apply_game_root)
-        settings.verbose_changed.connect(self.tasks.set_verbose)
+        settings.verbose_changed.connect(logs.report.set_verbose)
         self._add_tab(
             widget=settings,
             name=strings.get("tab.settings"),
