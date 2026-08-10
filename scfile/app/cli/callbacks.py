@@ -7,8 +7,8 @@ from scfile.app.cli import console
 from scfile.app.enums import UpdateStatus
 from scfile.enums import FileFormat
 from scfile.registry import REGISTRY
-from scfile.utils import updates
-from scfile.utils.versions import Version
+from scfile.app import updates
+from scfile.app.version import Version
 
 
 def version_callback(

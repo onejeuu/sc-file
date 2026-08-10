@@ -10,7 +10,7 @@ from typing import ClassVar
 from scfile import convert, exceptions, types
 from scfile.app.enums import OutputLayout, TaskKind
 from scfile.options import Options
-from scfile.utils import files
+from scfile.app import files
 
 from .events import TaskEvent, TaskFailure, TaskItem, TaskStarted
 from .execution import Task, TaskContext

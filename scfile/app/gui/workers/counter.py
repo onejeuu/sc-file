@@ -3,7 +3,7 @@ import traceback
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
 from scfile import types
-from scfile.utils import files
+from scfile.app import files
 
 from .logs import logger
 

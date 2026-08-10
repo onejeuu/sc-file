@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 from scfile import types
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
-from scfile.utils import files
+from scfile.app import files
 
 
 _ENV_STUB = "."

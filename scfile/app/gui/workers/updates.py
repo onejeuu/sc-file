@@ -4,7 +4,7 @@ from PySide6.QtCore import Signal
 
 from scfile import __version__ as SEMVER
 from scfile.app.enums import UpdateStatus
-from scfile.utils import updates
+from scfile.app import updates
 
 from .base import Worker
 

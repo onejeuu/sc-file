@@ -8,7 +8,7 @@ from scfile import __repository__ as REPO
 from scfile.app.enums import UpdateStatus as Status
 
 from . import files
-from .versions import Version
+from .version import Version
 
 
 TIMEOUT = 5

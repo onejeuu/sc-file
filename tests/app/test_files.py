@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scfile.utils.files import count, destination, resolve, walk
+from scfile.app.files import count, destination, resolve, walk
 
 
 def test_resolve(tmp_path: Path) -> None:

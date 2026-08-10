@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from scfile.app.gui.widgets.footer import FooterWidget
 from scfile.app.gui.widgets.task import TaskWidget
-from scfile.utils import files
+from scfile.app import files
 
 from . import workers
 from .settings import Store

@@ -4,7 +4,7 @@ from PySide6.QtGui import QDesktopServices, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from scfile.app.gui.shared.styles import Styles
-from scfile.utils import files
+from scfile.app import files
 
 
 class LinkWidget(QWidget):

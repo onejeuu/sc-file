@@ -11,7 +11,7 @@ from scfile.enums import FileFormat
 from scfile.exceptions import EmptyFileError
 from scfile.options import Options
 from scfile.registry import REGISTRY
-from scfile.utils.files import walk
+from scfile.app.files import walk
 from tools.cmd.audit import stats
 from tools.cmd.audit.config import Config
 from tools.cmd.audit.consts import DECODERS

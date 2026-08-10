@@ -11,8 +11,8 @@ from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.workers import execute
 from scfile.app.gui.workers.updates import UpdatesWorker
-from scfile.utils.updates import UpdateCheck
-from scfile.utils.versions import Version
+from scfile.app.updates import UpdateCheck
+from scfile.app.version import Version
 
 from .link import LinkWidget
 
