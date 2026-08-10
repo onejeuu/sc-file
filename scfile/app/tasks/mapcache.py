@@ -61,19 +61,18 @@ class MapCacheTask(Task):
         output = (self.output or self.source.with_name(f"{self.source.name}_mca")).resolve()
 
         paths = regions.resolve(self.source)
+        mapping = regions.parse(paths)
+        yield TaskStarted(self.kind, len(mapping), output)
+
         if not paths:
-            yield TaskStarted(self.kind, 0, output)
             yield TaskError(exceptions.RegionError("No MDAT files found.", location=str(self.source)))
             return
 
-        mapping = regions.parse(paths)
         if not mapping:
-            yield TaskStarted(self.kind, 0, output)
             yield TaskError(exceptions.RegionError("No valid regions found.", location=str(self.source)))
             return
 
         output.mkdir(parents=True, exist_ok=True)
-        yield TaskStarted(self.kind, len(mapping), output)
 
         operation = partial(self._merge, context=context)
         for result in parallel(mapping.items(), operation, context, self.workers):

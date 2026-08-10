@@ -1,8 +1,6 @@
-import sys
-from signal import SIGINT, signal
 from typing import override
 
-from PySide6.QtCore import QSize, QTimer
+from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon, Qt
 from PySide6.QtWidgets import (
     QApplication,
@@ -15,9 +13,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from scfile.app import files
 from scfile.app.gui.widgets.footer import FooterWidget
 from scfile.app.gui.widgets.task import TaskWidget
-from scfile.app import files
 
 from . import workers
 from .settings import Store
@@ -157,19 +155,3 @@ class MainWindow(QMainWindow):
 
         self._shutdown()
         event.accept()
-
-
-def run():
-    app = QApplication(sys.argv)
-    app.setStyle("Fusion")
-
-    window = MainWindow()
-    signal(SIGINT, lambda *_: QTimer.singleShot(0, window.close))
-
-    signal_timer = QTimer()
-    signal_timer.timeout.connect(lambda: None)
-    signal_timer.start(100)
-
-    window.show()
-
-    sys.exit(app.exec())

@@ -9,10 +9,24 @@ from scfile.enums import FileFormat
 from scfile.registry import RESOLVER
 
 
+ROOT_OPTIONS = frozenset(("--help", "--version", "--updates"))
+
+
 def resolve(
     args: list[str],
 ) -> list[str]:
-    """Resolve an omitted CLI command from arguments."""
+    """Resolve command-line arguments, inferring an omitted command."""
+
+    if ROOT_OPTIONS.intersection(args) or args[0] in CliCommand:
+        return args
+
+    return [*_default_command(args), *args]
+
+
+def _default_command(
+    args: list[str],
+) -> list[str]:
+    """Select the command path implied by source arguments."""
 
     if "map_cache" in args[0]:
         return [str(CliCommand.MAPCACHE)]

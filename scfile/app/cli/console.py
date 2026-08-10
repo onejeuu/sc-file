@@ -2,12 +2,20 @@
 
 from collections.abc import Iterable
 
-from rich.console import Console
+from rich.console import Console, RenderableType
 from rich.table import Table
 from rich.text import Text
 
 
 CONSOLE = Console()
+
+
+def print(
+    renderable: RenderableType,
+) -> None:
+    """Render terminal content."""
+
+    CONSOLE.print(renderable, highlight=False)
 
 
 def _message(

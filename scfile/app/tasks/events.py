@@ -8,7 +8,7 @@ from scfile.app.enums import TaskKind, TaskOutcome
 
 @dataclass(frozen=True, slots=True)
 class TaskStarted:
-    """Task run has started."""
+    """First event emitted by every task run."""
 
     kind: TaskKind
     total: int
@@ -35,7 +35,7 @@ class TaskFailure:
 
 @dataclass(frozen=True, slots=True)
 class TaskError:
-    """Failure that prevents a task from continuing."""
+    """Task-level failure outside an individual work item."""
 
     error: Exception
     traceback: str | None = None

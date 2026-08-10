@@ -9,10 +9,7 @@ from scfile.app.tasks import execute
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
-from . import scfile
-
-
-@scfile.command(name=CliCommand.MAPCACHE)
+@click.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",
     type=params.MapCacheDir,
@@ -43,7 +40,7 @@ from . import scfile
     is_flag=True,
     help="Show the result of every processed region.",
 )
-def mapcache_command(
+def mapcache(
     source: types.SourcePath,
     output: types.OutputPath,
     workers: int | None,

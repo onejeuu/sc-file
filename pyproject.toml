@@ -44,7 +44,7 @@ Repository = "https://github.com/onejeuu/sc-file"
 Documentation = "https://sc-file.readthedocs.io"
 
 [project.scripts]
-scfile = "scfile.__main__:main"
+scfile = "scfile.app.launcher:main"
 
 [tool.setuptools]
 packages = { find = { include = ["scfile", "scfile.*"] } }

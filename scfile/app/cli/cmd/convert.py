@@ -11,10 +11,7 @@ from scfile.enums import FileFormat
 from scfile.options import OnConflict, Options
 from scfile.registry import REGISTRY
 
-from . import scfile
-
-
-@scfile.command(name=CliCommand.CONVERT)
+@click.command(name=CliCommand.CONVERT)
 @click.argument(
     "PATHS",
     type=params.Files,
@@ -79,7 +76,7 @@ from . import scfile
     is_flag=True,
     help="Show the result of every processed file.",
 )
-def convert_command(
+def convert(
     paths: types.FilesPaths,
     output: types.OutputPath,
     model_format: FileFormat | None,
