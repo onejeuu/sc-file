@@ -3,9 +3,8 @@ from rich.console import Console
 from rich.markup import escape
 
 from scfile import exceptions
-from scfile.app.consts import CORRUPTED_INPUT_HINT
 from scfile.app.enums import TaskKind
-from scfile.app.tasks import TaskError, TaskFailure, TaskItem, TaskStarted
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted
 
 
 CONSOLE = Console()
@@ -65,18 +64,20 @@ class _Reporter:
             logger.result(label, event.detail or f"{event.source}{output}")
             return
 
-        if not isinstance(event, TaskFailure):
-            if not isinstance(event, TaskError):
-                return
+        if not isinstance(event, (TaskItemFailure, TaskError)):
+            return
 
         error = event.error
-        source = event.source if isinstance(event, TaskFailure) else None
+        source = event.source
         location = error.location if isinstance(error, exceptions.ScFileException) else source
-        message = f"'{location}': {error}"
+        prefix = f"'{location}': " if location else ""
+        message = f"{prefix}{error}"
 
         if isinstance(error, exceptions.BinaryStructureError):
-            logger.error(f"{message} {CORRUPTED_INPUT_HINT}")
+            logger.error(f"{message} {error.hint}")
         elif isinstance(error, exceptions.ScFileException):
+            logger.error(message)
+        elif isinstance(error, OSError):
             logger.error(message)
         else:
             logger.exception(f"'{source or 'Task'}': {error!r}")

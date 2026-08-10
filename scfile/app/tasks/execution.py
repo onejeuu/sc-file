@@ -8,8 +8,7 @@ from threading import Event as CancelEvent
 from typing import ClassVar
 
 from scfile.app.enums import TaskKind
-
-from .events import TaskError, TaskEvent, TaskSummary
+from scfile.app.events import TaskError, TaskEvent, TaskSummary
 
 
 type Reporter = Callable[[TaskEvent], None]
@@ -62,7 +61,7 @@ def execute(
             report(event)
 
     except Exception as error:
-        event = TaskError(error, traceback.format_exc())
+        event = TaskError(error, traceback=traceback.format_exc())
         summary.add(event)
         report(event)
 

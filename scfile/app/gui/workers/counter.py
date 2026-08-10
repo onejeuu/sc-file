@@ -1,8 +1,8 @@
 import traceback
+from collections.abc import Iterable
 
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
-from scfile import types
 from scfile.app import files
 
 from .logs import logger
@@ -38,7 +38,7 @@ class CounterTask(QObject):
             return self._abort
 
     @Slot(int, list, tuple)
-    def count(self, request_id: int, sources: list[str], filters: types.FilesFilters):
+    def count(self, request_id: int, sources: list[str], filters: Iterable[str]):
         if not self._begin(request_id):
             return
 
@@ -94,7 +94,7 @@ class CounterWorker(QObject):
     def busy(self) -> bool:
         return self._busy
 
-    def refresh(self, sources: list[str], filters: types.FilesFilters):
+    def refresh(self, sources: list[str], filters: Iterable[str]):
         self._request_id += 1
 
         self._task.cancel(self._request_id)

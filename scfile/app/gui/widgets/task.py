@@ -4,10 +4,10 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QSizePolicy, QWidget
 
 from scfile.app.enums import TaskKind
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.gui.shared import strings
 from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app.gui.workers import TaskManager
-from scfile.app.tasks import TaskError, TaskFailure, TaskItem, TaskStarted, TaskSummary
 
 
 class TaskWidget(QWidget):
@@ -80,10 +80,10 @@ class TaskWidget(QWidget):
             self._on_started(event)
             return
 
-        if not isinstance(event, (TaskItem, TaskFailure, TaskError)):
+        if not isinstance(event, (TaskItem, TaskItemFailure, TaskError)):
             return
 
-        if isinstance(event, (TaskItem, TaskFailure)):
+        if isinstance(event, (TaskItem, TaskItemFailure)):
             self._completed += 1
         if self._total is None:
             self.progress.setRange(0, 0)

@@ -2,10 +2,20 @@
 
 import os
 import sys
+from collections.abc import Iterable, Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 from scfile import types
+from scfile.app.events import TaskError
 from scfile.registry import REGISTRY
+
+
+class FileEntry(NamedTuple):
+    """File discovered during a directory scan."""
+
+    root: str
+    path: str
 
 
 def resource(
@@ -18,75 +28,86 @@ def resource(
     if meipass:
         return Path(meipass) / path
 
-    root = Path(__file__).parent.parent.absolute()
-    gui = root / "app/gui"
+    app = Path(__file__).parent.absolute()
+    gui = app / "gui"
 
     return gui / path
 
 
 def resolve(
-    sources: types.FilesSources,
-) -> types.FilesPaths:
+    sources: Iterable[types.SourceLike],
+) -> list[Path]:
     """Normalize paths into a clean minimal set."""
 
-    paths = {path.resolve() for source in sources if (path := Path(source)).exists()}
+    paths = {Path(source).resolve(strict=False) for source in sources}
     return sorted(path for path in paths if not any(parent in paths for parent in path.parents))
 
 
-def walk(
-    sources: types.FilesSources,
-    filters: types.FilesFilters | None = None,
-) -> types.FilesWalk:
-    """Walk through files in given sources, optionally filtering by name."""
+def scan(
+    sources: Iterable[types.SourceLike],
+    filters: Iterable[str] | None = None,
+) -> Iterator[FileEntry | TaskError]:
+    """Discover matching files and traversal errors."""
 
-    paths = resolve(sources)
-    paths = list(map(str, paths))
     selected = filters or REGISTRY.supported_inputs
     allowed = tuple(value.lower() for value in selected)
     suffixes = tuple(value for value in allowed if value.startswith("."))
     names = {value for value in allowed if not value.startswith(".")}
 
-    for root in paths:
+    for path in resolve(sources):
+        root = str(path)
+
         if os.path.isfile(root):
             name = os.path.basename(root).lower()
             if name in names or name.endswith(suffixes):
-                yield types.FileEntry(
-                    root=root,
-                    path=root,
-                )
+                yield FileEntry(root, root)
             continue
 
         stack = [root]
         while stack:
             current = stack.pop()
             try:
-                with os.scandir(current) as it:
-                    for entry in it:
-                        if entry.is_symlink() or entry.is_junction():
+                with os.scandir(current) as entries:
+                    for entry in entries:
+                        try:
+                            if entry.is_symlink() or entry.is_junction():
+                                continue
+                            if entry.is_dir():
+                                stack.append(entry.path)
+                                continue
+                            if not entry.is_file():
+                                continue
+
+                        except OSError as error:
+                            yield TaskError(error, source=entry.path)
                             continue
 
-                        if entry.is_dir():
-                            stack.append(entry.path)
+                        name = entry.name.lower()
+                        if name in names or name.endswith(suffixes):
+                            yield FileEntry(root, entry.path)
 
-                        elif entry.is_file():
-                            name = entry.name.lower()
-                            if name in names or name.endswith(suffixes):
-                                yield types.FileEntry(
-                                    root=root,
-                                    path=entry.path,
-                                )
+            except OSError as error:
+                yield TaskError(error, source=current)
 
-            except PermissionError:
-                continue
+
+def walk(
+    sources: Iterable[types.SourceLike],
+    filters: Iterable[str] | None = None,
+) -> Iterator[FileEntry]:
+    """Walk through matching readable files."""
+
+    for item in scan(sources, filters):
+        if isinstance(item, FileEntry):
+            yield item
 
 
 def count(
-    sources: types.FilesSources,
-    filters: types.FilesFilters | None = None,
+    sources: Iterable[types.SourceLike],
+    filters: Iterable[str] | None = None,
 ) -> int:
     """Count matching files without retaining them."""
 
-    return sum(1 for _ in walk(sources, filters))
+    return sum(isinstance(item, FileEntry) for item in scan(sources, filters))
 
 
 def destination(

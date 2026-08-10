@@ -8,11 +8,11 @@ from pathlib import Path
 from typing import ClassVar
 
 from scfile import convert, exceptions, types
-from scfile.app.enums import OutputLayout, TaskKind
-from scfile.options import Options
 from scfile.app import files
+from scfile.app.enums import OutputLayout, TaskKind
+from scfile.app.events import TaskEvent, TaskItem, TaskItemFailure, TaskStarted
+from scfile.options import Options
 
-from .events import TaskEvent, TaskFailure, TaskItem, TaskStarted
 from .execution import Task, TaskContext
 from .parallel import parallel
 
@@ -31,7 +31,7 @@ class ConvertTask(Task):
     total: int | None = None
     workers: int | None = None
 
-    def _convert(self, entry: types.FileEntry) -> TaskItem | TaskFailure:
+    def _convert(self, entry: files.FileEntry) -> TaskItem | TaskItemFailure:
         output = str(self.output) if self.output else None
         match self.layout:
             case OutputLayout.FLAT:
@@ -48,10 +48,10 @@ class ConvertTask(Task):
             return TaskItem(entry.path, result)
 
         except exceptions.ScFileException as error:
-            return TaskFailure(entry.path, error)
+            return TaskItemFailure(entry.path, error)
 
         except Exception as error:
-            return TaskFailure(entry.path, error, traceback.format_exc())
+            return TaskItemFailure(entry.path, error, traceback.format_exc())
 
     def run(
         self,
@@ -63,5 +63,5 @@ class ConvertTask(Task):
         total = self.total if self.total is not None else files.count(self.sources, self.filters)
         yield TaskStarted(self.kind, total, output)
 
-        entries = files.walk(self.sources, filters=self.filters)
+        entries = files.scan(self.sources, filters=self.filters)
         yield from parallel(entries, self._convert, context, self.workers)

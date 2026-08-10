@@ -14,9 +14,8 @@ from rich.progress import (
 from rich.text import Text
 
 from scfile import exceptions
-from scfile.app.consts import CORRUPTED_INPUT_HINT
 from scfile.app.enums import TaskKind, TaskOutcome
-from scfile.app.tasks import TaskError, TaskFailure, TaskItem, TaskStarted, TaskSummary
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 
 from .console import CONSOLE, error, unexpected
 
@@ -62,13 +61,13 @@ class TaskFeedback:
                 if self.verbose:
                     self._separate()
                     self._item(event)
-            case TaskFailure():
+            case TaskItemFailure():
                 self._advance()
                 self._separate()
                 self._error(event.error, event.source, event.traceback)
             case TaskError():
                 self._separate()
-                self._error(event.error, None, event.traceback)
+                self._error(event.error, event.source, event.traceback)
 
     def _start(self, event: TaskStarted) -> None:
         self.kind = event.kind
@@ -125,8 +124,10 @@ class TaskFeedback:
 
         match exception:
             case exceptions.BinaryStructureError():
-                error(f"{prefix}{exception} {CORRUPTED_INPUT_HINT}")
+                error(f"{prefix}{exception} {exception.hint}")
             case exceptions.ScFileException():
+                error(f"{prefix}{exception}")
+            case OSError():
                 error(f"{prefix}{exception}")
             case _:
                 unexpected(f"Unexpected error in {source or 'task'}: {exception!r}.")

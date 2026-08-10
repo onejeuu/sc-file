@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import click
 
 from scfile import types
@@ -77,7 +79,7 @@ from scfile.registry import REGISTRY
     help="Show the result of every processed file.",
 )
 def convert(
-    paths: types.FilesPaths,
+    paths: tuple[Path, ...],
     output: types.OutputPath,
     model_format: FileFormat | None,
     formats: tuple[FileFormat, ...],

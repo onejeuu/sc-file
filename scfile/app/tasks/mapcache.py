@@ -9,10 +9,10 @@ from typing import ClassVar
 
 from scfile import exceptions
 from scfile.app.enums import TaskKind
+from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
 from scfile.options import Options
 from scfile.utils import regions
 
-from .events import TaskError, TaskEvent, TaskFailure, TaskItem, TaskStarted
 from .execution import Task, TaskContext
 from .parallel import parallel
 
@@ -31,7 +31,7 @@ class MapCacheTask(Task):
     options: Options
     workers: int | None = None
 
-    def _merge(self, region: Region, context: TaskContext) -> TaskItem | TaskFailure | None:
+    def _merge(self, region: Region, context: TaskContext) -> TaskItem | TaskItemFailure | None:
         key, paths = region
         output = self.output or self.source.with_name(f"{self.source.name}_mca")
 
@@ -47,10 +47,10 @@ class MapCacheTask(Task):
             return None
 
         except exceptions.ScFileException as error:
-            return TaskFailure(str(error.location or key), error)
+            return TaskItemFailure(str(error.location or key), error)
 
         except Exception as error:
-            return TaskFailure(f"Region {key}", error, traceback.format_exc())
+            return TaskItemFailure(f"Region {key}", error, traceback.format_exc())
 
     def run(
         self,

@@ -10,9 +10,9 @@ from scfile.app.tasks import execute
 from scfile.app.tasks.animate import AnimateTask
 from scfile.enums import FileFormat
 
+
 @click.group(name=CliCommand.ANIMATE)
-def animate() -> None:
-    """Export models with external animations."""
+def animate() -> None: ...
 
 
 def _execute(

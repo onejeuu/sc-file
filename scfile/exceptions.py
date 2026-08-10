@@ -179,6 +179,8 @@ class SignatureMismatchError(DecodingError):
 class BinaryStructureError(DecodingError):
     """Raised when binary data does not match the expected structure."""
 
+    hint: ClassVar[str] = "Input file appears to be corrupted or invalid."
+
     def __init__(
         self,
         *,

@@ -8,9 +8,9 @@ from typing import ClassVar
 
 from scfile import exceptions, types
 from scfile.app.enums import TaskKind
+from scfile.app.events import TaskEvent, TaskItem, TaskItemFailure, TaskStarted
 from scfile.options import Options
 
-from .events import TaskEvent, TaskFailure, TaskItem, TaskStarted
 from .execution import Task, TaskContext
 
 
@@ -46,7 +46,7 @@ class AnimateTask(Task):
             yield TaskItem(src, result)
 
         except exceptions.ScFileException as error:
-            yield TaskFailure(src, error)
+            yield TaskItemFailure(src, error)
 
         except Exception as error:
-            yield TaskFailure(src, error, traceback.format_exc())
+            yield TaskItemFailure(src, error, traceback.format_exc())

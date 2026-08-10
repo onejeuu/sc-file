@@ -25,8 +25,8 @@ class TaskItem:
 
 
 @dataclass(frozen=True, slots=True)
-class TaskFailure:
-    """Failure of one source item."""
+class TaskItemFailure:
+    """Failure of one scheduled source item."""
 
     source: str
     error: Exception
@@ -35,13 +35,14 @@ class TaskFailure:
 
 @dataclass(frozen=True, slots=True)
 class TaskError:
-    """Task-level failure outside an individual work item."""
+    """Failure outside a scheduled source item."""
 
     error: Exception
+    source: str | None = None
     traceback: str | None = None
 
 
-type TaskEvent = TaskStarted | TaskItem | TaskFailure | TaskError
+type TaskEvent = TaskStarted | TaskItem | TaskItemFailure | TaskError
 
 
 @dataclass(slots=True)
@@ -106,7 +107,7 @@ class TaskSummary:
                 self.work.completed += 1
                 self.files.written += 1
 
-            case TaskFailure():
+            case TaskItemFailure():
                 self.work.completed += 1
                 self.work.failed += 1
 

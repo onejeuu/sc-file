@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from scfile.app.files import count, destination, resolve, walk
+from scfile.app.events import TaskError
+from scfile.app.files import count, destination, resolve, scan, walk
 
 
 def test_resolve(tmp_path: Path) -> None:
@@ -11,7 +12,7 @@ def test_resolve(tmp_path: Path) -> None:
     source.write_bytes(b"")
 
     assert resolve([source, parent, source]) == [parent.resolve()]
-    assert resolve([tmp_path / "missing"]) == []
+    assert resolve([tmp_path / "missing"]) == [tmp_path / "missing"]
 
 
 def test_resolve_many_files(tmp_path: Path) -> None:
@@ -33,6 +34,27 @@ def test_walk(tmp_path: Path) -> None:
 
     assert {Path(entry.path).name for entry in entries} == {"model.mcsb", "image.mic"}
     assert {Path(entry.root) for entry in entries} == {tmp_path}
+
+
+def test_scan_missing_source(tmp_path: Path) -> None:
+    (issue,) = scan([tmp_path / "missing"])
+
+    assert isinstance(issue, TaskError)
+    assert isinstance(issue.error, FileNotFoundError)
+
+
+def test_scan_access_error(tmp_path: Path, monkeypatch) -> None:
+    source = tmp_path / "denied"
+
+    def denied(path: str):
+        raise PermissionError(13, "Access is denied", path)
+
+    monkeypatch.setattr("scfile.app.files.os.scandir", denied)
+    (issue,) = scan([source])
+
+    assert isinstance(issue, TaskError)
+    assert issue.source == str(source)
+    assert isinstance(issue.error, PermissionError)
 
 
 def test_file_root(tmp_path: Path) -> None:

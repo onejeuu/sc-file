@@ -3,16 +3,8 @@ from pathlib import Path
 from typing import ClassVar
 
 from scfile.app.enums import OutputLayout, TaskKind, TaskOutcome
-from scfile.app.tasks import (
-    Task,
-    TaskContext,
-    TaskError,
-    TaskEvent,
-    TaskFailure,
-    TaskItem,
-    TaskStarted,
-    execute,
-)
+from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
+from scfile.app.tasks import Task, TaskContext, execute
 from scfile.app.tasks.convert import ConvertTask
 from scfile.options import Options
 
@@ -25,7 +17,7 @@ class SampleTask(Task):
         yield TaskStarted(self.kind, 3, output)
         yield TaskItem("written", output / "written.obj")
         yield TaskItem("skipped")
-        yield TaskFailure("broken", ValueError("broken"))
+        yield TaskItemFailure("broken", ValueError("broken"))
 
 
 class BrokenTask(Task):
@@ -81,6 +73,20 @@ def test_convert_task(tmp_path: Path) -> None:
     assert summary.work.completed == 1
     assert summary.files.written == 1
     assert (tmp_path / "document.json").exists()
+
+
+def test_convert_task_reports_missing_source(tmp_path: Path) -> None:
+    events: list[TaskEvent] = []
+    task = ConvertTask((tmp_path / "missing",), (), Options(), workers=2)
+
+    summary = execute(task, events.append)
+
+    assert isinstance(events[0], TaskStarted)
+    assert events[0].total == 0
+    assert isinstance(events[1], TaskError)
+    assert events[1].source == str((tmp_path / "missing").resolve())
+    assert summary.work.failed == 1
+    assert summary.outcome is TaskOutcome.FAILED
 
 
 def test_relative_layout(tmp_path: Path) -> None:

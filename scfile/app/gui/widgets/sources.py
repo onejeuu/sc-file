@@ -1,4 +1,5 @@
 import os
+from collections.abc import Iterable
 from pathlib import Path
 from typing import override
 
@@ -65,7 +66,7 @@ class SourcesWidget(QListWidget):
         self._placeholder_icon = self._prepare_placeholder_icon()
         self._placeholder_text = strings.get("converter.hint")
 
-    def add_sources(self, sources: types.FilesSources):
+    def add_sources(self, sources: Iterable[types.SourceLike]):
         for source in sources:
             if not source:
                 continue
