@@ -1,11 +1,8 @@
-from collections.abc import Callable
+from collections.abc import Iterable
 
 from PySide6.QtWidgets import QLabel
 
-from scfile.app.gui.shared.styles import Styles
-
-
-type Validator = Callable[[], str | None]
+from scfile.app.gui.styles import Styles
 
 
 class WarningsWidget(QLabel):
@@ -15,23 +12,11 @@ class WarningsWidget(QLabel):
         self.setWordWrap(True)
         self.hide()
 
-        self._rules: list[Validator] = []
-
-    def add_rule(self, rule: Validator):
-        self._rules.append(rule)
-
-    def update_state(self):
-        active_warns = []
-        for rule in self._rules:
-            if error := rule():
-                active_warns.append(error)
-
-        self.display(active_warns)
-
-    def display(self, warnings: list[str]):
+    def set_messages(self, warnings: Iterable[str]) -> None:
+        warnings = tuple(warnings)
         if not warnings:
             self.hide()
             return
 
-        self.setText("\n".join([f"⚠️ {w}" for w in warnings]))
+        self.setText("\n".join(f"⚠️ {warning}" for warning in warnings))
         self.show()

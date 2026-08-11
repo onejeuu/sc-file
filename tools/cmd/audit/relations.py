@@ -83,7 +83,7 @@ def _arms(relations: Relations, root: Path) -> Iterator[Result]:
     for animation in relations.arms:
         try:
             data = _decode(animation, McvdDecoder)
-            transforms.apply_animation(data.scene, hands.scene)
+            transforms.apply_fp_animation(data.scene, hands.scene)
             yield Result(ARMS)
         except Exception as error:
             yield Result(ARMS, _error(animation, root, error))

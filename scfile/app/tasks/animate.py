@@ -1,5 +1,3 @@
-"""External animation export task."""
-
 import traceback
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
@@ -19,8 +17,6 @@ type Operation = Callable[..., types.ResultPath]
 
 @dataclass(frozen=True, slots=True)
 class AnimateTask(Task):
-    """Apply external animation data to models."""
-
     kind: ClassVar[TaskKind] = TaskKind.ANIMATE
 
     operation: Operation
@@ -33,8 +29,6 @@ class AnimateTask(Task):
         self,
         context: TaskContext,
     ) -> Iterator[TaskEvent]:
-        """Yield the external animation export result."""
-
         output = self.output.resolve()
         yield TaskStarted(self.kind, 1, output)
         if context.stopped:

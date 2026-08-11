@@ -4,8 +4,8 @@ import click
 
 from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.feedback import TaskFeedback
 from scfile.app.cli.console import warn
+from scfile.app.cli.feedback import TaskFeedback
 from scfile.app.enums import CliCommand, OutputLayout
 from scfile.app.tasks import execute
 from scfile.app.tasks.convert import ConvertTask
@@ -13,6 +13,8 @@ from scfile.enums import FileFormat
 from scfile.options import OnConflict, Options
 from scfile.registry import REGISTRY
 
+
+# TODO: docstring
 @click.command(name=CliCommand.CONVERT)
 @click.argument(
     "PATHS",
@@ -106,9 +108,7 @@ def convert(
         )
         if unsupported:
             features = ", ".join(unsupported)
-            warn(
-                f"Requested model feature is not supported by {model_format.upper()}: {features}."
-            )
+            warn(f"Requested model feature is not supported by {model_format.upper()}: {features}.")
 
     task = ConvertTask(
         sources=tuple(paths),

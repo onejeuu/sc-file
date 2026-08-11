@@ -1,14 +1,12 @@
-"""Click callbacks for global command options."""
-
 import click
 
 from scfile import __version__ as SEMVER
+from scfile.app import updates
 from scfile.app.cli import console
 from scfile.app.enums import UpdateStatus
+from scfile.app.version import Version
 from scfile.enums import FileFormat
 from scfile.registry import REGISTRY
-from scfile.app import updates
-from scfile.app.version import Version
 
 
 def version_callback(

@@ -3,11 +3,11 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.app.gui import game
+from scfile.app import game
+from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.workers import TaskManager
-from scfile.app.gui.shared import strings
-from scfile.app.gui.shared.styles import Styles
+from scfile.app.gui.styles import Styles
+from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
@@ -15,197 +15,148 @@ from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
 
-def is_minecraft(path: Path) -> bool:
-    return (path / "level.dat").exists()
-
-
-def resolve_output_path(path: Path) -> Path:
-    if path.name == "region" and (path.parent / "level.dat").exists():
-        return path
-
-    if (path / "level.dat").exists():
-        return path / "region"
-
-    return path
-
-
 class MapCacheTab(QWidget):
     def __init__(self, tasks: TaskManager, settings: Settings):
         super().__init__()
         self.tasks = tasks
         self.settings = settings
-        self._active = False
-
-        self._setup_warnings()
-        self.tasks.completed.connect(self._on_merge_finish)
-        self.tasks.busy_changed.connect(self._sync_ui)
         self._build_ui()
 
-    def _setup_warnings(self):
-        self.warnings = WarningsWidget()
-        self.warnings.add_rule(self._warn_not_minecraft_world)
-        self.warnings.add_rule(self._warn_overwrite)
+        self.tasks.busy_changed.connect(self._sync)
+        self._sync()
 
-    def _game_map_cache(self) -> Path | None:
-        installation = game.resolve(self.settings.game_root or Path.home())
-        if installation and game.is_map_cache(installation.map_cache):
-            return installation.map_cache
-        return None
-
-    def _warn_not_minecraft_world(self):
-        if not bool(self.output.text().strip()):
-            return
-
-        output = Path(self.output.text())
-        is_region = output.name == "region"
-        has_level = is_minecraft(output.parent) if is_region else is_minecraft(output)
-
-        if not (is_region and has_level):
-            return strings.get("warning.mapcache.invalid_world")
-
-    def _warn_overwrite(self):
-        if not bool(self.output.text().strip()):
-            return
-
-        output = Path(self.output.text())
-        is_region = output.name == "region"
-
-        if output.exists() and any(output.glob("*.mca")):
-            world_name = output.parent.name if is_region else output.name
-            return strings.get("warning.mapcache.overwrite").format(world=world_name)
-
-    def _build_ui(self):
+    def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(10)
 
         source_label = QLabel(strings.get("label.mapcache.source"))
         source_label.setStyleSheet(Styles.LABEL)
-
         self.source = PathInputWidget(
             placeholder="stalcraft/map_cache/5.0",
             caption=strings.get("dialog.mapcache.source"),
         )
+        self.source.changed.connect(self._source_changed)
 
-        if path := self._game_map_cache():
-            self.source.setText(path.as_posix())
-
-        self.source.changed.connect(self._on_source_changed)
+        if source := self._game_cache():
+            self.source.value = source.as_posix()
 
         output_label = QLabel(strings.get("label.mapcache.output"))
         output_label.setStyleSheet(Styles.LABEL)
-
         self.output = PathInputWidget(
             placeholder=".minecraft/saves/{world}/regions",
             caption=strings.get("dialog.mapcache.output"),
         )
-        self.output.changed.connect(self._on_output_changed)
+        self.output.changed.connect(self._output_changed)
+
+        self.raw_blocks = OptionWidget(
+            text=strings.get("option.mapcache.raw"),
+            hint=strings.get("hint.mapcache.raw"),
+        )
 
         layout.addWidget(source_label)
         layout.addWidget(self.source)
         layout.addWidget(output_label)
         layout.addWidget(self.output)
         layout.addSpacing(10)
-        layout.addWidget(self._build_options())
+        layout.addWidget(self.raw_blocks)
         layout.addStretch()
+
+        self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
-        self.info = QLabel(strings.get("mapcache.info"))
-        self.info.setStyleSheet(Styles.MAPCACHE)
-        self.info.setWordWrap(True)
-        layout.addWidget(self.info)
+        info = QLabel(strings.get("mapcache.info"))
+        info.setStyleSheet(Styles.MAPCACHE)
+        info.setWordWrap(True)
+        layout.addWidget(info)
 
-        self.merge = QPushButton(strings.get("button.mapcache"))
-        self.merge.setFixedHeight(50)
-        self.merge.setStyleSheet(Styles.BUTTON_ACCENT)
-        self.merge.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.merge.setEnabled(False)
-        self.merge.clicked.connect(self._merge)
-        layout.addWidget(self.merge)
-
-        self._sync_ui()
-
-    def _build_options(self):
-        group = QWidget()
-        layout = QVBoxLayout(group)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
-
-        self.raw_blocks = OptionWidget(
-            text=strings.get("option.mapcache.raw"),
-            hint=strings.get("hint.mapcache.raw"),
-            checked=False,
-        )
-
-        layout.addWidget(self.raw_blocks)
-
-        return group
-
-    def _merge(self):
-        source = Path(self.source.text().strip())
-        output = Path(self.output.text().strip())
-        options = Options(region={"raw_blocks": self.raw_blocks.isChecked()})
-
-        self._active = True
-        if not self.tasks.start(MapCacheTask(source, output, options)):
-            self._active = False
-        self._sync_ui()
-
-    def _on_merge_finish(self, _: object) -> None:
-        if not self._active:
-            return
-
-        self._active = False
-        self.merge.setText(strings.get("button.mapcache"))
-        self._sync_ui()
-
-    def _on_source_changed(self):
-        path = Path(self.source.text().strip())
-
-        if self.settings.resolve_paths and path.exists():
-            resolved = game.resolve_map_cache(path)
-
-            if resolved.as_posix() != path.as_posix():
-                self.source.setText(resolved.as_posix())
-
-        self._sync_ui()
-
-    def _on_output_changed(self):
-        path = Path(self.output.text().strip())
-
-        if self.settings.resolve_paths and path.exists():
-            resolved = resolve_output_path(path)
-
-            if resolved.as_posix() != path.as_posix():
-                self.output.setText(resolved.as_posix())
-
-        self._sync_ui()
+        self.submit = QPushButton(strings.get("button.mapcache"))
+        self.submit.setFixedHeight(50)
+        self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
+        self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.submit.clicked.connect(self._start_merge)
+        layout.addWidget(self.submit)
 
     def apply_game_root(self) -> None:
-        """Use map cache data derived from the configured game root."""
+        if source := self._game_cache():
+            self.source.value = source.as_posix()
+        self._sync()
 
-        if path := self._game_map_cache():
-            self.source.setText(path.as_posix())
-            self._sync_ui()
-
-    def _sync_ui(self):
-        self.warnings.update_state()
-
-        source = self.source.text().strip()
-        output = self.output.text().strip()
-
-        source_ok = bool(source) and game.is_map_cache(Path(source))
-        output_ok = bool(output) and not Path(output).is_file()
-        is_okay = source_ok and output_ok and not self.tasks.busy
-
-        if self.tasks.busy:
-            tooltip = "tooltip.task.busy"
+    def apply_path_resolution(self) -> None:
+        if self.settings.resolve_paths:
+            self._source_changed(self.source.value)
+            self._output_changed(self.output.value)
         else:
-            tooltip = {
-                output_ok: "tooltip.mapcache.invalid.output",
-                source_ok: "tooltip.mapcache.invalid.source",
-            }.get(False, "")
+            self._sync()
 
-        self.merge.setEnabled(is_okay)
-        self.merge.setToolTip(strings.get(tooltip))
-        self.merge.setCursor(Qt.CursorShape.PointingHandCursor if is_okay else Qt.CursorShape.ForbiddenCursor)
+    def _game_cache(self) -> Path | None:
+        installation = game.resolve(self.settings.game_root or Path.home())
+        if installation and game.is_map_cache(installation.map_cache):
+            return installation.map_cache
+        return None
+
+    def _source_changed(self, _: str) -> None:
+        source = Path(self.source.value.strip())
+        if self.settings.resolve_paths and source.exists():
+            resolved = game.resolve_map_cache(source)
+            if resolved != source:
+                self.source.value = resolved.as_posix()
+        self._sync()
+
+    def _output_changed(self, _: str) -> None:
+        output = Path(self.output.value.strip())
+        if self.settings.resolve_paths and output.exists():
+            resolved = game.resolve_minecraft_regions(output)
+            if resolved != output:
+                self.output.value = resolved.as_posix()
+        self._sync()
+
+    def _warnings(self) -> list[str]:
+        output_value = self.output.value.strip()
+        if not output_value:
+            return []
+
+        output = Path(output_value)
+        is_regions = output.name == "region"
+        valid_world = is_regions and game.is_minecraft_world(output.parent)
+        has_regions = output.exists() and any(output.glob("*.mca"))
+        world = output.parent.name if is_regions else output.name
+
+        return [
+            message
+            for condition, message in (
+                (not valid_world, strings.get("warning.mapcache.invalid_world")),
+                (has_regions, strings.get("warning.mapcache.overwrite").format(world=world)),
+            )
+            if condition
+        ]
+
+    def _submit_error(self) -> str | None:
+        source_value = self.source.value.strip()
+        output_value = self.output.value.strip()
+        source = Path(source_value)
+        output = Path(output_value)
+        errors = (
+            "tooltip.task.busy" if self.tasks.busy else None,
+            "tooltip.mapcache.invalid.source" if not source_value or not game.is_map_cache(source) else None,
+            "tooltip.mapcache.invalid.output" if not output_value or output.is_file() else None,
+        )
+        return next((error for error in errors if error), None)
+
+    def _sync(self) -> None:
+        self.warnings.set_messages(self._warnings())
+
+        error = self._submit_error()
+        self.submit.setEnabled(error is None)
+        self.submit.setToolTip(strings.get(error or ""))
+        cursor = Qt.CursorShape.PointingHandCursor if error is None else Qt.CursorShape.ForbiddenCursor
+        self.submit.setCursor(cursor)
+
+    def _start_merge(self) -> None:
+        task = MapCacheTask(
+            Path(self.source.value.strip()),
+            Path(self.output.value.strip()),
+            Options(region={"raw_blocks": self.raw_blocks.checked}),
+        )
+        self.tasks.start(task)
+        self._sync()

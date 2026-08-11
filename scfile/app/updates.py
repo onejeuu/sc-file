@@ -1,17 +1,13 @@
-"""Application updates checking."""
-
 import json
 import urllib.request
 from typing import Any, NamedTuple
 
 from scfile import __repository__ as REPO
+from scfile.app.consts import UPDATE_CHECK_TIMEOUT_SECS
 from scfile.app.enums import UpdateStatus as Status
 
 from . import files
 from .version import Version
-
-
-TIMEOUT = 5
 
 
 class UpdateCheck(NamedTuple):
@@ -20,16 +16,17 @@ class UpdateCheck(NamedTuple):
     url: str
 
 
-def _fetch(url: str) -> dict[str, Any] | None:
-    headers = {"User-Agent": f"{REPO}", "Cache-Control": "no-cache"}
+def check(semver: str) -> UpdateCheck:
+    """Check GitHub for a newer version."""
 
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
-            return json.loads(response.read().decode())
+    v = Version.parse(semver)
+    if not v:
+        return UpdateCheck(Status.ERROR, f"invalid version format '{semver}'", "")
 
-    except Exception:
-        return None
+    if v.is_dev:
+        return _check_dev(v)
+
+    return _check_release(v)
 
 
 def current() -> str | None:
@@ -44,6 +41,18 @@ def current() -> str | None:
         pass
 
     return None
+
+
+def _fetch(url: str) -> dict[str, Any] | None:
+    headers = {"User-Agent": f"{REPO}", "Cache-Control": "no-cache"}
+
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=UPDATE_CHECK_TIMEOUT_SECS) as response:
+            return json.loads(response.read().decode())
+
+    except Exception:
+        return None
 
 
 def _check_dev(v: Version) -> UpdateCheck:
@@ -77,16 +86,3 @@ def _check_release(v: Version) -> UpdateCheck:
         return UpdateCheck(Status.AVAILABLE, "", f"https://github.com/{REPO}/releases/tag/{tag}")
 
     return UpdateCheck(Status.UPTODATE, "", "")
-
-
-def check(semver: str) -> UpdateCheck:
-    """Check GitHub for a newer version."""
-
-    v = Version.parse(semver)
-    if not v:
-        return UpdateCheck(Status.ERROR, f"invalid version format '{semver}'", "")
-
-    if v.is_dev:
-        return _check_dev(v)
-
-    return _check_release(v)

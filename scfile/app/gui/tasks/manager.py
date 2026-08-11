@@ -1,13 +1,9 @@
-"""Qt adapter for application tasks."""
-
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 
 from scfile.app.tasks import Task, TaskContext, execute
 
 
-class TaskWorker(QObject):
-    """Run an application task in a Qt thread."""
-
+class _TaskWorker(QObject):
     reported = Signal(object)
     completed = Signal(object)
     finished = Signal()
@@ -23,44 +19,37 @@ class TaskWorker(QObject):
         self.completed.emit(summary)
         self.finished.emit()
 
-    def stop(self) -> None:
+    def cancel(self) -> None:
         self.context.stop()
 
 
 class TaskManager(QObject):
-    """Own the single active heavy GUI task."""
-
     reported = Signal(object)
     completed = Signal(object)
     busy_changed = Signal(bool)
 
     def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
-        self._worker: TaskWorker | None = None
+        self._worker: _TaskWorker | None = None
         self._thread: QThread | None = None
 
     @property
     def busy(self) -> bool:
         return self._thread is not None
 
-    def start(
-        self,
-        task: Task,
-    ) -> bool:
-        """Start a task unless another heavy task is active."""
-
+    def start(self, task: Task) -> bool:
         if self.busy:
             return False
 
         thread = QThread(self)
-        worker = TaskWorker(task)
+        worker = _TaskWorker(task)
         worker.moveToThread(thread)
 
         worker.reported.connect(self.reported.emit)
         worker.completed.connect(self.completed.emit)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(self._release)
+        thread.finished.connect(self._clear_active_task)
         thread.finished.connect(thread.deleteLater)
         thread.started.connect(worker.run)
 
@@ -70,17 +59,12 @@ class TaskManager(QObject):
         thread.start()
         return True
 
+    def cancel(self) -> None:
+        if self._worker is not None:
+            self._worker.cancel()
+
     @Slot()
-    def _release(self) -> None:
+    def _clear_active_task(self) -> None:
         self._worker = None
         self._thread = None
         self.busy_changed.emit(False)
-
-    def cancel(self) -> None:
-        """Request cancellation of the active task."""
-
-        worker = self._worker
-        if worker is None:
-            return
-
-        worker.stop()

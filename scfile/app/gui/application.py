@@ -1,5 +1,3 @@
-"""Graphical application startup."""
-
 import sys
 from signal import SIGINT, signal
 
@@ -16,9 +14,9 @@ def run() -> int:
     window = MainWindow()
     signal(SIGINT, lambda *_: QTimer.singleShot(0, window.close))
 
-    signal_timer = QTimer()
-    signal_timer.timeout.connect(lambda: None)
-    signal_timer.start(100)
+    timer = QTimer()
+    timer.timeout.connect(lambda: None)
+    timer.start(100)
 
     window.show()
     return app.exec()

@@ -5,49 +5,55 @@ from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
-from scfile.app.gui.shared import strings
-from scfile.app.gui.shared.styles import Styles
-from scfile.app.gui.workers.logs import logger
+from scfile.app.gui import strings
+from scfile.app.gui.styles import Styles
 
 
 type PathMode = Literal["directory", "open", "save"]
 
 
-class _PathLineEdit(QLineEdit):
-    path_set = Signal(str)
+DIALOG_MODES = {
+    "directory": (QFileDialog.FileMode.Directory, QFileDialog.AcceptMode.AcceptOpen),
+    "open": (QFileDialog.FileMode.ExistingFile, QFileDialog.AcceptMode.AcceptOpen),
+    "save": (QFileDialog.FileMode.AnyFile, QFileDialog.AcceptMode.AcceptSave),
+}
 
-    @staticmethod
-    def _local_path(data: QMimeData) -> str | None:
-        if data.hasUrls():
-            for url in data.urls():
-                if url.isLocalFile():
-                    return url.toLocalFile()
 
-        if data.hasText():
-            url = QUrl(data.text().strip())
+def _local_path(data: QMimeData) -> str | None:
+    if data.hasUrls():
+        for url in data.urls():
             if url.isLocalFile():
                 return url.toLocalFile()
 
-        return None
+    if data.hasText():
+        url = QUrl(data.text().strip())
+        if url.isLocalFile():
+            return url.toLocalFile()
+
+    return None
+
+
+class _PathLineEdit(QLineEdit):
+    path_set = Signal(str)
 
     def insertFromMimeData(self, data: QMimeData) -> None:
-        if path := self._local_path(data):
+        if path := _local_path(data):
             self.insert(path)
         else:
             self.insert(data.text())
 
     @override
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-        if self._local_path(event.mimeData()):
+        if _local_path(event.mimeData()):
             event.acceptProposedAction()
 
     def dragMoveEvent(self, event: QDragMoveEvent) -> None:
-        if self._local_path(event.mimeData()):
+        if _local_path(event.mimeData()):
             event.acceptProposedAction()
 
     @override
     def dropEvent(self, event: QDropEvent) -> None:
-        if path := self._local_path(event.mimeData()):
+        if path := _local_path(event.mimeData()):
             self.setText(path)
             self.path_set.emit(path)
             event.acceptProposedAction()
@@ -72,9 +78,9 @@ class PathInputWidget(QWidget):
         self.file_filter = file_filter
         self.default_suffix = default_suffix
         self.initial_path = initial_path
-        self._setup_ui(placeholder)
+        self._build_ui(placeholder)
 
-    def _setup_ui(self, placeholder):
+    def _build_ui(self, placeholder: str) -> None:
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
@@ -100,21 +106,18 @@ class PathInputWidget(QWidget):
         layout.addWidget(self.line_edit)
         layout.addWidget(self.browse_btn)
 
-    def _browse(self):
-        initial_path = self.text().strip() or self.initial_path
+    def _browse(self) -> None:
+        file_mode, accept_mode = DIALOG_MODES[self.mode]
+        initial_path = self.value.strip() or self.initial_path
+        dialog = QFileDialog(self, self.caption, initial_path)
+        dialog.setFileMode(file_mode)
+        dialog.setAcceptMode(accept_mode)
+        dialog.setNameFilter(self.file_filter)
+        dialog.setDefaultSuffix(self.default_suffix.removeprefix("."))
 
-        match self.mode:
-            case "open":
-                path, _ = QFileDialog.getOpenFileName(self, self.caption, initial_path, self.file_filter)
-            case "save":
-                path, _ = QFileDialog.getSaveFileName(self, self.caption, initial_path, self.file_filter)
-                if path and self.default_suffix and not Path(path).suffix:
-                    path += self.default_suffix
-            case _:
-                path = QFileDialog.getExistingDirectory(self, self.caption, initial_path)
-
-        if path:
-            self.line_edit.setText(path)
+        if dialog.exec():
+            path = dialog.selectedFiles()[0]
+            self.value = path
             self.changed.emit(path)
 
     def _emit_changed(self) -> None:
@@ -128,28 +131,26 @@ class PathInputWidget(QWidget):
         self.changed.emit(text)
 
     def _open_in_explorer(self):
-        text = self.line_edit.text().strip()
+        value = self.value.strip()
 
-        if not text:
+        if not value:
             return
 
-        try:
-            path = Path(text)
-            if self.mode != "directory" and (path.is_file() or path.suffix):
-                path = path.parent
+        path = Path(value)
+        if self.mode != "directory" and (path.is_file() or path.suffix):
+            path = path.parent
 
-            if not path.exists() and not path.is_file():
-                path.mkdir(exist_ok=True, parents=True)
+        while not path.exists() and path != path.parent:
+            path = path.parent
 
-            QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
-        except Exception as err:
-            logger.exception(repr(err))
-
-    def text(self) -> str:
+    @property
+    def value(self) -> str:
         return self.line_edit.text()
 
-    def setText(self, text: str):
+    @value.setter
+    def value(self, text: str) -> None:
         self.line_edit.setText(text)
 
     @property
@@ -170,7 +171,3 @@ class PathInputWidget(QWidget):
     @placeholder.setter
     def placeholder(self, text: str) -> None:
         self.line_edit.setPlaceholderText(text)
-
-    @property
-    def textChanged(self):
-        return self.line_edit.textChanged

@@ -1,20 +1,97 @@
 import time
 from typing import override
 
-from PySide6.QtCore import Qt, QThread, QTimer
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
+from scfile.app import updates
 from scfile.app.enums import UpdateStatus
-from scfile.app.gui.shared import strings
-from scfile.app.gui.shared.styles import Colors, Styles
-from scfile.app.gui.workers import execute
-from scfile.app.gui.workers.updates import UpdatesWorker
+from scfile.app.gui import strings
+from scfile.app.gui.styles import Colors, Styles
 from scfile.app.updates import UpdateCheck
 from scfile.app.version import Version
 
 from .link import LinkWidget
+
+
+class _UpdatesWorker(QObject):
+    status = Signal(UpdateStatus, str, str)
+    finished = Signal()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            self.status.emit(*updates.check(SEMVER))
+
+        except Exception as error:
+            self.status.emit(UpdateStatus.ERROR, str(error), "")
+
+        finally:
+            self.finished.emit()
+
+
+class UpdateChecker(QObject):
+    status = Signal(UpdateStatus, str, str)
+
+    def __init__(self, ttl: int = 60, parent: QObject | None = None):
+        super().__init__(parent)
+        self._ttl = ttl
+        self._cached: UpdateCheck | None = None
+        self._cached_at = 0.0
+        self._worker: _UpdatesWorker | None = None
+        self._thread: QThread | None = None
+
+    @property
+    def busy(self) -> bool:
+        return self._thread is not None and self._thread.isRunning()
+
+    def start(self) -> bool:
+        if self._cached is not None and time.time() - self._cached_at < self._ttl:
+            self.status.emit(*self._cached)
+            return False
+
+        if self.busy:
+            return False
+
+        thread = QThread(self)
+        worker = _UpdatesWorker()
+        worker.moveToThread(thread)
+
+        worker.status.connect(self._status)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(self._finished)
+        thread.finished.connect(thread.deleteLater)
+        thread.started.connect(worker.run)
+
+        self._worker = worker
+        self._thread = thread
+        thread.start()
+        return True
+
+    def stop(self) -> None:
+        if not self.busy or self._thread is None:
+            return
+
+        self._thread.requestInterruption()
+        self._thread.quit()
+        self._thread.wait()
+        self._worker = None
+        self._thread = None
+
+    def _status(self, status: UpdateStatus, message: str, url: str) -> None:
+        result = UpdateCheck(status, message, url)
+        if status in (UpdateStatus.UPTODATE, UpdateStatus.AVAILABLE):
+            self._cached = result
+            self._cached_at = time.time()
+
+        self.status.emit(*result)
+
+    def _finished(self) -> None:
+        self._worker = None
+        self._thread = None
 
 
 class UpdatePopup(QWidget):
@@ -114,12 +191,8 @@ class VersionWidget(QWidget):
         self.main_layout.addWidget(self.text_label)
 
         self.popup: UpdatePopup | None = None
-        self.worker: UpdatesWorker | None = None
-        self.worker_thread: QThread | None = None
-
-        self._cached: UpdateCheck | None = None
-        self._cache_timestamp: float = 0.0
-        self._cache_ttl: int = 60
+        self.checker = UpdateChecker(parent=self)
+        self.checker.status.connect(self._status)
 
     def leaveEvent(self, event):
         self.setStyleSheet(Styles.LINK)
@@ -138,28 +211,12 @@ class VersionWidget(QWidget):
         if not self.popup:
             self.popup = UpdatePopup(self)
 
-        now = time.time()
-        if self._cached and (now - self._cache_timestamp < self._cache_ttl):
-            self.popup.show_status(*self._cached)
-            return
+        if self.checker.start():
+            self.popup.show_loading()
 
-        if self.worker_thread and self.worker_thread.isRunning():
-            return
+    def stop(self) -> None:
+        self.checker.stop()
 
-        self.popup.show_loading()
-
-        self.worker = UpdatesWorker()
-        self.worker.status.connect(self.handle_status)
-        self.worker_thread = execute(self.worker, on_done=self._on_finished)
-
-    def _on_finished(self) -> None:
-        self.worker = None
-        self.worker_thread = None
-
-    def handle_status(self, status: UpdateStatus, message: str, url: str):
-        if status in (UpdateStatus.UPTODATE, UpdateStatus.AVAILABLE):
-            self._cached = UpdateCheck(status, message, url)
-            self._cache_timestamp = time.time()
-
+    def _status(self, status: UpdateStatus, message: str, url: str) -> None:
         if self.popup:
             self.popup.show_status(status, message, url)

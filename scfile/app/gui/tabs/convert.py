@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import override
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCloseEvent, QKeyEvent
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -17,251 +18,249 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.app.gui.workers import TaskManager
-from scfile.app.gui.shared import consts, strings
-from scfile.app.gui.shared.consts import FT
-from scfile.app.gui.shared.styles import Styles
+from scfile.app.consts import DEFAULT_OUTPUT
+from scfile.app.enums import OutputLayout
+from scfile.app.formats import model_formats
+from scfile.app.gui import strings
+from scfile.app.gui.settings import Settings
+from scfile.app.gui.styles import Styles
+from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.conflict import ConflictWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.gui.workers.counter import CounterWorker
-from scfile.app.enums import OutputLayout
+from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
+from scfile.enums import FileFormat
 from scfile.options import Options
+from scfile.registry import REGISTRY
 from scfile.structures.models import Feature
 
 
-class ConverterTab(QWidget):
-    def __init__(self, tasks: TaskManager):
-        super().__init__()
-        self.tasks = tasks
-        self._active = False
-        self._setup_counter()
-        self._setup_warnings()
-        self.tasks.completed.connect(self._on_convert_finish)
-        self.tasks.busy_changed.connect(self._sync_button)
-        self._build_ui()
+FEATURES = {
+    Feature.SKELETON: ("🦴", "feature.skeleton"),
+    Feature.ANIMATION: ("🌀", "feature.animation"),
+}
 
-    def _setup_counter(self):
-        self._counter = CounterWorker()
-        self._counter.changed.connect(self._handle_counter)
 
-    def _setup_warnings(self):
-        self._warnings = WarningsWidget()
-        self._warnings.add_rule(self._warn_gamedir)
-        self._warnings.add_rule(self._warn_collision)
+@dataclass(frozen=True, slots=True)
+class FileGroup:
+    name: str
+    icon: str
+    label: str
+    filters: tuple[str, ...]
+    features: tuple[Feature, ...] = ()
 
-    def _warn_gamedir(self) -> str | None:
-        custom = self.output_to_custom.isChecked()
-        origin = self.output_to_origin.isChecked()
-        output = Path(self.output_path.text().strip())
-        sources = [Path(s) for s in self._get_sources()]
-        targets = [output] if (custom and output) else sources
+    @property
+    def title(self) -> str:
+        return f"{self.icon} {strings.get(self.label)}"
 
-        if any("modassets/assets" in path.as_posix() for path in targets):
-            return strings.get("warning.gamedir")
-        if origin and self._counter.gamedir:
-            return strings.get("warning.gamedir")
 
-    def _warn_collision(self) -> str | None:
-        custom = self.output_to_custom.isChecked()
-        output = Path(self.output_path.text().strip())
+FILE_GROUPS = (
+    FileGroup(
+        "models",
+        "🧊",
+        "format.models",
+        (".mcsa", ".mcsb", ".mcvd", ".efkmodel"),
+        (Feature.SKELETON, Feature.ANIMATION),
+    ),
+    FileGroup("textures", "🧱", "format.textures", (".ol",)),
+    FileGroup("images", "🖼", "format.images", (".mic",)),
+    FileGroup("texarr", "🗃️", "format.texarr", (".texarr",)),
+    FileGroup("nbt", "⚙️", "format.nbt", tuple(sorted(REGISTRY.aliases_for(FileFormat.NBT)))),
+)
 
-        if custom and output:
-            for source in (Path(s) for s in self._get_sources()):
-                if output == source or output.is_relative_to(source):
-                    return strings.get("warning.output_overlap")
 
-    def _build_ui(self):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
+def _format_title(fmt: FileFormat) -> str:
+    icons = " ".join(icon for feature, (icon, _) in FEATURES.items() if REGISTRY.model_supports(fmt, feature))
+    return f"{fmt.upper()} {icons}".strip()
 
-        # Create columns
-        self.left = QVBoxLayout()
-        self.right = QVBoxLayout()
-        self._build_left()
-        self._build_right()
 
-        layout.addLayout(self.left, stretch=2)
-        layout.addLayout(self.right, stretch=1)
+class ConvertForm(QWidget):
+    changed = Signal()
+    filters_changed = Signal()
+    output_changed = Signal(object)
+    submitted = Signal()
 
-        # Update UI state
-        self._sync_output_widgets()
-        self._sync_feature_widgets()
-        self._sync_counter()
+    def __init__(self, output: Path = DEFAULT_OUTPUT, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.groups: dict[str, QCheckBox] = {}
+        self.features: dict[Feature, QCheckBox] = {}
+        self._build_ui(output)
+        self._sync_output()
+        self._sync_features()
 
-    def _build_left(self):
-        header = QHBoxLayout()
+    @property
+    def filters(self) -> tuple[str, ...]:
+        selected = (suffix for group in FILE_GROUPS if self.groups[group.name].isChecked() for suffix in group.filters)
+        return tuple(selected)
 
-        title = QLabel(strings.get("label.sources"))
-        title.setStyleSheet(Styles.TITLE)
+    @property
+    def options(self) -> Options:
+        fmt = self.model_format.currentData()
+        skeleton = self.features[Feature.SKELETON]
+        animation = self.features[Feature.ANIMATION]
+        return Options(
+            model={
+                "skeleton": skeleton.isEnabled() and skeleton.isChecked(),
+                "animation": animation.isEnabled() and animation.isChecked(),
+            },
+            model_format=fmt if isinstance(fmt, FileFormat) else None,
+            on_conflict=self.conflict.value,
+        )
 
-        add_file = QPushButton(strings.get("button.add_files"))
-        add_file.setStyleSheet(Styles.BUTTON)
-        add_file.setCursor(Qt.CursorShape.PointingHandCursor)
-        add_file.clicked.connect(self._browse_files)
+    @property
+    def output(self) -> Path | None:
+        if self.output_origin.isChecked():
+            return None
 
-        add_dir = QPushButton(strings.get("button.add_folder"))
-        add_dir.setStyleSheet(Styles.BUTTON)
-        add_dir.setCursor(Qt.CursorShape.PointingHandCursor)
-        add_dir.clicked.connect(self._browse_folder)
+        value = self.output_path.value.strip()
+        return Path(value) if value else None
 
-        header.addWidget(title)
-        header.addStretch()
-        header.addWidget(add_file)
-        header.addWidget(add_dir)
+    @property
+    def output_layout(self) -> OutputLayout:
+        return OutputLayout.ROOTED if self.output_tree.isChecked() else OutputLayout.FLAT
 
-        self.sources = SourcesWidget()
-        self.sources.changed.connect(self._handle_sources)
+    @property
+    def output_valid(self) -> bool:
+        if self.output_origin.isChecked():
+            return True
 
-        self.left.addLayout(header)
-        self.left.addWidget(self.sources, 1)
+        output = self.output
+        return output is not None and not output.is_file()
 
-    def _build_right(self):
+    def set_count(self, text: str) -> None:
+        self.submit.setText(f"{strings.get('button.convert')} ({text})")
+
+    def set_available(self, available: bool, tooltip: str = "") -> None:
+        self.submit.setEnabled(available)
+        self.submit.setToolTip(strings.get(tooltip))
+        cursor = Qt.CursorShape.PointingHandCursor if available else Qt.CursorShape.ForbiddenCursor
+        self.submit.setCursor(cursor)
+
+    def set_warnings(self, warnings: list[str]) -> None:
+        self.warnings.set_messages(warnings)
+
+    def _build_ui(self, output: Path) -> None:
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
         title = QLabel(strings.get("label.settings"))
         title.setStyleSheet(Styles.TITLE)
-        self.right.addWidget(title)
-        self.right.addSpacing(10)
+        layout.addWidget(title)
+        layout.addSpacing(10)
 
-        # File types groups
-        self.feat_checks: dict[Feature, QCheckBox] = {}
-        self.kind_checks: dict[str, QCheckBox] = {}
-        self._build_format()
-        self._build_file_types()
-        self.right.addSpacing(10)
+        self._build_format_groups(layout)
+        layout.addSpacing(10)
+        self._build_output(layout, output)
+        self._build_layout(layout)
+        layout.addSpacing(20)
 
-        # Output path
-        self._build_output()
-        self._build_structure()
-        self.right.addSpacing(10)
+        self.conflict = ConflictWidget()
+        layout.addWidget(self.conflict)
+        layout.addStretch()
 
-        # Output conflicts
-        self._build_onconflict()
-        self.right.addStretch()
+        self.warnings = WarningsWidget()
+        layout.addWidget(self.warnings)
 
-        # Warnings
-        self.right.addWidget(self._warnings)
+        self.submit = QPushButton(strings.get("button.convert"))
+        self.submit.setMinimumHeight(50)
+        self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
+        self.submit.clicked.connect(self.submitted.emit)
+        layout.addWidget(self.submit)
 
-        # Convert button
-        self.convert = QPushButton(strings.get("button.convert"))
-        self.convert.setMinimumHeight(50)
-        self.convert.setStyleSheet(Styles.BUTTON_ACCENT)
-        self.convert.clicked.connect(self._convert)
-        self.right.addWidget(self.convert)
+    def _build_format_groups(self, layout: QVBoxLayout) -> None:
+        self.model_format = QComboBox()
+        self.model_format.setStyleSheet(Styles.COMBO)
+        self.model_format.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.model_format.setItemDelegate(QStyledItemDelegate())
+        self.model_format.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        for fmt in model_formats():
+            self.model_format.addItem(_format_title(fmt), fmt)
+        self.model_format.currentIndexChanged.connect(self._sync_features)
 
-    def _build_format(self):
-        self.format = QComboBox()
-        self.format.setStyleSheet(Styles.COMBO)
-        self.format.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.format.setItemDelegate(QStyledItemDelegate())
-        self.format.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        for group in FILE_GROUPS:
+            widget = QWidget()
+            group_layout = QVBoxLayout(widget)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(0)
 
-        for fmt in consts.MODEL_FORMATS:
-            self.format.addItem(str(fmt), fmt)
-
-        self.format.currentIndexChanged.connect(self._handle_formats)
-
-    def _build_file_types(self):
-        for kind in consts.FILE_KINDS:
-            group = QWidget()
-            layout = QVBoxLayout(group)
-            layout.setContentsMargins(0, 0, 0, 0)
-            layout.setSpacing(0)
-
-            # Group toggle
-            toggle = QCheckBox(kind.title)
+            toggle = QCheckBox(group.title)
             toggle.setStyleSheet(Styles.CHECKBOX)
             toggle.setCursor(Qt.CursorShape.PointingHandCursor)
             toggle.setChecked(True)
-            toggle.toggled.connect(self._handle_kinds)
-            self.kind_checks[kind.id] = toggle
+            self.groups[group.name] = toggle
 
-            # Sub options
             options = QWidget()
             options_layout = QVBoxLayout(options)
             options_layout.setContentsMargins(26, 4, 0, 8)
             options_layout.setSpacing(2)
 
-            # Models output format
-            if kind.id == "models":
-                options_layout.addWidget(self.format)
+            if group.name == "models":
+                options_layout.addWidget(self.model_format)
 
-            # Feature specific checkboxes
-            for feature, title in kind.feature_map.items():
-                cb_feat = QCheckBox(title)
-                cb_feat.setStyleSheet(Styles.CHECKBOX)
-                cb_feat.setCursor(Qt.CursorShape.PointingHandCursor)
-                options_layout.addWidget(cb_feat)
-                self.feat_checks[feature] = cb_feat
+            for feature in group.features:
+                icon, label = FEATURES[feature]
+                checkbox = QCheckBox(f"{icon} {strings.get(label)}")
+                checkbox.setStyleSheet(Styles.CHECKBOX)
+                checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+                options_layout.addWidget(checkbox)
+                self.features[feature] = checkbox
 
-            toggle.toggled.connect(options.setEnabled)
-
-            # Suffixes hint
-            suffixes = QLabel(", ".join(kind.suffixes))
+            suffixes = QLabel(", ".join(group.filters))
             suffixes.setStyleSheet(f"{Styles.HINT}; margin-left: 24px;")
 
-            layout.addWidget(toggle)
-            layout.addWidget(suffixes)
-            layout.addWidget(options)
-            self.right.addWidget(group)
+            toggle.toggled.connect(options.setEnabled)
+            toggle.toggled.connect(lambda _: self.filters_changed.emit())
+            group_layout.addWidget(toggle)
+            group_layout.addWidget(suffixes)
+            group_layout.addWidget(options)
+            layout.addWidget(widget)
 
-        self.feat_checks[Feature.SKELETON].toggled.connect(self._handle_skeleton)
-        self.feat_checks[Feature.ANIMATION].toggled.connect(self._handle_animation)
+        self.features[Feature.SKELETON].toggled.connect(self._skeleton_changed)
+        self.features[Feature.ANIMATION].toggled.connect(self._animation_changed)
 
-    def _build_output(self):
+    def _build_output(self, layout: QVBoxLayout, output: Path) -> None:
         label = QLabel(strings.get("label.output"))
         label.setStyleSheet(Styles.LABEL)
-        self.right.addWidget(label)
+        layout.addWidget(label)
 
-        self.output_mode = QButtonGroup(self)
+        modes = QButtonGroup(self)
+        self.output_origin = QRadioButton(strings.get("option.output.origin"))
+        self.output_origin.setStyleSheet(Styles.RADIO)
+        self.output_origin.setCursor(Qt.CursorShape.PointingHandCursor)
+        modes.addButton(self.output_origin)
+        layout.addWidget(self.output_origin)
 
-        # Default output radio button
-        self.output_to_origin = QRadioButton(strings.get("option.output.origin"))
-        self.output_to_origin.setStyleSheet(Styles.RADIO)
-        self.output_to_origin.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.output_mode.addButton(self.output_to_origin)
-        self.right.addWidget(self.output_to_origin)
+        row = QWidget()
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(0)
 
-        # Custom output
-        output_row = QWidget()
-        path_layout = QHBoxLayout(output_row)
-        path_layout.setContentsMargins(0, 0, 0, 0)
-        path_layout.setSpacing(0)
+        self.output_custom = QRadioButton()
+        self.output_custom.setStyleSheet(Styles.RADIO)
+        self.output_custom.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.output_custom.setChecked(True)
+        modes.addButton(self.output_custom)
 
-        # Custom output radio button
-        self.output_to_custom = QRadioButton("")
-        self.output_to_custom.setStyleSheet(Styles.RADIO)
-        self.output_to_custom.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.output_to_custom.setChecked(True)
-        self.output_mode.addButton(self.output_to_custom)
-
-        # Custom output path input
         self.output_path = PathInputWidget(
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.output"),
         )
-        self.output_path.setText(consts.DEFAULT_OUTPUT.as_posix())
+        self.output_path.value = output.as_posix()
 
-        # Autoselect radio button
-        output_row.mousePressEvent = lambda e: self.output_to_custom.setChecked(True)
+        row_layout.addWidget(self.output_custom)
+        row_layout.addWidget(self.output_path)
+        layout.addWidget(row)
 
-        # Add to layout
-        path_layout.addWidget(self.output_to_custom)
-        path_layout.addWidget(self.output_path)
-        self.right.addWidget(output_row)
+        self.output_path.changed.connect(self._output_changed)
+        modes.buttonToggled.connect(self._output_changed)
 
-        # Sync state
-        self.output_path.textChanged.connect(self._handle_output)
-        self.output_mode.buttonToggled.connect(self._handle_output)
-        self.output_to_origin.toggled.connect(self._handle_output)
-        self.output_to_custom.toggled.connect(self._handle_output)
-
-    def _build_structure(self):
+    def _build_layout(self, layout: QVBoxLayout) -> None:
         self.structure = QWidget()
-        layout = QVBoxLayout(self.structure)
-        layout.setContentsMargins(25, 0, 0, 0)
-        layout.setSpacing(5)
+        structure = QVBoxLayout(self.structure)
+        structure.setContentsMargins(25, 0, 0, 0)
+        structure.setSpacing(5)
 
         self.output_tree = QRadioButton(strings.get("option.output.tree"))
         self.output_tree.setStyleSheet(Styles.RADIO)
@@ -272,162 +271,185 @@ class ConverterTab(QWidget):
         self.output_flat.setStyleSheet(Styles.RADIO)
         self.output_flat.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        group = QButtonGroup(self)
-        group.addButton(self.output_tree)
-        group.addButton(self.output_flat)
+        modes = QButtonGroup(self)
+        modes.addButton(self.output_tree)
+        modes.addButton(self.output_flat)
 
-        layout.addWidget(self.output_tree)
-        layout.addWidget(self.output_flat)
+        structure.addWidget(self.output_tree)
+        structure.addWidget(self.output_flat)
+        layout.addWidget(self.structure)
 
-        self.right.addWidget(self.structure)
+    def _output_changed(self, *_: object) -> None:
+        self._sync_output()
+        self.output_changed.emit(self.output)
+        self.changed.emit()
 
-    def _build_onconflict(self):
-        self.on_conflict = ConflictWidget()
-        self.right.addSpacing(10)
-        self.right.addWidget(self.on_conflict)
-
-    def _handle_sources(self):
-        self._sync_counter()
-        self._sync_button()
-        self._sync_warnings()
-
-    def _handle_kinds(self):
-        self._sync_counter()
-
-    def _handle_output(self):
-        self._sync_output_widgets()
-        self._sync_button()
-        self._sync_warnings()
-
-    def _handle_formats(self):
-        self._sync_feature_widgets()
-
-    def _handle_skeleton(self, enabled: bool):
-        if not enabled:
-            self.feat_checks[Feature.ANIMATION].setChecked(False)
-
-    def _handle_animation(self, enabled: bool):
-        if enabled:
-            self.feat_checks[Feature.SKELETON].setChecked(True)
-
-    def _handle_counter(self, text: str, count: int, busy: bool):
-        if not self._active:
-            label = strings.get("button.convert")
-            self.convert.setText(f"{label} ({text})")
-        self._sync_button()
-        self._sync_warnings()
-
-    def _sync_counter(self):
-        self._counter.refresh(
-            sources=self._get_sources(),
-            filters=tuple(self._get_suffixes()),
-        )
-
-    def _sync_button(self):
-        has_sources = self.sources.count() > 0
-        has_targets = self._counter.busy or self._counter.count > 0
-        output_valid = self._get_output_valid()
-        ok = has_sources and has_targets and output_valid and not self.tasks.busy
-
-        if self.tasks.busy:
-            tooltip = "tooltip.task.busy"
-        else:
-            tooltip = {
-                output_valid: "tooltip.invalid.output",
-                has_targets: "tooltip.invalid.targets",
-                has_sources: "tooltip.invalid.sources",
-            }.get(False, "")
-
-        self.convert.setEnabled(ok)
-        self.convert.setToolTip(strings.get(tooltip))
-        self.convert.setCursor(Qt.CursorShape.PointingHandCursor if ok else Qt.CursorShape.ForbiddenCursor)
-
-    def _sync_warnings(self):
-        self._warnings.update_state()
-
-    def _sync_output_widgets(self):
-        custom = self.output_to_custom.isChecked()
+    def _sync_output(self) -> None:
+        custom = self.output_custom.isChecked()
         self.output_path.setEnabled(custom)
         self.structure.setEnabled(custom)
 
-    def _sync_feature_widgets(self):
-        if fmt := self.format.currentData():
-            for feature, widget in self.feat_checks.items():
-                supported = fmt.supports(feature)
-                widget.setEnabled(supported)
-                widget.setChecked(supported)
-
-    def _get_sources(self) -> list[str]:
-        return [self.sources.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.sources.count())]
-
-    def _get_suffixes(self) -> set[str]:
-        suffixes: set[str] = set()
-        for ft in consts.FILE_KINDS:
-            if self.kind_checks[ft.id].isChecked():
-                suffixes.update(ft.suffixes)
-        return suffixes
-
-    def _get_output_valid(self) -> bool:
-        if self.output_to_origin.isChecked():
-            return True
-        path = self.output_path.text().strip()
-        return bool(path) and not Path(path).is_file()
-
-    def _convert(self):
-        fmt: consts.ModelFormat = self.format.currentData()
-
-        ft_skeleton = self.feat_checks[FT.SKELETON.feature]
-        ft_animation = self.feat_checks[FT.ANIMATION.feature]
-
-        task = ConvertTask(
-            sources=tuple(self._get_sources()),
-            filters=tuple(self._get_suffixes()),
-            options=Options(
-                model={
-                    "skeleton": ft_skeleton.isEnabled() and ft_skeleton.isChecked(),
-                    "animation": ft_animation.isEnabled() and ft_animation.isChecked(),
-                },
-                model_format=fmt.id if fmt else None,
-                on_conflict=self.on_conflict.value(),
-            ),
-            output=(Path(self.output_path.text()) if self.output_to_custom.isChecked() else None),
-            layout=OutputLayout.ROOTED if self.output_tree.isChecked() else OutputLayout.FLAT,
-            total=None if self._counter.busy else self._counter.count,
-        )
-
-        self._active = True
-        if not self.tasks.start(task):
-            self._active = False
-        self._sync_button()
-
-    def _on_convert_finish(self, _: object) -> None:
-        if not self._active:
+    def _sync_features(self) -> None:
+        fmt = self.model_format.currentData()
+        if not isinstance(fmt, FileFormat):
             return
 
-        self._active = False
-        label = strings.get("button.convert")
-        self.convert.setText(f"{label} ({self._counter.count:,})")
-        self._sync_button()
+        for feature, widget in self.features.items():
+            supported = REGISTRY.model_supports(fmt, feature)
+            widget.setEnabled(supported)
+            widget.setChecked(supported)
 
-    def _browse_files(self):
-        files, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.add_files"))
-        if files:
-            self.sources.add_sources(files)
-            self._handle_sources()
+    def _skeleton_changed(self, enabled: bool) -> None:
+        if not enabled:
+            self.features[Feature.ANIMATION].setChecked(False)
 
-    def _browse_folder(self):
+    def _animation_changed(self, enabled: bool) -> None:
+        if enabled:
+            self.features[Feature.SKELETON].setChecked(True)
+
+
+class ConvertTab(QWidget):
+    error = Signal(object)
+    settings_changed = Signal()
+
+    def __init__(self, tasks: TaskManager, settings: Settings):
+        super().__init__()
+        self.tasks = tasks
+        self.settings = settings
+        self.counter = FileCounter(self)
+        self._build_ui()
+
+        self.sources.changed.connect(self._sources_changed)
+        self.form.changed.connect(self._sync)
+        self.form.output_changed.connect(self._remember_output)
+        self.form.filters_changed.connect(self._filters_changed)
+        self.form.submitted.connect(self._start_conversion)
+        self.counter.changed.connect(self._sync)
+        self.counter.error.connect(self.error.emit)
+        self.tasks.busy_changed.connect(self._sync)
+
+        self._refresh()
+
+    def _build_ui(self) -> None:
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(10, 5, 10, 5)
+
+        left = QVBoxLayout()
+        header = QHBoxLayout()
+
+        title = QLabel(strings.get("label.sources"))
+        title.setStyleSheet(Styles.TITLE)
+
+        add_files = QPushButton(strings.get("button.add_files"))
+        add_files.setStyleSheet(Styles.BUTTON)
+        add_files.setCursor(Qt.CursorShape.PointingHandCursor)
+        add_files.clicked.connect(self._browse_files)
+
+        add_folder = QPushButton(strings.get("button.add_folder"))
+        add_folder.setStyleSheet(Styles.BUTTON)
+        add_folder.setCursor(Qt.CursorShape.PointingHandCursor)
+        add_folder.clicked.connect(self._browse_folder)
+
+        header.addWidget(title)
+        header.addStretch()
+        header.addWidget(add_files)
+        header.addWidget(add_folder)
+
+        self.sources = SourcesWidget()
+        left.addLayout(header)
+        left.addWidget(self.sources, 1)
+
+        output = self.settings.output if self.settings.remember_output else None
+        self.form = ConvertForm(output or DEFAULT_OUTPUT)
+        layout.addLayout(left, stretch=2)
+        layout.addWidget(self.form, stretch=1)
+
+    def _sources_changed(self) -> None:
+        self._refresh()
+
+    def _filters_changed(self) -> None:
+        self._refresh()
+
+    def _refresh(self) -> None:
+        self.counter.refresh(self.sources.values, self.form.filters)
+
+    def _warnings(self, sources: tuple[Path, ...], output: Path | None) -> list[str]:
+        targets = (output,) if output is not None else sources
+        game_assets = any("modassets/assets" in path.as_posix().lower() for path in targets)
+        game_assets = game_assets or (output is None and self.counter.game_assets)
+        output_within_sources = output is not None and any(output.is_relative_to(source) for source in sources)
+
+        return [
+            message
+            for condition, message in (
+                (game_assets, strings.get("warning.gamedir")),
+                (output_within_sources, strings.get("warning.output_overlap")),
+            )
+            if condition
+        ]
+
+    def _submit_error(self, sources: tuple[Path, ...]) -> str | None:
+        errors = (
+            "tooltip.task.busy" if self.tasks.busy else None,
+            "tooltip.invalid.sources" if not sources else None,
+            "tooltip.invalid.targets" if not (self.counter.busy or self.counter.count) else None,
+            "tooltip.invalid.output" if not self.form.output_valid else None,
+        )
+        return next((error for error in errors if error), None)
+
+    def _sync(self) -> None:
+        sources = tuple(Path(source) for source in self.sources.values)
+        output = self.form.output
+
+        self.form.set_count(self.counter.text)
+        self.form.set_warnings(self._warnings(sources, output))
+
+        error = self._submit_error(sources)
+        self.form.set_available(error is None, error or "")
+
+    def _start_conversion(self) -> None:
+        task = ConvertTask(
+            sources=self.sources.values,
+            filters=self.form.filters,
+            options=self.form.options,
+            output=self.form.output,
+            layout=self.form.output_layout,
+            total=None if self.counter.busy else self.counter.count,
+        )
+        self.tasks.start(task)
+        self._sync()
+
+    def apply_output_memory(self, enabled: bool) -> None:
+        if enabled:
+            self._remember_output(self.form.output)
+
+    def _remember_output(self, output: Path | None) -> None:
+        if not self.settings.remember_output or output is None or output == self.settings.output:
+            return
+
+        self.settings.output = output
+        self.settings_changed.emit()
+
+    def stop(self) -> None:
+        self.counter.stop()
+
+    def _browse_files(self) -> None:
+        paths, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.add_files"))
+        if paths:
+            self.sources.add_sources(paths)
+
+    def _browse_folder(self) -> None:
         path = QFileDialog.getExistingDirectory(self, strings.get("dialog.add_folder"))
         if path:
-            self.sources.add_sources([path])
-            self._handle_sources()
+            self.sources.add_sources((path,))
 
     @override
-    def keyPressEvent(self, event: QKeyEvent):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_F5:
-            self._handle_sources()
+            self._refresh()
         super().keyPressEvent(event)
 
     @override
-    def closeEvent(self, event: QCloseEvent):
-        self._counter.stop()
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self.stop()
         super().closeEvent(event)

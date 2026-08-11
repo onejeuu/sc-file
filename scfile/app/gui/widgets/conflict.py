@@ -3,8 +3,8 @@ from typing import cast
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QButtonGroup, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scfile.app.gui.shared import strings
-from scfile.app.gui.shared.styles import Styles
+from scfile.app.gui import strings
+from scfile.app.gui.styles import Styles
 from scfile.options import ON_CONFLICT_OPTIONS, OnConflict
 
 
@@ -46,6 +46,7 @@ class ConflictWidget(QWidget):
         layout.addWidget(toggle_group)
         layout.addWidget(hint)
 
+    @property
     def value(self) -> OnConflict:
         button = self.buttons.checkedButton()
         return cast(OnConflict, button.property("conflict_option") if button else "overwrite")

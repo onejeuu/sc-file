@@ -1,5 +1,3 @@
-"""Parallel file conversion task."""
-
 import os
 import traceback
 from collections.abc import Iterator
@@ -19,8 +17,6 @@ from .parallel import parallel
 
 @dataclass(frozen=True, slots=True)
 class ConvertTask(Task):
-    """Convert matching file sources."""
-
     kind: ClassVar[TaskKind] = TaskKind.CONVERT
 
     sources: tuple[types.SourceLike, ...]
@@ -57,8 +53,6 @@ class ConvertTask(Task):
         self,
         context: TaskContext,
     ) -> Iterator[TaskEvent]:
-        """Yield conversion results for matching files."""
-
         output = self.output.resolve() if self.output else None
         total = self.total if self.total is not None else files.count(self.sources, self.filters)
         yield TaskStarted(self.kind, total, output)

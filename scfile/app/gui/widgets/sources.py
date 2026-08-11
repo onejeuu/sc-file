@@ -26,27 +26,28 @@ from PySide6.QtWidgets import (
 )
 
 from scfile import types
-from scfile.app.gui.shared import strings
-from scfile.app.gui.shared.styles import Colors, Styles
 from scfile.app import files
+from scfile.app.gui import strings
+from scfile.app.gui.styles import Colors, Styles
 
 
-_ENV_STUB = "."
-_ENV_MAPPING = {
-    Path(os.environ.get("APPDATA", _ENV_STUB)): "%APPDATA%",
-    Path(os.environ.get("LOCALAPPDATA", _ENV_STUB)): "%LOCALAPPDATA%",
-    Path.home(): "~",
-}
-_ENV_MAPPING = {k: v for k, v in _ENV_MAPPING.items() if k.exists() and k != Path(_ENV_STUB)}
+_PATH_ALIASES = tuple(
+    (Path(path).resolve(), alias)
+    for path, alias in (
+        (os.environ.get("APPDATA"), "%APPDATA%"),
+        (Path.home(), "~"),
+    )
+    if path
+)
 
 
-def normalize_path(source: types.SourceLike) -> str:
+def _display_path(source: types.SourceLike) -> str:
     path = Path(source).resolve()
 
-    for env, alias in _ENV_MAPPING.items():
-        if path.is_relative_to(env):
-            relative = path.relative_to(env)
-            return (Path(alias) / relative).as_posix()
+    for root, alias in _PATH_ALIASES:
+        if path.is_relative_to(root):
+            relative = path.relative_to(root)
+            return f"{alias}/{relative.as_posix()}" if relative.parts else alias
 
     return path.as_posix()
 
@@ -66,19 +67,23 @@ class SourcesWidget(QListWidget):
         self._placeholder_icon = self._prepare_placeholder_icon()
         self._placeholder_text = strings.get("converter.hint")
 
-    def add_sources(self, sources: Iterable[types.SourceLike]):
+    @property
+    def values(self) -> tuple[str, ...]:
+        return tuple(str(self.item(index).data(Qt.ItemDataRole.UserRole)) for index in range(self.count()))
+
+    def add_sources(self, sources: Iterable[types.SourceLike]) -> None:
         for source in sources:
             if not source:
                 continue
 
-            path = normalize_path(source)
-            existing = self.findItems(path, Qt.MatchFlag.MatchExactly)
+            label = _display_path(source)
+            existing = self.findItems(label, Qt.MatchFlag.MatchExactly)
             if existing:
                 continue
 
-            item = QListWidgetItem(path)
-            item.setData(Qt.ItemDataRole.UserRole, source)
-            item.setIcon(self.icon_provider.icon(QFileInfo(source)))
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, str(source))
+            item.setIcon(self.icon_provider.icon(QFileInfo(str(source))))
             self.addItem(item)
 
         self.changed.emit()
@@ -109,15 +114,18 @@ class SourcesWidget(QListWidget):
             menu.exec(event.globalPos())
 
     @override
-    def keyPressEvent(self, event: QKeyEvent):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Delete:
             self._remove_selected()
             event.accept()
-        elif event.matches(QKeySequence.StandardKey.Paste):
+            return
+
+        if event.matches(QKeySequence.StandardKey.Paste):
             self._paste_from_clipboard()
             event.accept()
-        else:
-            super().keyPressEvent(event)
+            return
+
+        super().keyPressEvent(event)
 
     @override
     def dragEnterEvent(self, event: QDragEnterEvent):

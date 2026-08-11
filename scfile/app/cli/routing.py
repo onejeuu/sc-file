@@ -1,7 +1,3 @@
-"""
-Default command routing.
-"""
-
 from pathlib import Path
 
 from scfile.app.enums import AnimateCommand, CliCommand
@@ -15,8 +11,6 @@ ROOT_OPTIONS = frozenset(("--help", "--version", "--updates"))
 def resolve(
     args: list[str],
 ) -> list[str]:
-    """Resolve command-line arguments, inferring an omitted command."""
-
     if ROOT_OPTIONS.intersection(args) or args[0] in CliCommand:
         return args
 
@@ -26,8 +20,6 @@ def resolve(
 def _default_command(
     args: list[str],
 ) -> list[str]:
-    """Select the command path implied by source arguments."""
-
     if "map_cache" in args[0]:
         return [str(CliCommand.MAPCACHE)]
 

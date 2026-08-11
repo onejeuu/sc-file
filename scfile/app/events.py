@@ -1,5 +1,3 @@
-"""Task facts and aggregate statistics."""
-
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -35,7 +33,7 @@ class TaskItemFailure:
 
 @dataclass(frozen=True, slots=True)
 class TaskError:
-    """Failure outside a scheduled source item."""
+    """Error outside a scheduled source item."""
 
     error: Exception
     source: str | None = None
@@ -74,8 +72,6 @@ class TaskSummary:
 
     @property
     def outcome(self) -> TaskOutcome:
-        """Return the final state represented by collected facts."""
-
         if self.cancelled:
             return TaskOutcome.CANCELLED
 
@@ -91,8 +87,6 @@ class TaskSummary:
         return TaskOutcome.COMPLETED
 
     def add(self, event: TaskEvent) -> None:
-        """Include one fact from the task stream."""
-
         match event:
             case TaskStarted():
                 self.kind = event.kind

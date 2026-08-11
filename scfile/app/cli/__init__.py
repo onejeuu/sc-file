@@ -1,5 +1,3 @@
-"""Command-line frontend."""
-
 import click
 
 from .callbacks import updates_callback, version_callback
@@ -9,6 +7,7 @@ from .cmd.mapcache import mapcache
 from .routing import resolve
 
 
+# TODO: docstring
 @click.group()
 @click.option(
     "--updates",
@@ -37,7 +36,5 @@ _scfile.add_command(mapcache)
 def run(
     args: list[str],
 ) -> int:
-    """Run the command-line frontend and return its exit code."""
-
     result = _scfile(args=resolve(args), standalone_mode=False)
     return result if isinstance(result, int) else 0

@@ -1,10 +1,8 @@
-"""Application enumerations."""
-
 from enum import StrEnum, auto
 
 
 class CliCommand(StrEnum):
-    """Top-level CLI commands."""
+    """CLI commands."""
 
     ANIMATE = auto()
     CONVERT = auto()
@@ -28,7 +26,7 @@ class OutputLayout(StrEnum):
 
 
 class TaskKind(StrEnum):
-    """Application operations represented by tasks."""
+    """Application operations."""
 
     CONVERT = auto()
     MAPCACHE = auto()
@@ -46,7 +44,7 @@ class TaskOutcome(StrEnum):
 
 
 class UpdateStatus(StrEnum):
-    """Application update status."""
+    """Application update check status."""
 
     ERROR = auto()
     UPTODATE = auto()

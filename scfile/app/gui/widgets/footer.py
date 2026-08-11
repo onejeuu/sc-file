@@ -1,22 +1,35 @@
-from PySide6.QtWidgets import QHBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from scfile import __repository__ as REPO
+from scfile.app.gui.tasks import TaskManager, TaskWidget
 
 from .link import LinkWidget
 from .updates import VersionWidget
 
 
 class FooterWidget(QWidget):
-    def __init__(self):
+    def __init__(self, tasks: TaskManager):
         super().__init__()
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 0, 10, 5)
-        layout.setSpacing(10)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        version = VersionWidget()
+        links = QWidget()
+        links_layout = QHBoxLayout(links)
+        links_layout.setContentsMargins(10, 0, 10, 5)
+        links_layout.setSpacing(10)
+
+        self.task = TaskWidget(tasks)
+        self.version = VersionWidget()
         repo = LinkWidget(text=f"{REPO}", url=f"https://github.com/{REPO}")
 
-        layout.addWidget(version)
-        layout.addWidget(repo)
-        layout.addStretch()
+        links_layout.addWidget(self.version)
+        links_layout.addWidget(repo)
+        links_layout.addStretch()
+
+        layout.addWidget(self.task)
+        layout.addWidget(links)
+
+    def stop(self) -> None:
+        self.version.stop()

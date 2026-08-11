@@ -1,5 +1,3 @@
-"""Terminal feedback for application tasks."""
-
 from typing import NamedTuple
 
 from rich.progress import (
@@ -21,8 +19,6 @@ from .console import CONSOLE, error, unexpected
 
 
 class TaskText(NamedTuple):
-    """Task wording used by terminal feedback."""
-
     running: str
     item: str
 
@@ -136,8 +132,6 @@ class TaskFeedback:
             CONSOLE.print(trace, markup=False, highlight=False)
 
     def finish(self, summary: TaskSummary) -> None:
-        """Close progress and show the task result."""
-
         if summary.outcome is TaskOutcome.EMPTY:
             CONSOLE.print(Text("∅ No matching files.", style="bold cyan"), highlight=False)
             return

@@ -51,7 +51,7 @@ jobs:
           enable-cache: true
 
       - name: Run Tests
-        run: uv run --group dev pytest --cov=scfile --cov-report=term-missing
+        run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
 
   build:
     strategy:

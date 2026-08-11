@@ -30,8 +30,6 @@ def run_gui() -> int:  # pragma: no cover
 
 
 def main() -> Never:
-    """Program entrypoint."""
-
     try:
         args = sys.argv[1:]
         if not args:

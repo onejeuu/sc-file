@@ -1,5 +1,3 @@
-"""Semantic version object."""
-
 from dataclasses import dataclass
 from typing import Any, Self
 
@@ -43,8 +41,6 @@ class Version:
 
     @classmethod
     def parse(cls, semver: str) -> Self | None:
-        """Parse version from string."""
-
         try:
             base, _, suffix = semver.strip().removeprefix("v").partition("-")
             major, minor, patch = map(int, base.split("."))

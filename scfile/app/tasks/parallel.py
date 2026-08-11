@@ -1,5 +1,3 @@
-"""Bounded parallel task work."""
-
 import os
 from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
@@ -15,8 +13,6 @@ def parallel[Input, Output](
     context: TaskContext,
     workers: int | None = None,
 ) -> Iterator[Output | TaskError]:
-    """Process a stream with a bounded number of pending operations."""
-
     # Resolve worker count
     max_workers = workers if workers is not None else (os.cpu_count() or 4)
     if max_workers <= 1:

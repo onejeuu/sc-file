@@ -1,12 +1,9 @@
-"""
-Click parameter types for commands.
-"""
-
 from pathlib import Path
 
 import click
 
 from scfile.app.enums import OutputLayout
+from scfile.app.formats import model_formats
 from scfile.options import ON_CONFLICT_OPTIONS
 from scfile.registry import REGISTRY
 
@@ -49,7 +46,7 @@ MapCacheDir = click.Path(
 )
 
 ModelFormats = click.Choice(
-    choices=sorted(REGISTRY.model_formats),
+    choices=model_formats(),
     case_sensitive=False,
 )
 

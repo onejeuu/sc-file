@@ -4,122 +4,123 @@ from collections.abc import Iterable
 from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
 from scfile.app import files
+from scfile.app.events import TaskError
 
-from .logs import logger
 
-
-class CounterTask(QObject):
-    status = Signal(int, int, bool)
+class _Counter(QObject):
+    counted = Signal(int, int, bool)
+    failed = Signal(int, object)
 
     def __init__(self):
         super().__init__()
         self._mutex = QMutex()
-        self._request_id = 0
-        self._abort = False
+        self._request = 0
+        self._cancelled = False
 
-    def cancel(self, request_id: int) -> None:
-        """Cancel current count and invalidate queued requests."""
-
+    def cancel(self, request: int) -> None:
         with QMutexLocker(self._mutex):
-            self._request_id = request_id
-            self._abort = True
+            self._request = request
+            self._cancelled = True
 
-    def _begin(self, request_id: int) -> bool:
+    def _begin(self, request: int) -> bool:
         with QMutexLocker(self._mutex):
-            if request_id != self._request_id:
+            if request != self._request:
                 return False
 
-            self._abort = False
+            self._cancelled = False
             return True
 
     @property
-    def abort(self) -> bool:
+    def cancelled(self) -> bool:
         with QMutexLocker(self._mutex):
-            return self._abort
+            return self._cancelled
 
     @Slot(int, list, tuple)
-    def count(self, request_id: int, sources: list[str], filters: Iterable[str]):
-        if not self._begin(request_id):
+    def count(self, request: int, sources: list[str], filters: tuple[str, ...]) -> None:
+        if not self._begin(request):
             return
 
         total = 0
-        gamedir = False
+        game_assets = False
 
         try:
-            for entry in files.walk(sources, filters=filters):
-                if self.abort:
-                    break
+            for entry in files.walk(sources, filters):
+                if self.cancelled:
+                    return
 
-                if not gamedir and "modassets\\assets" in entry.path:
-                    gamedir = True
-
+                path = entry.path.replace("\\", "/").lower()
+                game_assets = game_assets or "/modassets/assets/" in f"/{path.strip('/')}/"
                 total += 1
 
-            if not self.abort:
-                self.status.emit(request_id, total, gamedir)
+            self.counted.emit(request, total, game_assets)
 
-        except Exception as err:
-            logger.exception(repr(err))
-            logger.message.emit(traceback.format_exc())
+        except Exception as error:
+            event = TaskError(error, traceback=traceback.format_exc())
+            self.failed.emit(request, event)
 
 
-class CounterWorker(QObject):
-    changed = Signal(str, int, bool)
+class FileCounter(QObject):
+    changed = Signal()
+    error = Signal(object)
     requested = Signal(int, list, tuple)
 
-    def __init__(self):
-        super().__init__()
-        self._count = 0
-        self._gamedir = False
-        self._busy = False
-        self._request_id = 0
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)
+        self.count = 0
+        self.game_assets = False
+        self.busy = False
+        self._request = 0
 
-        self._thread = QThread()
-        self._task = CounterTask()
-        self._task.moveToThread(self._thread)
+        self._thread = QThread(self)
+        self._counter = _Counter()
+        self._counter.moveToThread(self._thread)
 
-        self.requested.connect(self._task.count)
-        self._task.status.connect(self._on_done)
+        self.requested.connect(self._counter.count)
+        self._counter.counted.connect(self._counted)
+        self._counter.failed.connect(self._failed)
+        self._thread.finished.connect(self._counter.deleteLater)
         self._thread.start()
 
     @property
-    def count(self) -> int:
-        return self._count
+    def text(self) -> str:
+        return "..." if self.busy else f"{self.count:,}"
 
-    @property
-    def gamedir(self) -> bool:
-        return self._gamedir
+    def refresh(self, sources: Iterable[str], filters: Iterable[str]) -> None:
+        self._request += 1
+        self._counter.cancel(self._request)
 
-    @property
-    def busy(self) -> bool:
-        return self._busy
-
-    def refresh(self, sources: list[str], filters: Iterable[str]):
-        self._request_id += 1
-
-        self._task.cancel(self._request_id)
-
+        sources = list(sources)
         if not sources:
-            self._apply(count=0, gamedir=False, busy=False)
+            self._set(count=0, game_assets=False, busy=False)
             return
 
-        self._apply(count=0, gamedir=False, busy=True)
-        self.requested.emit(self._request_id, sources, filters)
+        self._set(count=0, game_assets=False, busy=True)
+        self.requested.emit(self._request, sources, tuple(filters))
 
-    def _on_done(self, request_id: int, count: int, gamedir: bool):
-        if request_id == self._request_id:
-            self._apply(count=count, gamedir=gamedir, busy=False)
+    @Slot(int, int, bool)
+    def _counted(self, request: int, count: int, game_assets: bool) -> None:
+        if request == self._request:
+            self._set(count, game_assets, busy=False)
 
-    def _apply(self, count: int, gamedir: bool, busy: bool):
-        self._count = count
-        self._gamedir = gamedir
-        self._busy = busy
-        text = "..." if busy else f"{count:,}"
-        self.changed.emit(text, count, busy)
+    @Slot(int, object)
+    def _failed(self, request: int, event: object) -> None:
+        if request != self._request:
+            return
 
-    def stop(self):
-        if self._thread and self._thread.isRunning():
-            self._task.cancel(self._request_id + 1)
-            self._thread.requestInterruption()
-            self._thread.quit()
-            self._thread.wait()
+        self._set(count=0, game_assets=False, busy=False)
+        self.error.emit(event)
+
+    def _set(self, count: int, game_assets: bool, busy: bool) -> None:
+        self.count = count
+        self.game_assets = game_assets
+        self.busy = busy
+        self.changed.emit()
+
+    def stop(self) -> None:
+        if not self._thread.isRunning():
+            return
+
+        self._counter.cancel(self._request + 1)
+        self._thread.requestInterruption()
+        self._thread.quit()
+        self._thread.wait()

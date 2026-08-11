@@ -1,5 +1,3 @@
-"""Parallel map cache merging task."""
-
 import traceback
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -22,8 +20,6 @@ type Region = tuple[regions.RegionKey, list[Path]]
 
 @dataclass(frozen=True, slots=True)
 class MapCacheTask(Task):
-    """Merge discovered map cache regions."""
-
     kind: ClassVar[TaskKind] = TaskKind.MAPCACHE
 
     source: Path
@@ -56,8 +52,6 @@ class MapCacheTask(Task):
         self,
         context: TaskContext,
     ) -> Iterator[TaskEvent]:
-        """Yield merge results for discovered regions."""
-
         output = (self.output or self.source.with_name(f"{self.source.name}_mca")).resolve()
 
         paths = regions.resolve(self.source)

@@ -1,9 +1,4 @@
-"""Application task execution."""
-from .execution import (
-    Task,
-    TaskContext,
-    execute,
-)
+from .execution import Task, TaskContext, execute
 
 
 __all__ = (

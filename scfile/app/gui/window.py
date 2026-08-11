@@ -1,7 +1,8 @@
+from pathlib import Path
 from typing import override
 
 from PySide6.QtCore import QSize
-from PySide6.QtGui import QIcon, Qt
+from PySide6.QtGui import QCloseEvent, QIcon, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -13,37 +14,47 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.app import files
+from scfile.app import files, game
+from scfile.app.consts import TITLE
+from scfile.app.gui import strings
+from scfile.app.gui.settings import Store
+from scfile.app.gui.styles import Styles
+from scfile.app.gui.tabs.animate import AnimateTab
+from scfile.app.gui.tabs.convert import ConvertTab
+from scfile.app.gui.tabs.mapcache import MapCacheTab
+from scfile.app.gui.tabs.settings import SettingsTab
+from scfile.app.gui.tasks import TaskManager, TaskReporter
 from scfile.app.gui.widgets.footer import FooterWidget
-from scfile.app.gui.widgets.task import TaskWidget
-
-from . import workers
-from .settings import Store
-from .shared import consts, strings
-from .shared.styles import Styles
-from .tabs.animate import AnimateTab
-from .tabs.convert import ConverterTab
-from .tabs.mapcache import MapCacheTab
-from .tabs.settings import SettingsTab
-from .workers import logs
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.tabs: dict[int, QWidget] = {}
         self._closing = False
+        self._stopped = False
+
         self.store = Store()
         self.settings = self.store.load()
-        self.tasks = workers.TaskManager(self)
-        logs.report.set_verbose(self.settings.verbose)
-        self.tasks.reported.connect(logs.report)
-        self.tasks.busy_changed.connect(self._on_task_busy)
+        self._resolve_game_root()
+
+        self.tasks = TaskManager(self)
+        self.reporter = TaskReporter(self.settings.verbose)
+        self.tasks.reported.connect(self.reporter)
+        self.tasks.busy_changed.connect(self._task_busy_changed)
+
         self._build_ui()
 
-    def _build_ui(self):
+    def _resolve_game_root(self) -> None:
+        installation = game.resolve(self.settings.game_root or Path.home())
+        if installation is None or installation.root == self.settings.game_root:
+            return
+
+        self.settings.game_root = installation.root
+        self.store.save(self.settings)
+
+    def _build_ui(self) -> None:
         self.setWindowIcon(QIcon(str(files.resource("assets/scfile.ico"))))
-        self.setWindowTitle(consts.TITLE)
+        self.setWindowTitle(TITLE)
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 800)
 
@@ -58,7 +69,6 @@ class MainWindow(QMainWindow):
         sidebar.setObjectName("sidebar")
         sidebar.setStyleSheet(Styles.SIDEBAR)
         sidebar.setFixedWidth(54)
-
         self.sidebar = QVBoxLayout(sidebar)
         self.sidebar.setContentsMargins(0, 16, 0, 16)
         self.sidebar.setSpacing(8)
@@ -67,85 +77,72 @@ class MainWindow(QMainWindow):
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 4, 0, 0)
         content_layout.setSpacing(0)
-
         self.stack = QStackedWidget()
 
+        self.footer = FooterWidget(self.tasks)
         content_layout.addWidget(self.stack)
-        content_layout.addWidget(TaskWidget(self.tasks))
-        content_layout.addWidget(FooterWidget())
+        content_layout.addWidget(self.footer)
 
         layout.addWidget(sidebar)
         layout.addWidget(content)
 
-        self.button_group = QButtonGroup(self)
-        self.button_group.setExclusive(True)
-        self.button_group.idClicked.connect(self._on_tab_changed)
+        self.navigation = QButtonGroup(self)
+        self.navigation.setExclusive(True)
+        self.navigation.idClicked.connect(self.stack.setCurrentIndex)
 
-        self._add_tab(
-            widget=ConverterTab(self.tasks),
-            name=strings.get("tab.converter"),
-            icon="assets/converter.png",
-        )
-        self._add_tab(
-            widget=AnimateTab(self.tasks),
-            name=strings.get("tab.animate"),
-            icon="assets/animate.png",
-        )
-        mapcache = MapCacheTab(self.tasks, self.settings)
-        self._add_tab(
-            widget=mapcache,
-            name=strings.get("tab.mapcache"),
-            icon="assets/mapcache.png",
-        )
+        self.convert = ConvertTab(self.tasks, self.settings)
+        self.convert.error.connect(self.reporter)
+        self.convert.settings_changed.connect(self._save_settings)
+        self._add_tab(self.convert, "tab.converter", "assets/converter.png")
+
+        self._add_tab(AnimateTab(self.tasks), "tab.animate", "assets/animate.png")
+
+        self.mapcache = MapCacheTab(self.tasks, self.settings)
+        self._add_tab(self.mapcache, "tab.mapcache", "assets/mapcache.png")
         self.sidebar.addStretch()
 
-        settings = SettingsTab(self.settings, self.store)
-        settings.root_changed.connect(mapcache.apply_game_root)
-        settings.verbose_changed.connect(logs.report.set_verbose)
-        self._add_tab(
-            widget=settings,
-            name=strings.get("tab.settings"),
-            icon="assets/settings.png",
-        )
+        self.settings_tab = SettingsTab(self.settings)
+        self.settings_tab.changed.connect(self._save_settings)
+        self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
+        self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
+        self.settings_tab.verbose_changed.connect(self.reporter.set_verbose)
+        self.settings_tab.output_memory_changed.connect(self.convert.apply_output_memory)
+        self._add_tab(self.settings_tab, "tab.settings", "assets/settings.png")
 
-        if self.button_group.buttons():
-            self.button_group.buttons()[0].setChecked(True)
-            self._on_tab_changed(0)
+        self.navigation.buttons()[0].setChecked(True)
+        self.stack.setCurrentIndex(0)
 
-    def _add_tab(self, widget: QWidget, name: str, icon: str):
-        index = self.stack.count()
-        self.stack.addWidget(widget)
-        self.tabs[index] = widget
+    def _add_tab(self, widget: QWidget, title: str, icon: str) -> None:
+        index = self.stack.addWidget(widget)
+        button = QPushButton()
+        button.setCheckable(True)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setStyleSheet(Styles.SIDEBAR_ITEM)
+        button.setToolTip(strings.get(title))
+        button.setIcon(QIcon(str(files.resource(icon))))
+        button.setIconSize(QSize(20, 20))
 
-        btn = QPushButton()
-        btn.setCheckable(True)
-        btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn.setStyleSheet(Styles.SIDEBAR_ITEM)
-        btn.setToolTip(name)
+        self.sidebar.addWidget(button)
+        self.navigation.addButton(button, index)
 
-        btn.setIcon(QIcon(str(files.resource(icon))))
-        btn.setIconSize(QSize(20, 20))
+    def _save_settings(self) -> None:
+        self.store.save(self.settings)
 
-        self.sidebar.addWidget(btn)
-        self.button_group.addButton(btn, index)
-
-    def _on_tab_changed(self, index: int):
-        if widget := self.tabs.get(index):
-            self.stack.setCurrentWidget(widget)
-
-    def _on_task_busy(self, busy: bool) -> None:
+    def _task_busy_changed(self, busy: bool) -> None:
         if self._closing and not busy:
             self._shutdown()
             QApplication.quit()
 
     def _shutdown(self) -> None:
-        for widget in self.tabs.values():
-            widget.close()
+        if self._stopped:
+            return
 
-        workers.stop_all()
+        self._stopped = True
+        self.convert.stop()
+        self.footer.stop()
 
     @override
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent) -> None:
         if self.tasks.busy:
             self._closing = True
             self.tasks.cancel()

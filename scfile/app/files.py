@@ -1,5 +1,3 @@
-"""Basic file and path operations."""
-
 import os
 import sys
 from collections.abc import Iterable, Iterator
@@ -12,8 +10,6 @@ from scfile.registry import REGISTRY
 
 
 class FileEntry(NamedTuple):
-    """File discovered during a directory scan."""
-
     root: str
     path: str
 
@@ -21,8 +17,6 @@ class FileEntry(NamedTuple):
 def resource(
     path: types.SourceLike,
 ) -> types.SourcePath:
-    """Resolve resource path, accounting for MEIPASS environment variable."""
-
     meipass = getattr(sys, "_MEIPASS", None)
 
     if meipass:
@@ -37,8 +31,6 @@ def resource(
 def resolve(
     sources: Iterable[types.SourceLike],
 ) -> list[Path]:
-    """Normalize paths into a clean minimal set."""
-
     paths = {Path(source).resolve(strict=False) for source in sources}
     return sorted(path for path in paths if not any(parent in paths for parent in path.parents))
 
@@ -47,8 +39,6 @@ def scan(
     sources: Iterable[types.SourceLike],
     filters: Iterable[str] | None = None,
 ) -> Iterator[FileEntry | TaskError]:
-    """Discover matching files and traversal errors."""
-
     selected = filters or REGISTRY.supported_inputs
     allowed = tuple(value.lower() for value in selected)
     suffixes = tuple(value for value in allowed if value.startswith("."))
@@ -94,8 +84,6 @@ def walk(
     sources: Iterable[types.SourceLike],
     filters: Iterable[str] | None = None,
 ) -> Iterator[FileEntry]:
-    """Walk through matching readable files."""
-
     for item in scan(sources, filters):
         if isinstance(item, FileEntry):
             yield item
@@ -105,8 +93,6 @@ def count(
     sources: Iterable[types.SourceLike],
     filters: Iterable[str] | None = None,
 ) -> int:
-    """Count matching files without retaining them."""
-
     return sum(isinstance(item, FileEntry) for item in scan(sources, filters))
 
 
@@ -115,8 +101,6 @@ def destination(
     base: str | None,
     output: str | None,
 ) -> str | None:
-    """Resolve destination path based on options."""
-
     if base and output:
         relative = os.path.relpath(path, base)
         return os.path.join(output, os.path.dirname(relative))
