@@ -13,7 +13,7 @@ from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 
 
-ICON_SIZE = QSize(20, 20)
+ICON_SIZE = QSize(16, 16)
 
 
 def _icon(name: str) -> QIcon:
@@ -26,7 +26,6 @@ class SettingsTab(QWidget):
     path_resolution_changed = Signal()
     verbose_changed = Signal(bool)
     export_path_changed = Signal(object)
-    output_memory_changed = Signal(bool)
 
     def __init__(self, settings: Settings):
         super().__init__()
@@ -37,6 +36,36 @@ class SettingsTab(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(0)
+
+        general = QLabel(strings.get("section.settings.general"))
+        general.setStyleSheet(Styles.SECTION)
+        layout.addWidget(general)
+        layout.addSpacing(8)
+
+        self.resolve_paths = OptionWidget(
+            text=strings.get("option.settings.resolve_paths"),
+            hint=strings.get("hint.settings.resolve_paths"),
+            checked=self.settings.resolve_paths,
+            icon=_icon("resolve_paths"),
+        )
+        self.resolve_paths.changed.connect(self._set_path_resolution)
+        layout.addWidget(self.resolve_paths)
+        layout.addSpacing(12)
+
+        self.verbose = OptionWidget(
+            text=strings.get("option.settings.verbose"),
+            hint=strings.get("hint.settings.verbose"),
+            checked=self.settings.verbose,
+            icon=_icon("verbose"),
+        )
+        self.verbose.changed.connect(self._set_verbose)
+        layout.addWidget(self.verbose)
+        layout.addSpacing(20)
+
+        paths = QLabel(strings.get("section.settings.paths"))
+        paths.setStyleSheet(Styles.SECTION)
+        layout.addWidget(paths)
+        layout.addSpacing(8)
 
         root_header = QWidget()
         root_layout = QHBoxLayout(root_header)
@@ -96,34 +125,6 @@ class SettingsTab(QWidget):
         layout.addWidget(export_hint)
         layout.addSpacing(12)
 
-        self.remember_output = OptionWidget(
-            text=strings.get("option.settings.remember_output"),
-            hint=strings.get("hint.settings.remember_output"),
-            checked=self.settings.remember_output,
-            icon=_icon("remember_output"),
-        )
-        self.remember_output.changed.connect(self._set_output_memory)
-        layout.addWidget(self.remember_output)
-        layout.addSpacing(12)
-
-        self.verbose = OptionWidget(
-            text=strings.get("option.settings.verbose"),
-            hint=strings.get("hint.settings.verbose"),
-            checked=self.settings.verbose,
-            icon=_icon("verbose"),
-        )
-        self.verbose.changed.connect(self._set_verbose)
-        layout.addWidget(self.verbose)
-        layout.addSpacing(12)
-
-        self.resolve_paths = OptionWidget(
-            text=strings.get("option.settings.resolve_paths"),
-            hint=strings.get("hint.settings.resolve_paths"),
-            checked=self.settings.resolve_paths,
-            icon=_icon("resolve_paths"),
-        )
-        self.resolve_paths.changed.connect(self._set_path_resolution)
-        layout.addWidget(self.resolve_paths)
         layout.addStretch()
 
     def _set_game_root(self, value: str) -> None:
@@ -188,8 +189,3 @@ class SettingsTab(QWidget):
     def apply_export_path(self, path: Path) -> None:
         self.export.invalid = False
         self.export.value = path.as_posix()
-
-    def _set_output_memory(self, enabled: bool) -> None:
-        self.settings.remember_output = enabled
-        self.changed.emit()
-        self.output_memory_changed.emit(enabled)

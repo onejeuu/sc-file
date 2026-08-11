@@ -34,6 +34,7 @@ class OptionWidget(QWidget):
             if hint:
                 label = QLabel(hint)
                 label.setStyleSheet(Styles.HINT)
+                label.setWordWrap(True)
                 label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
                 layout.addWidget(label)
             return
@@ -57,11 +58,11 @@ class OptionWidget(QWidget):
         if hint:
             description = QLabel(hint)
             description.setStyleSheet(Styles.HINT)
+            description.setWordWrap(True)
             description.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
             content.addWidget(description)
 
-        row.addLayout(content)
-        row.addStretch()
+        row.addLayout(content, 1)
         row.addWidget(self.checkbox)
         layout.addLayout(row)
 

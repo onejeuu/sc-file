@@ -95,7 +95,8 @@ class MainWindow(QMainWindow):
         self.convert.settings_changed.connect(self._save_settings)
         self._add_tab(self.convert, "tab.converter", "assets/tab.converter.png")
 
-        self._add_tab(AnimateTab(self.tasks), "tab.animate", "assets/tab.animate.png")
+        self.animate = AnimateTab(self.tasks, self.settings)
+        self._add_tab(self.animate, "tab.animate", "assets/tab.animate.png")
 
         self.mapcache = MapCacheTab(self.tasks, self.settings)
         self._add_tab(self.mapcache, "tab.mapcache", "assets/tab.mapcache.png")
@@ -107,8 +108,7 @@ class MainWindow(QMainWindow):
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
         self.settings_tab.verbose_changed.connect(self.reporter.set_verbose)
         self.settings_tab.export_path_changed.connect(self.convert.apply_export_path)
-        self.settings_tab.output_memory_changed.connect(self.convert.apply_output_memory)
-        self.convert.export_path_changed.connect(self.settings_tab.apply_export_path)
+        self.settings_tab.export_path_changed.connect(self.animate.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
         self.navigation.buttons()[0].setChecked(True)

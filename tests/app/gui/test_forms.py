@@ -5,8 +5,8 @@ from PySide6.QtWidgets import QApplication
 from scfile.app.enums import OutputLayout
 from scfile.app.formats import model_formats
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.tabs.animate import ArmsForm, BodyForm
-from scfile.app.gui.tabs.convert import ConvertForm, ConvertTab
+from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
+from scfile.app.gui.tabs.convert import FILE_GROUPS, ConvertForm, ConvertTab
 from scfile.app.gui.tasks import TaskManager
 
 
@@ -35,17 +35,14 @@ def test_convert_form(qapp: QApplication) -> None:
     qapp.processEvents()
 
 
-def test_convert_remembers_output(qapp: QApplication, tmp_path: Path) -> None:
-    settings = Settings(remember_output=True)
-    tab = ConvertTab(TaskManager(), settings)
-    output = tmp_path / "export"
-    tab.form.output_path.value = str(output)
-    tab.form.output_changed.emit(tab.form.output)
+def test_convert_groups_use_registry_filters() -> None:
+    models = next(group for group in FILE_GROUPS if group.name == "models")
+    nbt = next(group for group in FILE_GROUPS if group.name == "nbt")
 
-    assert settings.export_path == output
-
-    tab.deleteLater()
-    qapp.processEvents()
+    assert ".mcsa" in models.filters
+    assert ".mcsa" not in models.display
+    assert "itemnames.dat" in nbt.filters
+    assert nbt.display == ("itemnames.dat", "prefs", "sd1…sd4")
 
 
 def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> None:
@@ -100,4 +97,24 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     assert form.validation_error() == "tooltip.animate.invalid.additional"
 
     form.deleteLater()
+    qapp.processEvents()
+
+
+def test_animate_uses_default_export(qapp: QApplication, tmp_path: Path) -> None:
+    settings = Settings(export_path=tmp_path / "export")
+    tab = AnimateTab(TaskManager(), settings)
+    source = tmp_path / "run.mcvd"
+    source.touch()
+
+    tab.form.source.value = str(source)
+    tab._sync()
+    assert Path(tab.output.value) == settings.export_path / "run.glb"
+
+    custom = tmp_path / "custom.glb"
+    tab.output.value = str(custom)
+    tab._output_changed(str(custom))
+    tab.apply_export_path(tmp_path / "other")
+    assert Path(tab.output.value) == custom
+
+    tab.deleteLater()
     qapp.processEvents()

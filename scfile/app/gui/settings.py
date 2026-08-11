@@ -22,7 +22,6 @@ class Settings:
     resolve_paths: bool = True
     verbose: bool = False
     export_path: Path = DEFAULT_OUTPUT
-    remember_output: bool = False
 
 
 class Store:
@@ -36,13 +35,11 @@ class Store:
         verbose = _bool(self.data.value("feedback/verbose", False), False)
         value = self.data.value("convert/output", "")
         export_path = Path(str(value)) if value else DEFAULT_OUTPUT
-        remember_output = _bool(self.data.value("convert/remember_output", False), False)
         return Settings(
             game_root=root,
             resolve_paths=resolve_paths,
             verbose=verbose,
             export_path=export_path,
-            remember_output=remember_output,
         )
 
     def save(self, settings: Settings) -> None:
@@ -50,5 +47,6 @@ class Store:
         self.data.setValue("paths/resolve", settings.resolve_paths)
         self.data.setValue("feedback/verbose", settings.verbose)
         self.data.setValue("convert/output", str(settings.export_path))
-        self.data.setValue("convert/remember_output", settings.remember_output)
+        self.data.remove("convert/remember_output")
+        self.data.remove("convert/last_output")
         self.data.sync()

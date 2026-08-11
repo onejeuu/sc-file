@@ -137,11 +137,18 @@ class Styles:
         QPushButton:hover:!checked {{ background: {Colors.CARD.light}; }}
     """
 
+    TABS = f"""
+        QTabBar::tab {{ color: {Colors.TEXT.dark}; background: transparent; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; }}
+        QTabBar::tab:selected {{ color: {Colors.ACCENT}; border-bottom-color: {Colors.ACCENT}; font-weight: bold; }}
+        QTabBar::tab:hover:!selected {{ color: {Colors.TEXT}; }}
+    """
+
     LINK = f"""background-color: transparent; color: {Colors.TEXT.dark}; font-size: 12px;"""
     LINK_HOVER = f"""background-color: transparent; color: {Colors.ACCENT}; font-size: 12px;"""
 
     TITLE = "font-weight: bold; font-size: 16px;"
     LABEL = "font-weight: bold; font-size: 14px;"
+    SECTION = f"font-weight: bold; color: {Colors.TEXT.light}; font-size: 16px;"
 
     HINT = f"color: {Colors.TEXT.dark}; font-size: 10px;"
 

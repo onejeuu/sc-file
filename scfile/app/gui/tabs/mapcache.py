@@ -9,7 +9,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.option import OptionWidget
-from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
@@ -20,6 +20,7 @@ class MapCacheTab(QWidget):
         super().__init__()
         self.tasks = tasks
         self.settings = settings
+        self.touched: set[PathField] = set()
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
@@ -30,33 +31,29 @@ class MapCacheTab(QWidget):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(10)
 
-        source_label = QLabel(strings.get("label.mapcache.source"))
-        source_label.setStyleSheet(Styles.LABEL)
-        self.source = PathInputWidget(
+        self.source = PathField(
+            strings.get("label.mapcache.source"),
             placeholder="stalcraft/map_cache/5.0",
             caption=strings.get("dialog.mapcache.source"),
         )
-        self.source.changed.connect(self._source_changed)
+        self.source.changed.connect(self._edit_source)
 
         if source := self._game_cache():
             self.source.value = source.as_posix()
 
-        output_label = QLabel(strings.get("label.mapcache.output"))
-        output_label.setStyleSheet(Styles.LABEL)
-        self.output = PathInputWidget(
+        self.output = PathField(
+            strings.get("label.mapcache.output"),
             placeholder=".minecraft/saves/{world}/regions",
             caption=strings.get("dialog.mapcache.output"),
         )
-        self.output.changed.connect(self._output_changed)
+        self.output.changed.connect(self._edit_output)
 
         self.raw_blocks = OptionWidget(
             text=strings.get("option.mapcache.raw"),
             hint=strings.get("hint.mapcache.raw"),
         )
 
-        layout.addWidget(source_label)
         layout.addWidget(self.source)
-        layout.addWidget(output_label)
         layout.addWidget(self.output)
         layout.addSpacing(10)
         layout.addWidget(self.raw_blocks)
@@ -103,6 +100,10 @@ class MapCacheTab(QWidget):
                 self.source.value = resolved.as_posix()
         self._sync()
 
+    def _edit_source(self, value: str) -> None:
+        self.touched.add(self.source)
+        self._source_changed(value)
+
     def _output_changed(self, _: str) -> None:
         output = Path(self.output.value.strip())
         if self.settings.resolve_paths and output.exists():
@@ -110,6 +111,10 @@ class MapCacheTab(QWidget):
             if resolved != output:
                 self.output.value = resolved.as_posix()
         self._sync()
+
+    def _edit_output(self, value: str) -> None:
+        self.touched.add(self.output)
+        self._output_changed(value)
 
     def _warnings(self) -> list[str]:
         output_value = self.output.value.strip()
@@ -136,10 +141,14 @@ class MapCacheTab(QWidget):
         output_value = self.output.value.strip()
         source = Path(source_value)
         output = Path(output_value)
+        invalid_source = not source_value or not game.is_map_cache(source)
+        invalid_output = not output_value or output.is_file()
+        self.source.invalid = self.source in self.touched and invalid_source
+        self.output.invalid = self.output in self.touched and invalid_output
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
-            "tooltip.mapcache.invalid.source" if not source_value or not game.is_map_cache(source) else None,
-            "tooltip.mapcache.invalid.output" if not output_value or output.is_file() else None,
+            "tooltip.mapcache.invalid.source" if invalid_source else None,
+            "tooltip.mapcache.invalid.output" if invalid_output else None,
         )
         return next((error for error in errors if error), None)
 

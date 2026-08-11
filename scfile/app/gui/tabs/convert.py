@@ -48,12 +48,17 @@ class FileGroup:
     name: str
     icon: str
     label: str
-    filters: tuple[str, ...]
+    display: tuple[str, ...]
+    formats: tuple[FileFormat, ...]
     features: tuple[Feature, ...] = ()
 
     @property
     def title(self) -> str:
         return f"{self.icon} {strings.get(self.label)}"
+
+    @property
+    def filters(self) -> tuple[str, ...]:
+        return tuple(sorted(REGISTRY.filters_for(*self.formats)))
 
 
 FILE_GROUPS = (
@@ -61,13 +66,14 @@ FILE_GROUPS = (
         "models",
         "🧊",
         "format.models",
-        (".mcsa", ".mcsb", ".mcvd", ".efkmodel"),
+        (".mcsb", ".mcvd", ".efkmodel"),
+        (FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.EFKMODEL),
         (Feature.SKELETON, Feature.ANIMATION),
     ),
-    FileGroup("textures", "🧱", "format.textures", (".ol",)),
-    FileGroup("images", "🖼", "format.images", (".mic",)),
-    FileGroup("texarr", "🗃️", "format.texarr", (".texarr",)),
-    FileGroup("nbt", "⚙️", "format.nbt", tuple(sorted(REGISTRY.aliases_for(FileFormat.NBT)))),
+    FileGroup("textures", "🧱", "format.textures", (".ol",), (FileFormat.OL,)),
+    FileGroup("images", "🖼", "format.images", (".mic",), (FileFormat.MIC,)),
+    FileGroup("texarr", "🗃️", "format.texarr", (".texarr",), (FileFormat.TEXARR,)),
+    FileGroup("nbt", "⚙️", "format.nbt", ("itemnames.dat", "prefs", "sd1…sd4"), (FileFormat.NBT,)),
 )
 
 
@@ -207,7 +213,7 @@ class ConvertForm(QWidget):
                 options_layout.addWidget(checkbox)
                 self.features[feature] = checkbox
 
-            suffixes = QLabel(", ".join(group.filters))
+            suffixes = QLabel(", ".join(group.display))
             suffixes.setStyleSheet(f"{Styles.HINT}; margin-left: 24px;")
 
             toggle.toggled.connect(options.setEnabled)
@@ -315,7 +321,6 @@ class ConvertForm(QWidget):
 
 class ConvertTab(QWidget):
     error = Signal(object)
-    export_path_changed = Signal(object)
     settings_changed = Signal()
 
     def __init__(self, tasks: TaskManager, settings: Settings):
@@ -327,7 +332,6 @@ class ConvertTab(QWidget):
 
         self.sources.changed.connect(self._sources_changed)
         self.form.changed.connect(self._sync)
-        self.form.output_changed.connect(self._remember_output)
         self.form.filters_changed.connect(self._filters_changed)
         self.form.submitted.connect(self._start_conversion)
         self.counter.changed.connect(self._sync)
@@ -426,21 +430,9 @@ class ConvertTab(QWidget):
         self.tasks.start(task)
         self._sync()
 
-    def apply_output_memory(self, enabled: bool) -> None:
-        if enabled:
-            self._remember_output(self.form.output)
-
     def apply_export_path(self, path: Path) -> None:
         self.form.output_path.value = path.as_posix()
         self._sync()
-
-    def _remember_output(self, output: Path | None) -> None:
-        if not self.settings.remember_output or output is None or output == self.settings.export_path:
-            return
-
-        self.settings.export_path = output
-        self.settings_changed.emit()
-        self.export_path_changed.emit(output)
 
     def stop(self) -> None:
         self.counter.stop()

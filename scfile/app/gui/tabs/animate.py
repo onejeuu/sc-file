@@ -1,33 +1,23 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (
-    QButtonGroup,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QStackedWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
 
 from scfile import convert
+from scfile.app import files
 from scfile.app.gui import strings
-from scfile.app.gui.styles import Colors, Styles
+from scfile.app.gui.settings import Settings
+from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
-from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.animate import AnimateTask
 
-
-def _required(label: str) -> str:
-    return f'{label} <span style="color: {Colors.ERROR}">*</span>'
-
-
 @dataclass(frozen=True, slots=True)
 class PathRule:
-    widget: PathInputWidget
+    widget: PathField
     suffix: str
     error: str
     required: bool = True
@@ -42,13 +32,14 @@ def _valid(rule: PathRule) -> bool:
 class AnimationForm(QWidget):
     changed = Signal()
     title = ""
-    source: PathInputWidget
-    model: PathInputWidget
+    icon = ""
+    source: PathField
+    model: PathField
 
     def __init__(self):
         super().__init__()
         self.rules: list[PathRule] = []
-        self.touched: set[PathInputWidget] = set()
+        self.touched: set[PathField] = set()
 
         self.form_layout = QVBoxLayout(self)
         self.form_layout.setContentsMargins(0, 0, 0, 0)
@@ -73,19 +64,17 @@ class AnimationForm(QWidget):
         suffix: str,
         error: str,
         required: bool = True,
-    ) -> PathInputWidget:
-        title = QLabel(_required(label) if required else label)
-        title.setStyleSheet(Styles.LABEL)
-
-        path = PathInputWidget(
+    ) -> PathField:
+        path = PathField(
+            label,
             placeholder=placeholder,
             caption=caption,
+            required=required,
             mode="open",
             file_filter=file_filter,
         )
         path.changed.connect(lambda _: self._touch_input(path))
         self.rules.append(PathRule(path, suffix, error, required))
-        self.form_layout.insertWidget(self.form_layout.count() - 1, title)
         self.form_layout.insertWidget(self.form_layout.count() - 1, path)
         return path
 
@@ -96,13 +85,14 @@ class AnimationForm(QWidget):
 
         return next((rule.error for rule in self.rules if rule.widget in invalid), None)
 
-    def _touch_input(self, path: PathInputWidget) -> None:
+    def _touch_input(self, path: PathField) -> None:
         self.touched.add(path)
         self.changed.emit()
 
 
 class ArmsForm(AnimationForm):
     title = "mode.animate.fp"
+    icon = "hands"
 
     def __init__(self):
         super().__init__()
@@ -116,7 +106,7 @@ class ArmsForm(AnimationForm):
         )
 
         self.warnings = WarningsWidget()
-        self.form_layout.insertWidget(2, self.warnings)
+        self.form_layout.insertWidget(1, self.warnings)
 
         self.model = self.add_path(
             strings.get("label.animate.model"),
@@ -159,6 +149,7 @@ class ArmsForm(AnimationForm):
 
 class BodyForm(AnimationForm):
     title = "mode.animate.body"
+    icon = "body"
 
     def __init__(self):
         super().__init__()
@@ -190,6 +181,7 @@ class BodyForm(AnimationForm):
 
 class FaceForm(AnimationForm):
     title = "mode.animate.lipsync"
+    icon = "face"
 
     def __init__(self):
         super().__init__()
@@ -223,9 +215,10 @@ type Form = ArmsForm | BodyForm | FaceForm
 
 
 class AnimateTab(QWidget):
-    def __init__(self, tasks: TaskManager):
+    def __init__(self, tasks: TaskManager, settings: Settings):
         super().__init__()
         self.tasks = tasks
+        self.settings = settings
         self.output_touched = False
         self.forms: tuple[Form, ...] = (ArmsForm(), BodyForm(), FaceForm())
         self._build_ui()
@@ -249,9 +242,8 @@ class AnimateTab(QWidget):
             self.stack.addWidget(form)
         layout.addWidget(self.stack, 1)
 
-        output_label = QLabel(_required(strings.get("label.animate.output")))
-        output_label.setStyleSheet(Styles.LABEL)
-        self.output = PathInputWidget(
+        self.output = PathField(
+            strings.get("label.animate.output"),
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.animate.output"),
             mode="save",
@@ -260,7 +252,6 @@ class AnimateTab(QWidget):
         )
         self.output.changed.connect(self._output_changed)
 
-        layout.addWidget(output_label)
         layout.addWidget(self.output)
 
         self.submit = QPushButton(strings.get("button.animate"))
@@ -270,28 +261,24 @@ class AnimateTab(QWidget):
         layout.addWidget(self.submit)
 
     def _build_modes(self, layout: QVBoxLayout) -> None:
-        widget = QWidget()
-        widget.setStyleSheet(Styles.TOGGLE_GROUP)
-        modes = QHBoxLayout(widget)
-        modes.setContentsMargins(0, 0, 0, 0)
-        modes.setSpacing(0)
+        self.tabs = QTabBar()
+        self.tabs.setStyleSheet(Styles.TABS)
+        self.tabs.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tabs.setIconSize(QSize(18, 18))
 
-        group = QButtonGroup(self)
-        group.setExclusive(True)
-        for index, form in enumerate(self.forms):
-            button = QPushButton(strings.get(form.title))
-            button.setCheckable(True)
-            button.setStyleSheet(Styles.TOGGLE_ITEM)
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            modes.addWidget(button)
-            group.addButton(button, index)
+        for form in self.forms:
+            icon = QIcon(str(files.resource(f"assets/animate.{form.icon}.png")))
+            self.tabs.addTab(icon, strings.get(form.title))
 
-        group.buttons()[0].setChecked(True)
-        group.idClicked.connect(self._change_form)
-        layout.addWidget(widget)
+        self.tabs.currentChanged.connect(self._change_form)
+        layout.addWidget(self.tabs)
 
     def _change_form(self, index: int) -> None:
         self.stack.setCurrentIndex(index)
+        self._sync()
+
+    def apply_export_path(self, path: Path) -> None:
+        self.settings.export_path = path
         self._sync()
 
     def _output_changed(self, _: str) -> None:
@@ -312,8 +299,11 @@ class AnimateTab(QWidget):
     def _sync(self) -> None:
         source = self.form.source.value.strip()
 
+        if source and not self.output_touched:
+            self.output.value = str(self.settings.export_path / Path(source).with_suffix(".glb").name)
+
         if source:
-            self.output.initial_path = Path(source).with_suffix(".glb").name
+            self.output.initial_path = str(self.settings.export_path / Path(source).with_suffix(".glb").name)
 
         self.output.invalid = self.output_touched and self._output_invalid()
 

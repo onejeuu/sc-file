@@ -3,10 +3,10 @@ from typing import Literal, override
 
 from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent, QMouseEvent
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from scfile.app.gui import strings
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import Colors, Styles
 
 
 type PathMode = Literal["directory", "open", "save"]
@@ -188,3 +188,77 @@ class PathInputWidget(QWidget):
     @placeholder.setter
     def placeholder(self, text: str) -> None:
         self.line_edit.setPlaceholderText(text)
+
+
+class PathField(QWidget):
+    activated = Signal()
+    changed = Signal(str)
+
+    def __init__(
+        self,
+        label: str,
+        placeholder: str,
+        caption: str,
+        *,
+        required: bool = True,
+        mode: PathMode = "directory",
+        file_filter: str = "",
+        default_suffix: str = "",
+        initial_path: str = "",
+        parent=None,
+    ):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        title = QLabel(label)
+        if required:
+            title.setText(f'{label} <span style="color: {Colors.ERROR}">*</span>')
+        title.setStyleSheet(Styles.LABEL)
+
+        self.input = PathInputWidget(
+            placeholder=placeholder,
+            caption=caption,
+            mode=mode,
+            file_filter=file_filter,
+            default_suffix=default_suffix,
+            initial_path=initial_path,
+        )
+        self.input.activated.connect(self.activated.emit)
+        self.input.changed.connect(self.changed.emit)
+
+        layout.addWidget(title)
+        layout.addWidget(self.input)
+
+    @property
+    def value(self) -> str:
+        return self.input.value
+
+    @value.setter
+    def value(self, text: str) -> None:
+        self.input.value = text
+
+    @property
+    def invalid(self) -> bool:
+        return self.input.invalid
+
+    @invalid.setter
+    def invalid(self, value: bool) -> None:
+        self.input.invalid = value
+
+    @property
+    def initial_path(self) -> str:
+        return self.input.initial_path
+
+    @initial_path.setter
+    def initial_path(self, path: str) -> None:
+        self.input.initial_path = path
+
+    @property
+    def read_only(self) -> bool:
+        return self.input.read_only
+
+    @read_only.setter
+    def read_only(self, value: bool) -> None:
+        self.input.read_only = value

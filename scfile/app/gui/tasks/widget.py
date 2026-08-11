@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QPushButton, QSizePolicy, QWidget
 
@@ -112,8 +110,11 @@ class TaskWidget(QWidget):
     def _show_running(self, event: TaskStarted) -> None:
         self._completed = 0
         self._total = event.total
+        count = "".join("8" if character.isdigit() else character for character in f"{event.total:,}")
+        maximum = f"{count}/{count} · 100%"
+        self.progress_text.setFixedWidth(self.progress_text.fontMetrics().horizontalAdvance(maximum))
         text = strings.get(f"task.running.{event.kind}").format(total=event.total)
-        self._show_status(text, event.kind, event.output, Colors.TEXT)
+        self._show_status(text, Colors.TEXT)
         self._show_progress()
 
     def _show_progress(self) -> None:
@@ -151,7 +152,7 @@ class TaskWidget(QWidget):
         )
         text = " · ".join((result, *details))
 
-        self._show_status(text, summary.kind, summary.output, OUTCOME_COLORS[summary.outcome])
+        self._show_status(text, OUTCOME_COLORS[summary.outcome])
         self.show()
 
     def _cancel(self) -> None:
@@ -162,16 +163,8 @@ class TaskWidget(QWidget):
     def _show_status(
         self,
         text: str,
-        kind: TaskKind,
-        output: Path | None,
         color: Colors,
     ) -> None:
-        if output is None and kind is TaskKind.CONVERT:
-            destination = strings.get("task.output.alongside")
-        else:
-            destination = str(output)
-
-        message = f"{text} · {strings.get('task.output').format(output=destination)}"
-        self.status.setText(message)
-        self.status.setToolTip(message)
+        self.status.setText(text)
+        self.status.setToolTip(text)
         self.status.setStyleSheet(f"color: {color};")
