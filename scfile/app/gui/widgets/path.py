@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Literal, override
 
 from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
-from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent, QMouseEvent
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QWidget
 
 from scfile.app.gui import strings
@@ -34,7 +34,13 @@ def _local_path(data: QMimeData) -> str | None:
 
 
 class _PathLineEdit(QLineEdit):
+    activated = Signal()
     path_set = Signal(str)
+
+    @override
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        self.activated.emit()
+        super().mousePressEvent(event)
 
     def insertFromMimeData(self, data: QMimeData) -> None:
         if path := _local_path(data):
@@ -60,6 +66,7 @@ class _PathLineEdit(QLineEdit):
 
 
 class PathInputWidget(QWidget):
+    activated = Signal()
     changed = Signal(str)
 
     def __init__(
@@ -89,6 +96,7 @@ class PathInputWidget(QWidget):
         self.line_edit.setAcceptDrops(True)
         self.line_edit.setPlaceholderText(placeholder)
         self.line_edit.setStyleSheet(Styles.INPUT)
+        self.line_edit.activated.connect(self.activated)
         self.line_edit.editingFinished.connect(self._emit_changed)
         self.line_edit.path_set.connect(self.changed.emit)
 
@@ -163,6 +171,15 @@ class PathInputWidget(QWidget):
         style = self.line_edit.style()
         style.unpolish(self.line_edit)
         style.polish(self.line_edit)
+
+    @property
+    def read_only(self) -> bool:
+        return self.line_edit.isReadOnly()
+
+    @read_only.setter
+    def read_only(self, value: bool) -> None:
+        self.line_edit.setReadOnly(value)
+        self.browse_btn.setEnabled(not value)
 
     @property
     def placeholder(self) -> str:

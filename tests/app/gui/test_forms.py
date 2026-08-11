@@ -27,6 +27,10 @@ def test_convert_form(qapp: QApplication) -> None:
     assert form.output is None
     assert form.output_valid
 
+    form.output_path.activated.emit()
+    assert form.output_custom.isChecked()
+    assert not form.output_path.read_only
+
     form.deleteLater()
     qapp.processEvents()
 

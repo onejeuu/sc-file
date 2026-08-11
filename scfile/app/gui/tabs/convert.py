@@ -254,6 +254,7 @@ class ConvertForm(QWidget):
         layout.addWidget(row)
 
         self.output_path.changed.connect(self._output_changed)
+        self.output_path.activated.connect(self._select_custom_output)
         modes.buttonToggled.connect(self._output_changed)
 
     def _build_layout(self, layout: QVBoxLayout) -> None:
@@ -284,9 +285,13 @@ class ConvertForm(QWidget):
         self.output_changed.emit(self.output)
         self.changed.emit()
 
+    def _select_custom_output(self) -> None:
+        if not self.output_custom.isChecked():
+            self.output_custom.setChecked(True)
+
     def _sync_output(self) -> None:
         custom = self.output_custom.isChecked()
-        self.output_path.setEnabled(custom)
+        self.output_path.read_only = not custom
         self.structure.setEnabled(custom)
 
     def _sync_features(self) -> None:
@@ -375,14 +380,16 @@ class ConvertTab(QWidget):
 
     def _warnings(self, sources: tuple[Path, ...], output: Path | None) -> list[str]:
         targets = (output,) if output is not None else sources
-        game_assets = any("modassets/assets" in path.as_posix().lower() for path in targets)
-        game_assets = game_assets or (output is None and self.counter.game_assets)
+        game_root = self.settings.game_root
+        game_directory = game_root is not None and any(path.resolve().is_relative_to(game_root) for path in targets)
+        game_directory = game_directory or any("modassets/assets" in path.as_posix().lower() for path in targets)
+        game_directory = game_directory or (output is None and self.counter.game_assets)
         output_within_sources = output is not None and any(output.is_relative_to(source) for source in sources)
 
         return [
             message
             for condition, message in (
-                (game_assets, strings.get("warning.gamedir")),
+                (game_directory, strings.get("warning.gamedir")),
                 (output_within_sources, strings.get("warning.output_overlap")),
             )
             if condition

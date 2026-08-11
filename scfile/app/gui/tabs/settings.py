@@ -1,14 +1,22 @@
 from pathlib import Path
 
-from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtCore import QSize, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from scfile.app import game
+from scfile.app import files, game
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
+
+
+ICON_SIZE = QSize(20, 20)
+
+
+def _icon(name: str) -> QIcon:
+    return QIcon(str(files.resource(f"assets/settings.{name}.png")))
 
 
 class SettingsTab(QWidget):
@@ -28,8 +36,19 @@ class SettingsTab(QWidget):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(0)
 
+        root_header = QWidget()
+        root_layout = QHBoxLayout(root_header)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(5)
+
+        root_icon = QLabel()
+        root_icon.setPixmap(_icon("gameroot").pixmap(ICON_SIZE))
+        root_layout.addWidget(root_icon)
+
         root_label = QLabel(strings.get("label.settings.game_root"))
         root_label.setStyleSheet(Styles.LABEL)
+        root_layout.addWidget(root_label)
+        root_layout.addStretch()
         self.root = PathInputWidget(
             placeholder="C:/EXBO/runtime/stalcraft",
             caption=strings.get("dialog.settings.game_root"),
@@ -42,7 +61,7 @@ class SettingsTab(QWidget):
         hint.setStyleSheet(Styles.HINT)
         hint.setWordWrap(True)
 
-        layout.addWidget(root_label)
+        layout.addWidget(root_header)
         layout.addWidget(self.root)
         layout.addWidget(hint)
         layout.addSpacing(12)
@@ -51,6 +70,7 @@ class SettingsTab(QWidget):
             text=strings.get("option.settings.resolve_paths"),
             hint=strings.get("hint.settings.resolve_paths"),
             checked=self.settings.resolve_paths,
+            icon=_icon("resolve_paths"),
         )
         self.resolve_paths.changed.connect(self._set_path_resolution)
         layout.addWidget(self.resolve_paths)
@@ -60,6 +80,7 @@ class SettingsTab(QWidget):
             text=strings.get("option.settings.verbose"),
             hint=strings.get("hint.settings.verbose"),
             checked=self.settings.verbose,
+            icon=_icon("verbose"),
         )
         self.verbose.changed.connect(self._set_verbose)
         layout.addWidget(self.verbose)
@@ -69,6 +90,7 @@ class SettingsTab(QWidget):
             text=strings.get("option.settings.remember_output"),
             hint=strings.get("hint.settings.remember_output"),
             checked=self.settings.remember_output,
+            icon=_icon("remember_output"),
         )
         self.remember_output.changed.connect(self._set_output_memory)
         layout.addWidget(self.remember_output)
