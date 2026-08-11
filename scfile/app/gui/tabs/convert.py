@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import override
 
@@ -20,7 +19,7 @@ from PySide6.QtWidgets import (
 
 from scfile.app.consts import DEFAULT_OUTPUT
 from scfile.app.enums import OutputLayout
-from scfile.app.formats import model_formats
+from scfile.app.formats import FORMAT_GROUPS, model_formats
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -41,40 +40,6 @@ FEATURES = {
     Feature.SKELETON: ("🦴", "feature.skeleton"),
     Feature.ANIMATION: ("🌀", "feature.animation"),
 }
-
-
-@dataclass(frozen=True, slots=True)
-class FileGroup:
-    name: str
-    icon: str
-    label: str
-    display: tuple[str, ...]
-    formats: tuple[FileFormat, ...]
-    features: tuple[Feature, ...] = ()
-
-    @property
-    def title(self) -> str:
-        return f"{self.icon} {strings.get(self.label)}"
-
-    @property
-    def filters(self) -> tuple[str, ...]:
-        return tuple(sorted(REGISTRY.filters_for(*self.formats)))
-
-
-FILE_GROUPS = (
-    FileGroup(
-        "models",
-        "🧊",
-        "format.models",
-        (".mcsb", ".mcvd", ".efkmodel"),
-        (FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.EFKMODEL),
-        (Feature.SKELETON, Feature.ANIMATION),
-    ),
-    FileGroup("textures", "🧱", "format.textures", (".ol",), (FileFormat.OL,)),
-    FileGroup("images", "🖼", "format.images", (".mic",), (FileFormat.MIC,)),
-    FileGroup("texarr", "🗃️", "format.texarr", (".texarr",), (FileFormat.TEXARR,)),
-    FileGroup("nbt", "⚙️", "format.nbt", ("itemnames.dat", "prefs", "sd1…sd4"), (FileFormat.NBT,)),
-)
 
 
 def _format_title(fmt: FileFormat) -> str:
@@ -98,12 +63,13 @@ class ConvertForm(QWidget):
 
     @property
     def filters(self) -> tuple[str, ...]:
-        selected = (suffix for group in FILE_GROUPS if self.groups[group.name].isChecked() for suffix in group.filters)
+        selected = (
+            suffix for group in FORMAT_GROUPS if self.groups[group.name].isChecked() for suffix in group.filters
+        )
         return tuple(selected)
 
     @property
     def options(self) -> Options:
-        fmt = self.model_format.currentData()
         skeleton = self.features[Feature.SKELETON]
         animation = self.features[Feature.ANIMATION]
         return Options(
@@ -111,9 +77,13 @@ class ConvertForm(QWidget):
                 "skeleton": skeleton.isEnabled() and skeleton.isChecked(),
                 "animation": animation.isEnabled() and animation.isChecked(),
             },
-            model_format=fmt if isinstance(fmt, FileFormat) else None,
+            model_format=self.selected_format,
             on_conflict=self.conflict.value,
         )
+
+    @property
+    def selected_format(self) -> FileFormat:
+        return FileFormat(self.model_format.currentData())
 
     @property
     def output(self) -> Path | None:
@@ -185,13 +155,13 @@ class ConvertForm(QWidget):
             self.model_format.addItem(_format_title(fmt), fmt)
         self.model_format.currentIndexChanged.connect(self._sync_features)
 
-        for group in FILE_GROUPS:
+        for group in FORMAT_GROUPS:
             widget = QWidget()
             group_layout = QVBoxLayout(widget)
             group_layout.setContentsMargins(0, 0, 0, 0)
             group_layout.setSpacing(0)
 
-            toggle = QCheckBox(group.title)
+            toggle = QCheckBox(f"{group.icon} {strings.get(group.label)}")
             toggle.setStyleSheet(Styles.CHECKBOX)
             toggle.setCursor(Qt.CursorShape.PointingHandCursor)
             toggle.setChecked(True)
@@ -301,12 +271,8 @@ class ConvertForm(QWidget):
         self.structure.setEnabled(custom)
 
     def _sync_features(self) -> None:
-        fmt = self.model_format.currentData()
-        if not isinstance(fmt, FileFormat):
-            return
-
         for feature, widget in self.features.items():
-            supported = REGISTRY.model_supports(fmt, feature)
+            supported = REGISTRY.model_supports(self.selected_format, feature)
             widget.setEnabled(supported)
             widget.setChecked(supported)
 

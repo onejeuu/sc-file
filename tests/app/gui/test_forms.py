@@ -1,13 +1,15 @@
 from pathlib import Path
 
+import pytest
 from PySide6.QtWidgets import QApplication
 
 from scfile.app.enums import OutputLayout
-from scfile.app.formats import model_formats
+from scfile.app.formats import FORMAT_GROUPS, model_formats
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
-from scfile.app.gui.tabs.convert import FILE_GROUPS, ConvertForm, ConvertTab
+from scfile.app.gui.tabs.convert import ConvertForm, ConvertTab
 from scfile.app.gui.tasks import TaskManager
+from scfile.registry import REGISTRY
 
 
 def test_convert_form(qapp: QApplication) -> None:
@@ -36,13 +38,25 @@ def test_convert_form(qapp: QApplication) -> None:
 
 
 def test_convert_groups_use_registry_filters() -> None:
-    models = next(group for group in FILE_GROUPS if group.name == "models")
-    nbt = next(group for group in FILE_GROUPS if group.name == "nbt")
+    models = next(group for group in FORMAT_GROUPS if group.name == "models")
+    nbt = next(group for group in FORMAT_GROUPS if group.name == "nbt")
 
     assert ".mcsa" in models.filters
     assert ".mcsa" not in models.display
     assert "itemnames.dat" in nbt.filters
     assert nbt.display == ("itemnames.dat", "prefs", "sd1…sd4")
+
+
+@pytest.mark.parametrize("fmt", model_formats())
+def test_convert_disables_unsupported_features(qapp: QApplication, fmt) -> None:
+    form = ConvertForm()
+    form.model_format.setCurrentIndex(form.model_format.findData(fmt))
+
+    for feature, checkbox in form.features.items():
+        assert checkbox.isEnabled() is REGISTRY.model_supports(fmt, feature)
+
+    form.deleteLater()
+    qapp.processEvents()
 
 
 def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> None:
