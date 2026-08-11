@@ -73,14 +73,20 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         # Definitions
         with self._node(b"Definitions", root=True):
             self._leaf(b"Version", [100])
-            self._leaf(b"Count", [len(self.data.scene.meshes)])
+            count = len(self.data.scene.meshes)
+            self._leaf(b"Count", [count * 3])
 
-            for mesh in self.data.scene.meshes:
-                with self._node(b"ObjectType", [b"Model"]):
-                    self._leaf(b"Count", [1])
+            with self._node(b"ObjectType", [b"Model"]):
+                self._leaf(b"Count", [count])
 
-                    with self._node(b"PropertyTemplate", [b"FbxNode"]):
-                        self._props70([(b"Visibility", b"Visibility", b"", b"A", 1.0)])
+                with self._node(b"PropertyTemplate", [b"FbxNode"]):
+                    self._props70([(b"Visibility", b"Visibility", b"", b"A", 1.0)])
+
+            with self._node(b"ObjectType", [b"Geometry"]):
+                self._leaf(b"Count", [count])
+
+            with self._node(b"ObjectType", [b"Material"]):
+                self._leaf(b"Count", [count])
 
         # Objects
         with self._node(b"Objects", root=True):
@@ -117,7 +123,7 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         with self._node(b"Geometry", [geom_id, geometry_name, b"Mesh"]):
             self._leaf(b"Properties70")
             self._leaf(b"GeometryVersion", [124])
-            self._leaf(b"Vertices", [mesh.vertices.flatten().astype(np.float64)])
+            self._leaf(b"Vertices", [mesh.vertices.astype(np.float32, copy=False).flatten()])
             self._leaf(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)])
             self._leaf(b"Edges", [])
 
@@ -134,16 +140,16 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                     self._leaf(b"Name", [b"UVMap"])
                     self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
                     self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
-                    self._leaf(b"UV", [mesh.uv1.flatten().astype(np.float64)])
+                    self._leaf(b"UV", [mesh.uv1.astype(np.float32, copy=False).flatten()])
                     self._leaf(b"UVIndex", [indexes])
 
             if self.includes(Feature.UV2) and mesh.uv2.size:
-                with self._node(b"LayerElementUV", [0]):
+                with self._node(b"LayerElementUV", [1]):
                     self._leaf(b"Version", [101])
                     self._leaf(b"Name", [b"UVMap_2"])
                     self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
                     self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
-                    self._leaf(b"UV", [mesh.uv2.flatten().astype(np.float64)])
+                    self._leaf(b"UV", [mesh.uv2.astype(np.float32, copy=False).flatten()])
                     self._leaf(b"UVIndex", [indexes])
 
             if self.includes(Feature.NORMALS) and mesh.normals.size:
@@ -152,7 +158,7 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                     self._leaf(b"Name", [b""])
                     self._leaf(b"MappingInformationType", [b"ByPolygonVertex"])
                     self._leaf(b"ReferenceInformationType", [b"IndexToDirect"])
-                    self._leaf(b"Normals", [mesh.normals.flatten().astype(np.float64)])
+                    self._leaf(b"Normals", [mesh.normals.astype(np.float32, copy=False).flatten()])
                     self._leaf(b"NormalsIndex", [indexes])
 
             with self._node(b"Layer", [0]):
