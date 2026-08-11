@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from scfile.formats import FbxEncoder, GlbEncoder, McalDecoder, McsaDecoder, McsbDecoder, McvdDecoder, ObjEncoder
+from scfile.formats import EfkmodelDecoder, FbxEncoder, GlbEncoder, McalDecoder, McsaDecoder, McsbDecoder, McvdDecoder, ObjEncoder
 from scfile.options import Options
 
 from .conftest import ASSETS, export
@@ -51,3 +51,14 @@ def test_mcal() -> None:
 
     assert content.meta.counts.bones == 3
     assert [clip.name for clip in content.scene.animation.clips] == ["move"]
+
+
+@pytest.mark.parametrize("folder, encoder", ENCODERS)
+def test_efkmodel(
+    folder: str,
+    encoder: type[ObjEncoder] | type[GlbEncoder] | type[FbxEncoder],
+) -> None:
+    source = SOURCE / "particle.efkmodel"
+    actual = export(EfkmodelDecoder, encoder, source)
+    expected = (ROOT / folder / f"{source.name}{encoder.suffix()}").read_bytes()
+    assert actual == expected

@@ -6,7 +6,7 @@ GLB Format.
 :Wiki: `<https://en.wikipedia.org/wiki/GlTF>`_
 :Suffix: ``.glb``
 :Support: ``✅ Full``
-:Features: ``Geometry``, ``Skeleton``, ``Animation``
+:Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
 
 Example::
 

@@ -6,7 +6,7 @@ EFKMODEL Format.
 :Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#efkmodel-effekseer-model-efkmodel-bt>`_
 :Suffix: ``.efkmodel``
 :Support: ``⚠️ Partial``
-:Features: ``Geometry``
+:Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Colors``
 
 Example::
 

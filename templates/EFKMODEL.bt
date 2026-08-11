@@ -1,7 +1,7 @@
 //------------------------------------------------
 // File: EFKMODEL.bt
 // Authors: onejeuu
-// Version: 1.1
+// Version: 2.0
 // Purpose: Parse Effekseer models.
 // Category: STALCRAFT
 // File Mask: *.efkmodel
@@ -25,8 +25,8 @@ typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, 
 struct Header {
     uint version <name="Version", fgcolor=cRed>;
     float scale <name="Scale">;
-    int meshCount <name="Mesh Count", bgcolor=cAqua>;
-    int unknownCount <name="Unknown Count", bgcolor=cBlue>;
+    int modelCount <name="Model Count", bgcolor=cAqua>;
+    int frameCount <name="Frame Count", bgcolor=cBlue>;
 } header <name="Header">;
 
 
@@ -35,9 +35,10 @@ struct Header {
 typedef struct {
     Vec3f position <name="Position", bgcolor=cGreen>;
     Vec3f normal <name="Normal", bgcolor=cPurple>;
-    float unknown[6] <name="Unknown", bgcolor=cGray>;
+    Vec3f binormal <name="Binormal", bgcolor=cPurple>;
+    Vec3f tangent <name="Tangent", bgcolor=cPurple>;
     Vec2f uv1 <name="UV1", bgcolor=cRed>;
-    float unknown2 <name="Unknown", bgcolor=cGray>;
+    uchar color[4] <name="Color", bgcolor=cYellow>;
 } Vertex;
 
 typedef struct {
@@ -51,5 +52,5 @@ typedef struct {
 
 // Model
 
-if ( header.meshCount > 0 )
-    Mesh meshes[header.meshCount] <name="Mesh", optimize=false>;
+if ( header.frameCount > 0 )
+    Mesh frames[header.frameCount] <name="Frame", optimize=false>;

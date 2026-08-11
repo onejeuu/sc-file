@@ -6,7 +6,7 @@ OBJ Format.
 :Wiki: `<https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
 :Suffix: ``.obj``
 :Support: ``✅ Full``
-:Features: ``Geometry``
+:Features: ``UV``, ``Normals``
 
 Example::
 

@@ -5,8 +5,8 @@ MCVD Format.
 :Type: **🧊 Model Decoder**
 :Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcvd-vector-dynamic-mcsa-bt>`_
 :Suffix: ``.mcvd``
-:Support: ``🚧 WIP``
-:Features: ``Geometry``, ``Skeleton``, ``Animation``
+:Support: ``✅ Full``
+:Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
 
 Example::
 

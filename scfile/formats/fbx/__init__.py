@@ -6,7 +6,7 @@ FBX Format.
 :Wiki: `<https://en.wikipedia.org/wiki/FBX>`_
 :Suffix: ``.fbx``
 :Support: ``⚠️ Partial``
-:Features: ``Geometry``
+:Features: ``UV``, ``UV2``, ``Normals``
 
 Example::
 

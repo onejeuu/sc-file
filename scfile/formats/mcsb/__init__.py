@@ -6,7 +6,7 @@ MCSB Format.
 :Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcsb-scene-bundle-mcsa-bt>`_
 :Suffix: ``.mcsb``
 :Support: ``✅ Full``
-:Features: ``Geometry``, ``Skeleton``, ``Animation``
+:Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
 
 Example::
 
