@@ -15,6 +15,7 @@ ASSETS = ROOT / "scfile" / "app" / "gui" / "assets"
 SPECPATH = ROOT / "build"
 COMMIT = SPECPATH / "commit"
 HOOKS = SCRIPTS / "hooks"
+NOTICE = ROOT / "NOTICE"
 
 
 def build():
@@ -26,6 +27,7 @@ def build():
         ("--additional-hooks-dir", str(HOOKS)),
         ("--add-data", f"{FAVICON}:assets"),
         ("--add-data", f"{ASSETS}:assets"),
+        ("--add-data", f"{NOTICE}:."),
         ("--onefile",),
     ]
 

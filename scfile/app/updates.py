@@ -59,7 +59,7 @@ def _check_dev(v: Version) -> UpdateCheck:
     sha = current()
     if not sha:
         url = f"https://github.com/{REPO}/releases/tag/{v.tag}"
-        return UpdateCheck(Status.ERROR, "local commit sha not found", url)
+        return UpdateCheck(Status.ERROR, "update check unavailable", url)
 
     data = _fetch(f"https://api.github.com/repos/{REPO}/commits/{v.tag}")
     if not data:

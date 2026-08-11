@@ -10,6 +10,7 @@ authors = [{ name = "onejeuu", email = "mail@66rk.ru" }]
 
 readme = "README.md"
 license = "MIT"
+license-files = ["NOTICE"]
 
 dependencies = [
     "click>=8.4.2,<9.0.0",

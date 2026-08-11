@@ -144,7 +144,7 @@ class SourcesWidget(QListWidget):
     def _prepare_placeholder_icon(self) -> QPixmap:
         aspect = Qt.AspectRatioMode.KeepAspectRatio
         mode = Qt.TransformationMode.SmoothTransformation
-        raw = QPixmap(str(files.resource("assets/upload.png"))).scaled(64, 64, aspect, mode)
+        raw = QPixmap(str(files.resource("assets/widget.upload.png"))).scaled(64, 64, aspect, mode)
 
         tinted = QPixmap(raw.size())
         tinted.fill(Qt.GlobalColor.transparent)
