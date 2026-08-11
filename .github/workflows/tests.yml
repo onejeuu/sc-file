@@ -35,5 +35,10 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Install Qt Runtime
+        run: sudo apt-get update && sudo apt-get install --yes libegl1
+
       - name: Run Tests
         run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
+        env:
+          QT_QPA_PLATFORM: offscreen

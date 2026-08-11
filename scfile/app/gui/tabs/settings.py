@@ -5,6 +5,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile.app import files, game
+from scfile.app.consts import DEFAULT_OUTPUT
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -24,6 +25,7 @@ class SettingsTab(QWidget):
     game_root_changed = Signal()
     path_resolution_changed = Signal()
     verbose_changed = Signal(bool)
+    export_path_changed = Signal(object)
     output_memory_changed = Signal(bool)
 
     def __init__(self, settings: Settings):
@@ -66,14 +68,42 @@ class SettingsTab(QWidget):
         layout.addWidget(hint)
         layout.addSpacing(12)
 
-        self.resolve_paths = OptionWidget(
-            text=strings.get("option.settings.resolve_paths"),
-            hint=strings.get("hint.settings.resolve_paths"),
-            checked=self.settings.resolve_paths,
-            icon=_icon("resolve_paths"),
+        export_header = QWidget()
+        export_layout = QHBoxLayout(export_header)
+        export_layout.setContentsMargins(0, 0, 0, 0)
+        export_layout.setSpacing(5)
+
+        export_icon = QLabel()
+        export_icon.setPixmap(_icon("export_path").pixmap(ICON_SIZE))
+        export_layout.addWidget(export_icon)
+
+        export_label = QLabel(strings.get("label.settings.export"))
+        export_label.setStyleSheet(Styles.LABEL)
+        export_layout.addWidget(export_label)
+        export_layout.addStretch()
+
+        self.export = PathInputWidget(
+            placeholder=strings.get("placeholder.path"),
+            caption=strings.get("dialog.settings.export"),
         )
-        self.resolve_paths.changed.connect(self._set_path_resolution)
-        layout.addWidget(self.resolve_paths)
+        self.export.value = self.settings.export_path.as_posix()
+        self.export.changed.connect(self._set_export_path)
+        export_hint = QLabel(strings.get("hint.settings.export"))
+        export_hint.setStyleSheet(Styles.HINT)
+
+        layout.addWidget(export_header)
+        layout.addWidget(self.export)
+        layout.addWidget(export_hint)
+        layout.addSpacing(12)
+
+        self.remember_output = OptionWidget(
+            text=strings.get("option.settings.remember_output"),
+            hint=strings.get("hint.settings.remember_output"),
+            checked=self.settings.remember_output,
+            icon=_icon("remember_output"),
+        )
+        self.remember_output.changed.connect(self._set_output_memory)
+        layout.addWidget(self.remember_output)
         layout.addSpacing(12)
 
         self.verbose = OptionWidget(
@@ -86,14 +116,14 @@ class SettingsTab(QWidget):
         layout.addWidget(self.verbose)
         layout.addSpacing(12)
 
-        self.remember_output = OptionWidget(
-            text=strings.get("option.settings.remember_output"),
-            hint=strings.get("hint.settings.remember_output"),
-            checked=self.settings.remember_output,
-            icon=_icon("remember_output"),
+        self.resolve_paths = OptionWidget(
+            text=strings.get("option.settings.resolve_paths"),
+            hint=strings.get("hint.settings.resolve_paths"),
+            checked=self.settings.resolve_paths,
+            icon=_icon("resolve_paths"),
         )
-        self.remember_output.changed.connect(self._set_output_memory)
-        layout.addWidget(self.remember_output)
+        self.resolve_paths.changed.connect(self._set_path_resolution)
+        layout.addWidget(self.resolve_paths)
         layout.addStretch()
 
     def _set_game_root(self, value: str) -> None:
@@ -142,6 +172,22 @@ class SettingsTab(QWidget):
         self.settings.verbose = enabled
         self.changed.emit()
         self.verbose_changed.emit(enabled)
+
+    def _set_export_path(self, value: str) -> None:
+        path = Path(value.strip()) if value.strip() else DEFAULT_OUTPUT
+        if path.is_file():
+            self.export.invalid = True
+            return
+
+        self.export.invalid = False
+        self.settings.export_path = path
+        self.export.value = path.as_posix()
+        self.changed.emit()
+        self.export_path_changed.emit(path)
+
+    def apply_export_path(self, path: Path) -> None:
+        self.export.invalid = False
+        self.export.value = path.as_posix()
 
     def _set_output_memory(self, enabled: bool) -> None:
         self.settings.remember_output = enabled

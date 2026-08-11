@@ -106,7 +106,9 @@ class MainWindow(QMainWindow):
         self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
         self.settings_tab.verbose_changed.connect(self.reporter.set_verbose)
+        self.settings_tab.export_path_changed.connect(self.convert.apply_export_path)
         self.settings_tab.output_memory_changed.connect(self.convert.apply_output_memory)
+        self.convert.export_path_changed.connect(self.settings_tab.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
         self.navigation.buttons()[0].setChecked(True)

@@ -315,6 +315,7 @@ class ConvertForm(QWidget):
 
 class ConvertTab(QWidget):
     error = Signal(object)
+    export_path_changed = Signal(object)
     settings_changed = Signal()
 
     def __init__(self, tasks: TaskManager, settings: Settings):
@@ -364,8 +365,7 @@ class ConvertTab(QWidget):
         left.addLayout(header)
         left.addWidget(self.sources, 1)
 
-        output = self.settings.output if self.settings.remember_output else None
-        self.form = ConvertForm(output or DEFAULT_OUTPUT)
+        self.form = ConvertForm(self.settings.export_path)
         layout.addLayout(left, stretch=2)
         layout.addWidget(self.form, stretch=1)
 
@@ -430,12 +430,17 @@ class ConvertTab(QWidget):
         if enabled:
             self._remember_output(self.form.output)
 
+    def apply_export_path(self, path: Path) -> None:
+        self.form.output_path.value = path.as_posix()
+        self._sync()
+
     def _remember_output(self, output: Path | None) -> None:
-        if not self.settings.remember_output or output is None or output == self.settings.output:
+        if not self.settings.remember_output or output is None or output == self.settings.export_path:
             return
 
-        self.settings.output = output
+        self.settings.export_path = output
         self.settings_changed.emit()
+        self.export_path_changed.emit(output)
 
     def stop(self) -> None:
         self.counter.stop()

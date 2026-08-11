@@ -1,5 +1,3 @@
-"""Run the scfile application package."""
-
 from .app.launcher import main
 
 

@@ -10,8 +10,8 @@ def test_store_remembers_output(tmp_path: Path) -> None:
     store = Store(data)
     output = tmp_path / "export"
 
-    store.save(Settings(remember_output=True, output=output))
+    store.save(Settings(remember_output=True, export_path=output))
 
     settings = store.load()
     assert settings.remember_output
-    assert settings.output == output
+    assert settings.export_path == output

@@ -42,7 +42,21 @@ def test_convert_remembers_output(qapp: QApplication, tmp_path: Path) -> None:
     tab.form.output_path.value = str(output)
     tab.form.output_changed.emit(tab.form.output)
 
-    assert settings.output == output
+    assert settings.export_path == output
+
+    tab.deleteLater()
+    qapp.processEvents()
+
+
+def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> None:
+    default = tmp_path / "default"
+    settings = Settings(export_path=default)
+    tab = ConvertTab(TaskManager(), settings)
+    temporary = tmp_path / "temporary"
+    tab.form.output_path.value = str(temporary)
+    tab.form.output_changed.emit(tab.form.output)
+
+    assert settings.export_path == default
 
     tab.deleteLater()
     qapp.processEvents()

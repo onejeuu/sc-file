@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QSettings
 
-from scfile.app.consts import APPLICATION, ORGANIZATION
+from scfile.app.consts import APPLICATION, DEFAULT_OUTPUT, ORGANIZATION
 
 
 def _bool(value: object, default: bool) -> bool:
@@ -21,8 +21,8 @@ class Settings:
     game_root: Path | None = None
     resolve_paths: bool = True
     verbose: bool = False
+    export_path: Path = DEFAULT_OUTPUT
     remember_output: bool = False
-    output: Path | None = None
 
 
 class Store:
@@ -34,21 +34,21 @@ class Store:
         root = Path(str(value)) if value else None
         resolve_paths = _bool(self.data.value("paths/resolve", True), True)
         verbose = _bool(self.data.value("feedback/verbose", False), False)
-        remember_output = _bool(self.data.value("convert/remember_output", False), False)
         value = self.data.value("convert/output", "")
-        output = Path(str(value)) if value else None
+        export_path = Path(str(value)) if value else DEFAULT_OUTPUT
+        remember_output = _bool(self.data.value("convert/remember_output", False), False)
         return Settings(
             game_root=root,
             resolve_paths=resolve_paths,
             verbose=verbose,
+            export_path=export_path,
             remember_output=remember_output,
-            output=output,
         )
 
     def save(self, settings: Settings) -> None:
         self.data.setValue("game/root", str(settings.game_root or ""))
         self.data.setValue("paths/resolve", settings.resolve_paths)
         self.data.setValue("feedback/verbose", settings.verbose)
+        self.data.setValue("convert/output", str(settings.export_path))
         self.data.setValue("convert/remember_output", settings.remember_output)
-        self.data.setValue("convert/output", str(settings.output or ""))
         self.data.sync()
