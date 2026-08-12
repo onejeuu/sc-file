@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 from scfile.app import updates
 from scfile.app.enums import TaskKind, TaskOutcome, UpdateStatus
 from scfile.app.events import TaskEvent, TaskItem, TaskStarted, TaskSummary
-from scfile.app.gui.tasks import TaskManager, TaskWidget
+from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.updates import UpdateChecker
 from scfile.app.tasks import Task, TaskContext
 from scfile.app.updates import UpdateCheck
@@ -57,21 +57,6 @@ def test_task_manager(qapp: QApplication, tmp_path: Path) -> None:
     _wait(qapp, lambda: not manager.busy)
 
     assert summaries[0].outcome is TaskOutcome.COMPLETED
-    manager.deleteLater()
-    qapp.processEvents()
-
-
-def test_task_widget(qapp: QApplication, tmp_path: Path) -> None:
-    manager = TaskManager()
-    widget = TaskWidget(manager)
-
-    assert manager.start(SampleTask(tmp_path))
-    _wait(qapp, lambda: not manager.busy)
-
-    assert widget.cancel.isHidden()
-    assert not widget.dismiss.isHidden()
-
-    widget.deleteLater()
     manager.deleteLater()
     qapp.processEvents()
 

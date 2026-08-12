@@ -40,7 +40,7 @@ class _PathLineEdit(QLineEdit):
 
     def __init__(self) -> None:
         super().__init__()
-        self._clearing = False
+        self._restoring = False
 
     @override
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -49,15 +49,21 @@ class _PathLineEdit(QLineEdit):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
-            if not self.text() and not self._clearing:
+            if self._restoring:
+                event.accept()
+                return
+
+            if not self.text():
                 self.clear_requested.emit()
-            self._clearing = True
+                self._restoring = True
+                event.accept()
+                return
 
         super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
-            self._clearing = False
+            self._restoring = False
 
         super().keyReleaseEvent(event)
 
@@ -252,6 +258,12 @@ class PathField(QWidget):
         layout.addWidget(title)
         layout.addWidget(self.input)
 
+        self.error = QLabel()
+        self.error.setStyleSheet(Styles.ERROR)
+        self.error.setWordWrap(True)
+        self.error.hide()
+        layout.addWidget(self.error)
+
     @property
     def value(self) -> str:
         return self.input.value
@@ -267,6 +279,11 @@ class PathField(QWidget):
     @invalid.setter
     def invalid(self, value: bool) -> None:
         self.input.invalid = value
+
+    def set_error(self, text: str | None) -> None:
+        self.invalid = text is not None
+        self.error.setText(text or "")
+        self.error.setVisible(text is not None)
 
     @property
     def initial_path(self) -> str:

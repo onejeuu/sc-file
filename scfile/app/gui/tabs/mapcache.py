@@ -1,16 +1,18 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from scfile.app import game
+from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
-from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
+from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
@@ -22,9 +24,12 @@ class MapCacheTab(QWidget):
         self.tasks = tasks
         self.settings = settings
         self.touched: set[PathField] = set()
+        self.running = False
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
+        self.tasks.reported.connect(self._report)
+        self.tasks.completed.connect(self._complete)
         self._sync()
 
     def _build_ui(self) -> None:
@@ -68,7 +73,7 @@ class MapCacheTab(QWidget):
         info.setWordWrap(True)
         layout.addWidget(info)
 
-        self.submit = QPushButton(strings.get("button.mapcache"))
+        self.submit = ProgressButton(strings.get("button.mapcache"))
         self.submit.setFixedHeight(50)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -128,12 +133,13 @@ class MapCacheTab(QWidget):
         valid_world = is_regions and game.is_minecraft_world(output.parent)
         has_regions = output.exists() and any(output.glob("*.mca"))
         world = output.parent.name if is_regions else output.name
+        overwrite = "warning.mapcache.overwrite.world" if valid_world else "warning.mapcache.overwrite.folder"
 
         return [
             message
             for condition, message in (
                 (not valid_world, strings.get("warning.mapcache.invalid_world")),
-                (has_regions, strings.get("warning.mapcache.overwrite").format(world=world)),
+                (has_regions, strings.get(overwrite).format(world=world)),
             )
             if condition
         ]
@@ -145,12 +151,15 @@ class MapCacheTab(QWidget):
         output = Path(output_value)
         invalid_source = not source_value or not game.is_map_cache(source)
         invalid_output = not output_value or output.is_file()
-        self.source.invalid = self.source in self.touched and invalid_source
-        self.output.invalid = self.output in self.touched and invalid_output
+        self.source.set_error(
+            strings.get("tooltip.mapcache.invalid.source") if self.source in self.touched and invalid_source else None
+        )
+        self.output.set_error(
+            strings.get("tooltip.mapcache.invalid.output") if self.output in self.touched and invalid_output else None
+        )
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
-            "tooltip.mapcache.invalid.source" if invalid_source else None,
-            "tooltip.mapcache.invalid.output" if invalid_output else None,
+            "tooltip.invalid.form" if invalid_source or invalid_output else None,
         )
         return next((error for error in errors if error), None)
 
@@ -158,13 +167,37 @@ class MapCacheTab(QWidget):
         self.warnings.set_messages(self._warnings())
 
         error = self._submit_error()
-        self.submit_cursor.set(error is None, strings.get(error or ""))
+        self.submit_cursor.set(self.running or error is None, strings.get(error or ""))
 
     def _start_merge(self) -> None:
+        if self.running:
+            self.tasks.cancel()
+            return
+
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
             Options(region={"raw_blocks": self.raw_blocks.checked}),
         )
-        self.tasks.start(task)
+        self.running = self.tasks.start(task)
+        if self.running:
+            self.submit.start()
+            self.submit_cursor.set(True)
         self._sync()
+
+    def _report(self, event: object) -> None:
+        if not self.running:
+            return
+
+        match event:
+            case TaskStarted():
+                self.submit.start(event.total)
+                self.submit_cursor.set(True)
+            case TaskItem() | TaskItemFailure():
+                self.submit.advance()
+
+    def _complete(self, summary: object) -> None:
+        if self.running and isinstance(summary, TaskSummary):
+            self.running = False
+            self.submit.finish()
+            self._sync()

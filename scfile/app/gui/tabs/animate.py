@@ -11,8 +11,8 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
-from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.animate import AnimateTask
 
@@ -87,7 +87,8 @@ class AnimationForm(QWidget):
     def validation_error(self) -> str | None:
         invalid = {rule.widget for rule in self.rules if not _valid(rule)}
         for rule in self.rules:
-            rule.widget.invalid = rule.widget in self.touched and rule.widget in invalid
+            error = strings.get(rule.error) if rule.widget in self.touched and rule.widget in invalid else None
+            rule.widget.set_error(error)
 
         return next((rule.error for rule in self.rules if rule.widget in invalid), None)
 
@@ -128,6 +129,7 @@ class ArmsForm(AnimationForm):
             error="tooltip.animate.invalid.additional",
             required=False,
         )
+
     @property
     def warnings(self) -> tuple[str, ...]:
         name = self.source_path.stem.lower()
@@ -145,6 +147,7 @@ class ArmsForm(AnimationForm):
             models=tuple(models),
             output=output,
         )
+
 
 class BodyForm(AnimationForm):
     title = "mode.animate.body"
@@ -218,6 +221,7 @@ class AnimateTab(QWidget):
         super().__init__()
         self.tasks = tasks
         self.settings = settings
+        self.output_auto = False
         self.output_touched = False
         self.forms: tuple[Form, ...] = (ArmsForm(), BodyForm(), FaceForm())
         self._build_ui()
@@ -284,7 +288,13 @@ class AnimateTab(QWidget):
         self.settings.export_path = path
         self._sync()
 
+    def apply_path_resolution(self) -> None:
+        if not self.settings.resolve_paths:
+            self.output_auto = False
+        self._sync()
+
     def _output_changed(self, _: str) -> None:
+        self.output_auto = False
         self.output_touched = True
         self._sync()
 
@@ -294,21 +304,31 @@ class AnimateTab(QWidget):
     def _submit_error(self) -> str | None:
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
-            self.form.validation_error(),
-            "tooltip.animate.invalid.output" if self._output_invalid() else None,
+            "tooltip.invalid.form" if self.form.validation_error() or self._output_invalid() else None,
         )
         return next((error for error in errors if error), None)
 
     def _sync(self) -> None:
         source = self.form.source.value.strip()
+        valid_source = _valid(self.form.rules[0])
 
-        if source and not self.output_touched:
-            self.output.value = str(self.settings.export_path / Path(source).with_suffix(".glb").name)
+        if valid_source and self.settings.resolve_paths:
+            suggested = self.settings.export_path / Path(source).with_suffix(".glb").name
+            if self.output_auto or not self.output.value.strip():
+                self.output.value = suggested.as_posix()
+                self.output_auto = True
+            self.output.initial_path = suggested.as_posix()
+        elif not valid_source and self.output_auto and self.settings.resolve_paths:
+            self.output.value = ""
+            self.output_auto = False
 
-        if source:
-            self.output.initial_path = str(self.settings.export_path / Path(source).with_suffix(".glb").name)
+        if not valid_source or not self.settings.resolve_paths:
+            self.output.initial_path = self.settings.export_path.as_posix()
 
-        self.output.invalid = self.output_touched and self._output_invalid()
+        error = (
+            strings.get("tooltip.animate.invalid.output") if self.output_touched and self._output_invalid() else None
+        )
+        self.output.set_error(error)
         self.warnings.set_messages(self.form.warnings)
 
         error = self._submit_error()

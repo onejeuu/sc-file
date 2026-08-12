@@ -3,7 +3,7 @@ import click
 from scfile import types
 from scfile.app.cli import params
 from scfile.app.cli.console import warn
-from scfile.app.cli.feedback import TaskFeedback
+from scfile.app.feedback import TaskFeedback
 from scfile.app.enums import CliCommand
 from scfile.app.tasks import execute
 from scfile.app.tasks.mapcache import MapCacheTask

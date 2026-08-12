@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from scfile.app.consts import DEFAULT_OUTPUT
 from scfile.app.enums import OutputLayout
+from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.formats import FORMAT_GROUPS, model_formats
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
@@ -27,6 +28,7 @@ from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.conflict import ConflictWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
@@ -109,13 +111,24 @@ class ConvertForm(QWidget):
         return output is not None and not output.is_file()
 
     def set_count(self, text: str) -> None:
-        self.submit.setText(f"{strings.get('button.convert')} ({text})")
+        if not self.submit.running:
+            self.submit.setText(f"{strings.get('button.convert')} ({text})")
 
     def set_available(self, available: bool, tooltip: str = "") -> None:
-        self.submit_cursor.set(available, strings.get(tooltip))
+        self.submit_cursor.set(self.submit.running or available, strings.get(tooltip))
 
     def set_warnings(self, warnings: list[str]) -> None:
         self.warnings.set_messages(warnings)
+
+    def start(self, total: int = 0) -> None:
+        self.submit.start(total)
+        self.submit_cursor.set(True)
+
+    def advance(self) -> None:
+        self.submit.advance()
+
+    def finish(self) -> None:
+        self.submit.finish()
 
     def _build_ui(self, output: Path) -> None:
         layout = QVBoxLayout(self)
@@ -139,7 +152,7 @@ class ConvertForm(QWidget):
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
-        self.submit = QPushButton(strings.get("button.convert"))
+        self.submit = ProgressButton(strings.get("button.convert"))
         self.submit.setMinimumHeight(50)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -232,6 +245,17 @@ class ConvertForm(QWidget):
         row_layout.addWidget(self.output_path)
         layout.addWidget(row)
 
+        error_row = QWidget()
+        error_layout = QVBoxLayout(error_row)
+        error_layout.setContentsMargins(25, 0, 0, 0)
+        error_layout.setSpacing(0)
+
+        self.output_error = QLabel()
+        self.output_error.setStyleSheet(Styles.ERROR)
+        self.output_error.hide()
+        error_layout.addWidget(self.output_error)
+        layout.addWidget(error_row)
+
         self.output_path.changed.connect(self._output_changed)
         self.output_path.activated.connect(self._select_custom_output)
         self.output_path.clear_requested.connect(self._restore_default_output)
@@ -282,6 +306,10 @@ class ConvertForm(QWidget):
         custom = self.output_custom.isChecked()
         self.output_path.read_only = not custom
         self.structure.setEnabled(custom)
+        error = strings.get("tooltip.invalid.output") if custom and not self.output_valid else ""
+        self.output_path.invalid = bool(error)
+        self.output_error.setText(error)
+        self.output_error.setVisible(bool(error))
 
     def _sync_features(self) -> None:
         for feature, widget in self.features.items():
@@ -307,6 +335,7 @@ class ConvertTab(QWidget):
         self.tasks = tasks
         self.settings = settings
         self.counter = FileCounter(self)
+        self.running = False
         self._build_ui()
 
         self.sources.changed.connect(self._sources_changed)
@@ -315,6 +344,8 @@ class ConvertTab(QWidget):
         self.form.submitted.connect(self._start_conversion)
         self.counter.changed.connect(self._sync)
         self.counter.error.connect(self.error.emit)
+        self.tasks.reported.connect(self._report)
+        self.tasks.completed.connect(self._complete)
         self.tasks.busy_changed.connect(self._sync)
 
         self._refresh()
@@ -362,7 +393,7 @@ class ConvertTab(QWidget):
         self.counter.refresh(self.sources.values, self.form.filters)
 
     def _warnings(self, sources: tuple[Path, ...], output: Path | None) -> list[str]:
-        targets = (output,) if output is not None else sources
+        targets = (output,) if output is not None else (sources if self.form.output_origin.isChecked() else ())
         game_root = self.settings.game_root
         game_directory = game_root is not None and any(path.resolve().is_relative_to(game_root) for path in targets)
         game_directory = game_directory or any("modassets/assets" in path.as_posix().lower() for path in targets)
@@ -398,6 +429,10 @@ class ConvertTab(QWidget):
         self.form.set_available(error is None, error or "")
 
     def _start_conversion(self) -> None:
+        if self.running:
+            self.tasks.cancel()
+            return
+
         task = ConvertTask(
             sources=self.sources.values,
             filters=self.form.filters,
@@ -406,8 +441,27 @@ class ConvertTab(QWidget):
             layout=self.form.output_layout,
             total=None if self.counter.busy else self.counter.count,
         )
-        self.tasks.start(task)
+        self.running = self.tasks.start(task)
+        if self.running:
+            self.form.start()
+            self.form.submit_cursor.set(True)
         self._sync()
+
+    def _report(self, event: object) -> None:
+        if not self.running:
+            return
+
+        match event:
+            case TaskStarted():
+                self.form.start(event.total)
+            case TaskItem() | TaskItemFailure():
+                self.form.advance()
+
+    def _complete(self, summary: object) -> None:
+        if self.running and isinstance(summary, TaskSummary):
+            self.running = False
+            self.form.finish()
+            self._sync()
 
     def apply_export_path(self, path: Path) -> None:
         self.form.set_default_output(path)

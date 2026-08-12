@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 
 from scfile.app import files, game
 from scfile.app.consts import TITLE
+from scfile.app.feedback import TaskFeedback
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Store
 from scfile.app.gui.styles import Styles
@@ -23,7 +24,7 @@ from scfile.app.gui.tabs.animate import AnimateTab
 from scfile.app.gui.tabs.convert import ConvertTab
 from scfile.app.gui.tabs.mapcache import MapCacheTab
 from scfile.app.gui.tabs.settings import SettingsTab
-from scfile.app.gui.tasks import TaskManager, TaskReporter
+from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.footer import FooterWidget
 
 
@@ -38,8 +39,9 @@ class MainWindow(QMainWindow):
         self._resolve_game_root()
 
         self.tasks = TaskManager(self)
-        self.reporter = TaskReporter(self.settings.verbose)
-        self.tasks.reported.connect(self.reporter)
+        self.feedback = TaskFeedback(self.settings.verbose)
+        self.tasks.reported.connect(self.feedback)
+        self.tasks.completed.connect(self.feedback.finish)
         self.tasks.busy_changed.connect(self._task_busy_changed)
 
         self._build_ui()
@@ -79,7 +81,7 @@ class MainWindow(QMainWindow):
         content_layout.setSpacing(0)
         self.stack = QStackedWidget()
 
-        self.footer = FooterWidget(self.tasks)
+        self.footer = FooterWidget()
         content_layout.addWidget(self.stack)
         content_layout.addWidget(self.footer)
 
@@ -91,7 +93,7 @@ class MainWindow(QMainWindow):
         self.navigation.idClicked.connect(self.stack.setCurrentIndex)
 
         self.convert = ConvertTab(self.tasks, self.settings)
-        self.convert.error.connect(self.reporter)
+        self.convert.error.connect(self.feedback)
         self.convert.settings_changed.connect(self._save_settings)
         self._add_tab(self.convert, "tab.converter", "assets/tab.converter.png")
 
@@ -106,7 +108,8 @@ class MainWindow(QMainWindow):
         self.settings_tab.changed.connect(self._save_settings)
         self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
-        self.settings_tab.verbose_changed.connect(self.reporter.set_verbose)
+        self.settings_tab.path_resolution_changed.connect(self.animate.apply_path_resolution)
+        self.settings_tab.verbose_changed.connect(self.feedback.set_verbose)
         self.settings_tab.export_path_changed.connect(self.convert.apply_export_path)
         self.settings_tab.export_path_changed.connect(self.animate.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
