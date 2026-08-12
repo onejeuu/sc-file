@@ -6,7 +6,7 @@ from rich.console import Console, RenderableType
 from rich.table import Table
 from rich.text import Text
 
-from scfile.app.consts import APPLICATION
+from scfile.app.consts import ACCENT_COLOR, APPLICATION
 
 
 CONSOLE = Console()
@@ -63,7 +63,7 @@ def version(
     formats: Iterable[str],
     nbt: Iterable[str],
 ) -> None:
-    title = Text(APPLICATION, style="bold yellow")
+    title = Text(APPLICATION, style=ACCENT_COLOR)
     title.append(f" {value}")
     if emoji:
         title.append(f" {emoji}")

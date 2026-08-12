@@ -1,5 +1,3 @@
-
-
 type Format = bytes
 
 SUPPORTED_FORMATS: list[Format] = [

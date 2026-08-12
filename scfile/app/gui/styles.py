@@ -2,9 +2,11 @@ from enum import Enum
 
 from PySide6.QtGui import QColor
 
+from scfile.app.consts import ACCENT_COLOR
+
 
 class Colors(Enum):
-    ACCENT = QColor("#ffd666")
+    ACCENT = QColor(ACCENT_COLOR)
     CARD = QColor("#212124")
     BACKGROUND = QColor("#141416")
     BORDER = QColor("#323236")

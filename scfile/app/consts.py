@@ -8,6 +8,8 @@ ORGANIZATION: str = "onejeuu"
 APPLICATION: str = "scfile"
 TITLE: str = "scfile"
 
+ACCENT_COLOR: str = "#ffd666"
+
 DEFAULT_OUTPUT: Path = Path.home() / APPLICATION / "export"
 
 UPDATE_CHECK_TIMEOUT_SECS: float = 5.0
