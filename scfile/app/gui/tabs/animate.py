@@ -15,6 +15,7 @@ from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.animate import AnimateTask
 
+
 @dataclass(frozen=True, slots=True)
 class PathRule:
     widget: PathField
@@ -117,8 +118,8 @@ class ArmsForm(AnimationForm):
             error="tooltip.animate.invalid.model",
         )
         self.hands = self.add_path(
-            strings.get("label.animate.additional"),
-            strings.get("dialog.animate.additional"),
+            strings.get("label.animate.hands"),
+            strings.get("dialog.animate.hands"),
             "MCSB (*.mcsb)",
             "highpoly/hands.mcsb",
             suffix=".mcsb",

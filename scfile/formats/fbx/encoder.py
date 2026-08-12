@@ -6,12 +6,15 @@ import numpy as np
 
 from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.io.fbx import FbxWriter
+from scfile.io.fbx import Cluster, FbxWriter
 from scfile.structures import models as S
 from scfile.structures.models import Feature
 from scfile.structures.models import transforms as T
 
 from .consts import DEFAULT, FBX, Props
+
+
+type Skinning = dict[int, Cluster]
 
 
 class FbxEncoder(ModelEncoder[FbxWriter]):
@@ -24,21 +27,30 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         Feature.UV,
         Feature.UV2,
         Feature.NORMALS,
+        Feature.SKELETON,
     )
-    transforms = T.scene_transforms(T.unique_names, T.flip_uv)
+    transforms = T.scene_transforms(T.unique_names, T.flip_uv, T.skeleton_to_local)
 
     @override
     def _serialize(self):
+        self._prepare()
+        self._write_header()
+        self._write_nodes()
+        self.io.write(FBX.NULL_NODE)
+
+    def _prepare(self):
         self._ctx["NODES"] = []
-        self._ctx["CLIPS"] = []
         self._ctx["BONES"] = {}
         self._ctx["MESHES"] = defaultdict(dict)
         self._ctx["ROOT_ID"] = 0
         self._ctx["NEXT_ID"] = 0
+        self._ctx["SKELETON"] = self.includes(Feature.SKELETON) and bool(self.data.scene.skeleton.bones)
+        self._ctx["SKINNING"] = (
+            {mesh.name: self._mesh_skinning(mesh) for mesh in self.data.scene.meshes} if self._ctx["SKELETON"] else {}
+        )
 
-        self._write_header()
-        self._write_nodes()
-        self.io.write(FBX.NULL_NODE)
+        if self._ctx["SKELETON"]:
+            self._ctx["BIND_POSE"] = T.global_transforms(self.data.scene.skeleton)
 
     def _write_header(self):
         self.io.write(FBX.HEADER)
@@ -73,35 +85,169 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         # Definitions
         with self._node(b"Definitions", root=True):
             self._leaf(b"Version", [100])
-            count = len(self.data.scene.meshes)
-            self._leaf(b"Count", [count * 3])
-
-            with self._node(b"ObjectType", [b"Model"]):
-                self._leaf(b"Count", [count])
-
-                with self._node(b"PropertyTemplate", [b"FbxNode"]):
-                    self._props70([(b"Visibility", b"Visibility", b"", b"A", 1.0)])
-
-            with self._node(b"ObjectType", [b"Geometry"]):
-                self._leaf(b"Count", [count])
-
-            with self._node(b"ObjectType", [b"Material"]):
-                self._leaf(b"Count", [count])
+            self._write_definitions()
 
         # Objects
         with self._node(b"Objects", root=True):
+            if self._ctx["SKELETON"]:
+                self._write_armature()
+                self._write_bones()
+
             for mesh in self.data.scene.meshes:
                 self._write_mesh(mesh)
+
+            if self._ctx["SKELETON"]:
+                self._write_bind_pose()
+                for mesh in self.data.scene.meshes:
+                    self._write_skinning(mesh)
 
         # Connections
         with self._node(b"Connections", root=True):
             root_id = np.int64(self._ctx["ROOT_ID"])
 
+            if self._ctx["SKELETON"]:
+                self._leaf(b"C", [b"OO", root_id, np.int64(0)])
+                self._write_bone_connections(root_id)
+
             for mesh in self.data.scene.meshes:
                 ids = self._ctx["MESHES"][mesh.name]
-                self._leaf(b"C", [b"OO", ids["mesh"], root_id])
+                self._leaf(b"C", [b"OO", ids["mesh"], np.int64(0)])
                 self._leaf(b"C", [b"OO", ids["geometry"], ids["mesh"]])
                 self._leaf(b"C", [b"OO", ids["material"], ids["mesh"]])
+
+                if "skin" in ids:
+                    self._leaf(b"C", [b"OO", ids["skin"], ids["geometry"]])
+                    self._write_cluster_connections(mesh, ids)
+
+    def _write_definitions(self):
+        meshes = len(self.data.scene.meshes)
+        bones = len(self.data.scene.skeleton.bones) if self._ctx["SKELETON"] else 0
+        skins = sum(bool(skinning) for skinning in self._ctx["SKINNING"].values())
+        clusters = sum(len(skinning) for skinning in self._ctx["SKINNING"].values())
+        models = meshes + bones + bool(bones)
+
+        definitions = [(b"Model", models), (b"Geometry", meshes), (b"Material", meshes)]
+        if skins:
+            definitions.append((b"Deformer", skins + clusters))
+
+        if bones:
+            definitions.append((b"Pose", 1))
+
+        self._leaf(b"Count", [sum(count for _, count in definitions)])
+        for name, count in definitions:
+            with self._node(b"ObjectType", [name]):
+                self._leaf(b"Count", [count])
+
+                if name == b"Model":
+                    with self._node(b"PropertyTemplate", [b"FbxNode"]):
+                        self._props70([(b"Visibility", b"Visibility", b"", b"A", 1.0)])
+
+    def _write_armature(self):
+        armature_id = self._next_id()
+        self._ctx["ROOT_ID"] = armature_id
+
+        with self._node(b"Model", [armature_id, b"Armature\x00\x01Model", b"Null"]):
+            self._props70([(b"InheritType", b"enum", b"", b"", 1)])
+
+    def _write_bones(self):
+        for bone in self.data.scene.skeleton.bones:
+            fbx_id = self._next_id()
+            self._ctx["BONES"][bone.id] = fbx_id
+
+            name = bone.name.encode() + b"\x00\x01Model"
+            with self._node(b"Model", [fbx_id, name, b"LimbNode"]):
+                self._props70(
+                    [
+                        (b"Lcl Translation", b"Lcl Translation", b"", b"A", *bone.position.tolist()),
+                        (b"Lcl Rotation", b"Lcl Rotation", b"", b"A", *bone.rotation.tolist()),
+                        (b"InheritType", b"enum", b"", b"", 1),
+                    ]
+                )
+
+    def _write_bind_pose(self):
+        pose_id = self._next_id()
+        bones = self.data.scene.skeleton.bones
+
+        with self._node(b"Pose", [pose_id, b"Pose\x00\x01Pose", b"BindPose"]):
+            self._leaf(b"Type", [b"BindPose"])
+            self._leaf(b"Version", [100])
+            self._leaf(b"NbPoseNodes", [len(bones) + len(self.data.scene.meshes) + 1])
+
+            with self._node(b"PoseNode"):
+                self._leaf(b"Node", [self._ctx["ROOT_ID"]])
+                self._leaf(b"Matrix", [np.eye(4, dtype=np.float64).flatten()])
+
+            for mesh in self.data.scene.meshes:
+                with self._node(b"PoseNode"):
+                    self._leaf(b"Node", [self._ctx["MESHES"][mesh.name]["mesh"]])
+                    self._leaf(b"Matrix", [np.eye(4, dtype=np.float64).flatten()])
+
+            for bone, bind_matrix in zip(bones, self._ctx["BIND_POSE"]):
+                with self._node(b"PoseNode"):
+                    self._leaf(b"Node", [self._ctx["BONES"][bone.id]])
+                    self._leaf(b"Matrix", [self.io.matrix(bind_matrix)])
+
+    def _write_skinning(self, mesh: S.ModelMesh):
+        skinning: Skinning = self._ctx["SKINNING"][mesh.name]
+        if not skinning:
+            return
+
+        skin_id = self._next_id()
+        ids = self._ctx["MESHES"][mesh.name]
+        ids["skin"] = skin_id
+
+        name = mesh.name.encode() + b"\x00\x01Deformer"
+        with self._node(b"Deformer", [skin_id, name, b"Skin"]):
+            self._leaf(b"Version", [101])
+            self._leaf(b"Link_DeformAcuracy", [50.0])
+
+        for bone_id, (indices, weights) in skinning.items():
+            cluster_id = self._next_id()
+            ids[f"cluster_{bone_id}"] = cluster_id
+            bone = self.data.scene.skeleton.bones[bone_id]
+            name = bone.name.encode() + b"\x00\x01SubDeformer"
+
+            with self._node(b"Deformer", [cluster_id, name, b"Cluster"]):
+                self._leaf(b"Version", [100])
+                self._leaf(b"UserData", [b"", b""])
+                self._leaf(b"Indexes", [indices])
+                self._leaf(b"Weights", [weights])
+                transform = np.linalg.inv(self._ctx["BIND_POSE"][bone_id])
+                self._leaf(b"Transform", [self.io.matrix(transform)])
+                self._leaf(b"TransformLink", [self.io.matrix(self._ctx["BIND_POSE"][bone_id])])
+                self._leaf(b"TransformAssociateModel", [np.eye(4, dtype=np.float64).flatten()])
+
+    def _write_bone_connections(self, root_id: np.int64):
+        for bone in self.data.scene.skeleton.bones:
+            child_id = self._ctx["BONES"][bone.id]
+            parent_id = root_id if bone.is_root else self._ctx["BONES"][bone.parent_id]
+            self._leaf(b"C", [b"OO", child_id, parent_id])
+
+    def _write_cluster_connections(
+        self,
+        mesh: S.ModelMesh,
+        ids: dict[str, np.int64],
+    ):
+        for bone_id in self._ctx["SKINNING"][mesh.name]:
+            self._leaf(b"C", [b"OO", ids[f"cluster_{bone_id}"], ids["skin"]])
+            self._leaf(b"C", [b"OO", self._ctx["BONES"][bone_id], ids[f"cluster_{bone_id}"]])
+
+    def _mesh_skinning(
+        self,
+        mesh: S.ModelMesh,
+    ) -> Skinning:
+        active = mesh.links_weights > 0.0
+        bone_ids = np.unique(mesh.links_ids[active])
+        skinning: Skinning = {}
+
+        for bone_id in bone_ids:
+            rows, columns = np.where((mesh.links_ids == bone_id) & active)
+            indices, inverse = np.unique(rows, return_inverse=True)
+            weights = np.zeros(len(indices), dtype=np.float64)
+            np.add.at(weights, inverse, mesh.links_weights[rows, columns])
+            skinning[int(bone_id)] = indices.astype(np.int32), weights
+
+        return skinning
 
     def _write_mesh(self, mesh: S.ModelMesh):
         fbx_id = self._next_id()

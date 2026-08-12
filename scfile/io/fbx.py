@@ -1,4 +1,3 @@
-
 import numpy as np
 from numpy.typing import NDArray
 
@@ -15,9 +14,16 @@ type Int32Array = NDArray[np.int32]
 type Int64Array = NDArray[np.int64]
 type Array = Float32Array | Float64Array | Int32Array | Int64Array
 type Value = Scalar | Array | list[Scalar]
+type Cluster = tuple[Int32Array, Float64Array]
 
 
 class FbxWriter(StructWriter):
+    def matrix(
+        self,
+        value: Float32Array,
+    ) -> Float64Array:
+        return value.T.astype(np.float64, copy=False).flatten()
+
     def property(
         self,
         value: Value,
@@ -38,7 +44,6 @@ class FbxWriter(StructWriter):
             case list():
                 self._array(np.array(value, dtype=np.float64))
 
-    # Serialize individual FBX property payloads selected by property()
     def _bool(self, value: bool) -> None:
         self.value(F.U8, Prop.BOOL)
         self.value(F.U8, 1 if value else 0)
