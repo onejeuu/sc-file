@@ -58,10 +58,10 @@ def euler_to_quat(rotation: EulerAngles) -> Quaternion:
 def quaternions_to_euler(rotations: NDArray[np.float32]) -> EulerAngles:
     """Convert quaternion keyframes (XYZW) to continuous XYZ euler angles."""
 
-    x, y, z, w = rotations.T
+    x, y, z, w = np.moveaxis(rotations, -1, 0)
     roll = np.arctan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y))
     pitch = np.arcsin(np.clip(2.0 * (w * y - z * x), -1.0, 1.0))
     yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
 
-    angles = np.stack((roll, pitch, yaw), axis=1)
+    angles = np.stack((roll, pitch, yaw), axis=-1)
     return np.degrees(np.unwrap(angles, axis=0)).astype(np.float32)

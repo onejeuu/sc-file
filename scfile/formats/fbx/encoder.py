@@ -16,7 +16,7 @@ from .consts import DEFAULT, FBX, Props
 
 
 type Skinning = dict[int, Cluster]
-type Curves = tuple[np.int64, np.int64, np.int64]
+type Curves = tuple[tuple[bytes, np.int64], ...]
 type CurveNode = tuple[np.int64, Curves]
 
 
@@ -24,8 +24,8 @@ type CurveNode = tuple[np.int64, Curves]
 class AnimationNodes:
     stack: np.int64
     layer: np.int64
-    translations: list[CurveNode]
-    rotations: list[CurveNode]
+    translations: list[CurveNode | None]
+    rotations: list[CurveNode | None]
 
 
 class FbxEncoder(ModelEncoder[FbxWriter]):
@@ -67,6 +67,11 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
             {mesh.name: self._mesh_skinning(mesh) for mesh in self.data.scene.meshes} if self._ctx["SKELETON"] else {}
         )
         self._ctx["ANIMATIONS"] = []
+        self._ctx["ROTATIONS"] = (
+            [S.quaternions_to_euler(clip.rotations) for clip in self.data.scene.animation.clips]
+            if self._ctx["ANIMATION"]
+            else []
+        )
 
         if self._ctx["SKELETON"]:
             self._ctx["BIND_POSE"] = T.global_transforms(self.data.scene.skeleton)
@@ -159,13 +164,13 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
             definitions.append((b"Pose", 1))
         if self._ctx["ANIMATION"]:
             clips = len(self.data.scene.animation.clips)
-            bones = len(self.data.scene.skeleton.bones)
+            nodes, curves = self._animation_counts()
             definitions.extend(
                 [
                     (b"AnimationStack", clips),
                     (b"AnimationLayer", clips),
-                    (b"AnimationCurveNode", clips * bones * 2),
-                    (b"AnimationCurve", clips * bones * 6),
+                    (b"AnimationCurveNode", nodes),
+                    (b"AnimationCurve", curves),
                 ]
             )
 
@@ -269,15 +274,22 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
             self._leaf(b"C", [b"OO", self._ctx["BONES"][bone_id], ids[f"cluster_{bone_id}"]])
 
     def _write_animations(self):
-        for clip in self.data.scene.animation.clips:
-            self._write_animation(clip)
+        for clip, rotations in zip(self.data.scene.animation.clips, self._ctx["ROTATIONS"]):
+            self._write_animation(clip, rotations)
 
-    def _write_animation(self, clip: S.AnimationClip):
+    def _write_animation(
+        self,
+        clip: S.AnimationClip,
+        rotations: np.ndarray,
+    ):
         stack = self._next_id()
         layer = self._next_id()
-        times = np.rint(clip.times * FBX.KTIME).astype(np.int64)
+        times = np.rint(clip.times * FBX.TICKS_PER_SECOND).astype(np.int64)
         end = times[-1] if times.size else np.int64(0)
         name = clip.name.encode()
+        attributes = np.full(len(times), FBX.KEY_ATTRIBUTES, dtype=np.int32)
+        references = np.ones(len(times), dtype=np.int32)
+        curve_data = self.io.curve_data(times, attributes, references)
 
         with self._node(b"AnimationStack", [stack, name + b"\x00\x01AnimStack", b""]):
             self._props70(
@@ -292,13 +304,26 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         with self._node(b"AnimationLayer", [layer, name + b"\x00\x01AnimLayer", b""]):
             self._leaf(b"Version", [100])
 
-        rotations = S.quaternions_to_euler(clip.rotations.reshape(-1, 4)).reshape(clip.rotations.shape[:-1] + (3,))
         animation = AnimationNodes(stack, layer, [], [])
         for bone in self.data.scene.skeleton.bones:
             animation.translations.append(
-                self._write_curve_node(b"Lcl Translation", times, clip.translations[:, bone.id])
+                self._write_curve_node(
+                    b"Lcl Translation",
+                    times,
+                    clip.translations[:, bone.id],
+                    bone.position,
+                    curve_data,
+                )
             )
-            animation.rotations.append(self._write_curve_node(b"Lcl Rotation", times, rotations[:, bone.id]))
+            animation.rotations.append(
+                self._write_curve_node(
+                    b"Lcl Rotation",
+                    times,
+                    rotations[:, bone.id],
+                    bone.rotation,
+                    curve_data,
+                )
+            )
 
         self._ctx["ANIMATIONS"].append(animation)
 
@@ -307,31 +332,37 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         property: bytes,
         times: np.ndarray,
         values: np.ndarray,
-    ) -> CurveNode:
-        node = self._next_id()
-        with self._node(b"AnimationCurveNode", [node, property + b"\x00\x01AnimCurveNode", b""]):
-            pass
+        default: np.ndarray,
+        curve_data: tuple[bytes, bytes, bytes],
+    ) -> CurveNode | None:
+        axes = np.any(values != default, axis=0)
+        if not axes.any():
+            return None
 
-        curves = (
-            self._write_curve(times, values[:, 0]),
-            self._write_curve(times, values[:, 1]),
-            self._write_curve(times, values[:, 2]),
+        node = self._next_id()
+        self._leaf(b"AnimationCurveNode", [node, property + b"\x00\x01AnimCurveNode", b""])
+
+        curves = tuple(
+            (axis, self._write_curve(values[:, index], curve_data))
+            for index, axis in enumerate(FBX.AXES)
+            if axes[index]
         )
         return node, curves
 
     def _write_curve(
         self,
-        times: np.ndarray,
         values: np.ndarray,
+        curve_data: tuple[bytes, bytes, bytes],
     ) -> np.int64:
         curve = self._next_id()
-        with self._node(b"AnimationCurve", [curve, b"\x00\x01AnimCurve", b""]):
-            self._leaf(b"Default", [float(values[0])])
-            self._leaf(b"KeyVer", [4008])
-            self._leaf(b"KeyTime", [times])
-            self._leaf(b"KeyValueFloat", [values.astype(np.float32, copy=False)])
-            self._leaf(b"KeyAttrFlags", [np.full(len(values), FBX.KEY_FLAGS, dtype=np.int32)])
-            self._leaf(b"KeyAttrRefCount", [np.ones(len(values), dtype=np.int32)])
+        self.io.animation_curve(
+            curve,
+            curve_data[0],
+            values.astype(np.float32, copy=False),
+            curve_data[1],
+            curve_data[2],
+            FBX.KEY_VERSION,
+        )
 
         return curve
 
@@ -344,10 +375,14 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                 animation.translations,
                 animation.rotations,
             ):
-                self._write_curve_connections(
-                    translation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Translation"
-                )
-                self._write_curve_connections(rotation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Rotation")
+                if translation is not None:
+                    self._write_curve_connections(
+                        translation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Translation"
+                    )
+                if rotation is not None:
+                    self._write_curve_connections(
+                        rotation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Rotation"
+                    )
 
     def _write_curve_connections(
         self,
@@ -359,8 +394,23 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         node, curves = animation
         self._leaf(b"C", [b"OO", node, layer])
         self._leaf(b"C", [b"OP", node, bone, property])
-        for axis, curve in zip((b"d|X", b"d|Y", b"d|Z"), curves):
+        for axis, curve in curves:
             self._leaf(b"C", [b"OP", curve, node, axis])
+
+    def _animation_counts(self) -> tuple[int, int]:
+        nodes, curves = 0, 0
+
+        for clip, rotations in zip(self.data.scene.animation.clips, self._ctx["ROTATIONS"]):
+            for bone in self.data.scene.skeleton.bones:
+                for values, default in (
+                    (clip.translations[:, bone.id], bone.position),
+                    (rotations[:, bone.id], bone.rotation),
+                ):
+                    axes = np.any(values != default, axis=0)
+                    nodes += bool(axes.any())
+                    curves += int(axes.sum())
+
+        return nodes, curves
 
     def _mesh_skinning(
         self,
@@ -400,7 +450,7 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
             self._leaf(b"Properties70")
             self._leaf(b"GeometryVersion", [124])
             self._leaf(b"Vertices", [mesh.vertices.astype(np.float32, copy=False).flatten()])
-            self._leaf(b"PolygonVertexIndex", [self._fbx_polygon_indices(mesh.polygons)])
+            self._leaf(b"PolygonVertexIndex", [self.io.polygon_indices(mesh.polygons)])
             self._leaf(b"Edges", [])
 
             with self._node(b"LayerElementMaterial", [0]):
@@ -471,9 +521,6 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
 
     @contextmanager
     def _node(self, name: bytes, properties: list | None = None, root: bool = False):
-        if self._ctx["NODES"]:
-            self._ctx["NODES"][-1]["children"] = True
-
         self._start_node(name, properties, root)
 
         try:
@@ -482,8 +529,10 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
             self._end_node()
 
     def _leaf(self, name: bytes, properties: list | None = None, root: bool = False):
-        with self._node(name=name, properties=properties, root=root):
-            pass
+        if self._ctx["NODES"]:
+            self._ctx["NODES"][-1]["children"] = True
+
+        self.io.leaf(name, properties or [], root)
 
     def _props70(self, props: Props):
         with self._node(b"Properties70"):
@@ -492,29 +541,24 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                     pass
 
     def _start_node(self, name: bytes, properties: list | None = None, root: bool = False):
+        if self._ctx["NODES"]:
+            self._ctx["NODES"][-1]["children"] = True
+
         properties = properties or []
         node_start = self.io.tell()
 
-        # Placeholder header
-        self.io.value(F.U32, 0)  # endOffset
-        self.io.value(F.U32, 0)  # numProperties
-        self.io.value(F.U32, 0)  # propertyListLen
-        self.io.value(F.U8, len(name))
-        self.io.write(name)
+        self.io.header(0, 0, 0, name)
 
-        # Properties
         props_start = self.io.tell()
-        prop_count = 0
         for prop in properties:
             self.io.property(prop)
-            prop_count += 1
 
         prop_len = self.io.tell() - props_start
 
         self._ctx["NODES"].append(
             dict(
                 start=node_start,
-                prop_count=prop_count,
+                prop_count=len(properties),
                 prop_len=prop_len,
                 root=root,
                 children=False,
@@ -529,18 +573,10 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
 
         end_pos = self.io.tell()
 
-        # Update node header
         self.io.seek(node["start"])
-        self.io.value(F.U32, end_pos)
-        self.io.value(F.U32, node["prop_count"])
-        self.io.value(F.U32, node["prop_len"])
+        self.io.header(end_pos, node["prop_count"], node["prop_len"])
         self.io.seek(end_pos)
 
     def _next_id(self) -> np.int64:
         self._ctx["NEXT_ID"] += 1
         return np.int64(self._ctx["NEXT_ID"])
-
-    def _fbx_polygon_indices(self, polygons: np.ndarray) -> np.ndarray:
-        indices = polygons.flatten().astype(np.int32)
-        indices[2::3] = -indices[2::3] - 1
-        return indices

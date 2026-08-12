@@ -14,8 +14,15 @@ class FBX:
     FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
     NULL_NODE = b"\x00" * 13
     CREATOR = f"{REPO} v{SEMVER}".encode()
-    KTIME = 46_186_158_000
-    KEY_FLAGS = 24_836
+    TICKS_PER_SECOND = 46_186_158_000
+    KEY_VERSION = 4008
+    AXES = (b"d|X", b"d|Y", b"d|Z")
+
+    KEY_LINEAR = 1 << 2
+    KEY_AUTO_TANGENT = 1 << 8
+    KEY_TIME_INDEPENDENT = 1 << 13
+    KEY_CLAMP_PROGRESSIVE = 1 << 14
+    KEY_ATTRIBUTES = KEY_LINEAR | KEY_AUTO_TANGENT | KEY_TIME_INDEPENDENT | KEY_CLAMP_PROGRESSIVE
 
 
 class DEFAULT:
