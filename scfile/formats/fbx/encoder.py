@@ -342,6 +342,9 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         node = self._next_id()
         self._leaf(b"AnimationCurveNode", [node, property + b"\x00\x01AnimCurveNode", b""])
 
+        if property == b"Lcl Rotation":
+            values = np.round(values, decimals=4)
+
         curves = tuple(
             (axis, self._write_curve(values[:, index], curve_data))
             for index, axis in enumerate(FBX.AXES)
@@ -358,7 +361,7 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         self.io.animation_curve(
             curve,
             curve_data[0],
-            values.astype(np.float32, copy=False),
+            values,
             curve_data[1],
             curve_data[2],
             FBX.KEY_VERSION,

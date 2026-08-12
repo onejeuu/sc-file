@@ -9,6 +9,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.option import OptionWidget
+from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.mapcache import MapCacheTask
@@ -73,6 +74,7 @@ class MapCacheTab(QWidget):
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self._start_merge)
         layout.addWidget(self.submit)
+        self.submit_cursor = DisabledCursor(self.submit)
 
     def apply_game_root(self) -> None:
         if source := self._game_cache():
@@ -156,10 +158,7 @@ class MapCacheTab(QWidget):
         self.warnings.set_messages(self._warnings())
 
         error = self._submit_error()
-        self.submit.setEnabled(error is None)
-        self.submit.setToolTip(strings.get(error or ""))
-        cursor = Qt.CursorShape.PointingHandCursor if error is None else Qt.CursorShape.ForbiddenCursor
-        self.submit.setCursor(cursor)
+        self.submit_cursor.set(error is None, strings.get(error or ""))
 
     def _start_merge(self) -> None:
         task = MapCacheTask(

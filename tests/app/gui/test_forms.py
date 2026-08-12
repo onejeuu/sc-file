@@ -69,6 +69,11 @@ def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> Non
 
     assert settings.export_path == default
 
+    tab.apply_export_path(tmp_path / "changed")
+    tab.form.output_path.value = ""
+    tab.form.output_path.clear_requested.emit()
+    assert tab.form.output == tmp_path / "changed"
+
     tab.deleteLater()
     qapp.processEvents()
 

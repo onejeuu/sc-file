@@ -25,6 +25,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.conflict import ConflictWidget
+from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
@@ -55,8 +56,10 @@ class ConvertForm(QWidget):
 
     def __init__(self, output: Path = DEFAULT_OUTPUT, parent: QWidget | None = None):
         super().__init__(parent)
+        self.default_output = output
         self.groups: dict[str, QCheckBox] = {}
         self.features: dict[Feature, QCheckBox] = {}
+        self.feature_cursors: dict[Feature, DisabledCursor] = {}
         self._build_ui(output)
         self._sync_output()
         self._sync_features()
@@ -109,10 +112,7 @@ class ConvertForm(QWidget):
         self.submit.setText(f"{strings.get('button.convert')} ({text})")
 
     def set_available(self, available: bool, tooltip: str = "") -> None:
-        self.submit.setEnabled(available)
-        self.submit.setToolTip(strings.get(tooltip))
-        cursor = Qt.CursorShape.PointingHandCursor if available else Qt.CursorShape.ForbiddenCursor
-        self.submit.setCursor(cursor)
+        self.submit_cursor.set(available, strings.get(tooltip))
 
     def set_warnings(self, warnings: list[str]) -> None:
         self.warnings.set_messages(warnings)
@@ -142,8 +142,10 @@ class ConvertForm(QWidget):
         self.submit = QPushButton(strings.get("button.convert"))
         self.submit.setMinimumHeight(50)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
+        self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self.submitted.emit)
         layout.addWidget(self.submit)
+        self.submit_cursor = DisabledCursor(self.submit)
 
     def _build_format_groups(self, layout: QVBoxLayout) -> None:
         self.model_format = QComboBox()
@@ -182,6 +184,7 @@ class ConvertForm(QWidget):
                 checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
                 options_layout.addWidget(checkbox)
                 self.features[feature] = checkbox
+                self.feature_cursors[feature] = DisabledCursor(checkbox)
 
             suffixes = QLabel(", ".join(group.display))
             suffixes.setStyleSheet(f"{Styles.HINT}; margin-left: 24px;")
@@ -231,6 +234,7 @@ class ConvertForm(QWidget):
 
         self.output_path.changed.connect(self._output_changed)
         self.output_path.activated.connect(self._select_custom_output)
+        self.output_path.clear_requested.connect(self._restore_default_output)
         modes.buttonToggled.connect(self._output_changed)
 
     def _build_layout(self, layout: QVBoxLayout) -> None:
@@ -265,6 +269,15 @@ class ConvertForm(QWidget):
         if not self.output_custom.isChecked():
             self.output_custom.setChecked(True)
 
+    def _restore_default_output(self) -> None:
+        self.output_path.value = self.default_output.as_posix()
+        self._output_changed()
+
+    def set_default_output(self, output: Path) -> None:
+        self.default_output = output
+        self.output_path.value = output.as_posix()
+        self._output_changed()
+
     def _sync_output(self) -> None:
         custom = self.output_custom.isChecked()
         self.output_path.read_only = not custom
@@ -273,7 +286,7 @@ class ConvertForm(QWidget):
     def _sync_features(self) -> None:
         for feature, widget in self.features.items():
             supported = REGISTRY.model_supports(self.selected_format, feature)
-            widget.setEnabled(supported)
+            self.feature_cursors[feature].set(supported)
             widget.setChecked(supported)
 
     def _skeleton_changed(self, enabled: bool) -> None:
@@ -397,7 +410,7 @@ class ConvertTab(QWidget):
         self._sync()
 
     def apply_export_path(self, path: Path) -> None:
-        self.form.output_path.value = path.as_posix()
+        self.form.set_default_output(path)
         self._sync()
 
     def stop(self) -> None:

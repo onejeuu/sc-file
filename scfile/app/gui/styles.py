@@ -52,10 +52,10 @@ class Styles:
         QCheckBox {{ color: {Colors.TEXT}; spacing: 8px; }}
         QCheckBox:disabled {{ color: {Colors.TEXT.dark}; }}
         QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid {Colors.BORDER}; background: {Colors.CARD}; border-radius: 3px; }}
-        QCheckBox::indicator:unchecked:hover {{ border: 1px solid {Colors.ACCENT}; }}
+        QCheckBox::indicator:unchecked:hover, QCheckBox[hovered="true"]::indicator:unchecked {{ border: 1px solid {Colors.ACCENT}; }}
         QCheckBox::indicator:disabled {{ background: transparent; border: 1px solid {Colors.BORDER.darker}; }}
         QCheckBox::indicator:checked {{ background: {Colors.ACCENT}; border: 1px solid {Colors.ACCENT}; }}
-        QCheckBox::indicator:checked:hover {{ background: {Colors.ACCENT.darker}; border: 1px solid {Colors.ACCENT.darker}; }}
+        QCheckBox::indicator:checked:hover, QCheckBox[hovered="true"]::indicator:checked {{ background: {Colors.ACCENT.darker}; border: 1px solid {Colors.ACCENT.darker}; }}
         QCheckBox::indicator:checked:disabled {{ background: {Colors.CARD.light}; border: 1px solid {Colors.CARD.light}; }}
     """
 

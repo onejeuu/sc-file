@@ -5,7 +5,7 @@ import pytest
 from scfile.formats import EfkmodelDecoder, FbxEncoder, GlbEncoder, McalDecoder, McsaDecoder, McsbDecoder, McvdDecoder, ObjEncoder
 from scfile.options import Options
 
-from .conftest import ASSETS, export
+from .conftest import ASSETS, assert_binary, export
 
 
 ROOT = ASSETS / "models"
@@ -25,7 +25,7 @@ def test_mcsb(
 ) -> None:
     actual = export(McsbDecoder, encoder, source, OPTIONS)
     expected = (ROOT / folder / f"{source.name}{encoder.suffix()}").read_bytes()
-    assert actual == expected
+    assert_binary(actual, expected)
 
 
 @pytest.mark.parametrize("folder, encoder", ENCODERS)
@@ -36,13 +36,13 @@ def test_mcsa(
     source = SOURCE / "model_v15.mcsa"
     actual = export(McsaDecoder, encoder, source, OPTIONS)
     expected = (ROOT / folder / f"{source.name}{encoder.suffix()}").read_bytes()
-    assert actual == expected
+    assert_binary(actual, expected)
 
 
 def test_mcvd() -> None:
     source = SOURCE / "animation.mcvd"
     actual = export(McvdDecoder, GlbEncoder, source, OPTIONS)
-    assert actual == (ROOT / "glb" / f"{source.name}.glb").read_bytes()
+    assert_binary(actual, (ROOT / "glb" / f"{source.name}.glb").read_bytes())
 
 
 def test_mcal() -> None:
@@ -61,4 +61,4 @@ def test_efkmodel(
     source = SOURCE / "particle.efkmodel"
     actual = export(EfkmodelDecoder, encoder, source)
     expected = (ROOT / folder / f"{source.name}{encoder.suffix()}").read_bytes()
-    assert actual == expected
+    assert_binary(actual, expected)

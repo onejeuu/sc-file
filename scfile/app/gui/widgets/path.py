@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Literal, override
 
 from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
-from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent, QMouseEvent
+from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent, QKeyEvent, QMouseEvent
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from scfile.app.gui import strings
@@ -36,11 +36,30 @@ def _local_path(data: QMimeData) -> str | None:
 class _PathLineEdit(QLineEdit):
     activated = Signal()
     path_set = Signal(str)
+    clear_requested = Signal()
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._clearing = False
 
     @override
     def mousePressEvent(self, event: QMouseEvent) -> None:
         self.activated.emit()
         super().mousePressEvent(event)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
+            if not self.text() and not self._clearing:
+                self.clear_requested.emit()
+            self._clearing = True
+
+        super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event: QKeyEvent) -> None:
+        if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
+            self._clearing = False
+
+        super().keyReleaseEvent(event)
 
     def insertFromMimeData(self, data: QMimeData) -> None:
         if path := _local_path(data):
@@ -68,6 +87,7 @@ class _PathLineEdit(QLineEdit):
 class PathInputWidget(QWidget):
     activated = Signal()
     changed = Signal(str)
+    clear_requested = Signal()
 
     def __init__(
         self,
@@ -99,6 +119,7 @@ class PathInputWidget(QWidget):
         self.line_edit.activated.connect(self.activated)
         self.line_edit.editingFinished.connect(self._emit_changed)
         self.line_edit.path_set.connect(self.changed.emit)
+        self.line_edit.clear_requested.connect(self.clear_requested)
 
         self.browse_btn = QPushButton("...")
         self.browse_btn.setStyleSheet(Styles.BUTTON)

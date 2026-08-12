@@ -74,6 +74,21 @@ class OptionWidget(QWidget):
 
         super().mousePressEvent(event)
 
+    def enterEvent(self, event) -> None:
+        if self._icon:
+            self._set_hovered(True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        if self._icon:
+            self._set_hovered(False)
+        super().leaveEvent(event)
+
+    def _set_hovered(self, hovered: bool) -> None:
+        self.checkbox.setProperty("hovered", hovered)
+        self.checkbox.style().unpolish(self.checkbox)
+        self.checkbox.style().polish(self.checkbox)
+
     @property
     def checked(self) -> bool:
         return self.checkbox.isChecked()

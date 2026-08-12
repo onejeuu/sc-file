@@ -12,6 +12,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.path import PathField
+from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.animate import AnimateTask
 
@@ -46,6 +47,10 @@ class AnimationForm(QWidget):
         self.form_layout.setContentsMargins(0, 0, 0, 0)
         self.form_layout.setSpacing(10)
         self.form_layout.addStretch()
+
+    @property
+    def warnings(self) -> tuple[str, ...]:
+        return ()
 
     @property
     def source_path(self) -> Path:
@@ -106,9 +111,6 @@ class ArmsForm(AnimationForm):
             error="tooltip.animate.invalid.animation",
         )
 
-        self.warnings = WarningsWidget()
-        self.form_layout.insertWidget(1, self.warnings)
-
         self.model = self.add_path(
             strings.get("label.animate.model"),
             strings.get("dialog.animate.model"),
@@ -126,7 +128,11 @@ class ArmsForm(AnimationForm):
             error="tooltip.animate.invalid.additional",
             required=False,
         )
-        self.changed.connect(self._sync_warnings)
+    @property
+    def warnings(self) -> tuple[str, ...]:
+        name = self.source_path.stem.lower()
+        is_mcvd = self.source_path.suffix.lower() == ".mcvd"
+        return (strings.get("warning.animate.not_fp"),) if is_mcvd and "fp_" not in name and "wpn_" not in name else ()
 
     def create_task(self, output: Path) -> AnimateTask:
         models = [self.model_path]
@@ -139,14 +145,6 @@ class ArmsForm(AnimationForm):
             models=tuple(models),
             output=output,
         )
-
-    def _sync_warnings(self) -> None:
-        name = self.source_path.stem.lower()
-        is_mcvd = self.source_path.suffix.lower() == ".mcvd"
-        warning = is_mcvd and "fp_" not in name and "wpn_" not in name
-        messages = (strings.get("warning.animate.not_fp"),) if warning else ()
-        self.warnings.set_messages(messages)
-
 
 class BodyForm(AnimationForm):
     title = "mode.animate.body"
@@ -253,19 +251,23 @@ class AnimateTab(QWidget):
         )
         self.output.changed.connect(self._output_changed)
 
+        self.warnings = WarningsWidget()
+        layout.addWidget(self.warnings)
         layout.addWidget(self.output)
 
         self.submit = QPushButton(strings.get("button.animate"))
         self.submit.setFixedHeight(50)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
+        self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self._start_export)
         layout.addWidget(self.submit)
+        self.submit_cursor = DisabledCursor(self.submit)
 
     def _build_modes(self, layout: QVBoxLayout) -> None:
         self.tabs = QTabBar()
         self.tabs.setStyleSheet(Styles.TABS)
         self.tabs.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.tabs.setIconSize(QSize(18, 18))
+        self.tabs.setIconSize(QSize(16, 16))
 
         for form in self.forms:
             icon = QIcon(str(files.resource(f"assets/animate.{form.icon}.png")))
@@ -307,12 +309,10 @@ class AnimateTab(QWidget):
             self.output.initial_path = str(self.settings.export_path / Path(source).with_suffix(".glb").name)
 
         self.output.invalid = self.output_touched and self._output_invalid()
+        self.warnings.set_messages(self.form.warnings)
 
         error = self._submit_error()
-        self.submit.setEnabled(error is None)
-        self.submit.setToolTip(strings.get(error or ""))
-        cursor = Qt.CursorShape.PointingHandCursor if error is None else Qt.CursorShape.ForbiddenCursor
-        self.submit.setCursor(cursor)
+        self.submit_cursor.set(error is None, strings.get(error or ""))
 
     def _start_export(self) -> None:
         self.tasks.start(self.form.create_task(Path(self.output.value.strip())))
