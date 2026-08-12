@@ -14,7 +14,7 @@ from .enums import (
     UVOrigin,
     UVSign,
 )
-from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat
+from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat, quaternions_to_euler
 from .meta import ModelMeta
 from .mesh import BlendShape, MeshBounds, ModelMesh
 from .scene import ModelScene, ModelSkin, SceneScales
@@ -97,4 +97,5 @@ __all__ = (
     "create_rotation_matrix",
     "create_transform_matrix",
     "euler_to_quat",
+    "quaternions_to_euler",
 )

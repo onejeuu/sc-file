@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import create_rotation_matrix, create_transform_matrix, euler_to_quat
+from scfile.structures.models import create_rotation_matrix, create_transform_matrix, euler_to_quat, quaternions_to_euler
 
 
 def test_rotation() -> None:
@@ -31,3 +31,10 @@ def test_quaternion() -> None:
 
     assert np.allclose(quaternion, [0.0, 0.0, 0.0, 1.0])
     assert np.isclose(np.linalg.norm(quaternion), 1.0)
+
+
+def test_quaternion_keyframes() -> None:
+    angles = np.array([[27.0, -3.0, 5.0], [25.0, 6.0, 21.0], [-15.0, 9.0, 42.0]], dtype=np.float32)
+    rotations = np.array([euler_to_quat(angle) for angle in angles])
+
+    assert np.allclose(quaternions_to_euler(rotations), angles)

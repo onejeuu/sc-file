@@ -6,7 +6,7 @@ FBX Format.
 :Wiki: `<https://en.wikipedia.org/wiki/FBX>`_
 :Suffix: ``.fbx``
 :Support: ``⚠️ Partial``
-:Features: ``UV``, ``UV2``, ``Normals``, ``Skeleton``
+:Features: ``UV``, ``UV2``, ``Normals``, ``Skeleton``, ``Bone Animation``
 
 Example::
 

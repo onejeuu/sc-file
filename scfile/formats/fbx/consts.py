@@ -14,6 +14,8 @@ class FBX:
     FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
     NULL_NODE = b"\x00" * 13
     CREATOR = f"{REPO} v{SEMVER}".encode()
+    KTIME = 46_186_158_000
+    KEY_FLAGS = 24_836
 
 
 class DEFAULT:
@@ -25,7 +27,7 @@ class DEFAULT:
         (b"CoordAxis", b"int", b"Integer", b"", 0),
         (b"CoordAxisSign", b"int", b"Integer", b"", 1),
         (b"UnitScaleFactor", b"double", b"Number", b"", 100.0),
-        (b"TimeMode", b"enum", b"", b"", 11),
+        (b"TimeMode", b"enum", b"", b"", 6),
         (b"TimeSpanStart", b"KTime", b"Time", b"", 0),
         (b"TimeSpanStop", b"KTime", b"Time", b"", 0),
     ]

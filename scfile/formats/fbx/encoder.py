@@ -1,5 +1,6 @@
 from collections import defaultdict
 from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import override
 
 import numpy as np
@@ -15,6 +16,16 @@ from .consts import DEFAULT, FBX, Props
 
 
 type Skinning = dict[int, Cluster]
+type Curves = tuple[np.int64, np.int64, np.int64]
+type CurveNode = tuple[np.int64, Curves]
+
+
+@dataclass(slots=True)
+class AnimationNodes:
+    stack: np.int64
+    layer: np.int64
+    translations: list[CurveNode]
+    rotations: list[CurveNode]
 
 
 class FbxEncoder(ModelEncoder[FbxWriter]):
@@ -28,8 +39,14 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         Feature.UV2,
         Feature.NORMALS,
         Feature.SKELETON,
+        Feature.BONE_ANIMATION,
     )
-    transforms = T.scene_transforms(T.unique_names, T.flip_uv, T.skeleton_to_local)
+    transforms = T.scene_transforms(
+        T.unique_names,
+        T.flip_uv,
+        T.skeleton_to_local,
+        T.animation_to_absolute,
+    )
 
     @override
     def _serialize(self):
@@ -45,9 +62,11 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         self._ctx["ROOT_ID"] = 0
         self._ctx["NEXT_ID"] = 0
         self._ctx["SKELETON"] = self.includes(Feature.SKELETON) and bool(self.data.scene.skeleton.bones)
+        self._ctx["ANIMATION"] = self.includes(Feature.BONE_ANIMATION)
         self._ctx["SKINNING"] = (
             {mesh.name: self._mesh_skinning(mesh) for mesh in self.data.scene.meshes} if self._ctx["SKELETON"] else {}
         )
+        self._ctx["ANIMATIONS"] = []
 
         if self._ctx["SKELETON"]:
             self._ctx["BIND_POSE"] = T.global_transforms(self.data.scene.skeleton)
@@ -101,6 +120,9 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                 for mesh in self.data.scene.meshes:
                     self._write_skinning(mesh)
 
+            if self._ctx["ANIMATION"]:
+                self._write_animations()
+
         # Connections
         with self._node(b"Connections", root=True):
             root_id = np.int64(self._ctx["ROOT_ID"])
@@ -119,6 +141,9 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
                     self._leaf(b"C", [b"OO", ids["skin"], ids["geometry"]])
                     self._write_cluster_connections(mesh, ids)
 
+            if self._ctx["ANIMATION"]:
+                self._write_animation_connections()
+
     def _write_definitions(self):
         meshes = len(self.data.scene.meshes)
         bones = len(self.data.scene.skeleton.bones) if self._ctx["SKELETON"] else 0
@@ -132,6 +157,17 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
 
         if bones:
             definitions.append((b"Pose", 1))
+        if self._ctx["ANIMATION"]:
+            clips = len(self.data.scene.animation.clips)
+            bones = len(self.data.scene.skeleton.bones)
+            definitions.extend(
+                [
+                    (b"AnimationStack", clips),
+                    (b"AnimationLayer", clips),
+                    (b"AnimationCurveNode", clips * bones * 2),
+                    (b"AnimationCurve", clips * bones * 6),
+                ]
+            )
 
         self._leaf(b"Count", [sum(count for _, count in definitions)])
         for name, count in definitions:
@@ -231,6 +267,100 @@ class FbxEncoder(ModelEncoder[FbxWriter]):
         for bone_id in self._ctx["SKINNING"][mesh.name]:
             self._leaf(b"C", [b"OO", ids[f"cluster_{bone_id}"], ids["skin"]])
             self._leaf(b"C", [b"OO", self._ctx["BONES"][bone_id], ids[f"cluster_{bone_id}"]])
+
+    def _write_animations(self):
+        for clip in self.data.scene.animation.clips:
+            self._write_animation(clip)
+
+    def _write_animation(self, clip: S.AnimationClip):
+        stack = self._next_id()
+        layer = self._next_id()
+        times = np.rint(clip.times * FBX.KTIME).astype(np.int64)
+        end = times[-1] if times.size else np.int64(0)
+        name = clip.name.encode()
+
+        with self._node(b"AnimationStack", [stack, name + b"\x00\x01AnimStack", b""]):
+            self._props70(
+                [
+                    (b"LocalStart", b"KTime", b"Time", b"", np.int64(0)),
+                    (b"LocalStop", b"KTime", b"Time", b"", end),
+                    (b"ReferenceStart", b"KTime", b"Time", b"", np.int64(0)),
+                    (b"ReferenceStop", b"KTime", b"Time", b"", end),
+                ]
+            )
+
+        with self._node(b"AnimationLayer", [layer, name + b"\x00\x01AnimLayer", b""]):
+            self._leaf(b"Version", [100])
+
+        rotations = S.quaternions_to_euler(clip.rotations.reshape(-1, 4)).reshape(clip.rotations.shape[:-1] + (3,))
+        animation = AnimationNodes(stack, layer, [], [])
+        for bone in self.data.scene.skeleton.bones:
+            animation.translations.append(
+                self._write_curve_node(b"Lcl Translation", times, clip.translations[:, bone.id])
+            )
+            animation.rotations.append(self._write_curve_node(b"Lcl Rotation", times, rotations[:, bone.id]))
+
+        self._ctx["ANIMATIONS"].append(animation)
+
+    def _write_curve_node(
+        self,
+        property: bytes,
+        times: np.ndarray,
+        values: np.ndarray,
+    ) -> CurveNode:
+        node = self._next_id()
+        with self._node(b"AnimationCurveNode", [node, property + b"\x00\x01AnimCurveNode", b""]):
+            pass
+
+        curves = (
+            self._write_curve(times, values[:, 0]),
+            self._write_curve(times, values[:, 1]),
+            self._write_curve(times, values[:, 2]),
+        )
+        return node, curves
+
+    def _write_curve(
+        self,
+        times: np.ndarray,
+        values: np.ndarray,
+    ) -> np.int64:
+        curve = self._next_id()
+        with self._node(b"AnimationCurve", [curve, b"\x00\x01AnimCurve", b""]):
+            self._leaf(b"Default", [float(values[0])])
+            self._leaf(b"KeyVer", [4008])
+            self._leaf(b"KeyTime", [times])
+            self._leaf(b"KeyValueFloat", [values.astype(np.float32, copy=False)])
+            self._leaf(b"KeyAttrFlags", [np.full(len(values), FBX.KEY_FLAGS, dtype=np.int32)])
+            self._leaf(b"KeyAttrRefCount", [np.ones(len(values), dtype=np.int32)])
+
+        return curve
+
+    def _write_animation_connections(self):
+        for clip, animation in zip(self.data.scene.animation.clips, self._ctx["ANIMATIONS"]):
+            self._leaf(b"C", [b"OO", animation.layer, animation.stack])
+
+            for bone, translation, rotation in zip(
+                self.data.scene.skeleton.bones,
+                animation.translations,
+                animation.rotations,
+            ):
+                self._write_curve_connections(
+                    translation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Translation"
+                )
+                self._write_curve_connections(rotation, animation.layer, self._ctx["BONES"][bone.id], b"Lcl Rotation")
+
+    def _write_curve_connections(
+        self,
+        animation: CurveNode,
+        layer: np.int64,
+        bone: np.int64,
+        property: bytes,
+    ):
+        node, curves = animation
+        self._leaf(b"C", [b"OO", node, layer])
+        self._leaf(b"C", [b"OP", node, bone, property])
+        for axis, curve in zip((b"d|X", b"d|Y", b"d|Z"), curves):
+            self._leaf(b"C", [b"OP", curve, node, axis])
 
     def _mesh_skinning(
         self,
