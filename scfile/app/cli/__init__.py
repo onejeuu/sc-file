@@ -7,7 +7,6 @@ from .cmd.mapcache import mapcache
 from .routing import resolve
 
 
-# TODO: docstring
 @click.group()
 @click.option(
     "--updates",

@@ -81,6 +81,10 @@ class ConvertForm(QWidget):
         return tuple(selected)
 
     @property
+    def filtered(self) -> bool:
+        return any(not self.groups[group.name].isChecked() for group in FORMAT_GROUPS)
+
+    @property
     def options(self) -> Options:
         skeleton = self.features[Feature.SKELETON]
         animation = self.features[Feature.ANIMATION]
@@ -448,6 +452,7 @@ class ConvertTab(QWidget):
             output=self.form.output,
             layout=self.form.output_layout,
             total=None if self.counter.busy else self.counter.count,
+            filtered=self.form.filtered,
         )
         self.running = self.tasks.start(task)
         if self.running:

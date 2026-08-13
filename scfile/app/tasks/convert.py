@@ -26,6 +26,7 @@ class ConvertTask(Task):
     layout: OutputLayout = OutputLayout.FLAT
     total: int | None = None
     workers: int | None = None
+    filtered: bool = False
 
     def _convert(self, entry: files.FileEntry) -> TaskItem | TaskItemFailure:
         output = str(self.output) if self.output else None
@@ -55,7 +56,7 @@ class ConvertTask(Task):
     ) -> Iterator[TaskEvent]:
         output = self.output.resolve() if self.output else None
         total = self.total if self.total is not None else files.count(self.sources, self.filters)
-        yield TaskStarted(self.kind, total, output)
+        yield TaskStarted(self.kind, total, output, self.filtered)
 
         entries = files.scan(self.sources, filters=self.filters)
         yield from parallel(entries, self._convert, context, self.workers)

@@ -75,7 +75,7 @@ class TaskFeedback:
             return
 
         if summary.outcome is TaskOutcome.EMPTY:
-            self.console.print(Text("∅ No matching files.", style="bold cyan"), highlight=False)
+            self._empty(summary)
             return
 
         if self.progress is not None and self.progress_id is not None:
@@ -126,6 +126,11 @@ class TaskFeedback:
         )
         self.progress.start()
         self.progress_id = self.progress.add_task(TASKS[event.kind][0], total=event.total)
+
+    def _empty(self, summary: TaskSummary) -> None:
+        self.console.print(Text("Nothing to convert.", style="bold cyan"), highlight=False)
+        text = "No files matched the selected formats." if summary.filtered else "No supported files were found."
+        self.console.print(text, highlight=False)
 
     def _advance(self) -> None:
         self.completed += 1

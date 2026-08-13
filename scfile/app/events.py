@@ -11,6 +11,7 @@ class TaskStarted:
     kind: TaskKind
     total: int
     output: Path | None = None
+    filtered: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,6 +67,7 @@ class TaskSummary:
     kind: TaskKind
     total: int | None = None
     output: Path | None = None
+    filtered: bool = False
     work: TaskWork = field(default_factory=TaskWork)
     files: TaskFiles = field(default_factory=TaskFiles)
     cancelled: bool = False
@@ -92,6 +94,7 @@ class TaskSummary:
                 self.kind = event.kind
                 self.total = event.total
                 self.output = event.output
+                self.filtered = event.filtered
 
             case TaskItem(output=None):
                 self.work.completed += 1

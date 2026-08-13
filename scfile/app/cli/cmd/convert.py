@@ -123,6 +123,7 @@ def convert(
         output=output,
         layout=layout,
         workers=workers,
+        filtered=bool(formats),
     )
     feedback = TaskFeedback(verbose)
     summary = execute(task, feedback)
