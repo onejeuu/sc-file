@@ -60,6 +60,9 @@ scfile = ["app/gui/assets/*"]
 branch = true
 omit = []
 
+[tool.coverage.report]
+fail_under = 85
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

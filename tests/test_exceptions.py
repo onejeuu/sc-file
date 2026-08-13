@@ -34,3 +34,22 @@ def test_unsupported_errors() -> None:
     assert exceptions.TextureFormatError.unsupported
     assert exceptions.TextureKindError.unsupported
     assert not exceptions.BinaryStructureError.unsupported
+
+
+def test_format_error_context() -> None:
+    model_version = exceptions.ModelVersionError(15, location="model.mcsb")
+    texture_format = exceptions.TextureFormatError(b"DXT0", location="texture.ol", offset=4)
+    texture_kind = exceptions.TextureKindError(7, location="texture.ol")
+    signature = exceptions.SignatureMismatchError(b"BAD", b"MIC", location="image.mic")
+
+    assert model_version.version == 15
+    assert texture_format.format == b"DXT0"
+    assert texture_format.location == "texture.ol"
+    assert texture_format.offset == 4
+    assert texture_kind.kind == 7
+    assert signature.actual == b"BAD"
+    assert signature.expected == b"MIC"
+
+
+def test_merge_interrupted_is_region_error() -> None:
+    assert isinstance(exceptions.MergeInterrupted(), exceptions.RegionError)

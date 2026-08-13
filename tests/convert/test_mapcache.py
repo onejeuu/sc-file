@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from scfile.convert.mapcache import group, scan
+import pytest
+
+from scfile import exceptions
+from scfile.convert.mapcache import group, merge, scan
+from scfile.options import Options
 
 
 def test_group() -> None:
@@ -28,3 +32,30 @@ def test_scan(tmp_path: Path) -> None:
 
     assert {path.name for path in result.paths} == {"r.0.0.mdat", "r.1.0.mdat"}
     assert not result.errors
+
+
+def test_scan_can_be_cancelled(tmp_path: Path) -> None:
+    (tmp_path / "r.0.0.mdat").write_bytes(b"data")
+
+    result = scan(tmp_path, lambda: True)
+
+    assert not result.paths
+    assert not result.errors
+
+
+def test_merge_can_be_cancelled(tmp_path: Path) -> None:
+    with pytest.raises(exceptions.MergeInterrupted):
+        merge((0, 0), [tmp_path / "r.0.0.mdat"], tmp_path, Options(), lambda: True)
+
+
+def test_merge_creates_backup(tmp_path: Path) -> None:
+    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    target = tmp_path / "r.0.0.mca"
+    target.write_bytes(b"previous")
+
+    result = merge((0, 0), [source, source], tmp_path, Options())
+
+    assert result.filename == target.name
+    assert result.chunks > 0
+    assert target.exists()
+    assert target.with_suffix(".mca.bck").read_bytes() == b"previous"
