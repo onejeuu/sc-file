@@ -4,11 +4,11 @@ import lz4.block
 
 from scfile import exceptions
 from scfile.consts import FormatSignature
-from scfile.structures.content import TextureContent
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import TextureFormatError, TextureKindError
 from scfile.io.ol import OlReader
+from scfile.structures.content import TextureContent
 from scfile.structures.textures import CUBEMAP_FACE_COUNT, CubemapTexture, DefaultTexture
 
 from .enums import TextureKind

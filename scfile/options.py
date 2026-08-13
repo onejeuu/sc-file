@@ -131,11 +131,14 @@ class Options:
     ) -> None:
         self.model = model if isinstance(model, ModelOptions) else ModelOptions(**(model or {}))
         self.region = region if isinstance(region, RegionOptions) else RegionOptions(**(region or {}))
+
         defaults = dict(DEFAULT_TARGETS)
         if self.model.skeleton_enabled:
             defaults[ModelContent] = SKELETON_TARGET
+
         if targets:
             defaults.update(targets)
+
         self.targets = MappingProxyType(defaults)
         self.on_conflict = on_conflict
 

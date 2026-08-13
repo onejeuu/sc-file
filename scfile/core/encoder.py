@@ -12,10 +12,10 @@ from typing import ClassVar, Optional, Self, cast
 from scfile.enums import HandlerState
 from scfile.io.base import OutputStream, StructWriter
 from scfile.options import Options
+from scfile.structures.content import BaseContent
 from scfile.types import SourceLike
 
 from .base import Handler
-from scfile.structures.content import BaseContent
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]

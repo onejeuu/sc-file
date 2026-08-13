@@ -10,6 +10,7 @@ from scfile.core import Decoder, Encoder
 from scfile.enums import FileFormat
 from scfile.types import SourceLike
 
+
 type DecoderType = type[Decoder[Any, Any]]
 type EncoderType = type[Encoder[Any, Any]]
 

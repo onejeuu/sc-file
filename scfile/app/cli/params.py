@@ -4,8 +4,8 @@ import click
 
 from scfile.app.enums import OutputLayout
 from scfile.app.formats import model_formats
-from scfile.options import ON_CONFLICT_OPTIONS
 from scfile.formats import registry
+from scfile.options import ON_CONFLICT_OPTIONS
 
 
 Files = click.Path(

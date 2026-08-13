@@ -25,16 +25,16 @@ from .routing import resolve
     is_eager=True,
     expose_value=False,
 )
-def _scfile() -> None: ...
+def scfile() -> None: ...
 
 
-_scfile.add_command(animate)
-_scfile.add_command(convert)
-_scfile.add_command(mapcache)
+scfile.add_command(animate)
+scfile.add_command(convert)
+scfile.add_command(mapcache)
 
 
 def run(
     args: list[str],
 ) -> int:
-    result = _scfile(args=resolve(args), standalone_mode=False)
+    result = scfile(args=resolve(args), standalone_mode=False)
     return result if isinstance(result, int) else 0

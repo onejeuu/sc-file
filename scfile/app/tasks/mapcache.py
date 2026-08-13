@@ -8,8 +8,8 @@ from typing import ClassVar
 from scfile import exceptions
 from scfile.app.enums import TaskKind
 from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
-from scfile.options import Options
 from scfile.convert import mapcache
+from scfile.options import Options
 
 from .execution import Task, TaskContext
 from .parallel import parallel

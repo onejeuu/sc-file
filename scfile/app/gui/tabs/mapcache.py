@@ -9,12 +9,12 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
-from scfile.app.gui.workers.mapcache import MapCacheScanner
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.gui.workers.mapcache import MapCacheScanner
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 

@@ -4,8 +4,8 @@ import click
 
 from scfile import convert, types
 from scfile.app.cli import params
-from scfile.app.feedback import TaskFeedback
 from scfile.app.enums import AnimateCommand, CliCommand
+from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
 from scfile.app.tasks.animate import AnimateTask
 from scfile.enums import FileFormat

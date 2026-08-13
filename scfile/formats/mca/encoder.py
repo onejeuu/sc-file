@@ -2,10 +2,10 @@ import struct
 import zlib
 from typing import override
 
-from scfile.structures.content import RegionContent
 from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.io.nbt import Tag
+from scfile.structures.content import RegionContent
 from scfile.structures.regions import RegionChunk
 
 from .mapping import BLOCKS_MAPPING

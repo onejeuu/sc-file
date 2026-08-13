@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 from scfile.app.consts import MODEL_FORMAT_ORDER
-from scfile.structures.content import ModelContent
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.formats import registry
+from scfile.structures.content import ModelContent
 from scfile.structures.models import Feature
 
 

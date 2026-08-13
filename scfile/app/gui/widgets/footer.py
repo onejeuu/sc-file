@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from scfile import __repository__ as REPO
+
 from .link import LinkWidget
 from .updates import VersionWidget
 

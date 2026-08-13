@@ -1,9 +1,9 @@
 import json
 from typing import override
 
-from scfile.structures.content import DocumentContent
 from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
+from scfile.structures.content import DocumentContent
 
 
 class JsonEncoder(Encoder[DocumentContent]):

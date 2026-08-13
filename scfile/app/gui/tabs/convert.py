@@ -18,8 +18,6 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.app.consts import DEFAULT_OUTPUT
-from scfile.structures.content import ModelContent
-from scfile.core import ModelEncoder
 from scfile.app.enums import OutputLayout
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.formats import FORMAT_GROUPS, model_formats
@@ -35,9 +33,11 @@ from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
-from scfile.options import Options
 from scfile.formats import registry
+from scfile.options import Options
+from scfile.structures.content import ModelContent
 from scfile.structures.models import Feature
 
 

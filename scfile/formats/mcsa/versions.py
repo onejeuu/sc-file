@@ -1,4 +1,3 @@
-
 from scfile.structures.models import Feature, Features
 
 

@@ -11,9 +11,9 @@ from scfile import exceptions
 from scfile.enums import HandlerState
 from scfile.io.base import IOStream, OutputStream, StructReader, StructWriter
 from scfile.options import Options
+from scfile.structures.content import BaseContent
 
 from .base import Handler
-from scfile.structures.content import BaseContent
 from .encoder import Encoder
 
 
