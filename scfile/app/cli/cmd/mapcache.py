@@ -10,7 +10,6 @@ from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
 
-# TODO: docstring
 @click.command(name=CliCommand.MAPCACHE)
 @click.argument(
     "SOURCE",
@@ -49,6 +48,8 @@ def mapcache(
     raw: bool,
     verbose: bool,
 ) -> None:
+    """Merge map cache regions."""
+
     warn("MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely.")
 
     options = Options(region={"raw_blocks": raw})

@@ -5,15 +5,7 @@ from rich.filesize import decimal
 from rich.table import Table
 from rich.text import Text
 
-from scfile.core import (
-    ArchiveContent,
-    BaseContent,
-    DocumentContent,
-    ImageContent,
-    ModelContent,
-    RegionContent,
-    TextureContent,
-)
+from scfile.structures import content as C
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 
@@ -25,7 +17,10 @@ def _size(value: int) -> str:
     return formatted if value < 1000 else f"{formatted} ({value:,} bytes)"
 
 
-def _table(rows: Iterable[Row], error: bool = False) -> Table:
+def _table(
+    rows: Iterable[Row],
+    error: bool = False,
+) -> Table:
     table = Table(
         box=None,
         show_header=False,
@@ -42,7 +37,13 @@ def _table(rows: Iterable[Row], error: bool = False) -> Table:
     return table
 
 
-def content(source: Path, format: str, size: int, decoder: str, data: BaseContent) -> Table:
+def content(
+    source: Path,
+    format: str,
+    size: int,
+    decoder: str,
+    data: C.BaseContent,
+) -> Table:
     rows: list[Row] = [
         ("Path", source),
         ("Format", format),
@@ -52,26 +53,26 @@ def content(source: Path, format: str, size: int, decoder: str, data: BaseConten
     ]
 
     match data:
-        case ModelContent():
+        case C.ModelContent():
             rows.extend(_model(data))
 
-        case TextureContent():
+        case C.TextureContent():
             rows.extend(_texture(data))
 
-        case ImageContent():
+        case C.ImageContent():
             rows.append(("Image", _size(len(data.image))))
 
-        case ArchiveContent():
+        case C.ArchiveContent():
             rows.extend(
                 (
                     ("Entries", len(data.entries)),
                     ("Data", decimal(sum(len(payload) for _, payload in data.entries))),
                 )
             )
-        case DocumentContent():
+        case C.DocumentContent():
             rows.extend(_document(data))
 
-        case RegionContent():
+        case C.RegionContent():
             rows.extend(
                 (
                     ("Chunks", len(data.chunks)),
@@ -87,7 +88,7 @@ def failure(
     format: str,
     size: int,
     decoder: str,
-    data: BaseContent,
+    data: C.BaseContent,
     exception: Exception,
     position: int,
     parser: tuple[str, str, str] | None,
@@ -120,7 +121,7 @@ def failure(
     return _table(rows, error=True)
 
 
-def _model(data: ModelContent) -> list[Row]:
+def _model(data: C.ModelContent) -> list[Row]:
     meta = data.meta
     scene = data.scene
     flags = ", ".join(feature.name for feature, enabled in meta.flags.items() if enabled) or "-"
@@ -138,7 +139,7 @@ def _model(data: ModelContent) -> list[Row]:
     ]
 
 
-def _texture(data: TextureContent) -> list[Row]:
+def _texture(data: C.TextureContent) -> list[Row]:
     match data.texture:
         case DefaultTexture():
             kind = "DEFAULT"
@@ -165,7 +166,7 @@ def _texture(data: TextureContent) -> list[Row]:
     ]
 
 
-def _document(data: DocumentContent) -> list[Row]:
+def _document(data: C.DocumentContent) -> list[Row]:
     value = data.value
     rows: list[Row] = [("Root", type(value).__name__)]
     if isinstance(value, bytes | list | dict):

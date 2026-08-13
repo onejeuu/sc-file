@@ -4,8 +4,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, TextIO
 
-from scfile.structures.content import BaseContent, ImageContent, ModelContent, TextureContent
 from scfile.formats.ol.enums import TextureKind
+from scfile.structures import content as C
 from scfile.structures.models import Feature
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 from tools.cmd.audit.consts import FORMATS_CSV, TABLES
@@ -13,24 +13,34 @@ from tools.cmd.audit.schemas import Animation, Bone, Image, Mesh, Model, Record,
 from tools.cmd.audit.types import Asset
 
 
-def records(asset: Asset, content: BaseContent, root: Path, animation: bool) -> list[Record]:
+def records(
+    asset: Asset,
+    content: C.BaseContent,
+    root: Path,
+    animation: bool,
+) -> list[Record]:
     path = os.path.relpath(asset.path, root).replace("\\", "/")
 
     match content:
-        case ModelContent():
+        case C.ModelContent():
             return _model(path, content, os.path.getsize(asset.path), animation)
 
-        case TextureContent():
+        case C.TextureContent():
             return _texture(path, content, os.path.getsize(asset.path))
 
-        case ImageContent():
+        case C.ImageContent():
             return [Image(path=path, filesize=len(content.image))]
 
         case _:
             return []
 
 
-def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> list[Record]:
+def _model(
+    path: str,
+    content: C.ModelContent,
+    filesize: int,
+    animation: bool,
+) -> list[Record]:
     meta = content.meta
     flags = meta.flags
     scene = content.scene
@@ -98,7 +108,11 @@ def _model(path: str, content: ModelContent, filesize: int, animation: bool) -> 
     return [model, *meshes]
 
 
-def _texture(path: str, content: TextureContent, filesize: int) -> list[Record]:
+def _texture(
+    path: str,
+    content: C.TextureContent,
+    filesize: int,
+) -> list[Record]:
     match content.texture:
         case DefaultTexture() as texture:
             kind = TextureKind.DEFAULT.name

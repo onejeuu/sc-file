@@ -12,7 +12,8 @@ from scfile.enums import FileFormat
 
 
 @click.group(name=CliCommand.ANIMATE)
-def animate() -> None: ...
+def animate() -> None:
+    """Export model animations."""
 
 
 def _execute(

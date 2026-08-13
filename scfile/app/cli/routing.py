@@ -2,43 +2,50 @@ from pathlib import Path
 
 from scfile.app.enums import AnimateCommand, CliCommand
 from scfile.enums import FileFormat
-from scfile.formats import registry
 
 
 ROOT_OPTIONS = frozenset(("--help", "--version", "--updates"))
 
 
-def resolve(
-    args: list[str],
-) -> list[str]:
+def resolve(args: list[str]) -> list[str]:
     if ROOT_OPTIONS.intersection(args) or args[0] in CliCommand:
         return args
 
-    return [*_default_command(args), *args]
+    command = _command(tuple(map(Path, args)))
+    return [*command, *args]
 
 
-def _default_command(
-    args: list[str],
-) -> list[str]:
-    if "map_cache" in args[0]:
-        return [str(CliCommand.MAPCACHE)]
+def _command(paths: tuple[Path, ...]) -> tuple[CliCommand | AnimateCommand, ...]:
+    if "map_cache" in paths[0].as_posix():
+        return (CliCommand.MAPCACHE,)
 
-    paths = tuple(Path(arg) for arg in args)
-    sources = tuple(path for path in paths if registry.match(path) is not None)
-    if _is_arms_sources(sources):
-        return [str(CliCommand.ANIMATE), str(AnimateCommand.ARMS)]
+    animation = _animation(paths)
+    if animation is not None:
+        return CliCommand.ANIMATE, animation
 
-    return [str(CliCommand.CONVERT)]
+    return (CliCommand.CONVERT,)
 
 
-def _is_arms_sources(sources: tuple[Path, ...]) -> bool:
-    if len(sources) not in (2, 3):
-        return False
+def _animation(paths: tuple[Path, ...]) -> AnimateCommand | None:
+    if len(paths) < 2:
+        return None
 
-    animation, *models = sources
-    name = animation.stem.lower()
-    return (
-        animation.suffix.lower() == FileFormat.MCVD.suffix
-        and all(model.suffix.lower() == FileFormat.MCSB.suffix for model in models)
-        and ("fp_" in name or "wpn_" in name)
-    )
+    animation, *models = paths
+    if any(model.suffix.lower() != FileFormat.MCSB.suffix for model in models):
+        return None
+
+    if animation.suffix.lower() == FileFormat.MCAL.suffix and len(models) == 1:
+        return AnimateCommand.BODY
+
+    if animation.suffix.lower() != FileFormat.MCVD.suffix:
+        return None
+
+    stem = animation.stem.lower()
+    weapon_fp = "fp_" in stem or "wpn_" in stem
+    if weapon_fp and len(models) in (1, 2):
+        return AnimateCommand.ARMS
+
+    if len(models) == 1:
+        return AnimateCommand.FACE
+
+    return None

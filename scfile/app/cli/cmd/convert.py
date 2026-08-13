@@ -16,7 +16,6 @@ from scfile.options import OnConflict, Options
 from scfile.structures.content import ModelContent
 
 
-# TODO: docstring
 @click.command(name=CliCommand.CONVERT)
 @click.argument(
     "PATHS",
@@ -94,6 +93,8 @@ def convert(
     on_conflict: OnConflict,
     verbose: bool,
 ) -> None:
+    """Convert supported files."""
+
     if layout is not OutputLayout.FLAT and not output:
         raise click.UsageError("Non-flat --layout requires --output.")
 

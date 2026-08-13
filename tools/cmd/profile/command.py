@@ -8,8 +8,8 @@ from rich.filesize import decimal
 from rich.table import Table
 
 from scfile.convert import files
-from scfile.options import Options
 from scfile.formats import registry
+from scfile.options import Options
 from tools.cmd import tools
 from tools.paths import ROOT
 
@@ -21,9 +21,7 @@ REPORTS = ROOT / "reports" / "profile"
 PROFILES = tuple(
     sorted(
         {f"{source}-decode.prof" for source in registry.decoders}
-        | {
-            f"{source}-{target}.prof" for source, target in registry.conversions
-        }
+        | {f"{source}-{target}.prof" for source, target in registry.conversions}
     )
 )
 

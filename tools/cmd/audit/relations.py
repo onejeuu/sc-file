@@ -3,12 +3,12 @@ from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 
-from scfile.structures.content import ModelContent
 from scfile.core import ModelDecoder
 from scfile.exceptions import AnimationError
 from scfile.formats import McalDecoder, McsbDecoder, McvdDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
+from scfile.structures.content import ModelContent
 from scfile.structures.models import transforms
 
 from .types import Error, Relations, Result

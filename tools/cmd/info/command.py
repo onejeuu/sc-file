@@ -6,8 +6,8 @@ import click
 from rich.console import Console
 
 from scfile.enums import FileFormat
-from scfile.options import Options
 from scfile.formats import registry
+from scfile.options import Options
 from tools.cmd import tools
 
 from . import tables
