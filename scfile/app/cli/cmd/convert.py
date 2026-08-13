@@ -9,9 +9,11 @@ from scfile.app.feedback import TaskFeedback
 from scfile.app.enums import CliCommand, OutputLayout
 from scfile.app.tasks import execute
 from scfile.app.tasks.convert import ConvertTask
+from scfile.structures.content import ModelContent
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.options import OnConflict, Options
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 
 
 # TODO: docstring
@@ -98,13 +100,16 @@ def convert(
     # Prepare options
     options = Options(
         model={"skeleton": skeleton, "animation": animation},
-        model_format=model_format,
+        targets={ModelContent: model_format} if model_format else None,
         on_conflict=on_conflict,
     )
 
     if model_format:
+        encoder = registry.encoders.get(model_format)
         unsupported = tuple(
-            feature for feature in options.model.features if not REGISTRY.model_supports(model_format, feature)
+            feature
+            for feature in options.model.features
+            if encoder is None or not issubclass(encoder, ModelEncoder) or not encoder.supports(feature)
         )
         if unsupported:
             features = ", ".join(unsupported)
@@ -112,7 +117,7 @@ def convert(
 
     task = ConvertTask(
         sources=tuple(paths),
-        filters=tuple(REGISTRY.filters_for(*formats)),
+        filters=tuple(registry.filters(*formats)),
         options=options,
         output=output,
         layout=layout,

@@ -1,7 +1,8 @@
 from typing import override
 
 from scfile.consts import FormatSignature
-from scfile.core import Encoder, ImageContent
+from scfile.structures.content import ImageContent
+from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 
 

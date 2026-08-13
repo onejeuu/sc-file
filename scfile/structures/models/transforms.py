@@ -22,7 +22,7 @@ from .types import BindPose, InverseBindMatrices, TransformMatrix
 
 
 if TYPE_CHECKING:
-    from scfile.core.content import ModelContent
+    from scfile.structures.content import ModelContent
 
 
 type SceneTransform = Callable[[ModelScene], ModelScene]

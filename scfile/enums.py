@@ -29,7 +29,7 @@ class FileFormat(StrEnum):
         return f".{self.value.lower()}" if self.value else ""
 
 
-class FileType(StrEnum):
+class FileKind(StrEnum):
     """File content kind."""
 
     NONE = auto()

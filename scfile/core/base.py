@@ -10,6 +10,8 @@ from typing import Any, ClassVar, Self
 from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import StructIO
+
+
 from scfile.options import Options
 
 

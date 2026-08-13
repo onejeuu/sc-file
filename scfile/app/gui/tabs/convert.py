@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.app.consts import DEFAULT_OUTPUT
+from scfile.structures.content import ModelContent
+from scfile.core import ModelEncoder
 from scfile.app.enums import OutputLayout
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.formats import FORMAT_GROUPS, model_formats
@@ -35,7 +37,7 @@ from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
 from scfile.enums import FileFormat
 from scfile.options import Options
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 from scfile.structures.models import Feature
 
 
@@ -46,7 +48,12 @@ FEATURES = {
 
 
 def _format_title(fmt: FileFormat) -> str:
-    icons = " ".join(icon for feature, (icon, _) in FEATURES.items() if REGISTRY.model_supports(fmt, feature))
+    encoder = registry.encoders.get(fmt)
+    icons = " ".join(
+        icon
+        for feature, (icon, _) in FEATURES.items()
+        if encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature)
+    )
     return f"{fmt.upper()} {icons}".strip()
 
 
@@ -82,7 +89,7 @@ class ConvertForm(QWidget):
                 "skeleton": skeleton.isEnabled() and skeleton.isChecked(),
                 "animation": animation.isEnabled() and animation.isChecked(),
             },
-            model_format=self.selected_format,
+            targets={ModelContent: self.selected_format},
             on_conflict=self.conflict.value,
         )
 
@@ -312,8 +319,9 @@ class ConvertForm(QWidget):
         self.output_error.setVisible(bool(error))
 
     def _sync_features(self) -> None:
+        encoder = registry.encoders.get(self.selected_format)
         for feature, widget in self.features.items():
-            supported = REGISTRY.model_supports(self.selected_format, feature)
+            supported = encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature)
             self.feature_cursors[feature].set(supported)
             widget.setChecked(supported)
 

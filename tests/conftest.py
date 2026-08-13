@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from scfile.core import BaseContent, Decoder, Encoder
-from scfile.enums import FileFormat, FileType
+from scfile.enums import FileFormat, FileKind
 
 
 @dataclass
 class StubContent(BaseContent):
-    type: ClassVar[FileType] = FileType.NONE
+    kind: ClassVar[FileKind] = FileKind.NONE
 
     payload: bytes = b""
 

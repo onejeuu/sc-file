@@ -1,7 +1,8 @@
 from typing import override
 
 from scfile.consts import FormatSignature
-from scfile.core import Encoder, TextureContent
+from scfile.structures.content import TextureContent
+from scfile.core import Encoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.formats.dds.enums import DXGIDimension, DXGIFormat
 

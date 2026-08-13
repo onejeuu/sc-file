@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from scfile import exceptions, formats
-from scfile.core import RegionContent
+from scfile.structures.content import RegionContent
 from scfile.options import Options
 
 

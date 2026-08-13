@@ -6,7 +6,7 @@ from typing import NamedTuple
 
 from scfile import types
 from scfile.app.events import TaskError
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 
 
 class FileEntry(NamedTuple):
@@ -39,7 +39,7 @@ def scan(
     sources: Iterable[types.SourceLike],
     filters: Iterable[str] | None = None,
 ) -> Iterator[FileEntry | TaskError]:
-    selected = filters or REGISTRY.supported_inputs
+    selected = filters or registry.filters()
     allowed = tuple(value.lower() for value in selected)
     suffixes = tuple(value for value in allowed if value.startswith("."))
     names = {value for value in allowed if not value.startswith(".")}

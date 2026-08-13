@@ -5,7 +5,7 @@ import click
 from scfile.app.enums import OutputLayout
 from scfile.app.formats import model_formats
 from scfile.options import ON_CONFLICT_OPTIONS
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 
 
 Files = click.Path(
@@ -51,7 +51,7 @@ ModelFormats = click.Choice(
 )
 
 InputFormats = click.Choice(
-    choices=sorted(REGISTRY.supported_formats),
+    choices=sorted(registry.decoders),
     case_sensitive=False,
 )
 

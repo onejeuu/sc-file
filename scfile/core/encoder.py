@@ -15,7 +15,7 @@ from scfile.options import Options
 from scfile.types import SourceLike
 
 from .base import Handler
-from .content import BaseContent
+from scfile.structures.content import BaseContent
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]

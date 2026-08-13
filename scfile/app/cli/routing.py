@@ -2,7 +2,7 @@ from pathlib import Path
 
 from scfile.app.enums import AnimateCommand, CliCommand
 from scfile.enums import FileFormat
-from scfile.registry import RESOLVER
+from scfile.formats import registry
 
 
 ROOT_OPTIONS = frozenset(("--help", "--version", "--updates"))
@@ -24,7 +24,7 @@ def _default_command(
         return [str(CliCommand.MAPCACHE)]
 
     paths = tuple(Path(arg) for arg in args)
-    sources = tuple(path for path in paths if RESOLVER.resolve(path) is not None)
+    sources = tuple(path for path in paths if registry.match(path) is not None)
     if _is_arms_sources(sources):
         return [str(CliCommand.ANIMATE), str(AnimateCommand.ARMS)]
 

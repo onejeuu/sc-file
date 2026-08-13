@@ -1,9 +1,19 @@
 """Library processing and conversion options."""
 
 from dataclasses import dataclass, replace
-from typing import ClassVar, Literal, Self, TypedDict
+from types import MappingProxyType
+from typing import ClassVar, Literal, Mapping, Self, TypedDict
 
 from scfile.enums import FileFormat
+from scfile.structures.content import (
+    ArchiveContent,
+    BaseContent,
+    DocumentContent,
+    ImageContent,
+    ModelContent,
+    RegionContent,
+    TextureContent,
+)
 from scfile.structures.models import Feature, Features
 
 
@@ -11,11 +21,23 @@ type OnConflict = Literal["overwrite", "rename", "skip"]
 ON_CONFLICT_OPTIONS: tuple[OnConflict, ...] = ("overwrite", "rename", "skip")
 """Supported actions when an output path already exists."""
 
-DEFAULT_MODEL_FORMAT = FileFormat.OBJ
-"""Default output format when skeleton processing is disabled."""
+DEFAULT_TARGETS: Mapping[type[BaseContent], FileFormat] = MappingProxyType(
+    {
+        ModelContent: FileFormat.OBJ,
+        TextureContent: FileFormat.DDS,
+        ImageContent: FileFormat.PNG,
+        ArchiveContent: FileFormat.ZIP,
+        DocumentContent: FileFormat.JSON,
+        RegionContent: FileFormat.MCA,
+    }
+)
+"""Default conversion targets by content type."""
 
-DEFAULT_SKELETON_FORMAT = FileFormat.GLB
-"""Default output format when skeleton processing is enabled."""
+SKELETON_TARGET = FileFormat.GLB
+"""Default model target when skeleton processing is enabled."""
+
+type TargetConfig = Mapping[type[BaseContent], FileFormat]
+"""Requested conversion targets by content type."""
 
 
 class ModelConfig(TypedDict, total=False):
@@ -88,8 +110,8 @@ class Options:
     - `"full_chunk"` Handle full chunk data including metadata
     """
 
-    model_format: FileFormat | None
-    """Preferred output format for models. Defaults are selected when unset."""
+    targets: Mapping[type[BaseContent], FileFormat]
+    """Normalized output format for every content type."""
 
     on_conflict: OnConflict
     """
@@ -104,22 +126,18 @@ class Options:
         self,
         model: ModelConfig | ModelOptions | None = None,
         region: RegionConfig | RegionOptions | None = None,
-        model_format: FileFormat | None = None,
+        targets: TargetConfig | None = None,
         on_conflict: OnConflict = "overwrite",
     ) -> None:
         self.model = model if isinstance(model, ModelOptions) else ModelOptions(**(model or {}))
         self.region = region if isinstance(region, RegionOptions) else RegionOptions(**(region or {}))
-        self.model_format = model_format
-        self.on_conflict = on_conflict
-
-    @property
-    def default_format(self) -> FileFormat:
-        """Default model output format for the current model options."""
-
+        defaults = dict(DEFAULT_TARGETS)
         if self.model.skeleton_enabled:
-            return DEFAULT_SKELETON_FORMAT
-
-        return DEFAULT_MODEL_FORMAT
+            defaults[ModelContent] = SKELETON_TARGET
+        if targets:
+            defaults.update(targets)
+        self.targets = MappingProxyType(defaults)
+        self.on_conflict = on_conflict
 
     def copy(self) -> Self:
         """Create an independent copy of these options."""
@@ -127,6 +145,6 @@ class Options:
         return type(self)(
             model=replace(self.model),
             region=replace(self.region),
-            model_format=self.model_format,
+            targets=self.targets,
             on_conflict=self.on_conflict,
         )

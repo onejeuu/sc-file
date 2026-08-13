@@ -1,12 +1,9 @@
-"""
-Shared content data containers for handlers.
-Defines data structures that hold parsed file contents.
-"""
+"""Structured file content."""
 
 from dataclasses import dataclass, field
 from typing import ClassVar
 
-from scfile.enums import FileType
+from scfile.enums import FileKind
 from scfile.structures.models import Feature, ModelMeta, ModelScene
 from scfile.structures.regions import RegionChunk
 from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
@@ -21,14 +18,14 @@ type ArchiveEntry = tuple[str, bytes]
 class BaseContent:
     """Base type for structured handler content."""
 
-    type: ClassVar[FileType]
+    kind: ClassVar[FileKind]
 
 
 @dataclass
 class ModelContent(BaseContent):
     """Content container for 3D models."""
 
-    type: ClassVar[FileType] = FileType.MODEL
+    kind: ClassVar[FileKind] = FileKind.MODEL
 
     meta: ModelMeta = field(default_factory=ModelMeta)
     scene: ModelScene = field(default_factory=ModelScene)
@@ -44,7 +41,7 @@ class ModelContent(BaseContent):
 class TextureContent(BaseContent):
     """Content container for textures (2D or cubemap)."""
 
-    type: ClassVar[FileType] = FileType.TEXTURE
+    kind: ClassVar[FileKind] = FileKind.TEXTURE
 
     width: int = 0
     height: int = 0
@@ -78,7 +75,7 @@ class TextureContent(BaseContent):
 class ImageContent(BaseContent):
     """Content container for images."""
 
-    type: ClassVar[FileType] = FileType.IMAGE
+    kind: ClassVar[FileKind] = FileKind.IMAGE
 
     image: bytes = field(default_factory=bytes)
 
@@ -87,7 +84,7 @@ class ImageContent(BaseContent):
 class ArchiveContent(BaseContent):
     """Content container for named binary entries."""
 
-    type: ClassVar[FileType] = FileType.ARCHIVE
+    kind: ClassVar[FileKind] = FileKind.ARCHIVE
 
     entries: list[ArchiveEntry] = field(default_factory=list)
 
@@ -96,7 +93,7 @@ class ArchiveContent(BaseContent):
 class DocumentContent(BaseContent):
     """Content container for structured document data."""
 
-    type: ClassVar[FileType] = FileType.DOCUMENT
+    kind: ClassVar[FileKind] = FileKind.DOCUMENT
 
     value: DocumentValue = None
 
@@ -105,7 +102,7 @@ class DocumentContent(BaseContent):
 class RegionContent(BaseContent):
     """Content container for regions (world terrain)."""
 
-    type: ClassVar[FileType] = FileType.REGION
+    kind: ClassVar[FileKind] = FileKind.REGION
 
     rx: int = 0
     rz: int = 0

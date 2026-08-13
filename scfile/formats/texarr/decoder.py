@@ -1,6 +1,7 @@
 from typing import override
 
-from scfile.core import ArchiveContent, Decoder
+from scfile.structures.content import ArchiveContent
+from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
 
 

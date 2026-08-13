@@ -5,7 +5,7 @@ from typing import ClassVar
 from scfile.io.base import StructReader, StructWriter
 from scfile.structures.models import Feature, Features
 
-from .content import ModelContent
+from scfile.structures.content import ModelContent
 from .decoder import Decoder
 from .encoder import Encoder
 

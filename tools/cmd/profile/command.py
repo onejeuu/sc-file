@@ -9,7 +9,7 @@ from rich.table import Table
 
 from scfile.convert import files
 from scfile.options import Options
-from scfile.registry import REGISTRY, RESOLVER
+from scfile.formats import registry
 from tools.cmd import tools
 from tools.paths import ROOT
 
@@ -20,8 +20,10 @@ MODEL = ROOT / "assets" / "profile" / "model.mcsb"
 REPORTS = ROOT / "reports" / "profile"
 PROFILES = tuple(
     sorted(
-        {f"{source}-decode.prof" for source in REGISTRY.decoders()}
-        | {f"{source}-{target}.prof" for source in REGISTRY.decoders() for target in REGISTRY.targets(source)}
+        {f"{source}-decode.prof" for source in registry.decoders}
+        | {
+            f"{source}-{target}.prof" for source, target in registry.conversions
+        }
     )
 )
 
@@ -115,18 +117,21 @@ def profile(
     if not source.is_file():
         raise click.UsageError(f"Reference file not found: '{source}'.")
 
-    source_spec = RESOLVER.resolve(source)
-    if source_spec is None or source_spec.decoder is None:
+    decoder = registry.match(source)
+    if decoder is None:
         raise click.UsageError(f"Unsupported source format: '{files.format(source)}'.")
 
-    source_format = str(source_spec.format)
-    decoder = source_spec.decoder
-    available = {str(fmt): encoder for fmt, encoder in REGISTRY.targets(source_spec.format).items()}
-    targets = tuple(dict.fromkeys(value.lower().lstrip(".") for value in target))
-    if "full" in targets:
-        targets = tuple(sorted(available))
+    source_format = str(decoder.format)
+    available = {
+        str(target): conversion.encoder
+        for (source, target), conversion in registry.conversions.items()
+        if source is decoder.format
+    }
+    selected_targets = tuple(dict.fromkeys(value.lower().lstrip(".") for value in target))
+    if "full" in selected_targets:
+        selected_targets = tuple(sorted(available))
 
-    unsupported = tuple(value for value in targets if value not in available)
+    unsupported = tuple(value for value in selected_targets if value not in available)
     if unsupported:
         supported = ", ".join(sorted(available)) or "none"
         raise click.UsageError(
@@ -134,8 +139,8 @@ def profile(
         )
 
     cases: list[tuple[str, Callable[[], None], Path]] = []
-    if targets:
-        for value in targets:
+    if selected_targets:
+        for value in selected_targets:
             name = f"{source_format} to {value}"
             operation = partial(profiler.convert, source, decoder, available[value], options)
             cases.append((name, operation, reports / f"{source_format}-{value}.prof"))

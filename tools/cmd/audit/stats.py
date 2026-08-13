@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, TextIO
 
-from scfile.core import BaseContent, ImageContent, ModelContent, TextureContent
+from scfile.structures.content import BaseContent, ImageContent, ModelContent, TextureContent
 from scfile.formats.ol.enums import TextureKind
 from scfile.structures.models import Feature
 from scfile.structures.textures import CubemapTexture, DefaultTexture

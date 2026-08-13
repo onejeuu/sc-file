@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 
 from scfile.app.consts import MODEL_FORMAT_ORDER
+from scfile.structures.content import ModelContent
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 from scfile.structures.models import Feature
 
 
@@ -17,7 +19,7 @@ class FormatGroup:
 
     @property
     def filters(self) -> tuple[str, ...]:
-        return tuple(sorted(REGISTRY.filters_for(*self.formats)))
+        return tuple(sorted(registry.filters(*self.formats)))
 
 
 FORMAT_GROUPS = (
@@ -37,7 +39,11 @@ FORMAT_GROUPS = (
 
 
 def model_formats() -> tuple[FileFormat, ...]:
-    available = REGISTRY.model_formats
+    available = {
+        format
+        for format, encoder in registry.encoders.items()
+        if encoder.content_type is ModelContent and issubclass(encoder, ModelEncoder)
+    }
     preferred = tuple(fmt for fmt in MODEL_FORMAT_ORDER if fmt in available)
     remaining = tuple(sorted(available.difference(MODEL_FORMAT_ORDER)))
     return (*preferred, *remaining)

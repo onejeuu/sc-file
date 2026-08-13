@@ -1,7 +1,8 @@
 import zipfile
 from typing import override
 
-from scfile.core import ArchiveContent, Encoder
+from scfile.structures.content import ArchiveContent
+from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 
 

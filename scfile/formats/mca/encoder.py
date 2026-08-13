@@ -2,7 +2,8 @@ import struct
 import zlib
 from typing import override
 
-from scfile.core import Encoder, RegionContent
+from scfile.structures.content import RegionContent
+from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.io.nbt import Tag
 from scfile.structures.regions import RegionChunk

@@ -5,14 +5,15 @@ from pathlib import Path
 import click
 from rich.console import Console
 
+from scfile.enums import FileFormat
 from scfile.options import Options
-from scfile.registry import REGISTRY, RESOLVER
+from scfile.formats import registry
 from tools.cmd import tools
 
 from . import tables
 
 
-FORMATS = tuple(str(fmt) for fmt in REGISTRY.decoders())
+FORMATS = tuple(str(fmt) for fmt in registry.decoders)
 
 
 def parser(exception: Exception) -> tuple[str, str, str] | None:
@@ -49,12 +50,11 @@ def parser(exception: Exception) -> tuple[str, str, str] | None:
     help="Source format.",
 )
 def info(source: Path, format: str | None) -> None:
-    spec = REGISTRY.get(format) if format else RESOLVER.resolve(source)
-    if spec is None or spec.decoder is None:
+    decoder_type = registry.decoders.get(FileFormat(format)) if format else registry.match(source)
+    if decoder_type is None:
         raise click.UsageError(f"Unsupported source format: '{format or source.suffix}'.")
 
-    format = str(spec.format)
-    decoder_type = spec.decoder
+    format = str(decoder_type.format)
 
     size = source.stat().st_size
     console = Console()

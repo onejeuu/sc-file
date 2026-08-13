@@ -5,7 +5,8 @@ External model animation.
 from copy import replace
 
 from scfile import formats, types
-from scfile.core import ModelContent, ModelDecoder
+from scfile.structures.content import ModelContent
+from scfile.core import ModelDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
 from scfile.structures.models import transforms as T

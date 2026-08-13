@@ -2,7 +2,8 @@ from typing import override
 
 import zstandard as zstd
 
-from scfile.core import Decoder, RegionContent
+from scfile.structures.content import RegionContent
+from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import BinaryStructureError
 from scfile.structures import regions as S

@@ -4,10 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
-from scfile.core import BaseContent, Decoder, Encoder
+from scfile.structures.content import BaseContent
+from scfile.core import Decoder, Encoder
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
-from scfile.registry import REGISTRY, RESOLVER
+from scfile.formats import registry
 
 from . import paths
 
@@ -17,8 +18,8 @@ def format(
 ) -> str:
     """Detect input file format."""
 
-    if spec := RESOLVER.resolve(source):
-        return str(spec.format)
+    if decoder := registry.match(source):
+        return str(decoder.format)
 
     return Path(source).suffix.lower().lstrip(".")
 
@@ -70,16 +71,17 @@ def auto(
     options = options or Options()
 
     src = Path(source)
-    spec = RESOLVER.resolve(src)
+    decoder = registry.match(src)
 
-    if spec is None or spec.decoder is None:
+    if decoder is None:
         raise exceptions.UnknownFormatError(str(src), src.suffix)
 
-    encoder = REGISTRY.target(spec.format, options)
-    if encoder is None:
+    target = options.targets[decoder.content_type]
+    conversion = registry.conversions.get((decoder.format, target))
+    if conversion is None:
         raise exceptions.ConversionError(
-            f"No standalone output format available for '{spec.format}'.",
+            f"Cannot convert '{decoder.format}' to '{target}'.",
             location=str(src),
         )
 
-    return manual(spec.decoder, encoder, src, output, options)
+    return manual(conversion.decoder, conversion.encoder, src, output, options)

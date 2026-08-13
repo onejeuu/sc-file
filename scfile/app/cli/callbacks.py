@@ -6,7 +6,7 @@ from scfile.app.cli import console
 from scfile.app.enums import UpdateStatus
 from scfile.app.version import Version
 from scfile.enums import FileFormat
-from scfile.registry import REGISTRY
+from scfile.formats import registry
 
 
 def version_callback(
@@ -23,8 +23,8 @@ def version_callback(
     console.version(
         str(version),
         version.emoji if version else "",
-        REGISTRY.supported_suffixes,
-        REGISTRY.aliases_for(FileFormat.NBT),
+        (format.suffix for format in registry.decoders),
+        registry.aliases[FileFormat.NBT],
     )
 
     ctx.exit()

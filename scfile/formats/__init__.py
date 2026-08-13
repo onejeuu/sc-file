@@ -40,6 +40,36 @@ from .ol import OlDecoder
 from .png import PngEncoder
 from .texarr import TexarrDecoder
 from .zip import ZipEncoder
+from .registry import Registry
+
+from scfile.enums import FileFormat
+
+
+registry = Registry(
+    decoders=(
+        EfkmodelDecoder,
+        McalDecoder,
+        McsaDecoder,
+        McsbDecoder,
+        McvdDecoder,
+        MdatDecoder,
+        MicDecoder,
+        NbtDecoder,
+        OlDecoder,
+        TexarrDecoder,
+    ),
+    encoders=(
+        DdsEncoder,
+        FbxEncoder,
+        GlbEncoder,
+        JsonEncoder,
+        McaEncoder,
+        ObjEncoder,
+        PngEncoder,
+        ZipEncoder,
+    ),
+    aliases={FileFormat.NBT: nbt.SUPPORTED_FILENAMES},
+)
 
 
 __all__ = (
@@ -79,4 +109,5 @@ __all__ = (
     "PngEncoder",
     "TexarrDecoder",
     "ZipEncoder",
+    "registry",
 )

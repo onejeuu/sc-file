@@ -13,7 +13,7 @@ from scfile.io.base import IOStream, OutputStream, StructReader, StructWriter
 from scfile.options import Options
 
 from .base import Handler
-from .content import BaseContent
+from scfile.structures.content import BaseContent
 from .encoder import Encoder
 
 

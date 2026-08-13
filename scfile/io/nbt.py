@@ -3,7 +3,7 @@
 from enum import IntEnum
 from typing import assert_never
 
-from scfile.core.content import DocumentValue
+from scfile.structures.content import DocumentValue
 from scfile.enums import ByteOrder, F
 from scfile.exceptions import BinaryStructureError
 
