@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rich.console import Console
 from rich.progress import (
     BarColumn,
@@ -30,9 +32,15 @@ OUTCOMES = {
 
 
 class TaskFeedback:
-    def __init__(self, verbose: bool = False, console: Console | None = None):
+    def __init__(
+        self,
+        verbose: bool = False,
+        console: Console | None = None,
+        timestamps: bool = False,
+    ):
         self.verbose = verbose
         self.console = console or Console()
+        self.timestamps = timestamps
         self.kind: TaskKind | None = None
         self.completed = 0
         self.progress: Progress | None = None
@@ -94,6 +102,13 @@ class TaskFeedback:
         self.console.print(Text.assemble(("Output: ", "bold"), output), highlight=False)
 
     def _start(self, event: TaskStarted) -> None:
+        if self.timestamps:
+            self.console.print()
+            self.console.print()
+            self.console.print()
+            self.console.print(datetime.now().strftime("%H:%M:%S"), style="dim", highlight=False)
+            self.console.print()
+
         self.kind = event.kind
         self.completed = 0
         self.separated = False

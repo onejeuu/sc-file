@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         self._resolve_game_root()
 
         self.tasks = TaskManager(self)
-        self.feedback = TaskFeedback(self.settings.verbose)
+        self.feedback = TaskFeedback(self.settings.verbose, timestamps=True)
         self.tasks.reported.connect(self.feedback)
         self.tasks.completed.connect(self.feedback.finish)
         self.tasks.busy_changed.connect(self._task_busy_changed)
