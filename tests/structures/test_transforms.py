@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.core import ModelContent
+from scfile.structures.content import ModelContent
 from scfile.structures import models as S
 from scfile.structures.models import transforms as T
 

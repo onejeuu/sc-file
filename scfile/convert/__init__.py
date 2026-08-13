@@ -1,6 +1,6 @@
 """High-level file conversion."""
 
-from . import animate, files, formats, paths
+from . import animate, files, formats, mapcache, paths
 from .animate import arms, body, face
 from .files import auto, manual
 from .formats import (
@@ -33,6 +33,7 @@ __all__ = (
     "files",
     "formats",
     "manual",
+    "mapcache",
     "paths",
     "mcsa_to_obj",
     "mcsa_to_glb",

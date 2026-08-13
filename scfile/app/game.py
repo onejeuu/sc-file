@@ -36,10 +36,6 @@ def is_root(path: Path) -> bool:
     return path.is_dir() and ((path / ASSETS).is_dir() or (path / MAP_CACHE).is_dir())
 
 
-def is_map_cache(path: Path) -> bool:
-    return path.is_dir() and any(path.glob("*/*.mdat"))
-
-
 def is_minecraft_world(path: Path) -> bool:
     return (path / "level.dat").is_file()
 
@@ -68,11 +64,8 @@ def resolve(path: Path) -> Installation | None:
 
 
 def resolve_map_cache(path: Path) -> Path:
-    if is_map_cache(path):
-        return path
-
     installation = resolve(path)
-    if installation and is_map_cache(installation.map_cache):
+    if installation and installation.map_cache.is_dir():
         return installation.map_cache
 
     return path

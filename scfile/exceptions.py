@@ -244,16 +244,6 @@ class RegionError(ScFileException):
     ...
 
 
-class RegionFileError(RegionError):
-    """Raised when a region file fails to decode."""
-
-    def __init__(
-        self,
-        location: str,
-    ) -> None:
-        super().__init__("Region file failed to decode.", location=location)
-
-
 class MergeInterrupted(RegionError):
     """Raised when region merge is interrupted by user."""
 

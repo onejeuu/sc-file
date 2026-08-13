@@ -2,14 +2,15 @@ from dataclasses import fields
 from typing import get_type_hints
 
 from scfile.options import (
-    DEFAULT_MODEL_FORMAT,
-    DEFAULT_SKELETON_FORMAT,
+    DEFAULT_TARGETS,
     ModelConfig,
     ModelOptions,
     Options,
     RegionConfig,
     RegionOptions,
 )
+from scfile.enums import FileFormat
+from scfile.structures.content import ModelContent
 from scfile.structures.models import Feature
 
 
@@ -18,10 +19,10 @@ def test_animation_enables_skeleton() -> None:
     assert Options(model={"animation": True}).model.features == (Feature.SKELETON, Feature.ANIMATION)
 
 
-def test_default_format() -> None:
-    assert Options().default_format is DEFAULT_MODEL_FORMAT
-    assert Options(model={"skeleton": True}).default_format is DEFAULT_SKELETON_FORMAT
-    assert Options(model={"animation": True}).default_format is DEFAULT_SKELETON_FORMAT
+def test_targets() -> None:
+    assert Options().targets == DEFAULT_TARGETS
+    assert Options(model={"skeleton": True}).targets[ModelContent] is FileFormat.GLB
+    assert Options(targets={ModelContent: FileFormat.FBX}).targets[ModelContent] is FileFormat.FBX
 
 
 def test_model_config() -> None:

@@ -20,7 +20,6 @@ from scfile import exceptions
         exceptions.ConversionError("conversion failed"),
         exceptions.AnimationError("animation failed"),
         exceptions.RegistryError("registry failed"),
-        exceptions.RegionFileError("region"),
         exceptions.MergeInterrupted(),
     ),
 )

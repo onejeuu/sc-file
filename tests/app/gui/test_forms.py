@@ -9,7 +9,8 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
 from scfile.app.gui.tabs.convert import ConvertForm, ConvertTab
 from scfile.app.gui.tasks import TaskManager
-from scfile.registry import REGISTRY
+from scfile.core import ModelEncoder
+from scfile.formats import registry
 
 
 def test_convert_form(qapp: QApplication) -> None:
@@ -53,7 +54,9 @@ def test_convert_disables_unsupported_features(qapp: QApplication, fmt) -> None:
     form.model_format.setCurrentIndex(form.model_format.findData(fmt))
 
     for feature, checkbox in form.features.items():
-        assert checkbox.isEnabled() is REGISTRY.model_supports(fmt, feature)
+        encoder = registry.encoders[fmt]
+        assert issubclass(encoder, ModelEncoder)
+        assert checkbox.isEnabled() is encoder.supports(feature)
 
     form.deleteLater()
     qapp.processEvents()

@@ -1,4 +1,4 @@
-from scfile.core import TextureContent
+from scfile.structures.content import TextureContent
 from scfile.structures.textures import CubemapTexture, DefaultTexture
 
 

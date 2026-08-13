@@ -144,6 +144,7 @@ class MainWindow(QMainWindow):
 
         self._stopped = True
         self.convert.stop()
+        self.mapcache.stop()
         self.footer.stop()
 
     @override

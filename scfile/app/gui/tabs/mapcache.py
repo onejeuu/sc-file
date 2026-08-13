@@ -9,6 +9,7 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui.workers.mapcache import MapCacheScanner
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
@@ -23,6 +24,7 @@ class MapCacheTab(QWidget):
         super().__init__()
         self.tasks = tasks
         self.settings = settings
+        self.scanner = MapCacheScanner(self)
         self.touched: set[PathField] = set()
         self.running = False
         self._build_ui()
@@ -30,6 +32,8 @@ class MapCacheTab(QWidget):
         self.tasks.busy_changed.connect(self._sync)
         self.tasks.reported.connect(self._report)
         self.tasks.completed.connect(self._complete)
+        self.scanner.changed.connect(self._sync)
+        self._refresh()
         self._sync()
 
     def _build_ui(self) -> None:
@@ -95,7 +99,7 @@ class MapCacheTab(QWidget):
 
     def _game_cache(self) -> Path | None:
         installation = game.resolve(self.settings.game_root or Path.home())
-        if installation and game.is_map_cache(installation.map_cache):
+        if installation and installation.map_cache.is_dir():
             return installation.map_cache
         return None
 
@@ -105,11 +109,14 @@ class MapCacheTab(QWidget):
             resolved = game.resolve_map_cache(source)
             if resolved != source:
                 self.source.value = resolved.as_posix()
-        self._sync()
+        self._refresh()
 
     def _edit_source(self, value: str) -> None:
         self.touched.add(self.source)
         self._source_changed(value)
+
+    def _refresh(self) -> None:
+        self.scanner.refresh(self.source.value.strip())
 
     def _output_changed(self, _: str) -> None:
         output = Path(self.output.value.strip())
@@ -147,18 +154,22 @@ class MapCacheTab(QWidget):
     def _submit_error(self) -> str | None:
         source_value = self.source.value.strip()
         output_value = self.output.value.strip()
-        source = Path(source_value)
         output = Path(output_value)
-        invalid_source = not source_value or not game.is_map_cache(source)
+        source_error = None
+        if self.scanner.error is not None:
+            source_error = str(self.scanner.error)
+        elif not self.scanner.busy and not self.scanner.regions:
+            source_error = strings.get("tooltip.mapcache.invalid.source")
+
+        invalid_source = not source_value or source_error is not None
         invalid_output = not output_value or output.is_file()
-        self.source.set_error(
-            strings.get("tooltip.mapcache.invalid.source") if self.source in self.touched and invalid_source else None
-        )
+        self.source.set_error(source_error if source_value and invalid_source else None)
         self.output.set_error(
             strings.get("tooltip.mapcache.invalid.output") if self.output in self.touched and invalid_output else None
         )
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
+            "tooltip.mapcache.scanning" if self.scanner.busy else None,
             "tooltip.invalid.form" if invalid_source or invalid_output else None,
         )
         return next((error for error in errors if error), None)
@@ -201,3 +212,6 @@ class MapCacheTab(QWidget):
             self.running = False
             self.submit.finish()
             self._sync()
+
+    def stop(self) -> None:
+        self.scanner.stop()

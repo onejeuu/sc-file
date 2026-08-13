@@ -6,7 +6,7 @@ from scfile import exceptions
 from scfile.convert import files, manual
 from scfile.enums import FileFormat
 from scfile.options import Options
-from scfile.registry import Registry, Resolver
+from scfile.formats.registry import Registry
 from tests.conftest import BytesDecoder, BytesEncoder
 
 
@@ -115,12 +115,10 @@ def test_auto_uses_resolved_handlers(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
 
-    registry = Registry(PngDecoder, PngEncoder)
-    resolver = Resolver(registry)
-    monkeypatch.setattr(files, "RESOLVER", resolver)
-    monkeypatch.setattr(files, "REGISTRY", registry)
+    catalog = Registry((PngDecoder,), (PngEncoder,), {})
+    monkeypatch.setattr(files, "registry", catalog)
 
-    result = files.auto(source, output)
+    result = files.auto(source, output, Options(targets={BytesDecoder.content_type: FileFormat.PNG}))
 
     assert result == output
     assert output.read_bytes() == b"HXGNdata"
@@ -129,10 +127,8 @@ def test_auto_uses_resolved_handlers(monkeypatch: pytest.MonkeyPatch, tmp_path: 
 def test_auto_rejects_unknown_format(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     source = tmp_path / "source.unknown"
     source.write_bytes(b"data")
-    registry = Registry()
-    resolver = Resolver(registry)
-    monkeypatch.setattr(files, "RESOLVER", resolver)
-    monkeypatch.setattr(files, "REGISTRY", registry)
+    catalog = Registry((), (), {})
+    monkeypatch.setattr(files, "registry", catalog)
 
     with pytest.raises(exceptions.UnknownFormatError):
         files.auto(source)
@@ -142,10 +138,8 @@ def test_auto_requires_target(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -
     source = tmp_path / "source.png"
     source.write_bytes(b"STRNdata")
 
-    registry = Registry(PngDecoder)
-    resolver = Resolver(registry)
-    monkeypatch.setattr(files, "RESOLVER", resolver)
-    monkeypatch.setattr(files, "REGISTRY", registry)
+    catalog = Registry((PngDecoder,), (), {})
+    monkeypatch.setattr(files, "registry", catalog)
 
     with pytest.raises(exceptions.ConversionError):
-        files.auto(source)
+        files.auto(source, options=Options(targets={BytesDecoder.content_type: FileFormat.PNG}))

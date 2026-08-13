@@ -5,10 +5,10 @@ External model animation.
 from copy import replace
 
 from scfile import formats, types
-from scfile.structures.content import ModelContent
 from scfile.core import ModelDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
+from scfile.structures.content import ModelContent
 from scfile.structures.models import transforms as T
 
 from . import paths
@@ -23,11 +23,12 @@ def arms(
 ) -> types.ResultPath:
     """Apply first-person animation to weapon and hands models."""
 
+    encoder = formats.GlbEncoder
     options = _options(options)
 
     src = paths.source(animation)
     mdl = paths.source(model)
-    out = paths.output(src, output, formats.GlbEncoder.suffix(), options)
+    out = paths.output(src, output, encoder.suffix(), options)
 
     if out is None:
         return
@@ -48,7 +49,7 @@ def arms(
     content = replace(anims, scene=scene)
 
     with paths.stage(out) as tmp:
-        with formats.GlbEncoder(content, options, output=tmp) as glb:
+        with encoder(content, options, output=tmp) as glb:
             glb.encode()
 
     return out
@@ -107,11 +108,12 @@ def _apply_external_animation(
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
+    encoder = formats.GlbEncoder
     options = _options(options)
 
     src = paths.source(animation)
     mdl = paths.source(model)
-    out = paths.output(src, output, formats.GlbEncoder.suffix(), options)
+    out = paths.output(src, output, encoder.suffix(), options)
 
     if out is None:
         return
@@ -126,7 +128,7 @@ def _apply_external_animation(
     content = replace(target, scene=scene)
 
     with paths.stage(out) as tmp:
-        with formats.GlbEncoder(content, options, output=tmp) as glb:
+        with encoder(content, options, output=tmp) as glb:
             glb.encode()
 
     return out

@@ -1,6 +1,7 @@
 import numpy as np
 
-from scfile.core import ModelContent, ModelEncoder
+from scfile.core import ModelEncoder
+from scfile.structures.content import ModelContent
 from scfile.enums import FileFormat
 from scfile.options import Options
 from scfile.structures.models import AnimationClip, Feature, ModelMesh, SkeletonBone
