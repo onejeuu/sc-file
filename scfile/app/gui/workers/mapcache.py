@@ -1,43 +1,28 @@
 from pathlib import Path
 
-from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
+from PySide6.QtCore import QObject, Signal, Slot
 
+from scfile.app.gui import threads
 from scfile.convert import mapcache
 
 
 class _Scanner(QObject):
     scanned = Signal(int, int, object)
 
-    def __init__(self) -> None:
+    def __init__(self, requests: threads.RequestTokens) -> None:
         super().__init__()
-        self._mutex = QMutex()
-        self._request = 0
-        self._cancelled = False
-
-    def cancel(self, request: int) -> None:
-        with QMutexLocker(self._mutex):
-            self._request = request
-            self._cancelled = True
-
-    def _start(self, request: int) -> bool:
-        with QMutexLocker(self._mutex):
-            if request != self._request:
-                return False
-
-            self._cancelled = False
-            return True
-
-    def _stopped(self) -> bool:
-        with QMutexLocker(self._mutex):
-            return self._cancelled
+        self.requests = requests
 
     @Slot(int, str)
     def scan(self, request: int, source: str) -> None:
-        if not self._start(request):
+        if not self.requests.matches(request):
             return
 
-        result = mapcache.scan(Path(source), self._stopped)
-        if not self._stopped():
+        def stopped() -> bool:
+            return not self.requests.matches(request)
+
+        result = mapcache.scan(Path(source), stopped)
+        if self.requests.matches(request):
             self.scanned.emit(request, len(mapcache.group(result.paths)), result.errors[0] if result.errors else None)
 
 
@@ -50,31 +35,27 @@ class MapCacheScanner(QObject):
         self.regions = 0
         self.error: OSError | None = None
         self.busy = False
-        self._request = 0
-
-        self._thread = QThread(self)
-        self._scanner = _Scanner()
-        self._scanner.moveToThread(self._thread)
+        self._requests = threads.RequestTokens()
+        self._scanner = _Scanner(self._requests)
 
         self.requested.connect(self._scanner.scan)
         self._scanner.scanned.connect(self._scanned)
-        self._thread.finished.connect(self._scanner.deleteLater)
+        self._thread = threads.worker(self, self._scanner)
         self._thread.start()
 
     def refresh(self, source: str) -> None:
-        self._request += 1
-        self._scanner.cancel(self._request)
+        request = self._requests.next()
 
         if not source:
             self._set(0, False, None)
             return
 
         self._set(0, True, None)
-        self.requested.emit(self._request, source)
+        self.requested.emit(request, source)
 
     @Slot(int, int, object)
     def _scanned(self, request: int, regions: int, error: object) -> None:
-        if request == self._request:
+        if self._requests.matches(request):
             self._set(regions, False, error if isinstance(error, OSError) else None)
 
     def _set(self, regions: int, busy: bool, error: OSError | None) -> None:
@@ -84,7 +65,5 @@ class MapCacheScanner(QObject):
         self.changed.emit()
 
     def stop(self) -> None:
-        if self._thread.isRunning():
-            self._scanner.cancel(self._request + 1)
-            self._thread.quit()
-            self._thread.wait()
+        self._requests.next()
+        threads.stop(self._thread)

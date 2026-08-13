@@ -1,5 +1,6 @@
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 
+from scfile.app.gui import threads
 from scfile.app.tasks import Task, TaskContext, execute
 
 
@@ -41,22 +42,14 @@ class TaskManager(QObject):
         if self.busy:
             return False
 
-        thread = QThread(self)
         worker = _TaskWorker(task)
-        worker.moveToThread(thread)
 
         worker.reported.connect(self.reported.emit)
         worker.completed.connect(self.completed.emit)
-        worker.finished.connect(thread.quit)
-        worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(self._clear_active_task)
-        thread.finished.connect(thread.deleteLater)
-        thread.started.connect(worker.run)
-
         self._worker = worker
-        self._thread = thread
+        self._thread = threads.job(self, worker, worker.run, worker.finished, self._clear_active_task)
         self.busy_changed.emit(True)
-        thread.start()
+        self._thread.start()
         return True
 
     def cancel(self) -> None:

@@ -10,6 +10,7 @@ from scfile.app import updates
 from scfile.app.enums import UpdateStatus
 from scfile.app.gui import strings
 from scfile.app.gui.styles import Colors, Styles
+from scfile.app.gui import threads
 from scfile.app.updates import UpdateCheck
 from scfile.app.version import Version
 
@@ -55,29 +56,19 @@ class UpdateChecker(QObject):
         if self.busy:
             return False
 
-        thread = QThread(self)
         worker = _UpdatesWorker()
-        worker.moveToThread(thread)
 
         worker.status.connect(self._status)
-        worker.finished.connect(thread.quit)
-        worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(self._finished)
-        thread.finished.connect(thread.deleteLater)
-        thread.started.connect(worker.run)
-
         self._worker = worker
-        self._thread = thread
-        thread.start()
+        self._thread = threads.job(self, worker, worker.run, worker.finished, self._finished)
+        self._thread.start()
         return True
 
     def stop(self) -> None:
         if not self.busy or self._thread is None:
             return
 
-        self._thread.requestInterruption()
-        self._thread.quit()
-        self._thread.wait()
+        threads.stop(self._thread)
         self._worker = None
         self._thread = None
 
