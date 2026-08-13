@@ -3,12 +3,14 @@ from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import ClassVar
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QApplication
 
 from scfile.app import updates
 from scfile.app.enums import TaskKind, TaskOutcome, UpdateStatus
 from scfile.app.events import TaskEvent, TaskItem, TaskStarted, TaskSummary
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui import threads
 from scfile.app.gui.widgets.updates import UpdateChecker
 from scfile.app.tasks import Task, TaskContext
 from scfile.app.updates import UpdateCheck
@@ -93,3 +95,20 @@ def test_updates(qapp: QApplication, monkeypatch) -> None:
 
     checker.deleteLater()
     qapp.processEvents()
+
+
+def test_job(qapp: QApplication) -> None:
+    class Worker(threads.JobWorker):
+        completed = Signal()
+
+        def _run(self) -> None:
+            self.completed.emit()
+
+    worker = Worker()
+    completed = []
+    worker.completed.connect(lambda: completed.append(True))
+    thread = threads.job(qapp, worker)
+    thread.start()
+
+    _wait(qapp, lambda: bool(completed))
+    _wait(qapp, thread.isFinished)

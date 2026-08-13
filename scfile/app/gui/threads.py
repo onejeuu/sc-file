@@ -1,6 +1,4 @@
-from collections.abc import Callable
-
-from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, SignalInstance
+from PySide6.QtCore import QMutex, QMutexLocker, QObject, QThread, Signal, Slot
 
 
 class RequestTokens:
@@ -18,6 +16,21 @@ class RequestTokens:
             return token == self._latest
 
 
+class JobWorker(QObject):
+    finished = Signal()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            self._run()
+
+        finally:
+            self.finished.emit()
+
+    def _run(self) -> None:
+        raise NotImplementedError
+
+
 def worker(parent: QObject, worker: QObject) -> QThread:
     thread = QThread(parent)
     worker.moveToThread(thread)
@@ -27,18 +40,14 @@ def worker(parent: QObject, worker: QObject) -> QThread:
 
 def job(
     parent: QObject,
-    worker: QObject,
-    run: Callable[[], None],
-    finished: SignalInstance,
-    done: Callable[[], None],
+    worker: JobWorker,
 ) -> QThread:
     thread = QThread(parent)
     worker.moveToThread(thread)
-    finished.connect(thread.quit)
-    finished.connect(worker.deleteLater)
-    thread.finished.connect(done)
+    worker.finished.connect(thread.quit)
+    worker.finished.connect(worker.deleteLater)
     thread.finished.connect(thread.deleteLater)
-    thread.started.connect(run)
+    thread.started.connect(worker.run)
     return thread
 
 

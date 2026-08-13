@@ -1,36 +1,30 @@
 import time
 from typing import override
 
-from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.app import updates
 from scfile.app.enums import UpdateStatus
-from scfile.app.gui import strings
+from scfile.app.gui import strings, threads
 from scfile.app.gui.styles import Colors, Styles
-from scfile.app.gui import threads
 from scfile.app.updates import UpdateCheck
 from scfile.app.version import Version
 
 from .link import LinkWidget
 
 
-class _UpdatesWorker(QObject):
+class UpdatesWorker(threads.JobWorker):
     status = Signal(UpdateStatus, str, str)
-    finished = Signal()
 
-    @Slot()
-    def run(self) -> None:
+    def _run(self) -> None:
         try:
             self.status.emit(*updates.check(SEMVER))
 
         except Exception as error:
             self.status.emit(UpdateStatus.ERROR, str(error), "")
-
-        finally:
-            self.finished.emit()
 
 
 class UpdateChecker(QObject):
@@ -41,7 +35,7 @@ class UpdateChecker(QObject):
         self._ttl = ttl
         self._cached: UpdateCheck | None = None
         self._cached_at = 0.0
-        self._worker: _UpdatesWorker | None = None
+        self._worker: UpdatesWorker | None = None
         self._thread: QThread | None = None
 
     @property
@@ -56,11 +50,10 @@ class UpdateChecker(QObject):
         if self.busy:
             return False
 
-        worker = _UpdatesWorker()
-
-        worker.status.connect(self._status)
-        self._worker = worker
-        self._thread = threads.job(self, worker, worker.run, worker.finished, self._finished)
+        self._worker = UpdatesWorker()
+        self._worker.status.connect(self._status)
+        self._thread = threads.job(self, self._worker)
+        self._thread.finished.connect(self._finished)
         self._thread.start()
         return True
 

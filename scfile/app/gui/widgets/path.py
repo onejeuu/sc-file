@@ -33,7 +33,7 @@ def _local_path(data: QMimeData) -> str | None:
     return None
 
 
-class _PathLineEdit(QLineEdit):
+class PathLineEdit(QLineEdit):
     activated = Signal()
     path_set = Signal(str)
     clear_requested = Signal()
@@ -118,7 +118,7 @@ class PathInputWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
 
-        self.line_edit = _PathLineEdit()
+        self.line_edit = PathLineEdit()
         self.line_edit.setAcceptDrops(True)
         self.line_edit.setPlaceholderText(placeholder)
         self.line_edit.setStyleSheet(Styles.INPUT)

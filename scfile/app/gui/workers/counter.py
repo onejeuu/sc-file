@@ -8,7 +8,7 @@ from scfile.app.events import TaskError
 from scfile.app.gui import threads
 
 
-class _Counter(QObject):
+class Counter(QObject):
     counted = Signal(int, int, bool)
     failed = Signal(int, object)
 
@@ -51,7 +51,7 @@ class FileCounter(QObject):
         self.game_assets = False
         self.busy = False
         self._requests = threads.RequestTokens()
-        self._counter = _Counter(self._requests)
+        self._counter = Counter(self._requests)
 
         self.requested.connect(self._counter.count)
         self._counter.counted.connect(self._counted)

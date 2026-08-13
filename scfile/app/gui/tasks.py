@@ -4,24 +4,18 @@ from scfile.app.gui import threads
 from scfile.app.tasks import Task, TaskContext, execute
 
 
-class _TaskWorker(QObject):
+class TaskWorker(threads.JobWorker):
     reported = Signal(object)
     completed = Signal(object)
-    finished = Signal()
 
-    def __init__(self, task: Task):
+    def __init__(self, task: Task, context: TaskContext):
         super().__init__()
         self.task = task
-        self.context = TaskContext()
+        self.context = context
 
-    @Slot()
-    def run(self) -> None:
+    def _run(self) -> None:
         summary = execute(self.task, self.reported.emit, self.context)
         self.completed.emit(summary)
-        self.finished.emit()
-
-    def cancel(self) -> None:
-        self.context.stop()
 
 
 class TaskManager(QObject):
@@ -31,7 +25,8 @@ class TaskManager(QObject):
 
     def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
-        self._worker: _TaskWorker | None = None
+        self._context: TaskContext | None = None
+        self._worker: TaskWorker | None = None
         self._thread: QThread | None = None
 
     @property
@@ -42,22 +37,26 @@ class TaskManager(QObject):
         if self.busy:
             return False
 
-        worker = _TaskWorker(task)
+        context = TaskContext()
+        worker = TaskWorker(task, context)
 
         worker.reported.connect(self.reported.emit)
         worker.completed.connect(self.completed.emit)
+        self._context = context
         self._worker = worker
-        self._thread = threads.job(self, worker, worker.run, worker.finished, self._clear_active_task)
+        self._thread = threads.job(self, worker)
+        self._thread.finished.connect(self._clear_active_task)
         self.busy_changed.emit(True)
         self._thread.start()
         return True
 
     def cancel(self) -> None:
-        if self._worker is not None:
-            self._worker.cancel()
+        if self._context is not None:
+            self._context.stop()
 
     @Slot()
     def _clear_active_task(self) -> None:
+        self._context = None
         self._worker = None
         self._thread = None
         self.busy_changed.emit(False)

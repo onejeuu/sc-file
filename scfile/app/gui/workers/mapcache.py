@@ -6,7 +6,7 @@ from scfile.app.gui import threads
 from scfile.convert import mapcache
 
 
-class _Scanner(QObject):
+class Scanner(QObject):
     scanned = Signal(int, int, object)
 
     def __init__(self, requests: threads.RequestTokens) -> None:
@@ -36,7 +36,7 @@ class MapCacheScanner(QObject):
         self.error: OSError | None = None
         self.busy = False
         self._requests = threads.RequestTokens()
-        self._scanner = _Scanner(self._requests)
+        self._scanner = Scanner(self._requests)
 
         self.requested.connect(self._scanner.scan)
         self._scanner.scanned.connect(self._scanned)
