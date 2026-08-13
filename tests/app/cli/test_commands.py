@@ -5,7 +5,7 @@ import json
 
 from click.testing import CliRunner
 
-from scfile.app.cli import _scfile
+from scfile.app.cli import scfile
 from scfile.app.cli.cmd import animate as animate_module
 from scfile.app.cli.cmd import convert as convert_module
 from scfile.app.cli.cmd import mapcache as mapcache_module
@@ -24,7 +24,7 @@ def test_convert(
     tasks = command_runner(convert_module, TaskKind.CONVERT, False)
 
     result = CliRunner().invoke(
-        _scfile,
+        scfile,
         [
             "convert",
             str(source),
@@ -63,7 +63,7 @@ def test_convert_layout(tmp_path: Path) -> None:
     source = tmp_path / "source"
     source.mkdir()
 
-    result = CliRunner().invoke(_scfile, ["convert", str(source), "--layout", "relative"])
+    result = CliRunner().invoke(scfile, ["convert", str(source), "--layout", "relative"])
 
     assert result.exit_code != 0
 
@@ -76,7 +76,7 @@ def test_convert_failure(
     source.mkdir()
     command_runner(convert_module, TaskKind.CONVERT, True)
 
-    result = CliRunner().invoke(_scfile, ["convert", str(source)])
+    result = CliRunner().invoke(scfile, ["convert", str(source)])
 
     assert result.exit_code == 1
 
@@ -92,7 +92,7 @@ def test_convert_features(
     warnings: list[str] = []
     monkeypatch.setattr(convert_module, "warn", warnings.append)
 
-    result = CliRunner().invoke(_scfile, ["convert", str(source), "-F", "obj", "--skeleton"])
+    result = CliRunner().invoke(scfile, ["convert", str(source), "-F", "obj", "--skeleton"])
 
     assert result.exit_code == 0
     assert len(warnings) == 1
@@ -110,7 +110,7 @@ def test_arms(
     tasks = command_runner(animate_module, TaskKind.ANIMATE, False)
 
     result = CliRunner().invoke(
-        _scfile,
+        scfile,
         ["animate", "arms", str(animation), str(model), str(hands), "-O", str(tmp_path)],
     )
 
@@ -133,8 +133,8 @@ def test_animate(
     tasks = command_runner(animate_module, TaskKind.ANIMATE, False)
     runner = CliRunner()
 
-    face = runner.invoke(_scfile, ["animate", "face", str(source), str(model), "-O", str(tmp_path)])
-    body = runner.invoke(_scfile, ["animate", "body", str(source), str(model), "-O", str(tmp_path)])
+    face = runner.invoke(scfile, ["animate", "face", str(source), str(model), "-O", str(tmp_path)])
+    body = runner.invoke(scfile, ["animate", "body", str(source), str(model), "-O", str(tmp_path)])
 
     assert face.exit_code == 0
     assert body.exit_code == 0
@@ -152,7 +152,7 @@ def test_animate_failure(
     model.touch()
     command_runner(animate_module, TaskKind.ANIMATE, True)
 
-    result = CliRunner().invoke(_scfile, ["animate", "body", str(source), str(model)])
+    result = CliRunner().invoke(scfile, ["animate", "body", str(source), str(model)])
 
     assert result.exit_code == 1
 
@@ -169,7 +169,7 @@ def test_mapcache(
     monkeypatch.setattr(mapcache_module, "warn", lambda _: None)
 
     result = CliRunner().invoke(
-        _scfile,
+        scfile,
         ["mapcache", str(source), "-O", str(output), "--raw", "-W", "2", "--verbose"],
     )
 
@@ -191,7 +191,7 @@ def test_mapcache_failure(
     command_runner(mapcache_module, TaskKind.MAPCACHE, True)
     monkeypatch.setattr(mapcache_module, "warn", lambda _: None)
 
-    result = CliRunner().invoke(_scfile, ["mapcache", str(source)])
+    result = CliRunner().invoke(scfile, ["mapcache", str(source)])
 
     assert result.exit_code == 1
 
@@ -200,7 +200,7 @@ def test_convert_run(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     output = tmp_path / "output"
 
-    result = CliRunner().invoke(_scfile, ["convert", str(source), "-O", str(output), "-W", "1"])
+    result = CliRunner().invoke(scfile, ["convert", str(source), "-O", str(output), "-W", "1"])
 
     assert result.exit_code == 0
     target = output / "document.json"
