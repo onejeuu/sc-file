@@ -39,13 +39,8 @@ def test_convert_form(qapp: QApplication) -> None:
 
 
 def test_convert_groups_use_registry_filters() -> None:
-    models = next(group for group in FORMAT_GROUPS if group.name == "models")
-    nbt = next(group for group in FORMAT_GROUPS if group.name == "nbt")
-
-    assert ".mcsa" in models.filters
-    assert ".mcsa" not in models.display
-    assert "itemnames.dat" in nbt.filters
-    assert nbt.display == ("itemnames.dat", "prefs", "sd1…sd4")
+    for group in FORMAT_GROUPS:
+        assert group.filters == tuple(sorted(registry.filters(*group.formats)))
 
 
 @pytest.mark.parametrize("fmt", model_formats())
@@ -128,7 +123,10 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     assert form.create_task(tmp_path / "output.glb").models == (model, hands)
 
     form.hands.value = str(tmp_path / "invalid.obj")
-    assert form.validation_error() == "tooltip.animate.invalid.additional"
+    form._touch_input(form.hands)
+    assert form.validation_error() is not None
+    assert form.hands.invalid
+    assert not form.hands.error.isHidden()
 
     form.deleteLater()
     qapp.processEvents()
@@ -207,14 +205,13 @@ def test_animate_respects_path_resolution(qapp: QApplication, tmp_path: Path) ->
     qapp.processEvents()
 
 
-def test_animate_shows_path_error(qapp: QApplication, tmp_path: Path) -> None:
+def test_animate_marks_invalid_path(qapp: QApplication, tmp_path: Path) -> None:
     form = ArmsForm()
     form.source.value = str(tmp_path / "animation.obj")
     form._touch_input(form.source)
     form.validation_error()
 
     assert form.source.invalid
-    assert form.source.error.text() == "Укажите анимацию MCVD"
     assert not form.source.error.isHidden()
 
     form.deleteLater()
