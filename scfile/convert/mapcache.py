@@ -89,7 +89,7 @@ def merge(
 
     decoder = formats.MdatDecoder
     encoder = formats.McaEncoder
-    content = RegionContent()
+    region = RegionContent()
     seen: set[int] = set()
 
     for source in sources:
@@ -105,15 +105,15 @@ def merge(
 
         for chunk in data.chunks:
             if chunk.index not in seen:
-                content.chunks.append(chunk)
+                region.chunks.append(chunk)
                 seen.add(chunk.index)
 
-    content.rx, content.rz = key
-    filename = f"r.{content.rx}.{content.rz}{encoder.suffix()}"
+    region.rx, region.rz = key
+    filename = f"r.{region.rx}.{region.rz}{encoder.suffix()}"
     target = output / filename
 
     with paths.stage(target) as temporary:
-        with encoder(content, options) as mca:
+        with encoder(region, options) as mca:
             mca.encode()
             mca.save(temporary, close=False)
 
@@ -122,7 +122,7 @@ def merge(
             if not backup.exists():
                 target.rename(backup)
 
-    return MergeResult(filename, len(content.chunks))
+    return MergeResult(filename, len(region.chunks))
 
 
 def _region_key(
