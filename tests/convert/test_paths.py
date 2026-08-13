@@ -7,7 +7,7 @@ from scfile.convert import paths
 from scfile.options import Options
 
 
-def test_source_requires_file(tmp_path: Path) -> None:
+def test_source(tmp_path: Path) -> None:
     file = tmp_path / "source.bin"
     directory = tmp_path / "directory"
     file.write_bytes(b"")
@@ -20,7 +20,7 @@ def test_source_requires_file(tmp_path: Path) -> None:
             paths.source(path)
 
 
-def test_destination_uses_file_or_directory(tmp_path: Path) -> None:
+def test_destination(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     directory = tmp_path / "output"
     file = directory / "renamed.png"
@@ -29,7 +29,7 @@ def test_destination_uses_file_or_directory(tmp_path: Path) -> None:
     assert paths.destination(source, file, ".png") == file
 
 
-def test_output_applies_conflict_policy(tmp_path: Path) -> None:
+def test_output(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     output.write_bytes(b"existing")
@@ -39,7 +39,7 @@ def test_output_applies_conflict_policy(tmp_path: Path) -> None:
     assert paths.output(source, output, ".png", Options(on_conflict="rename")) == tmp_path / "output (1).png"
 
 
-def test_unique_skips_existing_names(tmp_path: Path) -> None:
+def test_unique(tmp_path: Path) -> None:
     path = tmp_path / "output.png"
     path.write_bytes(b"")
     (tmp_path / "output (1).png").write_bytes(b"")

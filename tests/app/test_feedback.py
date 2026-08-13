@@ -15,7 +15,7 @@ def feedback() -> TaskFeedback:
     return TaskFeedback(console=Console(file=StringIO(), width=120, force_terminal=False))
 
 
-def test_feedback_tracks_progress_and_finishes(feedback: TaskFeedback) -> None:
+def test_progress(feedback: TaskFeedback) -> None:
     feedback(TaskStarted(TaskKind.CONVERT, 2, Path("output")))
     feedback(TaskItem("first", Path("output/first")))
     feedback(TaskItem("second"))
@@ -30,7 +30,7 @@ def test_feedback_tracks_progress_and_finishes(feedback: TaskFeedback) -> None:
     assert feedback.progress.live.is_started is False
 
 
-def test_feedback_verbose_items_are_separated(feedback: TaskFeedback) -> None:
+def test_verbose(feedback: TaskFeedback) -> None:
     feedback.set_verbose(True)
     feedback(TaskStarted(TaskKind.MAPCACHE, 2))
     feedback(TaskItem("skipped"))
@@ -40,7 +40,7 @@ def test_feedback_verbose_items_are_separated(feedback: TaskFeedback) -> None:
     assert feedback.separated
 
 
-def test_feedback_reports_expected_and_unexpected_errors(feedback: TaskFeedback) -> None:
+def test_errors(feedback: TaskFeedback) -> None:
     feedback(TaskStarted(TaskKind.ANIMATE, 3))
     feedback(TaskItemFailure("binary", exceptions.BinaryStructureError(location="binary")))
     feedback(TaskItemFailure("missing", OSError("missing")))
@@ -50,7 +50,7 @@ def test_feedback_reports_expected_and_unexpected_errors(feedback: TaskFeedback)
     assert feedback.separated
 
 
-def test_feedback_handles_empty_and_ignores_unknown_summary(feedback: TaskFeedback) -> None:
+def test_empty(feedback: TaskFeedback) -> None:
     feedback(TaskStarted(TaskKind.CONVERT, 0))
     feedback.finish(object())
     feedback.finish(TaskSummary(TaskKind.CONVERT, total=0))
@@ -58,8 +58,29 @@ def test_feedback_handles_empty_and_ignores_unknown_summary(feedback: TaskFeedba
     assert feedback.progress is None
 
 
+def test_summary(feedback: TaskFeedback) -> None:
+    summary = TaskSummary(TaskKind.CONVERT, total=2)
+    summary.add(TaskItem("written", Path("output")))
+    summary.add(TaskItemFailure("broken", RuntimeError()))
+
+    feedback.finish(summary)
+
+
+def test_item(feedback: TaskFeedback) -> None:
+    feedback._item(TaskItem("source", Path("output")))
+
+    assert feedback.kind is None
+
+
+def test_idle(feedback: TaskFeedback) -> None:
+    feedback._advance()
+    feedback._separate()
+
+    assert feedback.completed == 1
+
+
 @pytest.mark.parametrize("kind", list(TaskKind))
-def test_feedback_finishes_each_task_kind(feedback: TaskFeedback, kind: TaskKind) -> None:
+def test_kinds(feedback: TaskFeedback, kind: TaskKind) -> None:
     summary = TaskSummary(kind, total=1)
     summary.add(TaskItem("source", Path("output")))
 

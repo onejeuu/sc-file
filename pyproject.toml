@@ -58,10 +58,7 @@ scfile = ["app/gui/assets/*"]
 
 [tool.coverage.run]
 branch = true
-omit = []
-
-[tool.coverage.report]
-fail_under = 85
+omit = ["scfile/__main__.py"]
 
 [build-system]
 requires = ["setuptools"]

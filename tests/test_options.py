@@ -14,7 +14,7 @@ from scfile.structures.content import ModelContent
 from scfile.structures.models import Feature
 
 
-def test_animation_enables_skeleton() -> None:
+def test_animation() -> None:
     assert Options(model={"animation": True}).model.skeleton_enabled
     assert Options(model={"animation": True}).model.features == (Feature.SKELETON, Feature.ANIMATION)
 
@@ -33,7 +33,7 @@ def test_region_config() -> None:
     assert get_type_hints(RegionConfig) == {field.name: field.type for field in fields(RegionOptions)}
 
 
-def test_copy_is_independent() -> None:
+def test_copy() -> None:
     options = Options(model={"skeleton": True}, region={"raw_blocks": True})
     copied = options.copy()
     copied.model.animation = True

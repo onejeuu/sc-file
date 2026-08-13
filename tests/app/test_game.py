@@ -37,7 +37,7 @@ def test_minecraft(tmp_path: Path) -> None:
     assert game.resolve_minecraft_regions(regions) == regions
 
 
-def test_game_paths_reject_unrelated_directories(tmp_path: Path) -> None:
+def test_unrelated(tmp_path: Path) -> None:
     unrelated = tmp_path / "unrelated"
     unrelated.mkdir()
 
@@ -47,7 +47,7 @@ def test_game_paths_reject_unrelated_directories(tmp_path: Path) -> None:
     assert game.resolve_minecraft_regions(unrelated) == unrelated
 
 
-def test_game_resolves_nested_data_paths(tmp_path: Path) -> None:
+def test_nested(tmp_path: Path) -> None:
     root = tmp_path / "stalcraft"
     assets = root / game.ASSETS
     cache = root / game.MAP_CACHE

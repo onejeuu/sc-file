@@ -17,7 +17,7 @@ class BrokenEncoder(BytesEncoder):
         raise RuntimeError
 
 
-def test_decoder_decodes_once() -> None:
+def test_decode() -> None:
     decoder = BytesDecoder(b"STRNsource")
 
     assert decoder.decode().payload == b"source"
@@ -25,7 +25,7 @@ def test_decoder_decodes_once() -> None:
     assert decoder.state is HandlerState.SUCCEEDED
 
 
-def test_decoder_rejects_empty_input() -> None:
+def test_empty() -> None:
     decoder = BytesDecoder(b"")
 
     with pytest.raises(EmptyFileError):
@@ -34,7 +34,7 @@ def test_decoder_rejects_empty_input() -> None:
     assert decoder.state is HandlerState.FAILED
 
 
-def test_decoder_verifies_signature() -> None:
+def test_signature() -> None:
     decoder = BytesDecoder(b"bad")
 
     with pytest.raises(SignatureMismatchError):
@@ -58,7 +58,7 @@ def test_convert() -> None:
         assert decoder.convert(BytesEncoder) == b"HXGNsource"
 
 
-def test_encoder_encodes_once() -> None:
+def test_encode() -> None:
     encoder = BytesEncoder(StubContent(payload=b"source"))
 
     assert encoder.to_bytes() == b"HXGNsource"
@@ -68,7 +68,7 @@ def test_encoder_encodes_once() -> None:
         encoder.encode()
 
 
-def test_save_open(tmp_path: Path) -> None:
+def test_save(tmp_path: Path) -> None:
     encoder = BytesEncoder(StubContent(payload=b"source"))
     path = tmp_path / "output.bin"
 
@@ -98,7 +98,7 @@ def test_transform() -> None:
     assert encoder.to_bytes() == b"HXGNtransformed"
 
 
-def test_encode_failure() -> None:
+def test_failure() -> None:
     encoder = BrokenEncoder(StubContent())
 
     with pytest.raises(RuntimeError):

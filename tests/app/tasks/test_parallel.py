@@ -20,7 +20,7 @@ def test_synchronous() -> None:
     assert calls == [1, 2]
 
 
-def test_synchronous_cancel() -> None:
+def test_synchronous_stop() -> None:
     context = TaskContext()
 
     def operation(value: int) -> int:
@@ -37,7 +37,7 @@ def test_parallel() -> None:
     assert {value for value in result if isinstance(value, int)} == set(range(0, 16, 2))
 
 
-def test_error_bypasses_workers() -> None:
+def test_error() -> None:
     error = TaskError(ValueError("broken"))
     calls: list[int] = []
 
@@ -52,7 +52,7 @@ def test_error_bypasses_workers() -> None:
     assert list(result) == [1]
 
 
-def test_parallel_cancel() -> None:
+def test_parallel_stop() -> None:
     context = TaskContext()
     filled = Event()
     release = Event()
@@ -80,3 +80,10 @@ def test_parallel_cancel() -> None:
 
     assert not thread.is_alive()
     assert consumed == [0, 1, 2, 3]
+
+
+def test_parallel_stopped() -> None:
+    context = TaskContext()
+    context.stop()
+
+    assert not list(parallel([1], lambda value: value, context, workers=2))

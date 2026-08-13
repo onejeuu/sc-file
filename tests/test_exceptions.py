@@ -20,7 +20,7 @@ def test_exception_context() -> None:
     assert error.offset == 42
 
 
-def test_handler_state_context() -> None:
+def test_handler_state() -> None:
     operation = "decode"
     error = exceptions.HandlerStateError(operation, HandlerState.FAILED, closed=True)
 
@@ -29,14 +29,14 @@ def test_handler_state_context() -> None:
     assert error.closed
 
 
-def test_unsupported_errors() -> None:
+def test_unsupported() -> None:
     assert exceptions.ModelVersionError.unsupported
     assert exceptions.TextureFormatError.unsupported
     assert exceptions.TextureKindError.unsupported
     assert not exceptions.BinaryStructureError.unsupported
 
 
-def test_format_error_context() -> None:
+def test_format_errors() -> None:
     model_version = exceptions.ModelVersionError(15, location="model.mcsb")
     texture_format = exceptions.TextureFormatError(b"DXT0", location="texture.ol", offset=4)
     texture_kind = exceptions.TextureKindError(7, location="texture.ol")
@@ -51,5 +51,5 @@ def test_format_error_context() -> None:
     assert signature.expected == b"MIC"
 
 
-def test_merge_interrupted_is_region_error() -> None:
+def test_merge_interrupted() -> None:
     assert isinstance(exceptions.MergeInterrupted(), exceptions.RegionError)

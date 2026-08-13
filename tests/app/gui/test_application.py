@@ -5,7 +5,7 @@ import pytest
 from scfile.app.gui import application
 
 
-def test_run_initializes_application(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[tuple[str, Any]] = []
 
     class App:

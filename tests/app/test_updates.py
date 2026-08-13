@@ -20,7 +20,7 @@ def test_version_parse(value: str, expected: Version | None) -> None:
     assert Version.parse(value) == expected
 
 
-def test_version_properties_and_order() -> None:
+def test_version() -> None:
     dev = Version(6, 0, 0, "dev")
     release = Version(6, 0, 0)
 
@@ -32,7 +32,7 @@ def test_version_properties_and_order() -> None:
     assert release.emoji
 
 
-def test_current_reads_bundled_commit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_current(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     commit = tmp_path / "commit"
     commit.write_text("abc123\n")
     monkeypatch.setattr(updates.files, "resource", lambda _: commit)
@@ -40,7 +40,7 @@ def test_current_reads_bundled_commit(tmp_path: Path, monkeypatch: pytest.Monkey
     assert updates.current() == "abc123"
 
 
-def test_current_handles_resource_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_current_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(updates.files, "resource", lambda _: (_ for _ in ()).throw(OSError()))
 
     assert updates.current() is None
@@ -55,7 +55,7 @@ def test_current_handles_resource_failure(monkeypatch: pytest.MonkeyPatch) -> No
         ("broken", {}, UpdateStatus.ERROR),
     ],
 )
-def test_release_update_states(
+def test_release(
     semver: str,
     payload: dict[str, str],
     status: UpdateStatus,
@@ -66,7 +66,7 @@ def test_release_update_states(
     assert updates.check(semver).status is status
 
 
-def test_release_network_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_release_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(updates, "_fetch", lambda _: None)
 
     assert updates.check("6.0.0").status is UpdateStatus.ERROR
@@ -81,7 +81,7 @@ def test_release_network_failure(monkeypatch: pytest.MonkeyPatch) -> None:
         ("abc", {"sha": "abc"}, UpdateStatus.UPTODATE),
     ],
 )
-def test_dev_update_states(
+def test_dev(
     local: str | None,
     remote: dict[str, str] | None,
     status: UpdateStatus,
@@ -93,7 +93,7 @@ def test_dev_update_states(
     assert updates.check("6.0.0-dev").status is status
 
 
-def test_fetch_decodes_json(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
     class Response:
         def __enter__(self):
             return self
@@ -108,6 +108,6 @@ def test_fetch_decodes_json(monkeypatch: pytest.MonkeyPatch) -> None:
     assert updates._fetch("https://example.invalid") == {"sha": "abc"}
 
 
-def test_fetch_handles_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_fetch_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(updates.urllib.request, "urlopen", lambda *args, **kwargs: (_ for _ in ()).throw(OSError()))
     assert updates._fetch("https://example.invalid") is None

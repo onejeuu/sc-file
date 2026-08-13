@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, cast
 
+import pytest
 from click.testing import CliRunner
 
 from scfile.app import updates
@@ -33,7 +34,7 @@ def test_updates_callback(monkeypatch) -> None:
     assert len(calls) == 1
 
 
-def test_updates_callback_reports_up_to_date(monkeypatch) -> None:
+def test_updates_current(monkeypatch) -> None:
     calls: list[str] = []
     monkeypatch.setattr(
         callbacks.updates,
@@ -48,7 +49,7 @@ def test_updates_callback_reports_up_to_date(monkeypatch) -> None:
     assert len(calls) == 1
 
 
-def test_updates_callback_reports_error_and_hint(monkeypatch) -> None:
+def test_updates_error(monkeypatch) -> None:
     errors: list[str] = []
     hints: list[str] = []
     monkeypatch.setattr(
@@ -64,3 +65,27 @@ def test_updates_callback_reports_error_and_hint(monkeypatch) -> None:
     assert result.exit_code == 0
     assert len(errors) == 1
     assert len(hints) == 1
+
+
+def test_updates_error_plain(monkeypatch) -> None:
+    errors: list[str] = []
+    monkeypatch.setattr(
+        callbacks.updates,
+        "check",
+        lambda _: updates.UpdateCheck(UpdateStatus.ERROR, "network", ""),
+    )
+    monkeypatch.setattr(callbacks.console, "error", errors.append)
+    monkeypatch.setattr(callbacks.console, "hint", lambda _: pytest.fail("unexpected hint"))
+
+    result = CliRunner().invoke(_scfile, ["--updates"])
+
+    assert result.exit_code == 0
+    assert len(errors) == 1
+
+
+def test_updates_unknown(monkeypatch) -> None:
+    monkeypatch.setattr(callbacks.updates, "check", lambda _: updates.UpdateCheck(cast(UpdateStatus, object()), "", ""))
+
+    result = CliRunner().invoke(_scfile, ["--updates"])
+
+    assert result.exit_code == 0

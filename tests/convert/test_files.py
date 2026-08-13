@@ -30,7 +30,7 @@ class InterruptedEncoder(PngEncoder):
         raise KeyboardInterrupt
 
 
-def test_manual_writes_path(tmp_path: Path) -> None:
+def test_manual(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -42,7 +42,7 @@ def test_manual_writes_path(tmp_path: Path) -> None:
     assert output.read_bytes() == b"HXGNdata"
 
 
-def test_manual_returns_none_when_skipped(tmp_path: Path) -> None:
+def test_manual_skip(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -54,7 +54,7 @@ def test_manual_returns_none_when_skipped(tmp_path: Path) -> None:
     assert output.read_bytes() == b"existing"
 
 
-def test_manual_renames_conflicting_output(tmp_path: Path) -> None:
+def test_manual_rename(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -68,7 +68,7 @@ def test_manual_renames_conflicting_output(tmp_path: Path) -> None:
     assert result.read_bytes() == b"HXGNdata"
 
 
-def test_manual_removes_failed_output(tmp_path: Path) -> None:
+def test_manual_failure(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -80,7 +80,7 @@ def test_manual_removes_failed_output(tmp_path: Path) -> None:
     assert not list(tmp_path.glob(".output.png.*.tmp"))
 
 
-def test_manual_keeps_previous_output(tmp_path: Path) -> None:
+def test_manual_preserves_output(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -93,7 +93,7 @@ def test_manual_keeps_previous_output(tmp_path: Path) -> None:
     assert not list(tmp_path.glob(".output.png.*.tmp"))
 
 
-def test_manual_removes_interrupted_output(tmp_path: Path) -> None:
+def test_manual_interrupt(tmp_path: Path) -> None:
     source = tmp_path / "source.bin"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -110,7 +110,7 @@ def test_format() -> None:
     assert files.format("model.custom") == "custom"
 
 
-def test_auto_uses_resolved_handlers(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_auto(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     source = tmp_path / "source.png"
     output = tmp_path / "output.png"
     source.write_bytes(b"STRNdata")
@@ -124,7 +124,7 @@ def test_auto_uses_resolved_handlers(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     assert output.read_bytes() == b"HXGNdata"
 
 
-def test_auto_rejects_unknown_format(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_auto_unknown(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     source = tmp_path / "source.unknown"
     source.write_bytes(b"data")
     catalog = Registry((), (), {})
@@ -134,7 +134,7 @@ def test_auto_rejects_unknown_format(monkeypatch: pytest.MonkeyPatch, tmp_path: 
         files.auto(source)
 
 
-def test_auto_requires_target(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_auto_target(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     source = tmp_path / "source.png"
     source.write_bytes(b"STRNdata")
 

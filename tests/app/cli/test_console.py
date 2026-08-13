@@ -18,7 +18,7 @@ from scfile.app.cli import console
         console.aborted,
     ],
 )
-def test_messages_render_text(render: Callable[[str], None], monkeypatch: pytest.MonkeyPatch) -> None:
+def test_message(render: Callable[[str], None], monkeypatch: pytest.MonkeyPatch) -> None:
     values: list[object] = []
     monkeypatch.setattr(console.CONSOLE, "print", lambda value, **kwargs: values.append(value))
 
@@ -28,7 +28,7 @@ def test_messages_render_text(render: Callable[[str], None], monkeypatch: pytest
     assert isinstance(values[0], Text)
 
 
-def test_print_forwards_renderable(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_print(monkeypatch: pytest.MonkeyPatch) -> None:
     values: list[object] = []
     renderable = Text("value")
     monkeypatch.setattr(console.CONSOLE, "print", lambda value, **kwargs: values.append(value))
@@ -39,7 +39,7 @@ def test_print_forwards_renderable(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.parametrize("emoji", ["", "🍉"])
-def test_version_renders_support_table(emoji: str, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_version(emoji: str, monkeypatch: pytest.MonkeyPatch) -> None:
     values: list[object] = []
     monkeypatch.setattr(console.CONSOLE, "print", lambda value=None, **kwargs: values.append(value))
 

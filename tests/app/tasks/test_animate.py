@@ -6,7 +6,7 @@ from scfile.app.tasks import TaskContext
 from scfile.app.tasks.animate import AnimateTask
 
 
-def test_animate_task_success(tmp_path: Path) -> None:
+def test_success(tmp_path: Path) -> None:
     output = tmp_path / "animation.glb"
     task = AnimateTask(lambda *args, **kwargs: output, tmp_path / "animation", (), output)
 
@@ -17,7 +17,7 @@ def test_animate_task_success(tmp_path: Path) -> None:
     assert events[1].output == output
 
 
-def test_animate_task_stops_before_operation(tmp_path: Path) -> None:
+def test_cancel(tmp_path: Path) -> None:
     called = False
 
     def operation(*args, **kwargs):
@@ -33,7 +33,7 @@ def test_animate_task_stops_before_operation(tmp_path: Path) -> None:
     assert not called
 
 
-def test_animate_task_reports_expected_failure(tmp_path: Path) -> None:
+def test_expected_error(tmp_path: Path) -> None:
     error = exceptions.AnimationError("invalid")
 
     def operation(*args, **kwargs):
@@ -46,7 +46,7 @@ def test_animate_task_reports_expected_failure(tmp_path: Path) -> None:
     assert events[1].traceback is None
 
 
-def test_animate_task_reports_unexpected_failure(tmp_path: Path) -> None:
+def test_unexpected_error(tmp_path: Path) -> None:
     error = RuntimeError("broken")
 
     def operation(*args, **kwargs):

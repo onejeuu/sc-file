@@ -34,7 +34,7 @@ def test_scan(tmp_path: Path) -> None:
     assert not result.errors
 
 
-def test_scan_can_be_cancelled(tmp_path: Path) -> None:
+def test_scan_cancel(tmp_path: Path) -> None:
     (tmp_path / "r.0.0.mdat").write_bytes(b"data")
 
     result = scan(tmp_path, lambda: True)
@@ -43,12 +43,12 @@ def test_scan_can_be_cancelled(tmp_path: Path) -> None:
     assert not result.errors
 
 
-def test_merge_can_be_cancelled(tmp_path: Path) -> None:
+def test_merge_cancel(tmp_path: Path) -> None:
     with pytest.raises(exceptions.MergeInterrupted):
         merge((0, 0), [tmp_path / "r.0.0.mdat"], tmp_path, Options(), lambda: True)
 
 
-def test_merge_creates_backup(tmp_path: Path) -> None:
+def test_merge_backup(tmp_path: Path) -> None:
     source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")

@@ -2,8 +2,10 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import ClassVar
 
+from scfile import exceptions
+from scfile.app import files
 from scfile.app.enums import OutputLayout, TaskKind, TaskOutcome
-from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
+from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.tasks import Task, TaskContext, execute
 from scfile.app.tasks.convert import ConvertTask
 from scfile.options import Options
@@ -28,7 +30,7 @@ class BrokenTask(Task):
         raise RuntimeError("broken")
 
 
-def test_execute_collects_events() -> None:
+def test_execute() -> None:
     events: list[TaskEvent] = []
 
     summary = execute(SampleTask(), events.append)
@@ -43,7 +45,7 @@ def test_execute_collects_events() -> None:
     assert summary.outcome is TaskOutcome.PARTIAL
 
 
-def test_execute_reports_unexpected_error() -> None:
+def test_execute_error() -> None:
     events: list[TaskEvent] = []
 
     summary = execute(BrokenTask(), events.append)
@@ -54,14 +56,30 @@ def test_execute_reports_unexpected_error() -> None:
     assert summary.outcome is TaskOutcome.FAILED
 
 
-def test_context_stops_task() -> None:
+def test_context() -> None:
     context = TaskContext()
     context.stop()
 
     assert context.stopped
 
 
-def test_convert_task(tmp_path: Path) -> None:
+def test_cancelled_context() -> None:
+    context = TaskContext()
+    context.stop()
+
+    summary = execute(SampleTask(), context=context)
+
+    assert summary.cancelled
+
+
+def test_unknown_event() -> None:
+    summary = TaskSummary(TaskKind.CONVERT)
+    summary.add(object())  # type: ignore[arg-type]
+
+    assert summary.outcome is TaskOutcome.EMPTY
+
+
+def test_convert(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     events: list[TaskEvent] = []
     task = ConvertTask((source,), (), Options(), output=tmp_path, workers=1)
@@ -75,7 +93,7 @@ def test_convert_task(tmp_path: Path) -> None:
     assert (tmp_path / "document.json").exists()
 
 
-def test_convert_task_reports_missing_source(tmp_path: Path) -> None:
+def test_convert_missing(tmp_path: Path) -> None:
     events: list[TaskEvent] = []
     task = ConvertTask((tmp_path / "missing",), (), Options(), workers=2)
 
@@ -87,6 +105,29 @@ def test_convert_task_reports_missing_source(tmp_path: Path) -> None:
     assert events[1].source == str((tmp_path / "missing").resolve())
     assert summary.work.failed == 1
     assert summary.outcome is TaskOutcome.FAILED
+
+
+def test_convert_total(tmp_path: Path) -> None:
+    task = ConvertTask((tmp_path / "missing",), (), Options(), total=7, workers=1)
+
+    events = list(task.run(TaskContext()))
+
+    assert isinstance(events[0], TaskStarted)
+    assert events[0].total == 7
+
+
+def test_convert_errors(tmp_path: Path, monkeypatch) -> None:
+    entry = files.FileEntry(str(tmp_path), str(tmp_path / "source"))
+    task = ConvertTask((), (), Options())
+    monkeypatch.setattr("scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(exceptions.ConversionError("bad")))
+    failure = task._convert(entry)
+    assert isinstance(failure, TaskItemFailure)
+    assert failure.traceback is None
+
+    monkeypatch.setattr("scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(RuntimeError()))
+    failure = task._convert(entry)
+    assert isinstance(failure, TaskItemFailure)
+    assert failure.traceback is not None
 
 
 def test_relative_layout(tmp_path: Path) -> None:

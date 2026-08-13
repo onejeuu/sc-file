@@ -24,7 +24,7 @@ EXPECTED = ASSETS / "convert" / "animate"
         (animate.face, ".mcvd"),
     ],
 )
-def test_animation_skips_existing_output(
+def test_skip(
     operation: Operation,
     suffix: str,
     tmp_path: Path,
@@ -49,7 +49,7 @@ def test_animation_skips_existing_output(
         (animate.body, "library.mcal", "model_v15.mcsb", "body.glb"),
     ),
 )
-def test_animation_export(
+def test_export(
     operation: Operation,
     animation: str,
     model: str,
@@ -62,3 +62,16 @@ def test_animation_export(
 
     assert result == output
     assert output.read_bytes() == (EXPECTED / expected).read_bytes()
+
+
+def test_arms_hands(tmp_path: Path) -> None:
+    output = tmp_path / "arms.glb"
+
+    result = animate.arms(
+        SOURCE / "animation.mcvd",
+        SOURCE / "model_v15.mcsb",
+        SOURCE / "model_v15.mcsb",
+        output=output,
+    )
+
+    assert result == output

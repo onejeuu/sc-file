@@ -14,7 +14,7 @@ from scfile.enums import FileFormat
 from scfile.structures.content import ModelContent
 
 
-def test_convert_builds_task(
+def test_convert(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -59,7 +59,7 @@ def test_convert_builds_task(
     assert task.options.on_conflict == "rename"
 
 
-def test_convert_rejects_relative_output_next_to_source(tmp_path: Path) -> None:
+def test_convert_layout(tmp_path: Path) -> None:
     source = tmp_path / "source"
     source.mkdir()
 
@@ -68,7 +68,7 @@ def test_convert_rejects_relative_output_next_to_source(tmp_path: Path) -> None:
     assert result.exit_code != 0
 
 
-def test_convert_returns_failure_status(
+def test_convert_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -81,7 +81,7 @@ def test_convert_returns_failure_status(
     assert result.exit_code == 1
 
 
-def test_convert_warns_about_unsupported_features(
+def test_convert_features(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
     monkeypatch,
@@ -98,7 +98,7 @@ def test_convert_warns_about_unsupported_features(
     assert len(warnings) == 1
 
 
-def test_animate_builds_arms_task(
+def test_arms(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -122,7 +122,7 @@ def test_animate_builds_arms_task(
     assert task.output == tmp_path / "animation.glb"
 
 
-def test_animate_subcommands_select_operations(
+def test_animate(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -142,7 +142,7 @@ def test_animate_subcommands_select_operations(
     assert tasks[1].operation is animate_module.convert.animate.body
 
 
-def test_animate_returns_failure_status(
+def test_animate_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -157,7 +157,7 @@ def test_animate_returns_failure_status(
     assert result.exit_code == 1
 
 
-def test_mapcache_builds_task(
+def test_mapcache(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
     monkeypatch,
@@ -181,7 +181,7 @@ def test_mapcache_builds_task(
     assert task.options.region.raw_blocks
 
 
-def test_mapcache_returns_failure_status(
+def test_mapcache_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
     monkeypatch,
@@ -196,7 +196,7 @@ def test_mapcache_returns_failure_status(
     assert result.exit_code == 1
 
 
-def test_convert_end_to_end(tmp_path: Path) -> None:
+def test_convert_run(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     output = tmp_path / "output"
 

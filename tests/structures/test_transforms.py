@@ -26,7 +26,7 @@ def test_flip_uv() -> None:
     assert mesh.uv1[0, 1] == 0.0
 
 
-def test_uv_transforms_preserve_normalized_meshes() -> None:
+def test_uv_normalized() -> None:
     flipped = S.ModelMesh(uv_origin=S.UVOrigin.BOTTOM_LEFT, uv_sign=S.UVSign.POSITIVE)
     inverted = S.ModelMesh(uv_sign=S.UVSign.NEGATIVE)
 
@@ -85,7 +85,7 @@ def test_global_transforms() -> None:
     assert np.allclose(T.inverse_bind_matrices(skeleton)[1] @ transforms[1], np.eye(4))
 
 
-def test_inverse_bind_matrices_empty_and_transposed() -> None:
+def test_inverse_bind() -> None:
     assert T.inverse_bind_matrices(S.ModelSkeleton()).shape == (0, 4, 4)
 
     skeleton = S.ModelSkeleton(bones=[S.SkeletonBone(position=np.array([1.0, 2.0, 3.0]))])
@@ -94,7 +94,7 @@ def test_inverse_bind_matrices_empty_and_transposed() -> None:
     assert np.array_equal(transposed, regular.transpose(0, 2, 1))
 
 
-def test_skeleton_to_local_is_idempotent() -> None:
+def test_local_skeleton() -> None:
     scene = S.ModelScene(skeleton=S.ModelSkeleton(space=S.SkeletonSpace.LOCAL))
 
     assert T.skeleton_to_local(scene) is scene
@@ -115,7 +115,7 @@ def test_animation_to_absolute() -> None:
     assert np.array_equal(scene.animation.clips[0].translations[0, 0], [0.0, 0.0, 0.0])
 
 
-def test_animation_to_absolute_preserves_absolute_and_empty_clips() -> None:
+def test_absolute_animation() -> None:
     absolute = S.ModelScene(animation=S.ModelAnimation(translation=S.AnimationTranslation.ABSOLUTE))
     assert T.animation_to_absolute(absolute) is absolute
 
@@ -162,7 +162,7 @@ def _skinned_model(bone_id: int = 0, bone_name: str = "root") -> S.ModelScene:
     return S.ModelScene(meshes=[mesh], skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name=bone_name)]))
 
 
-def test_apply_fp_animation_validates_inputs() -> None:
+def test_fp_errors() -> None:
     with pytest.raises(AnimationError):
         T.apply_fp_animation(_fp_scene(clips=False), _skinned_model())
 
@@ -204,7 +204,7 @@ def test_apply_skins() -> None:
     assert not scene.skins
 
 
-def test_apply_skins_handles_unskinned_and_partial_skeletons() -> None:
+def test_skins_partial() -> None:
     animation = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="root")]))
     unskinned = S.ModelScene(meshes=[S.ModelMesh()])
     partial = _skinned_model(bone_name="other")
@@ -232,7 +232,7 @@ def test_animation_library() -> None:
     assert not model.animation.clips
 
 
-def test_animation_library_validates_clips_and_bones() -> None:
+def test_library_errors() -> None:
     model = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone()]))
     with pytest.raises(AnimationError):
         T.apply_animation_library(S.ModelScene(), model)
@@ -254,7 +254,7 @@ def test_morph_animation() -> None:
     assert not model.animation.clips
 
 
-def test_morph_animation_validates_compatibility() -> None:
+def test_morph_errors() -> None:
     empty_model = S.ModelScene()
     with pytest.raises(AnimationError):
         T.apply_morph_animation(S.ModelScene(), empty_model)

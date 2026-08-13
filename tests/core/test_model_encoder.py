@@ -21,6 +21,12 @@ def test_supports() -> None:
     assert not ModelEncoderStub.supports(Feature.NORMALS)
 
 
+def test_decoder_supports() -> None:
+    from scfile.core import ModelDecoder
+
+    assert not ModelDecoder.supports(Feature.SKELETON)
+
+
 def test_includes() -> None:
     data = ModelContent()
     data.scene.meshes.append(ModelMesh(uv1=np.zeros((1, 2), dtype=np.float32)))
@@ -40,7 +46,7 @@ def test_includes() -> None:
         assert not encoder.includes(Feature.NORMALS)
 
 
-def test_disabled_features() -> None:
+def test_disabled() -> None:
     data = ModelContent()
     data.scene.skeleton.bones.append(SkeletonBone())
     data.scene.animation.clips.append(

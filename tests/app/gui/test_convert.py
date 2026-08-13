@@ -36,7 +36,7 @@ def test_convert_form(qapp: QApplication) -> None:
     form.deleteLater()
     qapp.processEvents()
 @pytest.mark.parametrize("fmt", model_formats())
-def test_convert_disables_unsupported_features(qapp: QApplication, fmt) -> None:
+def test_convert_features(qapp: QApplication, fmt) -> None:
     form = ConvertForm()
     form.model_format.setCurrentIndex(form.model_format.findData(fmt))
 
@@ -49,7 +49,7 @@ def test_convert_disables_unsupported_features(qapp: QApplication, fmt) -> None:
     qapp.processEvents()
 
 
-def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> None:
+def test_convert_default_output(qapp: QApplication, tmp_path: Path) -> None:
     default = tmp_path / "default"
     settings = Settings(export_path=default)
     tab = ConvertTab(TaskManager(), settings)
@@ -68,7 +68,7 @@ def test_convert_keeps_default_output(qapp: QApplication, tmp_path: Path) -> Non
     qapp.processEvents()
 
 
-def test_convert_ignores_empty_custom_output_for_game_warning(qapp: QApplication, tmp_path: Path) -> None:
+def test_convert_empty_output(qapp: QApplication, tmp_path: Path) -> None:
     tab = ConvertTab(TaskManager(), Settings())
     tab.form.output_path.value = ""
     tab.form.output_changed.emit(None)

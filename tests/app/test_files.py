@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from scfile.app import files
 from scfile.app.events import TaskError
 from scfile.app.files import count, destination, resolve, scan, walk
 
@@ -15,7 +16,7 @@ def test_resolve(tmp_path: Path) -> None:
     assert resolve([tmp_path / "missing"]) == [tmp_path / "missing"]
 
 
-def test_resolve_many_files(tmp_path: Path) -> None:
+def test_resolve_files(tmp_path: Path) -> None:
     files = [tmp_path / f"{index}.mic" for index in range(64)]
     for path in files:
         path.write_bytes(b"")
@@ -36,14 +37,14 @@ def test_walk(tmp_path: Path) -> None:
     assert {Path(entry.root) for entry in entries} == {tmp_path}
 
 
-def test_scan_missing_source(tmp_path: Path) -> None:
+def test_scan_missing(tmp_path: Path) -> None:
     (issue,) = scan([tmp_path / "missing"])
 
     assert isinstance(issue, TaskError)
     assert isinstance(issue.error, FileNotFoundError)
 
 
-def test_scan_access_error(tmp_path: Path, monkeypatch) -> None:
+def test_scan_access(tmp_path: Path, monkeypatch) -> None:
     source = tmp_path / "denied"
 
     def denied(path: str):
@@ -57,7 +58,7 @@ def test_scan_access_error(tmp_path: Path, monkeypatch) -> None:
     assert isinstance(issue.error, PermissionError)
 
 
-def test_file_root(tmp_path: Path) -> None:
+def test_root(tmp_path: Path) -> None:
     source = tmp_path / "model.mcsb"
     source.write_bytes(b"")
 
@@ -81,3 +82,62 @@ def test_destination() -> None:
     assert Path(target) == Path("output/models")
     assert destination("assets/models/model.obj", None, "output") == "output"
     assert destination("assets/models/model.obj", "assets", None) is None
+
+
+def test_resource(monkeypatch) -> None:
+    monkeypatch.setattr(files.sys, "_MEIPASS", "bundle", raising=False)
+
+    assert files.resource("asset") == Path("bundle/asset")
+
+
+def test_scan_error(tmp_path: Path, monkeypatch) -> None:
+    class Entry:
+        path = str(tmp_path / "denied.mic")
+        name = "denied.mic"
+
+        def is_symlink(self) -> bool:
+            raise PermissionError(13, "denied", self.path)
+
+    class Entries:
+        def __enter__(self):
+            return [Entry()]
+
+        def __exit__(self, *args):
+            return None
+
+    monkeypatch.setattr(files.os, "scandir", lambda _: Entries())
+    (issue,) = scan([tmp_path], filters=[".mic"])
+
+    assert isinstance(issue, TaskError)
+    assert isinstance(issue.error, PermissionError)
+
+
+def test_scan_links(tmp_path: Path, monkeypatch) -> None:
+    class Entry:
+        path = str(tmp_path / "entry")
+        name = "entry"
+
+        def __init__(self, link: bool, directory: bool, file: bool) -> None:
+            self.link, self.directory, self.file = link, directory, file
+
+        def is_symlink(self) -> bool:
+            return self.link
+
+        def is_junction(self) -> bool:
+            return False
+
+        def is_dir(self) -> bool:
+            return self.directory
+
+        def is_file(self) -> bool:
+            return self.file
+
+    class Entries:
+        def __enter__(self):
+            return [Entry(True, False, False), Entry(False, False, False)]
+
+        def __exit__(self, *args):
+            return None
+
+    monkeypatch.setattr(files.os, "scandir", lambda _: Entries())
+    assert not list(scan([tmp_path], filters=[".mic"]))

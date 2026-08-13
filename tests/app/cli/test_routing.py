@@ -20,14 +20,14 @@ def test_resolve(args: list[str], command: str) -> None:
     assert routing.resolve(args)[0] == command
 
 
-def test_arms_requires_matching_sources() -> None:
+def test_arms() -> None:
     assert not routing._is_arms_sources((Path("animation.mcvd"),))
     assert not routing._is_arms_sources((Path("idle.mcvd"), Path("model.mcsb")))
     assert not routing._is_arms_sources((Path("wpn_idle.mcvd"), Path("model.obj")))
     assert routing._is_arms_sources((Path("wpn_idle.mcvd"), Path("model.mcsb"), Path("hands.mcsb")))
 
 
-def test_run_normalizes_click_result(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "resolve", lambda args: args)
     monkeypatch.setattr(cli, "_scfile", lambda **kwargs: None)
     assert cli.run(["convert"]) == 0
