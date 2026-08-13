@@ -5,7 +5,7 @@ from PySide6.QtCore import QSettings
 from scfile.app.gui.settings import Settings, Store
 
 
-def test_store_saves_export_path(tmp_path: Path) -> None:
+def test_store(tmp_path: Path) -> None:
     data = QSettings(str(tmp_path / "settings.ini"), QSettings.Format.IniFormat)
     store = Store(data)
     default = tmp_path / "default"

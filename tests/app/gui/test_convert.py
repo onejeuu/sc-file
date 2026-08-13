@@ -49,7 +49,7 @@ def test_convert_features(qapp: QApplication, fmt) -> None:
     qapp.processEvents()
 
 
-def test_convert_default_output(qapp: QApplication, tmp_path: Path) -> None:
+def test_default_output(qapp: QApplication, tmp_path: Path) -> None:
     default = tmp_path / "default"
     settings = Settings(export_path=default)
     tab = ConvertTab(TaskManager(), settings)
@@ -68,7 +68,7 @@ def test_convert_default_output(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_convert_empty_output(qapp: QApplication, tmp_path: Path) -> None:
+def test_empty_output(qapp: QApplication, tmp_path: Path) -> None:
     tab = ConvertTab(TaskManager(), Settings())
     tab.form.output_path.value = ""
     tab.form.output_changed.emit(None)

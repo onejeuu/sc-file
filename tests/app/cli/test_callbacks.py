@@ -8,7 +8,7 @@ from scfile.app.cli import _scfile, callbacks
 from scfile.app.enums import UpdateStatus
 
 
-def test_version_callback(monkeypatch) -> None:
+def test_version(monkeypatch) -> None:
     calls: list[tuple[Any, ...]] = []
     monkeypatch.setattr(callbacks.console, "version", lambda *args: calls.append(args))
 
@@ -19,7 +19,7 @@ def test_version_callback(monkeypatch) -> None:
     assert calls[0][0]
 
 
-def test_updates_callback(monkeypatch) -> None:
+def test_updates(monkeypatch) -> None:
     calls: list[str] = []
     monkeypatch.setattr(
         callbacks.updates,

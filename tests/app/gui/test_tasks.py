@@ -44,7 +44,7 @@ def _wait(qapp: QApplication, predicate: Callable[[], bool]) -> None:
     assert predicate()
 
 
-def test_task_manager(qapp: QApplication, tmp_path: Path) -> None:
+def test_manager(qapp: QApplication, tmp_path: Path) -> None:
     manager = TaskManager()
     summaries: list[TaskSummary] = []
     manager.completed.connect(summaries.append)
@@ -61,7 +61,7 @@ def test_task_manager(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_task_cancel(qapp: QApplication) -> None:
+def test_cancel(qapp: QApplication) -> None:
     manager = TaskManager()
     summaries: list[TaskSummary] = []
     manager.completed.connect(summaries.append)
@@ -76,7 +76,7 @@ def test_task_cancel(qapp: QApplication) -> None:
     qapp.processEvents()
 
 
-def test_update_checker(qapp: QApplication, monkeypatch) -> None:
+def test_updates(qapp: QApplication, monkeypatch) -> None:
     result = UpdateCheck(UpdateStatus.UPTODATE, "", "")
     monkeypatch.setattr(updates, "check", lambda _: result)
 

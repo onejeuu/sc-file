@@ -51,7 +51,7 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_animate_export(qapp: QApplication, tmp_path: Path) -> None:
+def test_export(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export")
     tab = AnimateTab(TaskManager(), settings)
     source = tmp_path / "run.mcvd"
@@ -71,7 +71,7 @@ def test_animate_export(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_animate_output(qapp: QApplication, tmp_path: Path) -> None:
+def test_output(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export")
     tab = AnimateTab(TaskManager(), settings)
     first = tmp_path / "first.mcvd"
@@ -106,7 +106,7 @@ def test_animate_output(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_animate_paths(qapp: QApplication, tmp_path: Path) -> None:
+def test_paths(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export", resolve_paths=False)
     tab = AnimateTab(TaskManager(), settings)
     source = tmp_path / "animation.mcvd"
@@ -124,7 +124,7 @@ def test_animate_paths(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_animate_invalid(qapp: QApplication, tmp_path: Path) -> None:
+def test_invalid(qapp: QApplication, tmp_path: Path) -> None:
     form = ArmsForm()
     form.source.value = str(tmp_path / "animation.obj")
     form._touch_input(form.source)

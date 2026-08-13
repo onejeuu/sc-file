@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QApplication
 from scfile.app.gui.window import MainWindow
 
 
-def test_window_opens_and_closes(qapp: QApplication) -> None:
+def test_window(qapp: QApplication) -> None:
     window = MainWindow()
     window.show()
     qapp.processEvents()
