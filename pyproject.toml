@@ -58,7 +58,7 @@ scfile = ["app/gui/assets/*"]
 
 [tool.coverage.run]
 branch = true
-omit = ["scfile/app/*"]
+omit = []
 
 [build-system]
 requires = ["setuptools"]

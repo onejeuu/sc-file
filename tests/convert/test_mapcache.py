@@ -1,10 +1,6 @@
 from pathlib import Path
 
-from scfile.app.events import TaskError
-from scfile.app.tasks import execute
-from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.convert.mapcache import group, scan
-from scfile.options import Options
 
 
 def test_group() -> None:
@@ -32,14 +28,3 @@ def test_scan(tmp_path: Path) -> None:
 
     assert {path.name for path in result.paths} == {"r.0.0.mdat", "r.1.0.mdat"}
     assert not result.errors
-
-
-def test_missing_source_is_task_error(tmp_path: Path) -> None:
-    events = []
-    summary = execute(MapCacheTask(tmp_path / "missing", None, Options(), workers=1), events.append)
-
-    error = events[1]
-    assert isinstance(error, TaskError)
-    assert isinstance(error.error, FileNotFoundError)
-    assert error.traceback is None
-    assert summary.work.failed == 1

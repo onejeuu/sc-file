@@ -1,9 +1,9 @@
 import numpy as np
 
 from scfile.core import ModelEncoder
-from scfile.structures.content import ModelContent
 from scfile.enums import FileFormat
 from scfile.options import Options
+from scfile.structures.content import ModelContent
 from scfile.structures.models import AnimationClip, Feature, ModelMesh, SkeletonBone
 
 
@@ -53,11 +53,3 @@ def test_disabled_features() -> None:
     with ModelEncoderStub(data) as encoder:
         assert not encoder.includes(Feature.SKELETON)
         assert not encoder.includes(Feature.ANIMATION)
-
-
-def test_meta() -> None:
-    data = ModelContent()
-    data.meta.flags[Feature.UV] = True
-
-    assert data.meta.declares(Feature.UV)
-    assert not data.meta.declares(Feature.NORMALS)

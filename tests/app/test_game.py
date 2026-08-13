@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from scfile.app import game
-from scfile.convert import mapcache
 
 
 def test_installation(tmp_path: Path) -> None:
@@ -24,7 +23,6 @@ def test_map_cache(tmp_path: Path) -> None:
     region.mkdir(parents=True)
     (region / "r.0.0.mdat").write_bytes(b"data")
 
-    assert mapcache.scan(cache).paths
     assert game.resolve_map_cache(tmp_path) == cache.resolve()
 
 

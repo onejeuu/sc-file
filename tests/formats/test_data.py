@@ -1,8 +1,8 @@
-from io import BytesIO
 import json
-from pathlib import Path
 import struct
 import zlib
+from io import BytesIO
+from pathlib import Path
 from zipfile import ZipFile
 
 import pytest

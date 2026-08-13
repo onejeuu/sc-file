@@ -5,8 +5,8 @@ import pytest
 from scfile import exceptions
 from scfile.convert import files, manual
 from scfile.enums import FileFormat
-from scfile.options import Options
 from scfile.formats.registry import Registry
+from scfile.options import Options
 from tests.conftest import BytesDecoder, BytesEncoder
 
 

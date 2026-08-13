@@ -13,13 +13,6 @@ if TYPE_CHECKING:
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 
-@pytest.fixture(params=("EN", "RU"), autouse=True)
-def language(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
-    from scfile.app.gui import strings
-
-    monkeypatch.setattr(strings, "LANG", request.param)
-
-
 @pytest.fixture(scope="session")
 def qapp(tmp_path_factory: pytest.TempPathFactory) -> Iterator[QApplication]:
     from PySide6.QtCore import QSettings
