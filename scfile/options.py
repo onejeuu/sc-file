@@ -43,6 +43,7 @@ type TargetConfig = Mapping[type[BaseContent], FileFormat]
 class ModelConfig(TypedDict, total=False):
     skeleton: bool
     animation: bool
+    raw_clips: bool
 
 
 class RegionConfig(TypedDict, total=False):
@@ -56,6 +57,7 @@ class ModelOptions:
 
     skeleton: bool = False
     animation: bool = False
+    raw_clips: bool = False
 
     @property
     def skeleton_enabled(self) -> bool:
@@ -100,6 +102,7 @@ class Options:
 
     - `"skeleton"` Handle skeleton bones from models
     - `"animation"` Handle built-in animation clips from models
+    - `"raw_clips"` Keep technical clips in animation libraries
     """
 
     region: RegionOptions

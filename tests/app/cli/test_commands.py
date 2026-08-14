@@ -134,12 +134,13 @@ def test_animate(
     runner = CliRunner()
 
     face = runner.invoke(scfile, ["animate", "face", str(source), str(model), "-O", str(tmp_path)])
-    body = runner.invoke(scfile, ["animate", "body", str(source), str(model), "-O", str(tmp_path)])
+    body = runner.invoke(scfile, ["animate", "body", str(source), str(model), "-O", str(tmp_path), "--raw"])
 
     assert face.exit_code == 0
     assert body.exit_code == 0
     assert tasks[0].operation is animate_module.convert.animate.face
     assert tasks[1].operation is animate_module.convert.animate.body
+    assert tasks[1].options.model.raw_clips
 
 
 def test_animate_failure(

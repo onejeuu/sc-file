@@ -12,9 +12,11 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.animate import AnimateTask
+from scfile.options import Options
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +173,11 @@ class BodyForm(AnimationForm):
             suffix=".mcsb",
             error="tooltip.animate.invalid.model",
         )
+        self.raw_clips = OptionWidget(
+            strings.get("label.animate.raw_clips"),
+            strings.get("hint.animate.raw_clips"),
+        )
+        self.form_layout.insertWidget(self.form_layout.count() - 1, self.raw_clips)
 
     def create_task(self, output: Path) -> AnimateTask:
         return AnimateTask(
@@ -178,6 +185,7 @@ class BodyForm(AnimationForm):
             source=self.source_path,
             models=(self.model_path,),
             output=output,
+            options=Options(model={"raw_clips": self.raw_clips.checked}),
         )
 
 

@@ -15,6 +15,7 @@ from scfile.structures.models import Feature
 
 
 def test_animation() -> None:
+    assert not Options().model.raw_clips
     assert Options(model={"animation": True}).model.skeleton_enabled
     assert Options(model={"animation": True}).model.features == (Feature.SKELETON, Feature.ANIMATION)
 

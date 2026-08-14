@@ -6,6 +6,8 @@ import pytest
 from scfile import types
 from scfile.convert import animate
 from scfile.options import Options
+from scfile.structures.content import ModelContent
+from scfile.structures.models import AnimationClip
 
 
 type Operation = Callable[..., types.ResultPath]
@@ -75,3 +77,27 @@ def test_arms_hands(tmp_path: Path) -> None:
     )
 
     assert result == output
+
+
+def test_clips() -> None:
+    clips = [
+        AnimationClip(name="idle", frames=60),
+        AnimationClip(name="idle_copy", frames=60),
+        AnimationClip(name="pose", frames=2),
+        AnimationClip(name="idle_cluster_0", frames=60),
+        AnimationClip(name="idle_layer", frames=60),
+        AnimationClip(name="idle_turn_l", frames=16),
+        AnimationClip(name="idle_look_l", frames=16),
+        AnimationClip(name="idle_aim_point_l", frames=16),
+        AnimationClip(name="idle_landing", frames=16),
+        AnimationClip(name="idle_turn_l", frames=17),
+        AnimationClip(name="idle_look_l", frames=18),
+        AnimationClip(name="idle_aim_point_l", frames=19),
+        AnimationClip(name="idle_landing", frames=20),
+    ]
+
+    library = ModelContent()
+    library.scene.animation.clips = clips
+    result = animate._filtered_library(library)
+
+    assert [clip.name for clip in result.scene.animation.clips] == [clip.name for clip in clips[0:1] + clips[9:]]

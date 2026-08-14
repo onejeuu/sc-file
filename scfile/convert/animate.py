@@ -3,15 +3,22 @@ External model animation.
 """
 
 from copy import replace
+from hashlib import blake2b
 
 from scfile import formats, types
 from scfile.core import ModelDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
 from scfile.structures.content import ModelContent
+from scfile.structures.models import AnimationClip
 from scfile.structures.models import transforms as T
 
 from . import paths
+
+
+POSE_FRAMES = 2
+TRANSITION_FRAMES = 16
+TRANSITION_PARTS = ("_landing", "_turn_", "_look_", "_aim_point_")
 
 
 def arms(
@@ -121,6 +128,9 @@ def _apply_external_animation(
     with decoder(src, options) as dec:
         anims = dec.decode()
 
+    if decoder is formats.McalDecoder and not options.model.raw_clips:
+        anims = _filtered_library(anims)
+
     with formats.McsbDecoder(mdl, options) as mcsb:
         target = mcsb.decode()
 
@@ -132,3 +142,32 @@ def _apply_external_animation(
             glb.encode()
 
     return out
+
+
+def _filtered_library(library: ModelContent) -> ModelContent:
+    animation = library.scene.animation
+    clips: list[AnimationClip] = []
+    seen: set[bytes] = set()
+
+    for clip in animation.clips:
+        name = clip.name.casefold()
+        short = clip.frames <= TRANSITION_FRAMES
+        technical = clip.frames <= POSE_FRAMES or "_cluster_" in name or name.endswith("_layer")
+        if technical or short and any(part in name for part in TRANSITION_PARTS):
+            continue
+
+        key = blake2b(digest_size=16)
+        key.update(clip.frames.to_bytes(4, "little"))
+        key.update(clip.rate.hex().encode())
+        for values in (clip.translations, clip.rotations, clip.morph_weights):
+            key.update(values)
+
+        key = key.digest()
+        if key in seen:
+            continue
+
+        seen.add(key)
+        clips.append(clip)
+
+    animation = replace(animation, clips=clips)
+    return replace(library, scene=replace(library.scene, animation=animation))

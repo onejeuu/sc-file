@@ -9,6 +9,7 @@ from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
 from scfile.app.tasks.animate import AnimateTask
 from scfile.enums import FileFormat
+from scfile.options import Options
 
 
 @click.group(name=CliCommand.ANIMATE)
@@ -21,10 +22,11 @@ def _execute(
     source: types.SourcePath,
     models: tuple[types.SourcePath, ...],
     output: types.OutputLike,
+    options: Options | None = None,
 ) -> None:
     output_path = convert.paths.destination(source, output, FileFormat.GLB.suffix)
     feedback = TaskFeedback()
-    summary = execute(AnimateTask(operation, source, models, output_path), feedback)
+    summary = execute(AnimateTask(operation, source, models, output_path, options or Options()), feedback)
     feedback.finish(summary)
 
     if summary.work.failed:
@@ -106,11 +108,17 @@ def face(
     help="Output GLB file or directory.",
     type=params.OutputPath,
 )
+@click.option(
+    "--raw",
+    is_flag=True,
+    help="Keep technical animation clips.",
+)
 def body(
     library: types.SourcePath,
     model: types.SourcePath,
     output: types.OutputPath,
+    raw: bool,
 ) -> None:
     """Apply animation library to a model."""
 
-    _execute(convert.animate.body, library, (model,), output)
+    _execute(convert.animate.body, library, (model,), output, Options(model={"raw_clips": raw}))
