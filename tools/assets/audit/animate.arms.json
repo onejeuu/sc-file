@@ -1,5 +1,9 @@
 {
   "version": 1,
+  "hands_only": [
+    "highpoly/animations/wpn_fp_fists.mcvd",
+    "highpoly/animations/wpn_fp_unarmed.mcvd"
+  ],
   "animations": {
     "highpoly/animations/wpn_fp_6p62.mcvd": [
       "weapons/models/weapons/6p62/6p62.mcsb"
@@ -140,6 +144,10 @@
     ],
     "highpoly/animations/wpn_fp_arx160.mcvd": [
       "weapons/models/weapons/arx160/arx160.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_arx160_gl.mcvd": [
+      "weapons/models/attachments/launcher/glx160/glx160.mcsb",
+      "weapons/models/attachments/launcher/glx160/style_summer25/glx160_summer25.mcsb"
     ],
     "highpoly/animations/wpn_fp_arx160_summer25.mcvd": [
       "weapons/models/weapons/arx160/style_summer25/arx160_summer25.mcsb"
@@ -309,6 +317,9 @@
       "weapons/models/meleeweapons/club/club.mcsb",
       "weapons/models/meleeweapons/hammer/hammer.mcsb"
     ],
+    "highpoly/animations/wpn_fp_eglm.mcvd": [
+      "weapons/models/attachments/launcher/eglm/eglm.mcsb"
+    ],
     "highpoly/animations/wpn_fp_elbrus.mcvd": [
       "weapons/models/weapons/detektor_model/elbrus.mcsb"
     ],
@@ -340,14 +351,13 @@
     ],
     "highpoly/animations/wpn_fp_fists.mcvd": [
       "weapons/models/meleeweapons/fireknuckle/fireknuckle.mcsb",
-      "weapons/models/meleeweapons/fists/fists.mcsb",
       "weapons/models/meleeweapons/gknuckle/gknuckles.mcsb"
     ],
     "highpoly/animations/wpn_fp_fiveseven.mcvd": [
       "weapons/models/weapons/fiveseven/fiveseven.mcsb"
     ],
     "highpoly/animations/wpn_fp_flag.mcvd": [
-      "weapons/npc/flag.mcsb"
+      "weapons/models/weapons/npc/flag.mcsb"
     ],
     "highpoly/animations/wpn_fp_flamepistol.mcvd": [
       "weapons/models/weapons/flamepistol/flamepistol.mcsb"
@@ -370,6 +380,9 @@
     ],
     "highpoly/animations/wpn_fp_fn2000_summer_24.mcvd": [
       "weapons/models/weapons/f2000/style_summer24/f2000_summer24.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_fn2kgl.mcvd": [
+      "weapons/models/attachments/f2000/launcher/fn2kgl.mcsb"
     ],
     "highpoly/animations/wpn_fp_fort12.mcvd": [
       "weapons/models/weapons/fort12/fort12.mcsb"
@@ -436,13 +449,20 @@
     "highpoly/animations/wpn_fp_gornostay.mcvd": [
       "weapons/models/weapons/gornostay/gornostay.mcsb"
     ],
+    "highpoly/animations/wpn_fp_gp25.mcvd": [
+      "weapons/models/attachments/launcher/gp25/gp25.mcsb"
+    ],
     "highpoly/animations/wpn_fp_grenade.mcvd": [
+      "customitems/models/blocks/la/television/shilyalis42tc401d_1.mcsb",
+      "customitems/models/blocks/operations/phase_battery/phase_battery.mcsb",
+      "stalkermobs/models/spirit/spirit.mcsb",
       "weapons/models/weapons/grenades/artgrenade/artgrenade.mcsb",
       "weapons/models/weapons/grenades/artgrenade/eg1.mcsb",
       "weapons/models/weapons/grenades/artgrenade/lg1.mcsb",
       "weapons/models/weapons/grenades/artgrenade/ops_shield.mcsb",
       "weapons/models/weapons/grenades/artgrenade/stunner.mcsb",
       "weapons/models/weapons/grenades/artgrenade/xg1.mcsb",
+      "weapons/models/weapons/grenades/dmz26/anomaly_grenade_dmz26.mcsb",
       "weapons/models/weapons/grenades/frontline/akaciya.mcsb",
       "weapons/models/weapons/grenades/frontline/fab100.mcsb",
       "weapons/models/weapons/grenades/frontline/grad.mcsb",
@@ -462,12 +482,14 @@
       "weapons/models/weapons/grenades/m67/m67.mcsb",
       "weapons/models/weapons/grenades/m84/m84.mcsb",
       "weapons/models/weapons/grenades/molotov/molotov.mcsb",
+      "weapons/models/weapons/grenades/ops/ops_lg1.mcsb",
       "weapons/models/weapons/grenades/prestige/black_hole/black_hole.mcsb",
       "weapons/models/weapons/grenades/prestige/blink/blink.mcsb",
       "weapons/models/weapons/grenades/prestige/cluster/cluster.mcsb",
       "weapons/models/weapons/grenades/prestige/low_gravity/low_gravity.mcsb",
       "weapons/models/weapons/grenades/prestige/push/push.mcsb",
       "weapons/models/weapons/grenades/prestige/teleport/teleport.mcsb",
+      "weapons/models/weapons/grenades/provocation/provocation.mcsb",
       "weapons/models/weapons/grenades/rdg-m/rdg-m.mcsb",
       "weapons/models/weapons/grenades/rg/rgn.mcsb",
       "weapons/models/weapons/grenades/rg/rgo.mcsb",
@@ -481,7 +503,8 @@
       "weapons/models/weapons/grenades/vspishka/smoke.mcsb",
       "weapons/models/weapons/grenades/vspishka/vspishka.mcsb",
       "weapons/models/weapons/grenades/zarya/zarya.mcsb",
-      "weapons/models/weapons/operations/stimshot/stimshot.mcsb"
+      "weapons/models/weapons/operations/stimshot/stimshot.mcsb",
+      "weapons/models/weapons/panzerfaust/grenade.mcsb"
     ],
     "highpoly/animations/wpn_fp_grenate24.mcvd": [
       "weapons/models/weapons/grenades/granate24/granate24.mcsb"
@@ -666,6 +689,11 @@
     "highpoly/animations/wpn_fp_m1a_story.mcvd": [
       "weapons/models/weapons/m14/m14_sujet.mcsb"
     ],
+    "highpoly/animations/wpn_fp_m203.mcvd": [
+      "weapons/models/attachments/famas/style_winter25/famas_m203_winter25.mcsb",
+      "weapons/models/attachments/launcher/m203/m203.mcsb",
+      "weapons/models/attachments/launcher/m203/m203_famas.mcsb"
+    ],
     "highpoly/animations/wpn_fp_m249.mcvd": [
       "weapons/models/weapons/m249/m249.mcsb"
     ],
@@ -785,11 +813,17 @@
     "highpoly/animations/wpn_fp_oc14-a1.mcvd": [
       "weapons/models/weapons/oc14-a1/oc14-a1.mcsb"
     ],
+    "highpoly/animations/wpn_fp_oc14-a1gp.mcvd": [
+      "weapons/models/attachments/launcher/oc14-a1_gp/oc14-a1_gp.mcsb"
+    ],
     "highpoly/animations/wpn_fp_oc14_razryad.mcvd": [
       "weapons/models/weapons/ots14m/ots14m.mcsb"
     ],
     "highpoly/animations/wpn_fp_oc14_razryad_autumn24.mcvd": [
       "weapons/models/weapons/ots14m/style_autumn24/ots14m_autumn24.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_oc14gp25.mcvd": [
+      "weapons/models/attachments/groza/launcher/oc14gp25.mcsb"
     ],
     "highpoly/animations/wpn_fp_oc33.mcvd": [
       "weapons/models/weapons/oc33/oc33.mcsb",
@@ -1079,6 +1113,9 @@
     "highpoly/animations/wpn_fp_storm.mcvd": [
       "weapons/models/weapons/storm/storm.mcsb"
     ],
+    "highpoly/animations/wpn_fp_storm_gp.mcvd": [
+      "weapons/models/attachments/launcher/storm_gp/storm_gp.mcsb"
+    ],
     "highpoly/animations/wpn_fp_sv98.mcvd": [
       "weapons/models/weapons/sv98/sv_98.mcsb"
     ],
@@ -1153,9 +1190,6 @@
     ],
     "highpoly/animations/wpn_fp_ump45.mcvd": [
       "weapons/models/weapons/ump/ump45.mcsb"
-    ],
-    "highpoly/animations/wpn_fp_unarmed.mcvd": [
-      "weapons/models/meleeweapons/fists/fists.mcsb"
     ],
     "highpoly/animations/wpn_fp_uzi.mcvd": [
       "weapons/models/weapons/uzi/uzi.mcsb"

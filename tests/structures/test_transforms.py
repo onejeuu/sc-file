@@ -83,15 +83,43 @@ def test_filter_fp_meshes() -> None:
         links_ids=np.array([[1]], dtype=np.uint8),
         links_weights=np.array([[1.0]], dtype=np.float32),
     )
+    helper = S.ModelMesh(
+        name="helper",
+        links_ids=np.array([[2]], dtype=np.uint8),
+        links_weights=np.array([[1.0]], dtype=np.float32),
+    )
     model = S.ModelScene(
-        meshes=[compatible, legacy_hands],
-        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon"), S.SkeletonBone(id=1, name="legacy_hand")]),
+        meshes=[compatible, legacy_hands, helper],
+        skeleton=S.ModelSkeleton(
+            bones=[
+                S.SkeletonBone(id=0, name="weapon"),
+                S.SkeletonBone(id=1, name="legacy_hand"),
+                S.SkeletonBone(id=2, name="helper", parent_id=0),
+            ]
+        ),
     )
 
     result = T.filter_fp_meshes(animation, model)
 
-    assert result.meshes == [compatible]
-    assert model.meshes == [compatible, legacy_hands]
+    assert [mesh.name for mesh in result.meshes] == ["weapon", "helper"]
+    assert result.meshes[1].links_ids.tolist() == [[0]]
+    assert model.meshes == [compatible, legacy_hands, helper]
+    assert helper.links_ids.tolist() == [[2]]
+
+    rigid = S.ModelMesh(
+        name="rigid",
+        links_ids=np.array([[0]], dtype=np.uint8),
+        links_weights=np.array([[1.0]], dtype=np.float32),
+    )
+    rigid_model = S.ModelScene(
+        meshes=[rigid],
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="other")]),
+    )
+
+    result = T.filter_fp_meshes(animation, rigid_model)
+
+    assert result.meshes[0].max_influences == 0
+    assert rigid.max_influences == 1
 
 
 def test_apply_fp_models() -> None:

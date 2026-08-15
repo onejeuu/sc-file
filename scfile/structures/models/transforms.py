@@ -245,7 +245,25 @@ def apply_fp_animation(animation: ModelScene, *models: ModelScene) -> ModelScene
 def filter_fp_meshes(animation: ModelScene, model: ModelScene) -> ModelScene:
     animation_bones = {bone.name for bone in animation.skeleton.bones}
     source_bones = model.skeleton.bones
+    shared_bones = animation_bones.intersection(bone.name for bone in source_bones)
     meshes: list[ModelMesh] = []
+
+    def compatible_id(bone_id: int) -> int | None:
+        bone = source_bones[bone_id]
+        while bone.name not in animation_bones:
+            if bone.is_root:
+                return None
+            bone = source_bones[bone.parent_id]
+        return bone.id
+
+    def compatible_ids(bone_ids: set[int]) -> dict[int, int] | None:
+        mapped = {}
+        for source_id in bone_ids:
+            target_id = compatible_id(source_id)
+            if target_id is None:
+                return None
+            mapped[source_id] = target_id
+        return mapped
 
     for mesh in model.meshes:
         if not mesh.max_influences:
@@ -260,8 +278,20 @@ def filter_fp_meshes(animation: ModelScene, model: ModelScene) -> ModelScene:
             meshes.append(mesh)
             continue
 
-        if all(source_bones[bone_id].name in animation_bones for bone_id in used_ids):
-            meshes.append(mesh)
+        mapped_ids = compatible_ids(used_ids)
+        if mapped_ids is None:
+            rigid = not shared_bones and all(source_bones[bone_id].is_root for bone_id in used_ids)
+            if rigid:
+                meshes.append(replace(mesh, skin=None, links_weights=np.zeros_like(mesh.links_weights)))
+            continue
+
+        if any(source_id != target_id for source_id, target_id in mapped_ids.items()):
+            remap = np.arange(len(source_bones), dtype=mesh.links_ids.dtype)
+            for source_id, target_id in mapped_ids.items():
+                remap[source_id] = target_id
+            mesh = replace(mesh, links_ids=remap[mesh.links_ids])
+
+        meshes.append(mesh)
 
     return replace(model, meshes=meshes)
 

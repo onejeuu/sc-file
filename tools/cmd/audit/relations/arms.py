@@ -18,12 +18,12 @@ HANDS = Path("highpoly/character_hands.mcsb")
 OPTIONS = Options(model=Options.Model(skeleton=True, animation=True))
 
 
-def validate(root: Path, animation: Path, weapon: Path, hands: Path) -> list[Record]:
+def validate(root: Path, animation: Path, weapon: Path | None, hands: Path) -> list[Record]:
     with formats.McvdDecoder(animation, OPTIONS) as decoder:
         source = decoder.decode()
 
     contents = []
-    for path in (weapon, hands):
+    for path in filter(None, (weapon, hands)):
         with formats.McsbDecoder(path, OPTIONS) as decoder:
             contents.append(decoder.decode())
 
@@ -31,7 +31,7 @@ def validate(root: Path, animation: Path, weapon: Path, hands: Path) -> list[Rec
     clips = source.scene.animation.clips
     record = Arms(
         animation=animation.relative_to(root).as_posix(),
-        model=weapon.relative_to(root).as_posix(),
+        model=(weapon or hands).relative_to(root).as_posix(),
         clips=len(clips),
         frames=sum(clip.frames for clip in clips),
         bones=len(scene.skeleton.bones),
@@ -48,6 +48,7 @@ def build(root: Path) -> Plan:
     if not hands.is_file():
         raise PlanError(f"Shared hands model does not exist: {HANDS.as_posix()}")
 
+    value = mappings.read(KIND)
     linked = mappings.animations(KIND)
     available = {animation.relative_to(root).as_posix().casefold(): animation for animation in animations}
     warnings = []
@@ -75,6 +76,19 @@ def build(root: Path) -> Plan:
                     files=2,
                 )
             )
+
+    for relative in value.get("hands_only", []):
+        animation = available.pop(relative.casefold(), root / relative)
+        if not animation.is_file():
+            warnings.append(Warning(KIND, {"animation": animation}, "Mapped animation does not exist."))
+            continue
+        cases.append(
+            Case(
+                {"animation": animation, "hands": hands},
+                partial(validate, root, animation, None, hands),
+                files=2,
+            )
+        )
 
     warnings.extend(
         Warning(KIND, {"animation": animation}, "Animation has no mapping.") for animation in available.values()
