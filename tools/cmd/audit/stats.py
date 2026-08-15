@@ -7,7 +7,7 @@ from scfile.formats.ol.enums import TextureKind
 from scfile.structures import content as C
 from scfile.structures.models import Feature
 from scfile.structures.textures import CubemapTexture, DefaultTexture
-from tools.cmd.audit.schemas import Animation, Arms, Bone, Image, Mesh, Model, Record, Texture
+from tools.cmd.audit.schemas import Animation, Arms, Bone, Face, Image, Mesh, Model, Record, Texture
 
 
 TABLES = {
@@ -18,6 +18,7 @@ TABLES = {
     Texture: "textures.csv",
     Image: "images.csv",
     Arms: "animate.arms.csv",
+    Face: "animate.face.csv",
 }
 FORMATS_CSV = "formats.csv"
 FILES = (*TABLES.values(), FORMATS_CSV)

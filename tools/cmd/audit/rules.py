@@ -7,6 +7,9 @@ EXCLUDED: set[str] = {
     "gloomycore/colliders/tushkan_clone/collider.mcvd",
 }
 
+FACE_ANIMATION = "highpoly/lipsync/shaman.mcvd"
+FACE_MODEL = "stalkerplayer/heads/unique/unique_shaman.mcsb"
+
 ARMS_HANDS_ONLY: set[str] = {
     "fp_walkcycles.mcvd",
     "wpn_fp_char.mcvd",
