@@ -15,5 +15,5 @@ class JsonEncoder(Encoder[DocumentContent]):
     @override
     def _serialize(self):
         data = json.dumps(self.data.value, default=str, ensure_ascii=False, indent=2)
-        data = data.encode()
+        data = data.encode("utf-8")
         self.io.write(data)

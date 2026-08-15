@@ -206,4 +206,4 @@ def test_convert_run(tmp_path: Path) -> None:
     assert result.exit_code == 0
     target = output / "document.json"
     assert target.exists()
-    assert isinstance(json.loads(target.read_text()), dict)
+    assert isinstance(json.loads(target.read_text(encoding="utf-8")), dict)
