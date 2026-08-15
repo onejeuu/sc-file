@@ -74,14 +74,14 @@ class Audit:
         clear()
         for item in self.plan.warnings:
             write(REPORTS / WARNINGS, warning(self.settings.root, item))
-        if self.settings.stats and any(suite.kind == "file" for suite in self.plan.suites):
+        if self.settings.stats:
             self.writer = self.stack.enter_context(stats.Writer(REPORTS))
         self.live = self.stack.enter_context(Live(self.render(), console=self.console, refresh_per_second=10))
         return self
 
     def __exit__(self, *args):
         self.refresh(force=True)
-        if self.writer is not None:
+        if self.writer is not None and any(row.suite.kind == "file" for row in self.rows.values()):
             rows = (
                 (row.suite.name, row.suite.files, row.checked, row.errors)
                 for row in self.rows.values()
@@ -116,7 +116,7 @@ class Audit:
 
     def record(self, suite: Suite, result: Result) -> None:
         row = self.rows[suite.name]
-        row.checked += 1
+        row.checked += result.case.files
 
         match result:
             case Passed(records=records):

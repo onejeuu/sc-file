@@ -10,18 +10,26 @@ if TYPE_CHECKING:
     from tools.cmd.audit.schemas import Record
 
 
+class PlanError(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class Case:
     paths: dict[str, Path]
     check: Callable[[], list["Record"]]
+    files: int = 1
 
 
 @dataclass
 class Suite:
     kind: str
     name: str
-    files: int
     cases: list[Case]
+
+    @property
+    def files(self) -> int:
+        return sum(case.files for case in self.cases)
 
 
 @dataclass(frozen=True)

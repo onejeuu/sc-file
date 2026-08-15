@@ -4,6 +4,7 @@ External model animation.
 
 from copy import replace
 from hashlib import blake2b
+from typing import overload
 
 from scfile import formats, types
 from scfile.core import ModelDecoder
@@ -21,9 +22,30 @@ TRANSITION_FRAMES = 16
 TRANSITION_PARTS = ("_landing", "_turn_", "_look_", "_aim_point_")
 
 
+@overload
 def arms(
     animation: types.SourceLike,
-    model: types.SourceLike,
+    weapon: types.SourceLike,
+    hands: types.SourceLike | None = None,
+    output: types.OutputLike = None,
+    options: Options | None = None,
+) -> types.ResultPath: ...
+
+
+@overload
+def arms(
+    animation: types.SourceLike,
+    weapon: None = None,
+    *,
+    hands: types.SourceLike,
+    output: types.OutputLike = None,
+    options: Options | None = None,
+) -> types.ResultPath: ...
+
+
+def arms(
+    animation: types.SourceLike,
+    weapon: types.SourceLike | None = None,
     hands: types.SourceLike | None = None,
     output: types.OutputLike = None,
     options: Options | None = None,
@@ -34,7 +56,6 @@ def arms(
     options = _options(options)
 
     src = paths.source(animation)
-    mdl = paths.source(model)
     out = paths.output(src, output, encoder.suffix(), options)
 
     if out is None:
@@ -43,13 +64,12 @@ def arms(
     with formats.McvdDecoder(src, options) as mcvd:
         anims = mcvd.decode()
 
-    with formats.McsbDecoder(mdl, options) as mcsb:
-        target = mcsb.decode()
+    sources = tuple(filter(None, (weapon, hands)))
+    models: list[ModelContent] = []
 
-    models: tuple[ModelContent, ...] = (target,)
-    if hands is not None:
-        with formats.McsbDecoder(paths.source(hands), options) as mcsb:
-            models += (mcsb.decode(),)
+    for source in sources:
+        with formats.McsbDecoder(paths.source(source), options) as mcsb:
+            models.append(mcsb.decode())
 
     scene = T.apply_fp_models(anims.scene, *(model.scene for model in models))
     content = replace(anims, scene=scene)
@@ -62,17 +82,17 @@ def arms(
 
 
 def body(
-    library: types.SourceLike,
+    animation: types.SourceLike,
     model: types.SourceLike,
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
-    """Apply animation library to a model."""
+    """Apply skeletal animation to a model."""
 
     return _apply_external_animation(
         decoder=formats.McalDecoder,
-        transform=T.apply_animation_library,
-        animation=library,
+        transform=T.apply_skeletal_animation,
+        animation=animation,
         model=model,
         output=output,
         options=options,
@@ -128,7 +148,7 @@ def _apply_external_animation(
         anims = dec.decode()
 
     if decoder is formats.McalDecoder and not options.model.raw_clips:
-        anims = _filtered_library(anims)
+        anims = _filtered_animation(anims)
 
     with formats.McsbDecoder(mdl, options) as mcsb:
         target = mcsb.decode()
@@ -143,8 +163,8 @@ def _apply_external_animation(
     return out
 
 
-def _filtered_library(library: ModelContent) -> ModelContent:
-    animation = library.scene.animation
+def _filtered_animation(content: ModelContent) -> ModelContent:
+    animation = content.scene.animation
     clips: list[AnimationClip] = []
     seen: set[bytes] = set()
 
@@ -169,4 +189,4 @@ def _filtered_library(library: ModelContent) -> ModelContent:
         clips.append(clip)
 
     animation = replace(animation, clips=clips)
-    return replace(library, scene=replace(library.scene, animation=animation))
+    return replace(content, scene=replace(content.scene, animation=animation))

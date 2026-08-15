@@ -94,7 +94,7 @@ def face(
 
 @animate.command(name=AnimateCommand.BODY)
 @click.argument(
-    "LIBRARY",
+    "ANIMATION",
     type=params.SourceFile,
 )
 @click.argument(
@@ -114,11 +114,11 @@ def face(
     help="Keep technical animation clips.",
 )
 def body(
-    library: types.SourcePath,
+    animation: types.SourcePath,
     model: types.SourcePath,
     output: types.OutputPath,
     raw: bool,
 ) -> None:
-    """Apply animation library to a model."""
+    """Apply skeletal animation to a model."""
 
-    _execute(convert.animate.body, library, (model,), output, Options(model={"raw_clips": raw}))
+    _execute(convert.animate.body, animation, (model,), output, Options(model={"raw_clips": raw}))

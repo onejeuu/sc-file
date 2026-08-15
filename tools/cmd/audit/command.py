@@ -5,7 +5,7 @@ from rich.console import Console
 
 from tools.cmd import tools
 
-from . import config, relations
+from . import config, relations, runner
 from .audit import Audit
 
 
@@ -56,4 +56,11 @@ def audit(
     stats: bool | None,
 ) -> None:
     settings = config.resolve(path, formats, relations, workers, animation, stats)
-    raise SystemExit(Audit(settings, Console()).run())
+
+    try:
+        code = Audit(settings, Console()).run()
+
+    except runner.PlanError as error:
+        raise click.ClickException(str(error)) from None
+
+    raise SystemExit(code)

@@ -79,6 +79,18 @@ def test_arms_hands(tmp_path: Path) -> None:
     assert result == output
 
 
+def test_arms_hands_only(tmp_path: Path) -> None:
+    output = tmp_path / "hands.glb"
+
+    result = animate.arms(
+        SOURCE / "animation.mcvd",
+        hands=SOURCE / "model_v15.mcsb",
+        output=output,
+    )
+
+    assert result == output
+
+
 def test_clips() -> None:
     clips = [
         AnimationClip(name="idle", frames=60),
@@ -96,8 +108,8 @@ def test_clips() -> None:
         AnimationClip(name="idle_landing", frames=20),
     ]
 
-    library = ModelContent()
-    library.scene.animation.clips = clips
-    result = animate._filtered_library(library)
+    content = ModelContent()
+    content.scene.animation.clips = clips
+    result = animate._filtered_animation(content)
 
     assert [clip.name for clip in result.scene.animation.clips] == [clip.name for clip in clips[0:1] + clips[9:]]

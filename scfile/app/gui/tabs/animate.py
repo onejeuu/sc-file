@@ -121,6 +121,7 @@ class ArmsForm(AnimationForm):
             "weapons/models/gun/gun.mcsb",
             suffix=".mcsb",
             error="tooltip.animate.invalid.model",
+            required=False,
         )
         self.hands = self.add_path(
             strings.get("label.animate.hands"),
@@ -139,16 +140,21 @@ class ArmsForm(AnimationForm):
         return (strings.get("warning.animate.not_fp"),) if is_mcvd and "fp_" not in name and "wpn_" not in name else ()
 
     def create_task(self, output: Path) -> AnimateTask:
-        models = [self.model_path]
-        if hands := self.hands.value.strip():
-            models.append(Path(hands))
+        weapon = Path(value) if (value := self.model.value.strip()) else None
+        hands = Path(value) if (value := self.hands.value.strip()) else None
 
         return AnimateTask(
             operation=convert.animate.arms,
             source=self.source_path,
-            models=tuple(models),
+            models=(weapon, hands),
             output=output,
         )
+
+    def validation_error(self) -> str | None:
+        error = super().validation_error()
+        if error is not None or self.model.value.strip() or self.hands.value.strip():
+            return error
+        return "tooltip.animate.invalid.models"
 
 
 class BodyForm(AnimationForm):
@@ -158,12 +164,12 @@ class BodyForm(AnimationForm):
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            strings.get("label.animate.library"),
-            strings.get("dialog.animate.library"),
+            strings.get("label.animate.skeletal"),
+            strings.get("dialog.animate.skeletal"),
             "MCAL (*.mcal)",
             "highpoly/character/pack.mcal",
             suffix=".mcal",
-            error="tooltip.animate.invalid.library",
+            error="tooltip.animate.invalid.skeletal",
         )
         self.model = self.add_path(
             strings.get("label.animate.character"),

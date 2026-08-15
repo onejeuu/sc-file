@@ -41,6 +41,18 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     assert form.validation_error() is None
     assert form.create_task(tmp_path / "output.glb").models == (model, hands)
 
+    form.model.value = ""
+    assert form.validation_error() is None
+    assert form.create_task(tmp_path / "output.glb").models == (None, hands)
+
+    form.model.value = str(model)
+    form.hands.value = ""
+    assert form.validation_error() is None
+    assert form.create_task(tmp_path / "output.glb").models == (model, None)
+
+    form.model.value = ""
+    assert form.validation_error() == "tooltip.animate.invalid.models"
+
     form.hands.value = str(tmp_path / "invalid.obj")
     form._touch_input(form.hands)
     assert form.validation_error() is not None

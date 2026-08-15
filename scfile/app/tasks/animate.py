@@ -21,7 +21,7 @@ class AnimateTask(Task):
 
     operation: Operation
     source: Path
-    models: tuple[Path, ...]
+    models: tuple[Path | None, ...]
     output: Path
     options: Options = field(default_factory=Options)
 

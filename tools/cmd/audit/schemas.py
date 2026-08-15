@@ -68,4 +68,16 @@ class Image(NamedTuple):
     filesize: int
 
 
-type Record = Model | Mesh | Bone | Animation | Texture | Image
+class Arms(NamedTuple):
+    animation: str
+    model: str
+    hands: str
+    clips: int
+    frames: int
+    bones: int
+    meshes: int
+    vertices: int
+    polygons: int
+
+
+type Record = Model | Mesh | Bone | Animation | Texture | Image | Arms

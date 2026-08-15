@@ -1,17 +1,13 @@
 from collections import defaultdict
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from scfile import formats
 from scfile.options import Options
 from scfile.structures.models import transforms
 from tools.cmd.audit import rules
-from tools.cmd.audit.runner import Case, Plan, Suite, Warning
-
-
-if TYPE_CHECKING:
-    from tools.cmd.audit.schemas import Record
+from tools.cmd.audit.runner import Case, Plan, PlanError, Suite, Warning
+from tools.cmd.audit.schemas import Arms, Record
 
 
 KIND = "arms"
@@ -65,40 +61,51 @@ def resolve(
     return matched, warnings
 
 
-def validate(animation: Path, model_paths: tuple[Path, ...]) -> list["Record"]:
+def validate(root: Path, animation: Path, weapon: Path | None, hands: Path) -> list["Record"]:
     with formats.McvdDecoder(animation, OPTIONS) as decoder:
         source = decoder.decode()
 
     contents = []
-    for path in model_paths:
+    for path in (weapon, hands):
+        if path is None:
+            continue
         with formats.McsbDecoder(path, OPTIONS) as decoder:
             contents.append(decoder.decode())
 
-    transforms.apply_fp_models(source.scene, *(model.scene for model in contents))
-    return []
+    scene = transforms.apply_fp_models(source.scene, *(model.scene for model in contents))
+    clips = source.scene.animation.clips
+    record = Arms(
+        animation=animation.relative_to(root).as_posix(),
+        model=weapon.relative_to(root).as_posix() if weapon is not None else "",
+        hands=hands.relative_to(root).as_posix(),
+        clips=len(clips),
+        frames=sum(clip.frames for clip in clips),
+        bones=len(scene.skeleton.bones),
+        meshes=len(scene.meshes),
+        vertices=scene.total_vertices,
+        polygons=scene.total_polygons,
+    )
+    return [record]
 
 
 def build(root: Path) -> Plan:
     animations = sorted((root / ANIMATIONS).glob("*.mcvd"))
     hands = root / HANDS
-    hands = hands if hands.is_file() else None
+    if not hands.is_file():
+        raise PlanError(f"Shared hands model does not exist: {HANDS.as_posix()}")
+
     warnings = []
     cases = []
-    connections = 0
-
-    if hands is None:
-        warnings.append(Warning(KIND, {}, f"Shared hands model does not exist: {HANDS.as_posix()}"))
 
     hands_only = [animation for animation in animations if animation.name in rules.ARMS_HANDS_ONLY]
-    if hands is not None:
-        for animation in hands_only:
-            cases.append(
-                Case(
-                    {"animation": animation, "hands": hands},
-                    partial(validate, animation, (hands,)),
-                )
+    for animation in hands_only:
+        cases.append(
+            Case(
+                {"animation": animation, "hands": hands},
+                partial(validate, root, animation, None, hands),
+                files=2,
             )
-            connections += 1
+        )
 
     indexed = models(root)
     for animation in (animation for animation in animations if animation.name not in rules.ARMS_HANDS_ONLY):
@@ -108,18 +115,11 @@ def build(root: Path) -> Plan:
         for model in matched:
             cases.append(
                 Case(
-                    {"animation": animation, "model": model},
-                    partial(validate, animation, (model,)),
+                    {"animation": animation, "model": model, "hands": hands},
+                    partial(validate, root, animation, model, hands),
+                    files=2,
                 )
             )
-            if hands is not None:
-                cases.append(
-                    Case(
-                        {"animation": animation, "model": model, "hands": hands},
-                        partial(validate, animation, (model, hands)),
-                    )
-                )
-            connections += 1
 
-    suite = Suite(KIND, NAME, connections * 2, cases)
+    suite = Suite(KIND, NAME, cases)
     return Plan([suite], warnings)

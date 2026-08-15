@@ -309,19 +309,19 @@ def apply_fp_models(animation: ModelScene, *models: ModelScene) -> ModelScene:
     return apply_skins(scene, animation, *models)
 
 
-def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScene:
+def apply_skeletal_animation(animation: ModelScene, model: ModelScene) -> ModelScene:
     """Apply index-mapped skeletal animation clips to model."""
 
-    if not library.animation.clips:
-        raise AnimationError("Animation library contains no clips.")
+    if not animation.animation.clips:
+        raise AnimationError("Animation contains no clips.")
 
-    clips = library.animation.clips
+    clips = animation.animation.clips
     clip_bones = clips[0].translations.shape[1]
     model_bones = len(model.skeleton.bones)
     if clip_bones != model_bones:
-        raise AnimationError(f"Animation library has {clip_bones} bones, model has {model_bones}.")
+        raise AnimationError(f"Animation has {clip_bones} bones, model has {model_bones}.")
 
-    return replace(model, animation=replace(library.animation))
+    return replace(model, animation=replace(animation.animation))
 
 
 def apply_morph_animation(animation: ModelScene, model: ModelScene) -> ModelScene:

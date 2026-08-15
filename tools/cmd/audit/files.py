@@ -95,7 +95,7 @@ def build(
             )
             for path in paths
         ]
-        suites.append(Suite("file", format, len(paths), cases))
+        suites.append(Suite("file", format, cases))
 
     notices = [f"Ignored {ignored} configured asset paths."] if ignored else []
     return Plan(suites, warnings, notices)

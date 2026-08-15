@@ -85,9 +85,7 @@ def test_filter_fp_meshes() -> None:
     )
     model = S.ModelScene(
         meshes=[compatible, legacy_hands],
-        skeleton=S.ModelSkeleton(
-            bones=[S.SkeletonBone(id=0, name="weapon"), S.SkeletonBone(id=1, name="legacy_hand")]
-        ),
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon"), S.SkeletonBone(id=1, name="legacy_hand")]),
     )
 
     result = T.filter_fp_meshes(animation, model)
@@ -261,30 +259,30 @@ def test_skins_partial() -> None:
     assert len(result.skins) == 1
 
 
-def test_animation_library() -> None:
+def test_skeletal_animation() -> None:
     clip = S.AnimationClip(
         frames=1,
         translations=np.zeros((1, 1, 3), dtype=np.float32),
         rotations=np.zeros((1, 1, 4), dtype=np.float32),
     )
-    library = S.ModelScene(animation=S.ModelAnimation(clips=[clip]))
+    animation = S.ModelScene(animation=S.ModelAnimation(clips=[clip]))
     model = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone()]))
 
-    result = T.apply_animation_library(library, model)
+    result = T.apply_skeletal_animation(animation, model)
 
     assert result.animation.clips == [clip]
     assert not model.animation.clips
 
 
-def test_library_errors() -> None:
+def test_skeletal_animation_errors() -> None:
     model = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone()]))
     with pytest.raises(AnimationError):
-        T.apply_animation_library(S.ModelScene(), model)
+        T.apply_skeletal_animation(S.ModelScene(), model)
 
     clip = S.AnimationClip(translations=np.zeros((1, 2, 3), dtype=np.float32))
-    library = S.ModelScene(animation=S.ModelAnimation(clips=[clip]))
+    animation = S.ModelScene(animation=S.ModelAnimation(clips=[clip]))
     with pytest.raises(AnimationError):
-        T.apply_animation_library(library, model)
+        T.apply_skeletal_animation(animation, model)
 
 
 def test_morph_animation() -> None:
