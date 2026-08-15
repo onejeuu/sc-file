@@ -77,7 +77,6 @@ def validate(root: Path, animation: Path, weapon: Path | None, hands: Path) -> l
     record = Arms(
         animation=animation.relative_to(root).as_posix(),
         model=weapon.relative_to(root).as_posix() if weapon is not None else "",
-        hands=hands.relative_to(root).as_posix(),
         clips=len(clips),
         frames=sum(clip.frames for clip in clips),
         bones=len(scene.skeleton.bones),

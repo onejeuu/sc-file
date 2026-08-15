@@ -71,7 +71,6 @@ class Image(NamedTuple):
 class Arms(NamedTuple):
     animation: str
     model: str
-    hands: str
     clips: int
     frames: int
     bones: int
