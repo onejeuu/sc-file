@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "animations": {
+    "highpoly/character/animations": [
+      "highpoly/character/origin.mcsb"
+    ],
+    "highpoly/character/animationsShnir": [
+      "highpoly/character/originShnir.mcsb"
+    ],
+    "highpoly/character/animationspov": [
+      "highpoly/character/originpov.mcsb"
+    ],
+    "highpoly/character/animationstechnar": [
+      "highpoly/character/origintechnar.mcsb"
+    ],
+    "highpoly/character/animationszombie": [
+      "highpoly/character/origin.mcsb"
+    ],
+    "weapons/models/weapons/skaner/skanerr.mcal": [
+      "weapons/models/weapons/skaner/skaner_2_a.mcsb"
+    ]
+  }
+}

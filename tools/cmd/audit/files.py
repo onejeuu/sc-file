@@ -13,7 +13,7 @@ from scfile.exceptions import EmptyFileError
 from scfile.options import Options
 
 from . import stats
-from .rules import EXCLUDED
+from .consts import EXCLUDED
 from .runner import Case, Plan, Suite, Warning
 
 

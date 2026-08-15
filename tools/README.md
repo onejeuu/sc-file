@@ -41,6 +41,7 @@ Command-line format and relation selectors replace the configured selection.
 Found errors and warnings are written to separate JSONL reports.
 With statistics enabled, CSV files are written.
 Report files are replaced on each run.
+Animation relations are read from generated metadata snapshots in `assets/audit`.
 
 ## Info
 

@@ -4,17 +4,14 @@ from pathlib import Path
 from scfile import formats
 from scfile.options import Options
 from scfile.structures.content import ModelContent
-from scfile.structures.models import transforms
-from tools.cmd.audit import rules
-from tools.cmd.audit.runner import Case, Plan, PlanError, Suite
+from scfile.structures.models import transforms as T
+from tools.cmd.audit import mappings
+from tools.cmd.audit.runner import Case, Plan, Suite, Warning
 from tools.cmd.audit.schemas import Face, Record
 
 
 KIND = "face"
 NAME = "mcvd+mcsb (face)"
-
-ANIMATIONS = Path("highpoly/lipsync")
-MODELS = Path("stalkerplayer/heads")
 
 OPTIONS = Options(model=Options.Model(skeleton=True, animation=True))
 
@@ -31,7 +28,7 @@ def decode(animation: Path, model: Path) -> tuple[ModelContent, ModelContent]:
 
 def validate(root: Path, animation: Path, model: Path) -> list[Record]:
     source, target = decode(animation, model)
-    scene = transforms.apply_morph_animation(source.scene, target.scene)
+    scene = T.apply_morph_animation(source.scene, target.scene)
     clips = source.scene.animation.clips
     channels = set(source.scene.animation.morph_channels)
     shapes = [shape for mesh in target.scene.meshes for shape in mesh.blend_shapes]
@@ -54,31 +51,73 @@ def validate(root: Path, animation: Path, model: Path) -> list[Record]:
 
 
 def build(root: Path) -> Plan:
-    animations = sorted((root / ANIMATIONS).rglob("*.mcvd"))
-    models = sorted((root / MODELS).rglob("*.mcsb"))
-    animation = root / rules.FACE_ANIMATION
-    model = root / rules.FACE_MODEL
+    value = mappings.read(KIND)
+    cases = []
+    warnings = []
+    seen: set[tuple[Path, Path]] = set()
 
-    if animation not in animations:
-        raise PlanError(f"Reference facial animation does not exist: {rules.FACE_ANIMATION}")
-    if model not in models:
-        raise PlanError(f"Reference head model does not exist: {rules.FACE_MODEL}")
-
-    cases = [
-        Case(
-            {"animation": animation, "model": head},
-            partial(validate, root, animation, head),
-            files=2 if head == model else 1,
+    def add(animation: Path, model: Path) -> None:
+        pair = animation, model
+        if pair in seen:
+            return
+        seen.add(pair)
+        cases.append(
+            Case(
+                {"animation": animation, "model": model},
+                partial(validate, root, animation, model),
+                files=2,
+            )
         )
-        for head in models
-    ]
-    cases.extend(
-        Case(
-            {"animation": source, "model": model},
-            partial(validate, root, source, model),
-        )
-        for source in animations
-        if source != animation
-    )
 
-    return Plan([Suite(KIND, NAME, cases)])
+    for group in value.get("dynamic", []):
+        animations = sorted((root / group["animations"]).rglob("*.mcvd"))
+        models = []
+        for relative in group["models"]:
+            model = root / relative
+            if model.is_file():
+                models.append(model)
+            else:
+                warnings.append(Warning(KIND, {"model": model}, "Mapped head model does not exist."))
+
+        if not animations:
+            warnings.append(Warning(KIND, {"animation": root / group["animations"]}, "Mapped animation path is empty."))
+            continue
+
+        if not models:
+            warnings.append(Warning(KIND, {}, "Dynamic facial mapping has no available models."))
+            continue
+
+        reference = group["reference"]
+        animation = root / reference["animation"]
+        model = root / reference["model"]
+
+        if animation not in animations:
+            warnings.append(Warning(KIND, {"animation": animation}, "Reference animation does not exist."))
+            animation = animations[0]
+
+        if model not in models:
+            warnings.append(Warning(KIND, {"model": model}, "Reference head model does not exist."))
+            model = models[0]
+
+        for head in models:
+            add(animation, head)
+
+        for source in animations:
+            add(source, model)
+
+    for relative, models in mappings.animations(KIND).items():
+        animation = root / relative
+        if not animation.is_file():
+            warnings.append(Warning(KIND, {"animation": animation}, "Mapped facial animation does not exist."))
+            continue
+
+        for relative_model in models:
+            model = root / relative_model
+            if model.is_file():
+                add(animation, model)
+            else:
+                warnings.append(
+                    Warning(KIND, {"animation": animation, "model": model}, "Mapped head model does not exist.")
+                )
+
+    return Plan([Suite(KIND, NAME, cases)], warnings)

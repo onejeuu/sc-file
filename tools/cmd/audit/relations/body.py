@@ -3,8 +3,8 @@ from pathlib import Path
 
 from scfile import formats
 from scfile.options import Options
-from scfile.structures.models import transforms
-from tools.cmd.audit import rules
+from scfile.structures.models import transforms as T
+from tools.cmd.audit import mappings
 from tools.cmd.audit.runner import Case, Plan, PlanError, Suite, Warning
 from tools.cmd.audit.schemas import Body, Record
 
@@ -15,12 +15,13 @@ NAME = "mcal+mcsb (body)"
 OPTIONS = Options(model=Options.Model(skeleton=True, animation=True, raw_clips=True))
 
 
-def models(root: Path, animation: Path) -> tuple[str, ...]:
+def resolve(root: Path, animation: Path, linked: dict[str, list[str]]) -> tuple[str | None, list[str]]:
     relative = animation.relative_to(root)
     for path in (relative, *relative.parents):
-        if linked := rules.BODY_MODELS.get(path.as_posix()):
-            return linked
-    return ()
+        key = path.as_posix().casefold()
+        if key in linked:
+            return key, linked[key]
+    return None, []
 
 
 def validate(root: Path, animation: Path, model: Path) -> list[Record]:
@@ -30,7 +31,7 @@ def validate(root: Path, animation: Path, model: Path) -> list[Record]:
     with formats.McsbDecoder(model, OPTIONS) as decoder:
         target = decoder.decode()
 
-    scene = transforms.apply_skeletal_animation(source.scene, target.scene)
+    scene = T.apply_skeletal_animation(source.scene, target.scene)
     clips = scene.animation.clips
     return [
         Body(
@@ -53,28 +54,33 @@ def build(root: Path) -> Plan:
 
     cases = []
     warnings = []
-    covered: set[Path] = set()
+    linked = {path.casefold(): models for path, models in mappings.animations(KIND).items()}
+    used: set[str] = set()
 
     for animation in animations:
-        linked = models(root, animation)
-        if not linked:
+        key, model_paths = resolve(root, animation, linked)
+        if key is None:
             warnings.append(Warning(KIND, {"animation": animation}, "No body model match."))
             continue
+        used.add(key)
 
-        for relative in linked:
+        for relative in model_paths:
             model = root / relative
             if not model.is_file():
-                warnings.append(Warning(KIND, {"animation": animation}, f"Linked model does not exist: {relative}"))
+                warnings.append(Warning(KIND, {"animation": animation, "model": model}, "Mapped model does not exist."))
                 continue
 
-            paths = {animation, model}
             cases.append(
                 Case(
                     {"animation": animation, "model": model},
                     partial(validate, root, animation, model),
-                    files=len(paths - covered),
+                    files=2,
                 )
             )
-            covered.update(paths)
+
+    warnings.extend(
+        Warning(KIND, {"animation": root / path}, "Mapped animation path does not exist.")
+        for path in linked.keys() - used
+    )
 
     return Plan([Suite(KIND, NAME, cases)], warnings)
