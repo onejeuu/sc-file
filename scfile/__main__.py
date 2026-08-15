@@ -1,4 +1,4 @@
-from .app.launcher import main
+from scfile.app.launcher import main
 
 
 if __name__ == "__main__":
