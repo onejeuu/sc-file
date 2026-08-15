@@ -42,23 +42,27 @@ def resolve(
     root: Path,
     animation: Path,
     indexed: dict[str, list[Path]],
-) -> Path | Warning:
-    match rules.ARMS_OVERRIDES.get(animation.name):
-        case str(mapped):
-            model = root / MODELS / mapped
-            if model.is_file():
-                return model
-            return Warning(KIND, {"animation": animation}, f"Mapped model does not exist: {mapped}")
+) -> tuple[list[Path], list[Warning]]:
+    mapped = rules.ARMS_MODELS.get(animation.name)
+    if mapped is None:
+        matched = indexed.get(weapon_name(animation), []).copy()
+        mapped = ()
+    else:
+        matched = []
+    warnings = []
 
-    candidates = indexed.get(weapon_name(animation), [])
-    match candidates:
-        case [model]:
-            return model
-        case []:
-            return Warning(KIND, {"animation": animation}, "No exact weapon model match.")
-        case _:
-            names = ", ".join(path.relative_to(root).as_posix() for path in candidates)
-            return Warning(KIND, {"animation": animation}, f"Ambiguous exact weapon model match: {names}")
+    for linked in mapped:
+        model = root / MODELS / linked
+        if not model.is_file():
+            warnings.append(Warning(KIND, {"animation": animation}, f"Linked model does not exist: {linked}"))
+            continue
+        if model not in matched:
+            matched.append(model)
+
+    if not matched:
+        warnings.append(Warning(KIND, {"animation": animation}, "No weapon model match."))
+
+    return matched, warnings
 
 
 def validate(animation: Path, model_paths: tuple[Path, ...]) -> list["Record"]:
@@ -98,25 +102,24 @@ def build(root: Path) -> Plan:
 
     indexed = models(root)
     for animation in (animation for animation in animations if animation.name not in rules.ARMS_HANDS_ONLY):
-        match resolve(root, animation, indexed):
-            case Path() as model:
+        matched, issues = resolve(root, animation, indexed)
+        warnings.extend(issues)
+
+        for model in matched:
+            cases.append(
+                Case(
+                    {"animation": animation, "model": model},
+                    partial(validate, animation, (model,)),
+                )
+            )
+            if hands is not None:
                 cases.append(
                     Case(
-                        {"animation": animation, "model": model},
-                        partial(validate, animation, (model,)),
+                        {"animation": animation, "model": model, "hands": hands},
+                        partial(validate, animation, (model, hands)),
                     )
                 )
-                if hands is not None:
-                    cases.append(
-                        Case(
-                            {"animation": animation, "model": model, "hands": hands},
-                            partial(validate, animation, (model, hands)),
-                        )
-                    )
-                connections += 1
-
-            case Warning() as warning:
-                warnings.append(warning)
+            connections += 1
 
     suite = Suite(KIND, NAME, connections * 2, cases)
     return Plan([suite], warnings)

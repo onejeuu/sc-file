@@ -37,7 +37,7 @@ class Audit:
         self.console = console
         self.plan = Plan()
         self.rows: dict[str, Row] = {}
-        self.failures: list[tuple[Suite, Failed]] = []
+        self.errors = 0
         self.progress = Progress(
             TextColumn("{task.description}"),
             BarColumn(),
@@ -72,6 +72,8 @@ class Audit:
 
     def __enter__(self):
         clear()
+        for item in self.plan.warnings:
+            write(REPORTS / WARNINGS, warning(self.settings.root, item))
         if self.settings.stats and any(suite.kind == "file" for suite in self.plan.suites):
             self.writer = self.stack.enter_context(stats.Writer(REPORTS))
         self.live = self.stack.enter_context(Live(self.render(), console=self.console, refresh_per_second=10))
@@ -122,7 +124,8 @@ class Audit:
                     self.writer.write(records)
             case Failed() as failure:
                 row.errors += 1
-                self.failures.append((suite, failure))
+                self.errors += 1
+                write(REPORTS / ERRORS, error(self.settings.root, suite, failure))
 
         self.progress.advance(self.task)
         now = time.monotonic()
@@ -134,20 +137,16 @@ class Audit:
         for notice in self.plan.notices:
             self.console.print(f"[dim]{notice}[/]")
 
-        errors = [error(self.settings.root, suite, failure) for suite, failure in self.failures]
-        warnings = [warning(self.settings.root, item) for item in self.plan.warnings]
-        save(REPORTS / ERRORS, errors)
-        save(REPORTS / WARNINGS, warnings)
-
-        match errors:
-            case []:
+        match self.errors:
+            case 0:
                 self.console.print("✅ [green]No errors found.[/]")
-            case _:
-                self.console.print(f"⛔ [red]{len(errors)} errors written to '{REPORTS / ERRORS}'[/]")
+            case count:
+                self.console.print(f"⛔ [red]{count} errors written to '{REPORTS / ERRORS}'[/]")
 
-        if warnings:
-            self.console.print(f"⚠️ [yellow]{len(warnings)} warnings written to '{REPORTS / WARNINGS}'[/]")
-        return int(bool(errors))
+        if self.plan.warnings:
+            count = len(self.plan.warnings)
+            self.console.print(f"⚠️ [yellow]{count} warnings written to '{REPORTS / WARNINGS}'[/]")
+        return int(bool(self.errors))
 
 
 def clear() -> None:
@@ -183,11 +182,6 @@ def warning(root: Path, issue: Warning) -> dict:
     }
 
 
-def save(path: Path, records: list[dict]) -> None:
-    if not records:
-        return
-
-    records.sort(key=lambda record: (record["kind"], tuple(sorted(record["paths"].items()))))
-    with path.open("w", encoding="utf-8") as file:
-        for record in records:
-            file.write(json.dumps(record, ensure_ascii=False) + "\n")
+def write(path: Path, record: dict) -> None:
+    with path.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(record, ensure_ascii=False) + "\n")
