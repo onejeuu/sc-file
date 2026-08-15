@@ -92,4 +92,15 @@ class Face(NamedTuple):
     polygons: int
 
 
-type Record = Model | Mesh | Bone | Animation | Texture | Image | Arms | Face
+class Body(NamedTuple):
+    animation: str
+    model: str
+    clips: int
+    frames: int
+    bones: int
+    meshes: int
+    vertices: int
+    polygons: int
+
+
+type Record = Model | Mesh | Bone | Animation | Texture | Image | Arms | Face | Body

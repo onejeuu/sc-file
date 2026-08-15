@@ -1,11 +1,12 @@
 from pathlib import Path
 
 from tools.cmd.audit.runner import Plan
-from . import arms, face
+from . import arms, body, face
 
 
 BUILDERS = {
     arms.KIND: arms.build,
+    body.KIND: body.build,
     face.KIND: face.build,
 }
 NAMES = tuple(BUILDERS)

@@ -134,6 +134,8 @@ class Audit:
             self.updated = now
 
     def finish(self) -> int:
+        self.console.print()
+
         for notice in self.plan.notices:
             self.console.print(f"[dim]{notice}[/]")
 

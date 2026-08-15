@@ -10,6 +10,25 @@ EXCLUDED: set[str] = {
 FACE_ANIMATION = "highpoly/lipsync/shaman.mcvd"
 FACE_MODEL = "stalkerplayer/heads/unique/unique_shaman.mcsb"
 
+BODY_MODELS: dict[str, tuple[str, ...]] = {
+    "customitems/models/items/quest/diktofon.mcal": ("customitems/models/items/quest/diktofon.mcsb",),
+    "customnpcs/anim": ("highpoly/character/origin.mcsb",),
+    "highpoly/character/animations": ("highpoly/character/origin.mcsb",),
+    "highpoly/character/animationsShnir": ("highpoly/character/originShnir.mcsb",),
+    "highpoly/character/animationsnpc": ("highpoly/character/origin.mcsb",),
+    "highpoly/character/animationspov": ("highpoly/character/originpov.mcsb",),
+    "highpoly/character/animationstechnar": ("stalker/models/armor/murmur_technar/technar_armor.mcsb",),
+    "highpoly/character/animationszombie": ("highpoly/character/origin.mcsb",),
+    "stalker/anims/menu": ("stalkerplayer/steve_vanilla_proportions.mcsb",),
+    "customnpcs/anim/technar_anims(только для босса технаря).mcal": (
+        "stalker/models/armor/murmur_technar/technar_armor.mcsb",
+    ),
+    "weapons/models/weapons/skaner/skanerr.mcal": (
+        "weapons/models/weapons/skaner/skaner_2.mcsb",
+        "weapons/models/weapons/skaner/skaner_2_a.mcsb",
+    ),
+}
+
 ARMS_HANDS_ONLY: set[str] = {
     "fp_walkcycles.mcvd",
     "wpn_fp_char.mcvd",
