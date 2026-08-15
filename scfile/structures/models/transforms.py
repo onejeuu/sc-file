@@ -242,6 +242,30 @@ def apply_fp_animation(animation: ModelScene, *models: ModelScene) -> ModelScene
     return replace(animation, meshes=meshes)
 
 
+def filter_fp_meshes(animation: ModelScene, model: ModelScene) -> ModelScene:
+    animation_bones = {bone.name for bone in animation.skeleton.bones}
+    source_bones = model.skeleton.bones
+    meshes: list[ModelMesh] = []
+
+    for mesh in model.meshes:
+        if not mesh.max_influences:
+            meshes.append(mesh)
+            continue
+
+        used_ids = {
+            int(bone_id) for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat) if weight > 0.0
+        }
+
+        if any(bone_id >= len(source_bones) for bone_id in used_ids):
+            meshes.append(mesh)
+            continue
+
+        if all(source_bones[bone_id].name in animation_bones for bone_id in used_ids):
+            meshes.append(mesh)
+
+    return replace(model, meshes=meshes)
+
+
 def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -> ModelScene:
     """Apply source bind poses to the assembled scene."""
 
@@ -274,6 +298,15 @@ def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -
 
     meshes = [replace(mesh, skin=skin) for mesh, skin in zip(scene.meshes, mesh_skins)]
     return replace(scene, meshes=meshes, skins=[ModelSkin(bind) for bind in skins])
+
+
+def apply_fp_models(animation: ModelScene, *models: ModelScene) -> ModelScene:
+    models = tuple(filter_fp_meshes(animation, model) for model in models)
+    if any(not model.meshes for model in models):
+        raise AnimationError("Model has no meshes compatible with the animation skeleton.")
+
+    scene = apply_fp_animation(animation, *models)
+    return apply_skins(scene, animation, *models)
 
 
 def apply_animation_library(library: ModelScene, model: ModelScene) -> ModelScene:

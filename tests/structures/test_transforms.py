@@ -71,6 +71,50 @@ def test_scene_transforms() -> None:
     assert data.scene.meshes[0].uv1[0, 1] == 0.25
 
 
+def test_filter_fp_meshes() -> None:
+    animation = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon")]))
+    compatible = S.ModelMesh(
+        name="weapon",
+        links_ids=np.array([[0]], dtype=np.uint8),
+        links_weights=np.array([[1.0]], dtype=np.float32),
+    )
+    legacy_hands = S.ModelMesh(
+        name="hands",
+        links_ids=np.array([[1]], dtype=np.uint8),
+        links_weights=np.array([[1.0]], dtype=np.float32),
+    )
+    model = S.ModelScene(
+        meshes=[compatible, legacy_hands],
+        skeleton=S.ModelSkeleton(
+            bones=[S.SkeletonBone(id=0, name="weapon"), S.SkeletonBone(id=1, name="legacy_hand")]
+        ),
+    )
+
+    result = T.filter_fp_meshes(animation, model)
+
+    assert result.meshes == [compatible]
+    assert model.meshes == [compatible, legacy_hands]
+
+
+def test_apply_fp_models() -> None:
+    animation = S.ModelScene(
+        animation=S.ModelAnimation(clips=[S.AnimationClip()]),
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon")]),
+    )
+    mesh = S.ModelMesh(
+        links_ids=np.array([[0]], dtype=np.uint8),
+        links_weights=np.array([[1.0]], dtype=np.float32),
+    )
+    model = S.ModelScene(meshes=[mesh], skeleton=animation.skeleton)
+
+    result = T.apply_fp_models(animation, model)
+
+    assert len(result.meshes) == 1
+    assert result.meshes[0].name == mesh.name
+    assert result.meshes[0].skin == 0
+    assert len(result.skins) == 1
+
+
 def test_global_transforms() -> None:
     skeleton = S.ModelSkeleton(
         bones=[

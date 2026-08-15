@@ -1,94 +1,101 @@
-import os
 import time
-from collections.abc import Iterator
-from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
-from itertools import islice
+from collections import defaultdict
+from functools import partial
+from pathlib import Path
 
 from rich.console import Console
 
-from scfile.app.files import walk
-from scfile.convert import files
+from scfile import convert, formats
+from scfile.app import files
+from scfile.app.events import TaskError
 from scfile.enums import FileFormat
 from scfile.exceptions import EmptyFileError
-from scfile.formats import registry
 from scfile.options import Options
-from tools.cmd.audit import stats
-from tools.cmd.audit.config import Config
-from tools.cmd.audit.consts import DECODERS
-from tools.cmd.audit.types import Asset, Error, Result
+
+from . import stats
+from .rules import EXCLUDED
+from .runner import Case, Plan, Suite, Warning
 
 
-IGNORED_EXCEPTIONS = (EmptyFileError,)
+DECODERS = {str(format): decoder for format, decoder in formats.registry.decoders.items()}
 
 
-def _decode(asset: Asset, config: Config, options: Options) -> Result:
+def decode(
+    root: Path,
+    path: Path,
+    format: str,
+    options: Options,
+    statistics: bool,
+) -> list[stats.Record]:
     try:
-        with DECODERS[asset.format](asset.path, options) as decoder:
+        with DECODERS[format](path, options) as decoder:
             content = decoder.decode()
 
-    except IGNORED_EXCEPTIONS:
-        return Result(format=asset.format)
+    except EmptyFileError:
+        return []
 
-    except Exception as error:
-        relative = os.path.relpath(asset.path, config.path).replace("\\", "/")
-        return Result(
-            format=asset.format,
-            error=Error(
-                path=relative,
-                error=f"{type(error).__name__}: {error}",
-            ),
-        )
-
-    records = stats.records(asset, content, config.path, config.animation) if config.stats else None
-    return Result(format=asset.format, records=records)
+    return stats.records(root, path, content, options.model.animation) if statistics else []
 
 
-def find_assets(config: Config, console: Console) -> list[Asset]:
-    assets: list[Asset] = []
-    formats = set(config.formats)
-    whitelist = [f".{format}" for format in formats if format != "nbt"]
-    if "nbt" in formats:
-        whitelist.extend(registry.aliases[FileFormat.NBT])
+def build(
+    root: Path,
+    selected: tuple[str, ...],
+    configured_excludes: tuple[str, ...],
+    animation: bool,
+    statistics: bool,
+    console: Console,
+) -> Plan:
+    if not selected:
+        return Plan()
+
+    grouped: defaultdict[str, list[Path]] = defaultdict(list)
+    warnings: list[Warning] = []
+    ignored = 0
+    excluded = EXCLUDED | set(configured_excludes)
+    filters = formats.registry.filters(*(FileFormat(format) for format in selected))
 
     with console.status("Searching... 0 files") as status:
         updated = time.monotonic()
+        found = 0
 
-        for entry in walk([config.path], whitelist):
-            if entry.path.lower().replace("\\", "/").endswith(config.exclude):
+        for item in files.scan([root], filters):
+            if isinstance(item, TaskError):
+                warnings.append(
+                    Warning(
+                        "scan",
+                        {"path": Path(item.source or root)},
+                        f"{type(item.error).__name__}: {item.error}",
+                    )
+                )
                 continue
 
-            format = files.format(entry.path)
-            if format not in formats:
+            path = Path(item.path)
+            relative = path.relative_to(root).as_posix().casefold()
+            if relative in excluded:
+                ignored += 1
                 continue
 
-            assets.append(Asset(path=entry.path, format=format))
+            format = convert.files.format(path)
+            grouped[format].append(path)
+            found += 1
 
             now = time.monotonic()
             if now - updated >= 0.1:
-                status.update(f"Searching... {len(assets)} files")
+                status.update(f"Searching... {found} files")
                 updated = now
 
-    return assets
+    options = Options(model=Options.Model(skeleton=animation, animation=animation))
+    suites = []
+    for format, paths in sorted(grouped.items()):
+        paths.sort()
+        cases = [
+            Case(
+                {"file": path},
+                partial(decode, root, path, format, options, statistics),
+            )
+            for path in paths
+        ]
+        suites.append(Suite("file", format, len(paths), cases))
 
-
-def decode_assets(assets: list[Asset], config: Config) -> Iterator[Result]:
-    options = Options(model=Options.Model(skeleton=config.animation, animation=config.animation))
-
-    if config.workers == 0:
-        for asset in assets:
-            yield _decode(asset, config, options)
-        return
-
-    iterator = iter(assets)
-    limit = max(config.workers * 2, 1)
-
-    with ThreadPoolExecutor(max_workers=config.workers) as executor:
-        pending: set[Future[Result]] = {
-            executor.submit(_decode, asset, config, options) for asset in islice(iterator, limit)
-        }
-
-        while pending:
-            done, pending = wait(pending, return_when=FIRST_COMPLETED)
-            pending.update(executor.submit(_decode, asset, config, options) for asset in islice(iterator, len(done)))
-            for future in done:
-                yield future.result()
+    notices = [f"Ignored {ignored} configured asset paths."] if ignored else []
+    return Plan(suites, warnings, notices)

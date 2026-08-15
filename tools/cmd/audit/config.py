@@ -2,55 +2,65 @@ import os
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
+from typing import Any
 
 import click
 
-from tools.cmd.audit.consts import CONFIG, EXCLUDE, FORMATS, REPORTS, ROOT
+from scfile import formats
+from tools.paths import ROOT
 
 
-@dataclass
-class Config:
-    path: Path
+CONFIG = ROOT / "configs" / "audit.toml"
+FORMATS = tuple(sorted(str(format) for format in formats.registry.decoders))
+
+
+@dataclass(frozen=True)
+class Settings:
+    root: Path
     formats: tuple[str, ...]
+    relations: tuple[str, ...]
     exclude: tuple[str, ...]
     workers: int
     animation: bool
-    reports: Path
     stats: bool
 
-    @classmethod
-    def load(
-        cls,
-        path: Path | None,
-        formats: tuple[str, ...],
-        workers: int | None,
-        animation: bool | None,
-        reports: Path | None,
-        stats: bool | None,
-    ) -> Self:
-        stored = {}
-        if CONFIG.exists():
-            with CONFIG.open("rb") as file:
-                stored = tomllib.load(file)
 
-        path = path or stored.get("path")
-        if path is None:
-            raise click.UsageError(f"Missing path. Pass PATH or set it in '{CONFIG}'.")
+def read() -> dict[str, Any]:
+    try:
+        with CONFIG.open("rb") as file:
+            return tomllib.load(file)
 
-        reports = Path(reports or stored.get("reports", REPORTS))
-        if not reports.is_absolute():
-            reports = ROOT / reports
+    except FileNotFoundError:
+        return {}
 
-        exclude = EXCLUDE + tuple(stored.get("exclude", ()))
-        exclude = tuple("/" + path.lower().replace("\\", "/").lstrip("/") for path in exclude)
 
-        return cls(
-            path=Path(path).resolve(),
-            formats=tuple(formats or stored.get("formats") or FORMATS),
-            exclude=exclude,
-            workers=workers if workers is not None else stored.get("workers", os.cpu_count() or 4),
-            animation=animation if animation is not None else stored.get("animation", True),
-            reports=reports.resolve(),
-            stats=stats if stats is not None else stored.get("stats", False),
-        )
+def resolve(
+    path: Path | None,
+    selected_formats: tuple[str, ...],
+    selected_relations: tuple[str, ...],
+    workers: int | None,
+    animation: bool | None,
+    stats: bool | None,
+) -> Settings:
+    values = read()
+    source = path or values.get("path")
+    if source is None:
+        raise click.UsageError(f"Missing path. Pass PATH or set it in '{CONFIG}'.")
+
+    match selected_formats, selected_relations:
+        case (), ():
+            chosen_formats = tuple(values.get("formats") or FORMATS)
+            chosen_relations = tuple(values.get("relations") or ())
+        case _:
+            chosen_formats = selected_formats
+            chosen_relations = selected_relations
+
+    return Settings(
+        root=Path(source).resolve(),
+        formats=chosen_formats,
+        relations=chosen_relations,
+        exclude=tuple(path.casefold().replace("\\", "/").lstrip("/") for path in values.get("exclude", ())),
+        workers=workers if workers is not None else values.get("workers", os.cpu_count() or 4),
+        animation=animation if animation is not None else values.get("animation", True),
+        stats=stats if stats is not None else values.get("stats", False),
+    )

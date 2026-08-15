@@ -18,6 +18,7 @@ Parses game assets to detect errors in supported decoders.
 ```bash
 uv run -m tools audit "C:/EXBO/runtime/stalcraft/modassets/assets"
 uv run -m tools audit "C:/assets" -F mcsb -F ol
+uv run -m tools audit -R arms
 ```
 
 Persistent settings can be stored in `configs/audit.toml`.
@@ -26,17 +27,18 @@ You can copy `configs/audit.example.toml` as a starting point.
 ```toml
 path = "C:/EXBO/runtime/stalcraft/modassets/assets"
 formats = ["mcsb", "ol"]
+relations = ["arms"]
 workers = 4
 animation = true
-reports = "reports/audit"
 stats = true
 exclude = ["path/to/file.mcsb"]
 ```
 
 Command-line arguments override the config.
-When `formats` is omitted, every registered decoder is checked.
-Full asset roots also validate arms, face, and body animation compatibility.
-Found errors are written to `errors.jsonl`.
+Without command-line selectors, configured formats and relations are checked.
+`animation` controls model skeleton and clip parsing for standalone files.
+Command-line format and relation selectors replace the configured selection.
+Found errors and warnings are written to separate JSONL reports.
 With statistics enabled, CSV files are written.
 Report files are replaced on each run.
 

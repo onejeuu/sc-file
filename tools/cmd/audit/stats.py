@@ -1,6 +1,5 @@
 import csv
-import os
-from collections import Counter
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, TextIO
 
@@ -8,25 +7,35 @@ from scfile.formats.ol.enums import TextureKind
 from scfile.structures import content as C
 from scfile.structures.models import Feature
 from scfile.structures.textures import CubemapTexture, DefaultTexture
-from tools.cmd.audit.consts import FORMATS_CSV, TABLES
 from tools.cmd.audit.schemas import Animation, Bone, Image, Mesh, Model, Record, Texture
-from tools.cmd.audit.types import Asset
+
+
+TABLES = {
+    Model: "models.csv",
+    Mesh: "meshes.csv",
+    Bone: "bones.csv",
+    Animation: "animations.csv",
+    Texture: "textures.csv",
+    Image: "images.csv",
+}
+FORMATS_CSV = "formats.csv"
+FILES = (*TABLES.values(), FORMATS_CSV)
 
 
 def records(
-    asset: Asset,
-    content: C.BaseContent,
     root: Path,
+    source: Path,
+    content: C.BaseContent,
     animation: bool,
 ) -> list[Record]:
-    path = os.path.relpath(asset.path, root).replace("\\", "/")
+    path = source.relative_to(root).as_posix()
 
     match content:
         case C.ModelContent():
-            return _model(path, content, os.path.getsize(asset.path), animation)
+            return _model(path, content, source.stat().st_size, animation)
 
         case C.TextureContent():
-            return _texture(path, content, os.path.getsize(asset.path))
+            return _texture(path, content, source.stat().st_size)
 
         case C.ImageContent():
             return [Image(path=path, filesize=len(content.image))]
@@ -167,10 +176,9 @@ class Writer:
 
             writer.writerow(record)
 
-    def formats(self, found: Counter, checked: Counter, failed: Counter) -> None:
+    def formats(self, rows: Iterable[tuple[str, int, int, int]]) -> None:
         with (self.path / FORMATS_CSV).open("w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             writer.writerow(("format", "files", "checked", "errors"))
 
-            for format in sorted(found):
-                writer.writerow((format, found[format], checked[format], failed[format]))
+            writer.writerows(rows)

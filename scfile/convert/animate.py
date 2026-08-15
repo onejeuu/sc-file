@@ -51,8 +51,7 @@ def arms(
         with formats.McsbDecoder(paths.source(hands), options) as mcsb:
             models += (mcsb.decode(),)
 
-    scene = T.apply_fp_animation(anims.scene, *(model.scene for model in models))
-    scene = T.apply_skins(scene, anims.scene, *(model.scene for model in models))
+    scene = T.apply_fp_models(anims.scene, *(model.scene for model in models))
     content = replace(anims, scene=scene)
 
     with paths.stage(out) as tmp:

@@ -35,6 +35,7 @@ def resolve(
     return sorted(path for path in paths if not any(parent in paths for parent in path.parents))
 
 
+# TODO: replace taskerror
 def scan(
     sources: Iterable[types.SourceLike],
     filters: Iterable[str] | None = None,
