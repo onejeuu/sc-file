@@ -90,6 +90,9 @@ def build(root: Path) -> Plan:
             )
         )
 
+    for excluded in value.get("excluded", []):
+        available.pop(excluded["animation"].casefold(), None)
+
     warnings.extend(
         Warning(KIND, {"animation": animation}, "Animation has no mapping.") for animation in available.values()
     )
