@@ -54,10 +54,15 @@ def build(root: Path) -> Plan:
 
     cases = []
     warnings = []
+    value = mappings.read(KIND)
     linked = {path.casefold(): models for path, models in mappings.animations(KIND).items()}
+    excluded = {item["animation"].casefold() for item in value.get("excluded", [])}
     used: set[str] = set()
 
     for animation in animations:
+        if animation.relative_to(root).as_posix().casefold() in excluded:
+            continue
+
         key, model_paths = resolve(root, animation, linked)
         if key is None:
             warnings.append(Warning(KIND, {"animation": animation}, "No body model match."))

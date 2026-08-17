@@ -1,11 +1,29 @@
 {
   "version": 1,
+  "excluded": [
+    {
+      "animation": "highpoly/animations/character.mcal",
+      "tag": "legacy"
+    }
+  ],
   "animations": {
+    "customitems/models/items/quest/diktofon.mcal": [
+      "customitems/models/items/quest/diktofon.mcsb"
+    ],
+    "customnpcs/anim": [
+      "highpoly/character/origin.mcsb"
+    ],
+    "customnpcs/anim/technar_anims(только для босса технаря).mcal": [
+      "highpoly/character/origintechnar.mcsb"
+    ],
     "highpoly/character/animations": [
       "highpoly/character/origin.mcsb"
     ],
     "highpoly/character/animationsShnir": [
       "highpoly/character/originShnir.mcsb"
+    ],
+    "highpoly/character/animationsnpc": [
+      "highpoly/character/origin.mcsb"
     ],
     "highpoly/character/animationspov": [
       "highpoly/character/originpov.mcsb"
@@ -15,6 +33,9 @@
     ],
     "highpoly/character/animationszombie": [
       "highpoly/character/origin.mcsb"
+    ],
+    "stalker/anims/menu": [
+      "stalkerplayer/steve_vanilla_proportions.mcsb"
     ],
     "weapons/models/weapons/skaner/skanerr.mcal": [
       "weapons/models/weapons/skaner/skaner_2_a.mcsb"
