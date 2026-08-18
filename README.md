@@ -10,10 +10,9 @@
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/en/latest
-[deepwiki]: https://deepwiki.com/onejeuu/sc-file
 [contact]: https://onejeuu.t.me
 
-<!-- Docs -->
+<!-- Documentation -->
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
@@ -29,85 +28,84 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-deepwiki]: https://deepwiki.com/badge.svg
 
-<img src="assets/scfile.svg" alt="icon" width="96" />
+<img src="assets/scfile.svg" alt="sc-file" width="96" />
 
-[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues] [![DeepWiki][badge-deepwiki]][deepwiki]
+[![PyPI][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 🇬🇧 **English** | 🇷🇺 [Русский][readme-ru]
 
-## Overview
-
-**scfile** is a utility and library for converting proprietary Stalcraft assets formats to standard ones.
+**scfile** is a utility and library for converting proprietary STALCRAFT asset formats to standard ones.
 
 > This is an **unofficial** project and is **not affiliated** with EXBO.
 
+<!--
+keywords: sc scx stalcraft x майн ск сталкрафт
+runtime/stalcraft/modassets/assets map_cache/5.0
+blender rig anims 3d bones scene unpack decrypt decryptor
+блендер риг анимки 3д кости сцена моделька локи распаковать расшифровать дешифратор
+-->
+
 ## ✨ Supported Formats
 
-| Type                | Game formats        | →   | Standard formats                    |
-| ------------------- | ------------------- | --- | ----------------------------------- |
-| 🧊 **Model**        | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.dae` `.ms3d` `.fbx` |
-| 🧱 **Texture**      | `.ol`               | →   | `.dds`                              |
-| 🖼️ **Image**        | `.mic`              | →   | `.png`                              |
-| 🗃️ **TextureArray** | `.texarr`           | →   | `.zip`                              |
-| 🗺 **Region**       | `.mdat`             | →   | `.mca`                              |
-| ⚙️ **NBT\***        | `...`               | →   | `.json`                             |
+| Type                | Game formats                             | →   | Standard formats     |
+| ------------------- | ---------------------------------------- | --- | -------------------- |
+| 🧊 **Model**        | `.mcsb` `.efkmodel`                      | →   | `.obj` `.glb` `.fbx` |
+| 🌀 **Animation**    | `.mcvd` + `.mcsb`<br/>`.mcal` + `.mcsb`  | →   | `.glb`               |
+| 🧱 **Texture**      | `.ol`                                    | →   | `.dds`               |
+| 🖼️ **Image**        | `.mic`                                   | →   | `.png`               |
+| 🗃️ **TextureArray** | `.texarr`                                | →   | `.zip`               |
+| 🗺 **Region**        | `.mdat`                                  | →   | `.mca`               |
+| ⚙️ **NBT**          | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`              |
 
-\* `NBT` refers to specific files (`itemnames.dat`, `prefs`, `sd0`, etc.)
-
-> 📚 [Detailed formats support →][docs-support]
+> [Detailed formats support →][docs-support]
 
 </br>
 
 > [!IMPORTANT]  
 > **Reverse conversion (`standard` → `game`) is not available.**  
-> 📚 [See FAQ for details →][docs-faq]
+> [See FAQ for details →][docs-faq]
 
-## 🚀 Installation
+## 🚀 Usage
 
-> **Three ways to get started:** download, install, or compile.  
-> 📚 [Usage guide and CLI options →][docs-usage]
+### Download executable
 
-### 💻 Download executable
-
-Standalone `scfile.exe` available on [Releases page][releases].  
-_No Python required._
+Download `scfile.exe` from the [Releases page][releases].
 
 **Usage:**
 
-- 🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical interface
-- 📥 **Drag & Drop**: drag file onto `scfile.exe`
-- 🖱️ **Open With**: set as default app for supported formats
-- 📟 **Command Line**: `scfile.exe --help`  
-   _Command example:_ `scfile.exe model.mcsb -F glb --skeleton`  
-   _Options in example: `-F` picks model format, `--skeleton` extracts model armature._
+- **Graphical interface:** launch `scfile.exe`.
+- **Drag and drop:** drag files or folders onto `scfile.exe` in File Explorer.
+- **Command line:** run `scfile.exe --help` for commands and options.
 
-### 🐍 Install Python package
+For example:
 
-**Install:**
-
-```bash
-pip install sc-file        # library + cli
-pip install sc-file[gui]   # library + cli + gui
+```console
+scfile.exe model.mcsb -F glb --skeleton
 ```
 
-**Usage:**
+This exports the model and its armature to GLB. See the [usage guide][docs-usage]
+for batch conversion, animations, map regions, output layouts, and other options.
 
-- 📖 **Python library**: [See Library section](#-library)
-- 🖥️ **GUI via package**: `scfile`
-- 📟 **CLI via package**: `scfile --help`
+### Install the Python package
 
-### 🔧 Compile from source
+```console
+pip install sc-file
+pip install "sc-file[gui]"  # extra graphical interface
+```
 
-Build from source code using the [compile guide][docs-compile].  
-_For developers, contributors, or custom builds._
+The base package includes the library and CLI. The GUI is an optional extra.
+
+### Compile from source
+
+See the [build guide][docs-compile] for development, contributions, and custom
+builds.
 
 ## 📖 Library
 
-**Install latest version:**
+Install or update the package:
 
-```bash
+```console
 pip install sc-file -U
 ```
 
@@ -116,24 +114,21 @@ pip install sc-file -U
 ```python
 from scfile import convert, formats, Options
 
-# Simple conversion (auto detect format by file suffix)
-# User options to control parsing and export settings
-convert.auto("model.mcsb", options=Options(skeleton=True))
+# Detect the source format and convert it
+convert.auto("model.mcsb", options=Options(model={"skeleton": True}))
 
-# Advanced control (manual decoding and data inspection)
-# Context manager ensures proper resource cleanup
-with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    # Access parsed scene data: meshes, bones, etc
-    data = mcsb.decode()
-    print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
-    print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
-    print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
+# Use an explicit conversion and output path
+convert.mcsb_to_obj("model.mcsb", "output/model.obj")
 
-    # Export to a specific standard format
-    mcsb.to_obj().save("output.obj")
+# Decode a known format and inspect its data
+with formats.McsbDecoder("model.mcsb") as mcsb:
+    model = mcsb.decode()
+
+print([mesh.name for mesh in model.scene.meshes])
+print([bone.name for bone in model.scene.skeleton.bones])
 ```
 
-> 📚 [Complete Library API reference →][docs-library]
+[Complete library documentation →][docs-library]
 
 ## 🔗 Links
 

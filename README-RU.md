@@ -10,10 +10,9 @@
 [issues]: https://github.com/onejeuu/sc-file/issues
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/ru/latest
-[deepwiki]: https://deepwiki.com/onejeuu/sc-file
 [contact]: https://onejeuu.t.me
 
-<!-- Docs -->
+<!-- Documentation -->
 
 [docs-usage]: https://sc-file.readthedocs.io/ru/latest/usage.html
 [docs-faq]: https://sc-file.readthedocs.io/ru/latest/faq.html
@@ -29,85 +28,76 @@
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/tests.yml?label=tests
 [badge-build]: https://img.shields.io/github/actions/workflow/status/onejeuu/sc-file/release.yml?label=build
 [badge-issues]: https://img.shields.io/github/issues/onejeuu/sc-file
-[badge-deepwiki]: https://deepwiki.com/badge.svg
 
-<img src="assets/scfile.svg" alt="icon" width="96" />
+<img src="assets/scfile.svg" alt="sc-file" width="96" />
 
-[![Pypi][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues] [![DeepWiki][badge-deepwiki]][deepwiki]
+[![PyPI][badge-pypi]][pypi] [![License][badge-license]][license] [![Docs][badge-docs]][docs] [![Tests][badge-tests]][tests] [![Build][badge-build]][build] [![Issues][badge-issues]][issues]
 
 🇬🇧 [English][readme-en] | 🇷🇺 **Русский**
 
-## Обзор
-
-**scfile** это утилита и библиотека для конвертации проприетарных форматов ассетов игры Stalcraft в стандартные.
+**scfile** это утилита и библиотека для конвертации проприетарных форматов ассетов STALCRAFT в стандартные.
 
 > Данный проект является **неофициальным** и **не аффилирован** с EXBO.
 
 ## ✨ Поддерживаемые форматы
 
-| Тип                   | Форматы игры        | →   | Стандартные форматы                 |
-| --------------------- | ------------------- | --- | ----------------------------------- |
-| 🧊 **Модель**         | `.mcsb` `.efkmodel` | →   | `.obj` `.glb` `.dae` `.ms3d` `.fbx` |
-| 🧱 **Текстура**       | `.ol`               | →   | `.dds`                              |
-| 🖼️ **Изображение**    | `.mic`              | →   | `.png`                              |
-| 🗃️ **Массив Текстур** | `.texarr`           | →   | `.zip`                              |
-| 🗺 **Регион**         | `.mdat`             | →   | `.mca`                              |
-| ⚙️ **NBT**            | `...`               | →   | `.json`                             |
+| Тип                   | Форматы игры                             | →   | Стандартные форматы  |
+| --------------------- | ---------------------------------------- | --- | -------------------- |
+| 🧊 **Модель**         | `.mcsb` `.efkmodel`                      | →   | `.obj` `.glb` `.fbx` |
+| 🌀 **Анимация**       | `.mcvd + .mcsb`<br/>`.mcal + .mcsb`      | →   | `.glb`               |
+| 🧱 **Текстура**       | `.ol`                                    | →   | `.dds`               |
+| 🖼️ **Изображение**    | `.mic`                                   | →   | `.png`               |
+| 🗃️ **Массив текстур** | `.texarr`                                | →   | `.zip`               |
+| 🗺 **Регион**          | `.mdat`                                  | →   | `.mca`               |
+| ⚙️ **NBT**            | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`              |
 
-\* `NBT` Относится к специфичным файлам (`itemnames.dat`, `prefs`, `sd0` и т.д.)
-
-> 📚 [Детальная информация о поддержке форматов →][docs-support]
+> [Детальная информация о поддержке форматов →][docs-support]
 
 </br>
 
 > [!IMPORTANT]  
 > **Обратная конвертация (`стандартный` → `игровой`) недоступна.**  
-> 📚 [Подробности в FAQ →][docs-faq]
+> [Подробности в FAQ →][docs-faq]
 
-## 🚀 Установка
+## 🚀 Использование
 
-> **Три способа начать:** скачать, установить или скомпилировать.  
-> 📚 [Руководство по использованию и параметры CLI →][docs-usage]
+### Скачать исполняемый файл
 
-### 💻 Скачать исполняемый файл
-
-Standalone `scfile.exe` доступен на [странице Releases][releases].  
-_Не требует установки Python._
+Скачайте `scfile.exe` со [страницы Releases][releases].
 
 **Использование:**
 
-- 🖥️ **GUI**: запустите `scfile.exe` без аргументов для открытия графического интерфейса
-- 📥 **Drag & Drop**: перетащите файл на `scfile.exe`
-- 🖱️ **Открыть с помощью**: установите как приложение по умолчанию для поддерживаемых форматов
-- 📟 **Командная строка**: `scfile.exe --help`  
-   _Пример команды:_ `scfile.exe model.mcsb -F glb --skeleton`  
-   _Опции в примере: `-F` выбирает формат модели, `--skeleton` извлекает скелет модели._
+- **Графический интерфейс:** запустите `scfile.exe`.
+- **Drag and Drop:** перетащите файлы или папки на `scfile.exe` в Проводнике.
+- **Командная строка:** выполните `scfile.exe --help`, чтобы увидеть команды и параметры.
 
-### 🐍 Установить Python пакет
+Например:
 
-**Установка:**
-
-```bash
-pip install sc-file        # library + cli
-pip install sc-file[gui]   # library + cli + gui
+```console
+scfile.exe model.mcsb -F glb --skeleton
 ```
 
-**Использование:**
+Эта команда экспортирует модель и её скелет в GLB. В [руководстве по использованию][docs-usage]
+описаны пакетная конвертация, анимации, регионы карты, структура вывода и другие параметры.
 
-- 📖 **Python библиотека**: [См. раздел Библиотека](#-библиотека)
-- 🖥️ **GUI через пакет**: `scfile`
-- 📟 **CLI через пакет**: `scfile --help`
+### Установить Python пакет
 
-### 🔧 Скомпилировать из исходников
+```console
+pip install sc-file
+pip install "sc-file[gui]"  # дополнительный графический интерфейс
+```
 
-Соберите из исходного кода, используя [руководство по сборке][docs-compile].  
-_Для разработчиков, контрибьюторов или пользовательских сборок._
+Базовый пакет включает библиотеку и CLI. GUI является необязательным дополнением.
+
+### Скомпилировать из исходников
+
+Соберите проект из исходного кода по [руководству по сборке][docs-compile].
 
 ## 📖 Библиотека
 
-**Установите последнюю версию:**
+Установите или обновите пакет:
 
-```bash
+```console
 pip install sc-file -U
 ```
 
@@ -116,24 +106,21 @@ pip install sc-file -U
 ```python
 from scfile import convert, formats, Options
 
-# Простая конвертация (автоопределение формата по расширению)
-# Настройки пользователя для управления парсингом и экспортом
-convert.auto("model.mcsb", options=Options(skeleton=True))
+# Определить формат исходного файла и конвертировать его
+convert.auto("model.mcsb", options=Options(model={"skeleton": True}))
 
-# Расширенное управление (ручное декодирование и просмотр данных)
-# Контекстный менеджер обеспечивает корректное освобождение ресурсов
-with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-    # Доступ к данным сцены: меши, кости и тд
-    data = mcsb.decode()
-    print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
-    print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
-    print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
+# Использовать явную конвертацию и путь вывода
+convert.mcsb_to_obj("model.mcsb", "output/model.obj")
 
-    # Экспорт в конкретный стандартный формат
-    mcsb.to_obj().save("output.obj")
+# Декодировать известный формат и изучить его данные
+with formats.McsbDecoder("model.mcsb") as mcsb:
+    model = mcsb.decode()
+
+print([mesh.name for mesh in model.scene.meshes])
+print([bone.name for bone in model.scene.skeleton.bones])
 ```
 
-> 📚 [Полное описание API библиотеки →][docs-library]
+[Полная документация библиотеки →][docs-library]
 
 ## 🔗 Ссылки
 
