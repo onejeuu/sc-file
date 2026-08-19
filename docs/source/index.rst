@@ -1,4 +1,4 @@
-Index
+sc-file
 ==================================================
 
 .. include:: _links.rst
@@ -15,16 +15,16 @@ Index
   v/index
 
 
-----------------------------------------
-Overview
-----------------------------------------
-
-**scfile** is a utility and library for converting proprietary Stalcraft assets formats to standard ones.
+**scfile** is a utility and library for converting proprietary STALCRAFT asset formats to standard ones.
 
   This is an **unofficial** project and is **not affiliated** with EXBO.
 
 
-.. list-table:: ✨ Supported Formats
+----------------------------------------
+✨ Supported Formats
+----------------------------------------
+
+.. list-table::
   :header-rows: 1
 
   * - Type
@@ -34,7 +34,12 @@ Overview
   * - 🧊 **Model**
     - ``.mcsb`` ``.efkmodel``
     - →
-    - ``.obj`` ``.glb`` ``.dae`` ``.ms3d`` ``.fbx``
+    - ``.obj`` ``.glb`` ``.fbx``
+  * - 🌀 **Animation**
+    - | ``.mcvd`` + ``.mcsb``
+      | ``.mcal`` + ``.mcsb``
+    - →
+    - ``.glb``
   * - 🧱 **Texture**
     - ``.ol``
     - →
@@ -51,105 +56,94 @@ Overview
     - ``.mdat``
     - →
     - ``.mca``
-  * - ⚙️ **NBT\***
-    - ``...``
+  * - ⚙️ **NBT**
+    - | ``itemnames.dat`` ``common``
+      | ``prefs`` ``sd0-4``
     - →
     - ``.json``
 
-\* ``NBT`` refers to specific files (``itemnames.dat``, ``prefs``, ``sd0``, etc.)
-
-.. seealso::
-
-  📚 :doc:`Detailed formats support → <support>`
+:doc:`Detailed formats support → <formats>`
 
 
 .. important::
 
   | **Reverse conversion** (``standard`` → ``game``) **is not available.**
-  | 📚 :doc:`See FAQ for details → <faq>`
+  | :doc:`See FAQ for details → <faq>`
 
 
 ----------------------------------------
-🚀 Installation
+🚀 Usage
 ----------------------------------------
 
-  **Three ways to get started:** download, install, or compile.
-
-💻 Download executable
+Download executable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Standalone ``scfile.exe`` available on `Releases page <https://github.com/onejeuu/sc-file/releases>`_
-| *No Python required.*
+Download ``scfile.exe`` from the `Releases page <RELEASES_>`_.
 
 **Usage:**
 
-- 🖥️ **GUI**: launch `scfile.exe` without arguments to open graphical interface
-- 📥 **Drag & Drop**: drag file onto ``scfile.exe``
-- 🖱️ **Open With**: set as default app for supported formats
-- 📟 **Command Line**: ``scfile.exe --help``
-   | *Command example:* ``scfile.exe model.mcsb -F glb --skeleton``
-   | *Options in example:* ``-F`` *picks model format,* ``--skeleton`` *extracts model armature.*
+- **Graphical interface:** launch ``scfile.exe``.
+- **Drag and drop:** drag files or folders onto ``scfile.exe`` in File Explorer.
+- **Command line:** run ``scfile.exe --help`` for commands and options.
 
-🐍 Install Python package
+For example:
+
+.. code-block:: console
+
+  scfile.exe model.mcsb -F glb --skeleton
+
+This exports the model and its armature to GLB. See the :doc:`usage guide <usage>` for batch conversion, animations, map regions, output layouts, and other options.
+
+
+Install the Python package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Install:**
+.. code-block:: console
 
-.. code-block:: bash
+  pip install sc-file
+  pip install "sc-file[gui]"  # extra graphical interface
 
-  pip install sc-file        # library + cli
-  pip install sc-file[gui]   # library + cli + gui
+The base package includes the library and CLI. The GUI is an optional extra.
 
 
-**Usage:**
-
-- 📖 **Python library**: *See Library section*
-- 🖥️ **GUI via package**: `scfile`
-- 📟 **CLI via package**: ``scfile --help``
-
-🔧 Compile from source
+Compile from source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Build from source code using the :doc:`compile guide <compile>`.
-| *For developers, contributors, or custom builds.*
+See the :doc:`build guide <compile>` for development, contributions, and custom builds.
 
 
 ----------------------------------------
 📖 Library
 ----------------------------------------
 
-**Install latest version:**
+Install or update the package:
 
-.. code-block:: bash
+.. code-block:: console
 
   pip install sc-file -U
 
 
+**Usage example:**
+
 .. code-block:: python
-    :caption: Usage example
 
-    from scfile import convert, formats, Options
+  from scfile import convert, formats, Options
 
-    # Simple conversion (auto detect format by file suffix)
-    # User options to control parsing and export settings
-    convert.auto("model.mcsb", options=Options(skeleton=True))
+  # Detect the source format and convert it
+  convert.auto("model.mcsb", options=Options(model={"skeleton": True}))
 
-    # Advanced control (manual decoding and data inspection)
-    # Context manager ensures proper resource cleanup
-    with formats.mcsb.McsbDecoder("model.mcsb") as mcsb:
-        # Access parsed scene data: meshes, bones, etc
-        data = mcsb.decode()
-        print(f"Meshes: {[mesh.name for mesh in data.scene.meshes]}")
-        print(f"Materials: {[mesh.material for mesh in data.scene.meshes]}")
-        print(f"Bones: {[bone.name for bone in data.scene.skeleton.bones]}")
+  # Use an explicit conversion and output path
+  convert.mcsb_to_obj("model.mcsb", "output/model.obj")
 
-        # Export to a specific standard format
-        mcsb.to_obj().save("output.obj")
+  # Decode a known format and inspect its data
+  with formats.McsbDecoder("model.mcsb") as mcsb:
+      model = mcsb.decode()
+
+  print([mesh.name for mesh in model.scene.meshes])
+  print([bone.name for bone in model.scene.skeleton.bones])
 
 
-.. seealso::
-
-  📚 :doc:`Complete Library API reference → <api/index>`
+:doc:`Complete library documentation → <api/index>`
 
 
 ----------------------------------------

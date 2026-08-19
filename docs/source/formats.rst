@@ -347,7 +347,7 @@ Animation Export
     - Markdown_
     - Formatted text
   * - ``.srt``
-    - `SubRip_
+    - SubRip_
     - Subtitles
   * - ``.smm``
     - JSON_

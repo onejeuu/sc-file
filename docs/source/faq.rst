@@ -8,33 +8,31 @@
 📌 General
 ----------------------------------------
 
-Q: How to encode files back into game formats?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: Can files be encoded back into game formats?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Reverse encoding is unsupported on purpose.**
-| Even though it's possible to create this feature, making it public could cause problems.
+No. Reverse encoding is not available.
 
-1. **Cheating concerns**: Public reverse encoding would make creating hacks much easier, attracting unwanted attention and undermining the tool's purpose.
-2. **Format change risk**: If modifying game files becomes too easy, developers might start encrypting or complicating their assets, making them inaccessible for everyone.
+An encoder would let users alter client assets without understanding the formats themselves.
+It would lower the barrier to changes intended to gain an advantage and to distributing modified files.
+It could also provoke stricter asset protection or repeated format changes, making legitimate extraction and research harder.
+Public functionality therefore ends at decoding and export.
 
 
-Q: After a game update ``%any_filename%`` no longer decodes!
+Q: Game update broke <Any Filename> decoding!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Format structure may have been updated. Wait for program update. In case of large changes, it might take some time to adapt.
+An update may introduce a new format version or a file variant unsupported by the current decoder.
+Try the latest release. If the problem remains, `open an issue <ISSUES_>`_ and attach the file.
 
 
 Q: Could using this program lead to a game ban?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use at your own risk.
+The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying game files except in `documented cases <EXBO_FILES_>`_.
+Violating this restriction can lead to a ban. The agreement does not define a safe purpose or threshold for a particular replacement.
 
-.. admonition:: Basic recommendations
-  :class: important
-
-  - You **MUST** close both game and launcher **BEFORE** interacting with any asset files.
-  - You **MUST NOT** leave any files or modifications in the game asset directory.
-  - You **SHOULD** copy required files to a separate directory **BEFORE** working with them.
+To avoid accidental replacement, work with copies and keep output outside the game directory.
 
 
 ----------------------------------------
@@ -44,22 +42,15 @@ Use at your own risk.
 Q: What programs support ``.dds`` files?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Any program with full support for all `DirectDraw Surface <DDS_>`_ formats.
-
-.. admonition:: Recommended Viewers
-  :class: tip
-
+Recommended viewers:
   - XnView_ (Universal)
   - WTV_ (Lightweight)
-  - RenderDoc_ (Analysis)
 
 
 Q: How to convert ``.dds`` textures to ``.png``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Native support is not planned.
-
-Convert ``.dds`` to ``.png`` using ImageMagick_ or FFmpeg_.
+Convert DDS with ImageMagick_ or FFmpeg_.
 
 .. code-block:: bash
   :caption: ImageMagick
@@ -77,10 +68,6 @@ Q: Why do models have weird or black textures?
 
 In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <ALPHAMODE_>`_).
 
-| Some models seem to have mixed-up suffixes in filenames.
-| Make sure that the ``_diff`` texture is actually a Diffuse Map and the ``_spek`` texture is a Specular Map.
-| :doc:`More about Suffix Conventions... <formats>`
-
 
 ----------------------------------------
 🛠 Troubleshooting
@@ -89,26 +76,31 @@ In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Scr
 Q: Antivirus or SmartScreen blocks ``scfile.exe``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The source code is open and anyone can inspect it on GitHub_.
+SmartScreen evaluates the reputation of a downloaded file and its publisher.
+An unsigned new executable may therefore be shown as unrecognized. `Microsoft documents this behaviour <SMARTSCREEN_>`_.
 
-| SmartScreen warns because the executable has **no digital signature**.
-| Code signing certificates are not feasible for a free project.
-
-| Antivirus detections on VirusTotal are **false positives**.
-| Executable is built with PyInstaller_, a tool that packages Python scripts into standalone ``.exe``.
-| Malware authors also use PyInstaller, so some low-quality antivirus engines flag unsigned PyInstaller executables.
+VirusTotal aggregates independent engine results.
+A detection from one engine is neither proof of malware nor a reason to ignore the warning.
+Executables built with PyInstaller can trigger generic heuristic detections, as documented in the `PyInstaller issue tracker <PYINSTALLER_ISSUE_>`_.
 
 
-Q: Something doesn't work as expected
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Q: How to report a bug?
+^^^^^^^^^^^^^^^^^^^^^^^
 
-If a file fails to convert, produces wrong output, or causes a crash, `open an issue <ISSUES_>`_.
+For a reproducible conversion failure, wrong output, or crash, `open an issue <ISSUES_>`_.
 
 Please include:
 
-- **What happened**: error message, wrong output, etc.
-- **What you expected**: correct output, different format, etc.
-- **Which file (if any)**: provide its path or attach it.
+- **Version and system**: sc-file version and operating system.
+- **Exact action**: CLI command or GUI settings.
+- **Expected and actual result**: include the complete error message.
+- **Related file**: its path or an attachment when the problem concerns a file.
 
-| Reports without a file path or clear description are hard to fix.
-| More detail usually means a faster fix.
+Questions and usage advice belong in `Telegram <TG_>`_.
+
+
+----------------------------------------
+❤️ Support
+----------------------------------------
+
+If scfile is useful, you can support its development on `DonationAlerts <DONATE_>`_.

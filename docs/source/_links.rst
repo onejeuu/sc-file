@@ -55,10 +55,14 @@
 .. Programs
 .. _Effekseer: https://effekseer.github.io/
 .. _FMOD: https://www.fmod.com/docs/2.03/studio/fmod-studio-concepts.html
+.. _EXBO_LICENSE: https://stalcraft.net/legal/ru_launcher_licence.pdf
+.. _EXBO_FILES: https://support.exbo.net/ru/help-center/articles/1/37/386
+.. _DONATE: https://www.donationalerts.com/r/onejeuu
+.. _SMARTSCREEN: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
+.. _PYINSTALLER_ISSUE: https://github.com/pyinstaller/pyinstaller/issues/9266
 .. _FFmpeg: https://ffmpeg.org
 .. _ImageMagick: https://imagemagick.org
 .. _PyInstaller: https://pyinstaller.org
-.. _RenderDoc: https://renderdoc.org/builds
 .. _UV: https://github.com/astral-sh/uv
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _XnView: https://xnview.com

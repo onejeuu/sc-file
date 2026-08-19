@@ -10,7 +10,8 @@ Quick Start
 
 🖥️ **GUI**
   Launch ``scfile.exe`` without arguments to open the graphical interface.
-  Add files or folders, choose output formats and settings, and press **Convert**.
+  Use **Convert** for standalone assets, **Animation** for model and animation pairs,
+  and **Map Cache** for region caches.
 
 
 📥 **Drag & Drop**
@@ -30,8 +31,8 @@ Quick Start
 
 📟 **Command Line**
   Run ``scfile.exe --help`` to see all available arguments and options.
-  The CLI configures output formats, skeleton and animation export,
-  directory structure, and file name conflicts.
+  Paths are routed automatically to conversion, animation, or map cache operations.
+  Explicit commands remain available when the intended operation is ambiguous.
 
   .. code-block:: bash
 
@@ -51,7 +52,7 @@ Quick Start
 
     convert.mcsb_to_glb(
         "model.mcsb",
-        options=Options(skeleton=True, on_conflict="skip"),
+        options=Options(model={"skeleton": True}, on_conflict="skip"),
     )
 
 
@@ -61,6 +62,10 @@ Command Line Interface
 
 General
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``COMMAND``
+  | Available commands: ``convert``, ``animate``, and ``mapcache``.
+  | When paths are supplied without a command, the CLI selects one from their names and formats.
 
 ``--version``
     Show the program version and exit.
@@ -85,16 +90,15 @@ convert
 Default command. Converts game assets to standard formats.
 
 ``PATHS``
-  One or more files or directories. Accepts absolute paths, relative paths,
-  and wildcard patterns (``*``). Only files with supported extensions are processed.
+  One or more files or directories. Accepts absolute and relative paths.
+  Only supported files are processed.
 
   .. code-block:: bash
     :caption: Example
 
     scfile "model.mcsb"
     scfile "C:/assets"
-    scfile "C:/assets/*.ol"
-    scfile "model.mcsb" "texture.ol" "C:/assets/*.ol"
+    scfile "model.mcsb" "texture.ol"
 
 
 ``-O, --output``
@@ -106,9 +110,9 @@ Default command. Converts game assets to standard formats.
     scfile "model.mcsb" --output "D:/output"
 
 
-``-F, --mdlformat``
-  | Preferred output format for models. Repeatable to specify multiple formats.
-  | Accepted values: ``obj``, ``glb``, ``fbx``, ``dae``, ``ms3d``.
+``-F, --model-format``
+  Preferred output format for models.
+  | Accepted values: ``obj``, ``glb``, ``fbx``.
 
   | Default is ``obj``.
   | When ``--skeleton`` or ``--animation`` is used, default is ``glb``.
@@ -117,24 +121,33 @@ Default command. Converts game assets to standard formats.
     :caption: Example
 
     scfile "model.mcsb" -F glb
-    scfile "model.mcsb" -F glb -F obj -F dae
+
+
+``-I, --include``
+  Process only the specified source formats. May be repeated.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile "C:/assets" --include mcsb
+    scfile "C:/assets" -I mcsb -I ol
 
 
 ``--skeleton``
   | Export model skeleton (armature).
-  | Supported by: ``glb``, ``dae``, ``ms3d``.
+  | Supported by: ``glb``, ``fbx``.
 
   .. code-block:: bash
     :caption: Example
 
     scfile "model.mcsb" --skeleton
     scfile "model.mcsb" -F glb --skeleton
-    scfile "model.mcsb" -F dae --skeleton
+    scfile "model.mcsb" -F fbx --skeleton
 
 
 ``--animation``
   | Export embedded animation clips. Implies ``--skeleton``.
-  | Supported by: ``glb``.
+  | Supported by: ``glb``, ``fbx``.
 
   .. code-block:: bash
     :caption: Example
@@ -158,30 +171,34 @@ Default command. Converts game assets to standard formats.
     scfile "C:/assets/model.mcsb" "C:/assets/sub/model.mcsb" --on-conflict rename
 
 
-``--relative``
-  Preserve directory structure of source files inside output directory.
-  Requires ``--output``.
+``--layout``
+  | Output layout. Requires ``--output`` unless set to ``flat``.
+  | Accepted values: ``flat`` (default), ``relative``, ``rooted``.
 
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets" --output "D:/output" --relative
+    scfile "C:/assets" --output "D:/output" --layout relative
 
 
-``--parent``
-  Use parent directory of each source path as root for relative output.
-  Implies ``--relative``.
+``-W, --workers``
+  | Number of worker threads. Default: CPU count.
+  | Set to ``0`` for sequential execution.
 
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets" --output "D:/output" --parent
+    scfile "C:/assets" --workers 4
+
+
+``-v, --verbose``
+  Show the result of every processed file.
 
 
 Output Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Examples of how ``--relative`` and ``--parent`` change output layout.
+Examples of how ``--layout`` changes output layout.
 
 .. code-block:: text
   :caption: Source structure
@@ -191,7 +208,7 @@ Examples of how ``--relative`` and ``--parent`` change output layout.
   └── items/vodka.ol
 
 
-Default
+``flat``
   .. code-block:: bash
 
     scfile "./assets" --output "./output"
@@ -204,10 +221,10 @@ Default
     └── vodka.dds
 
 
-``--relative``
+``relative``
   .. code-block:: bash
 
-    scfile "./assets" --output "./output" --relative
+    scfile "./assets" --output "./output" --layout relative
 
   .. code-block:: text
     :caption: Output
@@ -217,10 +234,10 @@ Default
     └── items/vodka.dds
 
 
-``--parent``
+``rooted``
   .. code-block:: bash
 
-    scfile "./assets" --output "./output" --parent
+    scfile "./assets" --output "./output" --layout rooted
 
   .. code-block:: text
     :caption: Output
@@ -228,6 +245,41 @@ Default
     ./output/
     ├── assets/armor/albatros.obj
     └── assets/items/vodka.dds
+
+
+animate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Applies external animation data to one or more ``.mcsb`` models and exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a GLB file or directory. Without it, the GLB is saved next to the animation source.
+
+``arms ANIMATION MODEL [HANDS]``
+  Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add an optional hands model.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile animate arms "wpn_fp_ak.mcvd" "ak.mcsb" "hands.mcsb"
+
+
+``face ANIMATION MODEL``
+  Apply a facial ``.mcvd`` animation to a head ``.mcsb`` model.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile animate face "character.mcvd" "head.mcsb"
+
+
+``body ANIMATION MODEL``
+  Apply an ``.mcal`` skeletal animation library to an ``.mcsb`` model.
+
+  ``--raw``
+    Keep technical clips that are normally filtered from the export.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile animate body "character.mcal" "character.mcsb" --raw
 
 
 mapcache
@@ -257,8 +309,8 @@ mapcache
 
 
 ``-W, --workers``
-  | Number of worker threads. Default: ``CPU count × 2``.
-  | Set to ``0`` for sequential execution (no threads).
+  | Number of worker threads. Default: CPU count.
+  | Set to ``0`` for sequential execution.
 
   .. code-block:: bash
     :caption: Example
@@ -267,9 +319,13 @@ mapcache
 
 
 ``--raw``
-  Keep original block IDs without lookup table replacement.
+  Keep original block IDs without mapping table replacement.
 
   .. code-block:: bash
     :caption: Example
 
     scfile mapcache "C:/map_cache/5.0" --raw
+
+
+``-v, --verbose``
+  Show the result of every processed region.
