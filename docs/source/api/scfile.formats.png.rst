@@ -2,15 +2,13 @@
 ==================================================
 
 .. automodule:: scfile.formats.png
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Encoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.png.encoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:

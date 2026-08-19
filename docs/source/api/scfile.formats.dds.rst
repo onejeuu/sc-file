@@ -2,33 +2,29 @@
 ==================================================
 
 .. automodule:: scfile.formats.dds
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Encoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.dds.encoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
-
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:
 
 Enums
-----------------------------------------
+-----
 
 .. automodule:: scfile.formats.dds.enums
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
 Header
-----------------------------------------
+------
 
 .. automodule:: scfile.formats.dds.header
-  :members:
-  :show-inheritance:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:

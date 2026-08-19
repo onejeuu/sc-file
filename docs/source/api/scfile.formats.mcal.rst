@@ -2,15 +2,13 @@
 ==================================================
 
 .. automodule:: scfile.formats.mcal
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Decoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.mcal.decoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:

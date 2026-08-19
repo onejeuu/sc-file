@@ -1,0 +1,43 @@
+{%- set basename = pkgname.rsplit(".", 1)[-1] -%}
+{%- if pkgname == "scfile" -%}
+  {%- set title = "API Reference" -%}
+{%- elif pkgname.startswith("scfile.formats.") -%}
+  {%- set title = basename | upper -%}
+{%- else -%}
+  {%- set title = basename.replace("_", " ") | title -%}
+{%- endif -%}
+{{ title | heading }}
+
+.. automodule:: {{ pkgname }}
+   :no-members:
+{% if subpackages %}
+Modules
+-------
+
+.. toctree::
+   :maxdepth: {{ 1 if pkgname == "scfile.formats" else maxdepth }}
+{% for subpackage in subpackages %}
+   {{ subpackage }}
+{%- endfor %}
+{% endif %}
+{% if submodules %}
+{% if separatemodules %}
+.. toctree::
+   :maxdepth: {{ maxdepth }}
+{% for submodule in submodules %}
+   {{ submodule }}
+{%- endfor %}
+{% else %}
+{% for submodule in submodules %}
+{{ submodule.rsplit(".", 1)[-1].replace("_", " ") | title | heading(2) }}
+
+.. automodule:: {{ submodule }}
+{%- for option in automodule_options %}
+   :{{ option }}:
+{%- endfor %}
+{%- if submodule.startswith("scfile.formats.") and submodule.rsplit(".", 1)[-1] in ("decoder", "encoder") %}
+   :inherited-members:
+{%- endif %}
+{% endfor %}
+{% endif %}
+{% endif %}

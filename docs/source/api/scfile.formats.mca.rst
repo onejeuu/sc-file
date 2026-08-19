@@ -2,24 +2,21 @@
 ==================================================
 
 .. automodule:: scfile.formats.mca
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Encoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.mca.encoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
-
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:
 
 Mapping
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.mca.mapping
-  :members:
-  :show-inheritance:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:

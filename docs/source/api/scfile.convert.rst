@@ -2,41 +2,52 @@
 ==================================================
 
 .. automodule:: scfile.convert
-  :no-members:
-  :show-inheritance:
+   :no-members:
 
+Animate
+-------
 
-Detect
-----------------------------------------
+.. automodule:: scfile.convert.animate
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
-.. automodule:: scfile.convert.detect
-  :members:
-  :show-inheritance:
-  :undoc-members:
+Files
+-----
 
+.. automodule:: scfile.convert.files
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
 Formats
-----------------------------------------
+-------
 
 .. automodule:: scfile.convert.formats
-  :members:
-  :show-inheritance:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
+Mapcache
+--------
 
-Convert
-----------------------------------------
+.. automodule:: scfile.convert.mapcache
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
-.. automodule:: scfile.convert.convert
-  :members:
-  :show-inheritance:
-  :undoc-members:
+Named
+-----
 
+.. automodule:: scfile.convert.named
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
-Factory
-----------------------------------------
+Paths
+-----
 
-.. automodule:: scfile.convert.factory
-  :members:
-  :show-inheritance:
-  :undoc-members:
+.. automodule:: scfile.convert.paths
+   :members:
+   :show-inheritance:
+   :undoc-members:

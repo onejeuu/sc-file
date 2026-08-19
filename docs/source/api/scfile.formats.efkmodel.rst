@@ -2,15 +2,13 @@
 ==================================================
 
 .. automodule:: scfile.formats.efkmodel
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Decoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.efkmodel.decoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:

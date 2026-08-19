@@ -1,13 +1,13 @@
-🗃️ TEXARR
+🧊 MCVD
 ==================================================
 
-.. automodule:: scfile.formats.texarr
+.. automodule:: scfile.formats.mcvd
    :no-members:
 
 Decoder
 -------
 
-.. automodule:: scfile.formats.texarr.decoder
+.. automodule:: scfile.formats.mcvd.decoder
    :members:
    :show-inheritance:
    :undoc-members:

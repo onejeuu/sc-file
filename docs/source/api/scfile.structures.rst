@@ -2,32 +2,36 @@
 ==================================================
 
 .. automodule:: scfile.structures
-  :no-members:
-  :show-inheritance:
+   :no-members:
 
-
-🧊 Models
-----------------------------------------
+Modules
+-------
 
 .. toctree::
-  :maxdepth: 2
+   :maxdepth: 2
 
-  scfile.structures.models
+   scfile.structures.models
 
+Content
+-------
 
-🧱 Textures
-----------------------------------------
+.. automodule:: scfile.structures.content
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
-.. automodule:: scfile.structures.textures
-  :members:
-  :show-inheritance:
-  :undoc-members:
-
-
-🗺 Regions
-----------------------------------------
+Regions
+-------
 
 .. automodule:: scfile.structures.regions
-  :members:
-  :show-inheritance:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Textures
+--------
+
+.. automodule:: scfile.structures.textures
+   :members:
+   :show-inheritance:
+   :undoc-members:

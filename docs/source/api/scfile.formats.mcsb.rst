@@ -2,15 +2,13 @@
 ==================================================
 
 .. automodule:: scfile.formats.mcsb
-  :show-inheritance:
-  :undoc-members:
-
+   :no-members:
 
 Decoder
-----------------------------------------
+-------
 
 .. automodule:: scfile.formats.mcsb.decoder
-  :members:
-  :show-inheritance:
-  :inherited-members:
-  :undoc-members:
+   :members:
+   :show-inheritance:
+   :undoc-members:
+   :inherited-members:

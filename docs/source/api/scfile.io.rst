@@ -1,29 +1,21 @@
-🛠️ Core
+💾 IO
 ==================================================
 
-.. automodule:: scfile.core
+.. automodule:: scfile.io
    :no-members:
 
 Base
 ----
 
-.. automodule:: scfile.core.base
+.. automodule:: scfile.io.base
    :members:
    :show-inheritance:
    :undoc-members:
 
-Decoder
--------
+Fbx
+---
 
-.. automodule:: scfile.core.decoder
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Encoder
--------
-
-.. automodule:: scfile.core.encoder
+.. automodule:: scfile.io.fbx
    :members:
    :show-inheritance:
    :undoc-members:
@@ -31,7 +23,23 @@ Encoder
 Models
 ------
 
-.. automodule:: scfile.core.models
+.. automodule:: scfile.io.models
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Nbt
+---
+
+.. automodule:: scfile.io.nbt
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Ol
+--
+
+.. automodule:: scfile.io.ol
    :members:
    :show-inheritance:
    :undoc-members:
