@@ -243,13 +243,8 @@ Animation Export
 
 | **Purpose:** Region container for 32×32 terrain chunks.
 | **Contents:** Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
-| **Export:** Anvil version ``1343`` for Minecraft ``1.12.2``.
-
-.. note::
-
-   Block IDs differ from Minecraft.
-   The export represents them only as approximate Minecraft blocks
-   based on  `manual mapping table <https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py>`_.
+| **Export:** Anvil version ``1343`` for Minecraft ``1.12.2`` with approximate block mapping.
+| :doc:`Map Cache viewing guide → <mapcache>`
 
 ----------------------------------------
 ⚙️ NBT Files

@@ -7,6 +7,7 @@ sc-file
   :maxdepth: 1
 
   usage
+  mapcache
   faq
   formats
   compile

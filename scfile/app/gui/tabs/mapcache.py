@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile.app import game
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
@@ -10,6 +10,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
@@ -53,7 +54,7 @@ class MapCacheTab(QWidget):
 
         self.output = PathField(
             strings.get("label.mapcache.output"),
-            placeholder=".minecraft/saves/{world}/regions",
+            placeholder=".minecraft/saves/{world}/region",
             caption=strings.get("dialog.mapcache.output"),
         )
         self.output.changed.connect(self._edit_output)
@@ -72,10 +73,7 @@ class MapCacheTab(QWidget):
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
-        info = QLabel(strings.get("mapcache.info"))
-        info.setStyleSheet(Styles.MAPCACHE)
-        info.setWordWrap(True)
-        layout.addWidget(info)
+        layout.addWidget(self._info())
 
         self.submit = ProgressButton(strings.get("button.mapcache"))
         self.submit.setFixedHeight(50)
@@ -84,6 +82,37 @@ class MapCacheTab(QWidget):
         self.submit.clicked.connect(self._start_merge)
         layout.addWidget(self.submit)
         self.submit_cursor = DisabledCursor(self.submit)
+
+    def _info(self) -> QWidget:
+        info = QWidget()
+        layout = QVBoxLayout(info)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        title = QLabel(strings.get("mapcache.preview"))
+        title.setStyleSheet(Styles.LABEL)
+        layout.addWidget(title)
+
+        version = QLabel(strings.get("mapcache.version"))
+        version.setStyleSheet(Styles.MAPCACHE)
+        layout.addWidget(version)
+
+        limitation = QLabel(strings.get("mapcache.limitation"))
+        limitation.setStyleSheet(Styles.MAPCACHE)
+        limitation.setWordWrap(True)
+        layout.addWidget(limitation)
+
+        footer = QHBoxLayout()
+        credit = QLabel(strings.get("mapcache.credit"))
+        credit.setStyleSheet(Styles.MAPCACHE)
+        footer.addWidget(credit)
+        footer.addStretch()
+
+        language = "ru" if strings.LANG == "RU" else "en"
+        url = f"https://sc-file.readthedocs.io/{language}/latest/mapcache.html"
+        footer.addWidget(LinkWidget(strings.get("mapcache.guide"), url))
+        layout.addLayout(footer)
+        return info
 
     def apply_game_root(self) -> None:
         if source := self._game_cache():

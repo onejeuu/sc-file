@@ -282,11 +282,14 @@ Applies external animation data to one or more ``.mcsb`` models and exports a ``
     scfile animate body "character.mcal" "character.mcsb" --raw
 
 
+.. _mapcache-cli:
+
 mapcache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Merges ``.mdat`` region caches into ``.mca`` region files.
 | Run with explicit command or use a path containing ``map_cache`` to auto-detect.
+| :doc:`Open the Map Cache viewing guide → <mapcache>`
 
 ``SOURCE``
   Directory containing ``.mdat`` files.

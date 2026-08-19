@@ -115,7 +115,11 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.manual": "Check manually",
         "placeholder.path": "Specify path...",
         "converter.hint": "Drag & Drop files and folders\nor use buttons above",
-        "mapcache.info": "Format: Anvil 1343 (Minecraft 1.12.2+)\nExperimental decoder designed for basic geometry preview",
+        "mapcache.preview": "Map Preview",
+        "mapcache.version": "Minecraft Java 1.12.2 · Anvil 1343",
+        "mapcache.limitation": "Terrain geometry shown with approximate Minecraft blocks.",
+        "mapcache.guide": "Map Cache Guide ↗",
+        "mapcache.credit": "Research support: TeamDima, BoJIwEbNuK7",
     },
     "RU": {
         "tab.converter": "Конвертер файлов",
@@ -215,7 +219,11 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.manual": "Проверьте вручную",
         "placeholder.path": "Укажите путь...",
         "converter.hint": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
-        "mapcache.info": "Формат: Anvil 1343 (Minecraft 1.12.2+)\nЭкспериментальный декодер для просмотра базовой геометрии",
+        "mapcache.preview": "Предпросмотр карты",
+        "mapcache.version": "Minecraft Java 1.12.2 · Anvil 1343",
+        "mapcache.limitation": "Геометрия показана приближёнными блоками Minecraft.",
+        "mapcache.guide": "Руководство по Map Cache ↗",
+        "mapcache.credit": "Помощь в исследовании: TeamDima, BoJIwEbNuK7",
     },
 }
 

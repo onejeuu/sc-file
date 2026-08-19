@@ -66,6 +66,11 @@
 .. _UV: https://github.com/astral-sh/uv
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _XnView: https://xnview.com
+.. _Fabric: https://fabricmc.net/use/installer/
+.. _Voxy: https://modrinth.com/mod/voxy
+.. _C2ME: https://modrinth.com/mod/c2me-fabric
+.. _Axiom: https://modrinth.com/mod/axiom
+.. _Coordinate calculator: https://mclist.io/tools/minecraft-coordinate-calculator
 
 .. Contacts
 .. _TG: https://onejeuu.t.me
