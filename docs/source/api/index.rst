@@ -1,8 +1,9 @@
 📖 Library
 ==================================================
 
-The usage guide introduces the library from conversion functions to manual pipelines.
-The reference lists the available modules, handlers, content, and structures.
+The usage guide starts with conversion functions and continues through handlers,
+content, and manual pipelines. The reference documents the available modules and
+data structures.
 
 .. toctree::
   :maxdepth: 2

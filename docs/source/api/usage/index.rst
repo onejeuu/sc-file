@@ -1,21 +1,18 @@
 Usage
 ==================================================
 
-The library can be used at several levels.
-Start with conversion functions, then move to handlers and manual pipelines when more control is needed.
+Use conversion functions for ordinary file conversion. Format handlers expose
+the decoded content when it must be inspected, changed, or encoded manually.
 
 
 Conversion
 ----------------------------------------
 
-The shortest way to use the library is :mod:`scfile.convert`.
-It selects handlers, manages their streams, and writes the result.
-
-
 Automatic Conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~scfile.convert.detect.auto` detects the source format from the file name and uses the default output format.
+:func:`~scfile.convert.auto` resolves the source format from its suffix and
+uses its default target format.
 
 .. code-block:: python
 
@@ -24,30 +21,31 @@ Automatic Conversion
   convert.auto("model.mcsb")
   convert.auto("model.mcsb", output="path/to/output")
 
-When ``output`` is omitted, the result is written alongside the source.
-For automatic conversion, ``output`` must be a directory.
+Without ``output``, the result is written next to the source. For automatic
+conversion, ``output`` must be a directory.
 
 
-Named Conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Explicit Conversion
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use a named function when both formats are known:
+Use a named conversion function when the target format is known:
 
 .. code-block:: python
 
-  from scfile import convert
+  from scfile import Options, convert
 
   convert.mcsb_to_obj("model.mcsb", "model.obj")
-  convert.ol_to_dds("texture.ol", "path/to/output")
+  convert.mcsb_to_glb("model.mcsb", options=Options(skeleton=True))
 
-The output may be an exact file name or a directory.
+The output may be an exact file name or a directory. Named conversion functions
+are available from :mod:`scfile.convert`.
 
 
 Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:class:`~scfile.core.options.Options` controls work shared by converters and handlers.
-Skeletons and animations are disabled by default because they require additional parsing.
+:class:`~scfile.Options` controls parsing, conversion targets, and output
+conflict handling. Skeletons and built-in animations are disabled by default.
 
 .. code-block:: python
 
@@ -61,116 +59,81 @@ Skeletons and animations are disabled by default because they require additional
 
   convert.mcsb_to_glb("model.mcsb", options=options)
 
-Animation parsing requires skeleton parsing.
+Animation parsing also enables skeleton parsing. When skeleton processing is
+enabled, automatic model conversion targets GLB by default.
 
 
-Handlers
+External Animation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+External animation functions combine animation data with compatible models and
+export GLB:
+
+.. code-block:: python
+
+  from scfile import convert
+
+  convert.arms(
+      "weapon.mcvd",
+      weapon="weapon.mcsb",
+      hands="character_hands.mcsb",
+  )
+  convert.face("head.mcvd", "head.mcsb")
+  convert.body("character.mcal", "character.mcsb")
+
+
+Handlers and Content
 ----------------------------------------
 
-High-level conversion is built from three independent parts:
-
-.. code-block:: text
-
-  source → decoder → content → encoder → output
-
-A decoder reads one binary format into content.
-An encoder writes compatible content into another binary format.
-Content is the shared representation between them.
-This separation lets content be inspected, changed, or encoded independently of its source.
-
-Format handlers inherit from :class:`~scfile.core.decoder.FileDecoder` or
-:class:`~scfile.core.encoder.FileEncoder`.
-Handlers for individual formats are available directly from :mod:`scfile.formats`.
+A decoder reads one binary format into a content object. An encoder writes a
+compatible content object to another format. The content remains usable after
+the decoder is closed.
 
 .. code-block:: python
 
+  from scfile import Options
   from scfile.formats import McsbDecoder
 
-  with McsbDecoder("model.mcsb") as mcsb:
-      content = mcsb.decode()
-
-:meth:`~scfile.core.decoder.FileDecoder.decode` returns a content DTO such as
-:class:`~scfile.core.content.ModelContent` or :class:`~scfile.core.content.TextureContent`.
-
-
-Content
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Content is a hierarchy of dataclasses. Model data also uses NumPy arrays.
-It remains usable after the decoder is closed.
-
-.. code-block:: python
-
-  from scfile.formats import McsbDecoder
-
-  with McsbDecoder("model.mcsb") as mcsb:
+  with McsbDecoder("model.mcsb", Options(skeleton=True)) as mcsb:
       model = mcsb.decode()
 
-  print(model.version)
+  print(model.meta.version)
   print(model.scene.total_vertices)
   print([mesh.name for mesh in model.scene.meshes])
+  print([bone.name for bone in model.scene.skeleton.bones])
+
+Format handlers inherit from :class:`~scfile.core.Decoder` and
+:class:`~scfile.core.Encoder`. Content types include
+:class:`~scfile.structures.content.ModelContent` and
+:class:`~scfile.structures.content.TextureContent`.
 
 
-Resource Safety
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Manual Encoding
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A handler should be treated like a normal Python file returned by ``open()``:
-it wraps an open stream, has a current position, and must be closed.
-It exposes the familiar ``read()``, ``write()``, ``seek()``, ``tell()``, and ``close()`` operations.
-
-Creating a handler from a path opens the file immediately.
-Raw bytes are wrapped in an in-memory stream.
-Passing an existing binary stream transfers its ownership to the handler, which closes the stream when it closes.
-
-Use a context manager (the ``with`` statement) whenever possible:
+Use an encoder directly when the conversion pipeline needs explicit control:
 
 .. code-block:: python
 
-  from scfile.formats import McsbDecoder
+  from scfile import Options
+  from scfile.formats import GlbEncoder, McsbDecoder
 
-  with McsbDecoder("model.mcsb") as mcsb:
+  options = Options(skeleton=True)
+
+  with McsbDecoder("model.mcsb", options) as mcsb:
       model = mcsb.decode()
 
-  assert mcsb.closed
+  with GlbEncoder(model, options, output="model.glb") as glb:
+      glb.encode()
 
-Without a context manager, call ``close()`` in ``finally`` just as with an ordinary file.
 
-
-Pipelines
+Pipelines and Streams
 ----------------------------------------
 
-Handlers can be composed directly when content must be inspected, changed, or kept in memory.
+:class:`~scfile.core.Decoder` provides two in-memory shortcuts:
 
-
-Manual Pipeline
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Decoding and encoding are separate operations:
-
-.. code-block:: python
-
-  from scfile.formats import McsbDecoder, ObjEncoder
-
-  with McsbDecoder("model.mcsb") as mcsb:
-      model = mcsb.decode()
-
-  with ObjEncoder(model) as obj:
-      obj.save("model.obj")
-
-.. note::
-
-  | ``save()`` encodes automatically because the encoder stream is empty.
-  | Call ``encode()`` explicitly when serialization must happen before persistence.
-
-
-Shortcuts
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-:class:`~scfile.core.decoder.FileDecoder` provides syntactic sugar:
-
-* ``convert_to(ObjEncoder)`` decodes and returns an encoder without encoding it.
-* ``convert(ObjEncoder)`` decodes, encodes, and returns ``bytes``.
-* ``as_obj()`` is the format-specific form of ``convert_to()``.
+* ``convert_to(Encoder)`` returns an open encoder for the decoded content.
+* ``convert(Encoder)`` returns the encoded bytes.
 
 .. code-block:: python
 
@@ -178,74 +141,47 @@ Shortcuts
 
   with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder) as obj:
-          obj.export_as("model")
+          obj.encode()
+          data = obj.to_bytes()
 
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
 
-  with McsbDecoder("model.mcsb") as mcsb:
-      with mcsb.as_obj() as obj:
-          obj.save_as("model.obj")
-
-.. note::
-
-  | Wrap encoders returned by ``convert_to()`` and ``as_*()`` in a context manager.
-  | This ensures they close if a later operation fails.
-
-
-Persistence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Encoder persistence methods differ in file naming and ownership:
+Encoders write automatically when :meth:`~scfile.core.Encoder.save`,
+:meth:`~scfile.core.Encoder.export`, or
+:meth:`~scfile.core.Encoder.to_bytes` needs serialized data.
 
 .. list-table::
   :header-rows: 1
 
   * - Method
     - Output path
-    - Encoder
   * - ``save("model.obj")``
     - Used as given
-    - Closed
-  * - ``save_as("model.obj")``
-    - Used as given
-    - Kept open
   * - ``export("model")``
     - ``model.obj``
-    - Closed
-  * - ``export_as("model")``
-    - ``model.obj``
-    - Kept open
 
-All four methods encode automatically when the encoder stream is empty.
-The ``_as`` variants are useful for writing the same encoded data more than once.
-An encoder represents one serialization.
+Both methods close the encoder by default. Pass ``close=False`` when the
+encoder must remain open.
 
+Decoders accept paths, raw bytes, and open binary streams. Encoders use an
+in-memory stream by default or accept an output path or binary stream. A
+handler owns a stream passed to it, so read an external output stream before
+the encoder closes.
 
-Binary Streams
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Decoders accept paths, raw bytes, and open binary streams.
-Encoders use an in-memory stream by default or accept an output stream explicitly.
+Use a context manager whenever possible:
 
 .. code-block:: python
 
   from io import BytesIO
-  from pathlib import Path
 
   from scfile.formats import McsbDecoder, ObjEncoder
 
-  source = Path("model.mcsb").read_bytes()
   output = BytesIO()
 
-  with McsbDecoder(source) as mcsb:
+  with McsbDecoder("model.mcsb") as mcsb:
       with mcsb.convert_to(ObjEncoder, output=output) as obj:
           obj.encode()
           data = output.getvalue()
 
-.. warning::
-
-  In this case, the encoder owns the external output stream.
-  Read it before the encoder closes.
-
-For complete method signatures and available modules, see :doc:`API Reference <../scfile>`.
+For complete signatures and data structures, see :doc:`API Reference <../scfile>`.

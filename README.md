@@ -48,15 +48,15 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 
 ## ✨ Supported Formats
 
-| Type                | Game formats                             | →   | Standard formats     |
-| ------------------- | ---------------------------------------- | --- | -------------------- |
-| 🧊 **Model**        | `.mcsb` `.efkmodel`                      | →   | `.obj` `.glb` `.fbx` |
-| 🌀 **Animation**    | `.mcvd` + `.mcsb`<br/>`.mcal` + `.mcsb`  | →   | `.glb`               |
-| 🧱 **Texture**      | `.ol`                                    | →   | `.dds`               |
-| 🖼️ **Image**        | `.mic`                                   | →   | `.png`               |
-| 🗃️ **TextureArray** | `.texarr`                                | →   | `.zip`               |
-| 🗺 **Region**        | `.mdat`                                  | →   | `.mca`               |
-| ⚙️ **NBT**          | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`              |
+| Type             | Game formats                             | →   | Standard formats       |
+| ---------------- | ---------------------------------------- | --- | ---------------------- |
+| 🧊 **Model**     | `.mcsb`, `.efkmodel`                     | →   | `.obj`, `.glb`, `.fbx` |
+| 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb` | →   | `.glb`                 |
+| 🧱 **Texture**   | `.ol`                                    | →   | `.dds`                 |
+| 🖼️ **Image**     | `.mic`                                   | →   | `.png`                 |
+| 🗃️ **Archive**   | `.texarr`                                | →   | `.zip`                 |
+| 🗺 **Region**     | `.mdat`                                  | →   | `.mca`                 |
+| ⚙️ **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
 > [Detailed formats support →][docs-support]
 

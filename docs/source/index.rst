@@ -32,11 +32,11 @@ sc-file
     - →
     - Standard formats
   * - 🧊 **Model**
-    - ``.mcsb`` ``.efkmodel``
+    - ``.mcsb``, ``.efkmodel``
     - →
-    - ``.obj`` ``.glb`` ``.fbx``
+    - ``.obj``, ``.glb``, ``.fbx``
   * - 🌀 **Animation**
-    - | ``.mcvd`` + ``.mcsb``
+    - | ``.mcvd`` + ``.mcsb``,
       | ``.mcal`` + ``.mcsb``
     - →
     - ``.glb``
@@ -48,7 +48,7 @@ sc-file
     - ``.mic``
     - →
     - ``.png``
-  * - 🗃️ **TextureArray**
+  * - 🗃️ **Archive**
     - ``.texarr``
     - →
     - ``.zip``
