@@ -103,4 +103,4 @@ Questions and usage advice belong in `Telegram <TG_>`_.
 ❤️ Support
 ----------------------------------------
 
-If scfile is useful, you can support its development on `DonationAlerts <DONATE_>`_.
+If this tool has been useful, you can support its development o `DonationAlerts <DONATE_>`_.

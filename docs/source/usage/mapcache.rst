@@ -135,3 +135,4 @@ The following Fabric setup is useful for viewing an exported world:
 - Voxy_ for distant terrain rendering.
 - C2ME_ for chunk loading and I/O.
 - Axiom_ for optional map editing.
+- Optionally other optimisation mods (like Sodium, Lithium, etc).

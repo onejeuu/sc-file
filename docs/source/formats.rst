@@ -67,7 +67,7 @@ Model Export
     - Bone Clips
     - Morph Clips
   * - ``.obj``
-    - `Wavefront <OBJ_>`_
+    - `Wavefront OBJ <OBJ_>`_
     - ➖
     - ➖
     - ➖
@@ -203,9 +203,9 @@ Animation Export
 ``.sign`` Texture Signatures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** SIGN.bt_.
+| **Template:** SIGN.bt_
 | **Purpose:** Texture integrity verification.
-| **Contents:** Texture paths, dimensions, formats and SHA-256 mipmap hashes.
+| **Contents:** Texture paths, headers and mipmap images hashes.
 
 
 ----------------------------------------

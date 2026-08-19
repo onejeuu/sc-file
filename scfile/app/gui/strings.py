@@ -223,7 +223,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "converter.hint": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
         "mapcache.preview": "Предпросмотр карты",
         "mapcache.version": "Minecraft Java 1.12.2 · Anvil 1343",
-        "mapcache.limitation": "Геометрия показана приближёнными блоками Minecraft.",
+        "mapcache.limitation": "Геометрия показана приближёнными Minecraft блоками.",
         "mapcache.guide": "Руководство по Map Cache ↗",
         "mapcache.credit": "Помощь в исследовании: TeamDima, BoJIwEbNuK7",
     },
