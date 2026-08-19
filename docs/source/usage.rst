@@ -52,7 +52,7 @@ Quick Start
 
     convert.mcsb_to_glb(
         "model.mcsb",
-        options=Options(model={"skeleton": True}, on_conflict="skip"),
+        options=Options(skeleton=True, on_conflict="skip"),
     )
 
 

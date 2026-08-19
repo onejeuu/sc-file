@@ -58,7 +58,7 @@ def info(source: Path, format: str | None) -> None:
 
     size = source.stat().st_size
     console = Console()
-    options = Options(model=Options.Model(skeleton=True, animation=True))
+    options = Options(skeleton=True, animation=True)
 
     with decoder_type(source, options) as decoder:
         try:

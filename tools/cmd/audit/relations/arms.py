@@ -15,7 +15,7 @@ NAME = "mcvd+mcsb (arms)"
 ANIMATIONS = Path("highpoly/animations")
 HANDS = Path("highpoly/character_hands.mcsb")
 
-OPTIONS = Options(model=Options.Model(skeleton=True, animation=True))
+OPTIONS = Options(skeleton=True, animation=True)
 
 
 def validate(root: Path, animation: Path, weapon: Path | None, hands: Path) -> list[Record]:

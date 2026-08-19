@@ -89,10 +89,8 @@ class ConvertForm(QWidget):
         skeleton = self.features[Feature.SKELETON]
         animation = self.features[Feature.ANIMATION]
         return Options(
-            model={
-                "skeleton": skeleton.isEnabled() and skeleton.isChecked(),
-                "animation": animation.isEnabled() and animation.isChecked(),
-            },
+            skeleton=skeleton.isEnabled() and skeleton.isChecked(),
+            animation=animation.isEnabled() and animation.isChecked(),
             targets={ModelContent: self.selected_format},
             on_conflict=self.conflict.value,
         )

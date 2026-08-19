@@ -34,7 +34,7 @@ def decode(
     except EmptyFileError:
         return []
 
-    return stats.records(root, path, content, options.model.animation) if statistics else []
+    return stats.records(root, path, content, options.animation) if statistics else []
 
 
 def build(
@@ -84,7 +84,7 @@ def build(
                 status.update(f"Searching... {found} files")
                 updated = now
 
-    options = Options(model=Options.Model(skeleton=animation, animation=animation))
+    options = Options(skeleton=animation, animation=animation)
     suites = []
     for format, paths in sorted(grouped.items()):
         paths.sort()

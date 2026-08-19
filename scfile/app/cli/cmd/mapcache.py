@@ -52,7 +52,7 @@ def mapcache(
 
     warn("MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely.")
 
-    options = Options(region={"raw_blocks": raw})
+    options = Options(raw_blocks=raw)
     feedback = TaskFeedback(verbose)
     summary = execute(MapCacheTask(source, output, options, workers), feedback)
     feedback.finish(summary)

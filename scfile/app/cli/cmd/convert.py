@@ -100,8 +100,9 @@ def convert(
 
     # Prepare options
     options = Options(
-        model={"skeleton": skeleton, "animation": animation},
-        targets={ModelContent: model_format} if model_format else None,
+        skeleton=skeleton,
+        animation=animation,
+        targets={ModelContent: model_format} if model_format else {},
         on_conflict=on_conflict,
     )
 
@@ -109,7 +110,7 @@ def convert(
         encoder = registry.encoders.get(model_format)
         unsupported = tuple(
             feature
-            for feature in options.model.features
+            for feature in options.model_features
             if encoder is None or not issubclass(encoder, ModelEncoder) or not encoder.supports(feature)
         )
         if unsupported:

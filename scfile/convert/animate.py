@@ -2,7 +2,7 @@
 External model animation.
 """
 
-from copy import replace
+from dataclasses import replace
 from hashlib import blake2b
 from typing import overload
 
@@ -120,10 +120,7 @@ def face(
 def _options(
     options: Options | None,
 ) -> Options:
-    options = (options or Options()).copy()
-    options.model.skeleton = True
-    options.model.animation = True
-    return options
+    return replace(options or Options(), skeleton=True, animation=True)
 
 
 def _apply_external_animation(
@@ -147,7 +144,7 @@ def _apply_external_animation(
     with decoder(src, options) as dec:
         anims = dec.decode()
 
-    if decoder is formats.McalDecoder and not options.model.raw_clips:
+    if decoder is formats.McalDecoder and not options.raw_clips:
         anims = _filtered_animation(anims)
 
     with formats.McsbDecoder(mdl, options) as mcsb:

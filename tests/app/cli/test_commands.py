@@ -54,8 +54,8 @@ def test_convert(
     assert task.workers == 3
     assert task.filters == (FileFormat.MIC.suffix,)
     assert task.options.targets[ModelContent] is FileFormat.GLB
-    assert task.options.model.skeleton
-    assert task.options.model.animation
+    assert task.options.skeleton
+    assert task.options.animation
     assert task.options.on_conflict == "rename"
 
 
@@ -140,7 +140,7 @@ def test_animate(
     assert body.exit_code == 0
     assert tasks[0].operation is animate_module.convert.animate.face
     assert tasks[1].operation is animate_module.convert.animate.body
-    assert tasks[1].options.model.raw_clips
+    assert tasks[1].options.raw_clips
 
 
 def test_animate_failure(
@@ -179,7 +179,7 @@ def test_mapcache(
     assert task.source == source
     assert task.output == output
     assert task.workers == 2
-    assert task.options.region.raw_blocks
+    assert task.options.raw_blocks
 
 
 def test_mapcache_failure(

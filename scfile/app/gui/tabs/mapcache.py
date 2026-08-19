@@ -188,7 +188,7 @@ class MapCacheTab(QWidget):
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
-            Options(region={"raw_blocks": self.raw_blocks.checked}),
+            Options(raw_blocks=self.raw_blocks.checked),
         )
         self.running = self.tasks.start(task)
         if self.running:

@@ -191,7 +191,7 @@ class BodyForm(AnimationForm):
             source=self.source_path,
             models=(self.model_path,),
             output=output,
-            options=Options(model={"raw_clips": self.raw_clips.checked}),
+            options=Options(raw_clips=self.raw_clips.checked),
         )
 
 

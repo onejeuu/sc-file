@@ -107,7 +107,7 @@ pip install sc-file -U
 from scfile import convert, formats, Options
 
 # Определить формат исходного файла и конвертировать его
-convert.auto("model.mcsb", options=Options(model={"skeleton": True}))
+convert.auto("model.mcsb", options=Options(skeleton=True))
 
 # Использовать явную конвертацию и путь вывода
 convert.mcsb_to_obj("model.mcsb", "output/model.obj")

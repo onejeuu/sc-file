@@ -48,10 +48,10 @@ class McsaDecoder(ModelDecoder[ModelReader]):
         if not self.data.meta.declares(Feature.SKELETON):
             return False
 
-        return self.options.model.skeleton_enabled
+        return self.options.skeleton_enabled
 
     def _should_parse_animation(self) -> bool:
-        if not self.options.model.animation:
+        if not self.options.animation:
             return False
 
         counts = self.data.meta.counts
@@ -254,7 +254,7 @@ class McsaDecoder(ModelDecoder[ModelReader]):
                 return
 
     def _parse_packed_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.model.skeleton_enabled:
+        if self.options.skeleton_enabled:
             links = self.io.packed_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 
@@ -262,7 +262,7 @@ class McsaDecoder(ModelDecoder[ModelReader]):
             self.io.skip(count * 4)
 
     def _parse_plain_links(self, mesh: S.ModelMesh, count: int):
-        if self.options.model.skeleton_enabled:
+        if self.options.skeleton_enabled:
             links = self.io.plain_links(count, mesh.bones)
             mesh.links_ids, mesh.links_weights = links
 

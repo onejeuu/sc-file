@@ -12,7 +12,7 @@ from tools.cmd.audit.schemas import Body, Record
 KIND = "body"
 NAME = "mcal+mcsb (body)"
 
-OPTIONS = Options(model=Options.Model(skeleton=True, animation=True, raw_clips=True))
+OPTIONS = Options(skeleton=True, animation=True, raw_clips=True)
 
 
 def resolve(root: Path, animation: Path, linked: dict[str, list[str]]) -> tuple[str | None, list[str]]:

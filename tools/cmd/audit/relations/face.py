@@ -13,7 +13,7 @@ from tools.cmd.audit.schemas import Face, Record
 KIND = "face"
 NAME = "mcvd+mcsb (face)"
 
-OPTIONS = Options(model=Options.Model(skeleton=True, animation=True))
+OPTIONS = Options(skeleton=True, animation=True)
 
 
 def decode(animation: Path, model: Path) -> tuple[ModelContent, ModelContent]:

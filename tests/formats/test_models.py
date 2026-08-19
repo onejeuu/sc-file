@@ -19,7 +19,7 @@ from .conftest import ASSETS, export
 
 ROOT = ASSETS / "models"
 SOURCE = ROOT / "source"
-OPTIONS = Options(model={"skeleton": True, "animation": True})
+OPTIONS = Options(skeleton=True, animation=True)
 
 MCSB = tuple(sorted(SOURCE.glob("*.mcsb")))
 ENCODERS = (("obj", ObjEncoder), ("glb", GlbEncoder), ("fbx", FbxEncoder))

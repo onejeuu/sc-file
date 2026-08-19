@@ -38,7 +38,7 @@ def test_includes() -> None:
         )
     )
 
-    with ModelEncoderStub(data, Options(model={"animation": True})) as encoder:
+    with ModelEncoderStub(data, Options(animation=True)) as encoder:
         assert encoder.includes(Feature.UV)
         assert encoder.includes(Feature.SKELETON)
         assert encoder.includes(Feature.BONE_ANIMATION)

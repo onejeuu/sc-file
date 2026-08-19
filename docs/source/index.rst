@@ -130,7 +130,7 @@ Install or update the package:
   from scfile import convert, formats, Options
 
   # Detect the source format and convert it
-  convert.auto("model.mcsb", options=Options(model={"skeleton": True}))
+  convert.auto("model.mcsb", options=Options(skeleton=True))
 
   # Use an explicit conversion and output path
   convert.mcsb_to_obj("model.mcsb", "output/model.obj")

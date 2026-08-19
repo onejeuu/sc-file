@@ -110,7 +110,7 @@ def profile(
         reports = ROOT / reports
     reports = reports.resolve()
 
-    options = Options(model=Options.Model(skeleton=animation, animation=animation))
+    options = Options(skeleton=animation, animation=animation)
     source = source or MODEL
     if not source.is_file():
         raise click.UsageError(f"Reference file not found: '{source}'.")
