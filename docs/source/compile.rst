@@ -23,4 +23,4 @@
 
     uv run --group build --extra gui scripts/build.py
 
-Executable ``scfile.exe`` will be created in ``sc-file/dist`` directory.
+Executable ``scfile.exe`` will be created in ``/dist`` directory.

@@ -8,7 +8,6 @@ Index
 
   usage
   faq
-  support
   formats
   compile
 

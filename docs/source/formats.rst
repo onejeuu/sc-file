@@ -1,10 +1,10 @@
-📝 Game Formats
+📚 Formats
 ==================================================
 
 .. include:: _links.rst
 
 .. warning::
-  Formats specifications are based on **reverse-engineering** and may contain inaccuracies.
+  Format specifications are based on **reverse-engineering** and may contain inaccuracies.
 
 | Binary templates for `010 Editor`_ are available in the `templates`_ directory.
 
@@ -13,53 +13,128 @@
 🧊 Model Formats
 ----------------------------------------
 
-``.mcsa`` Scene Assets (MCSA.bt_)
+.. _mcsa:
+
+``.mcsa`` Scene Assets (Legacy)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Used for model scenes.
-| Geometry: Positions, UVs, Normals, Tangents, Colors, Polygons.
-| Optional: Skeleton, Animations, Blend shapes.
+| **Template:** MCSA.bt_
+| **Purpose:** Model scene.
+| **Contents:** Geometry, materials, skeletons, animation clips and blend shapes.
+| **Support:** Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
 
-``.mcsb`` Scene Bundle (MCSA.bt_)
+.. _mcsb:
+
+``.mcsb`` Scene Bundle
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** MCSA.bt_
+| **Purpose:** Model scene.
+| **Contents:** Hash before the signature.
+
+.. _mcvd-trace:
+
+``.mcvd`` Trace Model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** MCSA.bt_
+| **Purpose:** Collision and physics geometry.
+| **Also:** :ref:`Standalone animation sets <mcvd-animation>` use the same suffix.
+
+.. _efkmodel:
+
+``.efkmodel`` Effekseer Model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** EFKMODEL.bt_
+| **Purpose:** Effekseer_ animated particle model.
+| **Contents:** Frame-based geometry with vertices and triangles. Vertices contain positions, normals, binormals, tangents, UVs and colors.
+| **Support:** Version ``5``.
+
+.. _model-export:
+
+Model Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Used for model scenes.
-| Same structure as ``.mcsa`` with a hash before the signature.
+.. list-table::
+  :header-rows: 1
 
-``.mcvd`` Vector Dynamic (MCSA.bt_)
+  * - Suffix
+    - Name
+    - UV2
+    - Tangents
+    - Armature
+    - Bone Clips
+    - Morph Clips
+  * - ``.obj``
+    - `Wavefront <OBJ_>`_
+    - ➖
+    - ➖
+    - ➖
+    - ➖
+    - ➖
+  * - ``.glb``
+    - `glTF Binary <GLTF_>`_
+    - ✅
+    - ✅
+    - ✅
+    - ✅
+    - ✅
+  * - ``.fbx``
+    - `Autodesk FBX <FBX_>`_
+    - ✅
+    - ❌
+    - ✅
+    - ✅
+    - ❌
+
+| ``✅ Supported``
+| ``❌ Not supported by scfile``
+| ``➖ Not supported by format``
+
+
+----------------------------------------
+🌀 Animation Formats
+----------------------------------------
+
+.. _mcvd-animation:
+
+``.mcvd`` Animation Set
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** MCSA.bt_
+| **Purpose:** Standalone skeletal or facial animation clips.
+| **Note:** Usually located in ``assets/highpoly``.
+
+.. _mcal:
+
+``.mcal`` Animation Library
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** MCAL.bt_
+| **Purpose:** Skeletal clips shared by models with matching skeletons.
+| **Contents:** Skeletal animation clips.
+
+Animation Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Used for trace models **or** standalone animation sets.
-| Same structure as ``.mcsa``.
-| Trace models provide geometry for collisions, physics and animated objects.
-| Each standalone animation set is specific to one model.
-
-``.mcal`` Animation Library (MCAL.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Used for skeletal animation clips.
-| Shared by multiple models with matching skeletons.
-
-
-``.efkmodel`` Effekseer Model (EFKMODEL.bt_)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Used for particle geometry.
-| Geometry: Positions, Normals, Binormals, Tangents, UVs, Colors, Polygons.
-| Standard `Effekseer <EFFEKSEER_>`_ model resource.
+| **Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
+| **Output:** :ref:`.glb <model-export>` with the assembled scene.
+| **Note:** Relation pairs can be found in the `Audit mappings <https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit>`_.
 
 
 ----------------------------------------
 🧱 Texture Formats
 ----------------------------------------
 
-``.ol`` Object Layer (OL.bt_)
+``.ol`` Object Layer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| `Mipmapped texel data <KHRONOS_>`_ compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
-| `Mipmaps <MIPMAP_>`_ compressed with `LZ4`_.
-| Texture kinds: Default (2D), Cubemap.
-| Normal map textures may be inverted.
+| **Template:** OL.bt_
+| **Purpose:** Mipmapped texel data compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
+| **Contents:** Default 2D textures and cubemaps. Mipmaps use `lz4`_ compression.
+| **Export:** ``.dds``.
+| **Note:** Normal maps may have an inverted Y axis.
 
 .. list-table:: Texture Suffix Conventions
   :header-rows: 1
@@ -85,6 +160,53 @@
     - Self Illumination
     - Creates independent glow
 
+.. list-table:: Texture Format Mapping
+  :header-rows: 1
+
+  * - Encoded
+    - Game Format
+    - DDS Format
+    - Compression
+  * - ``#?3V``
+    - ``DXT1``
+    - ``DXT1``
+    - ``BC1``
+  * - ``#?3T``
+    - ``DXT3``
+    - ``DXT3``
+    - ``BC2``
+  * - ``#?3R``
+    - ``DXT5``
+    - ``DXT5``
+    - ``BC3``
+  * - ``#?)8?``
+    - ``DXN_X``
+    - ``ATI1``
+    - ``BC4``
+  * - ``#?)8?>``
+    - ``DXN_XY``
+    - ``ATI2``
+    - ``BC5``
+  * - ``5 %&_``
+    - ``RGBA8``
+    - ``R8G8B8A8``
+    - ``None``
+  * - ``% 5&_``
+    - ``BGRA8``
+    - ``B8G8R8A8``
+    - ``None``
+  * - ``5 %&TU!``
+    - ``RGBA32F``
+    - ``R32G32B32A32``
+    - ``None``
+
+``.sign`` Texture Signatures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Template:** SIGN.bt_.
+| **Purpose:** Texture integrity verification.
+| **Contents:** Texture paths, dimensions, formats and SHA-256 mipmap hashes.
+
 
 ----------------------------------------
 🖼️ Image Formats
@@ -93,19 +215,23 @@
 ``.mic`` Media Image Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| ``.png`` (`Portable Network Graphics <PNG_>`_) image with an ``MIC`` file signature.
-| Primarily used for GUI and composed images.
+| **Purpose:** GUI and composed images.
+| **Contents:** ``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature.
+| **Export:** ``.png``.
 
 
 ----------------------------------------
-🗃️ TextureArray Formats
+🗃️ Archive Formats
 ----------------------------------------
 
-``.texarr`` Texture Array (TEXARR.bt_)
+.. _texarr:
+
+``.texarr`` Texture Array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
-| Textures referenced as ``group:path`` (e.g., ``probuilder:general/generic``).
+| **Template:** TEXARR.bt_
+| **Purpose:** Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
+| **Export:** ``.zip`` (ZIP_).
 
 
 ----------------------------------------
@@ -115,88 +241,67 @@
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Region container for 32×32 terrain chunks.
-| Historically based on ``.mca`` (`Minecraft Chunks Anvil <ANVIL_>`_).
-| Chunk data includes blocks, metadata, lighting and extended data.
-| Chunk data compressed with `ZSTD`_.
+| **Purpose:** Region container for 32×32 terrain chunks.
+| **Contents:** Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
+| **Export:** Anvil version ``1343`` for Minecraft ``1.12.2``.
 
+.. note::
+
+   Block IDs differ from Minecraft.
+   The export represents them only as approximate Minecraft blocks
+   based on  `manual mapping table <https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py>`_.
 
 ----------------------------------------
-⚙️ NBT Formats
+⚙️ NBT Files
 ----------------------------------------
 
-| **NBT** (`Named Binary Tag <NBT_>`_) format.
-| Used `GZIP`_ or `ZSTD`_ compression.
-
-Assets
-^^^^^^^^^^^^^^^^^^^^^^
+| **Format:** `Named Binary Tag <NBT_>`_ data.
+| **Compression:** None, gzip_ or zstd_.
+| **Export:** ``.json`` (`JavaScript Object Notation <JSON_>`_).
 
 .. list-table::
   :header-rows: 1
 
-  * - Filename
-    - Compression
-    - Purpose
-  * - ``stalker/itemnames.dat``
-    - ``GZIP``
-    - Some quest item descriptions
-
-Configs
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. list-table::
-  :header-rows: 1
-
-  * - Filename
+  * - Path
     - Compression
     - Purpose
     - Keys (examples)
-  * - ``prefs``
-    - ``ZSTD``
+  * - ``stalker/itemnames.dat``
+    - gzip_
+    - Quest item descriptions
+    - ➖
+  * - ``config/prefs``
+    - zstd_
     - UI read state cache
     - ``seenArticleLinks[], seenExperiences[], hasSeen*``
-
-Per-Character Configs
-^^^^^^^^^^^^^^^^^^^^^^
-
-| Located in ``/config/%CharacterName%/``.
-| Files prefixed with ``sd`` (**Synced Data**) contain synchronized player state cached locally.
-
-.. list-table::
-  :header-rows: 1
-
-  * - Filename
-    - Compression
-    - Purpose
-    - Keys (examples)
-  * - ``common``
-    - ``ZSTD``
+  * - ``config/<Name>/common``
+    - zstd_
     - General settings and UI states
     - ``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``
-  * - ``sd0``
-    - ``ZSTD``
+  * - ``config/<Name>/sd0``
+    - zstd_
     - Incoming friend requests
     - ``requests[]``
-  * - ``sd1``
-    - ``ZSTD``
+  * - ``config/<Name>/sd1``
+    - zstd_
     - Recent interactions (last 200 players)
     - ``interacts[{allianceId, type, username}]``
-  * - ``sd2``
-    - ``ZSTD``
+  * - ``config/<Name>/sd2``
+    - zstd_
     - Notifications history (last 100 popups)
     - ``notifications[{isRead, receivedMoment, notification{...}}]``
-  * - ``sd3``
-    - ``ZSTD``
+  * - ``config/<Name>/sd3``
+    - zstd_
     - Donate shop view history
     - ``observedOffers[]``
-  * - ``sd4``
-    - ``ZSTD``
+  * - ``config/<Name>/sd4``
+    - zstd_
     - Profile customization UI state
     - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
 
 
 ----------------------------------------
-🛠️ Config Formats
+🛠️ Config Files
 ----------------------------------------
 
 .. list-table::
@@ -206,53 +311,97 @@ Per-Character Configs
     - Format
     - Purpose
   * - ``display``
-    - TEXT
+    - ➖
     - Selected display ID
   * - ``keybindings``
-    - JSON
+    - JSON_
     - Keyboard control mappings
   * - ``options.json``
-    - JSON
+    - JSON_
     - Game settings (graphics, audio, gameplay)
   * - ``quests.json``
-    - JSON
+    - JSON_
     - Quest visibility toggles
   * - ``waypoints.cfg``
-    - JSON
+    - JSON_
     - Custom map markers
 
 
 ----------------------------------------
-🗂️ Other Formats
+📄 Text Formats
 ----------------------------------------
 
-``.xeon`` Encrypted Object Notation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. list-table::
+  :header-rows: 1
 
-| `AES Encrypted <AES_>`_.
-| Sensitive client data bundle.
-| Mirrors the assets folder structure.
+  * - Suffix
+    - Format
+    - Purpose
+  * - ``.lang``
+    - `Java Properties <PROPERTIES_>`_
+    - Localization strings
+  * - ``.properties``
+    - `Java Properties <PROPERTIES_>`_
+    - Configuration
+  * - ``.md``
+    - Markdown_
+    - Formatted text
+  * - ``.srt``
+    - `SubRip_
+    - Subtitles
+  * - ``.smm``
+    - JSON_
+    - Mob configuration
+
+
+----------------------------------------
+🔒 Encrypted Formats
+----------------------------------------
+
+.. note::
+
+   Used AES_. Decryption requires a key recovered from the protected game client.
+
+``.xeon`` Encrypted Bundle
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Purpose:** Bundle with sensitive client data.
+| **Contents:** Copy of the assets folder structure.
 
 ``.mcws`` World Slice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| `AES Encrypted <AES_>`_.
-| World slice used to render scene in settlement progression screens.
+| **Purpose:** Settlement progression screens.
+| **Contents:** World slice chunks.
+
+``.ta`` Texture Array
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Purpose:** Protection of high resolution texture array.
+| **Contents:** :ref:`.texarr <texarr>` data.
+
+``.bank`` Audio Bank
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Engine:** `FMOD Studio <FMOD_>`_.
+| **Purpose:** Adaptive audio events.
+| **Contents:** Primarily voice acting and OST.
 
 
 ----------------------------------------
 🕹️ Launcher Formats
 ----------------------------------------
 
-``.map`` Hash Mappings (HASHMAP.bt_)
+``.map`` Hash Mappings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Hash Mapping (SHA-1) for game assets.
-| Used by launcher to verify files integrity.
+| **Template:** HASHMAP.bt_
+| **Purpose:** Launcher file integrity verification.
+| **Contents:** Game asset paths and SHA-1 hashes.
 
-``.torrent.bin`` Torrent Binary (TORRENT.bt_)
+``.torrent.bin`` Torrent Binary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Modified ``.torrent`` (`Torrent <TORRENT_>`_) file.
-| Used by launcher for game content delivery.
-| Trackers block unauthorized access (token required).
+| **Template:** TORRENT.bt_
+| **Purpose:** Game content delivery.
+| **Contents:** Modified ``.torrent`` (Torrent_) data. Trackers require a token.

@@ -49,9 +49,9 @@ Any program with full support for all `DirectDraw Surface <DDS_>`_ formats.
 .. admonition:: Recommended Viewers
   :class: tip
 
-  - `XnView <XNVIEW_>`_ (Universal)
-  - `WTV <WTV_>`_ (Lightweight)
-  - `RenderDoc <RENDERDOC_>`_ (Analysis)
+  - XnView_ (Universal)
+  - WTV_ (Lightweight)
+  - RenderDoc_ (Analysis)
 
 
 Q: How to convert ``.dds`` textures to ``.png``?
@@ -59,7 +59,7 @@ Q: How to convert ``.dds`` textures to ``.png``?
 
 Native support is not planned.
 
-Convert ``.dds`` to ``.png`` using `ImageMagick <IMAGEMAGICK_>`_ or `FFmpeg <FFMPEG_>`_.
+Convert ``.dds`` to ``.png`` using ImageMagick_ or FFmpeg_.
 
 .. code-block:: bash
   :caption: ImageMagick
@@ -89,13 +89,13 @@ In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Scr
 Q: Antivirus or SmartScreen blocks ``scfile.exe``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The source code is open and anyone can inspect it on `GitHub <GITHUB_>`_.
+The source code is open and anyone can inspect it on GitHub_.
 
 | SmartScreen warns because the executable has **no digital signature**.
 | Code signing certificates are not feasible for a free project.
 
 | Antivirus detections on VirusTotal are **false positives**.
-| Executable is built with `PyInstaller <PYINSTALLER_>`_, a tool that packages Python scripts into standalone ``.exe``.
+| Executable is built with PyInstaller_, a tool that packages Python scripts into standalone ``.exe``.
 | Malware authors also use PyInstaller, so some low-quality antivirus engines flag unsigned PyInstaller executables.
 
 

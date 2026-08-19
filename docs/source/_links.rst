@@ -1,5 +1,5 @@
 .. Project
-.. _GITHUB: https://github.com/onejeuu/sc-file
+.. _GitHub: https://github.com/onejeuu/sc-file
 .. _ISSUES: https://github.com/onejeuu/sc-file/issues
 .. _RELEASES: https://github.com/onejeuu/sc-file/releases
 .. _PYPI: https://pypi.org/project/sc-file
@@ -13,26 +13,27 @@
 .. _MCAL.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MCAL.bt
 .. _TEXARR.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TEXARR.bt
 .. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/HASHMAP.bt
+.. _SIGN.bt: https://github.com/onejeuu/sc-file/blob/master/templates/SIGN.bt
 .. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.bt
 
 .. Media Files
 .. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
 
 .. Model Formats
-.. _DAE: https://en.wikipedia.org/wiki/COLLADA
 .. _FBX: https://en.wikipedia.org/wiki/FBX
 .. _GLTF: https://en.wikipedia.org/wiki/GlTF
 .. _OBJ: https://en.wikipedia.org/wiki/Wavefront_.obj_file
-.. _MS3D: https://developer.valvesoftware.com/wiki/MilkShape_3D
 
 .. Texture Formats
 .. _DDS: https://en.wikipedia.org/wiki/DirectDraw_Surface
 .. _PNG: https://en.wikipedia.org/wiki/PNG
-.. _S3TC: https://en.wikipedia.org/wiki/S3_Texture_Compression
 
 .. Data Formats
 .. _JSON: https://en.wikipedia.org/wiki/JSON
-.. _TORRENT: https://en.wikipedia.org/wiki/Torrent_file
+.. _PROPERTIES: https://en.wikipedia.org/wiki/.properties
+.. _Markdown: https://en.wikipedia.org/wiki/Markdown
+.. _SubRip: https://en.wikipedia.org/wiki/SubRip
+.. _Torrent: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
 .. _NBT: https://minecraft.wiki/w/NBT_format
 .. _ANVIL: https://minecraft.wiki/w/Anvil_file_format
@@ -44,26 +45,23 @@
 .. _NORMALMAP: https://en.wikipedia.org/wiki/Normal_mapping
 
 .. Compression
-.. _GZIP: https://en.wikipedia.org/wiki/Gzip
-.. _ZSTD: https://en.wikipedia.org/wiki/Zstd
-.. _LZ4: https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)
+.. _gzip: https://en.wikipedia.org/wiki/Gzip
+.. _zstd: https://en.wikipedia.org/wiki/Zstd
+.. _lz4: https://en.wikipedia.org/wiki/LZ4_(compression_algorithm)
 
 .. Encryption
 .. _AES: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
 
-.. Specifications
-.. _KHRONOS: https://registry.khronos.org/DataFormat/specs/1.4/dataformat.1.4.html
-
 .. Programs
-.. _EFFEKSEER: https://effekseer.github.io/
-.. _FFMPEG: https://ffmpeg.org
-.. _IMAGEMAGICK: https://imagemagick.org
-.. _NBTE: https://nbtexplorer.org
-.. _PYINSTALLER: https://pyinstaller.org
-.. _RENDERDOC: https://renderdoc.org/builds
+.. _Effekseer: https://effekseer.github.io/
+.. _FMOD: https://www.fmod.com/docs/2.03/studio/fmod-studio-concepts.html
+.. _FFmpeg: https://ffmpeg.org
+.. _ImageMagick: https://imagemagick.org
+.. _PyInstaller: https://pyinstaller.org
+.. _RenderDoc: https://renderdoc.org/builds
 .. _UV: https://github.com/astral-sh/uv
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
-.. _XNVIEW: https://xnview.com
+.. _XnView: https://xnview.com
 
 .. Contacts
 .. _TG: https://onejeuu.t.me
