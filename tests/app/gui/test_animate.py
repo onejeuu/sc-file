@@ -66,12 +66,24 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
 def test_export(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export")
     tab = AnimateTab(TaskManager(), settings)
-    source = tmp_path / "run.mcvd"
-    source.touch()
+    arms = tmp_path / "arms.mcvd"
+    body = tmp_path / "body.mcal"
+    arms.touch()
+    body.touch()
 
-    tab.form.source.value = str(source)
+    tab.form.source.value = str(arms)
     tab._sync()
-    assert Path(tab.output.value) == settings.export_path / "run.glb"
+    assert Path(tab.output.value) == settings.export_path / "arms.glb"
+
+    tab.tabs.setCurrentIndex(1)
+    assert not tab.output.value
+
+    tab.form.source.value = str(body)
+    tab._sync()
+    assert Path(tab.output.value) == settings.export_path / "body.glb"
+
+    tab.tabs.setCurrentIndex(0)
+    assert Path(tab.output.value) == settings.export_path / "arms.glb"
 
     custom = tmp_path / "custom.glb"
     tab.output.value = str(custom)

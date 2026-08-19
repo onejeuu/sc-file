@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Callable
 
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon
@@ -40,15 +41,28 @@ class AnimationForm(QWidget):
     icon = ""
     source: PathField
     model: PathField
+    output: PathField
 
     def __init__(self):
         super().__init__()
         self.rules: list[PathRule] = []
         self.touched: set[PathField] = set()
+        self.output_auto = False
+        self.output_touched = False
 
         self.form_layout = QVBoxLayout(self)
         self.form_layout.setContentsMargins(0, 0, 0, 0)
         self.form_layout.setSpacing(10)
+
+        self.inputs = QVBoxLayout()
+        self.inputs.setContentsMargins(0, 0, 0, 0)
+        self.inputs.setSpacing(10)
+        self.form_layout.addLayout(self.inputs)
+
+        self.options = QVBoxLayout()
+        self.options.setContentsMargins(0, 0, 0, 0)
+        self.options.setSpacing(10)
+        self.form_layout.addLayout(self.options)
         self.form_layout.addStretch()
 
     @property
@@ -84,8 +98,20 @@ class AnimationForm(QWidget):
         )
         path.changed.connect(lambda _: self._touch_input(path))
         self.rules.append(PathRule(path, suffix, error, required))
-        self.form_layout.insertWidget(self.form_layout.count() - 1, path)
+        self.inputs.addWidget(path)
         return path
+
+    def add_output(self, changed: Callable[[str], None]) -> None:
+        self.output = PathField(
+            strings.get("label.animate.output"),
+            placeholder=strings.get("placeholder.path"),
+            caption=strings.get("dialog.animate.output"),
+            mode="save",
+            file_filter="GLB (*.glb)",
+            default_suffix=".glb",
+        )
+        self.output.changed.connect(changed)
+        self.inputs.addWidget(self.output)
 
     def validation_error(self) -> str | None:
         invalid = {rule.widget for rule in self.rules if not _valid(rule)}
@@ -184,7 +210,7 @@ class BodyForm(AnimationForm):
             strings.get("label.animate.raw_clips"),
             strings.get("hint.animate.raw_clips"),
         )
-        self.form_layout.insertWidget(self.form_layout.count() - 1, self.raw_clips)
+        self.options.addWidget(self.raw_clips)
 
     def create_task(self, output: Path) -> AnimateTask:
         return AnimateTask(
@@ -236,8 +262,6 @@ class AnimateTab(QWidget):
         super().__init__()
         self.tasks = tasks
         self.settings = settings
-        self.output_auto = False
-        self.output_touched = False
         self.forms: tuple[Form, ...] = (ArmsForm(), BodyForm(), FaceForm())
         self._build_ui()
 
@@ -247,6 +271,10 @@ class AnimateTab(QWidget):
     @property
     def form(self) -> Form:
         return self.forms[self.stack.currentIndex()]
+
+    @property
+    def output(self) -> PathField:
+        return self.form.output
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -258,17 +286,8 @@ class AnimateTab(QWidget):
         for form in self.forms:
             form.changed.connect(self._sync)
             self.stack.addWidget(form)
+            form.add_output(lambda value, form=form: self._output_changed(value, form))
         layout.addWidget(self.stack, 1)
-
-        self.output = PathField(
-            strings.get("label.animate.output"),
-            placeholder=strings.get("placeholder.path"),
-            caption=strings.get("dialog.animate.output"),
-            mode="save",
-            file_filter="GLB (*.glb)",
-            default_suffix=".glb",
-        )
-        self.output.changed.connect(self._output_changed)
 
         self.warnings = WarningsWidget()
         language = strings.LANG.lower()
@@ -278,7 +297,6 @@ class AnimateTab(QWidget):
         notice.addStretch()
         notice.addWidget(LinkWidget(strings.get("animate.guide"), url))
         layout.addLayout(notice)
-        layout.addWidget(self.output)
 
         self.submit = QPushButton(strings.get("button.animate"))
         self.submit.setFixedHeight(50)
@@ -311,12 +329,14 @@ class AnimateTab(QWidget):
 
     def apply_path_resolution(self) -> None:
         if not self.settings.resolve_paths:
-            self.output_auto = False
+            for form in self.forms:
+                form.output_auto = False
         self._sync()
 
-    def _output_changed(self, _: str) -> None:
-        self.output_auto = False
-        self.output_touched = True
+    def _output_changed(self, _: str, form: Form | None = None) -> None:
+        form = form or self.form
+        form.output_auto = False
+        form.output_touched = True
         self._sync()
 
     def _output_invalid(self) -> bool:
@@ -330,27 +350,29 @@ class AnimateTab(QWidget):
         return next((error for error in errors if error), None)
 
     def _sync(self) -> None:
-        source = self.form.source.value.strip()
-        valid_source = _valid(self.form.rules[0])
+        form = self.form
+        output = form.output
+        source = form.source.value.strip()
+        valid_source = _valid(form.rules[0])
 
         if valid_source and self.settings.resolve_paths:
             suggested = self.settings.export_path / Path(source).with_suffix(".glb").name
-            if self.output_auto or not self.output.value.strip():
-                self.output.value = suggested.as_posix()
-                self.output_auto = True
-            self.output.initial_path = suggested.as_posix()
-        elif not valid_source and self.output_auto and self.settings.resolve_paths:
-            self.output.value = ""
-            self.output_auto = False
+            if form.output_auto or not output.value.strip():
+                output.value = suggested.as_posix()
+                form.output_auto = True
+            output.initial_path = suggested.as_posix()
+        elif not valid_source and form.output_auto and self.settings.resolve_paths:
+            output.value = ""
+            form.output_auto = False
 
         if not valid_source or not self.settings.resolve_paths:
-            self.output.initial_path = self.settings.export_path.as_posix()
+            output.initial_path = self.settings.export_path.as_posix()
 
         error = (
-            strings.get("tooltip.animate.invalid.output") if self.output_touched and self._output_invalid() else None
+            strings.get("tooltip.animate.invalid.output") if form.output_touched and self._output_invalid() else None
         )
-        self.output.set_error(error)
-        self.warnings.set_messages(self.form.warnings)
+        output.set_error(error)
+        self.warnings.set_messages(form.warnings)
 
         error = self._submit_error()
         self.submit_cursor.set(error is None, strings.get(error or ""))
