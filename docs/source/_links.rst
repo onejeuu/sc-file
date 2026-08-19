@@ -70,7 +70,11 @@
 .. _Voxy: https://modrinth.com/mod/voxy
 .. _C2ME: https://modrinth.com/mod/c2me-fabric
 .. _Axiom: https://modrinth.com/mod/axiom
-.. _Coordinate calculator: https://mclist.io/tools/minecraft-coordinate-calculator
+.. _CoordinateCalculator: https://mclist.io/tools/minecraft-coordinate-calculator
+.. _MCA_MAPPING: https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py
+.. _MAPCACHE_RP: https://www.mediafire.com/folder/ra6iiu7oc7gtx
+.. _Fabric API: https://modrinth.com/mod/fabric-api
+.. _AUDIT: https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit
 
 .. Contacts
 .. _TG: https://onejeuu.t.me

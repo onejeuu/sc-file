@@ -1,7 +1,7 @@
 🗺 Map Cache Preview
 ==================================================
 
-.. include:: _links.rst
+.. include:: ../_links.rst
 
 
 ----------------------------------------
@@ -23,8 +23,7 @@ and block states are not exported.
 .. note::
 
    Block IDs differ from Minecraft. By default, a `manual mapping table
-   <https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py>`_
-   replaces selected IDs with approximate Minecraft blocks.
+   <MCA_MAPPING_>`_ replaces selected IDs with approximate Minecraft blocks.
 
    ``--raw`` keeps the original IDs for inspection. Minecraft interprets them
    through its own ID table, so the result is usually visually incoherent.
@@ -111,17 +110,28 @@ For ``r.-3.5.mca``:
 Minecraft does not load distant regions just because their files exist.
 Teleport to the region, then adjust the height if necessary.
 
-Use the `Minecraft coordinate calculator <Coordinate calculator_>`_ when you
+Use the `Minecraft coordinate calculator <CoordinateCalculator_>`_ when you
 want a position without calculating it manually.
 
 
 ----------------------------------------
-Mod setup
+Viewing setup
 ----------------------------------------
+
+Resource pack
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Download the `STALCRAFT resource packs <MAPCACHE_RP_>`_.
+The original pack targets Minecraft ``1.6.4``. Updated variants are available
+for newer resource-pack formats.
+
+
+Mods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following Fabric setup is useful for viewing an exported world:
 
-- Fabric_ and `Fabric API <https://modrinth.com/mod/fabric-api>`_ for the mod loader and its base API.
+- Fabric_ and `Fabric API`_ for the mod loader and its base API.
 - Voxy_ for distant terrain rendering.
 - C2ME_ for chunk loading and I/O.
 - Axiom_ for optional map editing.

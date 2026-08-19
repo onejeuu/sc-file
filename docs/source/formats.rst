@@ -120,7 +120,7 @@ Animation Export
 
 | **Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
 | **Output:** :ref:`.glb <model-export>` with the assembled scene.
-| **Note:** Relation pairs can be found in the `Audit mappings <https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit>`_.
+| **Note:** Relation pairs can be found in the `Audit mappings <AUDIT_>`_.
 
 
 ----------------------------------------
@@ -244,7 +244,7 @@ Animation Export
 | **Purpose:** Region container for 32×32 terrain chunks.
 | **Contents:** Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
 | **Export:** Anvil version ``1343`` for Minecraft ``1.12.2`` with approximate block mapping.
-| :doc:`Map Cache viewing guide → <mapcache>`
+| :doc:`Map Cache viewing guide → <usage/mapcache>`
 
 ----------------------------------------
 ⚙️ NBT Files

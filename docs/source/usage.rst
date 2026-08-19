@@ -3,6 +3,11 @@
 
 .. include:: _links.rst
 
+.. toctree::
+  :hidden:
+
+  usage/mapcache
+
 
 ----------------------------------------
 Quick Start
@@ -289,7 +294,7 @@ mapcache
 
 | Merges ``.mdat`` region caches into ``.mca`` region files.
 | Run with explicit command or use a path containing ``map_cache`` to auto-detect.
-| :doc:`Open the Map Cache viewing guide → <mapcache>`
+| :doc:`Open the Map Cache viewing guide → <usage/mapcache>`
 
 ``SOURCE``
   Directory containing ``.mdat`` files.
