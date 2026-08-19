@@ -1,4 +1,4 @@
-"""Handlers specialized for model content."""
+"""Model content handler base classes."""
 
 from typing import ClassVar
 
@@ -13,19 +13,19 @@ from .encoder import Encoder
 class ModelDecoder[
     ReaderType: StructReader = StructReader,
 ](Decoder[ModelContent, ReaderType]):
-    """Base decoder for model formats."""
+    """Decoder base class for model content."""
 
     content_type = ModelContent
 
     features: ClassVar[Features] = ()
-    """Model features supported by the decoder."""
+    """Features supported by this decoder."""
 
     @classmethod
     def supports(
         cls,
         feature: Feature,
     ) -> bool:
-        """Return whether the decoder supports a model feature."""
+        """Return whether this decoder supports a feature."""
 
         return any(member in cls.features for member in feature.members)
 
@@ -33,19 +33,19 @@ class ModelDecoder[
 class ModelEncoder[
     WriterType: StructWriter = StructWriter,
 ](Encoder[ModelContent, WriterType]):
-    """Base encoder for model formats."""
+    """Encoder base class for model content."""
 
     content_type = ModelContent
 
     features: ClassVar[Features] = ()
-    """Model features supported by the encoder."""
+    """Features supported by this encoder."""
 
     @classmethod
     def supports(
         cls,
         feature: Feature,
     ) -> bool:
-        """Return whether the encoder supports a model feature."""
+        """Return whether this encoder supports a feature."""
 
         return any(member in cls.features for member in feature.members)
 
@@ -53,7 +53,7 @@ class ModelEncoder[
         self,
         feature: Feature,
     ) -> bool:
-        """Return whether a model feature will be serialized."""
+        """Return whether a feature will be serialized."""
 
         if feature.parent is Feature.ANIMATION and not self.options.animation:
             return False

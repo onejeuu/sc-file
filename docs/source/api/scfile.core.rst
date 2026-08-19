@@ -17,6 +17,8 @@ Base
 
    ``dict[str, Any]``
 
+   Format-specific values retained for diagnostics.
+
 Decoder
 -------
 
@@ -38,10 +40,14 @@ Encoder
 
    ``Callable[[ContentType], ContentType]``
 
+   Function that transforms content before serialization.
+
 .. py:type:: EncoderTransforms
    :module: scfile.core.encoder
 
    ``Sequence[ContentTransform[ContentType]]``
+
+   Ordered content transforms applied by an encoder.
 
 Models
 ------

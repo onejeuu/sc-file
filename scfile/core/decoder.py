@@ -1,8 +1,4 @@
-"""
-Base class for file format decoders.
-
-Defines the contract for parsing binary data into structured content.
-"""
+"""Binary format decoder base class."""
 
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, cast
@@ -22,19 +18,19 @@ class Decoder[
     ReaderType: StructReader = StructReader,
 ](Handler[ReaderType], ABC):
     """
-    Base class for decoding binary data into structured content.
+    Base class for decoding binary sources into structured content.
 
     Subclasses define format-specific parsing logic.
     """
 
     content_type: ClassVar[type[BaseContent]]
-    """Factory for decoded content."""
+    """Content type created by this decoder."""
 
     io_factory = cast(type[ReaderType], StructReader)
-    """Reader factory used to wrap the source stream."""
+    """Structured reader class used to open source input."""
 
     standalone: ClassVar[bool] = True
-    """Whether decoded content can be converted without a related asset."""
+    """Whether the source can be converted without related assets."""
 
     def __init__(
         self,
@@ -45,12 +41,11 @@ class Decoder[
         Initialize decoder.
 
         Args:
-            stream: Source input to decode. File path, bytes, or binary IO stream.
-            options (optional): Shared handlers options.
+            stream: Source file path, source bytes, or binary stream.
+            options (optional): Options used by this decoder.
 
         Note:
-            The file is not parsed during initialization.
-            Call :meth:`decode` to perform the actual parsing.
+            Parsing is deferred until :meth:`decode` is called.
         """
 
         self.data = cast(ContentType, self.content_type())
@@ -63,7 +58,7 @@ class Decoder[
         )
 
     def decode(self) -> ContentType:
-        """Decode source data once and return parsed content."""
+        """Decode source data and return content."""
 
         if self.state is HandlerState.SUCCEEDED:
             return self.data
@@ -92,15 +87,15 @@ class Decoder[
         output: Optional[OutputStream] = None,
     ) -> Encoder[ContentType, WriterType]:
         """
-        Decode and convert to given encoder format.
+        Decode source data and return a target encoder.
 
         Args:
-            encoder: Encoder class to use for conversion.
-            options (optional): Shared handlers options.
-            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
+            encoder: Encoder class for the target format.
+            options (optional): Options for the target encoder. Defaults to decoder options.
+            output (optional): Output file path or binary stream. Defaults to in-memory buffer.
 
         Returns:
-            Open encoder instance.
+            Open target encoder with decoded content.
         """
 
         options = options or self.options
@@ -114,35 +109,35 @@ class Decoder[
         options: Optional[Options] = None,
     ) -> bytes:
         """
-        Decode and convert to given encoder format.
+        Decode source data and return encoded bytes.
 
         Args:
-            encoder: Encoder class to use for conversion.
-            options (optional): Shared handlers options.
+            encoder: Encoder class for the target format.
+            options (optional): Options for the target encoder. Defaults to decoder options.
 
         Returns:
-            Encoded file content as bytes.
+            Encoded bytes.
         """
 
         with self.convert_to(encoder, options=options) as enc:
             return enc.to_bytes()
 
     def _prelude(self) -> None:
-        """Hook called before signature and parsing."""
+        """Run before signature verification and source parsing."""
         pass
 
     def _verify_filesize(self) -> None:
-        """Verify source contains data before format-specific parsing."""
+        """Verify source data is not empty before parsing."""
 
         if self.io.size() == 0:
             raise exceptions.EmptyFileError(self.location)
 
     def _verify_signature(self) -> None:
         """
-        Validate file signature.
+        Verify source signature.
 
         Raises:
-            `SignatureMismatchError` on failure.
+            SignatureMismatchError: The expected signature does not match.
         """
 
         if self.signature:
@@ -159,5 +154,5 @@ class Decoder[
 
     @abstractmethod
     def _parse(self) -> None:
-        """Parse file content into ``self.data``. Called by :meth:`decode`."""
+        """Parse format data into ``self.data``."""
         ...

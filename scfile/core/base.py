@@ -1,6 +1,4 @@
-"""
-Base class for format handlers that own a binary resource.
-"""
+"""Binary format handler base class."""
 
 from abc import ABC
 from collections.abc import Mapping
@@ -14,25 +12,30 @@ from scfile.options import Options
 
 
 type HandlerContext = dict[str, Any]
+"""Format-specific values retained for diagnostics."""
 
 
 class Handler[IOType: StructIO[Any]](ABC):
-    """Base class for handlers that own an open binary resource."""
+    """
+    Base class for binary format handlers.
+
+    A handler owns structured I/O, options, and lifecycle state.
+    """
 
     format: ClassVar[FileFormat] = FileFormat.NONE
-    """Associated file format."""
+    """File format handled by this class."""
 
     signature: ClassVar[bytes | None] = None
-    """Expected file signature."""
+    """Expected binary signature, if defined."""
 
     order: ClassVar[ByteOrder] = ByteOrder.LITTLE
-    """Default byte order."""
+    """Default byte order for structured I/O."""
 
     io: IOType
-    """Owned binary I/O instance."""
+    """Structured I/O owned by this handler."""
 
     options: Options
-    """Processing and conversion options shared by the handler."""
+    """Options used by this handler."""
 
     def __init__(
         self,
@@ -40,8 +43,11 @@ class Handler[IOType: StructIO[Any]](ABC):
         options: Options,
     ):
         """
+        Initialize handler.
+
         Args:
-            io: Structured binary IO owned by the handler.
+            io: Structured binary I/O owned by the handler.
+            options: Options shared by the handler.
         """
 
         self.io = io
@@ -51,16 +57,20 @@ class Handler[IOType: StructIO[Any]](ABC):
 
     @classmethod
     def suffix(cls) -> str:
-        """Return the suffix associated with this handler format."""
+        """Return the format suffix."""
 
         return cls.format.suffix
 
     @property
     def location(self) -> str:
+        """Location of the owned binary resource."""
+
         return self.io.location
 
     @property
     def closed(self) -> bool:
+        """Whether the owned binary resource is closed."""
+
         return self.io.closed
 
     @property
@@ -71,11 +81,13 @@ class Handler[IOType: StructIO[Any]](ABC):
 
     @property
     def context(self) -> Mapping[str, Any]:
-        """Format-specific processing context for diagnostics."""
+        """Read-only format-specific values retained for diagnostics."""
 
         return MappingProxyType(self._ctx)
 
     def close(self) -> None:
+        """Close the owned binary resource."""
+
         self.io.close()
 
     def _validate_state(
@@ -83,6 +95,8 @@ class Handler[IOType: StructIO[Any]](ABC):
         operation: str,
         expected: HandlerState,
     ) -> None:
+        """Require an open handler in the expected lifecycle state."""
+
         if self.state is expected and not self.closed:
             return
 

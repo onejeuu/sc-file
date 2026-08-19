@@ -1,8 +1,4 @@
-"""
-Base class for file format encoders.
-
-Defines the contract for serializing structured content into binary data.
-"""
+"""Binary format encoder base class."""
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
@@ -19,7 +15,10 @@ from .base import Handler
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
+"""Function that transforms content before serialization."""
+
 type EncoderTransforms[ContentType] = Sequence[ContentTransform[ContentType]]
+"""Ordered content transforms applied by an encoder."""
 
 
 class Encoder[
@@ -27,19 +26,19 @@ class Encoder[
     WriterType: StructWriter = StructWriter,
 ](Handler[WriterType], ABC):
     """
-    Base class for encoding structured content into binary data.
+    Base class for encoding structured content into binary output.
 
     Subclasses define the format-specific serialization logic.
     """
 
     content_type: ClassVar[type[BaseContent]]
-    """Content type accepted by encoder."""
+    """Content type accepted by this encoder."""
 
     io_factory = cast(type[WriterType], StructWriter)
-    """Writer factory used to wrap the output stream."""
+    """Structured writer class used to open output."""
 
     transforms: Sequence[ContentTransform[ContentType]] = ()
-    """Format-specific content transforms applied before serialization."""
+    """Default content transforms applied before serialization."""
 
     def __init__(
         self,
@@ -51,13 +50,12 @@ class Encoder[
         Initialize encoder.
 
         Args:
-            data: Structured content to encode.
-            options (optional): Shared handlers options.
-            output (optional): File path or binary IO stream. Defaults to in-memory buffer.
+            data: Content to encode.
+            options (optional): Options used by this encoder.
+            output (optional): Output file path or binary stream. Defaults to in-memory buffer.
 
         Note:
-            Data is not written during initialization.
-            Call :meth:`encode` to perform the actual serialization.
+            Serialization is deferred until :meth:`encode` or :meth:`to_bytes` is called.
         """
 
         self.data: ContentType = data
@@ -74,13 +72,13 @@ class Encoder[
         transforms: Optional[EncoderTransforms[ContentType]] = None,
     ) -> Self:
         """
-        Runs encoding pipeline.
+        Serialize content to output.
 
         Args:
-            transforms: Override the default transforms for this call.
+            transforms: Content transforms used instead of the defaults.
 
         Returns:
-            Self (chaining).
+            This encoder.
         """
 
         self._validate_state("encode", HandlerState.INITIAL)
@@ -101,7 +99,7 @@ class Encoder[
         return self
 
     def to_bytes(self) -> bytes:
-        """Encode if needed and return serialized bytes."""
+        """Encode content when needed and return bytes."""
 
         if self.state is HandlerState.INITIAL:
             self.encode()
@@ -116,11 +114,11 @@ class Encoder[
         close: bool = True,
     ) -> None:
         """
-        Write encoded data to file by name.
+        Write encoded bytes to an output file path.
 
         Args:
-            path: Output file path.
-            close: Close encoder after writing.
+            path: Exact output file path.
+            close: Whether to close this encoder after writing.
         """
 
         try:
@@ -140,11 +138,11 @@ class Encoder[
         close: bool = True,
     ) -> None:
         """
-        Write encoded data to file by stem. Format suffix appended.
+        Write encoded bytes with the format suffix appended to ``path``.
 
         Args:
-            path: Output file path.
-            close: Close encoder after writing.
+            path: Output path without the format suffix.
+            close: Whether to close this encoder after writing.
         """
 
         self.save(
@@ -153,14 +151,14 @@ class Encoder[
         )
 
     def _prelude(self) -> None:
-        """Hook called before transforms, signature and serialization."""
+        """Run before transforms and serialization."""
         pass
 
     def _transform(
         self,
         transforms: Optional[EncoderTransforms[ContentType]] = None,
     ) -> None:
-        """Apply format-specific content transforms."""
+        """Apply content transforms."""
 
         if transforms is None:
             transforms = self.transforms
@@ -169,12 +167,12 @@ class Encoder[
             self.data = transform(self.data)
 
     def _add_signature(self) -> None:
-        """Write the format signature to the output stream."""
+        """Write the format signature."""
 
         if self.signature:
             self.io.write(self.signature)
 
     @abstractmethod
     def _serialize(self) -> None:
-        """Write ``self.data`` to the output stream. Called by :meth:`encode`."""
+        """Serialize ``self.data`` to output."""
         ...
