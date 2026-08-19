@@ -20,3 +20,8 @@ Versions
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: Version
+   :module: scfile.formats.mcsa.versions
+
+   ``float``

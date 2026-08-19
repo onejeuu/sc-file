@@ -36,3 +36,13 @@ Registry
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: DecoderType
+   :module: scfile.formats.registry
+
+   ``type[Decoder[Any, Any]]``
+
+.. py:type:: EncoderType
+   :module: scfile.formats.registry
+
+   ``type[Encoder[Any, Any]]``

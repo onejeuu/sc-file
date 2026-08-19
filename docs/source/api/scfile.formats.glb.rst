@@ -21,6 +21,21 @@ Encoder
    :undoc-members:
    :inherited-members:
 
+.. py:type:: Node
+   :module: scfile.formats.glb.encoder
+
+   ``dict[str, Any]``
+
+.. py:type:: BufferView
+   :module: scfile.formats.glb.encoder
+
+   ``dict[str, int]``
+
+.. py:type:: Accessor
+   :module: scfile.formats.glb.encoder
+
+   ``dict[str, str | int]``
+
 Enums
 -----
 

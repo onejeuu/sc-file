@@ -48,6 +48,18 @@ Options
    :show-inheritance:
    :undoc-members:
 
+.. py:type:: OnConflict
+   :module: scfile.options
+
+   ``Literal['overwrite', 'rename', 'skip']``
+
+.. py:type:: TargetConfig
+   :module: scfile.options
+
+   ``Mapping[type[BaseContent], FileFormat]``
+
+   Requested conversion targets by content type.
+
 Types
 -----
 
@@ -55,3 +67,59 @@ Types
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: PathLike
+   :module: scfile.types
+
+   ``str | Path | os.PathLike[str]``
+
+   Path represented as a string, pathlib path, or OS path-like object.
+
+.. py:type:: SourcePath
+   :module: scfile.types
+
+   ``Path``
+
+   Source path.
+
+.. py:type:: SourceLike
+   :module: scfile.types
+
+   ``PathLike``
+
+   Source path-like.
+
+.. py:type:: OutputPath
+   :module: scfile.types
+
+   ``Path | None``
+
+   Optional output path.
+
+.. py:type:: OutputLike
+   :module: scfile.types
+
+   ``PathLike | None``
+
+   Optional path-like output.
+
+.. py:type:: ResultPath
+   :module: scfile.types
+
+   ``Path | None``
+
+   Written result path, or ``None`` when output is skipped.
+
+.. py:type:: Formats
+   :module: scfile.types
+
+   ``Sequence[FileFormat]``
+
+   Sequence of file formats.
+
+.. py:type:: FormatLike
+   :module: scfile.types
+
+   ``str | FileFormat``
+
+   File format represented by its enum, value, or suffix.

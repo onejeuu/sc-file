@@ -28,3 +28,8 @@ Formats
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: Format
+   :module: scfile.formats.ol.formats
+
+   ``bytes``

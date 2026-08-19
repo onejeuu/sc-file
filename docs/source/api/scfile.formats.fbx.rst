@@ -12,6 +12,11 @@ Consts
    :show-inheritance:
    :undoc-members:
 
+.. py:type:: Props
+   :module: scfile.formats.fbx.consts
+
+   ``list[tuple[Any, ...]]``
+
 Encoder
 -------
 
@@ -20,6 +25,21 @@ Encoder
    :show-inheritance:
    :undoc-members:
    :inherited-members:
+
+.. py:type:: Skinning
+   :module: scfile.formats.fbx.encoder
+
+   ``dict[int, Cluster]``
+
+.. py:type:: Curves
+   :module: scfile.formats.fbx.encoder
+
+   ``tuple[tuple[bytes, np.int64], ...]``
+
+.. py:type:: CurveNode
+   :module: scfile.formats.fbx.encoder
+
+   ``tuple[np.int64, Curves]``
 
 Enums
 -----

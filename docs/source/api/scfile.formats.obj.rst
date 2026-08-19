@@ -20,3 +20,8 @@ Faces
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: Template
+   :module: scfile.formats.obj.faces
+
+   ``bytes``

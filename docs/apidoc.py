@@ -1,5 +1,6 @@
 """Generate the library API reference."""
 
+import ast
 import re
 from pathlib import Path
 from shutil import copy2
@@ -83,6 +84,65 @@ def format_info() -> dict[str, tuple[FileKind, int]]:
     return result
 
 
+def type_aliases(path: Path) -> list[tuple[str, str, str]]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    aliases: list[tuple[str, str, str]] = []
+
+    for index, node in enumerate(tree.body):
+        if not isinstance(node, ast.TypeAlias):
+            continue
+
+        description = ""
+        if index + 1 < len(tree.body):
+            following = tree.body[index + 1]
+            if isinstance(following, ast.Expr) and isinstance(following.value, ast.Constant):
+                if isinstance(following.value.value, str):
+                    description = following.value.value
+
+        aliases.append((node.name.id, ast.unparse(node.value), description))
+
+    return aliases
+
+
+def document_types(reference: Path) -> None:
+    for source in PACKAGE.rglob("*.py"):
+        if "app" in source.relative_to(PACKAGE).parts:
+            continue
+
+        aliases = type_aliases(source)
+        if not aliases:
+            continue
+
+        relative = source.relative_to(PACKAGE).with_suffix("")
+        source_module = "scfile" if relative.name == "__init__" else f"scfile.{relative.as_posix().replace('/', '.')}"
+        module = source_module
+        path = reference / f"{module}.rst"
+        if not path.is_file():
+            module = module.rsplit(".", 1)[0]
+            path = reference / f"{module}.rst"
+            if not path.is_file():
+                continue
+
+        lines = path.read_text(encoding="utf-8").splitlines()
+        marker = f".. automodule:: {source_module}"
+        try:
+            insert_at = lines.index(marker) + 1
+        except ValueError:
+            continue
+
+        while insert_at < len(lines) and lines[insert_at].startswith("   :"):
+            insert_at += 1
+
+        documented: list[str] = [""]
+        for name, value, description in aliases:
+            documented.extend((f".. py:type:: {name}", f"   :module: {source_module}", "", f"   ``{value}``"))
+            if description:
+                documented.extend(("", f"   {description}"))
+            documented.append("")
+        lines[insert_at:insert_at] = documented
+        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8", newline="\n")
+
+
 def style(reference: Path) -> None:
     for module, value in TITLES.items():
         path = reference / f"{module}.rst"
@@ -137,6 +197,7 @@ def main() -> None:
         if apidoc(arguments):
             raise SystemExit("API reference generation failed.")
 
+        document_types(reference)
         style(reference)
 
         for path in OUTPUT.glob("scfile*.rst"):

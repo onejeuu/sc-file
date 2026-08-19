@@ -20,6 +20,21 @@ Content
    :show-inheritance:
    :undoc-members:
 
+.. py:type:: DocumentPrimitive
+   :module: scfile.structures.content
+
+   ``int | float | bytes | str``
+
+.. py:type:: DocumentValue
+   :module: scfile.structures.content
+
+   ``None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]``
+
+.. py:type:: ArchiveEntry
+   :module: scfile.structures.content
+
+   ``tuple[str, bytes]``
+
 Regions
 -------
 

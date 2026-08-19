@@ -12,6 +12,11 @@ Base
    :show-inheritance:
    :undoc-members:
 
+.. py:type:: HandlerContext
+   :module: scfile.core.base
+
+   ``dict[str, Any]``
+
 Decoder
 -------
 
@@ -27,6 +32,16 @@ Encoder
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: ContentTransform
+   :module: scfile.core.encoder
+
+   ``Callable[[ContentType], ContentType]``
+
+.. py:type:: EncoderTransforms
+   :module: scfile.core.encoder
+
+   ``Sequence[ContentTransform[ContentType]]``
 
 Models
 ------

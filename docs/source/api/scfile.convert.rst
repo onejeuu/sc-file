@@ -36,6 +36,21 @@ Mapcache
    :show-inheritance:
    :undoc-members:
 
+.. py:type:: RegionKey
+   :module: scfile.convert.mapcache
+
+   ``tuple[int, int]``
+
+.. py:type:: Regions
+   :module: scfile.convert.mapcache
+
+   ``dict[RegionKey, list[Path]]``
+
+.. py:type:: CancelCheck
+   :module: scfile.convert.mapcache
+
+   ``Callable[[], bool] | None``
+
 Named
 -----
 
@@ -43,6 +58,11 @@ Named
    :members:
    :show-inheritance:
    :undoc-members:
+
+.. py:type:: Converter
+   :module: scfile.convert.named
+
+   ``Callable[[SourceLike, OutputLike, Optional[Options]], ResultPath]``
 
 Paths
 -----
