@@ -120,7 +120,7 @@ Animation Export
 
 | **Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
 | **Output:** :ref:`.glb <model-export>` with the assembled scene.
-| **Note:** Relation pairs can be found in the `Audit mappings <AUDIT_>`_.
+| **Note:** Relation pairs can be found in `Audit Mappings`_.
 
 
 ----------------------------------------

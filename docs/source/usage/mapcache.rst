@@ -22,8 +22,8 @@ and block states are not exported.
 
 .. note::
 
-   Block IDs differ from Minecraft. By default, a `manual mapping table
-   <MCA_MAPPING_>`_ replaces selected IDs with approximate Minecraft blocks.
+   Block IDs differ from Minecraft. By default, the `Block Mapping`_ replaces
+   selected IDs with approximate Minecraft blocks.
 
    ``--raw`` keeps the original IDs for inspection. Minecraft interprets them
    through its own ID table, so the result is usually visually incoherent.
@@ -110,8 +110,8 @@ For ``r.-3.5.mca``:
 Minecraft does not load distant regions just because their files exist.
 Teleport to the region, then adjust the height if necessary.
 
-Use the `Minecraft coordinate calculator <CoordinateCalculator_>`_ when you
-want a position without calculating it manually.
+Use the `Coordinate Calculator`_ when you want a position without calculating
+it manually.
 
 
 ----------------------------------------
@@ -121,7 +121,7 @@ Viewing setup
 Resource pack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Download the `STALCRAFT resource packs <MAPCACHE_RP_>`_.
+Download the `Map Cache Resource Packs`_.
 The original pack targets Minecraft ``1.6.4``. Updated variants are available
 for newer resource-pack formats.
 

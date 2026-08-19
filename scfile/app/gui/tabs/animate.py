@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
 
 from scfile import convert
 from scfile.app import files
@@ -12,6 +12,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
@@ -270,7 +271,13 @@ class AnimateTab(QWidget):
         self.output.changed.connect(self._output_changed)
 
         self.warnings = WarningsWidget()
-        layout.addWidget(self.warnings)
+        language = strings.LANG.lower()
+        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/animate.html"
+        notice = QHBoxLayout()
+        notice.addWidget(self.warnings, 1)
+        notice.addStretch()
+        notice.addWidget(LinkWidget(strings.get("animate.guide"), url))
+        layout.addLayout(notice)
         layout.addWidget(self.output)
 
         self.submit = QPushButton(strings.get("button.animate"))

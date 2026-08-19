@@ -7,6 +7,7 @@
   :hidden:
 
   usage/mapcache
+  usage/animate
 
 
 ----------------------------------------
@@ -256,6 +257,8 @@ animate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Applies external animation data to one or more ``.mcsb`` models and exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a GLB file or directory. Without it, the GLB is saved next to the animation source.
+
+:doc:`Open the animation export guide → <usage/animate>`
 
 ``arms ANIMATION MODEL [HANDS]``
   Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add an optional hands model.
