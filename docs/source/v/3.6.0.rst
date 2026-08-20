@@ -1,8 +1,0 @@
-v3.6.0
-==================================================
-
-✨ Added
-----------------------------------------
-
-* **CLI:** new command-line interface.
-* ``OlDecoder``: partial support for cubemap textures (first face only).

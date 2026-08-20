@@ -1,7 +1,0 @@
-v3.4.1
-==================================================
-
-🐛 Fixed
-----------------------------------------
-
-* ``DaeEncoder``: non-functional test skeleton removed from exported scenes.

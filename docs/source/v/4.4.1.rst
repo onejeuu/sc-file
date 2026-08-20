@@ -1,8 +1,0 @@
-v4.4.1
-==================================================
-
-🐛 Fixed
-----------------------------------------
-
-* ``McsaDecoder``: incorrect polygon count after converting quads to triangles.
-* ``GlbEncoder``: incorrect geometry produced from polygon quads.

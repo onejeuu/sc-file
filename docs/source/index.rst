@@ -12,7 +12,7 @@ sc-file
   compile
 
   api/index
-  v/index
+  changelog
 
 
 **scfile** is a utility and library for converting proprietary STALCRAFT asset formats to standard ones.

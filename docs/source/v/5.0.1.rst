@@ -1,8 +1,0 @@
-v5.0.1
-==================================================
-
-🐛 Fixed
-----------------------------------------
-
-* **GUI:** incorrect language detection.
-* **GUI:** assets missing from the PyPI package.
