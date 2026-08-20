@@ -8,31 +8,44 @@
 📌 General
 ----------------------------------------
 
+Q: Is it safe to use this program?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Yes. Using this program to unpack and export assets is safe.
+
+Be careful when sharing this project on official game channels or communities,
+as such tools may be considered undesirable and may be removed or moderated there.
+
+
+Q: Can I modify or replace game files?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Not recommended.
+
+The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying game files
+except in `documented cases <EXBO_MODS_>`_. Violating this restriction may lead to ban.
+There is no known safe threshold for a particular modification.
+Avoid any changes that could provide in game advantages.
+
+
 Q: Can files be encoded back into game formats?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 No. Reverse encoding is not available.
 
-An open source encoder would let users alter client assets to easy.
+An open source encoder would let users alter client assets too easy.
 It would lower the barrier to changes intended to gain an advantage.
-It could also provoke stricter asset protection or repeated format changes, making legitimate extraction and research harder.
+It could also provoke stricter asset protection or repeated format changes,
+making legitimate extraction and research harder.
 Public functionality therefore ends at decoding and export.
 
 
 Q: Game update broke <Any Filename> decoding!
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An update may introduce a new format version or a file variant unsupported by the current decoder.
 Try the latest release. If the problem remains, `open an issue <ISSUES_>`_ and attach the file.
-
-
-Q: Could using this program lead to a game ban?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying game files except in `documented cases <EXBO_FILES_>`_.
-Violating this restriction can lead to a ban. The agreement does not define a safe purpose or threshold for a particular replacement.
-
-To avoid accidental replacement, work with copies and keep output outside the game directory.
+In case of large changes, it might take some time to adapt.
 
 
 ----------------------------------------

@@ -56,7 +56,7 @@
 .. _Effekseer: https://effekseer.github.io/
 .. _FMOD: https://www.fmod.com/docs/2.03/studio/fmod-studio-concepts.html
 .. _EXBO_LICENSE: https://stalcraft.net/legal/ru_launcher_licence.pdf
-.. _EXBO_FILES: https://support.exbo.net/ru/help-center/articles/1/37/386
+.. _EXBO_MODS: https://support.exbo.net/ru/help-center/articles/1/37/386
 .. _DONATE: https://www.donationalerts.com/r/onejeuu
 .. _SMARTSCREEN: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
 .. _PYINSTALLER_ISSUE: https://github.com/pyinstaller/pyinstaller/issues/9266

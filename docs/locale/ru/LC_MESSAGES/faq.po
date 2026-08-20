@@ -69,21 +69,17 @@ msgstr "В: Может ли использование этой программ
 msgid ""
 "The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying"
 " game files except in `documented cases <EXBO_FILES_>`_. Violating this "
-"restriction can lead to a ban. The agreement does not define a safe "
-"purpose or threshold for a particular replacement."
+"restriction can lead to a ban. Safe threshold for a particular replacement is unknown."
 msgstr ""
 "`Лицензионное соглашение <EXBO_LICENSE_>`_ запрещает заменять или модифицировать "
 "файлы игры, кроме `описанных случаев <EXBO_FILES_>`_. Нарушение этих "
-"ограничений может привести к блокировке. Соглашение не определяет безопасную "
-"цель или порог конкретных рамок допустимых замен."
+"ограничений может привести к блокировке. Безопасный порог допустимых изменений неизвестен."
 
 #: ../../source/faq.rst:35
 msgid ""
-"To avoid accidental replacement, work with copies and keep output outside"
-" the game directory."
+"Use it as your own risk."
 msgstr ""
-"Для избежания случайной замены используйте копии и сохраняйте выходные файлы "
-"за пределами директории игры."
+"Используйте на свой страх и риск."
 
 #: ../../source/faq.rst:40
 msgid "📤 Output Formats"
