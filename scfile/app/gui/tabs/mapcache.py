@@ -135,7 +135,13 @@ class MapCacheTab(QWidget):
         return None
 
     def _source_changed(self, _: str) -> None:
-        source = Path(self.source.value.strip())
+        value = self.source.value.strip()
+        if not value:
+            self._refresh()
+            return
+
+        source = Path(value)
+
         if self.settings.resolve_paths and source.exists():
             resolved = game.resolve_map_cache(source)
             if resolved != source:
@@ -150,7 +156,14 @@ class MapCacheTab(QWidget):
         self.scanner.refresh(self.source.value.strip())
 
     def _output_changed(self, _: str) -> None:
-        output = Path(self.output.value.strip())
+        value = self.output.value.strip()
+        if not value:
+            self.world = None
+            self._sync()
+            return
+
+        output = Path(value)
+
         if self.settings.resolve_paths and output.exists():
             self.world = game.resolve_minecraft_world(output)
             if self.world:

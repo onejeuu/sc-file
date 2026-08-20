@@ -16,11 +16,9 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../source/support.rst:4
-#, fuzzy
 msgid "Format Support"
-msgstr "✨ Поддержка Форматов"
+msgstr "Поддержка Форматов"
 
 #: ../../source/support.rst:6
 msgid "Format support is documented in :doc:`formats`."
-msgstr ""
-
+msgstr "Поддержка форматов описана в :doc:`formats`."

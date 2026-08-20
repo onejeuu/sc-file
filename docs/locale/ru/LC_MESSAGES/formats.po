@@ -830,7 +830,7 @@ msgid ""
 "Used AES_. Decryption requires a key recovered from the protected game "
 "client."
 msgstr ""
-"Использован AES_. Расшифровка требует ключей из защищенного клиента игры."
+"Использован AES_. Расшифровка требует ключи из защищенного клиента игры."
 
 #: ../../source/formats.rst:361
 msgid "``.xeon`` Encrypted Bundle"

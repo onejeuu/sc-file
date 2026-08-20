@@ -2,8 +2,25 @@ from pathlib import Path
 from typing import Literal, override
 
 from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
-from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDragMoveEvent, QDropEvent, QKeyEvent, QMouseEvent
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtGui import (
+    QDesktopServices,
+    QDragEnterEvent,
+    QDragMoveEvent,
+    QDropEvent,
+    QKeyEvent,
+    QKeySequence,
+    QMouseEvent,
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from scfile.app.gui import strings
 from scfile.app.gui.styles import Colors, Styles
@@ -26,7 +43,11 @@ def _local_path(data: QMimeData) -> str | None:
                 return url.toLocalFile()
 
     if data.hasText():
-        url = QUrl(data.text().strip())
+        text = data.text().strip()
+        if not text:
+            return None
+
+        url = QUrl(text)
         if url.isLocalFile():
             return url.toLocalFile()
 
@@ -41,13 +62,45 @@ class PathLineEdit(QLineEdit):
     def __init__(self) -> None:
         super().__init__()
         self._restoring = False
+        self._as_posix = True
+
+    @property
+    def as_posix(self) -> bool:
+        return self._as_posix
+
+    @as_posix.setter
+    def as_posix(self, value: bool) -> None:
+        self._as_posix = value
+        self.setText(self.text())
+
+    def _normalize(self, text: str | None) -> str:
+        if not text:
+            return ""
+
+        if self._as_posix:
+            text = text.replace("\\", "/")
+
+        return text
+
+    @override
+    def setText(self, text: str | None) -> None:
+        super().setText(self._normalize(text))
 
     @override
     def mousePressEvent(self, event: QMouseEvent) -> None:
         self.activated.emit()
         super().mousePressEvent(event)
 
+    @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.matches(QKeySequence.StandardKey.Paste):
+            data = QApplication.clipboard().mimeData()
+
+            if path := _local_path(data):
+                self.insert(self._normalize(path))
+                event.accept()
+                return
+
         if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             if self._restoring:
                 event.accept()
@@ -61,6 +114,7 @@ class PathLineEdit(QLineEdit):
 
         super().keyPressEvent(event)
 
+    @override
     def keyReleaseEvent(self, event: QKeyEvent) -> None:
         if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self._restoring = False
@@ -69,25 +123,32 @@ class PathLineEdit(QLineEdit):
 
     def insertFromMimeData(self, data: QMimeData) -> None:
         if path := _local_path(data):
-            self.insert(path)
+            self.insert(self._normalize(path))
         else:
-            self.insert(data.text())
+            self.insert(self._normalize(data.text()))
 
     @override
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if _local_path(event.mimeData()):
             event.acceptProposedAction()
+        else:
+            super().dragEnterEvent(event)
 
+    @override
     def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if _local_path(event.mimeData()):
             event.acceptProposedAction()
+        else:
+            super().dragMoveEvent(event)
 
     @override
     def dropEvent(self, event: QDropEvent) -> None:
         if path := _local_path(event.mimeData()):
             self.setText(path)
-            self.path_set.emit(path)
+            self.path_set.emit(self.text())
             event.acceptProposedAction()
+        else:
+            super().dropEvent(event)
 
 
 class PathInputWidget(QWidget):
@@ -103,15 +164,20 @@ class PathInputWidget(QWidget):
         file_filter: str = "",
         default_suffix: str = "",
         initial_path: str = "",
+        as_posix: bool = True,
         parent=None,
     ):
         super().__init__(parent)
+
         self.caption = caption
         self.mode = mode
         self.file_filter = file_filter
         self.default_suffix = default_suffix
         self.initial_path = initial_path
+
         self._build_ui(placeholder)
+
+        self.line_edit.as_posix = as_posix
 
     def _build_ui(self, placeholder: str) -> None:
         layout = QHBoxLayout(self)
@@ -122,6 +188,7 @@ class PathInputWidget(QWidget):
         self.line_edit.setAcceptDrops(True)
         self.line_edit.setPlaceholderText(placeholder)
         self.line_edit.setStyleSheet(Styles.INPUT)
+
         self.line_edit.activated.connect(self.activated)
         self.line_edit.editingFinished.connect(self._emit_changed)
         self.line_edit.path_set.connect(self.changed.emit)
@@ -131,6 +198,7 @@ class PathInputWidget(QWidget):
         self.browse_btn.setStyleSheet(Styles.BUTTON)
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedSize(30, 30)
+
         tooltip = "tooltip.path_browse" if self.mode == "directory" else "tooltip.file_browse"
         self.browse_btn.setToolTip(strings.get(tooltip))
 
@@ -144,6 +212,7 @@ class PathInputWidget(QWidget):
     def _browse(self) -> None:
         file_mode, accept_mode = DIALOG_MODES[self.mode]
         initial_path = self.value.strip() or self.initial_path
+
         dialog = QFileDialog(self, self.caption, initial_path)
         dialog.setFileMode(file_mode)
         dialog.setAcceptMode(accept_mode)
@@ -153,25 +222,19 @@ class PathInputWidget(QWidget):
         if dialog.exec():
             path = dialog.selectedFiles()[0]
             self.value = path
-            self.changed.emit(path)
+            self.changed.emit(self.value)
 
     def _emit_changed(self) -> None:
-        text = self.line_edit.text().strip()
-        url = QUrl(text)
+        self.changed.emit(self.value.strip())
 
-        if url.isLocalFile():
-            text = url.toLocalFile()
-            self.line_edit.setText(text)
-
-        self.changed.emit(text)
-
-    def _open_in_explorer(self):
+    def _open_in_explorer(self) -> None:
         value = self.value.strip()
 
         if not value:
             return
 
         path = Path(value)
+
         if self.mode != "directory" and (path.is_file() or path.suffix):
             path = path.parent
 
@@ -195,6 +258,7 @@ class PathInputWidget(QWidget):
     @invalid.setter
     def invalid(self, value: bool) -> None:
         self.line_edit.setProperty("invalid", value)
+
         style = self.line_edit.style()
         style.unpolish(self.line_edit)
         style.polish(self.line_edit)
@@ -216,6 +280,14 @@ class PathInputWidget(QWidget):
     def placeholder(self, text: str) -> None:
         self.line_edit.setPlaceholderText(text)
 
+    @property
+    def as_posix(self) -> bool:
+        return self.line_edit.as_posix
+
+    @as_posix.setter
+    def as_posix(self, value: bool) -> None:
+        self.line_edit.as_posix = value
+
 
 class PathField(QWidget):
     activated = Signal()
@@ -232,16 +304,20 @@ class PathField(QWidget):
         file_filter: str = "",
         default_suffix: str = "",
         initial_path: str = "",
+        as_posix: bool = True,
         parent=None,
     ):
         super().__init__(parent)
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
         title = QLabel(label)
+
         if required:
             title.setText(f'{label} <span style="color: {Colors.ERROR}">*</span>')
+
         title.setStyleSheet(Styles.LABEL)
 
         self.input = PathInputWidget(
@@ -251,7 +327,9 @@ class PathField(QWidget):
             file_filter=file_filter,
             default_suffix=default_suffix,
             initial_path=initial_path,
+            as_posix=as_posix,
         )
+
         self.input.activated.connect(self.activated.emit)
         self.input.changed.connect(self.changed.emit)
 
@@ -262,6 +340,7 @@ class PathField(QWidget):
         self.error.setStyleSheet(Styles.ERROR)
         self.error.setWordWrap(True)
         self.error.hide()
+
         layout.addWidget(self.error)
 
     @property
@@ -300,3 +379,11 @@ class PathField(QWidget):
     @read_only.setter
     def read_only(self, value: bool) -> None:
         self.input.read_only = value
+
+    @property
+    def as_posix(self) -> bool:
+        return self.input.as_posix
+
+    @as_posix.setter
+    def as_posix(self, value: bool) -> None:
+        self.input.as_posix = value
