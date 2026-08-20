@@ -13,8 +13,8 @@ Q: Can files be encoded back into game formats?
 
 No. Reverse encoding is not available.
 
-An encoder would let users alter client assets without understanding the formats themselves.
-It would lower the barrier to changes intended to gain an advantage and to distributing modified files.
+An open source encoder would let users alter client assets to easy.
+It would lower the barrier to changes intended to gain an advantage.
 It could also provoke stricter asset protection or repeated format changes, making legitimate extraction and research harder.
 Public functionality therefore ends at decoding and export.
 

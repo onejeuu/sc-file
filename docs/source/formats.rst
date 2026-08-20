@@ -53,7 +53,7 @@
 
 .. _model-export:
 
-Model Export
+Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
@@ -112,10 +112,10 @@ Model Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Template:** MCAL.bt_
-| **Purpose:** Skeletal clips shared by models with matching skeletons.
+| **Purpose:** Shared clips by models with matching skeletons.
 | **Contents:** Skeletal animation clips.
 
-Animation Export
+Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
@@ -136,7 +136,7 @@ Animation Export
 | **Export:** ``.dds``.
 | **Note:** Normal maps may have an inverted Y axis.
 
-.. list-table:: Texture Suffix Conventions
+.. list-table:: Suffix Conventions
   :header-rows: 1
 
   * - Suffix
@@ -160,7 +160,7 @@ Animation Export
     - Self Illumination
     - Creates independent glow
 
-.. list-table:: Texture Format Mapping
+.. list-table:: FourCC Formats
   :header-rows: 1
 
   * - Encoded
@@ -251,7 +251,7 @@ Animation Export
 ----------------------------------------
 
 | **Format:** `Named Binary Tag <NBT_>`_ data.
-| **Compression:** None, gzip_ or zstd_.
+| **Compression:** None, gzip_, zstd_.
 | **Export:** ``.json`` (`JavaScript Object Notation <JSON_>`_).
 
 .. list-table::
@@ -379,8 +379,8 @@ Animation Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Engine:** `FMOD Studio <FMOD_>`_.
-| **Purpose:** Adaptive audio events.
-| **Contents:** Primarily voice acting and OST.
+| **Purpose:** Primarily voice acting and OST.
+| **Contents:** Adaptive audio events.
 
 
 ----------------------------------------

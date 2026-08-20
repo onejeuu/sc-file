@@ -60,7 +60,7 @@ Convert the cache
 
 In the graphical interface, select the map-cache directory and the target
 world or its ``region`` directory. The path resolver changes a selected world
-directory to its ``region`` directory automatically.
+directory to its ``region`` directory automatically (If enabled).
 
 From the command line:
 
@@ -68,21 +68,7 @@ From the command line:
 
    scfile mapcache "C:/EXBO/runtime/stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
 
-The source is scanned recursively. A source path containing ``map_cache`` also
-routes to Map Cache automatically:
-
-.. code-block:: console
-
-   scfile "C:/EXBO/runtime/stalcraft/map_cache/5.0"
-
-Use ``--raw`` only when inspecting the original numeric IDs:
-
-.. code-block:: console
-
-   scfile mapcache "C:/EXBO/runtime/stalcraft/map_cache/5.0" --raw
-
-For command options such as worker count and verbose output, see
-:ref:`mapcache-cli`.
+For command options see :ref:`mapcache-cli`.
 
 
 ----------------------------------------
@@ -105,9 +91,6 @@ For ``r.-3.5.mca``:
    z =  5 × 512 + 256 =  2816
    /tp @s -1280 100 2816
 
-Minecraft does not load distant regions just because their files exist.
-Teleport to the region, then adjust the height if necessary.
-
 Use the `Coordinate Calculator`_ when you want a position without calculating
 it manually.
 
@@ -116,12 +99,12 @@ it manually.
 Viewing setup
 ----------------------------------------
 
-Resource pack
+Resourcepack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download the `Map Cache Resource Packs`_.
 The original pack targets Minecraft ``1.6.4``. Updated variants are available
-for newer resource-pack formats.
+for newer formats.
 
 
 Mods
@@ -129,8 +112,8 @@ Mods
 
 The following Fabric setup is useful for viewing an exported world:
 
-- Fabric_ and `Fabric API`_ for the mod loader and its base API.
+- Fabric_ and `Fabric API`_ for the mods loader.
 - Voxy_ for distant terrain rendering.
-- C2ME_ for chunk loading and I/O.
-- Axiom_ for optional map editing.
+- C2ME_ for chunk loading optimisation.
+- Axiom_ for map editing.
 - Optionally other optimisation mods (like Sodium, Lithium, etc).

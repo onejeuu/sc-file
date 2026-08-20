@@ -117,7 +117,7 @@ Default command. Converts game assets to standard formats.
 
 
 ``-F, --model-format``
-  Preferred output format for models.
+  | Preferred output format for models.
   | Accepted values: ``obj``, ``glb``, ``fbx``.
 
   | Default is ``obj``.
@@ -167,9 +167,9 @@ Default command. Converts game assets to standard formats.
   | Accepted values: ``overwrite``, ``skip``, ``rename``.
   | Default is ``overwrite``.
 
-  - ``overwrite`` — Replace existing file.
-  - ``skip`` — Keep existing file.
-  - ``rename`` — Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
+  - ``overwrite``: Replace existing file.
+  - ``skip``: Keep existing file.
+  - ``rename``: Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
 
   .. code-block:: bash
     :caption: Example
@@ -214,7 +214,7 @@ Examples of how ``--layout`` changes output layout.
   └── items/vodka.ol
 
 
-``flat``
+``flat`` (default)
   .. code-block:: bash
 
     scfile "./assets" --output "./output"

@@ -1,35 +1,47 @@
+
 msgid ""
 msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-08-20 18:42+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../source/usage.rst:2
 msgid "🚀 Usage"
 msgstr "🚀 Использование"
 
-#: ../../source/usage.rst:9
+#: ../../source/usage.rst:15
 msgid "Quick Start"
 msgstr "Быстрый старт"
 
-#: ../../source/usage.rst:11
+#: ../../source/usage.rst:17
 msgid "🖥️ **GUI**"
 msgstr "🖥️ **Интерфейс**"
 
-#: ../../source/usage.rst:12
+#: ../../source/usage.rst:18
 msgid ""
 "Launch ``scfile.exe`` without arguments to open the graphical interface. "
-"Add files or folders, choose output formats and settings, and press "
-"**Convert**."
+"Use **Convert** for standalone assets, **Animation** for model and "
+"animation pairs, and **Map Cache** for region caches."
 msgstr ""
-"Запустите ``scfile.exe`` без аргументов, чтобы открыть графический "
-"интерфейс. Добавьте файлы или папки, выберите форматы и настройки вывода,"
-" и нажмите **Конвертировать**."
+"Запустите ``scfile.exe`` без аргументов, чтобы открыть графический интерфейс. "
+"Используйте **Convert** для отдельных ассетов, **Animation** для пар моделей и анимаций, "
+"и **Map Cache** для кэшей регионов."
 
-#: ../../source/usage.rst:17
+#: ../../source/usage.rst:23
+msgid "📥 **Drag & Drop**"
+msgstr ""
+
+#: ../../source/usage.rst:24
 msgid ""
 "Drag files or folders directly onto ``scfile.exe`` in File Explorer. "
 "Supported files are converted to default formats and saved alongside the "
@@ -39,15 +51,15 @@ msgstr ""
 "Поддерживаемые файлы будут преобразованы в стандартные форматы и "
 "сохранены рядом с исходным файлом."
 
-#: ../../source/usage.rst:20
+#: ../../source/usage.rst:27
 msgid "This is equivalent to passing dropped paths to ``scfile.exe``."
 msgstr "Это равнозначно передаче перетащенных путей в ``scfile.exe``."
 
-#: ../../source/usage.rst:23
+#: ../../source/usage.rst:30
 msgid "🖱️ **Open With**"
 msgstr "🖱️ **Открыть с помощью**"
 
-#: ../../source/usage.rst:24
+#: ../../source/usage.rst:31
 msgid ""
 "Set ``scfile.exe`` as the default program for opening supported file "
 "types. Double-clicking any such file in Explorer will convert it and save"
@@ -57,7 +69,7 @@ msgstr ""
 "поддерживаемых типов файлов. Двойной щелчок на таком файле в проводнике "
 "преобразует его и сохранит результат рядом с исходным файлом."
 
-#: ../../source/usage.rst:27
+#: ../../source/usage.rst:34
 msgid ""
 "To set up: right-click a file → **Open With** → choose ``scfile.exe`` and"
 " check **Always use this app**."
@@ -66,25 +78,28 @@ msgstr ""
 "помощью** → выберите ``scfile.exe`` и отметьте **Всегда использовать это "
 "приложение**."
 
-#: ../../source/usage.rst:31
+#: ../../source/usage.rst:38
 msgid "📟 **Command Line**"
 msgstr "📟 **Командная строка**"
 
-#: ../../source/usage.rst:32
+#: ../../source/usage.rst:39
 msgid ""
-"Run ``scfile.exe --help`` to see all available arguments and options. The"
-" CLI configures output formats, skeleton and animation export, directory "
-"structure, and file name conflicts."
+"Run ``scfile.exe --help`` to see all available arguments and options. "
+"Paths are routed automatically to conversion, animation, or map cache "
+"operations. Explicit commands remain available when the intended "
+"operation is ambiguous."
 msgstr ""
 "Запустите ``scfile.exe --help``, чтобы увидеть все доступные аргументы и "
-"опции. CLI позволяет настроить форматы вывода, экспорт скелетов и "
-"анимаций, структуру каталогов и обработку конфликтов имён."
+"опции. Пути автоматически маршрутизируются к операциям конвертации, "
+"анимации или кэша региона. Явные команды остаются доступными при "
+"неопределённых операций."
 
-#: ../../source/usage.rst:41
+
+#: ../../source/usage.rst:48
 msgid "📖 **Python Library**"
 msgstr "📖 **Библиотека Python**"
 
-#: ../../source/usage.rst:42
+#: ../../source/usage.rst:49
 msgid ""
 "Install the package from PyPI: ``pip install sc-file -U``. Use ``scfile``"
 " from Python scripts and tools."
@@ -92,33 +107,57 @@ msgstr ""
 "Установите пакет из PyPI: ``pip install sc-file -U``. Используйте "
 "``scfile`` в скриптах и инструментах Python."
 
-#: ../../source/usage.rst:45
+#: ../../source/usage.rst:52
 msgid ":doc:`Full API Reference <api/index>`"
 msgstr ":doc:`Подробное описание API <api/index>`"
 
-#: ../../source/usage.rst:47 ../../source/usage.rst:91
-#: ../../source/usage.rst:103 ../../source/usage.rst:116
-#: ../../source/usage.rst:127 ../../source/usage.rst:139
-#: ../../source/usage.rst:155 ../../source/usage.rst:165
-#: ../../source/usage.rst:175 ../../source/usage.rst:242
-#: ../../source/usage.rst:253 ../../source/usage.rst:263
-#: ../../source/usage.rst:272
+#: ../../source/usage.rst:54 ../../source/usage.rst:102
+#: ../../source/usage.rst:113 ../../source/usage.rst:126
+#: ../../source/usage.rst:135 ../../source/usage.rst:146
+#: ../../source/usage.rst:158 ../../source/usage.rst:174
+#: ../../source/usage.rst:184 ../../source/usage.rst:194
+#: ../../source/usage.rst:266 ../../source/usage.rst:275
+#: ../../source/usage.rst:287 ../../source/usage.rst:305
+#: ../../source/usage.rst:316 ../../source/usage.rst:326
+#: ../../source/usage.rst:335
 msgid "Example"
 msgstr "Пример"
 
-#: ../../source/usage.rst:60
+#: ../../source/usage.rst:67
 msgid "Command Line Interface"
 msgstr "Интерфейс командной строки"
 
-#: ../../source/usage.rst:63
+#: ../../source/usage.rst:70
 msgid "General"
 msgstr "Общее"
 
-#: ../../source/usage.rst:66
+#: ../../source/usage.rst:72
+msgid "``COMMAND``"
+msgstr ""
+
+#: ../../source/usage.rst
+msgid "Available commands: ``convert``, ``animate``, and ``mapcache``."
+msgstr "Доступные команды: ``convert``, ``animate`` и ``mapcache``."
+
+#: ../../source/usage.rst
+msgid ""
+"When paths are supplied without a command, the CLI selects one from their"
+" names and formats."
+msgstr "Когда пути предоставлены без команды, CLI выбирает одну из них по имени и формату."
+
+#: ../../source/usage.rst:76
+msgid "``--version``"
+msgstr ""
+
+#: ../../source/usage.rst:77
 msgid "Show the program version and exit."
 msgstr "Показать версию программы и выйти."
 
-#: ../../source/usage.rst:74
+#: ../../source/usage.rst:84
+msgid "``--updates``"
+msgstr ""
+
+#: ../../source/usage.rst:85
 msgid ""
 "Check for available updates on GitHub Releases and exit. Requires "
 "internet connection."
@@ -126,21 +165,29 @@ msgstr ""
 "Проверить наличие обновлений на GitHub Releases и выйти. Требуется "
 "интернет."
 
-#: ../../source/usage.rst:85
+#: ../../source/usage.rst:94
+msgid "convert"
+msgstr ""
+
+#: ../../source/usage.rst:96
 msgid "Default command. Converts game assets to standard formats."
 msgstr "Команда по умолчанию. Конвертирует игровые ассеты в стандартные форматы."
 
-#: ../../source/usage.rst:88
-msgid ""
-"One or more files or directories. Accepts absolute paths, relative paths,"
-" and wildcard patterns (``*``). Only files with supported extensions are "
-"processed."
+#: ../../source/usage.rst:98
+msgid "``PATHS``"
 msgstr ""
-"Один или несколько файлов или каталогов. Принимает абсолютные и "
-"относительные пути, а также шаблоны (``*``). Обрабатываются только файлы "
-"с поддерживаемыми расширениями."
 
-#: ../../source/usage.rst:101
+#: ../../source/usage.rst:99
+msgid ""
+"One or more files or directories. Accepts absolute and relative paths. "
+"Only supported files are processed."
+msgstr "Один или несколько файлов или каталогов. Принимает абсолютно и относительные пути. Только поддерживаемые файлы обрабатываются."
+
+#: ../../source/usage.rst:110 ../../source/usage.rst:312
+msgid "``-O, --output``"
+msgstr ""
+
+#: ../../source/usage.rst:111
 msgid ""
 "Output directory for converted files. If not specified, output files are "
 "saved alongside the source file."
@@ -148,17 +195,15 @@ msgstr ""
 "Каталог для преобразованных файлов. Если не указан, файлы сохраняются "
 "рядом с исходным файлом."
 
-#: ../../source/usage.rst
-msgid ""
-"Preferred output format for models. Repeatable to specify multiple "
-"formats."
+#: ../../source/usage.rst:119
+msgid "``-F, --model-format``"
 msgstr ""
-"Предпочитаемый формат для моделей. Повторяемо для указания нескольких "
-"форматов."
 
-#: ../../source/usage.rst
-msgid "Accepted values: ``obj``, ``glb``, ``fbx``, ``dae``, ``ms3d``."
-msgstr "Допустимые значения: ``obj``, ``glb``, ``fbx``, ``dae``, ``ms3d``."
+msgid "Preferred output format for models."
+msgstr "Предпочитаемый формат для моделей."
+
+msgid "Accepted values: ``obj``, ``glb``, ``fbx``."
+msgstr "Допустимые значения: ``obj``, ``glb``, ``fbx``."
 
 #: ../../source/usage.rst
 msgid "Default is ``obj``."
@@ -170,21 +215,37 @@ msgstr ""
 "При использовании ``--skeleton`` или ``--animation``, по умолчанию: "
 "``glb``."
 
-#: ../../source/usage.rst
-msgid "Export model skeleton (armature)."
-msgstr "Экспортировать скелет модели (арматуру)."
+#: ../../source/usage.rst:132
+msgid "``-I, --include``"
+msgstr ""
+
+#: ../../source/usage.rst:133
+msgid "Process only the specified source formats. May be repeated."
+msgstr "Обрабатывать только указанные форматы. Может быть повторено."
+
+#: ../../source/usage.rst:142
+msgid "``--skeleton``"
+msgstr ""
 
 #: ../../source/usage.rst
-msgid "Supported by: ``glb``, ``dae``, ``ms3d``."
-msgstr "Поддерживается: ``glb``, ``dae``, ``ms3d``."
+msgid "Export model skeleton (armature)."
+msgstr "Экспортировать скелет модели."
+
+#: ../../source/usage.rst
+msgid "Supported by: ``glb``, ``fbx``."
+msgstr "Поддерживается: ``glb``, ``fbx``."
+
+#: ../../source/usage.rst:154
+msgid "``--animation``"
+msgstr ""
 
 #: ../../source/usage.rst
 msgid "Export embedded animation clips. Implies ``--skeleton``."
 msgstr "Экспортировать встроенные анимационные клипы. Включает ``--skeleton``."
 
-#: ../../source/usage.rst
-msgid "Supported by: ``glb``."
-msgstr "Поддерживается: ``glb``."
+#: ../../source/usage.rst:165
+msgid "``--on-conflict``"
+msgstr ""
 
 #: ../../source/usage.rst
 msgid "What to do when an output file already exists."
@@ -198,72 +259,160 @@ msgstr "Допустимые значения: ``overwrite``, ``skip``, ``rename
 msgid "Default is ``overwrite``."
 msgstr "По умолчанию: ``overwrite``."
 
-#: ../../source/usage.rst:151
-msgid "``overwrite`` — Replace existing file."
-msgstr "``overwrite`` — заменить существующий файл."
+#: ../../source/usage.rst:170
+msgid "``overwrite``: Replace existing file."
+msgstr "``overwrite``: заменить существующий файл."
 
-#: ../../source/usage.rst:152
-msgid "``skip`` — Keep existing file."
-msgstr "``skip`` — оставить существующий файл."
-
-#: ../../source/usage.rst:153
-msgid "``rename`` — Add numeric suffix: ``model (1).obj``, ``model (2).obj``."
-msgstr ""
-"``rename`` — добавить числовой суффикс: ``model (1).obj``, ``model "
-"(2).obj``."
-
-#: ../../source/usage.rst:162
-msgid ""
-"Preserve directory structure of source files inside output directory. "
-"Requires ``--output``."
-msgstr ""
-"Сохранить структуру каталогов исходных файлов внутри каталога вывода. "
-"Требует ``--output``."
+#: ../../source/usage.rst:171
+msgid "``skip``: Keep existing file."
+msgstr "``skip``: оставить существующий файл."
 
 #: ../../source/usage.rst:172
-msgid ""
-"Use parent directory of each source path as root for relative output. "
-"Implies ``--relative``."
+msgid "``rename``: Add numeric suffix: ``model (1).obj``, ``model (2).obj``."
 msgstr ""
-"Использовать родительский каталог каждого исходного пути в качестве корня"
-" для относительного вывода. Имплисит ``--relative``."
+"``rename``: добавить числовой суффикс: ``model (1).obj``, ``model "
+"(2).obj``."
 
-#: ../../source/usage.rst:182
+#: ../../source/usage.rst:180
+msgid "``--layout``"
+msgstr ""
+
+#: ../../source/usage.rst
+msgid "Output layout. Requires ``--output`` unless set to ``flat``."
+msgstr "Расположение вывода. Требуется ``--output``, если не установлено ``flat``."
+
+#: ../../source/usage.rst
+msgid "Accepted values: ``flat`` (default), ``relative``, ``rooted``."
+msgstr "Допустимые значения: ``flat`` (по умолчанию), ``relative``, ``rooted``."
+
+#: ../../source/usage.rst:190 ../../source/usage.rst:322
+msgid "``-W, --workers``"
+msgstr ""
+
+#: ../../source/usage.rst
+msgid "Number of worker threads. Default: CPU count."
+msgstr "Количество потоков. По умолчанию: ``CPU count``."
+
+#: ../../source/usage.rst
+msgid "Set to ``0`` for sequential execution."
+msgstr "Установите в ``0`` для последовательного выполнения."
+
+#: ../../source/usage.rst:200 ../../source/usage.rst:341
+msgid "``-v, --verbose``"
+msgstr ""
+
+#: ../../source/usage.rst:201
+msgid "Show the result of every processed file."
+msgstr "Показать результат обработки каждого файла."
+
+#: ../../source/usage.rst:205
 msgid "Output Structure"
 msgstr "Структура вывода"
 
-#: ../../source/usage.rst:184
-msgid "Examples of how ``--relative`` and ``--parent`` change output layout."
-msgstr "Примеры того, как ``--relative`` и ``--parent`` меняют структуру вывода."
+#: ../../source/usage.rst:207
+msgid "Examples of how ``--layout`` changes output layout."
+msgstr "Примеры того, как ``--layout`` изменяет структуру вывода."
 
-#: ../../source/usage.rst:186
+#: ../../source/usage.rst:209
 msgid "Source structure"
 msgstr "Структура исходных файлов"
 
-#: ../../source/usage.rst:194
-msgid "Default"
-msgstr "По умолчанию"
+#: ../../source/usage.rst:217
+msgid "``flat`` (default)"
+msgstr "``flat`` (по умолчанию)"
 
-#: ../../source/usage.rst:199 ../../source/usage.rst:212
-#: ../../source/usage.rst:225
+#: ../../source/usage.rst:222 ../../source/usage.rst:235
+#: ../../source/usage.rst:248
 msgid "Output"
 msgstr "Вывод"
 
-#: ../../source/usage.rst:236
+#: ../../source/usage.rst:230
+msgid "``relative``"
+msgstr ""
+
+#: ../../source/usage.rst:243
+msgid "``rooted``"
+msgstr ""
+
+#: ../../source/usage.rst:257
+msgid "animate"
+msgstr ""
+
+#: ../../source/usage.rst:259
+msgid ""
+"Applies external animation data to one or more ``.mcsb`` models and "
+"exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a "
+"GLB file or directory. Without it, the GLB is saved next to the animation"
+" source."
+msgstr ""
+"Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и экспортирует ``.glb`` файл."
+"Каждый подкоманда принимает ``-O, --output`` для GLB файла или директории. Без него GLB сохраняется рядом с исходным файлом анимации."
+
+#: ../../source/usage.rst:261
+msgid ":doc:`Open the animation export guide → <usage/animate>`"
+msgstr ":doc:`Открыть руководство по экспорту анимации → <usage/animate>`"
+
+#: ../../source/usage.rst:263
+msgid "``arms ANIMATION MODEL [HANDS]``"
+msgstr ""
+
+#: ../../source/usage.rst:264
+msgid ""
+"Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add"
+" an optional hands model."
+msgstr "Применить ``.mcvd`` анимацию от первого лица к оружию ``.mcsb``. Опционально добавьте модель рук."
+
+#: ../../source/usage.rst:272
+msgid "``face ANIMATION MODEL``"
+msgstr ""
+
+#: ../../source/usage.rst:273
+msgid "Apply a facial ``.mcvd`` animation to a head ``.mcsb`` model."
+msgstr "Применить ``.mcvd`` лицевую анимацию к голове ``.mcsb``."
+
+#: ../../source/usage.rst:281
+msgid "``body ANIMATION MODEL``"
+msgstr ""
+
+#: ../../source/usage.rst:282
+msgid "Apply an ``.mcal`` skeletal animation library to an ``.mcsb`` model."
+msgstr "Применить ``.mcal`` скелетальную анимацию к ``.mcsb`` модели."
+
+#: ../../source/usage.rst:284 ../../source/usage.rst:332
+msgid "``--raw``"
+msgstr ""
+
+#: ../../source/usage.rst:285
+msgid "Keep technical clips that are normally filtered from the export."
+msgstr "Оставить технические кадры, которые обычно фильтруются при экспорте."
+
+#: ../../source/usage.rst:296
+msgid "mapcache"
+msgstr ""
+
+#: ../../source/usage.rst:298
 msgid "Merges ``.mdat`` region caches into ``.mca`` region files."
 msgstr "Объединяет кэши регионов ``.mdat`` в файлы регионов ``.mca``."
 
-#: ../../source/usage.rst:237
+#: ../../source/usage.rst:299
 msgid ""
 "Run with explicit command or use a path containing ``map_cache`` to auto-"
 "detect."
 msgstr "Запустите с явной командой или используйте путь, содержащий ``map_cache``."
 
-#: ../../source/usage.rst:240
+#: ../../source/usage.rst:300
+msgid ":doc:`Open the Map Cache viewing guide → <usage/mapcache>`"
+msgstr ":doc:`Открыть руководство по просмотру Map Cache → <usage/mapcache>`"
+
+#: ../../source/usage.rst:302
+msgid "``SOURCE``"
+msgstr ""
+
+#: ../../source/usage.rst:303
 msgid "Directory containing ``.mdat`` files."
 msgstr "Папка, содержащая файлы ``.mdat``."
 
-#: ../../source/usage.rst:250
+#: ../../source/usage.rst:313
 msgid ""
 "Output directory for ``.mca`` files. If not specified, creates a folder "
 "alongside ``SOURCE`` with ``_mca`` suffix."
@@ -271,81 +420,349 @@ msgstr ""
 "Папка для выходных файлов ``.mca``. Если не указана, создается папка "
 "рядом с ``SOURCE`` с суффиксом ``_mca``."
 
-#: ../../source/usage.rst
-msgid "Number of worker threads. Default: ``CPU count × 2``."
-msgstr "Количество потоков. По умолчанию: ``CPU count × 2``."
-
-#: ../../source/usage.rst
-msgid "Set to ``0`` for sequential execution (no threads)."
-msgstr "Установите в ``0`` для последовательного выполнения (без потоков)."
-
-#: ../../source/usage.rst:270
-msgid "Keep original block IDs without lookup table replacement."
+#: ../../source/usage.rst:333
+#, fuzzy
+msgid "Keep original block IDs without mapping table replacement."
 msgstr "Оставьте оригинальные идентификаторы блоков без замены по таблице."
 
-# ============================================================================
-# No translation required.
-# ============================================================================
-#: ../../source/usage.rst:16
-msgid "📥 **Drag & Drop**"
+#: ../../source/usage.rst:342
+msgid "Show the result of every processed region."
+msgstr "Показать результат обработки каждого региона."
+
+#: ../../source/usage/animate.rst:2
+msgid "🌀 Animation Export"
+msgstr "🌀 Экспорт анимации"
+
+#: ../../source/usage/animate.rst:9 ../../source/usage/mapcache.rst:9
+msgid "What it does"
+msgstr "Что делает"
+
+#: ../../source/usage/animate.rst:11
+msgid ""
+"Animation files are exported together with their target ``.mcsb`` models."
+" The result is a ``.glb`` file containing the model and its applied "
+"animation data."
+msgstr ""
+"Файлы анимации экспортируются вместе с их целевыми ``.mcsb`` моделями."
+" Результат это ``.glb`` файл, содержащий модель и примененные данные анимации."
+
+#: ../../source/usage/animate.rst:14
+msgid ""
+"The animation and model can be located in different directories. Their "
+"file names alone do not establish compatibility. Each animation operation"
+" uses its own model relationship."
+msgstr ""
+"Анимация и модель могут находиться в разных директориях. Имена файлов "
+"без пути не гарантируют совместимость. Каждая операция анимации использует свою модель."
+
+#: ../../source/usage/animate.rst:21
+msgid "Find related assets"
+msgstr "Поиск связанных ассетов"
+
+#: ../../source/usage/animate.rst:23
+msgid "The paths below are relative to ``runtime/stalcraft/modassets/assets``."
+msgstr "Пути ниже относительно ``runtime/stalcraft/modassets/assets``."
+
+#: ../../source/usage/animate.rst:28
+msgid "Operation"
+msgstr "Операция"
+
+#: ../../source/usage/animate.rst:29
+msgid "Animation files"
+msgstr "Файлы анимации"
+
+#: ../../source/usage/animate.rst:30
+msgid "Target models"
+msgstr "Целевые модели"
+
+#: ../../source/usage/animate.rst:31
+msgid "Mappings"
+msgstr "Таблица"
+
+#: ../../source/usage/animate.rst:32 ../../source/usage/animate.rst:52
+msgid "Arms"
 msgstr ""
 
-#: ../../source/usage.rst:65
-msgid "``--version``"
+#: ../../source/usage/animate.rst:33
+msgid "``highpoly/animations``"
 msgstr ""
 
-#: ../../source/usage.rst:73
-msgid "``--updates``"
+#: ../../source/usage/animate.rst
+msgid "``weapons/models``"
 msgstr ""
 
-#: ../../source/usage.rst:83
-msgid "convert"
+#: ../../source/usage/animate.rst
+msgid "``highpoly/character_hands.mcsb``"
 msgstr ""
 
-#: ../../source/usage.rst:87
-msgid "``PATHS``"
+#: ../../source/usage/animate.rst:36
+msgid "`Arms Mappings`_"
 msgstr ""
 
-#: ../../source/usage.rst:100 ../../source/usage.rst:249
-msgid "``-O, --output``"
+#: ../../source/usage/animate.rst:37 ../../source/usage/animate.rst:72
+msgid "Face"
 msgstr ""
 
-#: ../../source/usage.rst:109
-msgid "``-F, --mdlformat``"
+#: ../../source/usage/animate.rst
+msgid "``highpoly/lipsync``"
 msgstr ""
 
-#: ../../source/usage.rst:123
-msgid "``--skeleton``"
+#: ../../source/usage/animate.rst
+msgid "``stalkerplayer/head_animations``"
 msgstr ""
 
-#: ../../source/usage.rst:135
-msgid "``--animation``"
+#: ../../source/usage/animate.rst
+msgid "``stalkerplayer/heads``"
 msgstr ""
 
-#: ../../source/usage.rst:146
-msgid "``--on-conflict``"
+#: ../../source/usage/animate.rst
+msgid "``stalkerplayer/arkit``"
 msgstr ""
 
-#: ../../source/usage.rst:161 ../../source/usage.rst:207
-msgid "``--relative``"
+#: ../../source/usage/animate.rst:42
+msgid "`Face Mappings`_"
 msgstr ""
 
-#: ../../source/usage.rst:171 ../../source/usage.rst:220
-msgid "``--parent``"
+#: ../../source/usage/animate.rst:43 ../../source/usage/animate.rst:87
+msgid "Body"
 msgstr ""
 
-#: ../../source/usage.rst:234
-msgid "mapcache"
+#: ../../source/usage/animate.rst
+msgid "``highpoly/character``"
 msgstr ""
 
-#: ../../source/usage.rst:239
-msgid "``SOURCE``"
+#: ../../source/usage/animate.rst
+msgid "``customnpcs``"
 msgstr ""
 
-#: ../../source/usage.rst:259
-msgid "``-W, --workers``"
+#: ../../source/usage/animate.rst
+msgid "``customitems``"
 msgstr ""
 
-#: ../../source/usage.rst:269
-msgid "``--raw``"
+#: ../../source/usage/animate.rst:47
+msgid "Mapped ``.mcsb`` files"
+msgstr "Сопоставленные ``.mcsb`` файлы"
+
+#: ../../source/usage/animate.rst:48
+msgid "`Body Mappings`_"
 msgstr ""
+
+#: ../../source/usage/animate.rst:54
+msgid ""
+"``arms`` applies first-person weapon, item, and hands animations from "
+"``.mcvd`` to ``.mcsb`` models. Models are matched to the animation "
+"skeleton by bone name."
+msgstr ""
+"``arms`` применяет анимацию оружия, предметов и рук из ``.mcvd`` в ``.mcsb`` модели. Модели сопоставляются по имени костей."
+
+#: ../../source/usage/animate.rst:57
+msgid ""
+"The shared hands model is ``highpoly/character_hands.mcsb``. A complete "
+"first-person result normally uses both the matching weapon model and this"
+" hands model. Some animations contain only hands and use this model "
+"without a weapon."
+msgstr ""
+"Общая модель рук ``highpoly/character_hands.mcsb``. Для первого лица обычно используется обе модели: оружие и руки. Некоторые анимации содержат только руки и используют эту модель без оружия."
+
+#: ../../source/usage/animate.rst:61
+msgid "An export fails when the selected model has no compatible meshes."
+msgstr "Экспорт завершается ошибкой, если выбранная модель не имеет совместимых мешей."
+
+#: ../../source/usage/animate.rst:63 ../../source/usage/animate.rst:78
+#: ../../source/usage/animate.rst:102
+msgid "For example:"
+msgstr "Например:"
+
+#: ../../source/usage/animate.rst:74
+msgid ""
+"``face`` applies facial ``.mcvd`` animation to a head ``.mcsb`` model by "
+"matching morph channel names. Facial animations are generally compatible "
+"with head models that use the same channels."
+msgstr ""
+"``face`` применяет лицевую анимацию ``.mcvd`` к ``.mcsb`` модели головы, сопоставляя каналы."
+
+#: ../../source/usage/animate.rst:89
+msgid ""
+"``body`` applies skeletal animation clips from ``.mcal`` to an ``.mcsb`` "
+"model by bone index. The animation and model must have the same number of"
+" bones."
+msgstr ""
+"``body`` применяет скелетальную анимацию ``.mcal`` к ``.mcsb`` модели по индексу костей. Анимация и модель должны иметь одинаковое количество костей."
+
+#: ../../source/usage/animate.rst:92
+msgid ""
+"``--raw`` keeps every decoded clip. The default output removes duplicate "
+"and technical clips. Clips remain separate. Layer and preset composition "
+"is not reconstructed."
+msgstr ""
+"``--raw`` сохраняет каждый декодированный клип. По умолчанию вывод удаляет дубликаты и технические клипы. Клипы остаются отдельными. Композиция слоев и пресетов не восстанавливается."
+
+#: ../../source/usage/animate.rst:98
+msgid ""
+"MCAL support remains experimental. The format and practical workflows are"
+" not yet fully understood. Report any problem or idea for improvement "
+"through `Issues`_."
+msgstr ""
+"Поддержка MCAL остается экспериментальной. Формат и практические рабочие процессы еще не полностью разобраны. Сообщайте о проблемах или идеях для улучшения через `Issues`_."
+
+#: ../../source/usage/mapcache.rst:2
+msgid "🗺 Map Cache Preview"
+msgstr "🗺 Просмотр кэша карты"
+
+#: ../../source/usage/mapcache.rst:11
+msgid ""
+"The map cache contains ``.mdat`` terrain-region fragments, usually "
+"located at ``runtime/stalcraft/map_cache/5.0``. Map Cache groups "
+"fragments by coordinates and writes Minecraft Anvil region files named "
+"``r.<x>.<z>.mca``."
+msgstr ""
+"Кэш карты содержит фрагменты ``.mdat`` регионов, обычно расположенные в ``runtime/stalcraft/map_cache/5.0``. Map Cache группирует фрагменты по координатам и записывает файлы региона Minecraft Anvil с именами ``r.<x>.<z>.mca``."
+
+#: ../../source/usage/mapcache.rst:17
+msgid "What is exported"
+msgstr "Что экспортируется"
+
+#: ../../source/usage/mapcache.rst:19
+msgid ""
+"The output uses Anvil data version ``1343``, the Minecraft Java "
+"``1.12.2`` format. It writes terrain block arrays. Metadata, lighting, "
+"biomes, entities, and block states are not exported."
+msgstr ""
+"Выходные данные используют версию данных Anvil ``1343``, формат Minecraft Java ``1.12.2``. Он записывает массивы блоков terrain. Метаданные, освещение, биомы, сущности и состояния блоков не экспортируются."
+
+#: ../../source/usage/mapcache.rst:25
+msgid ""
+"Block IDs differ from Minecraft. By default, the `Block Mapping`_ "
+"replaces selected IDs with approximate Minecraft blocks."
+msgstr ""
+"Идентификаторы блоков различаются от Minecraft. По умолчанию, `Block Mapping`_ заменяет выбранные идентификаторы на приближённые блоки Minecraft."
+
+#: ../../source/usage/mapcache.rst:28
+msgid ""
+"``--raw`` keeps the original IDs for inspection. Minecraft interprets "
+"them through its own ID table, so the result is usually visually "
+"incoherent."
+msgstr ""
+"``--raw`` сохраняет оригинальные идентификаторы для проверки. Minecraft интерпретирует их через свою таблицу IDs, поэтому результат обычно визуально хаотичен."
+
+#: ../../source/usage/mapcache.rst:34
+msgid "Prepare a world"
+msgstr "Подготовка мира"
+
+#: ../../source/usage/mapcache.rst:36
+msgid ""
+"Create a separate local Minecraft Java world before the first export. A "
+"superflat world with structures disabled and only air is convenient for "
+"map preview. Leave the world after creating it."
+msgstr ""
+"Создайте отдельный локальный мир Minecraft Java перед первым экспортом. Плоский мир с отключенными структурами и только воздухом удобен для предварительного просмотра карты. Выйдите из мира после создания."
+
+#: ../../source/usage/mapcache.rst:40
+msgid "The ``region`` directory inside that world is the output directory:"
+msgstr "Директория ``region`` внутри мира это выходная директория:"
+
+#: ../../source/usage/mapcache.rst:47
+msgid ""
+"You can clear existing ``.mca`` files from this directory before the "
+"first export."
+msgstr ""
+"Вы можете очистить существующие файлы ``.mca`` из этой директории перед первым экспортом."
+
+#: ../../source/usage/mapcache.rst
+msgid "Always leave the world before replacing its regions."
+msgstr "Всегда выходите из мира перед заменой его регионов."
+
+#: ../../source/usage/mapcache.rst
+msgid "Minecraft can overwrite changed region files with its cached chunks."
+msgstr "Майнкрафт может перезаписать измененные файлы региона своими кэшированными чанками."
+
+#: ../../source/usage/mapcache.rst:54
+msgid ""
+"Existing files with the same ``r.<x>.<z>.mca`` name are replaced with "
+"``.mca.bck`` backups."
+msgstr ""
+"Существующие файлы с именем ``r.<x>.<z>.mca`` заменяются файлами ``.mca.bck``."
+
+#: ../../source/usage/mapcache.rst:59
+msgid "Convert the cache"
+msgstr "Конвертация кэша"
+
+#: ../../source/usage/mapcache.rst:61
+msgid ""
+"In the graphical interface, select the map-cache directory and the target"
+" world or its ``region`` directory. The path resolver changes a selected "
+"world directory to its ``region`` directory automatically (If enabled)."
+msgstr ""
+"В графическом интерфейсе выберите каталог кэша и целевую мир или его директорию ``region``. Исправление путей изменяет выбранную папку мира на целевую директорию ``region`` автоматически (Если включено)."
+
+#: ../../source/usage/mapcache.rst:65
+msgid "From the command line:"
+msgstr "**Командная строка:**"
+
+#: ../../source/usage/mapcache.rst:84
+msgid "For command options see :ref:`mapcache-cli`."
+msgstr "Для параметров командной строки см. :ref:`mapcache-cli`."
+
+#: ../../source/usage/mapcache.rst:90
+msgid "Find the exported regions"
+msgstr "Поиск экспортированных регионов"
+
+#: ../../source/usage/mapcache.rst:92
+msgid ""
+"One ``r.<rx>.<rz>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` "
+"blocks. Teleport near its centre:"
+msgstr "Один файл ``r.<rx>.<rz>.mca`` охватывает ``32 × 32`` чанкака, или ``512 × 512`` блоков. Телепортируйте близко к центру:"
+
+#: ../../source/usage/mapcache.rst:100
+msgid "For ``r.-3.5.mca``:"
+msgstr "Для ``r.-3.5.mca``:"
+
+#: ../../source/usage/mapcache.rst:111
+msgid ""
+"Use the `Coordinate Calculator`_ when you want a position without "
+"calculating it manually."
+msgstr "Используйте `Coordinate Calculator`_ при необходимости."
+
+#: ../../source/usage/mapcache.rst:117
+msgid "Viewing setup"
+msgstr "Настройка игры"
+
+#: ../../source/usage/mapcache.rst:120
+msgid "Resourcepack"
+msgstr "Ресурспак"
+
+#: ../../source/usage/mapcache.rst:122
+msgid ""
+"Download the `Map Cache Resource Packs`_. The original pack targets "
+"Minecraft ``1.6.4``. Updated variants are available for newer formats."
+msgstr ""
+"Скачайте `Map Cache Resource Packs`_. Оригинальный пакет предназначен для "
+"Minecraft ``1.6.4``. Обновленные варианты доступны для более новых форматов."
+
+#: ../../source/usage/mapcache.rst:128
+msgid "Mods"
+msgstr "Моды"
+
+#: ../../source/usage/mapcache.rst:130
+msgid "The following Fabric setup is useful for viewing an exported world:"
+msgstr "Следующие Fabric моды полезны для просмотра экспортированного мира:"
+
+#: ../../source/usage/mapcache.rst:132
+msgid "Fabric_ and `Fabric API`_ for the mods loader."
+msgstr "Fabric_ и `Fabric API`_ для загрузчика модов."
+
+#: ../../source/usage/mapcache.rst:133
+msgid "Voxy_ for distant terrain rendering."
+msgstr "Voxy_ для максимальной прогрузки чанков."
+
+#: ../../source/usage/mapcache.rst:134
+msgid "C2ME_ for chunk loading optimisation."
+msgstr "C2ME_ для оптимизации загрузки чанков."
+
+#: ../../source/usage/mapcache.rst:135
+msgid "Axiom_ for map editing."
+msgstr "Axiom_ для редактирования карты."
+
+#: ../../source/usage/mapcache.rst:136
+msgid "Optionally other optimisation mods (like Sodium, Lithium, etc)."
+msgstr "Опционально другие моды оптимизации (например, Sodium, Lithium и т.д.)."

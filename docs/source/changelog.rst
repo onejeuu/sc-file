@@ -2,10 +2,10 @@
 ==================================================
 
 v6.0.0
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``scfile animate``: added ``arms()``, ``face()``, and ``body()`` commands for animation export to ``.glb``.
 * ``convert.arms()``: exports a first-person ``.mcvd`` animation with weapon and hands ``.mcsb`` models.
@@ -29,7 +29,7 @@ v6.0.0
 * **Documentation:** added Map Cache viewing and animation export guides.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Minimum Python version raised to ``3.13``.
 * ``convert.auto()`` now returns destination path on success or ``None`` on skip.
@@ -38,7 +38,7 @@ v6.0.0
 * **CLI**: updated feedback.
 
 ♻️ Refactored
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * ``scfile`` entry point: moved to ``scfile.app.launcher``.
 * ``scfile.core.content`` moved to ``scfile.structures.content``.
 * ``scfile.core.structio`` moved to ``scfile.io.base``.
@@ -48,7 +48,7 @@ v6.0.0
 * ``scfile.consts`` and ``scfile.enums`` types redistributed to more specific modules.
 
 🗑️ Removed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Support of Python ``3.11`` and ``3.12``.
 * ``DaeEncoder`` (``.dae``): removed output format.
@@ -60,20 +60,20 @@ v6.0.0
 
 
 v5.2.1 (2026-07-26)
-==================================================
+----------------------------------------
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``FileEncoder.save()``, ``FileEncoder.export()``: close the encoder when serialization fails.
 
 
 
 v5.2.0 (2026-07-24)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``OlDecoder``: support for ``DXN_X`` (``ATI1`` / ``BC4``) textures.
 * ``TextureKind``: OL texture kind identifiers.
@@ -88,7 +88,7 @@ v5.2.0 (2026-07-24)
 * **Development:** public ``audit``, ``info`` and ``profile`` tools.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``OlDecoder``: default and cubemap textures are now detected from the OL kind field.
 * ``OlDecoder``: texture data is typed as ``DefaultTexture | CubemapTexture``.
@@ -96,25 +96,25 @@ v5.2.0 (2026-07-24)
 * **Templates:** updated binary format structures.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: facial bones and morph animation structure in model version 15.0.
 * ``DaeEncoder``: ``float_array`` counts in generated documents.
 * ``OlDecoder``: invalid compressed mipmaps now report ``InvalidStructureError``.
 
 ⚠️ Deprecated
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``OlCubemapDecoder``: use ``OlDecoder`` instead.
 * ``ol_cubemap_to_dds()``: use ``ol_to_dds()`` instead.
 
 🗑️ Removed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaCountsLimit``: replaced by ``LimitError``.
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``Ms3dEncoder``: numeric data serialization (1.2 s → 20 ms).
 * ``DaeEncoder``, ``ObjEncoder``: numeric data serialization.
@@ -122,31 +122,31 @@ v5.2.0 (2026-07-24)
 
 
 v5.1.1 (2026-07-01)
-==================================================
+----------------------------------------
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Templates:** updated binary format structures.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: parsing blend shape flag in model version 15.0.
 
 
 
 v5.1.0 (2026-06-03)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: support for model version 15.0.
 * **GUI:** sidebar navigation.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``BaseFile.location``: now returns a meaningful source identifier.
 * **GUI:** redesigned color scheme and component styles.
@@ -155,10 +155,10 @@ v5.1.0 (2026-06-03)
 
 
 v5.0.1 (2026-05-26)
-==================================================
+----------------------------------------
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **GUI:** incorrect language detection.
 * **GUI:** assets missing from the PyPI package.
@@ -166,20 +166,20 @@ v5.0.1 (2026-05-26)
 
 
 v5.0.0 (2026-05-25)
-==================================================
-
-✨ Added
 ----------------------------------------
 
-GUI
+✨ Added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GUI
+^^^^^^^^^^^^^^^^^^^^
 * Graphical interface: implemented with ``PySide6`` and launched when no arguments are provided.
 * ``ConverterTab``: drag & drop, file type filters, output structure options.
 * ``MapCacheTab``: ``.mdat`` to ``.mca`` conversion with threading.
 * ``VersionWidget``: update check popup with GitHub release lookup.
 
 CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * Command structure: ``scfile convert`` and ``scfile mapcache``.
 * ``scfile.__main__``: automatically runs ``convert`` when a file or directory is given as first argument.
 * ``--updates``: update check option.
@@ -187,7 +187,7 @@ CLI
 * ``params``: Click types ``Files``, ``Output``, ``MapCacheDir``, ``Formats`` and ``OnConflict``.
 
 Formats
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``EfkmodelDecoder``: new source format ``.efkmodel`` (geometry only).
 * ``McalDecoder``: new source format ``.mcal`` (animation library, no export).
 * ``MdatDecoder``: new source format ``.mdat`` (region cache).
@@ -197,7 +197,7 @@ Formats
 * ``mca.mapping``: block ID mapping table for the Anvil format.
 
 Core
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``StructIO``: unified stream class replacing ``StructBytesIO`` and ``StructFileIO``.
 * ``BaseFile``: unified binary stream adapter for file paths, bytes and IO streams.
 * ``FileDecoder.convert_to()``: ``output`` parameter (``IOStream``).
@@ -208,7 +208,7 @@ Core
 * ``FileEncoder``, ``FileDecoder``: ``prelude()`` hooks.
 
 Models
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``transforms``: scene transformation functions.
 * ``ModelMesh`` fields: ``uv2``, ``tangents``, ``colors``, ``link_space``, ``uv_origin``, ``uv_sign``, ``max_influences``.
 * ``ModelSkeleton`` fields: ``space``, ``hierarchy``.
@@ -218,11 +218,11 @@ Models
 * Type aliases: ``EulerAngles``, ``TransformMatrix``, ``BindPose``, etc.
 
 Convert
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * Converter registry: ``converters()`` and ``registry()`` functions with the ``@converter`` decorator for format pairs.
 
 Utils
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``scfile.utils``: new package.
 * ``files``: ``resource()``, ``resolve()``, ``walk()``, ``destination()``.
 * ``versions``: ``Version`` dataclass with parsing and comparison.
@@ -231,10 +231,10 @@ Utils
 * ``cli``: callbacks ``version_callback``, ``updates_callback``.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Core
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``UserOptions``: renamed to ``Options``.
 * ``UserOptions.parse_skeleton``: renamed to ``Options.skeleton``.
 * ``UserOptions.parse_animation``: renamed to ``Options.animation``.
@@ -242,7 +242,7 @@ Core
 * ``FileEncoder.save_as()``, ``FileEncoder.export_as()``: now return ``Self``.
 
 Formats
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * **Model decoders:** ``to_XXX()`` methods replaced by ``as_XXX()``. They return an empty encoder; ``encode()`` must be called explicitly.
 * **Model decoders:** ``prepare()`` replaced by a transforms list.
 * ``GlbEncoder._add_meshes()``: writes ``uv2`` and ``tangents`` when present.
@@ -250,21 +250,21 @@ Formats
 * ``McsaFileIO._links()``: normalizes bone weights.
 
 Constants
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``NBT_FILENAMES``: renamed to ``SUPPORTED_NBT``.
 
 Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * Coverage: 100% excluding ``scfile.gui``.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: UV2 and tangent parsing (exported only to ``.glb``).
 * ``GlbEncoder``: binary data for meshes without skinning links when a skeleton is present.
 
 🗑️ Removed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** ``--unique`` option (replaced by ``--on-conflict rename``).
 * ``FileFormat.ITEMNAMES`` (replaced by ``FileFormat.NBT``).
@@ -275,10 +275,10 @@ Tests
 * ``enums.FileMode``.
 
 ♻️ Refactored
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Structure
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``core.io``: moved to ``core.structio``.
 * ``core.context``: split into ``core.content`` and ``core.options``.
 * ``structures.models``: now contains ``animation``, ``mesh``, ``skeleton``, ``scene``, ``flags`` and ``vectors``.
@@ -289,7 +289,7 @@ Structure
 * ``convert.legacy``: merged back into ``convert.formats``.
 
 Renamed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``ModelMesh.positions``: renamed to ``ModelMesh.vertices``.
 * ``ModelMesh.textures``: renamed to ``ModelMesh.uv1``.
 * ``TextureArrayContent``: renamed to ``TexarrContent``.
@@ -302,10 +302,10 @@ Renamed
 
 
 v4.4.1 (2026-05-21)
-==================================================
+----------------------------------------
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: incorrect polygon count after converting quads to triangles.
 * ``GlbEncoder``: incorrect geometry produced from polygon quads.
@@ -313,15 +313,15 @@ v4.4.1 (2026-05-21)
 
 
 v4.4.0 (2026-05-11)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: support for polygon quads in model version 12.0.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: version-specific flag sets for model versions 7.0, 8.0 and 9.0 or newer.
 * ``McsaDecoder``: polygon quads converted to triangles.
@@ -329,35 +329,35 @@ v4.4.0 (2026-05-11)
 
 
 v4.3.0 (2026-03-04)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: support for model version 12.0.
 
 
 
 v4.2.1 (2026-01-01)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * List of supported NBT files in ``--version`` output.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Pyinstaller rich unicode bundle.
 
 
 
 v4.2.0 (2026-01-01)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``NbtDecoder``: new source format NBT (``itemnames.dat`` and synchronized configs).
 * ``JsonEncoder``: new output format ``.json``.
@@ -366,59 +366,59 @@ v4.2.0 (2026-01-01)
 
 
 v4.1.2 (2025-10-17)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** usage hint when no arguments are provided.
 
 
 
 v4.1.1 (2025-08-08)
-==================================================
+----------------------------------------
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``ObjEncoder``: faster export (450 ms → 170 ms).
 
 
 
 v4.1.0 (2025-08-06)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``TextureArrayDecoder``: new source format ``.texarr``.
 * ``TextureArrayEncoder``: new output format ``.zip``.
 * ``convert.texarr_to_zip()``: new converter.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``GlbEncoder``: uses a single bind matrix.
 * ``GlbEncoder``: writes position accessor bounds.
 * ``scfile.formats``: package imports improved.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``GlbEncoder``: glTF output for meshes without skinning links when a skeleton is present.
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``StructIO``: faster array reads (``.mcsa`` parsing 53 ms → 8 ms).
 
 
 
 v4.0.0 (2025-05-25)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``GlbEncoder``: new output format ``.glb``.
 * ``McsaDecoder``, ``GlbEncoder``: skeleton parsing and export through ``--skeleton``.
@@ -428,10 +428,10 @@ v4.0.0 (2025-05-25)
 * **CLI:** ``--parent`` option.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * Batch conversion: unexpected errors no longer interrupt processing.
 * Cubemap textures: fallback from default texture decoding on failure.
 * ``--model-formats``: renamed to ``--mdlformat``.
@@ -441,7 +441,7 @@ CLI
 * Default model output format with ``--skeleton`` changed to ``.glb``.
 
 Core
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 * ``FileDecoder.validate()``: renamed to ``FileDecoder.validate_signature()``.
 * ``FileDecoder.convert_to()``, ``convert()``: ``options: UserOptions`` parameter.
 * ``FileDecoder``, ``FileEncoder``: removed content reset on ``close()``.
@@ -449,7 +449,7 @@ Core
 * ``FileFormat``: new property ``suffix: str``.
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: array reads through ``StructIO`` (model parsing 12× faster).
 * **CLI:** ``files_map`` replaced by an iterator, eliminating startup delays on large directories.
@@ -457,20 +457,20 @@ Core
 
 
 v3.6.1 (2024-11-13)
-==================================================
+----------------------------------------
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``DdsEncoder``: incorrect alpha channel mask in ``.dds`` output.
 
 
 
 v3.6.0 (2024-09-06)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** new command-line interface.
 * ``OlDecoder``: partial support for cubemap textures (first face only).
@@ -478,31 +478,31 @@ v3.6.0 (2024-09-06)
 
 
 v3.5.4 (2024-06-15)
-==================================================
+----------------------------------------
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``ObjEncoder``: material names now included in ``.obj`` output through ``usemtl``.
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** ``scfile`` command is now installed correctly by ``pip``.
 
 
 
 v3.5.0 (2024-05-31)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaDecoder``: support for model version 11.0.
 * ``OlDecoder``: support for all mipmap levels.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** ``--output`` now accepts only a directory.
 * ``convert.auto()``: default model export formats changed to ``.obj`` and ``.ms3d``.
@@ -510,43 +510,43 @@ v3.5.0 (2024-05-31)
 * ``McsaDecoder``: bone link parsing disabled pending output format support.
 
 🗑️ Removed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Textures:** support for ``RGBA32F`` textures (used by one known asset).
 
 
 
 v3.4.1 (2024-05-31)
-==================================================
+----------------------------------------
 
 🐛 Fixed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``DaeEncoder``: non-functional test skeleton removed from exported scenes.
 
 
 
 v3.4.0 (2024-05-29)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``DaeEncoder``: new output format ``.dae`` (COLLADA).
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``FileDecoder.decode()``: file position reset to the beginning after parsing.
 * ``McsaFileIO``: decoded floats rounded to six decimal places.
 
 🗑️ Removed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``mcvd_to_*``: conversion functions removed because ``.mcvd`` and ``.mcsa`` use the same structure.
 
 ♻️ Refactored
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Formats:** moved to ``scfile.file.formats``.
 * **Core:** base classes moved to ``scfile.file.base``.
@@ -558,16 +558,16 @@ v3.4.0 (2024-05-29)
 
 
 v3.3.1 (2024-05-14)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``Ms3dBinEncoder``: new output format ``.ms3d`` (MilkShape 3D Binary).
 * ``Ms3dAsciiEncoder``: new output format ``.txt`` (MilkShape 3D ASCII).
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **CLI:** default export formats now include ``.obj`` and ``.txt``.
 * **CLI:** implementation moved to a dedicated module.
@@ -576,40 +576,40 @@ v3.3.1 (2024-05-14)
 
 
 v3.2.0 (2024-04-30)
-==================================================
+----------------------------------------
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Core:** general code cleanup.
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``McsaFileIO``: faster model parsing.
 
 
 
 v3.1.0 (2024-04-14)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Models:** partial support for source format ``.mcvd`` (animations unsupported).
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Core:** internal API updated.
 
 
 
 v3.0.3 (2023-03-25)
-==================================================
+----------------------------------------
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Models:** ``.obj`` export now uses mesh names as object groups.
 * **Models:** float output precision moved to a constant.
@@ -618,10 +618,10 @@ v3.0.3 (2023-03-25)
 
 
 v3.0.0 (2024-03-20)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Models:** vertex normals parsing.
 * **Textures:** support for normal map textures.
@@ -629,17 +629,17 @@ v3.0.0 (2024-03-20)
 * **Tests:** initial pytest coverage.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Core:** internal API rewritten.
 
 
 
 v2.0.0 (2023-12-20)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Models:** support for all known model versions.
 * **Models:** safety limits for corrupted files to prevent excessive memory use.
@@ -647,24 +647,24 @@ v2.0.0 (2023-12-20)
 * **CLI:** multiple input files.
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Core:** internal API updated.
 * **Models:** model data structures changed from ``dict`` to ``list``.
 * **Models:** skeleton parsing disabled pending output format support.
 
 ⚡ Optimized
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Models:** parsing up to 10× faster for common files.
 
 
 
 v1.4.2 (2023-10-20)
-==================================================
+----------------------------------------
 
 📝 Changed
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``ObjFile``: object group renamed from ``<Root>`` to the source file name.
 * ``utils.func``: renamed to ``utils.convert``.
@@ -674,9 +674,9 @@ v1.4.2 (2023-10-20)
 
 
 v1.3.2 (2023-10-18)
-==================================================
+----------------------------------------
 
 ✨ Added
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * First stable release.
