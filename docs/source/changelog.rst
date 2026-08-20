@@ -7,69 +7,55 @@ v6.0.0
 ✨ Added
 ----------------------------------------
 
-Animation export
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``scfile animate``: added ``arms``, ``face``, and ``body`` commands for animation export to ``.glb``.
+* ``scfile animate``: added ``arms()``, ``face()``, and ``body()`` commands for animation export to ``.glb``.
 * ``convert.arms()``: exports a first-person ``.mcvd`` animation with weapon and hands ``.mcsb`` models.
 * ``convert.face()``: exports a facial ``.mcvd`` animation with a head ``.mcsb`` model.
 * ``convert.body()``: exports ``.mcal`` skeletal clips with an ``.mcsb`` model.
 * ``Options.raw_clips``: keeps every decoded ``.mcal`` clip during body animation export.
-* ``mcvd_to_obj()``, ``mcvd_to_glb()``, and ``mcvd_to_fbx()``: added named ``.mcvd`` conversions.
-
-Model export
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``GlbEncoder``: now exports morph animation clips.
-* ``FbxEncoder``: now exports armature and skeletal animation clips.
-
-Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+* ``McsaDecoder``: now supports blend shapes parsing.
+* ``GlbEncoder``: now can export blend shapes and morph animation clips.
+* ``FbxEncoder``: now can export armature and builtin animation clips.
 * ``scfile convert --include``: filters source formats during directory conversion.
-* ``scfile convert --layout``: writes a flat output, preserves source-relative paths, or includes the source root.
+* ``scfile convert --layout``:  ``flat`` output, preserves source ``relative`` or  ``rooted`` paths.
 * ``scfile convert --workers``: processes files in parallel.
 * ``scfile convert --verbose``: prints the result of every processed file.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
-
-Interface and tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+* ``McvdDecoder``: standalone decoder instead of ``.mcsa`` alias.
+* ``mcvd_to_obj()``, ``mcvd_to_glb()``, and ``mcvd_to_fbx()``: added named ``.mcvd`` conversions.
+* **GUI:** added animation and settings tabs.
 * **GUI:** added forms for arms, face, and body animation export.
-* **GUI:** added path resolution against the configured game directory and persistent export settings.
-* ``tools audit --relations``: validates animation-to-model relations for arms, face, and body assets.
+* **GUI:** added configured game directory and persistent export settings.
+* **Tools**: ``audit --relations``: validates animation-to-model relations for arms, face, and body assets.
 * **Documentation:** added Map Cache viewing and animation export guides.
 
 📝 Changed
 ----------------------------------------
 
-Public API
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+* Minimum Python version raised to ``3.13``.
+* ``convert.auto()`` now returns destination path on success or ``None`` on skip.
 * ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
-* ``Options``: moved from ``scfile.core`` to ``scfile.options``.
-* Content DTOs: moved from ``scfile.core.content`` to ``scfile.structures.content``.
-* Binary stream helpers: moved from ``scfile.core.structio`` to ``scfile.io``.
+* **CLI**: Option ``--model-format`` (``-F``) now accepts single target format (previously multiple).
+* **CLI**: updated feedback.
 
-Command-line interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``scfile convert --relative`` and ``--parent``: replaced by ``--layout``.
-* ``scfile``: reports conversion summaries, configured ignored paths, and per-file results in verbose mode.
-
-Application
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+♻️ Refactored
+----------------------------------------
 * ``scfile`` entry point: moved to ``scfile.app.launcher``.
-* **GUI:** reorganized around conversion, map cache, animation export, and settings tabs.
+* ``scfile.core.content`` moved to ``scfile.structures.content``.
+* ``scfile.core.structio`` moved to ``scfile.io.base``.
+* ``scfile.core.options`` moved to ``scfile.options`` (class ``Options``).
+* ``convert.convert`` renamed to ``convert.files.manual``.
+* ``convert.detect`` replaced by ``convert.files.auto`` and internal ``convert.files.format``.
+* ``scfile.consts`` and ``scfile.enums`` types redistributed to more specific modules.
 
 🗑️ Removed
 ----------------------------------------
 
-* ``.dae``: removed output format.
-* ``.ms3d``: removed output format.
+* Support of Python ``3.11`` and ``3.12``.
+* ``DaeEncoder`` (``.dae``): removed output format.
+* ``Ms3dEncoder`` (``.ms3d``): removed output format.
+* Module ``scfile.core.types``.
+* CLI options ``--relative`` and ``--parent`` (replaced by ``--layout``).
 * ``ol_cubemap_to_dds()``: removed in favor of ``ol_to_dds()``.
-* Python 3.11 and 3.12: removed support.
 
 
 
@@ -353,6 +339,21 @@ v4.3.0 (2026-03-04)
 
 
 v4.2.1 (2026-01-01)
+==================================================
+
+✨ Added
+----------------------------------------
+
+* List of supported NBT files in ``--version`` output.
+
+🐛 Fixed
+----------------------------------------
+
+* Pyinstaller rich unicode bundle.
+
+
+
+v4.2.0 (2026-01-01)
 ==================================================
 
 ✨ Added

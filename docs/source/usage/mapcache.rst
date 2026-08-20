@@ -33,27 +33,25 @@ and block states are not exported.
 Prepare a world
 ----------------------------------------
 
-Create a separate local Minecraft Java world before the first export. A
-superflat world with structures disabled and only air is convenient for map
-preview. Leave the world after creating it.
+Create a separate local Minecraft Java world before the first export.
+A superflat world with structures disabled and only air is convenient for map preview.
+Leave the world after creating it.
 
 The ``region`` directory inside that world is the output directory:
 
 .. code-block:: text
 
    .minecraft/saves/<world>/region
+   .minecraft/saves/<world>/dimensions/minecraft/overworld/region (on 26.1+)
 
-You can clear existing ``.mca`` files from this directory before the first
-export.
+You can clear existing ``.mca`` files from this directory before the first export.
 
 .. warning::
 
    | Always leave the world before replacing its regions.
    | Minecraft can overwrite changed region files with its cached chunks.
 
-Existing files with the same ``r.<x>.<z>.mca`` name are replaced. The
-application keeps one ``.mca.bck`` backup when it replaces a region, but this
-is not a substitute for a backup of the whole world.
+Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups.
 
 
 ----------------------------------------

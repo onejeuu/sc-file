@@ -103,4 +103,4 @@ Questions and usage advice belong in `Telegram <TG_>`_.
 ❤️ Support
 ----------------------------------------
 
-If this tool has been useful, you can support its development o `DonationAlerts <DONATE_>`_.
+If this tool has been useful, you can support its development by `donation <DONATE_>`_.

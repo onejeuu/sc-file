@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile.app import game
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
+from scfile.app.game import MinecraftWorld
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -27,6 +28,7 @@ class MapCacheTab(QWidget):
         self.settings = settings
         self.scanner = MapCacheScanner(self)
         self.touched: set[PathField] = set()
+        self.world: MinecraftWorld | None = None
         self.running = False
         self._build_ui()
 
@@ -54,7 +56,7 @@ class MapCacheTab(QWidget):
 
         self.output = PathField(
             strings.get("label.mapcache.output"),
-            placeholder=".minecraft/saves/{world}/region",
+            placeholder=".minecraft/saves/{world}/",
             caption=strings.get("dialog.mapcache.output"),
         )
         self.output.changed.connect(self._edit_output)
@@ -150,9 +152,9 @@ class MapCacheTab(QWidget):
     def _output_changed(self, _: str) -> None:
         output = Path(self.output.value.strip())
         if self.settings.resolve_paths and output.exists():
-            resolved = game.resolve_minecraft_regions(output)
-            if resolved != output:
-                self.output.value = resolved.as_posix()
+            self.world = game.resolve_minecraft_world(output)
+            if self.world:
+                self.output.value = self.world.regions.as_posix()
         self._sync()
 
     def _edit_output(self, value: str) -> None:
@@ -165,17 +167,21 @@ class MapCacheTab(QWidget):
             return []
 
         output = Path(output_value)
-        is_regions = output.name == "region"
-        valid_world = is_regions and game.is_minecraft_world(output.parent)
-        has_regions = output.exists() and any(output.glob("*.mca"))
-        world = output.parent.name if is_regions else output.name
-        overwrite = "warning.mapcache.overwrite.world" if valid_world else "warning.mapcache.overwrite.folder"
+        regions = any(output.glob("*.mca"))
+        world = output.name
+        valid = False
+
+        if self.world:
+            world = self.world.root.name
+            valid = self.world.is_valid()
+
+        overwrite = "warning.mapcache.overwrite.world" if valid else "warning.mapcache.overwrite.folder"
 
         return [
             message
             for condition, message in (
-                (not valid_world, strings.get("warning.mapcache.invalid_world")),
-                (has_regions, strings.get(overwrite).format(world=world)),
+                (not valid, strings.get("warning.mapcache.invalid_world")),
+                (regions, strings.get(overwrite).format(world=world)),
             )
             if condition
         ]

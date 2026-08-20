@@ -32,6 +32,15 @@ class Installation:
         return self.root / MAP_CACHE
 
 
+@dataclass(frozen=True, slots=True)
+class MinecraftWorld:
+    root: Path
+    regions: Path
+
+    def is_valid(self) -> bool:
+        return is_minecraft_world(self.root) and self.regions.name == "region"
+
+
 def is_root(path: Path) -> bool:
     return path.is_dir() and ((path / ASSETS).is_dir() or (path / MAP_CACHE).is_dir())
 
@@ -40,14 +49,20 @@ def is_minecraft_world(path: Path) -> bool:
     return (path / "level.dat").is_file()
 
 
-def resolve_minecraft_regions(path: Path) -> Path:
-    if path.name == "region" and is_minecraft_world(path.parent):
-        return path
+def resolve_minecraft_world(path: Path) -> MinecraftWorld | None:
+    path = path.resolve()
 
-    if is_minecraft_world(path):
-        return path / "region"
+    for candidate in (path, *path.parents):
+        if not is_minecraft_world(candidate):
+            continue
 
-    return path
+        regions = candidate / "region"
+        if not regions.is_dir():
+            regions = candidate / "dimensions/minecraft/overworld/region"
+
+        return MinecraftWorld(candidate, regions) if regions.is_dir() else None
+
+    return None
 
 
 def resolve(path: Path) -> Installation | None:
@@ -64,11 +79,16 @@ def resolve(path: Path) -> Installation | None:
 
 
 def resolve_map_cache(path: Path) -> Path:
+    path = path.resolve()
     installation = resolve(path)
-    if installation and installation.map_cache.is_dir():
-        return installation.map_cache
 
-    return path
+    if not installation:
+        return path
+
+    if installation.map_cache in path.parents or path == installation.map_cache:
+        return path
+
+    return installation.map_cache
 
 
 def _suffixes(path: Path) -> Iterator[Path]:
