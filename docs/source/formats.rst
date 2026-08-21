@@ -20,7 +20,7 @@
 
 | **Template:** MCSA.bt_
 | **Purpose:** Model scene.
-| **Contents:** Geometry, materials, skeletons, animation clips and blend shapes.
+| **Contents:** Geometry, Skeleton, Animation clips, Blend shapes.
 | **Support:** Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
 
 .. _mcsb:
@@ -30,7 +30,7 @@
 
 | **Template:** MCSA.bt_
 | **Purpose:** Model scene.
-| **Contents:** Hash before the signature.
+| **Contents:** Same as `.mcsa <mcsa_>`_. Has hash before signature.
 
 .. _mcvd-trace:
 
@@ -39,7 +39,7 @@
 
 | **Template:** MCSA.bt_
 | **Purpose:** Collision and physics geometry.
-| **Also:** :ref:`Standalone animation sets <mcvd-animation>` use the same suffix.
+| **Also:** :ref:`Animation sets <mcvd-animation>` use the same suffix.
 
 .. _efkmodel:
 
@@ -103,7 +103,8 @@ Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Template:** MCSA.bt_
-| **Purpose:** Standalone skeletal or facial animation clips.
+| **Purpose:** Standalone animation clips.
+| **Contents:** Skeletal and facial animation clips.
 | **Note:** Usually located in ``assets/highpoly``.
 
 .. _mcal:
@@ -131,8 +132,8 @@ Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Template:** OL.bt_
-| **Purpose:** Mipmapped texel data compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
-| **Contents:** Default 2D textures and cubemaps. Mipmaps use `lz4`_ compression.
+| **Purpose:** `Mipmapped <MipMap_>`_ texel data compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
+| **Contents:** 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_.
 | **Export:** ``.dds``.
 | **Note:** Normal maps may have an inverted Y axis.
 
@@ -230,7 +231,7 @@ Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | **Template:** TEXARR.bt_
-| **Purpose:** Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) textures.
+| **Purpose:** Container for ``.dds`` blocks textures.
 | **Export:** ``.zip`` (ZIP_).
 
 
@@ -243,7 +244,7 @@ Export
 
 | **Purpose:** Region container for 32×32 terrain chunks.
 | **Contents:** Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
-| **Export:** Anvil version ``1343`` for Minecraft ``1.12.2`` with approximate block mapping.
+| **Export:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping.
 | :doc:`Map Cache viewing guide → <usage/mapcache>`
 
 ----------------------------------------
@@ -333,10 +334,10 @@ Export
     - Format
     - Purpose
   * - ``.lang``
-    - `Java Properties <PROPERTIES_>`_
+    - `Java Properties <Propetries_>`_
     - Localization strings
   * - ``.properties``
-    - `Java Properties <PROPERTIES_>`_
+    - `Java Properties <Propetries_>`_
     - Configuration
   * - ``.md``
     - Markdown_

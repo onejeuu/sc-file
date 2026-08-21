@@ -56,7 +56,7 @@ class MapCacheTab(QWidget):
 
         self.output = PathField(
             strings.get("label.mapcache.output"),
-            placeholder=".minecraft/saves/{world}/",
+            placeholder=".minecraft/saves/{world}",
             caption=strings.get("dialog.mapcache.output"),
         )
         self.output.changed.connect(self._edit_output)

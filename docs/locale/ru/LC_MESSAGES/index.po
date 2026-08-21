@@ -21,10 +21,9 @@ msgstr ""
 
 #: ../../source/index.rst:18
 msgid ""
-"**scfile** is a utility and library for converting proprietary STALCRAFT "
-"asset formats to standard ones."
+"**scfile** is a program and library for converting proprietary STALCRAFT assets formats to standard ones."
 msgstr ""
-"**scfile** это утилита и библиотека для конвертации проприетарных "
+"**scfile** это программа и библиотека для конвертации проприетарных "
 "форматов ассетов игры STALCRAFT в стандартные."
 
 #: ../../source/index.rst:20
@@ -78,7 +77,7 @@ msgstr ""
 
 #: ../../source/index.rst:65
 msgid ":doc:`Detailed formats support → <formats>`"
-msgstr ":doc:`Детальная информация об форматах → <support>`"
+msgstr ":doc:`Детальная информация о форматах → <support>`"
 
 #: ../../source/index.rst
 msgid "**Reverse conversion** (``standard`` → ``game``) **is not available.**"
@@ -97,8 +96,8 @@ msgid "Download executable"
 msgstr "Скачать исполняемый файл"
 
 #: ../../source/index.rst:81
-msgid "Download ``scfile.exe`` from the `Releases page <RELEASES_>`_."
-msgstr "Скачайте ``scfile.exe`` со `страницы Releases <RELEASES_>`_"
+msgid "Download ``scfile.exe`` from the `Releases page <Releases_>`_."
+msgstr "Скачайте ``scfile.exe`` со `страницы Releases <Releases_>`_."
 
 #: ../../source/index.rst:83
 msgid "**Usage:**"
@@ -106,13 +105,13 @@ msgstr "**Использование:**"
 
 #: ../../source/index.rst:85
 msgid "**Graphical interface:** launch ``scfile.exe``."
-msgstr "**Графический интерфейс:** запустите ``scfile.exe``"
+msgstr "**Графический интерфейс:** запустите ``scfile.exe``."
 
 #: ../../source/index.rst:86
 msgid ""
 "**Drag and drop:** drag files or folders onto ``scfile.exe`` in File "
 "Explorer."
-msgstr "**Drag and drop**: перетащите файлы или папки на ``scfile.exe`` в Проводнике"
+msgstr "**Drag and drop**: перетащите файлы или папки на ``scfile.exe`` в Проводнике."
 
 #: ../../source/index.rst:87
 msgid "**Command line:** run ``scfile.exe --help`` for commands and options."
@@ -178,12 +177,12 @@ msgstr ""
 "`свяжитесь со мной <TG_>`_"
 
 #: ../../source/index.rst:154
-msgid "``🐛`` **Found a bug?** `Open an issue <ISSUES_>`_"
-msgstr "``🐛`` **Нашли баг?** `Создайте issue <ISSUES_>`_"
+msgid "``🐛`` **Found a bug?** `Open an issue <Issues_>`_"
+msgstr "``🐛`` **Нашли баг?** `Создайте issue <Issues_>`_"
 
 #: ../../source/index.rst:155
-msgid "``💻`` **Download executable:** `Latest release <RELEASES_>`_"
-msgstr "``💻`` **Скачать исполняемый файл:** `Последний релиз <RELEASES_>`_"
+msgid "``💻`` **Download executable:** `Latest release <Releases_>`_"
+msgstr "``💻`` **Скачать исполняемый файл:** `Последний релиз <Releases_>`_"
 
 #: ../../source/index.rst:156
 msgid "``🔧`` **Compile from source:** :doc:`Build guide <compile>`"

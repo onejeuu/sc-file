@@ -52,9 +52,8 @@ msgstr "**Назначение:** Модельная сцена."
 
 #: ../../source/formats.rst:23
 msgid ""
-"**Contents:** Geometry, materials, skeletons, animation clips and blend "
-"shapes."
-msgstr "**Содержимое:** Геометрия, материалы, скелет, анимации и бленд-шейпы."
+"**Contents:** Geometry, Skeleton, Animation clips, Blend shapes."
+msgstr "**Содержимое:** Геометрия, Скелет, Анимации, Blend shapes."
 
 #: ../../source/formats.rst:24
 msgid ""
@@ -67,8 +66,8 @@ msgid "``.mcsb`` Scene Bundle"
 msgstr ""
 
 #: ../../source/formats.rst:33
-msgid "**Contents:** Hash before the signature."
-msgstr "**Содержимое:** Хэш перед подписью."
+msgid "**Contents:** Same as `.mcsa <mcsa_>`_. Has hash before signature."
+msgstr "**Содержимое:** Такое же как `.mcsa <mcsa_>`_. Содержит хэш перед сигнатурой."
 
 #: ../../source/formats.rst:38
 msgid "``.mcvd`` Trace Model"
@@ -80,9 +79,9 @@ msgstr "**Назначение:** Коллизии или физика геом�
 
 #: ../../source/formats.rst:42
 msgid ""
-"**Also:** :ref:`Standalone animation sets <mcvd-animation>` use the same "
+"**Also:** :ref:`Animation sets <mcvd-animation>` use the same "
 "suffix."
-msgstr "**Также:** :ref:`Standalone animation sets <mcvd-animation>` используют тот же суффикс."
+msgstr "**Также:** :ref:`Animation sets <mcvd-animation>` используют тот же суффикс."
 
 #: ../../source/formats.rst:47
 msgid "``.efkmodel`` Effekseer Model"
@@ -204,12 +203,15 @@ msgid "``.mcvd`` Animation Set"
 msgstr ""
 
 #: ../../source/formats.rst:106
-msgid "**Purpose:** Standalone skeletal or facial animation clips."
-msgstr "**Назначение:** Клипы скелетных анимаций."
+msgid "**Purpose:** Standalone animation clips."
+msgstr "**Назначение:** Отдельные клипы анимации."
+
+msgid "**Contents:** Skeletal and facial animation clips."
+msgstr "**Содержимое:** Скелетные и лицевые клипы анимации."
 
 #: ../../source/formats.rst:107
 msgid "**Note:** Usually located in ``assets/highpoly``."
-msgstr "**Примечание:** Обычно находится в ``assets/highpoly``."
+msgstr "**Примечание:** Обычно находятся в ``assets/highpoly``."
 
 #: ../../source/formats.rst:112
 msgid "``.mcal`` Animation Library"
@@ -255,15 +257,14 @@ msgstr "**Шаблон:** OL.bt_"
 
 #: ../../source/formats.rst:134
 msgid ""
-"**Purpose:** Mipmapped texel data compatible with ``.dds`` (`DirectDraw "
+"**Purpose:** `Mipmapped <MipMap_>`_ texel data compatible with ``.dds`` (`DirectDraw "
 "Surface <DDS_>`_)."
-msgstr "**Назначение:** Данные текселей с мипмапами, совместимые с ``.dds`` (`DirectDraw Surface <DDS_>`_)."
+msgstr "**Назначение:** Данные текселей с `мипмапами <MipMap_>`_, совместимые с ``.dds`` (`DirectDraw Surface <DDS_>`_)."
 
 #: ../../source/formats.rst:135
 msgid ""
-"**Contents:** Default 2D textures and cubemaps. Mipmaps use `lz4`_ "
-"compression."
-msgstr "**Содержимое:** По умолчанию 2D текстуры и кубические карты. Мипмапы используют `lz4`_ сжатие."
+"**Contents:** 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
+msgstr "**Содержимое:** 2D текстуры и `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
 
 #: ../../source/formats.rst:136
 msgid "**Export:** ``.dds``."
@@ -538,9 +539,8 @@ msgstr "**Шаблон:** TEXARR.bt_"
 
 #: ../../source/formats.rst:233
 msgid ""
-"**Purpose:** Container for ``.dds`` (`DirectDraw Surface <DDS_>`_) "
-"textures."
-msgstr "**Назначение:** Контейнер для ``.dds`` (`DirectDraw Surface <DDS_>`_) текстур."
+"**Purpose:** Container for ``.dds`` blocks textures."
+msgstr "**Назначение:** Контейнер для ``.dds`` текстур блоков."
 
 #: ../../source/formats.rst:234
 msgid "**Export:** ``.zip`` (ZIP_)."
@@ -562,13 +562,12 @@ msgstr "**Назначение:** Контейнер регионов для 32�
 msgid ""
 "**Contents:** Blocks, metadata, lighting, biomes and extended data "
 "compressed with `zstd`_."
-msgstr "**Содержимое:** Блоки, метаданные, освещение, биомы и доп данные, сжатые `zstd`_."
+msgstr "**Содержимое:** Блоки, метаданные, освещение, биомы и доп. данные, сжатые через `zstd`_."
 
 #: ../../source/formats.rst:246
 msgid ""
-"**Export:** Anvil version ``1343`` for Minecraft ``1.12.2`` with "
-"approximate block mapping."
-msgstr "**Экспорт:** Anvil версия ``1343`` для Minecraft ``1.12.2`` с приблизительным отображением блоков."
+"**Export:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping."
+msgstr "**Экспорт:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) с приблизительными блоками."
 
 #: ../../source/formats.rst:247
 msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
@@ -774,7 +773,7 @@ msgid "``.lang``"
 msgstr ""
 
 #: ../../source/formats.rst:336 ../../source/formats.rst:339
-msgid "`Java Properties <PROPERTIES_>`_"
+msgid "`Java Properties <Propetries_>`_"
 msgstr ""
 
 #: ../../source/formats.rst:337

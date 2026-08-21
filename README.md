@@ -35,7 +35,7 @@
 
 🇬🇧 **English** | 🇷🇺 [Русский][readme-ru]
 
-**scfile** is a utility and library for converting proprietary STALCRAFT asset formats to standard ones.
+**scfile** is a program and library for converting proprietary STALCRAFT assets formats to standard ones.
 
 > This is an **unofficial** project and is **not affiliated** with EXBO.
 
@@ -91,7 +91,7 @@ for batch conversion, animations, map regions, output layouts, and other options
 
 ```console
 pip install sc-file
-pip install "sc-file[gui]"  # extra graphical interface
+pip install sc-file[gui]  # extra graphical interface
 ```
 
 The base package includes the library and CLI. The GUI is an optional extra.

@@ -15,7 +15,7 @@ sc-file
   changelog
 
 
-**scfile** is a utility and library for converting proprietary STALCRAFT asset formats to standard ones.
+**scfile** is a program and library for converting proprietary STALCRAFT assets formats to standard ones.
 
   This is an **unofficial** project and is **not affiliated** with EXBO.
 
@@ -78,7 +78,7 @@ sc-file
 Download executable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Download ``scfile.exe`` from the `Releases page <RELEASES_>`_.
+Download ``scfile.exe`` from the `Releases page <Releases_>`_.
 
 **Usage:**
 
@@ -101,7 +101,7 @@ Install the Python package
 .. code-block:: console
 
   pip install sc-file
-  pip install "sc-file[gui]"  # extra graphical interface
+  pip install sc-file[gui]  # extra graphical interface
 
 The base package includes the library and CLI. The GUI is an optional extra.
 
@@ -151,8 +151,8 @@ Install or update the package:
 ----------------------------------------
 
 - ``❓`` **Questions?** Check :doc:`FAQ <faq>` or `contact me <TG_>`_
-- ``🐛`` **Found a bug?** `Open an issue <ISSUES_>`_
-- ``💻`` **Download executable:** `Latest release <RELEASES_>`_
+- ``🐛`` **Found a bug?** `Open an issue <Issues_>`_
+- ``💻`` **Download executable:** `Latest release <Releases_>`_
 - ``🔧`` **Compile from source:** :doc:`Build guide <compile>`
 
 

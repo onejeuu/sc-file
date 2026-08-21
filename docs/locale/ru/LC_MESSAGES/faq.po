@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 20:42+0300\n"
+"POT-Creation-Date: 2026-08-21 22:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -31,7 +31,9 @@ msgstr "В: Безопасно ли использовать эту програ
 
 #: ../../source/faq.rst:14
 msgid "Yes. Using this program to unpack and export assets is safe."
-msgstr "Да. Использование этой программы для распаковки и экспорта ассетов безопасно."
+msgstr ""
+"Да. Использование этой программы для распаковки и экспорта ассетов "
+"безопасно."
 
 #: ../../source/faq.rst:16
 msgid ""
@@ -39,8 +41,9 @@ msgid ""
 "communities, as such tools may be considered undesirable and may be "
 "removed or moderated there."
 msgstr ""
-"Будьте осторожны при распространении этого проекта в официальных сообществах, "
-"поскольку такие инструменты могут считаться нежелательными и могут быть удалены или подвергнуты модерации."
+"Будьте осторожны при распространении этого проекта в официальных "
+"сообществах, поскольку такие инструменты могут считаться нежелательными и"
+" могут быть удалены или подвергнуты модерации."
 
 #: ../../source/faq.rst:21
 msgid "Q: Can I modify or replace game files?"
@@ -52,16 +55,17 @@ msgstr "Не рекомендуется."
 
 #: ../../source/faq.rst:25
 msgid ""
-"The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying"
-" game files except in `documented cases <EXBO_MODS_>`_. Violating this "
+"The `License Agreement <EXBO License_>`_ prohibits replacing or modifying"
+" game files except in `documented cases <EXBO Mods_>`_. Violating this "
 "restriction may lead to ban. There is no known safe threshold for a "
 "particular modification. Avoid any changes that could provide in game "
 "advantages."
 msgstr ""
-"`Лицензионное соглашение <EXBO_LICENSE_>`_ запрещает заменять или "
-"модифицировать файлы игры, кроме `описанных случаев <EXBO_MODS_>`_. "
+"`Лицензионное соглашение <EXBO License_>`_ запрещает заменять или "
+"модифицировать файлы игры, кроме `описанных случаев <EXBO Mods_>`_. "
 "Нарушение этих ограничений может привести к блокировке. Безопасный порог "
-"допустимых изменений неизвестен. Избегайте любых изменений, которые могут дать преимущество в игре."
+"допустимых изменений неизвестен. Избегайте любых изменений, которые могут"
+" дать преимущество в игре."
 
 #: ../../source/faq.rst:32
 msgid "Q: Can files be encoded back into game formats?"
@@ -77,14 +81,14 @@ msgid ""
 "would lower the barrier to changes intended to gain an advantage. It "
 "could also provoke stricter asset protection or repeated format changes, "
 "making legitimate extraction and research harder. Public functionality "
-"therefore ends at decoding and export."
+"therefore ends at unidirectional export."
 msgstr ""
 "Общедоступный кодировщик позволил бы изменять клиентские ассеты слишком "
 "легко. Это бы снизило порог сложности для создания недобросовестных "
-"модификаций, направленных на получение преимуществ. Кроме того, это может "
-"спровоцировать усиление средств защиты, что, в свою очередь, осложнит "
+"модификаций, направленных на получение преимуществ. Кроме того, это может"
+" спровоцировать усиление средств защиты, что, в свою очередь, осложнит "
 "добросовестное извлечение и исследование. Таким образом, публичный "
-"функционал ограничивается лишь парсингом и экспортом."
+"функционал ограничивается лишь односторонним экспортом."
 
 #: ../../source/faq.rst:44
 msgid "Q: Game update broke <Any Filename> decoding!"
@@ -94,12 +98,13 @@ msgstr "В: Обновление игры сломало парсинг <Люб�
 msgid ""
 "An update may introduce a new format version or a file variant "
 "unsupported by the current decoder. Try the latest release. If the "
-"problem remains, `open an issue <ISSUES_>`_ and attach the file. In case "
+"problem remains, `open an issue <Issues_>`_ and attach the file. In case "
 "of large changes, it might take some time to adapt."
 msgstr ""
-"Обновление могло добавить новый формат или несовместимый вариант файла, который текущий декодер неподдерживает. "
-"Попробуйте последнюю версию. Если проблема остается, `откройте issue <ISSUES_>`_ и приложите файл. "
-"При значительных изменениях адаптация может занять некоторое время."
+"Обновление могло добавить новый формат или несовместимый вариант файла, "
+"который текущий декодер неподдерживает. Попробуйте последнюю версию. Если"
+" проблема остается, `откройте issue <Issues_>`_ и приложите файл. При "
+"значительных изменениях адаптация может занять некоторое время."
 
 #: ../../source/faq.rst:53
 msgid "📤 Output Formats"
@@ -126,8 +131,8 @@ msgid "Q: How to convert ``.dds`` textures to ``.png``?"
 msgstr "В: Как конвертировать ``.dds`` текстуры в ``.png``?"
 
 #: ../../source/faq.rst:66
-msgid "Convert DDS with ImageMagick_ or FFmpeg_."
-msgstr "Сконвертируйте DDS с помощью ImageMagick_ или FFmpeg_."
+msgid "Convert with ImageMagick_ or FFmpeg_."
+msgstr "Сконвертируйте с помощью ImageMagick_ или FFmpeg_."
 
 #: ../../source/faq.rst:68
 msgid "ImageMagick"
@@ -144,10 +149,10 @@ msgstr "В: Почему у модели странные или чёрные т
 #: ../../source/faq.rst:82
 msgid ""
 "In Blender, make sure texture node alpha mode is set to ``Channel "
-"Packed`` (`Screenshot <ALPHAMODE_>`_)."
+"Packed`` (`Screenshot <Alpha Mode_>`_)."
 msgstr ""
-"В Blender убедитесь, что режим альфа-канала узла текстуры установлен в "
-"``Channel Packed`` (`Скриншот <ALPHAMODE_>`_)."
+"В Blender убедитесь, что режим альфа-канала ноды текстуры установлен на "
+"``Channel Packed`` (`Скриншот <Alpha Mode_>`_)."
 
 #: ../../source/faq.rst:87
 msgid "🛠 Troubleshooting"
@@ -161,11 +166,11 @@ msgstr "В: Антивирус или SmartScreen блокирует ``scfile.ex
 msgid ""
 "SmartScreen evaluates the reputation of a downloaded file and its "
 "publisher. An unsigned new executable may therefore be shown as "
-"unrecognized. `Microsoft documents this behaviour <SMARTSCREEN_>`_."
+"unrecognized. `Microsoft documents this behaviour <SmartScreen_>`_."
 msgstr ""
 "SmartScreen оценивает репутацию загруженного файла и его издателя. Не "
 "подписанный новый исполняемый файл может быть показан как нераспознанный."
-" `Microsoft документирует это поведение <SMARTSCREEN_>`_."
+" `Microsoft документирует это поведение <SmartScreen_>`_."
 
 #: ../../source/faq.rst:95
 msgid ""
@@ -173,13 +178,13 @@ msgid ""
 "engine is neither proof of malware nor a reason to ignore the warning. "
 "Executables built with PyInstaller can trigger generic heuristic "
 "detections, as documented in the `PyInstaller issue tracker "
-"<PYINSTALLER_ISSUE_>`_."
+"<PyInstaller Issue_>`_."
 msgstr ""
 "VirusTotal объединяет результаты независимых движков. Детекция от одного "
 "движка не является доказательством вируса и не является причиной "
-"игнорирования предупреждения. Исполняемые файлы, построенные с помощью "
-"PyInstaller, могут вызывать общие детекции, как документировано в "
-"`PyInstaller issue tracker <PYINSTALLER_ISSUE_>`_."
+"игнорирования предупреждения. Исполняемые файлы, собранные с помощью "
+"PyInstaller, могут вызывать ложные детекции, как документировано в "
+"`PyInstaller issue tracker <PyInstaller Issue_>`_."
 
 #: ../../source/faq.rst:101
 msgid "Q: How to report a bug?"
@@ -188,10 +193,10 @@ msgstr "В: Как сообщить об ошибке?"
 #: ../../source/faq.rst:103
 msgid ""
 "For a reproducible conversion failure, wrong output, or crash, `open an "
-"issue <ISSUES_>`_."
+"issue <Issues_>`_."
 msgstr ""
 "Для воспроизведения ошибки, неправильного вывода или сбоя, `откройте "
-"issue <ISSUES_>`_."
+"issue <Issues_>`_."
 
 #: ../../source/faq.rst:105
 msgid "Please include:"
@@ -216,21 +221,16 @@ msgid ""
 "**Related file**: its path or an attachment when the problem concerns a "
 "file."
 msgstr ""
-"**Связанный файл**: путь к файлу или вложение при проблеме связанном с "
-"файлом."
+"**Файл**: путь или сам файл при проблеме связанных с конкретным файлом."
 
 #: ../../source/faq.rst:112
 msgid "Questions and usage advice belong in `Telegram <TG_>`_."
-msgstr "Вопросы и советы по использованию принадлежат `Telegram <TG_>`_."
+msgstr "Вопросы и советы по использованию доступны в личке `Telegram <TG_>`_."
 
 #: ../../source/faq.rst:117
 msgid "❤️ Support"
 msgstr "❤️ Поддержка"
 
 #: ../../source/faq.rst:119
-msgid ""
-"If this tool has been useful, you can support its development by "
-"`donation <DONATE_>`_."
-msgstr ""
-"Если это инструмент был полезным, вы можете поддержать его разработку "
-"`донатом <DONATE_>`_."
+msgid "If this tool has been useful, you can support its development by donation: NOWPayments_."
+msgstr "Если этот инструмент был полезным, вы можете поддержать его разработку: NOWPayments_, CloudTips_."

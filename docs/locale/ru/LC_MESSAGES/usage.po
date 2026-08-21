@@ -477,7 +477,7 @@ msgstr "Целевые модели"
 
 #: ../../source/usage/animate.rst:31
 msgid "Mappings"
-msgstr "Таблица"
+msgstr "Таблицы"
 
 #: ../../source/usage/animate.rst:32 ../../source/usage/animate.rst:52
 msgid "Arms"
@@ -587,7 +587,7 @@ msgid ""
 "model by bone index. The animation and model must have the same number of"
 " bones."
 msgstr ""
-"``body`` применяет скелетальную анимацию ``.mcal`` к ``.mcsb`` модели по индексу костей. Анимация и модель должны иметь одинаковое количество костей."
+"``body`` применяет скелетальную анимацию ``.mcal`` к модели ``.mcsb`` по индексу костей. Анимация и модель должны иметь одинаковое количество костей."
 
 #: ../../source/usage/animate.rst:92
 msgid ""
@@ -628,7 +628,7 @@ msgid ""
 "``1.12.2`` format. It writes terrain block arrays. Metadata, lighting, "
 "biomes, entities, and block states are not exported."
 msgstr ""
-"Выходные данные используют версию данных Anvil ``1343``, формат Minecraft Java ``1.12.2``. Он записывает массивы блоков terrain. Метаданные, освещение, биомы, сущности и состояния блоков не экспортируются."
+"Выходные данные используют версию данных Anvil ``1343``, формат Minecraft Java ``1.12.2``. Он записывает массивы блоков. Метаданные, освещение, биомы, сущности и состояния блоков не экспортируются."
 
 #: ../../source/usage/mapcache.rst:25
 msgid ""

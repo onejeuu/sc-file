@@ -22,8 +22,8 @@ Q: Can I modify or replace game files?
 
 Not recommended.
 
-The `License Agreement <EXBO_LICENSE_>`_ prohibits replacing or modifying game files
-except in `documented cases <EXBO_MODS_>`_. Violating this restriction may lead to ban.
+The `License Agreement <EXBO License_>`_ prohibits replacing or modifying game files
+except in `documented cases <EXBO Mods_>`_. Violating this restriction may lead to ban.
 There is no known safe threshold for a particular modification.
 Avoid any changes that could provide in game advantages.
 
@@ -37,14 +37,14 @@ An open source encoder would let users alter client assets too easy.
 It would lower the barrier to changes intended to gain an advantage.
 It could also provoke stricter asset protection or repeated format changes,
 making legitimate extraction and research harder.
-Public functionality therefore ends at decoding and export.
+Public functionality therefore ends at unidirectional export.
 
 
 Q: Game update broke <Any Filename> decoding!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An update may introduce a new format version or a file variant unsupported by the current decoder.
-Try the latest release. If the problem remains, `open an issue <ISSUES_>`_ and attach the file.
+Try the latest release. If the problem remains, `open an issue <Issues_>`_ and attach the file.
 In case of large changes, it might take some time to adapt.
 
 
@@ -63,7 +63,7 @@ Recommended viewers:
 Q: How to convert ``.dds`` textures to ``.png``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Convert DDS with ImageMagick_ or FFmpeg_.
+Convert with ImageMagick_ or FFmpeg_.
 
 .. code-block:: bash
   :caption: ImageMagick
@@ -79,7 +79,7 @@ Convert DDS with ImageMagick_ or FFmpeg_.
 Q: Why do models have weird or black textures?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <ALPHAMODE_>`_).
+In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <Alpha Mode_>`_).
 
 
 ----------------------------------------
@@ -90,17 +90,17 @@ Q: Antivirus or SmartScreen blocks ``scfile.exe``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 SmartScreen evaluates the reputation of a downloaded file and its publisher.
-An unsigned new executable may therefore be shown as unrecognized. `Microsoft documents this behaviour <SMARTSCREEN_>`_.
+An unsigned new executable may therefore be shown as unrecognized. `Microsoft documents this behaviour <SmartScreen_>`_.
 
 VirusTotal aggregates independent engine results.
 A detection from one engine is neither proof of malware nor a reason to ignore the warning.
-Executables built with PyInstaller can trigger generic heuristic detections, as documented in the `PyInstaller issue tracker <PYINSTALLER_ISSUE_>`_.
+Executables built with PyInstaller can trigger generic heuristic detections, as documented in the `PyInstaller issue tracker <PyInstaller Issue_>`_.
 
 
 Q: How to report a bug?
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-For a reproducible conversion failure, wrong output, or crash, `open an issue <ISSUES_>`_.
+For a reproducible conversion failure, wrong output, or crash, `open an issue <Issues_>`_.
 
 Please include:
 
@@ -116,4 +116,4 @@ Questions and usage advice belong in `Telegram <TG_>`_.
 ❤️ Support
 ----------------------------------------
 
-If this tool has been useful, you can support its development by `donation <DONATE_>`_.
+If this tool has been useful, you can support its development by donation: NOWPayments_.

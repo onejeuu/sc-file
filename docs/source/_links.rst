@@ -1,8 +1,7 @@
 .. Project
 .. _GitHub: https://github.com/onejeuu/sc-file
-.. _ISSUES: https://github.com/onejeuu/sc-file/issues
-.. _RELEASES: https://github.com/onejeuu/sc-file/releases
-.. _PYPI: https://pypi.org/project/sc-file
+.. _Issues: https://github.com/onejeuu/sc-file/issues
+.. _Releases: https://github.com/onejeuu/sc-file/releases
 
 .. Binary Templates
 .. _010 Editor: https://www.sweetscape.com/010editor/
@@ -16,8 +15,13 @@
 .. _SIGN.bt: https://github.com/onejeuu/sc-file/blob/master/templates/SIGN.bt
 .. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.bt
 
-.. Media Files
-.. _ALPHAMODE: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
+.. Repository Files
+.. _Alpha Mode: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
+.. _Block Mapping: https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py
+.. _Audit Mappings: https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit
+.. _Arms Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.arms.json
+.. _Face Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.face.json
+.. _Body Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.body.json
 
 .. Model Formats
 .. _FBX: https://en.wikipedia.org/wiki/FBX
@@ -30,19 +34,19 @@
 
 .. Data Formats
 .. _JSON: https://en.wikipedia.org/wiki/JSON
-.. _PROPERTIES: https://en.wikipedia.org/wiki/.properties
+.. _Propetries: https://en.wikipedia.org/wiki/.properties
 .. _Markdown: https://en.wikipedia.org/wiki/Markdown
 .. _SubRip: https://en.wikipedia.org/wiki/SubRip
 .. _Torrent: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
 .. _NBT: https://minecraft.wiki/w/NBT_format
-.. _ANVIL: https://minecraft.wiki/w/Anvil_file_format
+.. _Anvil: https://minecraft.wiki/w/Anvil_file_format
 .. _MCA: https://minecraft.wiki/w/Chunk_format
 
 .. Graphics
-.. _CUBEMAP: https://en.wikipedia.org/wiki/Cube_mapping
-.. _MIPMAP: https://en.wikipedia.org/wiki/Mipmap
-.. _NORMALMAP: https://en.wikipedia.org/wiki/Normal_mapping
+.. _CubeMap: https://en.wikipedia.org/wiki/Cube_mapping
+.. _MipMap: https://en.wikipedia.org/wiki/Mipmap
+.. _NormalMap: https://en.wikipedia.org/wiki/Normal_mapping
 
 .. Compression
 .. _gzip: https://en.wikipedia.org/wiki/Gzip
@@ -55,30 +59,33 @@
 .. Programs
 .. _Effekseer: https://effekseer.github.io/
 .. _FMOD: https://www.fmod.com/docs/2.03/studio/fmod-studio-concepts.html
-.. _EXBO_LICENSE: https://stalcraft.net/legal/ru_launcher_licence.pdf
-.. _EXBO_MODS: https://support.exbo.net/ru/help-center/articles/1/37/386
-.. _DONATE: https://www.donationalerts.com/r/onejeuu
-.. _SMARTSCREEN: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
-.. _PYINSTALLER_ISSUE: https://github.com/pyinstaller/pyinstaller/issues/9266
 .. _FFmpeg: https://ffmpeg.org
 .. _ImageMagick: https://imagemagick.org
 .. _PyInstaller: https://pyinstaller.org
 .. _UV: https://github.com/astral-sh/uv
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _XnView: https://xnview.com
+
+.. Antivirus
+.. _SmartScreen: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
+.. _PyInstaller Issue: https://github.com/pyinstaller/pyinstaller/issues/9266
+
+.. Legal
+.. _EXBO License: https://stalcraft.net/legal/ru_launcher_licence.pdf
+.. _EXBO Mods: https://support.exbo.net/ru/help-center/articles/1/37/386
+
+.. Map Cache
+.. _Coordinate Calculator: https://mclist.io/tools/minecraft-coordinate-calculator
+.. _Map Cache Resource Packs: https://www.mediafire.com/folder/ra6iiu7oc7gtx
+
+.. Mods
 .. _Fabric: https://fabricmc.net/use/installer/
+.. _Fabric API: https://modrinth.com/mod/fabric-api
 .. _Voxy: https://modrinth.com/mod/voxy
 .. _C2ME: https://modrinth.com/mod/c2me-fabric
 .. _Axiom: https://modrinth.com/mod/axiom
-.. _Coordinate Calculator: https://mclist.io/tools/minecraft-coordinate-calculator
-.. _Block Mapping: https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py
-.. _Map Cache Resource Packs: https://www.mediafire.com/folder/ra6iiu7oc7gtx
-.. _Fabric API: https://modrinth.com/mod/fabric-api
-.. _Audit Mappings: https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit
-.. _Arms Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.arms.json
-.. _Face Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.face.json
-.. _Body Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.body.json
-.. _Issues: https://github.com/onejeuu/sc-file/issues
 
 .. Contacts
 .. _TG: https://onejeuu.t.me
+.. _NOWPayments: https://nowpayments.io/donation/scfile
+.. _CloudTips: https://pay.cloudtips.ru/p/ecbf3144
