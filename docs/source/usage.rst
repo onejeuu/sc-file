@@ -24,8 +24,6 @@ Quick Start
   Drag files or folders directly onto ``scfile.exe`` in File Explorer.
   Supported files are converted to default formats and saved alongside the source file.
 
-  This is equivalent to passing dropped paths to ``scfile.exe``.
-
 
 🖱️ **Open With**
   Set ``scfile.exe`` as the default program for opening supported file types.
@@ -38,16 +36,17 @@ Quick Start
 📟 **Command Line**
   Run ``scfile.exe --help`` to see all available arguments and options.
   Paths are routed automatically to conversion, animation, or map cache operations.
-  Explicit commands remain available when the intended operation is ambiguous.
 
   .. code-block:: bash
 
-    scfile.exe model.mcsb -F glb --skeleton
+    scfile.exe model.mcsb -F fbx --skeleton # convert to fbx with skeleton
+    scfile.exe clips.mcvd model.mcsb # convert animation clips
+    scfile.exe path/to/map_cache/5.0 # convert map cache
 
 
 📖 **Python Library**
   Install the package from PyPI: ``pip install sc-file -U``.
-  Use ``scfile`` from Python scripts and tools.
+  Use ``scfile`` from your Python scripts.
 
   :doc:`Full API Reference <api/index>`
 
@@ -102,9 +101,9 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb"
-    scfile "C:/assets"
-    scfile "model.mcsb" "texture.ol"
+    scfile "model.mcsb" # auto route
+    scfile "C:/assets" # auto route
+    scfile convert "model.mcsb" "texture.ol" # explicit command
 
 
 ``-O, --output``
@@ -113,7 +112,7 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb" --output "D:/output"
+    scfile convert "model.mcsb" --output "D:/output"
 
 
 ``-F, --model-format``
@@ -126,7 +125,7 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb" -F glb
+    scfile convert "model.mcsb" -F glb
 
 
 ``-I, --include``
@@ -135,8 +134,8 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets" --include mcsb
-    scfile "C:/assets" -I mcsb -I ol
+    scfile convert "C:/assets" --include mcsb
+    scfile convert "C:/assets" -I mcsb -I ol
 
 
 ``--skeleton``
@@ -146,9 +145,9 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb" --skeleton
-    scfile "model.mcsb" -F glb --skeleton
-    scfile "model.mcsb" -F fbx --skeleton
+    scfile convert "model.mcsb" --skeleton
+    scfile convert "model.mcsb" -F glb --skeleton
+    scfile convert "model.mcsb" -F fbx --skeleton
 
 
 ``--animation``
@@ -158,12 +157,12 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb" --animation
-    scfile "model.mcsb" -F glb --animation
+    scfile convert "model.mcsb" --animation
+    scfile convert "model.mcsb" -F glb --animation
 
 
 ``--on-conflict``
-  | What to do when an output file already exists.
+  | What to do when an output file already exists in output directory.
   | Accepted values: ``overwrite``, ``skip``, ``rename``.
   | Default is ``overwrite``.
 
@@ -174,17 +173,17 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets/model.mcsb" "C:/assets/sub/model.mcsb" --on-conflict rename
+    scfile convert "C:/assets/model.mcsb" "C:/assets/sub/model.mcsb" --on-conflict rename
 
 
 ``--layout``
-  | Output layout. Requires ``--output`` unless set to ``flat``.
-  | Accepted values: ``flat`` (default), ``relative``, ``rooted``.
+  | Output layout. Requires ``--output``. Defaults to ``flat``.
+  | Accepted values: ``flat``, ``relative``, ``rooted``. `Examples → <layout_>`_
 
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets" --output "D:/output" --layout relative
+    scfile convert "C:/assets" --output "D:/output" --layout relative
 
 
 ``-W, --workers``
@@ -194,12 +193,14 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/assets" --workers 4
+    scfile convert "C:/assets" --workers 4
 
 
 ``-v, --verbose``
   Show the result of every processed file.
 
+
+.. _layout:
 
 Output Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,7 +218,7 @@ Examples of how ``--layout`` changes output layout.
 ``flat`` (default)
   .. code-block:: bash
 
-    scfile "./assets" --output "./output"
+    scfile convert "./assets" --output "./output"
 
   .. code-block:: text
     :caption: Output
@@ -230,7 +231,7 @@ Examples of how ``--layout`` changes output layout.
 ``relative``
   .. code-block:: bash
 
-    scfile "./assets" --output "./output" --layout relative
+    scfile convert "./assets" --output "./output" --layout relative
 
   .. code-block:: text
     :caption: Output
@@ -243,7 +244,7 @@ Examples of how ``--layout`` changes output layout.
 ``rooted``
   .. code-block:: bash
 
-    scfile "./assets" --output "./output" --layout rooted
+    scfile convert "./assets" --output "./output" --layout rooted
 
   .. code-block:: text
     :caption: Output
@@ -326,7 +327,7 @@ mapcache
   .. code-block:: bash
     :caption: Example
 
-    scfile mapcache "C:/map_cache/5.0" -W 4
+    scfile mapcache "C:/map_cache/5.0" --workers 4
 
 
 ``--raw``

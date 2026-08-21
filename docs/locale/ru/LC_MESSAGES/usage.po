@@ -86,13 +86,11 @@ msgstr "📟 **Командная строка**"
 msgid ""
 "Run ``scfile.exe --help`` to see all available arguments and options. "
 "Paths are routed automatically to conversion, animation, or map cache "
-"operations. Explicit commands remain available when the intended "
-"operation is ambiguous."
+"operations."
 msgstr ""
 "Запустите ``scfile.exe --help``, чтобы увидеть все доступные аргументы и "
 "опции. Пути автоматически маршрутизируются к операциям конвертации, "
-"анимации или кэша региона. Явные команды остаются доступными при "
-"неопределённых операций."
+"анимации или кэша региона."
 
 
 #: ../../source/usage.rst:48
@@ -102,10 +100,10 @@ msgstr "📖 **Библиотека Python**"
 #: ../../source/usage.rst:49
 msgid ""
 "Install the package from PyPI: ``pip install sc-file -U``. Use ``scfile``"
-" from Python scripts and tools."
+" from your Python scripts."
 msgstr ""
 "Установите пакет из PyPI: ``pip install sc-file -U``. Используйте "
-"``scfile`` в скриптах и инструментах Python."
+"``scfile`` в своих скриптах."
 
 #: ../../source/usage.rst:52
 msgid ":doc:`Full API Reference <api/index>`"
@@ -248,8 +246,8 @@ msgid "``--on-conflict``"
 msgstr ""
 
 #: ../../source/usage.rst
-msgid "What to do when an output file already exists."
-msgstr "Что делать, если файл уже существует."
+msgid "What to do when an output file already exists in output directory."
+msgstr "Что делать, если файл уже существует в выходном каталоге."
 
 #: ../../source/usage.rst
 msgid "Accepted values: ``overwrite``, ``skip``, ``rename``."
@@ -261,16 +259,16 @@ msgstr "По умолчанию: ``overwrite``."
 
 #: ../../source/usage.rst:170
 msgid "``overwrite``: Replace existing file."
-msgstr "``overwrite``: заменить существующий файл."
+msgstr "``overwrite``: Перезаписать существующий файл."
 
 #: ../../source/usage.rst:171
 msgid "``skip``: Keep existing file."
-msgstr "``skip``: оставить существующий файл."
+msgstr "``skip``: Оставить существующий файл."
 
 #: ../../source/usage.rst:172
 msgid "``rename``: Add numeric suffix: ``model (1).obj``, ``model (2).obj``."
 msgstr ""
-"``rename``: добавить числовой суффикс: ``model (1).obj``, ``model "
+"``rename``: Добавить числовой суффикс: ``model (1).obj``, ``model "
 "(2).obj``."
 
 #: ../../source/usage.rst:180
@@ -278,12 +276,12 @@ msgid "``--layout``"
 msgstr ""
 
 #: ../../source/usage.rst
-msgid "Output layout. Requires ``--output`` unless set to ``flat``."
-msgstr "Расположение вывода. Требуется ``--output``, если не установлено ``flat``."
+msgid "Output layout. Requires ``--output``. Defaults to ``flat``."
+msgstr "Структура вывода. Требуется ``--output``. По умолчанию: ``flat``."
 
 #: ../../source/usage.rst
-msgid "Accepted values: ``flat`` (default), ``relative``, ``rooted``."
-msgstr "Допустимые значения: ``flat`` (по умолчанию), ``relative``, ``rooted``."
+msgid "Accepted values: ``flat``, ``relative``, ``rooted``. `Examples → <layout_>`_"
+msgstr "Допустимые значения: ``flat``, ``relative``, ``rooted``. `Примеры → <layout_>`_"
 
 #: ../../source/usage.rst:190 ../../source/usage.rst:322
 msgid "``-W, --workers``"
@@ -345,7 +343,7 @@ msgid ""
 "GLB file or directory. Without it, the GLB is saved next to the animation"
 " source."
 msgstr ""
-"Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и экспортирует ``.glb`` файл."
+"Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и экспортирует ``.glb`` файл. "
 "Каждый подкоманда принимает ``-O, --output`` для GLB файла или директории. Без него GLB сохраняется рядом с исходным файлом анимации."
 
 #: ../../source/usage.rst:261
@@ -360,7 +358,7 @@ msgstr ""
 msgid ""
 "Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add"
 " an optional hands model."
-msgstr "Применить ``.mcvd`` анимацию от первого лица к оружию ``.mcsb``. Опционально добавьте модель рук."
+msgstr "Применить ``.mcvd`` анимацию от первого лица к ``.mcsb`` оружию. Опционально добавьте модель рук."
 
 #: ../../source/usage.rst:272
 msgid "``face ANIMATION MODEL``"
@@ -368,7 +366,7 @@ msgstr ""
 
 #: ../../source/usage.rst:273
 msgid "Apply a facial ``.mcvd`` animation to a head ``.mcsb`` model."
-msgstr "Применить ``.mcvd`` лицевую анимацию к голове ``.mcsb``."
+msgstr "Применить ``.mcvd`` лицевую анимацию к ``.mcsb`` голове."
 
 #: ../../source/usage.rst:281
 msgid "``body ANIMATION MODEL``"
