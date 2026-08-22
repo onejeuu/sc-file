@@ -3,9 +3,8 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from scfile.app import game
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
-from scfile.app.game import MinecraftWorld
+from scfile.app.game import GameRoot, McWorld
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -28,7 +27,7 @@ class MapCacheTab(QWidget):
         self.settings = settings
         self.scanner = MapCacheScanner(self)
         self.touched: set[PathField] = set()
-        self.world: MinecraftWorld | None = None
+        self.world: McWorld | None = None
         self.running = False
         self._build_ui()
 
@@ -129,9 +128,9 @@ class MapCacheTab(QWidget):
             self._sync()
 
     def _game_cache(self) -> Path | None:
-        installation = game.resolve(self.settings.game_root or Path.home())
-        if installation and installation.map_cache.is_dir():
-            return installation.map_cache
+        game = GameRoot.find(self.settings.game_root or Path.home())
+        if game and game.map_cache.is_dir():
+            return game.map_cache
         return None
 
     def _source_changed(self, _: str) -> None:
@@ -143,7 +142,8 @@ class MapCacheTab(QWidget):
         source = Path(value)
 
         if self.settings.resolve_paths and source.exists():
-            resolved = game.resolve_map_cache(source)
+            game = GameRoot.find(source)
+            resolved = game.resolve_map_cache(source) if game else source.resolve()
             if resolved != source:
                 self.source.value = resolved.as_posix()
         self._refresh()
@@ -165,7 +165,7 @@ class MapCacheTab(QWidget):
         output = Path(value)
 
         if self.settings.resolve_paths and output.exists():
-            self.world = game.resolve_minecraft_world(output)
+            self.world = McWorld.find(output)
             if self.world:
                 self.output.value = self.world.regions.as_posix()
         self._sync()

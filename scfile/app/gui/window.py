@@ -14,9 +14,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scfile.app import files, game
+from scfile.app import files
 from scfile.app.consts import TITLE
 from scfile.app.feedback import TaskFeedback
+from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Store
 from scfile.app.gui.styles import Styles
@@ -47,11 +48,11 @@ class MainWindow(QMainWindow):
         self._build_ui()
 
     def _resolve_game_root(self) -> None:
-        installation = game.resolve(self.settings.game_root or Path.home())
-        if installation is None or installation.root == self.settings.game_root:
+        game = GameRoot.find(self.settings.game_root or Path.home())
+        if game is None or game.root == self.settings.game_root:
             return
 
-        self.settings.game_root = installation.root
+        self.settings.game_root = game.root
         self.store.save(self.settings)
 
     def _build_ui(self) -> None:
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow):
         self.settings_tab = SettingsTab(self.settings)
         self.settings_tab.changed.connect(self._save_settings)
         self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
+        self.settings_tab.game_root_changed.connect(self.animate.apply_game_root)
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
         self.settings_tab.path_resolution_changed.connect(self.animate.apply_path_resolution)
         self.settings_tab.verbose_changed.connect(self.feedback.set_verbose)

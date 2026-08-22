@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QStackedWidget, QTabBar,
 
 from scfile import convert
 from scfile.app import files
+from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -97,6 +98,7 @@ class AnimationForm(QWidget):
             file_filter=file_filter,
         )
         path.changed.connect(lambda _: self._touch_input(path))
+        path.text_changed.connect(lambda _: self.changed.emit())
         self.rules.append(PathRule(path, suffix, error, required))
         self.inputs.addWidget(path)
         return path
@@ -337,6 +339,9 @@ class AnimateTab(QWidget):
                 form.output_auto = False
         self._sync()
 
+    def apply_game_root(self) -> None:
+        self._sync()
+
     def _output_changed(self, _: str, form: Form | None = None) -> None:
         form = form or self.form
         form.output_auto = False
@@ -345,6 +350,22 @@ class AnimateTab(QWidget):
 
     def _output_invalid(self) -> bool:
         return Path(self.output.value.strip()).suffix.lower() != ".glb"
+
+    def _resolve_inputs(self, form: Form) -> None:
+        if not self.settings.resolve_paths or self.settings.game_root is None:
+            return
+
+        game = GameRoot.from_path(self.settings.game_root)
+        if game is None:
+            return
+
+        for rule in form.rules:
+            value = rule.widget.value.strip()
+            if not value:
+                continue
+
+            if resolved := game.resolve_asset(value):
+                rule.widget.value = resolved.as_posix()
 
     def _submit_error(self) -> str | None:
         errors = (
@@ -355,6 +376,7 @@ class AnimateTab(QWidget):
 
     def _sync(self) -> None:
         form = self.form
+        self._resolve_inputs(form)
         output = form.output
         source = form.source.value.strip()
         valid_source = _valid(form.rules[0])

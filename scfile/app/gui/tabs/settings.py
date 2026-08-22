@@ -4,8 +4,9 @@ from PySide6.QtCore import QSize, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from scfile.app import files, game
+from scfile.app import files
 from scfile.app.consts import DEFAULT_OUTPUT
+from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -137,17 +138,17 @@ class SettingsTab(QWidget):
             return
 
         source = Path(value)
-        resolver = game.resolve if self.settings.resolve_paths else game.Installation.from_root
-        installation = resolver(source)
+        resolver = GameRoot.find if self.settings.resolve_paths else GameRoot.from_path
+        game = resolver(source)
 
-        if installation is None:
+        if game is None:
             self.root.invalid = True
             return
 
         self.root.invalid = False
-        self.settings.game_root = installation.root
+        self.settings.game_root = game.root
         if self.settings.resolve_paths:
-            self.root.value = installation.root.as_posix()
+            self.root.value = game.root.as_posix()
         self.changed.emit()
         self.game_root_changed.emit()
 
@@ -157,11 +158,11 @@ class SettingsTab(QWidget):
         root_changed = False
 
         if enabled and value:
-            installation = game.resolve(Path(value))
-            if installation is not None:
+            game = GameRoot.find(Path(value))
+            if game is not None:
                 self.root.invalid = False
-                self.settings.game_root = installation.root
-                self.root.value = installation.root.as_posix()
+                self.settings.game_root = game.root
+                self.root.value = game.root.as_posix()
                 root_changed = True
 
         self.changed.emit()

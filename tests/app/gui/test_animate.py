@@ -130,6 +130,52 @@ def test_output(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
+def test_output_updates_with_source_text(qapp: QApplication, tmp_path: Path) -> None:
+    settings = Settings(export_path=tmp_path / "export")
+    tab = AnimateTab(TaskManager(), settings)
+    first = tmp_path / "first.mcvd"
+    second = tmp_path / "second.mcvd"
+    first.touch()
+    second.touch()
+
+    tab.form.source.value = str(first)
+    assert Path(tab.output.value) == settings.export_path / "first.glb"
+
+    tab.form.source.value = str(second)
+    assert Path(tab.output.value) == settings.export_path / "second.glb"
+
+    tab.deleteLater()
+    qapp.processEvents()
+
+
+def test_resolve_animation_asset_paths(qapp: QApplication, tmp_path: Path) -> None:
+    root = tmp_path / "game"
+    relative = Path("highpoly/animations/wpn_fp_test.mcvd")
+    source = root / "modassets/assets" / relative
+    source.parent.mkdir(parents=True)
+    source.touch()
+
+    tab = AnimateTab(TaskManager(), Settings(game_root=root))
+    values = (
+        f"modassets/assets/{relative.as_posix()}",
+        f"assets/{relative.as_posix()}",
+        relative.as_posix(),
+    )
+
+    for value in values:
+        tab.form.source.value = value
+        assert Path(tab.form.source.value) == source.resolve()
+        assert Path(tab.output.value) == tab.settings.export_path / "wpn_fp_test.glb"
+
+    output = "assets/output.glb"
+    tab.output.value = output
+    tab._output_changed(output)
+    assert tab.output.value == output
+
+    tab.deleteLater()
+    qapp.processEvents()
+
+
 def test_paths(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export", resolve_paths=False)
     tab = AnimateTab(TaskManager(), settings)
