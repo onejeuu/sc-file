@@ -331,6 +331,8 @@ def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -
 
 
 def apply_fp_models(animation: ModelScene, *models: ModelScene) -> ModelScene:
+    """Apply first-person models to the animation scene."""
+
     models = tuple(filter_fp_meshes(animation, model) for model in models)
     if any(not model.meshes for model in models):
         raise AnimationError("Model has no meshes compatible with the animation skeleton.")

@@ -46,27 +46,26 @@ class EfkmodelDecoder(ModelDecoder[ModelReader]):
         frames = self.io.count(F.I32, Limit.MESHES)
         self.data.meta.counts.meshes = frames
 
-        for _ in range(frames):
-            mesh = S.ModelMesh()
+        mesh = S.ModelMesh()
 
-            vertices = self.io.count(F.I32, Limit.VERTICES)
-            data = np.frombuffer(self.io.read_exact(vertices * _VERTEX.itemsize), dtype=_VERTEX)
-            mesh.vertices = data["position"].copy()
-            mesh.normals = data["normal"].copy()
-            mesh.uv1 = data["uv"].copy()
-            mesh.uv2 = mesh.uv1.copy()
-            mesh.colors = data["color"].copy()
+        vertices = self.io.count(F.I32, Limit.VERTICES)
+        data = np.frombuffer(self.io.read_exact(vertices * _VERTEX.itemsize), dtype=_VERTEX)
+        mesh.vertices = data["position"].copy()
+        mesh.normals = data["normal"].copy()
+        mesh.uv1 = data["uv"].copy()
+        mesh.uv2 = mesh.uv1.copy()
+        mesh.colors = data["color"].copy()
 
-            tangent = data["tangent"]
-            bitangent = data["binormal"]
-            handedness = np.einsum("ij,ij->i", np.cross(mesh.normals, tangent), bitangent)
-            mesh.tangents = np.column_stack((tangent, np.where(handedness < 0.0, -1.0, 1.0))).astype(F.F32)
+        tangent = data["tangent"]
+        bitangent = data["binormal"]
+        handedness = np.einsum("ij,ij->i", np.cross(mesh.normals, tangent), bitangent)
+        mesh.tangents = np.column_stack((tangent, np.where(handedness < 0.0, -1.0, 1.0))).astype(F.F32)
 
-            polygons = self.io.count(F.I32, Limit.POLYGONS)
-            indices = self.io.array(F.I32, polygons * 3)
-            if np.any(indices < 0) or np.any(indices >= vertices):
-                raise exceptions.BinaryStructureError(location=self.io.location, offset=self.io.tell())
+        polygons = self.io.count(F.I32, Limit.POLYGONS)
+        indices = self.io.array(F.I32, polygons * 3)
+        if np.any(indices < 0) or np.any(indices >= vertices):
+            raise exceptions.BinaryStructureError(location=self.io.location, offset=self.io.tell())
 
-            mesh.polygons = indices.astype(F.U32).reshape(-1, 3)
+        mesh.polygons = indices.astype(F.U32).reshape(-1, 3)
 
-            self.data.scene.meshes.append(mesh)
+        self.data.scene.meshes.append(mesh)
