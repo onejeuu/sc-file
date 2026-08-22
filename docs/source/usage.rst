@@ -55,10 +55,7 @@ Quick Start
 
     from scfile import Options, convert
 
-    convert.mcsb_to_glb(
-        "model.mcsb",
-        options=Options(skeleton=True, on_conflict="skip"),
-    )
+    convert.mcsb_to_glb("model.mcsb", options=Options(skeleton=True))
 
 
 ----------------------------------------
@@ -163,12 +160,12 @@ Default command. Converts game assets to standard formats.
 
 ``--on-conflict``
   | What to do when an output file already exists in output directory.
-  | Accepted values: ``overwrite``, ``skip``, ``rename``.
-  | Default is ``overwrite``.
+  | Accepted values: ``replace``, ``rename``, ``skip``.
+  | Default is ``replace``.
 
-  - ``overwrite``: Replace existing file.
-  - ``skip``: Keep existing file.
+  - ``replace``: Replace existing file.
   - ``rename``: Add numeric suffix: ``model (1).obj``, ``model (2).obj``.
+  - ``skip``: Keep existing file.
 
   .. code-block:: bash
     :caption: Example
@@ -177,8 +174,8 @@ Default command. Converts game assets to standard formats.
 
 
 ``--layout``
-  | Output layout. Requires ``--output``. Defaults to ``flat``.
-  | Accepted values: ``flat``, ``relative``, ``rooted``. `Examples → <layout_>`_
+  | Output layout inside ``--output``. Defaults to ``rooted``.
+  | Accepted values: ``rooted``, ``relative``, ``dump``. `Examples → <layout_>`_
 
   .. code-block:: bash
     :caption: Example
@@ -215,7 +212,7 @@ Examples of how ``--layout`` changes output layout.
   └── items/vodka.ol
 
 
-``flat`` (default)
+``rooted`` (default)
   .. code-block:: bash
 
     scfile convert "./assets" --output "./output"
@@ -224,8 +221,8 @@ Examples of how ``--layout`` changes output layout.
     :caption: Output
 
     ./output/
-    ├── albatros.obj
-    └── vodka.dds
+    ├── assets/armor/albatros.obj
+    └── assets/items/vodka.dds
 
 
 ``relative``
@@ -241,17 +238,17 @@ Examples of how ``--layout`` changes output layout.
     └── items/vodka.dds
 
 
-``rooted``
+``dump``
   .. code-block:: bash
 
-    scfile convert "./assets" --output "./output" --layout rooted
+    scfile convert "./assets" --output "./output" --layout dump
 
   .. code-block:: text
     :caption: Output
 
     ./output/
-    ├── assets/armor/albatros.obj
-    └── assets/items/vodka.dds
+    ├── albatros.obj
+    └── vodka.dds
 
 
 animate

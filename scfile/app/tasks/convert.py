@@ -38,7 +38,7 @@ def _directory(
     layout: OutputLayout,
 ) -> str | None:
     match layout:
-        case OutputLayout.FLAT:
+        case OutputLayout.DUMP:
             base = None
         case OutputLayout.RELATIVE:
             base = entry.root
@@ -120,7 +120,7 @@ class ConvertTask(Task):
     filters: tuple[str, ...]
     options: Options
     output: Path | None = None
-    layout: OutputLayout = OutputLayout.FLAT
+    layout: OutputLayout = OutputLayout.ROOTED
     total: int | None = None
     workers: int | None = None
     filtered: bool = False

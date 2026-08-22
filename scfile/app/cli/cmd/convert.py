@@ -48,9 +48,7 @@ from scfile.structures.content import ModelContent
 @click.option(
     "--layout",
     type=params.Layouts,
-    default=OutputLayout.RELATIVE,
-    show_default=OutputLayout.RELATIVE.value,
-    help="Output layout: flat, relative to source, or with source root.",
+    default=OutputLayout.ROOTED,
 )
 @click.option(
     "--skeleton",

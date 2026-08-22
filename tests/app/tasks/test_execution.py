@@ -87,6 +87,7 @@ def test_convert(tmp_path: Path) -> None:
 
     summary = execute(task, events.append)
 
+    assert task.layout is OutputLayout.ROOTED
     assert isinstance(events[0], TaskStarted)
     assert events[0].total == 1
     assert summary.work.completed == 1
@@ -159,7 +160,7 @@ def test_rooted_layout(tmp_path: Path) -> None:
     assert (tmp_path / "output/assets/documents/document.json").exists()
 
 
-def test_flat_replace_disambiguates_collisions(tmp_path: Path) -> None:
+def test_dump_replace_disambiguates_collisions(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -169,7 +170,7 @@ def test_flat_replace_disambiguates_collisions(tmp_path: Path) -> None:
     (right / source.name).write_bytes(source.read_bytes())
     output = tmp_path / "output"
 
-    task = ConvertTask((left, right), (), Options(), output=output, workers=2)
+    task = ConvertTask((left, right), (), Options(), output=output, layout=OutputLayout.DUMP, workers=2)
     summary = execute(task)
 
     clean = output / "document.json"
@@ -187,7 +188,7 @@ def test_flat_replace_disambiguates_collisions(tmp_path: Path) -> None:
     assert hashed.exists()
 
 
-def test_flat_rename_reserves_collisions(tmp_path: Path) -> None:
+def test_dump_rename_reserves_collisions(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -197,7 +198,14 @@ def test_flat_rename_reserves_collisions(tmp_path: Path) -> None:
     (right / source.name).write_bytes(source.read_bytes())
     output = tmp_path / "output"
 
-    task = ConvertTask((left, right), (), Options(on_conflict=OnConflict.RENAME), output=output, workers=2)
+    task = ConvertTask(
+        (left, right),
+        (),
+        Options(on_conflict=OnConflict.RENAME),
+        output=output,
+        layout=OutputLayout.DUMP,
+        workers=2,
+    )
     summary = execute(task)
 
     assert summary.files.written == 2
@@ -205,7 +213,7 @@ def test_flat_rename_reserves_collisions(tmp_path: Path) -> None:
     assert (output / "document (1).json").exists()
 
 
-def test_flat_skip_skips_collisions(tmp_path: Path) -> None:
+def test_dump_skip_skips_collisions(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -215,7 +223,14 @@ def test_flat_skip_skips_collisions(tmp_path: Path) -> None:
     (right / source.name).write_bytes(source.read_bytes())
     output = tmp_path / "output"
 
-    task = ConvertTask((left, right), (), Options(on_conflict=OnConflict.SKIP), output=output, workers=2)
+    task = ConvertTask(
+        (left, right),
+        (),
+        Options(on_conflict=OnConflict.SKIP),
+        output=output,
+        layout=OutputLayout.DUMP,
+        workers=2,
+    )
     summary = execute(task)
 
     assert summary.files.written == 1

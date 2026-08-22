@@ -16,7 +16,7 @@ v6.0.0
 * ``GlbEncoder``: now can export blend shapes and morph animation clips.
 * ``FbxEncoder``: now can export armature and builtin bone animation clips.
 * ``scfile convert --include``: filters source formats during directory conversion.
-* ``scfile convert --layout``:  ``flat`` output, preserves source ``relative`` or  ``rooted`` paths.
+* ``scfile convert --layout``: dumps files into one directory or preserves source ``relative`` and ``rooted`` paths.
 * ``scfile convert --workers``: processes files in parallel.
 * ``scfile convert --verbose``: prints the result of every processed file.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
@@ -35,7 +35,9 @@ v6.0.0
 * Minimum Python version raised to ``3.13``.
 * ``convert.auto()`` now returns destination path on success or ``None`` on skip.
 * ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
+* ``Options.on_conflict``: ``overwrite`` renamed to ``replace``.
 * **CLI**: Option ``--model-format`` (``-F``) now accepts single target format (previously multiple).
+* **CLI**: ``--layout`` defaults to ``rooted``
 * **CLI**: reworked feedback with live progress, readable errors, output location, and files summary.
 
 ♻️ Refactored

@@ -48,11 +48,6 @@ Options
    :show-inheritance:
    :undoc-members:
 
-.. py:type:: OnConflict
-   :module: scfile.options
-
-   ``Literal['overwrite', 'rename', 'skip']``
-
 .. py:type:: TargetConfig
    :module: scfile.options
 

@@ -54,7 +54,7 @@ conflict handling. Skeletons and built-in animations are disabled by default.
   options = Options(
       skeleton=True,
       animation=True,
-      on_conflict="skip",
+      on_conflict=OnConflict.SKIP,
   )
 
   convert.mcsb_to_glb("model.mcsb", options=options)

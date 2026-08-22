@@ -156,14 +156,14 @@ msgstr "Экспортировать встроенные анимационны
 msgid "What to do when an output file already exists in output directory."
 msgstr "Что делать, если файл уже существует в выходном каталоге."
 
-msgid "Accepted values: ``overwrite``, ``skip``, ``rename``."
-msgstr "Допустимые значения: ``overwrite``, ``skip``, ``rename``."
+msgid "Accepted values: ``replace``, ``rename``, ``skip``."
+msgstr "Допустимые значения: ``replace``, ``rename``, ``skip``."
 
-msgid "Default is ``overwrite``."
-msgstr "По умолчанию: ``overwrite``."
+msgid "Default is ``replace``."
+msgstr "По умолчанию: ``replace``."
 
-msgid "``overwrite``: Replace existing file."
-msgstr "``overwrite``: Перезаписать существующий файл."
+msgid "``replace``: Replace existing file."
+msgstr "``replace``: Заменить существующий файл."
 
 msgid "``skip``: Keep existing file."
 msgstr "``skip``: Оставить существующий файл."
@@ -173,11 +173,11 @@ msgstr ""
 "``rename``: Добавить числовой суффикс: ``model (1).obj``, ``model "
 "(2).obj``."
 
-msgid "Output layout. Requires ``--output``. Defaults to ``flat``."
-msgstr "Структура вывода. Требуется ``--output``. По умолчанию: ``flat``."
+msgid "Output layout inside ``--output``. Defaults to ``rooted``."
+msgstr "Структура внутри ``--output``. По умолчанию: ``rooted``."
 
-msgid "Accepted values: ``flat``, ``relative``, ``rooted``. `Examples → <layout_>`_"
-msgstr "Допустимые значения: ``flat``, ``relative``, ``rooted``. `Примеры → <layout_>`_"
+msgid "Accepted values: ``rooted``, ``relative``, ``dump``. `Examples → <layout_>`_"
+msgstr "Допустимые значения: ``rooted``, ``relative``, ``dump``. `Примеры → <layout_>`_"
 
 msgid "Number of worker threads. Default: CPU count."
 msgstr "Количество потоков. По умолчанию: ``CPU count``."
@@ -197,8 +197,8 @@ msgstr "Примеры того, как ``--layout`` изменяет струк
 msgid "Source structure"
 msgstr "Структура исходных файлов"
 
-msgid "``flat`` (default)"
-msgstr "``flat`` (по умолчанию)"
+msgid "``rooted`` (default)"
+msgstr "``rooted`` (по умолчанию)"
 
 msgid "Output"
 msgstr "Вывод"

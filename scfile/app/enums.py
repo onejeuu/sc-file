@@ -20,9 +20,9 @@ class AnimateCommand(StrEnum):
 class OutputLayout(StrEnum):
     """Output directory layout."""
 
-    FLAT = auto()
-    RELATIVE = auto()
     ROOTED = auto()
+    RELATIVE = auto()
+    DUMP = auto()
 
 
 class TaskKind(StrEnum):

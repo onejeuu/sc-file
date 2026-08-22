@@ -109,7 +109,7 @@ class ConvertForm(QWidget):
 
     @property
     def output_layout(self) -> OutputLayout:
-        return OutputLayout.ROOTED if self.output_tree.isChecked() else OutputLayout.FLAT
+        return OutputLayout.ROOTED if self.output_tree.isChecked() else OutputLayout.DUMP
 
     @property
     def output_valid(self) -> bool:
@@ -281,16 +281,16 @@ class ConvertForm(QWidget):
         self.output_tree.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_tree.setChecked(True)
 
-        self.output_flat = QRadioButton(strings.get("option.convert.output.flat"))
-        self.output_flat.setStyleSheet(Styles.RADIO)
-        self.output_flat.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.output_dump = QRadioButton(strings.get("option.convert.output.dump"))
+        self.output_dump.setStyleSheet(Styles.RADIO)
+        self.output_dump.setCursor(Qt.CursorShape.PointingHandCursor)
 
         modes = QButtonGroup(self)
         modes.addButton(self.output_tree)
-        modes.addButton(self.output_flat)
+        modes.addButton(self.output_dump)
 
         structure.addWidget(self.output_tree)
-        structure.addWidget(self.output_flat)
+        structure.addWidget(self.output_dump)
         layout.addWidget(self.structure)
 
     def _output_changed(self, *_: object) -> None:

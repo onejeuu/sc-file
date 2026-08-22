@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 import json
 
+import pytest
 from click.testing import CliRunner
 
 from scfile.app.cli import scfile
@@ -48,7 +49,7 @@ def test_convert(
     task = tasks[0]
     assert task.sources == (source,)
     assert task.output == output
-    assert task.layout is OutputLayout.RELATIVE
+    assert task.layout is OutputLayout.ROOTED
     assert task.workers == 3
     assert task.filters == (FileFormat.MIC.suffix,)
     assert task.options.targets[ModelContent] is FileFormat.GLB
@@ -57,11 +58,12 @@ def test_convert(
     assert task.options.on_conflict is OnConflict.RENAME
 
 
-def test_convert_layout(tmp_path: Path) -> None:
+@pytest.mark.parametrize("layout", OutputLayout)
+def test_convert_layout(tmp_path: Path, layout: OutputLayout) -> None:
     source = tmp_path / "source"
     source.mkdir()
 
-    result = CliRunner().invoke(scfile, ["convert", str(source), "--layout", "relative"])
+    result = CliRunner().invoke(scfile, ["convert", str(source), "--layout", layout.value])
 
     assert result.exit_code == 0
 
