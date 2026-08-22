@@ -1,12 +1,13 @@
 """Paths used by conversion operations."""
 
 import os
-from collections.abc import Generator
+from collections.abc import Collection, Generator
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import mkstemp
 
 from scfile import exceptions, types
+from scfile.enums import OnConflict
 from scfile.options import Options
 
 
@@ -31,11 +32,21 @@ def output(
     """Choose an output path under the conflict policy."""
 
     path = destination(source, value, suffix)
+    return select(path, options)
+
+
+def select(
+    path: Path,
+    options: Options,
+    assigned: Collection[Path] = (),
+) -> types.ResultPath:
+    """Apply the conflict policy to an exact output path."""
+
     match options.on_conflict:
-        case "skip" if path.exists():
+        case OnConflict.SKIP if path.exists() or path in assigned:
             return None
-        case "rename":
-            return unique(path)
+        case OnConflict.RENAME:
+            return unique(path, assigned)
         case _:
             return path
 
@@ -60,13 +71,14 @@ def destination(
 
 def unique(
     path: Path,
+    assigned: Collection[Path] = (),
 ) -> Path:
     """Append a counter when the path already exists."""
 
     filename, suffix = path.stem, path.suffix
     counter = 1
 
-    while path.exists():
+    while path.exists() or path in assigned:
         path = path.parent / Path(f"{filename} ({counter}){suffix}")
         counter += 1
 

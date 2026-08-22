@@ -10,9 +10,9 @@ from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
 from scfile.app.tasks.convert import ConvertTask
 from scfile.core import ModelEncoder
-from scfile.enums import FileFormat
+from scfile.enums import FileFormat, OnConflict
 from scfile.formats import registry
-from scfile.options import OnConflict, Options
+from scfile.options import Options
 from scfile.structures.content import ModelContent
 
 
@@ -48,8 +48,8 @@ from scfile.structures.content import ModelContent
 @click.option(
     "--layout",
     type=params.Layouts,
-    default=OutputLayout.FLAT,
-    show_default=OutputLayout.FLAT.value,
+    default=OutputLayout.RELATIVE,
+    show_default=OutputLayout.RELATIVE.value,
     help="Output layout: flat, relative to source, or with source root.",
 )
 @click.option(
@@ -64,8 +64,8 @@ from scfile.structures.content import ModelContent
 )
 @click.option(
     "--on-conflict",
-    type=params.OnConflict,
-    default="overwrite",
+    type=params.Conflicts,
+    default=OnConflict.REPLACE,
     help="What to do when output file already exists.",
 )
 @click.option(
@@ -94,9 +94,6 @@ def convert(
     verbose: bool,
 ) -> None:
     """Convert supported files."""
-
-    if layout is not OutputLayout.FLAT and not output:
-        raise click.UsageError("Non-flat --layout requires --output.")
 
     # Prepare options
     options = Options(

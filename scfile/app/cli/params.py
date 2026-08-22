@@ -4,8 +4,8 @@ import click
 
 from scfile.app.enums import OutputLayout
 from scfile.app.formats import model_formats
+from scfile.enums import OnConflict
 from scfile.formats import registry
-from scfile.options import ON_CONFLICT_OPTIONS
 
 
 Files = click.Path(
@@ -60,7 +60,7 @@ Layouts = click.Choice(
     case_sensitive=False,
 )
 
-OnConflict = click.Choice(
-    choices=ON_CONFLICT_OPTIONS,
+Conflicts = click.Choice(
+    choices=list(OnConflict),
     case_sensitive=False,
 )

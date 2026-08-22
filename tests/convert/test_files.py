@@ -4,7 +4,7 @@ import pytest
 
 from scfile import exceptions
 from scfile.convert import files, manual
-from scfile.enums import FileFormat
+from scfile.enums import FileFormat, OnConflict
 from scfile.formats.registry import Registry
 from scfile.options import Options
 from tests.conftest import BytesDecoder, BytesEncoder
@@ -48,7 +48,7 @@ def test_manual_skip(tmp_path: Path) -> None:
     source.write_bytes(b"STRNdata")
     output.write_bytes(b"existing")
 
-    result = manual(BytesDecoder, PngEncoder, source, output, Options(on_conflict="skip"))
+    result = manual(BytesDecoder, PngEncoder, source, output, Options(on_conflict=OnConflict.SKIP))
 
     assert result is None
     assert output.read_bytes() == b"existing"
@@ -60,7 +60,7 @@ def test_manual_rename(tmp_path: Path) -> None:
     source.write_bytes(b"STRNdata")
     output.write_bytes(b"existing")
 
-    result = manual(BytesDecoder, PngEncoder, source, output, Options(on_conflict="rename"))
+    result = manual(BytesDecoder, PngEncoder, source, output, Options(on_conflict=OnConflict.RENAME))
 
     assert result == tmp_path / "output (1).png"
     assert result is not None

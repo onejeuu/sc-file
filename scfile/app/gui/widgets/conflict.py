@@ -1,11 +1,9 @@
-from typing import cast
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QButtonGroup, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scfile.app.gui import strings
 from scfile.app.gui.styles import Styles
-from scfile.options import ON_CONFLICT_OPTIONS, OnConflict
+from scfile.enums import OnConflict
 
 
 class ConflictWidget(QWidget):
@@ -27,11 +25,11 @@ class ConflictWidget(QWidget):
         self.buttons = QButtonGroup(self)
         self.buttons.setExclusive(True)
 
-        for option in ON_CONFLICT_OPTIONS:
-            button = QPushButton(strings.get(f"option.convert.onconflict.{option}"))
+        for option in OnConflict:
+            button = QPushButton(strings.get(f"option.convert.onconflict.{option.value}"))
             button.setCheckable(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.setProperty("conflict_option", option)
+            button.setProperty("conflict_option", option.value)
             button.setStyleSheet(Styles.TOGGLE_ITEM)
             self.buttons.addButton(button)
             toggle_layout.addWidget(button)
@@ -49,4 +47,5 @@ class ConflictWidget(QWidget):
     @property
     def value(self) -> OnConflict:
         button = self.buttons.checkedButton()
-        return cast(OnConflict, button.property("conflict_option") if button else "overwrite")
+        value = button.property("conflict_option") if button else OnConflict.REPLACE
+        return OnConflict(value)

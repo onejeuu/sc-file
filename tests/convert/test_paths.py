@@ -4,6 +4,7 @@ import pytest
 
 from scfile import exceptions
 from scfile.convert import paths
+from scfile.enums import OnConflict
 from scfile.options import Options
 
 
@@ -35,8 +36,8 @@ def test_output(tmp_path: Path) -> None:
     output.write_bytes(b"existing")
 
     assert paths.output(source, output, ".png", Options()) == output
-    assert paths.output(source, output, ".png", Options(on_conflict="skip")) is None
-    assert paths.output(source, output, ".png", Options(on_conflict="rename")) == tmp_path / "output (1).png"
+    assert paths.output(source, output, ".png", Options(on_conflict=OnConflict.SKIP)) is None
+    assert paths.output(source, output, ".png", Options(on_conflict=OnConflict.RENAME)) == tmp_path / "output (1).png"
 
 
 def test_unique(tmp_path: Path) -> None:

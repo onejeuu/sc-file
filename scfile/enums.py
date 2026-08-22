@@ -29,6 +29,14 @@ class FileFormat(StrEnum):
         return f".{self.value.lower()}" if self.value else ""
 
 
+class OnConflict(StrEnum):
+    """Action when an output path already exists."""
+
+    REPLACE = auto()
+    RENAME = auto()
+    SKIP = auto()
+
+
 class FileKind(StrEnum):
     """File content kind."""
 

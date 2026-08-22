@@ -7,7 +7,8 @@ from scfile.app import files
 from scfile.app.enums import OutputLayout, TaskKind, TaskOutcome
 from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.tasks import Task, TaskContext, execute
-from scfile.app.tasks.convert import ConvertTask
+from scfile.app.tasks.convert import ConvertTask, _hashed
+from scfile.enums import OnConflict
 from scfile.options import Options
 
 
@@ -120,12 +121,12 @@ def test_convert_errors(tmp_path: Path, monkeypatch) -> None:
     entry = files.FileEntry(str(tmp_path), str(tmp_path / "source"))
     task = ConvertTask((), (), Options())
     monkeypatch.setattr("scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(exceptions.ConversionError("bad")))
-    failure = task._convert(entry)
+    failure = task._convert((entry, tmp_path / "output"))
     assert isinstance(failure, TaskItemFailure)
     assert failure.traceback is None
 
     monkeypatch.setattr("scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(RuntimeError()))
-    failure = task._convert(entry)
+    failure = task._convert((entry, tmp_path / "output"))
     assert isinstance(failure, TaskItemFailure)
     assert failure.traceback is not None
 
@@ -156,3 +157,94 @@ def test_rooted_layout(tmp_path: Path) -> None:
     execute(task)
 
     assert (tmp_path / "output/assets/documents/document.json").exists()
+
+
+def test_flat_replace_disambiguates_collisions(tmp_path: Path) -> None:
+    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    (left / source.name).write_bytes(source.read_bytes())
+    (right / source.name).write_bytes(source.read_bytes())
+    output = tmp_path / "output"
+
+    task = ConvertTask((left, right), (), Options(), output=output, workers=2)
+    summary = execute(task)
+
+    clean = output / "document.json"
+    hashed = _hashed(clean, str(right / source.name))
+    assert summary.files.written == 2
+    assert clean.exists()
+    assert hashed.exists()
+
+    stale = _hashed(clean, str(left / source.name))
+    stale.write_bytes(b"stale")
+    execute(task)
+
+    assert not stale.exists()
+    assert clean.exists()
+    assert hashed.exists()
+
+
+def test_flat_rename_reserves_collisions(tmp_path: Path) -> None:
+    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    (left / source.name).write_bytes(source.read_bytes())
+    (right / source.name).write_bytes(source.read_bytes())
+    output = tmp_path / "output"
+
+    task = ConvertTask((left, right), (), Options(on_conflict=OnConflict.RENAME), output=output, workers=2)
+    summary = execute(task)
+
+    assert summary.files.written == 2
+    assert (output / "document.json").exists()
+    assert (output / "document (1).json").exists()
+
+
+def test_flat_skip_skips_collisions(tmp_path: Path) -> None:
+    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    (left / source.name).write_bytes(source.read_bytes())
+    (right / source.name).write_bytes(source.read_bytes())
+    output = tmp_path / "output"
+
+    task = ConvertTask((left, right), (), Options(on_conflict=OnConflict.SKIP), output=output, workers=2)
+    summary = execute(task)
+
+    assert summary.files.written == 1
+    assert summary.files.skipped == 1
+    assert (output / "document.json").exists()
+
+
+def test_relative_replace_disambiguates_collisions(tmp_path: Path) -> None:
+    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    nested = Path("documents") / source.name
+    (left / nested).parent.mkdir(parents=True)
+    (right / nested).parent.mkdir(parents=True)
+    (left / nested).write_bytes(source.read_bytes())
+    (right / nested).write_bytes(source.read_bytes())
+    output = tmp_path / "output"
+
+    task = ConvertTask(
+        (left, right),
+        (),
+        Options(),
+        output=output,
+        layout=OutputLayout.RELATIVE,
+        workers=2,
+    )
+    summary = execute(task)
+
+    clean = output / nested.with_suffix(".json")
+    assert summary.files.written == 2
+    assert clean.exists()
+    assert len(list(clean.parent.glob("document~*.json"))) == 1

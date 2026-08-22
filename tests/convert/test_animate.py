@@ -5,6 +5,7 @@ import pytest
 
 from scfile import types
 from scfile.convert import animate
+from scfile.enums import OnConflict
 from scfile.options import Options
 from scfile.structures.content import ModelContent
 from scfile.structures.models import AnimationClip
@@ -38,7 +39,7 @@ def test_skip(
     model.write_bytes(b"")
     output.write_bytes(b"existing")
 
-    result = operation(source, model, options=Options(on_conflict="skip"))
+    result = operation(source, model, options=Options(on_conflict=OnConflict.SKIP))
 
     assert result is None
     assert output.read_bytes() == b"existing"

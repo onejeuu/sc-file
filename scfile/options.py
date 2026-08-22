@@ -1,9 +1,9 @@
 """Library processing and conversion options."""
 
 from dataclasses import dataclass, field
-from typing import Literal, Mapping
+from typing import Mapping
 
-from scfile.enums import FileFormat
+from scfile.enums import FileFormat, OnConflict
 from scfile.structures.content import (
     ArchiveContent,
     BaseContent,
@@ -15,10 +15,6 @@ from scfile.structures.content import (
 )
 from scfile.structures.models import Feature, Features
 
-
-type OnConflict = Literal["overwrite", "rename", "skip"]
-ON_CONFLICT_OPTIONS: tuple[OnConflict, ...] = ("overwrite", "rename", "skip")
-"""Supported actions when an output path already exists."""
 
 DEFAULT_TARGETS: dict[type[BaseContent], FileFormat] = {
     ModelContent: FileFormat.OBJ,
@@ -59,16 +55,18 @@ class Options:
     targets: TargetConfig = field(default_factory=dict)
     """Normalized output format for every content type."""
 
-    on_conflict: OnConflict = "overwrite"
+    on_conflict: OnConflict = OnConflict.REPLACE
     """
     Action when an output file already exists.
 
-    - `"overwrite"` Replace the existing file
-    - `"skip"` Keep the existing file
+    - `"replace"` Replace the existing file
     - `"rename"` Add a numeric suffix (e.g. `model (1).obj`)
+    - `"skip"` Keep the existing file
     """
 
     def __post_init__(self) -> None:
+        self.on_conflict = OnConflict(self.on_conflict)
+
         defaults = dict(DEFAULT_TARGETS)
         if self.skeleton_enabled:
             defaults[ModelContent] = SKELETON_TARGET

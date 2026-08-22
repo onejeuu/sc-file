@@ -10,7 +10,7 @@ from scfile.app.cli.cmd import animate as animate_module
 from scfile.app.cli.cmd import convert as convert_module
 from scfile.app.cli.cmd import mapcache as mapcache_module
 from scfile.app.enums import OutputLayout, TaskKind
-from scfile.enums import FileFormat
+from scfile.enums import FileFormat, OnConflict
 from scfile.structures.content import ModelContent
 
 
@@ -34,8 +34,6 @@ def test_convert(
             "mic",
             "-F",
             "glb",
-            "--layout",
-            "relative",
             "--skeleton",
             "--animation",
             "--on-conflict",
@@ -56,7 +54,7 @@ def test_convert(
     assert task.options.targets[ModelContent] is FileFormat.GLB
     assert task.options.skeleton
     assert task.options.animation
-    assert task.options.on_conflict == "rename"
+    assert task.options.on_conflict is OnConflict.RENAME
 
 
 def test_convert_layout(tmp_path: Path) -> None:
@@ -65,7 +63,7 @@ def test_convert_layout(tmp_path: Path) -> None:
 
     result = CliRunner().invoke(scfile, ["convert", str(source), "--layout", "relative"])
 
-    assert result.exit_code != 0
+    assert result.exit_code == 0
 
 
 def test_convert_failure(
