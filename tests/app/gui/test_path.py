@@ -36,6 +36,7 @@ def test_path_is_normalized_on_every_input(qapp: QApplication) -> None:
 
 def test_file_paste_uses_local_path(qapp: QApplication, tmp_path: Path) -> None:
     widget = PathInputWidget("path", "path")
+    widget.value = "old/path.mcvd"
     data = QMimeData()
     data.setUrls([QUrl.fromLocalFile(str(tmp_path / "file.mcvd"))])
     qapp.clipboard().setMimeData(data)
@@ -45,6 +46,15 @@ def test_file_paste_uses_local_path(qapp: QApplication, tmp_path: Path) -> None:
 
     assert widget.value == (tmp_path / "file.mcvd").as_posix()
     assert not widget.value.startswith("file:")
+
+    data = QMimeData()
+    data.setText(r"\relative")
+    qapp.clipboard().setMimeData(data)
+
+    event = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_V, Qt.KeyboardModifier.ControlModifier)
+    widget.line_edit.keyPressEvent(event)
+
+    assert widget.value == f"{tmp_path.as_posix()}/file.mcvd/relative"
 
     qapp.clipboard().clear()
     widget.deleteLater()

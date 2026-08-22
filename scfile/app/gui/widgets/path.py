@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal, override
 
-from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
+from PySide6.QtCore import QMimeData, QSignalBlocker, Qt, QUrl, Signal
 from PySide6.QtGui import (
     QDesktopServices,
     QDragEnterEvent,
@@ -36,11 +36,16 @@ DIALOG_MODES = {
 }
 
 
-def _local_path(data: QMimeData) -> str | None:
+def _local_file(data: QMimeData) -> str | None:
     if data.hasUrls():
         for url in data.urls():
             if url.isLocalFile():
                 return url.toLocalFile()
+
+
+def _local_path(data: QMimeData) -> str | None:
+    if path := _local_file(data):
+        return path
 
     if data.hasText():
         text = data.text().strip()
@@ -67,28 +72,17 @@ class PathLineEdit(QLineEdit):
     def __init__(self) -> None:
         super().__init__()
         self._restoring = False
-        self._normalizing = False
         self.textChanged.connect(self._normalize_text)
 
     def _normalize_text(self, text: str) -> None:
-        if self._normalizing:
-            return
-
         normalized = _normalize_path(text)
         if normalized != text:
             cursor = self.cursorPosition()
             selection_start = self.selectionStart()
             selection_length = len(self.selectedText()) if selection_start >= 0 else 0
 
-            self._normalizing = True
-            self.blockSignals(True)
-
-            try:
-                super().setText(normalized)
-
-            finally:
-                self.blockSignals(False)
-                self._normalizing = False
+            with QSignalBlocker(self):
+                self.setText(normalized)
 
             if selection_start >= 0:
                 self.setSelection(selection_start, selection_length)
@@ -105,7 +99,8 @@ class PathLineEdit(QLineEdit):
     @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.matches(QKeySequence.StandardKey.Paste):
-            if path := _local_path(QApplication.clipboard().mimeData()):
+            if path := _local_file(QApplication.clipboard().mimeData()):
+                self.selectAll()
                 self.insert(path)
                 event.accept()
                 return
