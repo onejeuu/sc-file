@@ -65,7 +65,7 @@ class SourcesWidget(QListWidget):
         self.setMinimumWidth(320)
 
         self._placeholder_icon = self._prepare_placeholder_icon()
-        self._placeholder_text = strings.get("converter.hint")
+        self._placeholder_text = strings.get("convert.sources")
 
     @property
     def values(self) -> tuple[str, ...]:
@@ -108,7 +108,7 @@ class SourcesWidget(QListWidget):
         item = self.itemAt(event.pos())
         if item:
             menu = QMenu(self)
-            remove_action = QAction(strings.get("button.remove_source"), self)
+            remove_action = QAction(strings.get("button.convert.remove.source"), self)
             remove_action.triggered.connect(self._remove_selected)
             menu.addAction(remove_action)
             menu.exec(event.globalPos())

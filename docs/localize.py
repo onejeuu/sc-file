@@ -14,9 +14,13 @@ ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "source"
 LOCALE = ROOT / "locale"
 CHANGELOG = SOURCE / "v"
+
 LANGUAGE = "ru"
+INCLUDE_LINENO = False
+
 NO_TRANSLATION = "No translation required."
 NO_TRANSLATION_BORDER = "=" * 76
+
 HEADER = f"""msgid ""
 msgstr ""
 "Language: {LANGUAGE}\\n"
@@ -45,9 +49,8 @@ def unchanged_messages() -> dict[Path, set[str | tuple[str, ...]]]:
             catalog = read_po(stream)
 
         unchanged = set()
-        section = False
         for message in catalog:
-            section |= NO_TRANSLATION in message.user_comments
+            section = any(NO_TRANSLATION in comment for comment in message.user_comments)
             if section and message.id:
                 unchanged.add(message.id)
 
@@ -68,20 +71,10 @@ def clean_catalogs(unchanged: dict[Path, set[str | tuple[str, ...]]]) -> None:
             if not message.id:
                 continue
 
-            message.locations = [
-                (
-                    "../../source/" + location.split("/docs/source/", 1)[1]
-                    if "/docs/source/" in location
-                    else location,
-                    line,
-                )
-                for location, line in message.locations
-            ]
+            message.locations = []
 
             message.user_comments = [
-                comment
-                for comment in message.user_comments
-                if comment not in (NO_TRANSLATION, NO_TRANSLATION_BORDER)
+                comment for comment in message.user_comments if comment not in (NO_TRANSLATION, NO_TRANSLATION_BORDER)
             ]
 
             if message.string == message.id or message.id in unchanged[path]:
@@ -91,17 +84,18 @@ def clean_catalogs(unchanged: dict[Path, set[str | tuple[str, ...]]]) -> None:
                 translated.append(message)
 
         if untranslated:
-            untranslated[0].user_comments.extend(
-                (NO_TRANSLATION_BORDER, NO_TRANSLATION, NO_TRANSLATION_BORDER)
-            )
+            untranslated[0].user_comments.extend((NO_TRANSLATION_BORDER, NO_TRANSLATION, NO_TRANSLATION_BORDER))
 
         ordered = Catalog()
+        ordered.mime_headers = []
+
         for message in (*translated, *untranslated):
             ordered[message.id] = message
 
         output = BytesIO()
-        write_po(output, ordered, omit_header=True)
+        write_po(output, ordered, omit_header=True, include_lineno=INCLUDE_LINENO)
         messages = output.getvalue().decode().rstrip()
+
         path.write_text(f"{HEADER}\n\n{messages}\n", encoding="utf-8", newline="\n")
 
 

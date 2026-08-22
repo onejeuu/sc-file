@@ -37,14 +37,14 @@ class SettingsTab(QWidget):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(0)
 
-        general = QLabel(strings.get("section.settings.general"))
+        general = QLabel(strings.get("label.settings.general"))
         general.setStyleSheet(Styles.SECTION)
         layout.addWidget(general)
         layout.addSpacing(8)
 
         self.resolve_paths = OptionWidget(
-            text=strings.get("option.settings.resolve_paths"),
-            hint=strings.get("hint.settings.resolve_paths"),
+            text=strings.get("option.settings.resolve"),
+            hint=strings.get("option.settings.resolve.hint"),
             checked=self.settings.resolve_paths,
             icon=_icon("resolve_paths"),
         )
@@ -54,7 +54,7 @@ class SettingsTab(QWidget):
 
         self.verbose = OptionWidget(
             text=strings.get("option.settings.verbose"),
-            hint=strings.get("hint.settings.verbose"),
+            hint=strings.get("option.settings.verbose.hint"),
             checked=self.settings.verbose,
             icon=_icon("verbose"),
         )
@@ -62,7 +62,7 @@ class SettingsTab(QWidget):
         layout.addWidget(self.verbose)
         layout.addSpacing(20)
 
-        paths = QLabel(strings.get("section.settings.paths"))
+        paths = QLabel(strings.get("label.settings.paths"))
         paths.setStyleSheet(Styles.SECTION)
         layout.addWidget(paths)
         layout.addSpacing(8)
@@ -76,19 +76,19 @@ class SettingsTab(QWidget):
         root_icon.setPixmap(_icon("gameroot").pixmap(ICON_SIZE))
         root_layout.addWidget(root_icon)
 
-        root_label = QLabel(strings.get("label.settings.game_root"))
+        root_label = QLabel(strings.get("label.settings.game"))
         root_label.setStyleSheet(Styles.LABEL)
         root_layout.addWidget(root_label)
         root_layout.addStretch()
         self.root = PathInputWidget(
             placeholder="C:/EXBO/runtime/stalcraft",
-            caption=strings.get("dialog.settings.game_root"),
+            caption=strings.get("dialog.settings.game"),
         )
         if self.settings.game_root is not None:
             self.root.value = self.settings.game_root.as_posix()
         self.root.changed.connect(self._set_game_root)
 
-        hint = QLabel(strings.get("hint.settings.game_root"))
+        hint = QLabel(strings.get("label.settings.game.hint"))
         hint.setStyleSheet(Styles.HINT)
         hint.setWordWrap(True)
 
@@ -117,7 +117,7 @@ class SettingsTab(QWidget):
         )
         self.export.value = self.settings.export_path.as_posix()
         self.export.changed.connect(self._set_export_path)
-        export_hint = QLabel(strings.get("hint.settings.export"))
+        export_hint = QLabel(strings.get("label.settings.export.hint"))
         export_hint.setStyleSheet(Styles.HINT)
 
         layout.addWidget(export_header)

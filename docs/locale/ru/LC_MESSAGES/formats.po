@@ -1,922 +1,630 @@
 
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-20 18:42+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
-"Language-Team: ru <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.18.0\n"
 
-#: ../../source/formats.rst:2
 msgid "📚 Formats"
 msgstr "📚 Форматы"
 
-#: ../../source/formats.rst:7
-msgid ""
-"Format specifications are based on **reverse-engineering** and may "
-"contain inaccuracies."
-msgstr ""
-"Спецификации форматов основаны на **обратной инженирии** и могут "
-"содержать неточности."
+msgid "Format specifications are based on **reverse-engineering** and may contain inaccuracies."
+msgstr "Спецификации форматов основаны на **обратной инженирии** и могут содержать неточности."
 
-#: ../../source/formats.rst:9
-msgid ""
-"Binary templates for `010 Editor`_ are available in the `templates`_ "
-"directory."
+msgid "Binary templates for `010 Editor`_ are available in the `templates`_ directory."
 msgstr "Бинарные шаблоны для `010 Editor`_ доступны в каталоге `templates`_."
 
-#: ../../source/formats.rst:14
-msgid "🧊 Model Formats"
-msgstr "🧊 Модели"
+msgid "Template"
+msgstr "Шаблон"
 
-#: ../../source/formats.rst:19
-msgid "``.mcsa`` Scene Assets (Legacy)"
-msgstr ""
+msgid "Engine"
+msgstr "Движок"
 
-#: ../../source/formats.rst:21 ../../source/formats.rst:31
-#: ../../source/formats.rst:40 ../../source/formats.rst:105
-msgid "**Template:** MCSA.bt_"
-msgstr "**Шаблон:** MCSA.bt_"
-
-#: ../../source/formats.rst:22 ../../source/formats.rst:32
-msgid "**Purpose:** Model scene."
-msgstr "**Назначение:** Модельная сцена."
-
-#: ../../source/formats.rst:23
-msgid ""
-"**Contents:** Geometry, Skeleton, Animation clips, Blend shapes."
-msgstr "**Содержимое:** Геометрия, Скелет, Анимации, Blend shapes."
-
-#: ../../source/formats.rst:24
-msgid ""
-"**Support:** Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, "
-"``12.0``, ``15.0``."
-msgstr "**Поддержка:** Версии ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
-
-#: ../../source/formats.rst:29
-msgid "``.mcsb`` Scene Bundle"
-msgstr ""
-
-#: ../../source/formats.rst:33
-msgid "**Contents:** Same as `.mcsa <mcsa_>`_. Has hash before signature."
-msgstr "**Содержимое:** Такое же как `.mcsa <mcsa_>`_. Содержит хэш перед сигнатурой."
-
-#: ../../source/formats.rst:38
-msgid "``.mcvd`` Trace Model"
-msgstr ""
-
-#: ../../source/formats.rst:41
-msgid "**Purpose:** Collision and physics geometry."
-msgstr "**Назначение:** Коллизии или физика геометрии."
-
-#: ../../source/formats.rst:42
-msgid ""
-"**Also:** :ref:`Animation sets <mcvd-animation>` use the same "
-"suffix."
-msgstr "**Также:** :ref:`Animation sets <mcvd-animation>` используют тот же суффикс."
-
-#: ../../source/formats.rst:47
-msgid "``.efkmodel`` Effekseer Model"
-msgstr ""
-
-#: ../../source/formats.rst:49
-msgid "**Template:** EFKMODEL.bt_"
-msgstr ""
-
-#: ../../source/formats.rst:50
-msgid "**Purpose:** Effekseer_ animated particle model."
-msgstr "**Назначение:** Effekseer_ анимированная модель для эффектов."
-
-#: ../../source/formats.rst:51
-msgid ""
-"**Contents:** Frame-based geometry with vertices and triangles. Vertices "
-"contain positions, normals, binormals, tangents, UVs and colors."
-msgstr ""
-"**Содержимое:** Фреймы геометрии с вершинами и треугольниками. Вершины "
-"содержат позиции, нормы, бинормы, тангенсы, UV-координаты и цвета."
-
-#: ../../source/formats.rst:52
-msgid "**Support:** Version ``5``."
-msgstr "**Поддержка:** Версия ``5``."
-
-#: ../../source/formats.rst:57
-msgid "Export"
-msgstr "Экспорт"
-
-#: ../../source/formats.rst:62 ../../source/formats.rst:142
-#: ../../source/formats.rst:332
-msgid "Suffix"
-msgstr "Суффикс"
-
-#: ../../source/formats.rst:63
-msgid "Name"
-msgstr "Название"
-
-#: ../../source/formats.rst:64
-msgid "UV2"
-msgstr ""
-
-#: ../../source/formats.rst:65
-msgid "Tangents"
-msgstr ""
-
-#: ../../source/formats.rst:66
-msgid "Armature"
-msgstr ""
-
-#: ../../source/formats.rst:67
-msgid "Bone Clips"
-msgstr ""
-
-#: ../../source/formats.rst:68
-msgid "Morph Clips"
-msgstr ""
-
-#: ../../source/formats.rst:69
-msgid "``.obj``"
-msgstr ""
-
-#: ../../source/formats.rst:70
-msgid "`Wavefront OBJ <OBJ_>`_"
-msgstr ""
-
-#: ../../source/formats.rst:71 ../../source/formats.rst:72
-#: ../../source/formats.rst:73 ../../source/formats.rst:74
-#: ../../source/formats.rst:75 ../../source/formats.rst:267
-#: ../../source/formats.rst:309
-msgid "➖"
-msgstr ""
-
-#: ../../source/formats.rst:76
-msgid "``.glb``"
-msgstr ""
-
-#: ../../source/formats.rst:77
-msgid "`glTF Binary <GLTF_>`_"
-msgstr ""
-
-#: ../../source/formats.rst:78 ../../source/formats.rst:79
-#: ../../source/formats.rst:80 ../../source/formats.rst:81
-#: ../../source/formats.rst:82 ../../source/formats.rst:85
-#: ../../source/formats.rst:87 ../../source/formats.rst:88
-msgid "✅"
-msgstr ""
-
-#: ../../source/formats.rst:83
-msgid "``.fbx``"
-msgstr ""
-
-#: ../../source/formats.rst:84
-msgid "`Autodesk FBX <FBX_>`_"
-msgstr ""
-
-#: ../../source/formats.rst:86 ../../source/formats.rst:89
-msgid "❌"
-msgstr ""
-
-#: ../../source/formats.rst:91
-msgid "``✅ Supported``"
-msgstr "``✅ Поддерживается``"
-
-#: ../../source/formats.rst:92
-msgid "``❌ Not supported by scfile``"
-msgstr "``❌ Не поддерживается scfile``"
-
-#: ../../source/formats.rst:93
-msgid "``➖ Not supported by format``"
-msgstr "``➖ Не поддерживается форматом``"
-
-#: ../../source/formats.rst:98
-msgid "🌀 Animation Formats"
-msgstr "🌀 Анимации"
-
-#: ../../source/formats.rst:103
-msgid "``.mcvd`` Animation Set"
-msgstr ""
-
-#: ../../source/formats.rst:106
-msgid "**Purpose:** Standalone animation clips."
-msgstr "**Назначение:** Отдельные клипы анимации."
-
-msgid "**Contents:** Skeletal and facial animation clips."
-msgstr "**Содержимое:** Скелетные и лицевые клипы анимации."
-
-#: ../../source/formats.rst:107
-msgid "**Note:** Usually located in ``assets/highpoly``."
-msgstr "**Примечание:** Обычно находятся в ``assets/highpoly``."
-
-#: ../../source/formats.rst:112
-msgid "``.mcal`` Animation Library"
-msgstr ""
-
-#: ../../source/formats.rst:114
-msgid "**Template:** MCAL.bt_"
-msgstr "**Шаблон:** MCAL.bt_"
-
-#: ../../source/formats.rst:115
-msgid "**Purpose:** Shared clips by models with matching skeletons."
-msgstr "**Назначение:** Общие клипы для моделей с совместимыми скелетами."
-
-#: ../../source/formats.rst:116
-msgid "**Contents:** Skeletal animation clips."
-msgstr "**Содержимое:** Клипы скелетных анимаций."
-
-#: ../../source/formats.rst:121
-msgid ""
-"**Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` "
-"model scenes."
-msgstr "**Вход:** Данные анимации и одна или несколько совместимых моделей :ref:`.mcsb <mcsb>`."
-
-#: ../../source/formats.rst:122
-msgid "**Output:** :ref:`.glb <model-export>` with the assembled scene."
-msgstr "**Выход:** :ref:`.glb <model-export>` с собранной сценой."
-
-#: ../../source/formats.rst:123
-msgid "**Note:** Relation pairs can be found in `Audit Mappings`_."
-msgstr "**Примечание:** Связи можно найти в `Audit Mappings`_."
-
-#: ../../source/formats.rst:128
-msgid "🧱 Texture Formats"
-msgstr "🧱 Текстуры"
-
-#: ../../source/formats.rst:131
-msgid "``.ol`` Object Layer"
-msgstr ""
-
-#: ../../source/formats.rst:133
-msgid "**Template:** OL.bt_"
-msgstr "**Шаблон:** OL.bt_"
-
-#: ../../source/formats.rst:134
-msgid ""
-"**Purpose:** `Mipmapped <MipMap_>`_ texel data compatible with ``.dds`` (`DirectDraw "
-"Surface <DDS_>`_)."
-msgstr "**Назначение:** Данные текселей с `мипмапами <MipMap_>`_, совместимые с ``.dds`` (`DirectDraw Surface <DDS_>`_)."
-
-#: ../../source/formats.rst:135
-msgid ""
-"**Contents:** 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
-msgstr "**Содержимое:** 2D текстуры и `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
-
-#: ../../source/formats.rst:136
-msgid "**Export:** ``.dds``."
-msgstr "**Экспорт:** ``.dds``."
-
-#: ../../source/formats.rst:137
-msgid "**Note:** Normal maps may have an inverted Y axis."
-msgstr "**Примечание:** Текстуры карт нормалей могут быть инвертированы."
-
-#: ../../source/formats.rst:139
-msgid "Suffix Conventions"
-msgstr "Конвенции суффиксов"
-
-#: ../../source/formats.rst:143
-msgid "Map"
-msgstr "Карта"
-
-#: ../../source/formats.rst:144
-msgid "Type"
-msgstr "Тип"
-
-#: ../../source/formats.rst:145 ../../source/formats.rst:262
-#: ../../source/formats.rst:307 ../../source/formats.rst:334
 msgid "Purpose"
 msgstr "Назначение"
 
-#: ../../source/formats.rst:146
-msgid "``_diff``"
-msgstr ""
+msgid "Contents"
+msgstr "Содержимое"
 
-#: ../../source/formats.rst:147
-msgid "Diffuse"
-msgstr ""
+msgid "Support"
+msgstr "Поддержка"
 
-#: ../../source/formats.rst:148
-msgid "Base Color"
-msgstr ""
+msgid "Export"
+msgstr "Экспорт"
 
-#: ../../source/formats.rst:149
-msgid "Raw surface color"
-msgstr "Цвет поверхности"
+msgid "Note"
+msgstr "Примечание"
 
-#: ../../source/formats.rst:150
-msgid "``_spek``"
-msgstr ""
-
-#: ../../source/formats.rst:151
-msgid "Specular"
-msgstr ""
-
-#: ../../source/formats.rst:152
-msgid "Reflectivity Control"
-msgstr ""
-
-#: ../../source/formats.rst:153
-msgid "Intensity of highlights"
-msgstr "Интенсивность подсветки"
-
-#: ../../source/formats.rst:154
-msgid "``_nrm``"
-msgstr ""
-
-#: ../../source/formats.rst:155
-#, fuzzy
-msgid "Normal"
-msgstr "Формат"
-
-#: ../../source/formats.rst:156
-msgid "Surface Detail"
-msgstr ""
-
-#: ../../source/formats.rst:157
-msgid "Simulates bumps and dents"
-msgstr "Имитирует неровности и вмятины"
-
-#: ../../source/formats.rst:158
-msgid "``_emi``"
-msgstr ""
-
-#: ../../source/formats.rst:159
-msgid "Emission"
-msgstr ""
-
-#: ../../source/formats.rst:160
-msgid "Self Illumination"
-msgstr ""
-
-#: ../../source/formats.rst:161
-msgid "Creates independent glow"
-msgstr "Создает независимое свечение"
-
-#: ../../source/formats.rst:163
-msgid "FourCC Formats"
-msgstr "Форматы FourCC"
-
-#: ../../source/formats.rst:166
-msgid "Encoded"
-msgstr "Зашифр."
-
-#: ../../source/formats.rst:167
-msgid "Game Format"
-msgstr "Формат игры"
-
-#: ../../source/formats.rst:168
-msgid "DDS Format"
-msgstr "Формат DDS"
-
-#: ../../source/formats.rst:169 ../../source/formats.rst:261
-msgid "Compression"
-msgstr "Сжатие"
-
-#: ../../source/formats.rst:170
-msgid "``#?3V``"
-msgstr ""
-
-#: ../../source/formats.rst:171 ../../source/formats.rst:172
-msgid "``DXT1``"
-msgstr ""
-
-#: ../../source/formats.rst:173
-msgid "``BC1``"
-msgstr ""
-
-#: ../../source/formats.rst:174
-msgid "``#?3T``"
-msgstr ""
-
-#: ../../source/formats.rst:175 ../../source/formats.rst:176
-msgid "``DXT3``"
-msgstr ""
-
-#: ../../source/formats.rst:177
-msgid "``BC2``"
-msgstr ""
-
-#: ../../source/formats.rst:178
-msgid "``#?3R``"
-msgstr ""
-
-#: ../../source/formats.rst:179 ../../source/formats.rst:180
-msgid "``DXT5``"
-msgstr ""
-
-#: ../../source/formats.rst:181
-msgid "``BC3``"
-msgstr ""
-
-#: ../../source/formats.rst:182
-msgid "``#?)8?``"
-msgstr ""
-
-#: ../../source/formats.rst:183
-msgid "``DXN_X``"
-msgstr ""
-
-#: ../../source/formats.rst:184
-msgid "``ATI1``"
-msgstr ""
-
-#: ../../source/formats.rst:185
-msgid "``BC4``"
-msgstr ""
-
-#: ../../source/formats.rst:186
-msgid "``#?)8?>``"
-msgstr ""
-
-#: ../../source/formats.rst:187
-msgid "``DXN_XY``"
-msgstr ""
-
-#: ../../source/formats.rst:188
-msgid "``ATI2``"
-msgstr ""
-
-#: ../../source/formats.rst:189
-msgid "``BC5``"
-msgstr ""
-
-#: ../../source/formats.rst:190
-msgid "``5 %&_``"
-msgstr ""
-
-#: ../../source/formats.rst:191
-msgid "``RGBA8``"
-msgstr ""
-
-#: ../../source/formats.rst:192
-msgid "``R8G8B8A8``"
-msgstr ""
-
-#: ../../source/formats.rst:193 ../../source/formats.rst:197
-#: ../../source/formats.rst:201
-msgid "``None``"
-msgstr ""
-
-#: ../../source/formats.rst:194
-msgid "``% 5&_``"
-msgstr ""
-
-#: ../../source/formats.rst:195
-msgid "``BGRA8``"
-msgstr ""
-
-#: ../../source/formats.rst:196
-msgid "``B8G8R8A8``"
-msgstr ""
-
-#: ../../source/formats.rst:198
-msgid "``5 %&TU!``"
-msgstr ""
-
-#: ../../source/formats.rst:199
-msgid "``RGBA32F``"
-msgstr ""
-
-#: ../../source/formats.rst:200
-msgid "``R32G32B32A32``"
-msgstr ""
-
-#: ../../source/formats.rst:204
-msgid "``.sign`` Texture Signatures"
-msgstr ""
-
-#: ../../source/formats.rst:206
-msgid "**Template:** SIGN.bt_"
-msgstr "**Шаблон:** SIGN.bt_"
-
-#: ../../source/formats.rst:207
-msgid "**Purpose:** Texture integrity verification."
-msgstr "**Назначение:** Проверка целостности текстур."
-
-#: ../../source/formats.rst:208
-msgid "**Contents:** Texture paths, headers and mipmap images hashes."
-msgstr "**Содержимое:** Пути к текстурам, их заголовки и хеши mipmap изображений."
-
-#: ../../source/formats.rst:213
-msgid "🖼️ Image Formats"
-msgstr "🖼️ Изображения"
-
-#: ../../source/formats.rst:216
-msgid "``.mic`` Media Image Container"
-msgstr ""
-
-#: ../../source/formats.rst:218
-msgid "**Purpose:** GUI and composed images."
-msgstr "**Назначение:** GUI и составные изображения."
-
-#: ../../source/formats.rst:219
-msgid ""
-"**Contents:** ``.png`` (`Portable Network Graphics <PNG_>`_) data with an"
-" ``MIC`` signature."
-msgstr ""
-"**Содержимое:** ``.png`` (`Portable Network Graphics <PNG_>`_) данные с "
-"``MIC`` сигнатурой."
-
-#: ../../source/formats.rst:220
-msgid "**Export:** ``.png``."
-msgstr "**Экспорт:** ``.png``."
-
-#: ../../source/formats.rst:225
-msgid "🗃️ Archive Formats"
-msgstr "🗃️ Архивы"
-
-#: ../../source/formats.rst:230
-msgid "``.texarr`` Texture Array"
-msgstr ""
-
-#: ../../source/formats.rst:232
-msgid "**Template:** TEXARR.bt_"
-msgstr "**Шаблон:** TEXARR.bt_"
-
-#: ../../source/formats.rst:233
-msgid ""
-"**Purpose:** Container for ``.dds`` blocks textures."
-msgstr "**Назначение:** Контейнер для ``.dds`` текстур блоков."
-
-#: ../../source/formats.rst:234
-msgid "**Export:** ``.zip`` (ZIP_)."
-msgstr "**Экспорт:** ``.zip`` (ZIP_)."
-
-#: ../../source/formats.rst:239
-msgid "🗺 Region Formats"
-msgstr "🗺 Регионы"
-
-#: ../../source/formats.rst:242
-msgid "``.mdat`` World Region Cache"
-msgstr ""
-
-#: ../../source/formats.rst:244
-msgid "**Purpose:** Region container for 32×32 terrain chunks."
-msgstr "**Назначение:** Контейнер регионов для 32×32 чанков мира."
-
-#: ../../source/formats.rst:245
-msgid ""
-"**Contents:** Blocks, metadata, lighting, biomes and extended data "
-"compressed with `zstd`_."
-msgstr "**Содержимое:** Блоки, метаданные, освещение, биомы и доп. данные, сжатые через `zstd`_."
-
-#: ../../source/formats.rst:246
-msgid ""
-"**Export:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping."
-msgstr "**Экспорт:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) с приблизительными блоками."
-
-#: ../../source/formats.rst:247
-msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
-msgstr ":doc:`Просмотр кэша карт → <usage/mapcache>`"
-
-#: ../../source/formats.rst:251
-msgid "⚙️ NBT Files"
-msgstr "⚙️ NBT"
-
-#: ../../source/formats.rst:253
-msgid "**Format:** `Named Binary Tag <NBT_>`_ data."
-msgstr "**Формат:** `Named Binary Tag <NBT_>`_"
-
-#: ../../source/formats.rst:254
-msgid "**Compression:** None, gzip_, zstd_."
-msgstr "**Сжатия:** Отсутствует, gzip_, zstd_."
-
-#: ../../source/formats.rst:255
-msgid "**Export:** ``.json`` (`JavaScript Object Notation <JSON_>`_)."
-msgstr "**Экспорт:** ``.json`` (`JavaScript Object Notation <JSON_>`_)."
-
-#: ../../source/formats.rst:260
-msgid "Path"
-msgstr "Путь"
-
-#: ../../source/formats.rst:263
-msgid "Keys (examples)"
-msgstr "Ключи (примеры)"
-
-#: ../../source/formats.rst:264
-msgid "``stalker/itemnames.dat``"
-msgstr ""
-
-#: ../../source/formats.rst:265
-msgid "gzip_"
-msgstr ""
-
-#: ../../source/formats.rst:266
-msgid "Quest item descriptions"
-msgstr "Описания некоторых квестовых предметов"
-
-#: ../../source/formats.rst:268
-msgid "``config/prefs``"
-msgstr ""
-
-#: ../../source/formats.rst:269 ../../source/formats.rst:273
-#: ../../source/formats.rst:277 ../../source/formats.rst:281
-#: ../../source/formats.rst:285 ../../source/formats.rst:289
-#: ../../source/formats.rst:293
-msgid "zstd_"
-msgstr ""
-
-#: ../../source/formats.rst:270
-msgid "UI read state cache"
-msgstr "Кэш состояния UI"
-
-#: ../../source/formats.rst:271
-msgid "``seenArticleLinks[], seenExperiences[], hasSeen*``"
-msgstr ""
-
-#: ../../source/formats.rst:272
-msgid "``config/<Name>/common``"
-msgstr ""
-
-#: ../../source/formats.rst:274
-msgid "General settings and UI states"
-msgstr "Общие настройки и состояния UI"
-
-#: ../../source/formats.rst:275
-#, python-brace-format
-msgid ""
-"``trashedItems[], caseLastOpenCount[], complaintsData{...}, "
-"seenFrontlineIntros``"
-msgstr ""
-
-#: ../../source/formats.rst:276
-msgid "``config/<Name>/sd0``"
-msgstr ""
-
-#: ../../source/formats.rst:278
-msgid "Incoming friend requests"
-msgstr "Входящие запросы на дружбу"
-
-#: ../../source/formats.rst:279
-msgid "``requests[]``"
-msgstr ""
-
-#: ../../source/formats.rst:280
-msgid "``config/<Name>/sd1``"
-msgstr ""
-
-#: ../../source/formats.rst:282
-msgid "Recent interactions (last 200 players)"
-msgstr "Последние взаимодействия (последние 200 игроков)"
-
-#: ../../source/formats.rst:283
-#, python-brace-format
-msgid "``interacts[{allianceId, type, username}]``"
-msgstr ""
-
-#: ../../source/formats.rst:284
-msgid "``config/<Name>/sd2``"
-msgstr ""
-
-#: ../../source/formats.rst:286
-msgid "Notifications history (last 100 popups)"
-msgstr "История уведомлений (последние 100 окон)"
-
-#: ../../source/formats.rst:287
-msgid "``notifications[{isRead, receivedMoment, notification{...}}]``"
-msgstr ""
-
-#: ../../source/formats.rst:288
-msgid "``config/<Name>/sd3``"
-msgstr ""
-
-#: ../../source/formats.rst:290
-msgid "Donate shop view history"
-msgstr "История просмотра магазина"
-
-#: ../../source/formats.rst:291
-msgid "``observedOffers[]``"
-msgstr ""
-
-#: ../../source/formats.rst:292
-msgid "``config/<Name>/sd4``"
-msgstr ""
-
-#: ../../source/formats.rst:294
-msgid "Profile customization UI state"
-msgstr "Состояние UI кастомизации профиля"
-
-#: ../../source/formats.rst:295
-msgid ""
-"``lastSeenBackgroundsVersion, lastSeenPatternsVersion, "
-"lastSeenStickersVersion, lastSeenTagsVersion``"
-msgstr ""
-
-#: ../../source/formats.rst:300
-msgid "🛠️ Config Files"
-msgstr "🛠️ Конфиги"
-
-#: ../../source/formats.rst:305
-msgid "Filename"
-msgstr "Файл"
-
-#: ../../source/formats.rst:306 ../../source/formats.rst:333
 msgid "Format"
 msgstr "Формат"
 
-#: ../../source/formats.rst:308
-msgid "``display``"
-msgstr ""
+msgid "Suffix"
+msgstr "Суффикс"
 
-#: ../../source/formats.rst:310
+msgid "Name"
+msgstr "Название"
+
+msgid "Filename"
+msgstr "Файл"
+
+msgid "Input"
+msgstr "На вход"
+
+msgid "Output"
+msgstr "Результат"
+
+msgid "Map"
+msgstr "Карта"
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Compression"
+msgstr "Сжатие"
+
+msgid "🧊 Model Formats"
+msgstr "🧊 Модели"
+
+msgid "Model scene."
+msgstr "Модельная сцена."
+
+msgid "Geometry, Skeleton, Animation clips, Blend shapes."
+msgstr "Геометрия, Скелет, Анимации, Blend shapes."
+
+msgid "Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
+msgstr "Версии ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
+
+msgid "Same as `.mcsa <mcsa_>`_. Has hash before signature."
+msgstr "Такое же как `.mcsa <mcsa_>`_. Содержит хэш перед сигнатурой."
+
+msgid "Colliders and physics."
+msgstr "Коллайдеры или физика."
+
+msgid ":ref:`Animation sets <mcvd-animation>` use the same suffix."
+msgstr ":ref:`Animation set <mcvd-animation>` использует такой же суффикс."
+
+msgid "Animated particle model."
+msgstr "Анимированная модель для эффектов."
+
+msgid "Frame based geometry."
+msgstr "Фреймы геометрии."
+
+msgid "Version ``5``."
+msgstr "Версия ``5``."
+
+msgid "``✅ Supported``"
+msgstr "``✅ Поддерживается``"
+
+msgid "``❌ Not supported by scfile``"
+msgstr "``❌ Не поддерживается scfile``"
+
+msgid "``➖ Not supported by format``"
+msgstr "``➖ Не поддерживается форматом``"
+
+msgid "🌀 Animation Formats"
+msgstr "🌀 Анимации"
+
+msgid "Standalone animation."
+msgstr "Отдельные анимации."
+
+msgid "Skeletal and facial animation clips."
+msgstr "Скелетные и лицевые клипы анимации."
+
+msgid "Usually located in ``assets/highpoly``."
+msgstr "Обычно находятся в ``assets/highpoly``."
+
+msgid "Shared animation by models with matching skeletons."
+msgstr "Общие анимации для моделей с совместимыми скелетами."
+
+msgid "Skeletal animation clips."
+msgstr "Клипы скелетных анимаций."
+
+msgid "Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes."
+msgstr "Данные анимации и одна или несколько совместимых моделей :ref:`.mcsb <mcsb>`."
+
+msgid "File :ref:`.glb <model-export>` with the assembled scene."
+msgstr "Файл :ref:`.glb <model-export>` с собранной сценой."
+
+msgid "Relation pairs can be found in `Audit Mappings`_."
+msgstr "Связи можно найти в `Audit Mappings`_."
+
+msgid "🧱 Texture Formats"
+msgstr "🧱 Текстуры"
+
+msgid "`Mipmapped <MipMap_>`_ texel data."
+msgstr "Данные текселей с `мипмапами <MipMap_>`_."
+
+msgid "2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
+msgstr "2D текстуры и `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
+
+msgid "Suffix Conventions"
+msgstr "Конвенции суффиксов"
+
+msgid "Raw surface color"
+msgstr "Цвет поверхности"
+
+msgid "Intensity of highlights"
+msgstr "Интенсивность подсветки"
+
+msgid "Simulates bumps and dents"
+msgstr "Имитирует неровности и вмятины"
+
+msgid "Creates independent glow"
+msgstr "Создает независимое свечение"
+
+msgid "FourCC Formats"
+msgstr "Форматы FourCC"
+
+msgid "Encoded"
+msgstr "Зашифр."
+
+msgid "Game Format"
+msgstr "Формат игры"
+
+msgid "DDS Format"
+msgstr "Формат DDS"
+
+msgid "Texture integrity verification."
+msgstr "Проверка целостности текстур."
+
+msgid "Texture paths, headers and mipmap images hashes."
+msgstr "Пути к текстурам, их заголовки и хеши mipmap изображений."
+
+msgid "🖼️ Image Formats"
+msgstr "🖼️ Изображения"
+
+msgid "GUI and composed images."
+msgstr "GUI и составные изображения."
+
+msgid "``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature."
+msgstr "``.png`` (`Portable Network Graphics <PNG_>`_) данные с ``MIC`` сигнатурой."
+
+msgid "🗃️ Archive Formats"
+msgstr "🗃️ Архивы"
+
+msgid "Container for ``.dds`` blocks textures."
+msgstr "Контейнер для ``.dds`` текстур блоков."
+
+msgid "🗺 Region Formats"
+msgstr "🗺 Регионы"
+
+msgid "Region container for 32×32 terrain chunks."
+msgstr "Контейнер регионов для 32×32 чанков мира."
+
+msgid "Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_."
+msgstr "Блоки, метаданные, освещение, биомы и доп. данные, сжатые через `zstd`_."
+
+msgid "Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping."
+msgstr "Minecraft ``1.12.2+`` (Anvil_ ``1343``) с приблизительными блоками."
+
+msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
+msgstr ":doc:`Просмотр кэша карт → <usage/mapcache>`"
+
+msgid "⚙️ NBT Files"
+msgstr "⚙️ NBT"
+
+msgid "`Named Binary Tag <NBT_>`_ data."
+msgstr "`Named Binary Tag <NBT_>`_"
+
+msgid "None, gzip_, zstd_."
+msgstr "Отсутствует, gzip_, zstd_."
+
+msgid "Path"
+msgstr "Путь"
+
+msgid "Keys (examples)"
+msgstr "Ключи (примеры)"
+
+msgid "Quest item descriptions"
+msgstr "Описания некоторых квестовых предметов"
+
+msgid "UI read state cache"
+msgstr "Кэш состояния UI"
+
+msgid "General settings and UI states"
+msgstr "Общие настройки и состояния UI"
+
+msgid "Incoming friend requests"
+msgstr "Входящие запросы на дружбу"
+
+msgid "Recent interactions (last 200 players)"
+msgstr "Последние взаимодействия (последние 200 игроков)"
+
+msgid "Notifications history (last 100 popups)"
+msgstr "История уведомлений (последние 100 окон)"
+
+msgid "Donate shop view history"
+msgstr "История просмотра магазина"
+
+msgid "Profile customization UI state"
+msgstr "Состояние UI кастомизации профиля"
+
+msgid "🛠️ Config Files"
+msgstr "🛠️ Конфиги"
+
 msgid "Selected display ID"
 msgstr "ID монитора"
 
-#: ../../source/formats.rst:311
-msgid "``keybindings``"
-msgstr ""
-
-#: ../../source/formats.rst:312 ../../source/formats.rst:315
-#: ../../source/formats.rst:318 ../../source/formats.rst:321
-#: ../../source/formats.rst:348
-msgid "JSON_"
-msgstr ""
-
-#: ../../source/formats.rst:313
 msgid "Keyboard control mappings"
 msgstr "Назначения клавиш управления"
 
-#: ../../source/formats.rst:314
-msgid "``options.json``"
-msgstr ""
-
-#: ../../source/formats.rst:316
 msgid "Game settings (graphics, audio, gameplay)"
 msgstr "Настройки игры (графика, звук, геймплей)"
 
-#: ../../source/formats.rst:317
-msgid "``quests.json``"
-msgstr ""
-
-#: ../../source/formats.rst:319
 msgid "Quest visibility toggles"
 msgstr "Переключатели видимости квестов"
 
-#: ../../source/formats.rst:320
-msgid "``waypoints.cfg``"
-msgstr ""
-
-#: ../../source/formats.rst:322
 msgid "Custom map markers"
 msgstr "Пользовательские метки на карте"
 
-#: ../../source/formats.rst:327
 msgid "📄 Text Formats"
 msgstr "📄 Текстовые"
 
-#: ../../source/formats.rst:335
-msgid "``.lang``"
-msgstr ""
-
-#: ../../source/formats.rst:336 ../../source/formats.rst:339
-msgid "`Java Properties <Propetries_>`_"
-msgstr ""
-
-#: ../../source/formats.rst:337
 msgid "Localization strings"
 msgstr "Строки локализации"
 
-#: ../../source/formats.rst:338
-msgid "``.properties``"
-msgstr ""
-
-#: ../../source/formats.rst:340
 msgid "Configuration"
 msgstr "Конфигурация"
 
-#: ../../source/formats.rst:341
-msgid "``.md``"
-msgstr ""
-
-#: ../../source/formats.rst:342
-msgid "Markdown_"
-msgstr ""
-
-#: ../../source/formats.rst:343
 msgid "Formatted text"
 msgstr "Форматированный текст"
 
-#: ../../source/formats.rst:344
-msgid "``.srt``"
-msgstr ""
-
-#: ../../source/formats.rst:345
-msgid "SubRip_"
-msgstr ""
-
-#: ../../source/formats.rst:346
 msgid "Subtitles"
 msgstr "Субтитры"
 
-#: ../../source/formats.rst:347
-msgid "``.smm``"
-msgstr ""
-
-#: ../../source/formats.rst:349
 msgid "Mob configuration"
 msgstr "Конфигурация мобов"
 
-#: ../../source/formats.rst:354
 msgid "🔒 Encrypted Formats"
 msgstr "🔒 Зашифрованные"
 
-#: ../../source/formats.rst:358
-msgid ""
-"Used AES_. Decryption requires a key recovered from the protected game "
-"client."
-msgstr ""
-"Использован AES_. Расшифровка требует ключи из защищенного клиента игры."
+msgid "Used AES_. Decryption requires a key recovered from the protected game client."
+msgstr "Использован AES_. Расшифровка требует ключи из защищенного клиента игры."
 
-#: ../../source/formats.rst:361
-msgid "``.xeon`` Encrypted Bundle"
-msgstr ""
+msgid "Bundle with sensitive client data."
+msgstr "Бандл с чувствительными данными клиента."
 
-#: ../../source/formats.rst:363
-msgid "**Purpose:** Bundle with sensitive client data."
-msgstr "**Назначение:** Bundle с чувствительными данными клиента."
+msgid "Copy of the assets folder structure."
+msgstr "Копия структуры папки ассетов."
 
-#: ../../source/formats.rst:364
-msgid "**Contents:** Copy of the assets folder structure."
-msgstr "**Содержимое:** Копия структуры папки ассетов."
+msgid "Settlement progression screens."
+msgstr "Сцена прогресса безопасной зоны."
 
-#: ../../source/formats.rst:367
-msgid "``.mcws`` World Slice"
-msgstr ""
+msgid "World slice chunks."
+msgstr "Несколько чанков мира"
 
-#: ../../source/formats.rst:369
-msgid "**Purpose:** Settlement progression screens."
-msgstr "**Назначение:** Сцена прогресса безопасной зоны."
+msgid "Protection of high resolution texture array."
+msgstr "Защита высококачественных текстур."
 
-#: ../../source/formats.rst:370
-msgid "**Contents:** World slice chunks."
-msgstr "**Содержимое:** Несколько чанков мира"
+msgid ":ref:`.texarr <texarr>` data."
+msgstr "Данные :ref:`.texarr <texarr>`."
 
-#: ../../source/formats.rst:373
-msgid "``.ta`` Texture Array"
-msgstr ""
+msgid "Adaptive audio events."
+msgstr "Адаптивные аудио события."
 
-#: ../../source/formats.rst:375
-msgid "**Purpose:** Protection of high resolution texture array."
-msgstr "**Назначение:** Защита высококачественных текстур."
+msgid "*Primarily voice acting and OST."
+msgstr "В основном озвучка и OST."
 
-#: ../../source/formats.rst:376
-msgid "**Contents:** :ref:`.texarr <texarr>` data."
-msgstr "**Содержимое:** Данные :ref:`.texarr <texarr>`."
-
-#: ../../source/formats.rst:379
-msgid "``.bank`` Audio Bank"
-msgstr ""
-
-#: ../../source/formats.rst:381
-msgid "**Engine:** `FMOD Studio <FMOD_>`_."
-msgstr "**Движок:** `FMOD Studio <FMOD_>`_."
-
-#: ../../source/formats.rst:382
-msgid "**Contents:** Adaptive audio events."
-msgstr "**Содержимое:** Адаптивные аудио события."
-
-#: ../../source/formats.rst:383
-msgid "**Purpose:** Primarily voice acting and OST."
-msgstr "**Назначение:** В основном озвучка и OST."
-
-#: ../../source/formats.rst:388
 msgid "🕹️ Launcher Formats"
 msgstr "🕹️ Лаунчер"
 
-#: ../../source/formats.rst:391
+msgid "Launcher file integrity verification."
+msgstr "Проверка целостности файлов лаунчером."
+
+msgid "Game asset paths and SHA-1 hashes."
+msgstr "Путы к игровым ассетам и их SHA-1 хеши."
+
+msgid "Game content delivery."
+msgstr "Скачивание игрового контента."
+
+msgid "Modified ``.torrent`` (Torrent_) data. Trackers require a token."
+msgstr "Модифицированный ``.torrent`` (Torrent_). Трекеры требуют токен."
+
+# ============================================================================
+# No translation required.
+# ============================================================================
+
+msgid "``.mcsa`` Scene Assets (Legacy)"
+msgstr ""
+
+msgid "``.mcsb`` Scene Bundle"
+msgstr ""
+
+msgid "``.mcvd`` Trace Model"
+msgstr ""
+
+msgid "``.efkmodel`` Effekseer Model"
+msgstr ""
+
+msgid "``.mcvd`` Animation Set"
+msgstr ""
+
+msgid "``.mcal`` Animation Library"
+msgstr ""
+
+msgid "``.ol`` Object Layer"
+msgstr ""
+
+msgid "``.sign`` Texture Signatures"
+msgstr ""
+
+msgid "``.mic`` Media Image Container"
+msgstr ""
+
+msgid "``.texarr`` Texture Array"
+msgstr ""
+
+msgid "``.mdat`` World Region Cache"
+msgstr ""
+
+msgid "``.xeon`` Encrypted Bundle"
+msgstr ""
+
+msgid "``.mcws`` World Slice"
+msgstr ""
+
+msgid "``.ta`` Texture Array"
+msgstr ""
+
+msgid "``.bank`` Audio Bank"
+msgstr ""
+
 msgid "``.map`` Hash Mappings"
 msgstr ""
 
-#: ../../source/formats.rst:393
-msgid "**Template:** HASHMAP.bt_"
-msgstr "**Шаблон:** HASHMAP.bt_"
-
-#: ../../source/formats.rst:394
-msgid "**Purpose:** Launcher file integrity verification."
-msgstr "**Назначение:** Проверка целостности файлов лаунчером."
-
-#: ../../source/formats.rst:395
-msgid "**Contents:** Game asset paths and SHA-1 hashes."
-msgstr "**Содержимое:** Путы к игровым ассетам и SHA-1 хеши."
-
-#: ../../source/formats.rst:398
 msgid "``.torrent.bin`` Torrent Binary"
 msgstr ""
 
-#: ../../source/formats.rst:400
-msgid "**Template:** TORRENT.bt_"
-msgstr "**Шаблон:** TORRENT.bt_"
+msgid "``.lang``"
+msgstr ""
 
-#: ../../source/formats.rst:401
-msgid "**Purpose:** Game content delivery."
-msgstr "**Назначение:** Скачивание игрового контента."
+msgid "``.properties``"
+msgstr ""
 
-#: ../../source/formats.rst:402
-msgid ""
-"**Contents:** Modified ``.torrent`` (Torrent_) data. Trackers require a "
-"token."
-msgstr "**Содержимое:** Модифицированный ``.torrent`` (Torrent_). Трекеры требуют токен."
+msgid "``.md``"
+msgstr ""
+
+msgid "``.srt``"
+msgstr ""
+
+msgid "``.smm``"
+msgstr ""
+
+msgid "``.obj``"
+msgstr ""
+
+msgid "``.glb``"
+msgstr ""
+
+msgid "``.fbx``"
+msgstr ""
+
+msgid "``.dds``."
+msgstr ""
+
+msgid "``.png``."
+msgstr ""
+
+msgid "``.zip`` (ZIP_)."
+msgstr ""
+
+msgid "``.json`` (`JavaScript Object Notation <JSON_>`_)."
+msgstr ""
+
+msgid "`Wavefront OBJ <OBJ_>`_"
+msgstr ""
+
+msgid "`glTF Binary <GLTF_>`_"
+msgstr ""
+
+msgid "`Autodesk FBX <FBX_>`_"
+msgstr ""
+
+msgid "`Java Properties <Propetries_>`_"
+msgstr ""
+
+msgid "Markdown_"
+msgstr ""
+
+msgid "SubRip_"
+msgstr ""
+
+msgid "`FMOD Studio <FMOD_>`_."
+msgstr ""
+
+msgid "UV2"
+msgstr ""
+
+msgid "Tangents"
+msgstr ""
+
+msgid "Armature"
+msgstr ""
+
+msgid "Bone Clips"
+msgstr ""
+
+msgid "Morph Clips"
+msgstr ""
+
+msgid "``_diff``"
+msgstr ""
+
+msgid "``_spek``"
+msgstr ""
+
+msgid "``_nrm``"
+msgstr ""
+
+msgid "``_emi``"
+msgstr ""
+
+msgid "``Diffuse``"
+msgstr ""
+
+msgid "``Specular``"
+msgstr ""
+
+msgid "``Normal``"
+msgstr ""
+
+msgid "``Emission``"
+msgstr ""
+
+msgid "``#?3V``"
+msgstr ""
+
+msgid "``DXT1``"
+msgstr ""
+
+msgid "``BC1``"
+msgstr ""
+
+msgid "``#?3T``"
+msgstr ""
+
+msgid "``DXT3``"
+msgstr ""
+
+msgid "``BC2``"
+msgstr ""
+
+msgid "``#?3R``"
+msgstr ""
+
+msgid "``DXT5``"
+msgstr ""
+
+msgid "``BC3``"
+msgstr ""
+
+msgid "``#?)8?``"
+msgstr ""
+
+msgid "``DXN_X``"
+msgstr ""
+
+msgid "``ATI1``"
+msgstr ""
+
+msgid "``BC4``"
+msgstr ""
+
+msgid "``#?)8?>``"
+msgstr ""
+
+msgid "``DXN_XY``"
+msgstr ""
+
+msgid "``ATI2``"
+msgstr ""
+
+msgid "``BC5``"
+msgstr ""
+
+msgid "``5 %&_``"
+msgstr ""
+
+msgid "``RGBA8``"
+msgstr ""
+
+msgid "``R8G8B8A8``"
+msgstr ""
+
+msgid "``None``"
+msgstr ""
+
+msgid "``% 5&_``"
+msgstr ""
+
+msgid "``BGRA8``"
+msgstr ""
+
+msgid "``B8G8R8A8``"
+msgstr ""
+
+msgid "``5 %&TU!``"
+msgstr ""
+
+msgid "``RGBA32F``"
+msgstr ""
+
+msgid "``R32G32B32A32``"
+msgstr ""
+
+msgid "``stalker/itemnames.dat``"
+msgstr ""
+
+msgid "``config/prefs``"
+msgstr ""
+
+msgid "``config/<Name>/common``"
+msgstr ""
+
+msgid "``config/<Name>/sd0``"
+msgstr ""
+
+msgid "``config/<Name>/sd1``"
+msgstr ""
+
+msgid "``config/<Name>/sd2``"
+msgstr ""
+
+msgid "``config/<Name>/sd3``"
+msgstr ""
+
+msgid "``config/<Name>/sd4``"
+msgstr ""
+
+msgid "gzip_"
+msgstr ""
+
+msgid "zstd_"
+msgstr ""
+
+msgid "``seenArticleLinks[], seenExperiences[], hasSeen*``"
+msgstr ""
+
+msgid "``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``"
+msgstr ""
+
+msgid "``requests[]``"
+msgstr ""
+
+msgid "``interacts[{allianceId, type, username}]``"
+msgstr ""
+
+msgid "``notifications[{isRead, receivedMoment, notification{...}}]``"
+msgstr ""
+
+msgid "``observedOffers[]``"
+msgstr ""
+
+msgid "``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``"
+msgstr ""
+
+msgid "``display``"
+msgstr ""
+
+msgid "``keybindings``"
+msgstr ""
+
+msgid "``options.json``"
+msgstr ""
+
+msgid "``quests.json``"
+msgstr ""
+
+msgid "``waypoints.cfg``"
+msgstr ""
+
+msgid "➖"
+msgstr ""
+
+msgid "✅"
+msgstr ""
+
+msgid "❌"
+msgstr ""

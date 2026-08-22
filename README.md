@@ -58,7 +58,7 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 | 🗺 **Region**     | `.mdat`                                  | →   | `.mca`                 |
 | ⚙️ **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
-> [Detailed formats support →][docs-support]
+> [Details about formats →][docs-support]
 
 </br>
 
@@ -84,8 +84,8 @@ For example:
 scfile.exe model.mcsb -F glb --skeleton
 ```
 
-This exports the model and its armature to GLB. See the [usage guide][docs-usage]
-for batch conversion, animations, map regions, output layouts, and other options.
+This exports the model and its armature to GLB. \
+See the [usage guide][docs-usage] for other options.
 
 ### Install the Python package
 
@@ -94,12 +94,11 @@ pip install sc-file
 pip install sc-file[gui]  # extra graphical interface
 ```
 
-The base package includes the library and CLI. The GUI is an optional extra.
+The base package includes only library and CLI.
 
 ### Compile from source
 
-See the [build guide][docs-compile] for development, contributions, and custom
-builds.
+See the [build guide][docs-compile] for development, contributions, and custom builds.
 
 ## 📖 Library
 

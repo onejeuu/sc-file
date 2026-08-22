@@ -45,7 +45,7 @@ class MapCacheTab(QWidget):
         layout.setSpacing(10)
 
         self.source = PathField(
-            strings.get("label.mapcache.source"),
+            f"{strings.get('label.mapcache.source')} (.mdat)",
             placeholder="stalcraft/map_cache/5.0",
             caption=strings.get("dialog.mapcache.source"),
         )
@@ -55,7 +55,7 @@ class MapCacheTab(QWidget):
             self.source.value = source.as_posix()
 
         self.output = PathField(
-            strings.get("label.mapcache.output"),
+            f"{strings.get('label.mapcache.output')} (.mca)",
             placeholder=".minecraft/saves/{world}",
             caption=strings.get("dialog.mapcache.output"),
         )
@@ -63,7 +63,7 @@ class MapCacheTab(QWidget):
 
         self.raw_blocks = OptionWidget(
             text=strings.get("option.mapcache.raw"),
-            hint=strings.get("hint.mapcache.raw"),
+            hint=strings.get("option.mapcache.raw.hint"),
         )
 
         layout.addWidget(self.source)
@@ -193,7 +193,7 @@ class MapCacheTab(QWidget):
         return [
             message
             for condition, message in (
-                (not valid, strings.get("warning.mapcache.invalid_world")),
+                (not valid, strings.get("warning.mapcache.invalid.mcworld")),
                 (regions, strings.get(overwrite).format(world=world)),
             )
             if condition

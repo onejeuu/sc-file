@@ -143,7 +143,7 @@ class ConvertForm(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel(strings.get("label.settings"))
+        title = QLabel(strings.get("label.convert.settings"))
         title.setStyleSheet(Styles.TITLE)
         layout.addWidget(title)
         layout.addSpacing(10)
@@ -222,12 +222,12 @@ class ConvertForm(QWidget):
         self.features[Feature.ANIMATION].toggled.connect(self._animation_changed)
 
     def _build_output(self, layout: QVBoxLayout, output: Path) -> None:
-        label = QLabel(strings.get("label.output"))
+        label = QLabel(strings.get("label.convert.output"))
         label.setStyleSheet(Styles.LABEL)
         layout.addWidget(label)
 
         modes = QButtonGroup(self)
-        self.output_origin = QRadioButton(strings.get("option.output.origin"))
+        self.output_origin = QRadioButton(strings.get("option.convert.output.origin"))
         self.output_origin.setStyleSheet(Styles.RADIO)
         self.output_origin.setCursor(Qt.CursorShape.PointingHandCursor)
         modes.addButton(self.output_origin)
@@ -246,7 +246,7 @@ class ConvertForm(QWidget):
 
         self.output_path = PathInputWidget(
             placeholder=strings.get("placeholder.path"),
-            caption=strings.get("dialog.output"),
+            caption=strings.get("dialog.convert.output"),
         )
         self.output_path.value = output.as_posix()
 
@@ -276,12 +276,12 @@ class ConvertForm(QWidget):
         structure.setContentsMargins(25, 0, 0, 0)
         structure.setSpacing(5)
 
-        self.output_tree = QRadioButton(strings.get("option.output.tree"))
+        self.output_tree = QRadioButton(strings.get("option.convert.output.tree"))
         self.output_tree.setStyleSheet(Styles.RADIO)
         self.output_tree.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_tree.setChecked(True)
 
-        self.output_flat = QRadioButton(strings.get("option.output.flat"))
+        self.output_flat = QRadioButton(strings.get("option.convert.output.flat"))
         self.output_flat.setStyleSheet(Styles.RADIO)
         self.output_flat.setCursor(Qt.CursorShape.PointingHandCursor)
 
@@ -315,7 +315,7 @@ class ConvertForm(QWidget):
         custom = self.output_custom.isChecked()
         self.output_path.read_only = not custom
         self.structure.setEnabled(custom)
-        error = strings.get("tooltip.invalid.output") if custom and not self.output_valid else ""
+        error = strings.get("tooltip.convert.invalid.output") if custom and not self.output_valid else ""
         self.output_path.invalid = bool(error)
         self.output_error.setText(error)
         self.output_error.setVisible(bool(error))
@@ -367,15 +367,15 @@ class ConvertTab(QWidget):
         left = QVBoxLayout()
         header = QHBoxLayout()
 
-        title = QLabel(strings.get("label.sources"))
+        title = QLabel(strings.get("label.convert.sources"))
         title.setStyleSheet(Styles.TITLE)
 
-        add_files = QPushButton(strings.get("button.add_files"))
+        add_files = QPushButton(strings.get("button.convert.add.files"))
         add_files.setStyleSheet(Styles.BUTTON)
         add_files.setCursor(Qt.CursorShape.PointingHandCursor)
         add_files.clicked.connect(self._browse_files)
 
-        add_folder = QPushButton(strings.get("button.add_folder"))
+        add_folder = QPushButton(strings.get("button.convert.add.folder"))
         add_folder.setStyleSheet(Styles.BUTTON)
         add_folder.setCursor(Qt.CursorShape.PointingHandCursor)
         add_folder.clicked.connect(self._browse_folder)
@@ -413,8 +413,8 @@ class ConvertTab(QWidget):
         return [
             message
             for condition, message in (
-                (game_directory, strings.get("warning.gamedir")),
-                (output_within_sources, strings.get("warning.output_overlap")),
+                (game_directory, strings.get("warning.convert.gamedir")),
+                (output_within_sources, strings.get("warning.convert.overlap")),
             )
             if condition
         ]
@@ -422,9 +422,9 @@ class ConvertTab(QWidget):
     def _submit_error(self, sources: tuple[Path, ...]) -> str | None:
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
-            "tooltip.invalid.sources" if not sources else None,
-            "tooltip.invalid.targets" if not (self.counter.busy or self.counter.count) else None,
-            "tooltip.invalid.output" if not self.form.output_valid else None,
+            "tooltip.convert.invalid.sources" if not sources else None,
+            "tooltip.convert.invalid.targets" if not (self.counter.busy or self.counter.count) else None,
+            "tooltip.convert.invalid.output" if not self.form.output_valid else None,
         )
         return next((error for error in errors if error), None)
 
@@ -482,12 +482,12 @@ class ConvertTab(QWidget):
         self.counter.stop()
 
     def _browse_files(self) -> None:
-        paths, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.add_files"))
+        paths, _ = QFileDialog.getOpenFileNames(self, strings.get("dialog.convert.add.files"))
         if paths:
             self.sources.add_sources(paths)
 
     def _browse_folder(self) -> None:
-        path = QFileDialog.getExistingDirectory(self, strings.get("dialog.add_folder"))
+        path = QFileDialog.getExistingDirectory(self, strings.get("dialog.convert.add.folder"))
         if path:
             self.sources.add_sources((path,))
 

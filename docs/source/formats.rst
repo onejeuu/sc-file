@@ -18,38 +18,39 @@
 ``.mcsa`` Scene Assets (Legacy)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** MCSA.bt_
-| **Purpose:** Model scene.
-| **Contents:** Geometry, Skeleton, Animation clips, Blend shapes.
-| **Support:** Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
+:Template: MCSA.bt_
+:Purpose: Model scene.
+:Contents: Geometry, Skeleton, Animation clips, Blend shapes.
+:Support: Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
 
 .. _mcsb:
 
 ``.mcsb`` Scene Bundle
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** MCSA.bt_
-| **Purpose:** Model scene.
-| **Contents:** Same as `.mcsa <mcsa_>`_. Has hash before signature.
+:Template: MCSA.bt_
+:Purpose: Model scene.
+:Contents: Same as `.mcsa <mcsa_>`_. Has hash before signature.
 
 .. _mcvd-trace:
 
 ``.mcvd`` Trace Model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** MCSA.bt_
-| **Purpose:** Collision and physics geometry.
-| **Also:** :ref:`Animation sets <mcvd-animation>` use the same suffix.
+:Template: MCSA.bt_
+:Purpose: Colliders and physics.
+:Note: :ref:`Animation sets <mcvd-animation>` use the same suffix.
 
 .. _efkmodel:
 
 ``.efkmodel`` Effekseer Model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** EFKMODEL.bt_
-| **Purpose:** Effekseer_ animated particle model.
-| **Contents:** Frame-based geometry with vertices and triangles. Vertices contain positions, normals, binormals, tangents, UVs and colors.
-| **Support:** Version ``5``.
+:Template: EFKMODEL.bt_
+:Engine: Effekseer_
+:Purpose: Animated particle model.
+:Contents: Frame based geometry.
+:Support: Version ``5``.
 
 .. _model-export:
 
@@ -102,26 +103,26 @@ Export
 ``.mcvd`` Animation Set
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** MCSA.bt_
-| **Purpose:** Standalone animation clips.
-| **Contents:** Skeletal and facial animation clips.
-| **Note:** Usually located in ``assets/highpoly``.
+:Template: MCSA.bt_
+:Purpose: Standalone animation.
+:Contents: Skeletal and facial animation clips.
+:Note: Usually located in ``assets/highpoly``.
 
 .. _mcal:
 
 ``.mcal`` Animation Library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** MCAL.bt_
-| **Purpose:** Shared clips by models with matching skeletons.
-| **Contents:** Skeletal animation clips.
+:Template: MCAL.bt_
+:Purpose: Shared animation by models with matching skeletons.
+:Contents: Skeletal animation clips.
 
 Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Input:** Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
-| **Output:** :ref:`.glb <model-export>` with the assembled scene.
-| **Note:** Relation pairs can be found in `Audit Mappings`_.
+:Input: Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes.
+:Output: File :ref:`.glb <model-export>` with the assembled scene.
+:Note: Relation pairs can be found in `Audit Mappings`_.
 
 
 ----------------------------------------
@@ -131,34 +132,28 @@ Export
 ``.ol`` Object Layer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** OL.bt_
-| **Purpose:** `Mipmapped <MipMap_>`_ texel data compatible with ``.dds`` (`DirectDraw Surface <DDS_>`_).
-| **Contents:** 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_.
-| **Export:** ``.dds``.
-| **Note:** Normal maps may have an inverted Y axis.
+:Template: OL.bt_
+:Purpose: `Mipmapped <MipMap_>`_ texel data.
+:Contents: 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_.
+:Export: ``.dds`` (`DirectDrawSurface <DDS_>`_).
 
 .. list-table:: Suffix Conventions
   :header-rows: 1
 
   * - Suffix
     - Map
-    - Type
     - Purpose
   * - ``_diff``
-    - Diffuse
-    - Base Color
+    - ``Diffuse``
     - Raw surface color
   * - ``_spek``
-    - Specular
-    - Reflectivity Control
+    - ``Specular``
     - Intensity of highlights
   * - ``_nrm``
-    - Normal
-    - Surface Detail
+    - ``Normal``
     - Simulates bumps and dents
   * - ``_emi``
-    - Emission
-    - Self Illumination
+    - ``Emission``
     - Creates independent glow
 
 .. list-table:: FourCC Formats
@@ -204,9 +199,9 @@ Export
 ``.sign`` Texture Signatures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** SIGN.bt_
-| **Purpose:** Texture integrity verification.
-| **Contents:** Texture paths, headers and mipmap images hashes.
+:Template: SIGN.bt_
+:Purpose: Texture integrity verification.
+:Contents: Texture paths, headers and mipmap images hashes.
 
 
 ----------------------------------------
@@ -216,9 +211,9 @@ Export
 ``.mic`` Media Image Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Purpose:** GUI and composed images.
-| **Contents:** ``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature.
-| **Export:** ``.png``.
+:Purpose: GUI and composed images.
+:Contents: ``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature.
+:Export: ``.png``.
 
 
 ----------------------------------------
@@ -230,9 +225,9 @@ Export
 ``.texarr`` Texture Array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** TEXARR.bt_
-| **Purpose:** Container for ``.dds`` blocks textures.
-| **Export:** ``.zip`` (ZIP_).
+:Template: TEXARR.bt_
+:Purpose: Container for ``.dds`` blocks textures.
+:Export: ``.zip`` (ZIP_).
 
 
 ----------------------------------------
@@ -242,18 +237,18 @@ Export
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Purpose:** Region container for 32×32 terrain chunks.
-| **Contents:** Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
-| **Export:** Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping.
+:Purpose: Region container for 32×32 terrain chunks.
+:Contents: Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
+:Export: Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping.
 | :doc:`Map Cache viewing guide → <usage/mapcache>`
 
 ----------------------------------------
 ⚙️ NBT Files
 ----------------------------------------
 
-| **Format:** `Named Binary Tag <NBT_>`_ data.
-| **Compression:** None, gzip_, zstd_.
-| **Export:** ``.json`` (`JavaScript Object Notation <JSON_>`_).
+:Format: `Named Binary Tag <NBT_>`_ data.
+:Compression: None, gzip_, zstd_.
+:Export: ``.json`` (`JavaScript Object Notation <JSON_>`_).
 
 .. list-table::
   :header-rows: 1
@@ -361,27 +356,27 @@ Export
 ``.xeon`` Encrypted Bundle
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Purpose:** Bundle with sensitive client data.
-| **Contents:** Copy of the assets folder structure.
+:Purpose: Bundle with sensitive client data.
+:Contents: Copy of the assets folder structure.
 
 ``.mcws`` World Slice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Purpose:** Settlement progression screens.
-| **Contents:** World slice chunks.
+:Purpose: Settlement progression screens.
+:Contents: World slice chunks.
 
 ``.ta`` Texture Array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Purpose:** Protection of high resolution texture array.
-| **Contents:** :ref:`.texarr <texarr>` data.
+:Purpose: Protection of high resolution texture array.
+:Contents: :ref:`.texarr <texarr>` data.
 
 ``.bank`` Audio Bank
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Engine:** `FMOD Studio <FMOD_>`_.
-| **Purpose:** Primarily voice acting and OST.
-| **Contents:** Adaptive audio events.
+:Engine: `FMOD Studio <FMOD_>`_.
+:Purpose: Primarily voice acting and OST.
+:Contents: Adaptive audio events.
 
 
 ----------------------------------------
@@ -391,13 +386,13 @@ Export
 ``.map`` Hash Mappings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** HASHMAP.bt_
-| **Purpose:** Launcher file integrity verification.
-| **Contents:** Game asset paths and SHA-1 hashes.
+:Template: HASHMAP.bt_
+:Purpose: Launcher file integrity verification.
+:Contents: Game asset paths and SHA-1 hashes.
 
 ``.torrent.bin`` Torrent Binary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| **Template:** TORRENT.bt_
-| **Purpose:** Game content delivery.
-| **Contents:** Modified ``.torrent`` (Torrent_) data. Trackers require a token.
+:Template: TORRENT.bt_
+:Purpose: Game content delivery.
+:Contents: Modified ``.torrent`` (Torrent_) data. Trackers require a token.

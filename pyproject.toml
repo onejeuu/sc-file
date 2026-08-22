@@ -60,8 +60,8 @@ scfile = ["app/gui/assets/*"]
 branch = true
 omit = ["scfile/__main__.py"]
 
-#[tool.basedpyright]
-#typeCheckingMode = "basic"
+[tool.basedpyright]
+typeCheckingMode = "basic"
 
 [build-system]
 requires = ["setuptools"]

@@ -51,7 +51,7 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     assert form.create_task(tmp_path / "output.glb").models == (model, None)
 
     form.model.value = ""
-    assert form.validation_error() == "tooltip.animate.invalid.models"
+    assert form.validation_error() == "tooltip.animate.invalid.arms"
 
     form.hands.value = str(tmp_path / "invalid.obj")
     form._touch_input(form.hands)

@@ -62,7 +62,7 @@ sc-file
     - →
     - ``.json``
 
-:doc:`Detailed formats support → <formats>`
+:doc:`Details about formats → <formats>`
 
 
 .. important::
@@ -92,7 +92,8 @@ For example:
 
   scfile.exe model.mcsb -F glb --skeleton
 
-This exports the model and its armature to GLB. See the :doc:`usage guide <usage>` for batch conversion, animations, map regions, output layouts, and other options.
+| This exports the model and its armature to GLB.
+| See the :doc:`usage guide <usage>` for other options.
 
 
 Install the Python package
@@ -103,7 +104,7 @@ Install the Python package
   pip install sc-file
   pip install sc-file[gui]  # extra graphical interface
 
-The base package includes the library and CLI. The GUI is an optional extra.
+The base package includes only library and CLI.
 
 
 Compile from source

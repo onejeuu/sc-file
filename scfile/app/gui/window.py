@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
         self.convert = ConvertTab(self.tasks, self.settings)
         self.convert.error.connect(self.feedback)
         self.convert.settings_changed.connect(self._save_settings)
-        self._add_tab(self.convert, "tab.converter", "assets/tab.converter.png")
+        self._add_tab(self.convert, "tab.convert", "assets/tab.convert.png")
 
         self.animate = AnimateTab(self.tasks, self.settings)
         self._add_tab(self.animate, "tab.animate", "assets/tab.animate.png")

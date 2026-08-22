@@ -13,8 +13,8 @@ Q: Is it safe to use this program?
 
 Yes. Using this program to unpack and export assets is safe.
 
-Be careful when sharing this project on official game channels or communities,
-as such tools may be considered undesirable and may be removed or moderated there.
+*Be careful when sharing this project on official game channels or communities,
+as such tools may be considered undesirable and may be removed or moderated there.*
 
 
 Q: Can I modify or replace game files?
@@ -22,8 +22,9 @@ Q: Can I modify or replace game files?
 
 Not recommended.
 
-The `License Agreement <EXBO License_>`_ prohibits replacing or modifying game files
-except in `documented cases <EXBO Mods_>`_. Violating this restriction may lead to ban.
+The `License Agreement <EXBO License_>`_ expressly prohibits modifying game files
+except in `documented cases <EXBO Mods_>`_.
+Violating this restriction may lead to ban.
 There is no known safe threshold for a particular modification.
 Avoid any changes that could provide in game advantages.
 
@@ -79,7 +80,7 @@ Convert with ImageMagick_ or FFmpeg_.
 Q: Why do models have weird or black textures?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In Blender, make sure texture node alpha mode is set to ``Channel Packed`` (`Screenshot <Alpha Mode_>`_).
+In Blender, make sure node alpha mode is set to ``Channel Packed`` (`Screenshot <Alpha Mode_>`_).
 
 
 ----------------------------------------
@@ -90,11 +91,13 @@ Q: Antivirus or SmartScreen blocks ``scfile.exe``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 SmartScreen evaluates the reputation of a downloaded file and its publisher.
-An unsigned new executable may therefore be shown as unrecognized. `Microsoft documents this behaviour <SmartScreen_>`_.
+An unsigned new executable may therefore be shown as unrecognized.
+`Microsoft documents this behaviour <SmartScreen_>`_.
 
 VirusTotal aggregates independent engine results.
-A detection from one engine is neither proof of malware nor a reason to ignore the warning.
-Executables built with PyInstaller can trigger generic heuristic detections, as documented in the `PyInstaller issue tracker <PyInstaller Issue_>`_.
+**A detection from one engine is neither proof of malware nor a reason to ignore the warning.**
+Executables built with PyInstaller_ can trigger generic heuristic detections,
+as documented in the `PyInstaller issue tracker <PyInstaller Issue_>`_.
 
 
 Q: How to report a bug?
@@ -107,7 +110,7 @@ Please include:
 - **Version and system**: sc-file version and operating system.
 - **Exact action**: CLI command or GUI settings.
 - **Expected and actual result**: include the complete error message.
-- **Related file**: its path or an attachment when the problem concerns a file.
+- **File**: its path or an attachment when the problem concerns a file.
 
 Questions and usage advice belong in `Telegram <TG_>`_.
 
@@ -116,4 +119,4 @@ Questions and usage advice belong in `Telegram <TG_>`_.
 ❤️ Support
 ----------------------------------------
 
-If this tool has been useful, you can support its development by donation: NOWPayments_.
+If this tool has been useful, you can support its development by donation: NOWPayments_, CloudTips_.

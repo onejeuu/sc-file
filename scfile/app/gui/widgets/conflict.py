@@ -16,7 +16,7 @@ class ConflictWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        label = QLabel(strings.get("label.onconflict"))
+        label = QLabel(strings.get("label.convert.onconflict"))
         label.setStyleSheet(Styles.LABEL)
 
         toggle_group = QWidget()
@@ -28,7 +28,7 @@ class ConflictWidget(QWidget):
         self.buttons.setExclusive(True)
 
         for option in ON_CONFLICT_OPTIONS:
-            button = QPushButton(strings.get(f"option.onconflict.{option}"))
+            button = QPushButton(strings.get(f"option.convert.onconflict.{option}"))
             button.setCheckable(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setProperty("conflict_option", option)
@@ -39,7 +39,7 @@ class ConflictWidget(QWidget):
         self.buttons.buttons()[0].setChecked(True)
         toggle_group.setStyleSheet(Styles.TOGGLE_GROUP)
 
-        hint = QLabel(strings.get("hint.onconflict"))
+        hint = QLabel(strings.get("label.convert.onconflict.hint"))
         hint.setStyleSheet(Styles.HINT)
 
         layout.addWidget(label)

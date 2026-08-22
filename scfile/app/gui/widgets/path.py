@@ -199,7 +199,7 @@ class PathInputWidget(QWidget):
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_btn.setFixedSize(30, 30)
 
-        tooltip = "tooltip.path_browse" if self.mode == "directory" else "tooltip.file_browse"
+        tooltip = "tooltip.browse.directory" if self.mode == "directory" else "tooltip.browse.file"
         self.browse_btn.setToolTip(strings.get(tooltip))
 
         self.browse_btn.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)

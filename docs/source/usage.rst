@@ -331,7 +331,7 @@ mapcache
 
 
 ``--raw``
-  Keep original block IDs without mapping table replacement.
+  Keep original block IDs instead of lookup table replacement.
 
   .. code-block:: bash
     :caption: Example

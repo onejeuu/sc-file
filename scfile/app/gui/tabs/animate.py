@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Callable
 
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon
@@ -103,7 +103,7 @@ class AnimationForm(QWidget):
 
     def add_output(self, changed: Callable[[str], None]) -> None:
         self.output = PathField(
-            strings.get("label.animate.output"),
+            f"{strings.get('label.animate.output')} (.glb)",
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.animate.output"),
             mode="save",
@@ -127,36 +127,36 @@ class AnimationForm(QWidget):
 
 
 class ArmsForm(AnimationForm):
-    title = "mode.animate.fp"
+    title = "mode.animate.arms"
     icon = "hands"
 
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            strings.get("label.animate.animation"),
-            strings.get("dialog.animate.animation"),
+            f"{strings.get('label.animate.mcvd')} (.mcvd)",
+            strings.get("dialog.animate.mcvd"),
             "MCVD (*.mcvd)",
             "highpoly/animations/wpn_fp_gun.mcvd",
             suffix=".mcvd",
-            error="tooltip.animate.invalid.animation",
+            error="tooltip.animate.invalid.mcvd",
         )
 
         self.model = self.add_path(
-            strings.get("label.animate.model"),
-            strings.get("dialog.animate.model"),
+            f"{strings.get('label.animate.weapon')} (.mcsb)",
+            strings.get("dialog.animate.mcsb"),
             "MCSB (*.mcsb)",
             "weapons/models/gun/gun.mcsb",
             suffix=".mcsb",
-            error="tooltip.animate.invalid.model",
+            error="tooltip.animate.invalid.mcsb",
             required=False,
         )
         self.hands = self.add_path(
-            strings.get("label.animate.hands"),
-            strings.get("dialog.animate.hands"),
+            f"{strings.get('label.animate.hands')} (.mcsb)",
+            strings.get("dialog.animate.mcsb"),
             "MCSB (*.mcsb)",
             "highpoly/hands.mcsb",
             suffix=".mcsb",
-            error="tooltip.animate.invalid.additional",
+            error="tooltip.animate.invalid.mcsb",
             required=False,
         )
 
@@ -164,7 +164,11 @@ class ArmsForm(AnimationForm):
     def warnings(self) -> tuple[str, ...]:
         name = self.source_path.stem.lower()
         is_mcvd = self.source_path.suffix.lower() == ".mcvd"
-        return (strings.get("warning.animate.not_fp"),) if is_mcvd and "fp_" not in name and "wpn_" not in name else ()
+        return (
+            (strings.get("warning.animate.invalid.weaponfp"),)
+            if is_mcvd and "fp_" not in name and "wpn_" not in name
+            else ()
+        )
 
     def create_task(self, output: Path) -> AnimateTask:
         weapon = Path(value) if (value := self.model.value.strip()) else None
@@ -181,7 +185,7 @@ class ArmsForm(AnimationForm):
         error = super().validation_error()
         if error is not None or self.model.value.strip() or self.hands.value.strip():
             return error
-        return "tooltip.animate.invalid.models"
+        return "tooltip.animate.invalid.arms"
 
 
 class BodyForm(AnimationForm):
@@ -191,24 +195,24 @@ class BodyForm(AnimationForm):
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            strings.get("label.animate.skeletal"),
-            strings.get("dialog.animate.skeletal"),
+            f"{strings.get('label.animate.mcal')} (.mcal)",
+            strings.get("dialog.animate.mcal"),
             "MCAL (*.mcal)",
             "highpoly/character/pack.mcal",
             suffix=".mcal",
-            error="tooltip.animate.invalid.skeletal",
+            error="tooltip.animate.invalid.mcal",
         )
         self.model = self.add_path(
-            strings.get("label.animate.character"),
-            strings.get("dialog.animate.character"),
+            f"{strings.get('label.animate.mcsb')} (.mcsb)",
+            strings.get("dialog.animate.mcsb"),
             "MCSB (*.mcsb)",
             "highpoly/character/model.mcsb",
             suffix=".mcsb",
-            error="tooltip.animate.invalid.model",
+            error="tooltip.animate.invalid.mcsb",
         )
         self.raw_clips = OptionWidget(
-            strings.get("label.animate.raw_clips"),
-            strings.get("hint.animate.raw_clips"),
+            strings.get("option.animate.raw"),
+            strings.get("option.animate.raw.hint"),
         )
         self.options.addWidget(self.raw_clips)
 
@@ -223,26 +227,26 @@ class BodyForm(AnimationForm):
 
 
 class FaceForm(AnimationForm):
-    title = "mode.animate.lipsync"
+    title = "mode.animate.face"
     icon = "face"
 
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            strings.get("label.animate.animation"),
-            strings.get("dialog.animate.animation"),
+            f"{strings.get('label.animate.mcvd')} (.mcvd)",
+            strings.get("dialog.animate.mcvd"),
             "MCVD (*.mcvd)",
             "highpoly/lipsync/character.mcvd",
             suffix=".mcvd",
-            error="tooltip.animate.invalid.animation",
+            error="tooltip.animate.invalid.mcvd",
         )
         self.model = self.add_path(
-            strings.get("label.animate.head"),
-            strings.get("dialog.animate.head"),
+            f"{strings.get('label.animate.head')} (.mcsb)",
+            strings.get("dialog.animate.mcsb"),
             "MCSB (*.mcsb)",
             "stalkerplayer/heads/character.mcsb",
             suffix=".mcsb",
-            error="tooltip.animate.invalid.model",
+            error="tooltip.animate.invalid.mcsb",
         )
 
     def create_task(self, output: Path) -> AnimateTask:
