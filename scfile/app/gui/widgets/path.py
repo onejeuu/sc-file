@@ -54,79 +54,48 @@ def _local_path(data: QMimeData) -> str | None:
     return None
 
 
+def _normalize_path(text: str | None) -> str:
+    return (text or "").replace("\\", "/")
+
+
 class PathLineEdit(QLineEdit):
     activated = Signal()
-    path_set = Signal(str)
+    dropped = Signal()
+    value_changed = Signal(str)
     clear_requested = Signal()
 
     def __init__(self) -> None:
         super().__init__()
         self._restoring = False
         self._normalizing = False
-        self._as_posix = True
-        self.textChanged.connect(self._normalize_changed)
+        self.textChanged.connect(self._normalize_text)
 
-    @property
-    def as_posix(self) -> bool:
-        return self._as_posix
-
-    @as_posix.setter
-    def as_posix(self, value: bool) -> None:
-        self._as_posix = bool(value)
-        self.setText(self.text())
-
-    def _normalize(self, text: str | None) -> str:
-        if not text:
-            return ""
-
-        if self._as_posix:
-            text = text.replace("\\", "/")
-
-        return text
-
-    def _normalize_changed(self, text: str) -> None:
+    def _normalize_text(self, text: str) -> None:
         if self._normalizing:
             return
 
-        normalized = self._normalize(text)
-        if normalized == text:
-            return
-
-        cursor = self.cursorPosition()
-        selection_start = self.selectionStart()
-        selection_length = len(self.selectedText()) if selection_start >= 0 else 0
-
-        self._normalizing = True
-        self.blockSignals(True)
-        try:
-            super().setText(normalized)
-        finally:
-            self.blockSignals(False)
-            self._normalizing = False
-
-        if selection_start >= 0:
-            self.setSelection(selection_start, selection_length)
-        else:
-            self.setCursorPosition(cursor)
-
-    def normalized_text(self) -> str:
-        text = super().text()
-        normalized = self._normalize(text)
+        normalized = _normalize_path(text)
         if normalized != text:
-            self._normalize_changed(text)
-        return normalized
+            cursor = self.cursorPosition()
+            selection_start = self.selectionStart()
+            selection_length = len(self.selectedText()) if selection_start >= 0 else 0
 
-    @override
-    def text(self) -> str:
-        return self._normalize(super().text())
+            self._normalizing = True
+            self.blockSignals(True)
 
-    @override
-    def setText(self, text: str | None) -> None:
-        super().setText(self._normalize(text))
+            try:
+                super().setText(normalized)
 
-    @override
-    def insert(self, text: str) -> None:
-        super().insert(self._normalize(text))
+            finally:
+                self.blockSignals(False)
+                self._normalizing = False
+
+            if selection_start >= 0:
+                self.setSelection(selection_start, selection_length)
+            else:
+                self.setCursorPosition(cursor)
+
+        self.value_changed.emit(normalized)
 
     @override
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -136,10 +105,8 @@ class PathLineEdit(QLineEdit):
     @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.matches(QKeySequence.StandardKey.Paste):
-            data = QApplication.clipboard().mimeData()
-
-            if path := _local_path(data):
-                self.insert(self._normalize(path))
+            if path := _local_path(QApplication.clipboard().mimeData()):
+                self.insert(path)
                 event.accept()
                 return
 
@@ -165,9 +132,9 @@ class PathLineEdit(QLineEdit):
 
     def insertFromMimeData(self, data: QMimeData) -> None:
         if path := _local_path(data):
-            self.insert(self._normalize(path))
+            self.insert(path)
         else:
-            self.insert(self._normalize(data.text()))
+            self.insert(data.text())
 
     @override
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
@@ -187,7 +154,7 @@ class PathLineEdit(QLineEdit):
     def dropEvent(self, event: QDropEvent) -> None:
         if path := _local_path(event.mimeData()):
             self.setText(path)
-            self.path_set.emit(self.normalized_text())
+            self.dropped.emit()
             event.acceptProposedAction()
         else:
             super().dropEvent(event)
@@ -207,7 +174,6 @@ class PathInputWidget(QWidget):
         file_filter: str = "",
         default_suffix: str = "",
         initial_path: str = "",
-        as_posix: bool = True,
         parent=None,
     ):
         super().__init__(parent)
@@ -216,11 +182,9 @@ class PathInputWidget(QWidget):
         self.mode = mode
         self.file_filter = file_filter
         self.default_suffix = default_suffix
-        self._initial_path = initial_path
+        self._initial_path = _normalize_path(initial_path)
 
         self._build_ui(placeholder)
-
-        self.line_edit.as_posix = as_posix
 
     def _build_ui(self, placeholder: str) -> None:
         layout = QHBoxLayout(self)
@@ -234,8 +198,8 @@ class PathInputWidget(QWidget):
 
         self.line_edit.activated.connect(self.activated)
         self.line_edit.editingFinished.connect(self._emit_changed)
-        self.line_edit.textChanged.connect(self._emit_text_changed)
-        self.line_edit.path_set.connect(self.changed.emit)
+        self.line_edit.value_changed.connect(self.text_changed)
+        self.line_edit.dropped.connect(self._emit_changed)
         self.line_edit.clear_requested.connect(self.clear_requested)
 
         self.browse_btn = QPushButton("...")
@@ -266,13 +230,10 @@ class PathInputWidget(QWidget):
         if dialog.exec():
             path = dialog.selectedFiles()[0]
             self.value = path
-            self.changed.emit(self.value)
+            self._emit_changed()
 
     def _emit_changed(self) -> None:
         self.changed.emit(self.value.strip())
-
-    def _emit_text_changed(self, _: str) -> None:
-        self.text_changed.emit(self.value)
 
     def _open_in_explorer(self) -> None:
         value = self.value.strip()
@@ -292,7 +253,7 @@ class PathInputWidget(QWidget):
 
     @property
     def value(self) -> str:
-        return self.line_edit.normalized_text()
+        return self.line_edit.text()
 
     @value.setter
     def value(self, text: str) -> None:
@@ -300,11 +261,11 @@ class PathInputWidget(QWidget):
 
     @property
     def initial_path(self) -> str:
-        return self.line_edit._normalize(self._initial_path)
+        return self._initial_path
 
     @initial_path.setter
     def initial_path(self, path: str) -> None:
-        self._initial_path = path
+        self._initial_path = _normalize_path(path)
 
     @property
     def invalid(self) -> bool:
@@ -335,14 +296,6 @@ class PathInputWidget(QWidget):
     def placeholder(self, text: str) -> None:
         self.line_edit.setPlaceholderText(text)
 
-    @property
-    def as_posix(self) -> bool:
-        return self.line_edit.as_posix
-
-    @as_posix.setter
-    def as_posix(self, value: bool) -> None:
-        self.line_edit.as_posix = value
-
 
 class PathField(QWidget):
     activated = Signal()
@@ -360,7 +313,6 @@ class PathField(QWidget):
         file_filter: str = "",
         default_suffix: str = "",
         initial_path: str = "",
-        as_posix: bool = True,
         parent=None,
     ):
         super().__init__(parent)
@@ -383,7 +335,6 @@ class PathField(QWidget):
             file_filter=file_filter,
             default_suffix=default_suffix,
             initial_path=initial_path,
-            as_posix=as_posix,
         )
 
         self.input.activated.connect(self.activated.emit)
@@ -436,11 +387,3 @@ class PathField(QWidget):
     @read_only.setter
     def read_only(self, value: bool) -> None:
         self.input.read_only = value
-
-    @property
-    def as_posix(self) -> bool:
-        return self.input.as_posix
-
-    @as_posix.setter
-    def as_posix(self, value: bool) -> None:
-        self.input.as_posix = value
