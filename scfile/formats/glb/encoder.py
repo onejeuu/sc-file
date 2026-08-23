@@ -19,6 +19,8 @@ VERSION = 2
 type Node = dict[str, Any]
 type BufferView = dict[str, int]
 type Accessor = dict[str, str | int]
+type ClipChannel = tuple[str, int, int, np.ndarray]
+type ClipChannels = tuple[tuple[np.ndarray, ...], tuple[ClipChannel, ...]]
 
 
 class GlbEncoder(ModelEncoder):
@@ -45,7 +47,7 @@ class GlbEncoder(ModelEncoder):
     @override
     def _serialize(self):
         self._add_header()
-        self._create_gltf()
+        self._build_document()
         self._add_json_chunk()
         self._add_binary_chunk()
         self._update_total_size()
@@ -63,7 +65,7 @@ class GlbEncoder(ModelEncoder):
 
     def _add_json_chunk(self):
         # Serialize gltf json
-        gltf = json.dumps(self._ctx["GLTF"])
+        gltf = json.dumps(self._ctx["GLTF"], ensure_ascii=False, separators=(",", ":"))
         gltf_bytes = gltf.encode()
         json_length = len(gltf_bytes)
 
@@ -79,7 +81,7 @@ class GlbEncoder(ModelEncoder):
         if padding_length > 0:
             self.io.write(b"\x20" * padding_length)
 
-    def _create_gltf(self):
+    def _build_document(self):
         self._ctx["GLTF"] = deepcopy(base.GLTF)
         self._ctx["BUFFER_VIEW_OFFSET"] = 0
 
@@ -95,24 +97,24 @@ class GlbEncoder(ModelEncoder):
             self._ctx["GLTF"]["animations"] = []
 
         # Create nodes
-        self._create_nodes()
-        self._count_nodes()
+        self._build_nodes()
+        self._set_scene_nodes()
 
         # Write length in buffers
         self._ctx["GLTF"]["buffers"].append(deepcopy(base.BUFFER))
         self._ctx["GLTF"]["buffers"][0]["byteLength"] = self._ctx["BUFFER_VIEW_OFFSET"]
 
-    def _create_nodes(self):
-        self._create_meshes()
+    def _build_nodes(self):
+        self._build_meshes()
 
         if self.includes(S.Feature.SKELETON):
-            self._create_bones()
-            self._create_bindmatrices()
+            self._build_bones()
+            self._build_skins()
 
         if self.includes(S.Feature.ANIMATION):
-            self._create_animation()
+            self._build_animation()
 
-    def _count_nodes(self):
+    def _set_scene_nodes(self):
         nodes = list(range(len(self.data.scene.meshes)))
 
         if self.includes(S.Feature.SKELETON):
@@ -120,74 +122,59 @@ class GlbEncoder(ModelEncoder):
 
         self._ctx["GLTF"]["scenes"][0]["nodes"] = nodes
 
-    def _accessor_index(self) -> int:
-        return len(self._ctx["GLTF"]["accessors"])
-
-    def _create_meshes(self):
+    def _build_meshes(self):
         for index, mesh in enumerate(self.data.scene.meshes):
             primitive: Node = deepcopy(base.PRIMITIVE)
-            has_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
+            attributes = primitive["attributes"]
+            use_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
 
             # XYZ Position
-            primitive["attributes"]["POSITION"] = self._accessor_index()
-            self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
-            self._create_accessor(len(mesh.vertices), "VEC3", array=mesh.vertices)
+            attributes["POSITION"] = self._create_accessor(mesh.vertices, "VEC3", bounds=True)
 
             # Blend Shapes
             if self.includes(S.Feature.BLEND_SHAPES) and mesh.blend_shapes:
                 primitive["targets"] = []
 
                 for shape in mesh.blend_shapes:
-                    primitive["targets"].append({"POSITION": self._accessor_index()})
-                    self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
-                    self._create_accessor(len(mesh.vertices), "VEC3", array=shape.deltas)
+                    primitive["targets"].append({"POSITION": self._create_accessor(shape.deltas, "VEC3", bounds=True)})
 
             # UV Texture
             if self.includes(S.Feature.UV) and mesh.uv1.size:
-                primitive["attributes"]["TEXCOORD_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
-                self._create_accessor(len(mesh.vertices), "VEC2")
+                attributes["TEXCOORD_0"] = self._create_accessor(mesh.uv1, "VEC2")
 
             # UV Texture (2)
             if self.includes(S.Feature.UV2) and mesh.uv2.size:
-                primitive["attributes"]["TEXCOORD_1"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 2 * 4)
-                self._create_accessor(len(mesh.vertices), "VEC2")
+                attributes["TEXCOORD_1"] = self._create_accessor(mesh.uv2, "VEC2")
 
             # XYZ Normals
             if self.includes(S.Feature.NORMALS) and mesh.normals.size:
-                primitive["attributes"]["NORMAL"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 3 * 4)
-                self._create_accessor(len(mesh.vertices), "VEC3")
+                attributes["NORMAL"] = self._create_accessor(mesh.normals, "VEC3")
 
             # XYZW Tangents
             if self.includes(S.Feature.TANGENTS) and mesh.tangents.size:
-                primitive["attributes"]["TANGENT"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
-                self._create_accessor(len(mesh.vertices), "VEC4")
+                attributes["TANGENT"] = self._create_accessor(mesh.tangents, "VEC4")
 
             # Bone Links
-            if has_skin:
+            if use_skin:
                 # Joint Indices
-                primitive["attributes"]["JOINTS_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 1)
-                self._create_accessor(len(mesh.vertices), "VEC4", ComponentType.UBYTE)
-
+                attributes["JOINTS_0"] = self._create_accessor(mesh.links_ids, "VEC4", ComponentType.UBYTE)
                 # Joint Weights
-                primitive["attributes"]["WEIGHTS_0"] = self._accessor_index()
-                self._create_bufferview(byte_length=len(mesh.vertices) * 4 * 4)
-                self._create_accessor(len(mesh.vertices), "VEC4", ComponentType.FLOAT)
+                attributes["WEIGHTS_0"] = self._create_accessor(mesh.links_weights, "VEC4")
 
             # ABC Polygons
-            primitive["indices"] = self._accessor_index()
-            self._create_bufferview(byte_length=len(mesh.polygons) * 4 * 3, target=BufferTarget.ELEMENT_ARRAY_BUFFER)
-            self._create_accessor(len(mesh.polygons) * 3, "SCALAR", ComponentType.UINT32)
+            primitive["indices"] = self._create_accessor(
+                mesh.polygons,
+                "SCALAR",
+                ComponentType.UINT32,
+                target=BufferTarget.ELEMENT_ARRAY_BUFFER,
+                count=mesh.polygons.size,
+            )
 
             # Create nodes
             primitive["material"] = index
             node: Node = {"name": mesh.name, "mesh": index}
 
-            if has_skin:
+            if use_skin:
                 node["skin"] = mesh.skin if mesh.skin is not None else 0
 
             # Add to GLTF
@@ -201,7 +188,7 @@ class GlbEncoder(ModelEncoder):
             self._ctx["GLTF"]["meshes"].append(gltf_mesh)
             self._ctx["GLTF"]["materials"].append(dict(name=mesh.material, pbrMetallicRoughness=base.PBR))
 
-    def _create_bones(self):
+    def _build_bones(self):
         self._ctx["BONE_INDEXES"] = []
         self._ctx["ROOT_INDEXES"] = []
 
@@ -231,73 +218,88 @@ class GlbEncoder(ModelEncoder):
             # Add to GLTF
             self._ctx["GLTF"]["nodes"].append(node)
 
-    def _create_bindmatrices(self):
+    def _build_skins(self):
         skins = self.data.scene.skins or (None,)
 
-        for _ in skins:
+        for skin in skins:
+            matrices = (
+                skin.bind_matrices.transpose(0, 2, 1)
+                if skin is not None
+                else T.inverse_bind_matrices(self.data.scene.skeleton, transpose=True)
+            )
             self._ctx["GLTF"]["skins"].append(
                 dict(
                     name="Armature",
-                    inverseBindMatrices=self._accessor_index(),
+                    inverseBindMatrices=self._create_accessor(matrices, "MAT4", target=None),
                     joints=self._ctx["BONE_INDEXES"],
                 )
             )
-            count = len(self.data.scene.skeleton.bones)
-            self._create_bufferview(byte_length=count * 16 * 4, target=None)
-            self._create_accessor(count, "MAT4", ComponentType.FLOAT)
 
-    def _create_animation(self):
+    def _build_animation(self):
         for clip in self.data.scene.animation.clips:
-            morph_targets = self._morph_animation_targets(clip)
-            bone_animation = (
-                self.includes(S.Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
-            )
-            if not bone_animation and not morph_targets:
+            channels = self._clip_channels(clip)
+            if channels is None:
                 continue
 
-            times = clip.times
-            time_idx = self._accessor_index()
-            self._create_bufferview(byte_length=clip.frames * 4, target=None)
-            self._create_accessor(clip.frames, "SCALAR", ComponentType.FLOAT, array=times.reshape(-1, 1))
+            times, tracks = channels
+            time_indexes = [
+                self._create_accessor(time_values.reshape(-1, 1), "SCALAR", target=None, bounds=True)
+                for time_values in times
+            ]
 
             sampler_idx = 0
             samplers = []
-            channels = []
+            animation_channels = []
 
-            if bone_animation:
-                for node_index in self._ctx["BONE_INDEXES"]:
-                    translation_idx = self._accessor_index()
-                    self._create_bufferview(byte_length=clip.frames * 3 * 4, target=None)
-                    self._create_accessor(clip.frames, "VEC3", ComponentType.FLOAT)
+            for path, node_index, time_index, values in tracks:
+                accessor_type = "SCALAR" if path == "weights" else "VEC3" if path == "translation" else "VEC4"
+                count = values.size if path == "weights" else None
+                output_index = self._create_accessor(values, accessor_type, target=None, count=count)
 
-                    rotation_idx = self._accessor_index()
-                    self._create_bufferview(byte_length=clip.frames * 4 * 4, target=None)
-                    self._create_accessor(clip.frames, "VEC4", ComponentType.FLOAT)
-
-                    samplers.extend(
-                        [
-                            dict(input=time_idx, output=translation_idx, interpolation="LINEAR"),
-                            dict(input=time_idx, output=rotation_idx, interpolation="LINEAR"),
-                        ]
-                    )
-                    channels.extend(
-                        [
-                            dict(sampler=sampler_idx, target=dict(node=node_index, path="translation")),
-                            dict(sampler=sampler_idx + 1, target=dict(node=node_index, path="rotation")),
-                        ]
-                    )
-                    sampler_idx += 2
-
-            for node_index, weights in morph_targets:
-                weights_idx = self._accessor_index()
-                self._create_bufferview(byte_length=weights.nbytes, target=None)
-                self._create_accessor(weights.size, "SCALAR", ComponentType.FLOAT)
-
-                samplers.append(dict(input=time_idx, output=weights_idx, interpolation="LINEAR"))
-                channels.append(dict(sampler=sampler_idx, target=dict(node=node_index, path="weights")))
+                samplers.append(dict(input=time_indexes[time_index], output=output_index, interpolation="LINEAR"))
+                animation_channels.append(dict(sampler=sampler_idx, target=dict(node=node_index, path=path)))
                 sampler_idx += 1
 
-            self._ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=channels))
+            self._ctx["GLTF"]["animations"].append(dict(name=clip.name, samplers=samplers, channels=animation_channels))
+
+    def _clip_channels(self, clip: S.AnimationClip) -> ClipChannels | None:
+        morph_targets = self._morph_animation_targets(clip)
+        bone_animation = (
+            self.includes(S.Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
+        )
+        if not bone_animation and not morph_targets:
+            return None
+
+        times = [clip.times]
+        tracks: list[ClipChannel] = []
+
+        if bone_animation:
+            bone_tracks = []
+            for bone, node_index in zip(self.data.scene.skeleton.bones, self._ctx["BONE_INDEXES"]):
+                bone_tracks.extend(
+                    (
+                        ("translation", node_index, clip.translations[:, bone.id, :]),
+                        ("rotation", node_index, clip.rotations[:, bone.id, :]),
+                    )
+                )
+
+            static = [_constant_channel(values) for _, _, values in bone_tracks]
+            compact = not self.options.raw_clips and any(static) and not all(static)
+            if compact:
+                times.append(times[0][:1])
+
+            tracks.extend(
+                (
+                    path,
+                    node_index,
+                    1 if compact and is_static else 0,
+                    values[:1] if compact and is_static else values,
+                )
+                for (path, node_index, values), is_static in zip(bone_tracks, static)
+            )
+
+        tracks.extend(("weights", node_index, 0, weights) for node_index, weights in morph_targets)
+        return tuple(times), tuple(tracks)
 
     def _morph_animation_targets(self, clip: S.AnimationClip) -> list[tuple[int, S.MorphWeights]]:
         if not self.includes(S.Feature.MORPH_ANIMATION) or not clip.morph_weights.size:
@@ -337,14 +339,20 @@ class GlbEncoder(ModelEncoder):
 
         return weights if mapped else None
 
-    def _create_bufferview(
+    def _create_accessor(
         self,
-        byte_length: int,
+        values: np.ndarray,
+        accessor_type: str,
+        component_type: ComponentType = ComponentType.FLOAT,
+        *,
         target: BufferTarget | None = BufferTarget.ARRAY_BUFFER,
-    ):
+        count: int | None = None,
+        bounds: bool = False,
+    ) -> int:
+        accessor_index = len(self._ctx["GLTF"]["accessors"])
         view: BufferView = dict(
             buffer=0,
-            byteLength=byte_length,
+            byteLength=values.nbytes,
             byteOffset=self._ctx["BUFFER_VIEW_OFFSET"],
         )
 
@@ -352,28 +360,21 @@ class GlbEncoder(ModelEncoder):
             view["target"] = target.value
 
         self._ctx["GLTF"]["bufferViews"].append(view)
-        self._ctx["BUFFER_VIEW_OFFSET"] += byte_length
+        self._ctx["BUFFER_VIEW_OFFSET"] += values.nbytes
 
-    def _create_accessor(
-        self,
-        count: int,
-        accessor_type: str,
-        component_type: ComponentType = ComponentType.FLOAT,
-        array: np.ndarray | None = None,
-    ):
-        buffer_view_idx = len(self._ctx["GLTF"]["bufferViews"]) - 1
         accessor: Accessor = dict(
-            bufferView=buffer_view_idx,
-            count=count,
+            bufferView=len(self._ctx["GLTF"]["bufferViews"]) - 1,
+            count=count if count is not None else len(values),
             componentType=component_type.value,
             type=accessor_type,
         )
 
-        if array is not None:
-            accessor["min"] = np.min(array, axis=0).tolist()
-            accessor["max"] = np.max(array, axis=0).tolist()
+        if bounds:
+            accessor["min"] = np.min(values, axis=0).tolist()
+            accessor["max"] = np.max(values, axis=0).tolist()
 
         self._ctx["GLTF"]["accessors"].append(accessor)
+        return accessor_index
 
     def _add_binary_chunk(self):
         self._add_bin_size()
@@ -408,7 +409,7 @@ class GlbEncoder(ModelEncoder):
 
     def _add_meshes(self):
         for mesh in self.data.scene.meshes:
-            has_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
+            use_skin = self.includes(S.Feature.SKELETON) and mesh.max_influences > 0
 
             # XYZ Position
             self.io.write(mesh.vertices.tobytes())
@@ -435,7 +436,7 @@ class GlbEncoder(ModelEncoder):
                 self.io.write(mesh.tangents.tobytes())
 
             # Bone Links
-            if has_skin:
+            if use_skin:
                 # Joint Indices
                 self.io.write(mesh.links_ids.tobytes())
 
@@ -447,19 +448,17 @@ class GlbEncoder(ModelEncoder):
 
     def _add_animation(self):
         for clip in self.data.scene.animation.clips:
-            morph_targets = self._morph_animation_targets(clip)
-            bone_animation = (
-                self.includes(S.Feature.BONE_ANIMATION) and bool(clip.translations.size) and bool(clip.rotations.size)
-            )
-            if not bone_animation and not morph_targets:
+            channels = self._clip_channels(clip)
+            if channels is None:
                 continue
 
-            self.io.write(clip.times.tobytes())
+            times, tracks = channels
+            for values in times:
+                self.io.write(values.tobytes())
 
-            if bone_animation:
-                for bone in self.data.scene.skeleton.bones:
-                    self.io.write(clip.translations[:, bone.id, :].tobytes())
-                    self.io.write(clip.rotations[:, bone.id, :].tobytes())
+            for _, _, _, values in tracks:
+                self.io.write(values.tobytes())
 
-            for _, weights in morph_targets:
-                self.io.write(weights.tobytes())
+
+def _constant_channel(values: np.ndarray) -> bool:
+    return len(values) < 2 or np.array_equal(values[1:], values[:-1])
