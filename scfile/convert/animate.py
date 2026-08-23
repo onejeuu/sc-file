@@ -15,11 +15,6 @@ from scfile.options import Options
 from . import paths
 
 
-POSE_FRAMES = 2
-TRANSITION_FRAMES = 16
-TRANSITION_PARTS = ("_landing", "_turn_", "_look_", "_aim_point_")
-
-
 @overload
 def arms(
     animation: types.SourceLike,
@@ -143,7 +138,9 @@ def _apply_external_animation(
         anims = dec.decode()
 
     if decoder is formats.McalDecoder and not options.raw_clips:
-        anims = _filtered_animation(anims)
+        library = anims.scene.animation
+        scene = replace(anims.scene, animation=replace(library, clips=_filter_clips(library.clips)))
+        anims = replace(anims, scene=scene)
 
     with formats.McsbDecoder(mdl, options) as mcsb:
         target = mcsb.decode()
@@ -158,16 +155,22 @@ def _apply_external_animation(
     return out
 
 
-def _filtered_animation(content: ModelContent) -> ModelContent:
-    animation = content.scene.animation
-    clips: list[AnimationClip] = []
-    seen: set[bytes] = set()
+def _filter_clips(clips: list[AnimationClip]) -> list[AnimationClip]:
+    filtered: dict[bytes, AnimationClip] = {}
 
-    for clip in animation.clips:
+    for clip in clips:
         name = clip.name.casefold()
-        short = clip.frames <= TRANSITION_FRAMES
-        technical = clip.frames <= POSE_FRAMES or "_cluster_" in name or name.endswith("_layer")
-        if technical or short and any(part in name for part in TRANSITION_PARTS):
+        static = all(
+            values.size == 0 or bool((values == values[:1]).all())
+            for values in (
+                clip.translations,
+                clip.rotations,
+                clip.morph_weights,
+            )
+        )
+        technical = name.endswith("_layer") or "_cluster_" in name
+        control = "_turn" in name or "_look_" in name or "_aim_point_" in name
+        if technical or static and control:
             continue
 
         key = blake2b(digest_size=16)
@@ -175,13 +178,6 @@ def _filtered_animation(content: ModelContent) -> ModelContent:
         key.update(clip.rate.hex().encode())
         for values in (clip.translations, clip.rotations, clip.morph_weights):
             key.update(values)
+        filtered.setdefault(key.digest(), clip)
 
-        key = key.digest()
-        if key in seen:
-            continue
-
-        seen.add(key)
-        clips.append(clip)
-
-    animation = replace(animation, clips=clips)
-    return replace(content, scene=replace(content.scene, animation=animation))
+    return list(filtered.values())
