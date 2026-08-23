@@ -162,6 +162,9 @@ def test_resolve_hands(qapp: QApplication, tmp_path: Path) -> None:
     assert Path(arms.hands.value) == hands.resolve()
 
     arms.hands.value = ""
+    arms._touch_input(arms.hands)
+    assert not arms.hands.value
+
     arms.hands.reset_requested.emit()
     assert Path(arms.hands.value) == hands.resolve()
 
@@ -182,11 +185,20 @@ def test_resolve_animation_asset_paths(qapp: QApplication, tmp_path: Path) -> No
         f"assets/{relative.as_posix()}",
         relative.as_posix(),
     )
+    changes = 0
+
+    def source_changed() -> None:
+        nonlocal changes
+        changes += 1
+
+    tab.form.source_changed.connect(source_changed)
 
     for value in values:
         tab.form.source.value = value
         assert Path(tab.form.source.value) == source.resolve()
         assert Path(tab.output.value) == tab.settings.export_path / "wpn_fp_test.glb"
+
+    assert changes == len(values)
 
     output = "assets/output.glb"
     tab.output.value = output

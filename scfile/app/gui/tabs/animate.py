@@ -2,7 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QSignalBlocker, QSize, Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
 
@@ -28,6 +28,7 @@ class PathRule:
     suffix: str
     error: str
     required: bool = True
+    default: str | None = None
 
 
 def _valid(rule: PathRule) -> bool:
@@ -39,6 +40,7 @@ def _valid(rule: PathRule) -> bool:
 class AnimationForm(QWidget):
     changed = Signal()
     source_changed = Signal()
+    defaults_requested = Signal()
     title = ""
     icon = ""
     source: PathField
@@ -80,27 +82,49 @@ class AnimationForm(QWidget):
 
     def add_path(
         self,
+        *,
         label: str,
         caption: str,
-        file_filter: str,
         placeholder: str,
-        *,
         suffix: str,
         error: str,
         required: bool = True,
+        default: str | None = None,
     ) -> PathField:
+        file_type = suffix.removeprefix(".").upper()
         path = PathField(
-            label,
+            f"{label} ({suffix})",
             placeholder=placeholder,
             caption=caption,
             required=required,
             mode="open",
-            file_filter=file_filter,
+            file_filter=f"{file_type} (*{suffix})",
         )
         path.changed.connect(lambda _: self._touch_input(path))
-        self.rules.append(PathRule(path, suffix, error, required))
+        if default is not None:
+            path.reset_requested.connect(self.defaults_requested.emit)
+        self.rules.append(PathRule(path, suffix, error, required, default))
         self.inputs.addWidget(path)
         return path
+
+    def resolve_paths(self, game: GameRoot | None) -> None:
+        if game is None:
+            return
+
+        for rule in self.rules:
+            value = rule.widget.value.strip()
+            if value and (resolved := game.resolve_asset(value)):
+                with QSignalBlocker(rule.widget):
+                    rule.widget.value = resolved.as_posix()
+
+    def apply_defaults(self, game: GameRoot | None) -> None:
+        if game is None:
+            return
+
+        for rule in self.rules:
+            if rule.default is not None and not rule.widget.value.strip():
+                if resolved := game.resolve_asset(rule.default):
+                    rule.widget.value = resolved.as_posix()
 
     def add_output(self, changed: Callable[[str], None]) -> None:
         self.output = PathField(
@@ -134,32 +158,30 @@ class ArmsForm(AnimationForm):
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            f"{strings.get('label.animate.mcvd')} (.mcvd)",
-            strings.get("dialog.animate.mcvd"),
-            "MCVD (*.mcvd)",
-            "highpoly/animations/wpn_fp_gun.mcvd",
+            label=strings.get("label.animate.mcvd"),
+            caption=strings.get("dialog.animate.mcvd"),
+            placeholder="highpoly/animations/wpn_fp_gun.mcvd",
             suffix=".mcvd",
             error="tooltip.animate.invalid.mcvd",
         )
         self.source.text_changed.connect(self.source_changed)
 
         self.model = self.add_path(
-            f"{strings.get('label.animate.weapon')} (.mcsb)",
-            strings.get("dialog.animate.mcsb"),
-            "MCSB (*.mcsb)",
-            "weapons/models/gun/gun.mcsb",
+            label=strings.get("label.animate.weapon"),
+            caption=strings.get("dialog.animate.mcsb"),
+            placeholder="weapons/models/gun/gun.mcsb",
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
             required=False,
         )
         self.hands = self.add_path(
-            f"{strings.get('label.animate.hands')} (.mcsb)",
-            strings.get("dialog.animate.mcsb"),
-            "MCSB (*.mcsb)",
-            "highpoly/hands.mcsb",
+            label=strings.get("label.animate.hands"),
+            caption=strings.get("dialog.animate.mcsb"),
+            placeholder="highpoly/hands.mcsb",
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
             required=False,
+            default="highpoly/character_hands.mcsb",
         )
 
     @property
@@ -197,19 +219,17 @@ class BodyForm(AnimationForm):
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            f"{strings.get('label.animate.mcal')} (.mcal)",
-            strings.get("dialog.animate.mcal"),
-            "MCAL (*.mcal)",
-            "highpoly/character/pack.mcal",
+            label=strings.get("label.animate.mcal"),
+            caption=strings.get("dialog.animate.mcal"),
+            placeholder="highpoly/character/pack.mcal",
             suffix=".mcal",
             error="tooltip.animate.invalid.mcal",
         )
         self.source.text_changed.connect(self.source_changed)
         self.model = self.add_path(
-            f"{strings.get('label.animate.mcsb')} (.mcsb)",
-            strings.get("dialog.animate.mcsb"),
-            "MCSB (*.mcsb)",
-            "highpoly/character/model.mcsb",
+            label=strings.get("label.animate.mcsb"),
+            caption=strings.get("dialog.animate.mcsb"),
+            placeholder="highpoly/character/model.mcsb",
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
         )
@@ -236,19 +256,17 @@ class FaceForm(AnimationForm):
     def __init__(self):
         super().__init__()
         self.source = self.add_path(
-            f"{strings.get('label.animate.mcvd')} (.mcvd)",
-            strings.get("dialog.animate.mcvd"),
-            "MCVD (*.mcvd)",
-            "highpoly/lipsync/character.mcvd",
+            label=strings.get("label.animate.mcvd"),
+            caption=strings.get("dialog.animate.mcvd"),
+            placeholder="highpoly/lipsync/character.mcvd",
             suffix=".mcvd",
             error="tooltip.animate.invalid.mcvd",
         )
         self.source.text_changed.connect(self.source_changed)
         self.model = self.add_path(
-            f"{strings.get('label.animate.head')} (.mcsb)",
-            strings.get("dialog.animate.mcsb"),
-            "MCSB (*.mcsb)",
-            "stalkerplayer/heads/character.mcsb",
+            label=strings.get("label.animate.head"),
+            caption=strings.get("dialog.animate.mcsb"),
+            placeholder="stalkerplayer/heads/character.mcsb",
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
         )
@@ -274,7 +292,8 @@ class AnimateTab(QWidget):
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
-        self._sync_source()
+        self._apply_defaults()
+        self._source_changed()
 
     @property
     def form(self) -> Form:
@@ -292,10 +311,9 @@ class AnimateTab(QWidget):
         self.stack = QStackedWidget()
         self._build_modes(layout)
         for form in self.forms:
-            form.changed.connect(lambda form=form: self._sync_inputs(form))
-            form.source_changed.connect(lambda form=form: self._sync_source(form))
-            if isinstance(form, ArmsForm):
-                form.hands.reset_requested.connect(lambda form=form: self._sync_inputs(form))
+            form.changed.connect(lambda form=form: self._inputs_changed(form))
+            form.source_changed.connect(lambda form=form: self._source_changed(form))
+            form.defaults_requested.connect(lambda form=form: self._apply_defaults(form))
             self.stack.addWidget(form)
             form.add_output(lambda value, form=form: self._output_changed(value, form))
         layout.addWidget(self.stack, 1)
@@ -336,13 +354,18 @@ class AnimateTab(QWidget):
 
     def apply_export_path(self, path: Path) -> None:
         self.settings.export_path = path
-        self._sync_source()
+        self._source_changed()
 
     def apply_path_resolution(self) -> None:
-        (self._sync_source if self.settings.resolve_paths else self._sync)()
+        if self.settings.resolve_paths:
+            self._apply_defaults()
+            self._source_changed()
+        else:
+            self._sync()
 
     def apply_game_root(self) -> None:
-        self._sync_source()
+        self._apply_defaults()
+        self._source_changed()
 
     def _output_changed(self, _: str, form: Form | None = None) -> None:
         form = form or self.form
@@ -352,25 +375,11 @@ class AnimateTab(QWidget):
     def _output_invalid(self) -> bool:
         return Path(self.output.value.strip()).suffix.lower() != ".glb"
 
-    def _resolve_inputs(self, form: Form) -> None:
+    def _game(self) -> GameRoot | None:
         if not self.settings.resolve_paths or self.settings.game_root is None:
-            return
+            return None
 
-        game = GameRoot.from_path(self.settings.game_root)
-        if game is None:
-            return
-
-        for rule in form.rules:
-            value = rule.widget.value.strip()
-            if not value:
-                continue
-
-            if resolved := game.resolve_asset(value):
-                rule.widget.value = resolved.as_posix()
-
-        if isinstance(form, ArmsForm) and not form.hands.value.strip():
-            if hands := game.resolve_asset("highpoly/character_hands.mcsb"):
-                form.hands.value = hands.as_posix()
+        return GameRoot.from_path(self.settings.game_root)
 
     def _submit_error(self) -> str | None:
         errors = (
@@ -386,19 +395,26 @@ class AnimateTab(QWidget):
         source = form.source.value.strip()
         return self.settings.export_path / Path(source).with_suffix(".glb").name
 
-    def _sync_inputs(self, form: Form | None = None) -> None:
-        self._resolve_inputs(form or self.form)
+    def _inputs_changed(self, form: Form | None = None) -> None:
+        (form or self.form).resolve_paths(self._game())
         self._sync()
 
-    def _sync_source(self, form: Form | None = None) -> None:
-        form = form or self.form
-        self._resolve_inputs(form)
+    def _apply_defaults(self, form: Form | None = None) -> None:
+        forms = (form,) if form is not None else self.forms
+        game = self._game()
+        for item in forms:
+            item.apply_defaults(game)
+        self._sync()
 
-        if self.settings.resolve_paths:
-            if output := self._suggested_output(form):
-                form.output.value = output.as_posix()
-            else:
-                form.output.value = ""
+    def _source_changed(self, form: Form | None = None) -> None:
+        form = form or self.form
+        form.resolve_paths(self._game())
+
+        output = self._suggested_output(form)
+        if output is not None:
+            form.output.value = output.as_posix()
+        elif self.settings.resolve_paths:
+            form.output.value = ""
 
         self._sync()
 
