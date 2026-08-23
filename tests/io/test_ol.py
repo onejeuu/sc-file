@@ -1,7 +1,7 @@
 import numpy as np
 
 from scfile.io.ol import NULL, XOR, OlReader
-from scfile.structures.textures import CUBEMAP_FACE_COUNT
+from scfile.content.textures import CUBEMAP_FACE_COUNT
 
 
 def test_sizes() -> None:

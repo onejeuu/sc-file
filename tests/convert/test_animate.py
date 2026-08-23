@@ -4,11 +4,11 @@ from pathlib import Path
 import pytest
 
 from scfile import types
+from scfile.content import ModelContent
+from scfile.content.models import AnimationClip
 from scfile.convert import animate
 from scfile.enums import OnConflict
 from scfile.options import Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import AnimationClip
 
 
 type Operation = Callable[..., types.ResultPath]

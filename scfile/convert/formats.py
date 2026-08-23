@@ -1,6 +1,4 @@
-"""
-Named conversion functions for specific format pairs.
-"""
+"""Named conversion functions for specific format pairs."""
 
 from typing import Optional
 

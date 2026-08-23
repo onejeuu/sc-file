@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import NamedTuple
 
 from scfile import exceptions, formats
+from scfile.content import RegionContent
 from scfile.options import Options
-from scfile.structures.content import RegionContent
 
 from . import paths
 

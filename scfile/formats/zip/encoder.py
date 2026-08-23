@@ -1,9 +1,9 @@
 import zipfile
 from typing import override
 
+from scfile.content import ArchiveContent
 from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
-from scfile.structures.content import ArchiveContent
 
 
 class ZipEncoder(Encoder[ArchiveContent]):

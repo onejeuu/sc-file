@@ -1,12 +1,12 @@
 from typing import override
 
 from scfile.consts import FormatSignature
+from scfile.content import models as S
+from scfile.content.models import Feature
 from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.io.models import ModelReader
-from scfile.structures import models as S
-from scfile.structures.models import Feature
 
 
 class McalDecoder(ModelDecoder[ModelReader]):

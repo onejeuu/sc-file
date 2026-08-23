@@ -1,6 +1,4 @@
-"""
-Scene transformation functions.
-"""
+"""Scene transformation functions."""
 
 from __future__ import annotations
 
@@ -10,8 +8,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from scfile.content.models.animation import AnimationClip
 from scfile.exceptions import AnimationError
-from scfile.structures.models.animation import AnimationClip
 
 from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVSign
 from .matrices import create_transform_matrix
@@ -22,7 +20,7 @@ from .types import BindPose, InverseBindMatrices, TransformMatrix
 
 
 if TYPE_CHECKING:
-    from scfile.structures.content import ModelContent
+    from scfile.content import ModelContent
 
 
 type SceneTransform = Callable[[ModelScene], ModelScene]

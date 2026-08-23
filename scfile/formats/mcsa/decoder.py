@@ -4,14 +4,14 @@ import numpy as np
 
 from scfile.consts import FormatSignature
 from scfile.consts import IntegerFactor as Factor
+from scfile.content import models as S
+from scfile.content.models import Feature
+from scfile.content.models import ModelUnits as Units
 from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.exceptions import BinaryStructureError, ModelVersionError
 from scfile.io.models import ModelReader
-from scfile.structures import models as S
-from scfile.structures.models import Feature
-from scfile.structures.models import ModelUnits as Units
 
 from .versions import SUPPORTED_VERSIONS, VERSION_MAP
 

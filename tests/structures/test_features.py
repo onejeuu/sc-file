@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import AnimationClip, BlendShape, Feature, ModelMesh, ModelScene, SkeletonBone
+from scfile.content.models import AnimationClip, BlendShape, Feature, ModelMesh, ModelScene, SkeletonBone
 
 
 def test_mesh() -> None:

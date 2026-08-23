@@ -1,6 +1,4 @@
-"""
-Data structures for skeletons.
-"""
+"""Data structures for skeletons."""
 
 from dataclasses import dataclass, field
 

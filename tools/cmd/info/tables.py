@@ -5,8 +5,8 @@ from rich.filesize import decimal
 from rich.table import Table
 from rich.text import Text
 
-from scfile.structures import content as C
-from scfile.structures.textures import CubemapTexture, DefaultTexture
+from scfile import content as C
+from scfile.content.textures import CubemapTexture, DefaultTexture
 
 
 Row = tuple[str, object]

@@ -3,8 +3,8 @@ import numpy as np
 from scfile.consts import IntegerFactor as Factor
 from scfile.enums import F
 from scfile.io.models import ModelReader
-from scfile.structures.models import LocalBoneId, SkeletonBoneId
-from scfile.structures.models import ModelUnits as Units
+from scfile.content.models import LocalBoneId, SkeletonBoneId
+from scfile.content.models import ModelUnits as Units
 
 
 def test_clip() -> None:

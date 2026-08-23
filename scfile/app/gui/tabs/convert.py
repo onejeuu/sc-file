@@ -33,12 +33,12 @@ from scfile.app.gui.widgets.sources import SourcesWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
+from scfile.content import ModelContent
+from scfile.content.models import Feature
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.formats import registry
 from scfile.options import Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import Feature
 
 
 FEATURES = {

@@ -1,8 +1,8 @@
 from typing import override
 
+from scfile.content import ArchiveContent
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures.content import ArchiveContent
 
 
 DELIMITER = ":"

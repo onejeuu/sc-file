@@ -4,11 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
+from scfile.content import BaseContent
 from scfile.core import Decoder, Encoder
 from scfile.formats import registry
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
-from scfile.structures.content import BaseContent
 
 from . import paths
 

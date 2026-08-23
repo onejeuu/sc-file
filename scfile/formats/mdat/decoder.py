@@ -2,11 +2,11 @@ from typing import override
 
 import zstandard as zstd
 
+from scfile.content import RegionContent
+from scfile.content import regions as S
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.exceptions import BinaryStructureError
-from scfile.structures import regions as S
-from scfile.structures.content import RegionContent
 
 
 CHUNK_COUNT = 32 * 32

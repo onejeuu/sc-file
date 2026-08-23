@@ -1,6 +1,4 @@
-"""
-Abstract core classes for reading and writing binary formats.
-"""
+"""Abstract core classes for reading and writing binary formats."""
 
 from . import base, decoder, encoder, models
 from .base import Handler

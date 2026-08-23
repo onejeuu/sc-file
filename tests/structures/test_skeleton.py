@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
+from scfile.content.models import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
 
 
 def test_roots() -> None:

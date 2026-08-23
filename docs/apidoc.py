@@ -23,7 +23,7 @@ TITLES = {
     "scfile.core": "🛠️ Core",
     "scfile.formats": "🧩 Formats",
     "scfile.io": "💾 IO",
-    "scfile.structures": "🗃️ Structures",
+    "scfile.content": "🗃️ Content",
 }
 
 FORMAT_ORDER = (

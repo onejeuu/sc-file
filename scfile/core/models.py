@@ -2,9 +2,9 @@
 
 from typing import ClassVar
 
+from scfile.content import ModelContent
+from scfile.content.models import Feature, Features
 from scfile.io.base import StructReader, StructWriter
-from scfile.structures.content import ModelContent
-from scfile.structures.models import Feature, Features
 
 from .decoder import Decoder
 from .encoder import Encoder

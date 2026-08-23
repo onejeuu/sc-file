@@ -1,7 +1,3 @@
-"""
-Structured binary I/O.
-"""
-
 import os
 import struct
 from io import SEEK_CUR, SEEK_END, BytesIO, IOBase, TextIOBase

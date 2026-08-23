@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
+from scfile.content import BaseContent
 from scfile.core import Decoder, Encoder
 from scfile.enums import FileFormat, FileKind
-from scfile.structures.content import BaseContent
 
 
 @dataclass

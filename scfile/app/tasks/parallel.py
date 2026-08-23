@@ -4,7 +4,7 @@ from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 
 from scfile.app.events import TaskError
 
-from .execution import TaskContext
+from .base import TaskContext
 
 
 def parallel[Input, Output](

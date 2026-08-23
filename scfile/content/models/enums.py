@@ -1,6 +1,4 @@
-"""
-Enums for model data structures.
-"""
+"""Enums for model data structures."""
 
 from enum import IntEnum, StrEnum, auto
 

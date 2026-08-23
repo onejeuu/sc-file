@@ -1,4 +1,4 @@
-from scfile.structures.textures import CubemapTexture, DefaultTexture
+from scfile.content.textures import CubemapTexture, DefaultTexture
 
 
 def test_image() -> None:

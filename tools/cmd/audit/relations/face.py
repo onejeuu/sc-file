@@ -2,9 +2,9 @@ from functools import partial
 from pathlib import Path
 
 from scfile import formats
+from scfile.content import ModelContent
+from scfile.content.models import transforms as T
 from scfile.options import Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import transforms as T
 from tools.cmd.audit import mappings
 from tools.cmd.audit.runner import Case, Plan, Suite, Warning
 from tools.cmd.audit.schemas import Face, Record

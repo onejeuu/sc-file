@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import ModelMesh, ModelScene
+from scfile.content.models import ModelMesh, ModelScene
 
 
 def test_totals() -> None:

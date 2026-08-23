@@ -9,11 +9,11 @@ from scfile.app.enums import CliCommand, OutputLayout
 from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
 from scfile.app.tasks.convert import ConvertTask
+from scfile.content import ModelContent
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat, OnConflict
 from scfile.formats import registry
 from scfile.options import Options
-from scfile.structures.content import ModelContent
 
 
 @click.command(name=CliCommand.CONVERT)

@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
+from scfile.content import ModelContent
+from scfile.content import models as S
+from scfile.content.models import transforms as T
 from scfile.exceptions import AnimationError
-from scfile.structures import models as S
-from scfile.structures.content import ModelContent
-from scfile.structures.models import transforms as T
 
 
 def test_unique_names() -> None:

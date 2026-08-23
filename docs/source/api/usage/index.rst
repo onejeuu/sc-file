@@ -104,8 +104,8 @@ the decoder is closed.
 
 Format handlers inherit from :class:`~scfile.core.Decoder` and
 :class:`~scfile.core.Encoder`. Content types include
-:class:`~scfile.structures.content.ModelContent` and
-:class:`~scfile.structures.content.TextureContent`.
+:class:`~scfile.content.base.ModelContent` and
+:class:`~scfile.content.base.TextureContent`.
 
 
 Manual Encoding

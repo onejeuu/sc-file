@@ -3,33 +3,25 @@
 from dataclasses import dataclass, field
 from typing import Mapping
 
+from scfile import content as C
+from scfile.content.models import Feature, Features
 from scfile.enums import FileFormat, OnConflict
-from scfile.structures.content import (
-    ArchiveContent,
-    BaseContent,
-    DocumentContent,
-    ImageContent,
-    ModelContent,
-    RegionContent,
-    TextureContent,
-)
-from scfile.structures.models import Feature, Features
 
 
-DEFAULT_TARGETS: dict[type[BaseContent], FileFormat] = {
-    ModelContent: FileFormat.OBJ,
-    TextureContent: FileFormat.DDS,
-    ImageContent: FileFormat.PNG,
-    ArchiveContent: FileFormat.ZIP,
-    DocumentContent: FileFormat.JSON,
-    RegionContent: FileFormat.MCA,
+DEFAULT_TARGETS: dict[type[C.BaseContent], FileFormat] = {
+    C.ModelContent: FileFormat.OBJ,
+    C.TextureContent: FileFormat.DDS,
+    C.ImageContent: FileFormat.PNG,
+    C.ArchiveContent: FileFormat.ZIP,
+    C.DocumentContent: FileFormat.JSON,
+    C.RegionContent: FileFormat.MCA,
 }
 """Default conversion targets by content type."""
 
 SKELETON_TARGET = FileFormat.GLB
 """Default model target when skeleton processing is enabled."""
 
-type TargetConfig = Mapping[type[BaseContent], FileFormat]
+type TargetConfig = Mapping[type[C.BaseContent], FileFormat]
 """Requested conversion targets by content type."""
 
 
@@ -69,7 +61,7 @@ class Options:
 
         defaults = dict(DEFAULT_TARGETS)
         if self.skeleton_enabled:
-            defaults[ModelContent] = SKELETON_TARGET
+            defaults[C.ModelContent] = SKELETON_TARGET
 
         defaults.update(self.targets)
         self.targets = defaults

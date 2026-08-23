@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, cast
 
 from scfile import exceptions
+from scfile.content import BaseContent
 from scfile.enums import HandlerState
 from scfile.io.base import IOStream, OutputStream, StructReader, StructWriter
 from scfile.options import Options
-from scfile.structures.content import BaseContent
 
 from .base import Handler
 from .encoder import Encoder

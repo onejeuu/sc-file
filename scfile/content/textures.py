@@ -1,6 +1,4 @@
-"""
-Data structures for textures.
-"""
+"""Data structures for textures."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field

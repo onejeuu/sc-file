@@ -1,10 +1,10 @@
 import numpy as np
 
+from scfile.content import ModelContent
+from scfile.content.models import AnimationClip, Feature, ModelMesh, SkeletonBone
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.options import Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import AnimationClip, Feature, ModelMesh, SkeletonBone
 
 
 class ModelEncoderStub(ModelEncoder):

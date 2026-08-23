@@ -1,4 +1,4 @@
-from scfile.structures.models import Feature, ModelMeta
+from scfile.content.models import Feature, ModelMeta
 
 
 def test_declared_features() -> None:

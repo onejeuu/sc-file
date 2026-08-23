@@ -4,9 +4,9 @@ import numpy as np
 
 from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, FileFormat
-from scfile.structures import models as S
-from scfile.structures.models import Feature
-from scfile.structures.models import transforms as T
+from scfile.content import models as S
+from scfile.content.models import Feature
+from scfile.content.models import transforms as T
 
 from . import faces
 

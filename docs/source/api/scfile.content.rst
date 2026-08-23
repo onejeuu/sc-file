@@ -1,7 +1,7 @@
 🗃️ Structures
 ==================================================
 
-.. automodule:: scfile.structures
+.. automodule:: scfile.content
    :no-members:
 
 Modules
@@ -10,35 +10,35 @@ Modules
 .. toctree::
    :maxdepth: 2
 
-   scfile.structures.models
+   scfile.content.models
 
 Content
 -------
 
-.. automodule:: scfile.structures.content
+.. automodule:: scfile.content.base
    :members:
    :show-inheritance:
    :undoc-members:
 
 .. py:type:: DocumentPrimitive
-   :module: scfile.structures.content
+   :module: scfile.content.base
 
    ``int | float | bytes | str``
 
 .. py:type:: DocumentValue
-   :module: scfile.structures.content
+   :module: scfile.content.base
 
    ``None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]``
 
 .. py:type:: ArchiveEntry
-   :module: scfile.structures.content
+   :module: scfile.content.base
 
    ``tuple[str, bytes]``
 
 Regions
 -------
 
-.. automodule:: scfile.structures.regions
+.. automodule:: scfile.content.regions
    :members:
    :show-inheritance:
    :undoc-members:
@@ -46,7 +46,7 @@ Regions
 Textures
 --------
 
-.. automodule:: scfile.structures.textures
+.. automodule:: scfile.content.textures
    :members:
    :show-inheritance:
    :undoc-members:

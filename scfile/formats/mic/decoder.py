@@ -1,9 +1,9 @@
 from typing import override
 
 from scfile.consts import FormatSignature
+from scfile.content import ImageContent
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, FileFormat
-from scfile.structures.content import ImageContent
 
 
 class MicDecoder(Decoder[ImageContent]):

@@ -1,6 +1,4 @@
-"""
-Data structures for world regions.
-"""
+"""Data structures for world regions."""
 
 from dataclasses import dataclass, field
 

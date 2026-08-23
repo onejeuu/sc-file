@@ -1,6 +1,4 @@
-"""
-Data structures for meshes.
-"""
+"""Data structures for meshes."""
 
 from dataclasses import dataclass, field
 

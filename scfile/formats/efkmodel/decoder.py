@@ -3,11 +3,11 @@ from typing import override
 import numpy as np
 
 from scfile import exceptions
+from scfile.content import models as S
 from scfile.core import ModelDecoder
 from scfile.enums import ByteOrder, F, FileFormat
 from scfile.enums import SafetyLimit as Limit
 from scfile.io.models import ModelReader
-from scfile.structures import models as S
 
 
 _VERTEX = np.dtype(

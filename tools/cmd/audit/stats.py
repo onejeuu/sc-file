@@ -3,10 +3,10 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, TextIO
 
+from scfile import content as C
+from scfile.content.models import Feature
+from scfile.content.textures import CubemapTexture, DefaultTexture
 from scfile.formats.ol.enums import TextureKind
-from scfile.structures import content as C
-from scfile.structures.models import Feature
-from scfile.structures.textures import CubemapTexture, DefaultTexture
 from tools.cmd.audit.schemas import Animation, Arms, Body, Bone, Face, Image, Mesh, Model, Record, Texture
 
 

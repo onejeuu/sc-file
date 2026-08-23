@@ -1,11 +1,9 @@
-"""NBT wire format reader and writer."""
-
 from enum import IntEnum
 from typing import assert_never
 
+from scfile.content.base import DocumentValue
 from scfile.enums import ByteOrder, F
 from scfile.exceptions import BinaryStructureError
-from scfile.structures.content import DocumentValue
 
 from .base import StructReader, StructWriter
 

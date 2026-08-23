@@ -14,7 +14,7 @@ from scfile.enums import OnConflict
 from scfile.formats import registry
 from scfile.options import Options
 
-from .execution import Task, TaskContext
+from .base import Task, TaskContext
 from .parallel import parallel
 
 

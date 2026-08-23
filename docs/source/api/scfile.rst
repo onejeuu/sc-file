@@ -14,7 +14,7 @@ Modules
    scfile.core
    scfile.formats
    scfile.io
-   scfile.structures
+   scfile.content
 
 Consts
 ------

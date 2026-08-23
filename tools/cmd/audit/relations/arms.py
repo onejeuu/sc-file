@@ -4,10 +4,10 @@ from pathlib import Path
 import numpy as np
 
 from scfile import formats
+from scfile.content.models import AnimationClip, ModelScene
+from scfile.content.models import transforms as T
 from scfile.exceptions import AnimationError
 from scfile.options import Options
-from scfile.structures.models import AnimationClip, ModelScene
-from scfile.structures.models import transforms as T
 from tools.cmd.audit import mappings
 from tools.cmd.audit.runner import Case, Plan, PlanError, Suite, Warning
 from tools.cmd.audit.schemas import Arms, Record
@@ -38,8 +38,7 @@ def _clip_moves(clip: AnimationClip) -> bool:
             return True
 
     return bool(
-        clip.morph_weights.size
-        and not np.allclose(clip.morph_weights, clip.morph_weights[:1], rtol=0.0, atol=1e-6)
+        clip.morph_weights.size and not np.allclose(clip.morph_weights, clip.morph_weights[:1], rtol=0.0, atol=1e-6)
     )
 
 

@@ -1,9 +1,5 @@
-"""
-Extensions for OL file format with custom struct-based I/O methods.
-"""
-
+from scfile.content.textures import CUBEMAP_FACE_COUNT
 from scfile.enums import F
-from scfile.structures.textures import CUBEMAP_FACE_COUNT
 
 from .base import StructReader
 

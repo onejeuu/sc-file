@@ -1,18 +1,16 @@
-"""
-External model animation.
-"""
+"""External model animation."""
 
 from dataclasses import replace
 from hashlib import blake2b
 from typing import overload
 
 from scfile import formats, types
+from scfile.content import ModelContent
+from scfile.content.models import AnimationClip
+from scfile.content.models import transforms as T
 from scfile.core import ModelDecoder
 from scfile.io.models import ModelReader
 from scfile.options import Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import AnimationClip
-from scfile.structures.models import transforms as T
 
 from . import paths
 

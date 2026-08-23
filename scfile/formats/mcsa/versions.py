@@ -1,4 +1,4 @@
-from scfile.structures.models import Feature, Features
+from scfile.content.models import Feature, Features
 
 
 type Version = float

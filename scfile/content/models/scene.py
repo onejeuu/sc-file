@@ -1,6 +1,4 @@
-"""
-Data structures for scenes.
-"""
+"""Data structures for scenes."""
 
 from dataclasses import dataclass, field
 

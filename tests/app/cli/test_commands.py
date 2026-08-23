@@ -1,7 +1,7 @@
+import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-import json
 
 import pytest
 from click.testing import CliRunner
@@ -11,8 +11,8 @@ from scfile.app.cli.cmd import animate as animate_module
 from scfile.app.cli.cmd import convert as convert_module
 from scfile.app.cli.cmd import mapcache as mapcache_module
 from scfile.app.enums import OutputLayout, TaskKind
+from scfile.content import ModelContent
 from scfile.enums import FileFormat, OnConflict
-from scfile.structures.content import ModelContent
 
 
 def test_convert(

@@ -1,7 +1,7 @@
+from scfile.content import ModelContent
+from scfile.content.models import Feature
 from scfile.enums import FileFormat
 from scfile.options import DEFAULT_TARGETS, Options
-from scfile.structures.content import ModelContent
-from scfile.structures.models import Feature
 
 
 def test_animation() -> None:

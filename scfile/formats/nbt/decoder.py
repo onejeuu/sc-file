@@ -5,11 +5,11 @@ from typing import override
 import zstandard as zstd
 
 from scfile.consts import FormatSignature
+from scfile.content import DocumentContent
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.exceptions import BinaryStructureError
 from scfile.io.nbt import NbtReader
-from scfile.structures.content import DocumentContent
 
 
 class NbtDecoder(Decoder[DocumentContent]):

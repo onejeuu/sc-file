@@ -1,5 +1,5 @@
-from scfile.structures.content import TextureContent
-from scfile.structures.textures import CubemapTexture, DefaultTexture
+from scfile.content import TextureContent
+from scfile.content.textures import CubemapTexture, DefaultTexture
 
 
 def test_cubemap() -> None:

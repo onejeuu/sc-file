@@ -5,10 +5,10 @@ from typing import Any, override
 import numpy as np
 
 from scfile.consts import FormatSignature
+from scfile.content import models as S
+from scfile.content.models import transforms as T
 from scfile.core import ModelEncoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.structures import models as S
-from scfile.structures.models import transforms as T
 
 from . import base
 from .enums import BufferTarget, ComponentType

@@ -1,6 +1,4 @@
-"""
-Structured binary I/O.
-"""
+"""Structured binary I/O."""
 
 from .base import IOStream, OutputStream, StructIO, StructReader, StructWriter
 

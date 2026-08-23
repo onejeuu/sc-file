@@ -5,10 +5,10 @@ from collections.abc import Callable, Sequence
 from io import BytesIO
 from typing import ClassVar, Optional, Self, cast
 
+from scfile.content import BaseContent
 from scfile.enums import HandlerState
 from scfile.io.base import OutputStream, StructWriter
 from scfile.options import Options
-from scfile.structures.content import BaseContent
 from scfile.types import SourceLike
 
 from .base import Handler

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
 from scfile.app.consts import MODEL_FORMAT_ORDER
+from scfile.content import ModelContent
+from scfile.content.models import Feature
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.formats import registry
-from scfile.structures.content import ModelContent
-from scfile.structures.models import Feature
 
 
 @dataclass(frozen=True, slots=True)

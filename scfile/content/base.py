@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 from typing import ClassVar
 
 from scfile.enums import FileKind
-from scfile.structures.models import Feature, ModelMeta, ModelScene
-from scfile.structures.regions import RegionChunk
-from scfile.structures.textures import CubemapTexture, DefaultTexture, Texture
+
+from .models import Feature, ModelMeta, ModelScene
+from .regions import RegionChunk
+from .textures import CubemapTexture, DefaultTexture, Texture
 
 
 type DocumentPrimitive = int | float | bytes | str

@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import AnimationClip
+from scfile.content.models import AnimationClip
 
 
 def test_times() -> None:

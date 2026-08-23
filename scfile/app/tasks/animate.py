@@ -9,7 +9,7 @@ from scfile.app.enums import TaskKind
 from scfile.app.events import TaskEvent, TaskItem, TaskItemFailure, TaskStarted
 from scfile.options import Options
 
-from .execution import Task, TaskContext
+from .base import Task, TaskContext
 
 
 type Operation = Callable[..., types.ResultPath]

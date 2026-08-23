@@ -1,6 +1,6 @@
 import numpy as np
 
-from scfile.structures.models import (
+from scfile.content.models import (
     create_rotation_matrix,
     create_transform_matrix,
     euler_to_quat,

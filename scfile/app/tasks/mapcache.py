@@ -11,7 +11,7 @@ from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, T
 from scfile.convert import mapcache
 from scfile.options import Options
 
-from .execution import Task, TaskContext
+from .base import Task, TaskContext
 from .parallel import parallel
 
 
