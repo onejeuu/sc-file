@@ -67,7 +67,7 @@ class PathLineEdit(QLineEdit):
     activated = Signal()
     dropped = Signal()
     value_changed = Signal(str)
-    clear_requested = Signal()
+    reset_requested = Signal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -80,9 +80,11 @@ class PathLineEdit(QLineEdit):
             cursor = self.cursorPosition()
             selection_start = self.selectionStart()
             selection_length = len(self.selectedText()) if selection_start >= 0 else 0
+            modified = self.isModified()
 
             with QSignalBlocker(self):
                 self.setText(normalized)
+                self.setModified(modified)
 
             if selection_start >= 0:
                 self.setSelection(selection_start, selection_length)
@@ -111,7 +113,7 @@ class PathLineEdit(QLineEdit):
                 return
 
             if not self.text():
-                self.clear_requested.emit()
+                self.reset_requested.emit()
                 self._restoring = True
                 event.accept()
                 return
@@ -159,7 +161,7 @@ class PathInputWidget(QWidget):
     activated = Signal()
     changed = Signal(str)
     text_changed = Signal(str)
-    clear_requested = Signal()
+    reset_requested = Signal()
 
     def __init__(
         self,
@@ -192,10 +194,10 @@ class PathInputWidget(QWidget):
         self.line_edit.setStyleSheet(Styles.INPUT)
 
         self.line_edit.activated.connect(self.activated)
-        self.line_edit.editingFinished.connect(self._emit_changed)
+        self.line_edit.editingFinished.connect(self._emit_edited)
         self.line_edit.value_changed.connect(self.text_changed)
         self.line_edit.dropped.connect(self._emit_changed)
-        self.line_edit.clear_requested.connect(self.clear_requested)
+        self.line_edit.reset_requested.connect(self.reset_requested)
 
         self.browse_btn = QPushButton("...")
         self.browse_btn.setStyleSheet(Styles.BUTTON)
@@ -229,6 +231,10 @@ class PathInputWidget(QWidget):
 
     def _emit_changed(self) -> None:
         self.changed.emit(self.value.strip())
+
+    def _emit_edited(self) -> None:
+        if self.line_edit.isModified():
+            self._emit_changed()
 
     def _open_in_explorer(self) -> None:
         value = self.value.strip()
@@ -296,6 +302,7 @@ class PathField(QWidget):
     activated = Signal()
     changed = Signal(str)
     text_changed = Signal(str)
+    reset_requested = Signal()
 
     def __init__(
         self,
@@ -335,6 +342,7 @@ class PathField(QWidget):
         self.input.activated.connect(self.activated.emit)
         self.input.changed.connect(self.changed.emit)
         self.input.text_changed.connect(self.text_changed.emit)
+        self.input.reset_requested.connect(self.reset_requested)
 
         layout.addWidget(title)
         layout.addWidget(self.input)

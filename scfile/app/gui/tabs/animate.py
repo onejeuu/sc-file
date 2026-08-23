@@ -38,6 +38,7 @@ def _valid(rule: PathRule) -> bool:
 
 class AnimationForm(QWidget):
     changed = Signal()
+    source_changed = Signal()
     title = ""
     icon = ""
     source: PathField
@@ -48,7 +49,6 @@ class AnimationForm(QWidget):
         super().__init__()
         self.rules: list[PathRule] = []
         self.touched: set[PathField] = set()
-        self.output_auto = False
         self.output_touched = False
 
         self.form_layout = QVBoxLayout(self)
@@ -98,7 +98,6 @@ class AnimationForm(QWidget):
             file_filter=file_filter,
         )
         path.changed.connect(lambda _: self._touch_input(path))
-        path.text_changed.connect(lambda _: self.changed.emit())
         self.rules.append(PathRule(path, suffix, error, required))
         self.inputs.addWidget(path)
         return path
@@ -142,6 +141,7 @@ class ArmsForm(AnimationForm):
             suffix=".mcvd",
             error="tooltip.animate.invalid.mcvd",
         )
+        self.source.text_changed.connect(self.source_changed)
 
         self.model = self.add_path(
             f"{strings.get('label.animate.weapon')} (.mcsb)",
@@ -204,6 +204,7 @@ class BodyForm(AnimationForm):
             suffix=".mcal",
             error="tooltip.animate.invalid.mcal",
         )
+        self.source.text_changed.connect(self.source_changed)
         self.model = self.add_path(
             f"{strings.get('label.animate.mcsb')} (.mcsb)",
             strings.get("dialog.animate.mcsb"),
@@ -242,6 +243,7 @@ class FaceForm(AnimationForm):
             suffix=".mcvd",
             error="tooltip.animate.invalid.mcvd",
         )
+        self.source.text_changed.connect(self.source_changed)
         self.model = self.add_path(
             f"{strings.get('label.animate.head')} (.mcsb)",
             strings.get("dialog.animate.mcsb"),
@@ -272,7 +274,7 @@ class AnimateTab(QWidget):
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
-        self._sync()
+        self._sync_source()
 
     @property
     def form(self) -> Form:
@@ -290,7 +292,10 @@ class AnimateTab(QWidget):
         self.stack = QStackedWidget()
         self._build_modes(layout)
         for form in self.forms:
-            form.changed.connect(self._sync)
+            form.changed.connect(lambda form=form: self._sync_inputs(form))
+            form.source_changed.connect(lambda form=form: self._sync_source(form))
+            if isinstance(form, ArmsForm):
+                form.hands.reset_requested.connect(lambda form=form: self._sync_inputs(form))
             self.stack.addWidget(form)
             form.add_output(lambda value, form=form: self._output_changed(value, form))
         layout.addWidget(self.stack, 1)
@@ -331,20 +336,16 @@ class AnimateTab(QWidget):
 
     def apply_export_path(self, path: Path) -> None:
         self.settings.export_path = path
-        self._sync()
+        self._sync_source()
 
     def apply_path_resolution(self) -> None:
-        if not self.settings.resolve_paths:
-            for form in self.forms:
-                form.output_auto = False
-        self._sync()
+        (self._sync_source if self.settings.resolve_paths else self._sync)()
 
     def apply_game_root(self) -> None:
-        self._sync()
+        self._sync_source()
 
     def _output_changed(self, _: str, form: Form | None = None) -> None:
         form = form or self.form
-        form.output_auto = False
         form.output_touched = True
         self._sync()
 
@@ -367,6 +368,10 @@ class AnimateTab(QWidget):
             if resolved := game.resolve_asset(value):
                 rule.widget.value = resolved.as_posix()
 
+        if isinstance(form, ArmsForm) and not form.hands.value.strip():
+            if hands := game.resolve_asset("highpoly/character_hands.mcsb"):
+                form.hands.value = hands.as_posix()
+
     def _submit_error(self) -> str | None:
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
@@ -374,25 +379,34 @@ class AnimateTab(QWidget):
         )
         return next((error for error in errors if error), None)
 
+    def _suggested_output(self, form: Form) -> Path | None:
+        if not self.settings.resolve_paths or not _valid(form.rules[0]):
+            return None
+
+        source = form.source.value.strip()
+        return self.settings.export_path / Path(source).with_suffix(".glb").name
+
+    def _sync_inputs(self, form: Form | None = None) -> None:
+        self._resolve_inputs(form or self.form)
+        self._sync()
+
+    def _sync_source(self, form: Form | None = None) -> None:
+        form = form or self.form
+        self._resolve_inputs(form)
+
+        if self.settings.resolve_paths:
+            if output := self._suggested_output(form):
+                form.output.value = output.as_posix()
+            else:
+                form.output.value = ""
+
+        self._sync()
+
     def _sync(self) -> None:
         form = self.form
-        self._resolve_inputs(form)
         output = form.output
-        source = form.source.value.strip()
-        valid_source = _valid(form.rules[0])
-
-        if valid_source and self.settings.resolve_paths:
-            suggested = self.settings.export_path / Path(source).with_suffix(".glb").name
-            if form.output_auto or not output.value.strip():
-                output.value = suggested.as_posix()
-                form.output_auto = True
-            output.initial_path = suggested.as_posix()
-        elif not valid_source and form.output_auto and self.settings.resolve_paths:
-            output.value = ""
-            form.output_auto = False
-
-        if not valid_source or not self.settings.resolve_paths:
-            output.initial_path = self.settings.export_path.as_posix()
+        suggested = self._suggested_output(form)
+        output.initial_path = (suggested or self.settings.export_path).as_posix()
 
         error = (
             strings.get("tooltip.animate.invalid.output") if form.output_touched and self._output_invalid() else None

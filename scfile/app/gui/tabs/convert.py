@@ -267,7 +267,7 @@ class ConvertForm(QWidget):
 
         self.output_path.changed.connect(self._output_changed)
         self.output_path.activated.connect(self._select_custom_output)
-        self.output_path.clear_requested.connect(self._restore_default_output)
+        self.output_path.reset_requested.connect(self._restore_default_output)
         modes.buttonToggled.connect(self._output_changed)
 
     def _build_layout(self, layout: QVBoxLayout) -> None:

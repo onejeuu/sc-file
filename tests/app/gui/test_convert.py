@@ -61,7 +61,7 @@ def test_default_output(qapp: QApplication, tmp_path: Path) -> None:
 
     tab.apply_export_path(tmp_path / "changed")
     tab.form.output_path.value = ""
-    tab.form.output_path.clear_requested.emit()
+    tab.form.output_path.reset_requested.emit()
     assert tab.form.output == tmp_path / "changed"
 
     tab.deleteLater()

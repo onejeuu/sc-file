@@ -89,7 +89,7 @@ def test_export(qapp: QApplication, tmp_path: Path) -> None:
     tab.output.value = str(custom)
     tab._output_changed(str(custom))
     tab.apply_export_path(tmp_path / "other")
-    assert Path(tab.output.value) == custom
+    assert Path(tab.output.value) == tmp_path / "other/arms.glb"
 
     tab.deleteLater()
     qapp.processEvents()
@@ -114,13 +114,14 @@ def test_output(qapp: QApplication, tmp_path: Path) -> None:
 
     tab.output.value = str(tmp_path / "manual.glb")
     tab._output_changed(tab.output.value)
+    assert Path(tab.output.value) == tmp_path / "manual.glb"
     tab.form.source.value = str(first)
     tab._sync()
-    assert Path(tab.output.value) == tmp_path / "manual.glb"
+    assert Path(tab.output.value) == settings.export_path / "first.glb"
 
     tab.output.value = ""
     tab._output_changed("")
-    assert Path(tab.output.value) == settings.export_path / "first.glb"
+    assert not tab.output.value
 
     tab.form.source.value = str(invalid)
     tab._sync()
@@ -141,8 +142,28 @@ def test_output_updates_with_source_text(qapp: QApplication, tmp_path: Path) -> 
     tab.form.source.value = str(first)
     assert Path(tab.output.value) == settings.export_path / "first.glb"
 
+    tab.output.input.line_edit.editingFinished.emit()
     tab.form.source.value = str(second)
     assert Path(tab.output.value) == settings.export_path / "second.glb"
+
+    tab.deleteLater()
+    qapp.processEvents()
+
+
+def test_resolve_hands(qapp: QApplication, tmp_path: Path) -> None:
+    root = tmp_path / "game"
+    hands = root / "modassets/assets/highpoly/character_hands.mcsb"
+    hands.parent.mkdir(parents=True)
+    hands.touch()
+
+    tab = AnimateTab(TaskManager(), Settings(game_root=root))
+    arms = tab.forms[0]
+    assert isinstance(arms, ArmsForm)
+    assert Path(arms.hands.value) == hands.resolve()
+
+    arms.hands.value = ""
+    arms.hands.reset_requested.emit()
+    assert Path(arms.hands.value) == hands.resolve()
 
     tab.deleteLater()
     qapp.processEvents()
