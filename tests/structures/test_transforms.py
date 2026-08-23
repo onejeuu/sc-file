@@ -71,55 +71,42 @@ def test_scene_transforms() -> None:
     assert data.scene.meshes[0].uv1[0, 1] == 0.25
 
 
-def test_filter_fp_meshes() -> None:
-    animation = S.ModelScene(skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon")]))
-    compatible = S.ModelMesh(
-        name="weapon",
-        links_ids=np.array([[0]], dtype=np.uint8),
-        links_weights=np.array([[1.0]], dtype=np.float32),
+def test_extend_fp_skeleton() -> None:
+    clip = S.AnimationClip(
+        frames=1,
+        translations=np.zeros((1, 1, 3), dtype=np.float32),
+        rotations=np.array([[[0.0, 0.0, 0.0, 1.0]]], dtype=np.float32),
     )
-    legacy_hands = S.ModelMesh(
-        name="hands",
-        links_ids=np.array([[1]], dtype=np.uint8),
-        links_weights=np.array([[1.0]], dtype=np.float32),
+    animation = S.ModelScene(
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="weapon")]),
+        animation=S.ModelAnimation(clips=[clip]),
     )
-    helper = S.ModelMesh(
-        name="helper",
+    mesh = S.ModelMesh(
         links_ids=np.array([[2]], dtype=np.uint8),
         links_weights=np.array([[1.0]], dtype=np.float32),
     )
     model = S.ModelScene(
-        meshes=[compatible, legacy_hands, helper],
+        meshes=[mesh],
         skeleton=S.ModelSkeleton(
             bones=[
                 S.SkeletonBone(id=0, name="weapon"),
-                S.SkeletonBone(id=1, name="legacy_hand"),
-                S.SkeletonBone(id=2, name="helper", parent_id=0),
+                S.SkeletonBone(id=1, name="helper", parent_id=0),
+                S.SkeletonBone(id=2, name="extra", parent_id=1),
             ]
         ),
     )
 
-    result = T.filter_fp_meshes(animation, model)
+    result = T.extend_fp_skeleton(animation, model)
 
-    assert [mesh.name for mesh in result.meshes] == ["weapon", "helper"]
-    assert result.meshes[1].links_ids.tolist() == [[0]]
-    assert model.meshes == [compatible, legacy_hands, helper]
-    assert helper.links_ids.tolist() == [[2]]
-
-    rigid = S.ModelMesh(
-        name="rigid",
-        links_ids=np.array([[0]], dtype=np.uint8),
-        links_weights=np.array([[1.0]], dtype=np.float32),
-    )
-    rigid_model = S.ModelScene(
-        meshes=[rigid],
-        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="other")]),
-    )
-
-    result = T.filter_fp_meshes(animation, rigid_model)
-
-    assert result.meshes[0].max_influences == 0
-    assert rigid.max_influences == 1
+    assert [(bone.id, bone.name, bone.parent_id) for bone in result.skeleton.bones] == [
+        (0, "weapon", -1),
+        (1, "helper", 0),
+        (2, "extra", 1),
+    ]
+    assert result.animation.clips[0].translations.shape == (1, 3, 3)
+    assert result.animation.clips[0].rotations.shape == (1, 3, 4)
+    assert result.animation.clips[0].rotations[0, 1:].tolist() == [[0.0, 0.0, 0.0, 1.0]] * 2
+    assert [bone.name for bone in animation.skeleton.bones] == ["weapon"]
 
 
 def test_apply_fp_models() -> None:
@@ -139,6 +126,32 @@ def test_apply_fp_models() -> None:
     assert result.meshes[0].name == mesh.name
     assert result.meshes[0].skin == 0
     assert len(result.skins) == 1
+
+
+def test_apply_fp_models_missing_child_bone() -> None:
+    animation = S.ModelScene(
+        animation=S.ModelAnimation(clips=[S.AnimationClip()]),
+        skeleton=S.ModelSkeleton(bones=[S.SkeletonBone(id=0, name="belt")]),
+    )
+    mesh = S.ModelMesh(
+        links_ids=np.array([[1, 0, 0, 0]], dtype=np.uint8),
+        links_weights=np.array([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32),
+    )
+    model = S.ModelScene(
+        meshes=[mesh],
+        skeleton=S.ModelSkeleton(
+            bones=[
+                S.SkeletonBone(id=0, name="belt"),
+                S.SkeletonBone(id=1, name="bullet", parent_id=0, position=np.array([0.0, 2.0, 0.0])),
+            ]
+        ),
+    )
+
+    result = T.apply_fp_models(animation, model)
+
+    assert [bone.name for bone in result.skeleton.bones] == ["belt", "bullet"]
+    assert result.meshes[0].links_ids.tolist() == [[1, 0, 0, 0]]
+    assert np.allclose(result.skins[0].bind_matrices[1][:3, 3], [0.0, -2.0, 0.0])
 
 
 def test_global_transforms() -> None:

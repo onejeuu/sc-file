@@ -17,7 +17,7 @@ from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVS
 from .matrices import create_transform_matrix
 from .mesh import ModelMesh
 from .scene import ModelScene, ModelSkin
-from .skeleton import ModelSkeleton, SkeletonBone
+from .skeleton import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
 from .types import BindPose, InverseBindMatrices, TransformMatrix
 
 
@@ -242,58 +242,91 @@ def apply_fp_animation(animation: ModelScene, *models: ModelScene) -> ModelScene
     return replace(animation, meshes=meshes)
 
 
-def filter_fp_meshes(animation: ModelScene, model: ModelScene) -> ModelScene:
-    animation_bones = {bone.name for bone in animation.skeleton.bones}
-    source_bones = model.skeleton.bones
-    shared_bones = animation_bones.intersection(bone.name for bone in source_bones)
-    meshes: list[ModelMesh] = []
+def extend_fp_skeleton(animation: ModelScene, *models: ModelScene) -> ModelScene:
+    """Add model bones missing from a first-person animation skeleton."""
 
-    def compatible_id(bone_id: int) -> int | None:
-        bone = source_bones[bone_id]
-        while bone.name not in animation_bones:
-            if bone.is_root:
-                return None
-            bone = source_bones[bone.parent_id]
-        return bone.id
+    target_bones = list(animation.skeleton.bones)
+    target_ids = {bone.name: bone.id for bone in target_bones}
+    original_count = len(target_bones)
 
-    def compatible_ids(bone_ids: set[int]) -> dict[int, int] | None:
-        mapped = {}
-        for source_id in bone_ids:
-            target_id = compatible_id(source_id)
-            if target_id is None:
-                return None
-            mapped[source_id] = target_id
-        return mapped
+    if len(target_ids) != original_count:
+        raise AnimationError("Animation skeleton contains duplicate bone names.")
 
-    for mesh in model.meshes:
-        if not mesh.max_influences:
-            meshes.append(mesh)
-            continue
+    for model in models:
+        source_bones = model.skeleton.bones
+        source_names = {bone.name for bone in source_bones}
+        if len(source_names) != len(source_bones):
+            raise AnimationError("Model skeleton contains duplicate bone names.")
+
+        if model.skeleton.space != animation.skeleton.space:
+            raise AnimationError("Animation and model skeletons use different coordinate spaces.")
+
+        resolving: set[int] = set()
+
+        def add_bone(source_id: int) -> int:
+            bone = source_bones[source_id]
+            if bone.name in target_ids:
+                return target_ids[bone.name]
+
+            if source_id in resolving:
+                raise AnimationError("Model skeleton contains a bone hierarchy cycle.")
+
+            resolving.add(source_id)
+            parent_id = ROOT_BONE_ID if bone.is_root else add_bone(bone.parent_id)
+            resolving.remove(source_id)
+
+            target_id = len(target_bones)
+            if target_id > np.iinfo(np.uint8).max:
+                raise AnimationError("Combined skeleton contains more than 256 bones.")
+
+            target_bones.append(replace(bone, id=target_id, parent_id=parent_id))
+            target_ids[bone.name] = target_id
+            return target_id
 
         used_ids = {
-            int(bone_id) for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat) if weight > 0.0
+            int(bone_id)
+            for mesh in model.meshes
+            for bone_id, weight in zip(mesh.links_ids.flat, mesh.links_weights.flat)
+            if weight > 0.0
         }
+        for source_id in used_ids:
+            if source_id >= len(source_bones):
+                raise AnimationError(f"Model references unknown bone {source_id}.")
+            add_bone(source_id)
 
-        if any(bone_id >= len(source_bones) for bone_id in used_ids):
-            meshes.append(mesh)
-            continue
+    added = len(target_bones) - original_count
+    if not added:
+        return animation
 
-        mapped_ids = compatible_ids(used_ids)
-        if mapped_ids is None:
-            rigid = not shared_bones and all(source_bones[bone_id].is_root for bone_id in used_ids)
-            if rigid:
-                meshes.append(replace(mesh, skin=None, links_weights=np.zeros_like(mesh.links_weights)))
-            continue
+    skeleton = replace(animation.skeleton, bones=target_bones)
+    absolute_positions: np.ndarray | None = None
+    if animation.animation.translation == AnimationTranslation.ABSOLUTE:
+        local = skeleton_to_local(replace(animation, skeleton=skeleton)).skeleton
+        absolute_positions = np.array([bone.position for bone in local.bones[original_count:]], dtype=np.float32)
 
-        if any(source_id != target_id for source_id, target_id in mapped_ids.items()):
-            remap = np.arange(len(source_bones), dtype=mesh.links_ids.dtype)
-            for source_id, target_id in mapped_ids.items():
-                remap[source_id] = target_id
-            mesh = replace(mesh, links_ids=remap[mesh.links_ids])
+    clips: list[AnimationClip] = []
+    for clip in animation.animation.clips:
+        translations = clip.translations
+        if translations.size:
+            if translations.shape != (clip.frames, original_count, 3):
+                raise AnimationError(f"Animation clip '{clip.name}' has invalid translations.")
+            extra = np.zeros((clip.frames, added, 3), dtype=translations.dtype)
+            if absolute_positions is not None:
+                extra[:] = absolute_positions
+            translations = np.concatenate((translations, extra), axis=1)
 
-        meshes.append(mesh)
+        rotations = clip.rotations
+        if rotations.size:
+            if rotations.shape != (clip.frames, original_count, 4):
+                raise AnimationError(f"Animation clip '{clip.name}' has invalid rotations.")
+            extra = np.zeros((clip.frames, added, 4), dtype=rotations.dtype)
+            extra[:, :, 3] = 1.0
+            rotations = np.concatenate((rotations, extra), axis=1)
 
-    return replace(model, meshes=meshes)
+        clips.append(replace(clip, translations=translations, rotations=rotations))
+
+    model_animation = replace(animation.animation, clips=clips)
+    return replace(animation, skeleton=skeleton, animation=model_animation)
 
 
 def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -> ModelScene:
@@ -333,10 +366,7 @@ def apply_skins(scene: ModelScene, animation: ModelScene, *models: ModelScene) -
 def apply_fp_models(animation: ModelScene, *models: ModelScene) -> ModelScene:
     """Apply first-person models to the animation scene."""
 
-    models = tuple(filter_fp_meshes(animation, model) for model in models)
-    if any(not model.meshes for model in models):
-        raise AnimationError("Model has no meshes compatible with the animation skeleton.")
-
+    animation = extend_fp_skeleton(animation, *models)
     scene = apply_fp_animation(animation, *models)
     return apply_skins(scene, animation, *models)
 
