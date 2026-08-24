@@ -27,7 +27,7 @@ def chunk(
     add_end = lighting_end + add_size
     biomes_end = add_end + BIOME_SIZE
 
-    empty = raw[:0]
+    empty = memoryview(b"")
     blocks = raw[:blocks_end]
     metadata = raw[blocks_end:metadata_end] if extended else empty
     additions = raw[lighting_end:add_end] if extended else empty
@@ -41,9 +41,7 @@ def chunk(
                 y=y,
                 blocks=blocks[section * SECTION_SIZE : (section + 1) * SECTION_SIZE],
                 metadata=metadata[section * NIBBLE_SIZE : (section + 1) * NIBBLE_SIZE],
-                additions=additions[
-                    add_section * NIBBLE_SIZE : add_section * NIBBLE_SIZE + add_section_size
-                ],
+                additions=additions[add_section * NIBBLE_SIZE : add_section * NIBBLE_SIZE + add_section_size],
             )
         )
 
