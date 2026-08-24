@@ -19,6 +19,9 @@ msgstr "Бинарные шаблоны для `010 Editor`_ доступны в
 msgid "Template"
 msgstr "Шаблон"
 
+msgid "Templates"
+msgstr "Шаблоны"
+
 msgid "Engine"
 msgstr "Движок"
 
@@ -193,11 +196,11 @@ msgstr "🗺 Регионы"
 msgid "Region container for 32×32 terrain chunks."
 msgstr "Контейнер регионов для 32×32 чанков мира."
 
-msgid "Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_."
-msgstr "Блоки, метаданные, освещение, биомы и доп. данные, сжатые через `zstd`_."
+msgid "Blocks, metadata, lighting and biomes compressed with `zstd`_."
+msgstr "Блоки, метаданные, освещение и биомы, сжатые через `zstd`_."
 
-msgid "Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping."
-msgstr "Minecraft ``1.12.2+`` (Anvil_ ``1343``) с приблизительными блоками."
+msgid "Minecraft Java ``1.12.2`` (Anvil_ ``1343``), with approximate block mapping and biomes."
+msgstr "Minecraft Java ``1.12.2`` (Anvil_ ``1343``), с блоками (приблизительными) и биомами."
 
 msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
 msgstr ":doc:`Просмотр кэша карт → <usage/mapcache>`"

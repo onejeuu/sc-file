@@ -16,18 +16,14 @@ Map Cache groups fragments by coordinates and writes Minecraft Anvil region file
 What is exported
 ----------------------------------------
 
-The output uses Anvil data version ``1343``, the Minecraft Java ``1.12.2``
-format. It writes terrain block arrays. Metadata, lighting, biomes, entities,
-and block states are not exported.
+The output uses Minecraft Java ``1.12.2`` (Anvil_ ``1343``). It writes terrain
+block arrays and biomes. Metadata, lighting, block states and entities are not
+exported.
 
 .. note::
 
    Block IDs differ from Minecraft. By default, the `Block Mapping`_ replaces
    selected IDs with approximate Minecraft blocks.
-
-   ``--raw`` keeps the original IDs for inspection. Minecraft interprets them
-   through its own ID table, so the result is usually visually incoherent.
-
 
 ----------------------------------------
 Prepare a world

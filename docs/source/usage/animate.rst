@@ -89,9 +89,7 @@ Body
 ``body`` applies skeletal animation clips from ``.mcal`` to an ``.mcsb`` model
 by bone index. The animation and model must have the same number of bones.
 
-``--raw`` keeps every decoded clip. The default output removes duplicate and
-technical clips. Clips remain separate. Layer and preset composition is not
-reconstructed.
+``--raw`` keeps technical and duplicate clips.
 
 .. note::
 

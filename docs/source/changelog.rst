@@ -11,7 +11,7 @@ v6.0.0
 * ``convert.arms()``: exports a first-person ``.mcvd`` animation with weapon and hands ``.mcsb`` models.
 * ``convert.face()``: exports a facial ``.mcvd`` animation with a head ``.mcsb`` model.
 * ``convert.body()``: exports ``.mcal`` skeletal clips with an ``.mcsb`` model.
-* ``Options.raw_clips``: keeps every decoded ``.mcal`` clip during body animation export.
+* ``Options.preserve_clips``: keeps every decoded ``.mcal`` clip during body animation export.
 * ``McsaDecoder``: now supports blend shapes parsing.
 * ``GlbEncoder``: now can export blend shapes and morph animation clips.
 * ``FbxEncoder``: now can export armature and builtin bone animation clips.

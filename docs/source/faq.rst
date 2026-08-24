@@ -9,7 +9,7 @@
 ----------------------------------------
 
 Q: Is it safe to use this program?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Yes. Using this program to unpack and export assets is safe.
 

@@ -280,7 +280,7 @@ Applies external animation data to one or more ``.mcsb`` models and exports a ``
   Apply an ``.mcal`` skeletal animation library to an ``.mcsb`` model.
 
   ``--raw``
-    Keep technical clips that are normally filtered from the export.
+    Keep technical and duplicate clips.
 
   .. code-block:: bash
     :caption: Example
@@ -327,13 +327,13 @@ mapcache
     scfile mapcache "C:/map_cache/5.0" --workers 4
 
 
-``--raw``
-  Keep original block IDs instead of lookup table replacement.
+``--biomes / --no-biomes``
+  Export biome data in Anvil chunks. Enabled by default. Use ``--no-biomes`` to omit it.
 
   .. code-block:: bash
     :caption: Example
 
-    scfile mapcache "C:/map_cache/5.0" --raw
+    scfile mapcache "C:/map_cache/5.0" --no-biomes
 
 
 ``-v, --verbose``

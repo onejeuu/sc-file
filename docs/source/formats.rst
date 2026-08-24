@@ -237,9 +237,11 @@ Export
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+:Templates: MDAT.bt_, MDAT.CHUNK.bt_
 :Purpose: Region container for 32×32 terrain chunks.
-:Contents: Blocks, metadata, lighting, biomes and extended data compressed with `zstd`_.
-:Export: Minecraft ``1.12.2+`` (Anvil_ ``1343``) with approximate block mapping.
+:Contents: Blocks, metadata, lighting and biomes compressed with `zstd`_.
+:Export: Minecraft Java ``1.12.2`` (Anvil_ ``1343``), with approximate block mapping and biomes.
+
 | :doc:`Map Cache viewing guide → <usage/mapcache>`
 
 ----------------------------------------
