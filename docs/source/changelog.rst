@@ -33,7 +33,7 @@ File Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``scfile convert --include``: filters source formats during directory conversion.
-* ``scfile convert --layout``: ``dump``'s files into flat directory or preserves source ``relative`` and ``rooted`` paths.
+* ``scfile convert --layout``: added ``dump``, ``relative``, and ``rooted`` output layouts.
 * ``scfile convert --workers``: processes files in parallel.
 * ``scfile convert --verbose``: prints the result of every processed file.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
@@ -52,33 +52,18 @@ Application
 📝 Changed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Library API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 * Minimum Python version raised to ``3.13``.
-* ``ModelContent.version`` and ``ModelContent.flags``: replaced by ``ModelContent.meta.version`` and ``ModelContent.meta.flags``.
-
-File Conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 * ``convert.auto()`` now returns destination path on success or ``None`` on skip.
 * ``convert.files.manual()``: stages output files before publishing them.
-* ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
-* ``Options.on_conflict`` and ``scfile convert --on-conflict``: ``overwrite`` renamed to ``replace``.
 * ``scfile convert --model-format`` (``-F``): now accepts one target format.
-* ``scfile convert --layout``: defaults to ``rooted``.
+* ``scfile convert --output``: default layout changed from flat ``dump`` to ``rooted``.
 * ``TaskFeedback``: reworked with live progress, output location, and files summary.
-
-Map Cache
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* ``Options.full_chunk``: renamed to ``Options.extended_chunk``.
 * ``McWorld.find()``: resolves Minecraft 26.1+ ``dimensions/minecraft/overworld/region`` directories.
 
 🐛 Fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **GUI:** cursor style changes on hover.
+* **GUI:** disabled controls now display the unavailable cursor.
 * ``ConvertTask``: sources with colliding output paths no longer overwrite each other during conversion.
 
 🗑️ Removed
@@ -90,6 +75,7 @@ File Formats
 * ``DaeEncoder`` (``.dae``): removed output format.
 * ``Ms3dEncoder`` (``.ms3d``): removed output format.
 * ``ol_cubemap_to_dds()``: removed in favor of ``ol_to_dds()``.
+* **API:** removed ``as_*()`` conversion methods.
 
 CLI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,9 +89,8 @@ Library API
 * Support of Python ``3.11`` and ``3.12``.
 * ``FileEncoder.save_as()`` and ``FileEncoder.export_as()``.
 * ``FileDecoder.decode()``: removed ``seek`` parameter.
-* ``McsaDecoder.as_*()`` and ``EfkmodelDecoder.as_*()`` conversion methods.
 * ``BaseContent.reset()``.
-* Module ``scfile.core.types``.
+* ``scfile.core.types`` module.
 
 ♻️ Refactored
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,12 +105,16 @@ Content and Core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``scfile.core.content`` and ``scfile.structures``: moved to ``scfile.content``.
+* ``ModelContent.version`` and ``ModelContent.flags``: replaced by ``ModelContent.meta.version`` and ``ModelContent.meta.flags``.
 * ``TexarrContent`` and ``NbtContent``: replaced by ``ArchiveContent`` and ``DocumentContent``.
 * ``FileType`` and ``BaseContent.type``: renamed to ``FileKind`` and ``BaseContent.kind``.
 * ``BaseFile``, ``FileDecoder``, and ``FileEncoder``: renamed to ``Handler``, ``Decoder``, and ``Encoder``.
 * ``scfile.core.structio``: moved to ``scfile.io.base``.
 * ``scfile.core.options``: moved to ``scfile.options``.
 * ``scfile.consts`` and ``scfile.enums``: redistributed to more specific modules.
+* ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
+* ``Options.full_chunk``: renamed to ``Options.extended_chunk``.
+* ``Options.on_conflict`` and ``scfile convert --on-conflict``: ``overwrite`` renamed to ``replace``.
 
 File Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
