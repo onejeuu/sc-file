@@ -1,3 +1,6 @@
+import numpy as np
+
+
 BLOCKS: dict[int, int] = {
     # Barrier
     178: 166,  # daylight sensor
@@ -117,13 +120,14 @@ BLOCKS: dict[int, int] = {
 }
 
 
-def build_blocks_mapping(mapping: dict[int, int]) -> bytes:
-    table = list(range(256))
+def build_state_mapping(mapping: dict[int, int]) -> np.ndarray:
+    blocks = np.arange(1 << 12, dtype=np.uint16)
 
-    for old, new in mapping.items():
-        table[old] = new
+    for source, target in mapping.items():
+        blocks[source] = target
 
-    return bytes(table)
+    states = np.arange(1 << 16, dtype=np.uint16)
+    return blocks[states & 0xFFF] | (states & 0xF000)
 
 
-BLOCKS_MAPPING = build_blocks_mapping(BLOCKS)
+STATE_MAPPING = build_state_mapping(BLOCKS)

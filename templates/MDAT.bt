@@ -7,7 +7,7 @@
 // File Mask: *.mdat
 //------------------------------------------------
 
-local uint32 SIZE = 32*32;
+local uint32 SIZE = 32 * 32;  // 1024
 
 BigEndian();
 
@@ -25,8 +25,8 @@ typedef struct {
     int32 compressedSize <name="Compressed Size", fgcolor=cDkGreen>;
 
     // ZSTD compressed data
+    // after can be sectors slack (stale data)
     char data[compressedSize] <name="Data", bgcolor=cDkGreen>;
-    // тут почему то хвост бывает из данных, непонятно откуда
 
     // padding
     local uint _current = FTell();

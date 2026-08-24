@@ -8,7 +8,7 @@ from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.io.nbt import Tag
 
-from .mapping import BLOCKS_MAPPING
+from . import projection
 
 
 VERSION = Tag.INT.header(b"DataVersion") + struct.pack(">i", 1343)  # Anvil 1.12.2
@@ -25,26 +25,45 @@ ZPOS = Tag.INT.header(b"zPos")
 SECTIONS = Tag.LIST.header(b"Sections")
 Y = Tag.BYTE.header(b"Y")
 BLOCKS = Tag.BYTE_ARRAY.header(b"Blocks")
+DATA = Tag.BYTE_ARRAY.header(b"Data")
+BLOCK_LIGHT = Tag.BYTE_ARRAY.header(b"BlockLight")
+ADD = Tag.BYTE_ARRAY.header(b"Add")
+SKY_LIGHT = Tag.BYTE_ARRAY.header(b"SkyLight")
+BIOMES = Tag.BYTE_ARRAY.header(b"Biomes")
 
-SECTION_LENGTH = struct.pack(">i", 4096)
 Y_VALUES = [struct.pack(">b", y) for y in range(16)]
 
-EMPTY_NIBBLES = struct.pack(">i", 2048) + bytes(2048)
-SKY_LIGHT = struct.pack(">i", 2048) + b"\xff" * 2048
+NIBBLE_SIZE = 16 * 16 * 8
 
-SECTION_PAYLOAD = b"".join(
-    (
-        Tag.BYTE_ARRAY.header(b"Data"),
-        EMPTY_NIBBLES,
-        Tag.BYTE_ARRAY.header(b"BlockLight"),
-        EMPTY_NIBBLES,
-        Tag.BYTE_ARRAY.header(b"Add"),
-        EMPTY_NIBBLES,
-        Tag.BYTE_ARRAY.header(b"SkyLight"),
-        SKY_LIGHT,
-        bytes((Tag.END,)),
+EMPTY_NIBBLES = bytes(NIBBLE_SIZE)
+FULL_NIBBLES = b"\xff" * NIBBLE_SIZE
+
+
+def byte_array(
+    header: bytes,
+    data: bytes,
+) -> bytes:
+    return header + struct.pack(">i", len(data)) + data
+
+
+def section_payload(
+    y: int,
+    blocks: bytes,
+    metadata: bytes,
+    additions: bytes,
+) -> bytes:
+    return b"".join(
+        (
+            Y,
+            Y_VALUES[y],
+            byte_array(BLOCKS, blocks),
+            byte_array(DATA, metadata),
+            byte_array(BLOCK_LIGHT, EMPTY_NIBBLES),
+            byte_array(ADD, additions),
+            byte_array(SKY_LIGHT, FULL_NIBBLES),
+            bytes((Tag.END,)),
+        )
     )
-)
 
 
 class McaEncoder(Encoder[RegionContent]):
@@ -89,28 +108,18 @@ class McaEncoder(Encoder[RegionContent]):
         self.io.write(b"".join(parts))
 
     def _chunk(self, cx: int, cz: int, chunk: RegionChunk) -> bytes:
-        blocks = chunk.blocks if self.options.raw_blocks else chunk.blocks.translate(BLOCKS_MAPPING)
-        mask = chunk.header.section_mask
-
         sections: list[bytes] = []
 
-        # Build populated vertical sections
-        for index, y in enumerate(y for y in range(16) if (mask >> y) & 1):
-            start = index * 4096
-            sections.append(
-                b"".join(
-                    (
-                        Y,
-                        Y_VALUES[y],
-                        BLOCKS,
-                        SECTION_LENGTH,
-                        blocks[start : start + 4096],
-                        SECTION_PAYLOAD,
-                    )
-                )
+        for source in chunk.sections:
+            blocks, metadata, additions = projection.section(
+                source.blocks,
+                source.metadata,
+                source.additions,
+                self.options.raw_blocks,
             )
+            sections.append(section_payload(source.y, blocks, metadata, additions))
 
-        # Build one complete Anvil chunk document
+        biomes = bytes(chunk.biomes)
         return b"".join(
             (
                 ROOT,
@@ -120,6 +129,7 @@ class McaEncoder(Encoder[RegionContent]):
                 struct.pack(">i", cx),
                 ZPOS,
                 struct.pack(">i", cz),
+                byte_array(BIOMES, biomes) * bool(any(biomes)),
                 SECTIONS,
                 bytes((Tag.COMPOUND,)),
                 struct.pack(">i", len(sections)),

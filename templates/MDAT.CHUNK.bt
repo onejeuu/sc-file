@@ -1,11 +1,14 @@
 //------------------------------------------------
 // File: MDAT.CHUNK.bt
 // Authors: onejeuu, DeTTK
-// Version: 1.1
-// Purpose: Parse world chunk data.
+// Version: 2.0
+// Purpose: Parse decompressed world chunk data.
 // Category: STALCRAFT
 // File Mask: *.chunk
 //------------------------------------------------
+
+// The file consists of the 20-byte MDAT chunk header followed by the
+// ZSTD-decompressed payload. It is not a template for a raw MDAT sector.
 
 BigEndian();
 
@@ -14,10 +17,11 @@ local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
 local int BIOME_SIZE   = 16 * 16;       // 256
 
 typedef struct {
-    int32 recordSize <name="Record Size">;
-    int32 sectionMask <name="Section Mask", format=binary>;
-    int32 addMask <name="Add Mask", format=binary>;
-    int32 terrainSize <name="Terrain Size">;
+    uint32 recordSize <name="Record Size">;
+    uint32 sectionMask <name="Section Mask", format=binary>;
+    uint32 addMask <name="Add Mask", format=binary>;
+    uint32 terrainSize <name="Terrain Size">;
+    uint32 compressedSize <name="Compressed Size">;
 } ChunkHeader;
 
 ChunkHeader header <name="Header">;
@@ -26,25 +30,26 @@ local int sectionCount = 0;
 local int addCount = 0;
 local int i;
 for (i = 0; i < 16; i++) {
-    if ((header.sectionMask >> i) & 1) sectionCount++;
-    if ((header.addMask >> i) & 1) addCount++;
+    sectionCount += (header.sectionMask >> i) & 1;
+    addCount += (header.addMask >> i) & 1;
 }
 
 typedef struct { uchar data[SECTION_SIZE]; } BlockSection;
-typedef struct { uchar data[NIBBLE_SIZE];  } NibbleSection;
+typedef struct { uchar data[NIBBLE_SIZE]; } NibblePlane;
 
 BlockSection blocks[sectionCount] <name="Blocks", optimize=false, bgcolor=cLtGreen>;
-NibbleSection meta[sectionCount] <name="Metadata", optimize=false, bgcolor=cLtBlue>;
-NibbleSection blockLight[sectionCount] <name="Block Light", optimize=false, bgcolor=cGray>;
-NibbleSection skyLight[sectionCount*2] <name="Sky Light", optimize=false, bgcolor=cDkGray>;
+NibblePlane metadata[sectionCount] <name="Metadata", optimize=false, bgcolor=cLtBlue>;
+NibblePlane lighting[sectionCount * 3] <name="Lighting", optimize=false, bgcolor=cGray>;
 
-if (addCount > 0) {
-    NibbleSection add[addCount] <name="Add", optimize=false, bgcolor=cDkYellow>;
-}
+NibblePlane add[addCount] <name="Add", optimize=false, bgcolor=cDkYellow>;
 
 uchar biomes[BIOME_SIZE] <name="Biomes", bgcolor=cPurple>;
 
-local int extraSize = FileSize() - FTell();
-if (extraSize > 0) {
-    uchar extra[extraSize] <name="Extra Data", bgcolor=cDkGreen>;
+if (!FEof()) {
+    uint32 recordCount <name="Record Count">;
+    local int recordsSize = FileSize() - FTell();
+
+    if (recordsSize > 0) {
+        uchar records[recordsSize] <name="Records", bgcolor=cDkGreen>;
+    }
 }

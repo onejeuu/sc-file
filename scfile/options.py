@@ -41,9 +41,6 @@ class Options:
     raw_blocks: bool = False
     """Keep raw block IDs without lookup table replacement."""
 
-    full_chunk: bool = False
-    """Handle full chunk data including metadata."""
-
     targets: TargetConfig = field(default_factory=dict)
     """Normalized output format for every content type."""
 

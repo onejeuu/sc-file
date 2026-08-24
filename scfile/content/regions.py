@@ -3,6 +3,9 @@
 from dataclasses import dataclass, field
 
 
+_EMPTY_VIEW = memoryview(b"")
+
+
 @dataclass
 class ChunkHeader:
     """Header of compressed world chunk."""
@@ -15,16 +18,22 @@ class ChunkHeader:
 
 
 @dataclass
+class RegionSection:
+    y: int = 0
+    blocks: memoryview = _EMPTY_VIEW
+    metadata: memoryview = _EMPTY_VIEW
+    additions: memoryview = _EMPTY_VIEW
+
+
+@dataclass
 class RegionChunk:
     """World terrain chunk."""
 
     index: int = 0
     header: ChunkHeader = field(default_factory=ChunkHeader)
+    payload: bytes = field(default_factory=bytes)
 
-    blocks: bytes = field(default_factory=bytes)
-
-    meta: bytes = field(default_factory=bytes)
-    light: bytes = field(default_factory=bytes)
-    add: bytes = field(default_factory=bytes)
-    biomes: bytes = field(default_factory=bytes)
-    extra: bytes = field(default_factory=bytes)
+    sections: tuple[RegionSection, ...] = ()
+    lighting: memoryview = _EMPTY_VIEW
+    biomes: memoryview = _EMPTY_VIEW
+    records: memoryview = _EMPTY_VIEW
