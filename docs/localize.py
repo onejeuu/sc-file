@@ -13,7 +13,8 @@ from babel.messages.pofile import read_po, write_po
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "source"
 LOCALE = ROOT / "locale"
-CHANGELOG = SOURCE / "v"
+CHANGELOG = SOURCE / "changelog.rst"
+API = SOURCE / "api"
 
 LANGUAGE = "ru"
 INCLUDE_LINENO = False
@@ -36,7 +37,8 @@ def documents() -> list[Path]:
         path
         for path in sorted(SOURCE.rglob("*.rst"))
         if not path.name.startswith("_")
-        and not path.is_relative_to(CHANGELOG)
+        and path != CHANGELOG
+        and not path.is_relative_to(API)
         and ".. automodule::" not in path.read_text(encoding="utf-8")
     ]
 
@@ -77,7 +79,7 @@ def clean_catalogs(unchanged: dict[Path, set[str | tuple[str, ...]]]) -> None:
                 comment for comment in message.user_comments if comment not in (NO_TRANSLATION, NO_TRANSLATION_BORDER)
             ]
 
-            if message.string == message.id or message.id in unchanged[path]:
+            if message.string == message.id or message.id in unchanged.get(path, set()):
                 message.string = ""
                 untranslated.append(message)
             else:

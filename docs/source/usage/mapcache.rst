@@ -4,21 +4,20 @@
 .. include:: ../_links.rst
 
 
-----------------------------------------
-What it does
-----------------------------------------
+| Map cache contains ``.mdat`` world region fragments.
+| Usually located at ``stalcraft/map_cache/5.0``.
 
-The map cache contains ``.mdat`` terrain-region fragments, usually located at ``runtime/stalcraft/map_cache/5.0``.
-Map Cache groups fragments by coordinates and writes Minecraft Anvil region files named ``r.<x>.<z>.mca``.
+| Export groups fragments by coordinates ``x`` and ``z`` in filenames.
+| Minecraft Anvil region files named ``r.<x>.<z>.mca``.
 
 
 ----------------------------------------
 What is exported
 ----------------------------------------
 
-The output uses Minecraft Java ``1.12.2`` (Anvil_ ``1343``). It writes terrain
-block arrays and biomes. Metadata, lighting, block states and entities are not
-exported.
+| **Format:** Minecraft Java ``1.12.2`` (Anvil_ ``1343``).
+| **Exported:** Terrain block arrays and biomes.
+| **Not exported:** Models, block states, lighting, entities.
 
 .. note::
 
@@ -54,13 +53,11 @@ Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck
 Convert the cache
 ----------------------------------------
 
-In the graphical interface, select the map-cache directory and the target
-world or its ``region`` directory. The path resolver changes a selected world
-directory to its ``region`` directory automatically (If enabled).
-
-From the command line:
+In graphical interface, select map cache directory and target world.
+Paths resolver changes selected world directory to its ``region`` directory automatically (if enabled).
 
 .. code-block:: console
+   :caption: From command line
 
    scfile mapcache "C:/EXBO/runtime/stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
 
@@ -71,24 +68,16 @@ For command options see :ref:`mapcache-cli`.
 Find the exported regions
 ----------------------------------------
 
-One ``r.<rx>.<rz>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512``
-blocks. Teleport near its centre:
+One ``r.<rx>.<rz>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks.
 
 .. code-block:: text
+   :caption: For example coordinates for r.-3.5.mca
 
-   x = rx × 512 + 256
-   z = rz × 512 + 256
+   x = -3 × 512 = -1536
+   z =  5 × 512 =  2560
+   /tp @s -1536 100 2560
 
-For ``r.-3.5.mca``:
-
-.. code-block:: text
-
-   x = -3 × 512 + 256 = -1280
-   z =  5 × 512 + 256 =  2816
-   /tp @s -1280 100 2816
-
-Use the `Coordinate Calculator`_ when you want a position without calculating
-it manually.
+Use the `Coordinate Calculator`_ if necessary.
 
 
 ----------------------------------------
@@ -99,8 +88,8 @@ Resourcepack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Download the `Map Cache Resource Packs`_.
-The original pack targets Minecraft ``1.6.4``. Updated variants are available
-for newer formats.
+Original pack targets Minecraft ``1.6.4``.
+Updated variants are available for newer formats.
 
 
 Mods

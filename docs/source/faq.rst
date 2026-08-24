@@ -64,7 +64,7 @@ Recommended viewers:
 Q: How to convert ``.dds`` textures to ``.png``?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Convert with ImageMagick_ or FFmpeg_.
+Use ImageMagick_ or FFmpeg_.
 
 .. code-block:: bash
   :caption: ImageMagick

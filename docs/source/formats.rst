@@ -134,7 +134,7 @@ Export
 
 :Template: OL.bt_
 :Purpose: `Mipmapped <MipMap_>`_ texel data.
-:Contents: 2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_.
+:Contents: 2D textures or `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_.
 :Export: ``.dds`` (`DirectDrawSurface <DDS_>`_).
 
 .. list-table:: Suffix Conventions
@@ -212,8 +212,8 @@ Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Purpose: GUI and composed images.
-:Contents: ``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature.
-:Export: ``.png``.
+:Contents: PNG image data with an ``MIC`` signature.
+:Export: ``.png`` (`Portable Network Graphics <PNG_>`_).
 
 
 ----------------------------------------

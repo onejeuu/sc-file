@@ -83,7 +83,7 @@ msgid "Same as `.mcsa <mcsa_>`_. Has hash before signature."
 msgstr "Такое же как `.mcsa <mcsa_>`_. Содержит хэш перед сигнатурой."
 
 msgid "Colliders and physics."
-msgstr "Коллайдеры или физика."
+msgstr "Коллайдеры и физика."
 
 msgid ":ref:`Animation sets <mcvd-animation>` use the same suffix."
 msgstr ":ref:`Animation set <mcvd-animation>` использует такой же суффикс."
@@ -125,7 +125,7 @@ msgid "Skeletal animation clips."
 msgstr "Клипы скелетных анимаций."
 
 msgid "Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes."
-msgstr "Данные анимации и одна или несколько совместимых моделей :ref:`.mcsb <mcsb>`."
+msgstr "Анимации и одна или несколько совместимых моделей :ref:`.mcsb <mcsb>`."
 
 msgid "File :ref:`.glb <model-export>` with the assembled scene."
 msgstr "Файл :ref:`.glb <model-export>` с собранной сценой."
@@ -139,8 +139,8 @@ msgstr "🧱 Текстуры"
 msgid "`Mipmapped <MipMap_>`_ texel data."
 msgstr "Данные текселей с `мипмапами <MipMap_>`_."
 
-msgid "2D textures and `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
-msgstr "2D текстуры и `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
+msgid "2D textures or `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
+msgstr "2D текстуры или `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
 
 msgid "Suffix Conventions"
 msgstr "Конвенции суффиксов"
@@ -181,8 +181,8 @@ msgstr "🖼️ Изображения"
 msgid "GUI and composed images."
 msgstr "GUI и составные изображения."
 
-msgid "``.png`` (`Portable Network Graphics <PNG_>`_) data with an ``MIC`` signature."
-msgstr "``.png`` (`Portable Network Graphics <PNG_>`_) данные с ``MIC`` сигнатурой."
+msgid "PNG image data with an ``MIC`` signature."
+msgstr "Данные PNG изображения с ``MIC`` сигнатурой."
 
 msgid "🗃️ Archive Formats"
 msgstr "🗃️ Архивы"
@@ -307,7 +307,7 @@ msgstr "Данные :ref:`.texarr <texarr>`."
 msgid "Adaptive audio events."
 msgstr "Адаптивные аудио события."
 
-msgid "*Primarily voice acting and OST."
+msgid "Primarily voice acting and OST."
 msgstr "В основном озвучка и OST."
 
 msgid "🕹️ Launcher Formats"
@@ -407,7 +407,7 @@ msgstr ""
 msgid "``.dds``."
 msgstr ""
 
-msgid "``.png``."
+msgid "``.png`` (`Portable Network Graphics <PNG_>`_)."
 msgstr ""
 
 msgid "``.zip`` (ZIP_)."
