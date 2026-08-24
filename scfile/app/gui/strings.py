@@ -177,7 +177,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "option.convert.onconflict.replace": "Перезапись",
         "option.convert.onconflict.rename": "Копия",
         "option.convert.onconflict.skip": "Пропуск",
-        "option.animate.body.preserve": "Сохранять клипы",
+        "option.animate.body.preserve": "Исходные клипы",
         "option.animate.body.preserve.hint": "Сохранять технические позы и слои анимации",
         "option.mapcache.biomes": "Биомы",
         "option.mapcache.biomes.hint": "Экспортировать данные биомов",

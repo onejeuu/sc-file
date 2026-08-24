@@ -13,14 +13,19 @@ v6.0.0
 * ``convert.body()``: exports ``.mcal`` skeletal clips with an ``.mcsb`` model.
 * ``Options.preserve_clips``: keeps every decoded ``.mcal`` clip during body animation export.
 * ``McsaDecoder``: now supports blend shapes parsing.
-* ``GlbEncoder``: now can export blend shapes and morph animation clips.
-* ``FbxEncoder``: now can export armature and builtin bone animation clips.
+* ``GlbEncoder``: now exports blend shapes and morph animation clips.
+* ``FbxEncoder``: now exports armature and builtin bone animation clips.
+* ``EfkmodelDecoder``: now parses UV2, normals, tangents, and vertex colors.
+* ``ModelMeta``: added source model version, feature flags, and element counts.
+* ``ModelContent.has()`` and ``ModelScene.has()``: report present model features.
+* ``ModelDecoder.features`` and ``ModelEncoder.features``: declare model features supported by handlers.
 * ``scfile convert --include``: filters source formats during directory conversion.
 * ``scfile convert --layout``: dumps files into one directory or preserves source ``relative`` and ``rooted`` paths.
 * ``scfile convert --workers``: processes files in parallel.
 * ``scfile convert --verbose``: prints the result of every processed file.
+* ``scfile mapcache --biomes/--no-biomes``: controls biome data export to ``.mca`` files.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
-* ``McvdDecoder``: standalone decoder instead of ``.mcsa`` alias.
+* ``McvdDecoder``: new source format ``.mcvd`` for standalone vertex animation parsing.
 * ``mcvd_to_obj()``, ``mcvd_to_glb()``, and ``mcvd_to_fbx()``: added named ``.mcvd`` conversions.
 * **GUI:** added animation and settings tabs.
 * **GUI:** added forms for arms, face, and body animation export.
@@ -34,21 +39,21 @@ v6.0.0
 
 * Minimum Python version raised to ``3.13``.
 * ``convert.auto()`` now returns destination path on success or ``None`` on skip.
+* ``convert.files.manual()``: stages output files before publishing them.
+* ``ModelContent.version`` and ``ModelContent.flags``: replaced by ``ModelContent.meta.version`` and ``ModelContent.meta.flags``.
 * ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
-* ``Options.on_conflict``: ``overwrite`` renamed to ``replace``.
-* **CLI**: Option ``--model-format`` (``-F``) now accepts single target format (previously multiple).
-* **CLI**: ``--layout`` defaults to ``rooted``
-* **CLI**: reworked feedback with live progress, readable errors, output location, and files summary.
+* ``Options.full_chunk``: renamed to ``Options.extended_chunk``.
+* ``Options.on_conflict`` and ``scfile convert --on-conflict``: ``overwrite`` renamed to ``replace``.
+* ``McWorld.find()``: resolves Minecraft 26.1+ ``dimensions/minecraft/overworld/region`` directories.
+* ``scfile convert --model-format`` (``-F``): now accepts one target format.
+* ``scfile convert --layout``: defaults to ``rooted``.
+* ``TaskFeedback``: reworked with live progress, readable errors, output location, and files summary.
 
-♻️ Refactored
+🐛 Fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* ``scfile`` entry point: moved to ``scfile.app.launcher``.
-* ``scfile.core.content`` moved to ``scfile.structures.content``.
-* ``scfile.core.structio`` moved to ``scfile.io.base``.
-* ``scfile.core.options`` moved to ``scfile.options`` (class ``Options``).
-* ``convert.convert`` renamed to ``convert.files.manual``.
-* ``convert.detect`` replaced by ``convert.files.auto`` and internal ``convert.files.format``.
-* ``scfile.consts`` and ``scfile.enums`` types redistributed to more specific modules.
+
+* **GUI:** cursor style changes on hover.
+* ``ConvertTask``: sources with colliding output paths no longer overwrite each other during conversion.
 
 🗑️ Removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,14 +61,30 @@ v6.0.0
 * Support of Python ``3.11`` and ``3.12``.
 * ``DaeEncoder`` (``.dae``): removed output format.
 * ``Ms3dEncoder`` (``.ms3d``): removed output format.
-* Module ``scfile.core.types``.
+* ``scfile mapcache --raw``: removed raw block ID export.
 * CLI options ``--relative`` and ``--parent`` (replaced by ``--layout``).
+* ``FileEncoder.save_as()`` and ``FileEncoder.export_as()``.
+* ``FileDecoder.decode()``: removed ``seek`` parameter.
+* ``McsaDecoder.as_*()`` and ``EfkmodelDecoder.as_*()`` conversion methods.
+* ``BaseContent.reset()``.
+* Module ``scfile.core.types``.
 * ``ol_cubemap_to_dds()``: removed in favor of ``ol_to_dds()``.
 
-🐛 Fixed
+♻️ Refactored
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **GUI:** Cursor style changes on hover.
+* ``scfile`` entry point: moved to ``scfile.app.launcher``.
+* ``scfile.core.content`` and ``scfile.structures``: moved to ``scfile.content``.
+* ``TexarrContent`` and ``NbtContent``: replaced by ``ArchiveContent`` and ``DocumentContent``.
+* ``FileType`` and ``BaseContent.type``: renamed to ``FileKind`` and ``BaseContent.kind``.
+* ``BaseFile``, ``FileDecoder``, and ``FileEncoder``: renamed to ``Handler``, ``Decoder``, and ``Encoder``.
+* ``scfile.core.structio``: moved to ``scfile.io.base``.
+* ``scfile.core.options``: moved to ``scfile.options``.
+* ``scfile.cli`` and ``scfile.gui``: moved to ``scfile.app.cli`` and ``scfile.app.gui``.
+* ``convert.convert``: renamed to ``convert.files.manual``.
+* ``convert.detect``: replaced by ``convert.files.auto`` and ``convert.files.format``.
+* ``convert.factory``: replaced by ``scfile.formats.registry`` and ``convert.named``.
+* ``scfile.consts`` and ``scfile.enums``: redistributed to more specific modules.
 
 
 v5.2.1 (2026-07-26)
