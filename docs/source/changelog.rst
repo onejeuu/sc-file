@@ -239,15 +239,15 @@ v5.0.0 (2026-05-25)
 GUI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Graphical interface: implemented with ``PySide6`` and launched when no arguments are provided.
+* **Graphical interface:** implemented with ``PySide6`` and launched when no arguments are provided.
 * ``ConverterTab``: drag & drop, file type filters, output structure options.
-* ``MapCacheTab``: ``.mdat`` to ``.mca`` conversion with threading.
+* ``MapCacheTab``: ``.mdat`` to ``.mca`` conversion.
 * ``VersionWidget``: update check popup with GitHub release lookup.
 
 CLI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Command structure: ``scfile convert`` and ``scfile mapcache``.
+* **Command structure:** ``scfile convert`` and ``scfile mapcache``.
 * ``scfile.__main__``: automatically runs ``convert`` when a file or directory is given as first argument.
 * ``--updates``: update check option.
 * ``--on-conflict``: output conflict option (``overwrite``, ``rename``, ``skip``).
@@ -284,13 +284,13 @@ Model Data
 * ``ModelSkeleton`` fields: ``space``, ``hierarchy``.
 * ``AnimationClip``: replaced ``transforms`` with ``rotations`` and ``translations``.
 * ``SkeletonBone``: ``slug`` property.
-* Enums: ``UVOrigin``, ``UVSign``, ``LinkSpace``, ``SkeletonSpace``, ``SkeletonHierarchy``, ``AnimationTranslation`` and ``AnimationRotation``.
-* Type aliases: ``EulerAngles``, ``TransformMatrix``, ``BindPose``, etc.
+* **Enums:** ``UVOrigin``, ``UVSign``, ``LinkSpace``, ``SkeletonSpace``, ``SkeletonHierarchy``, ``AnimationTranslation`` and ``AnimationRotation``.
+* **Type aliases:** ``EulerAngles``, ``TransformMatrix``, ``BindPose``, etc.
 
-Conversion and Utilities
+Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Converter registry: ``converters()`` and ``registry()`` functions with the ``@converter`` decorator for format pairs.
+* **Converter registry:** ``converters()`` and ``registry()`` functions with the ``@converter`` decorator for format pairs.
 * ``scfile.utils``: new package.
 * ``files``: ``resource()``, ``resolve()``, ``walk()``, ``destination()``.
 * ``versions``: ``Version`` dataclass with parsing and comparison.
