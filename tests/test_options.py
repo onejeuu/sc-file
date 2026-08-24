@@ -5,7 +5,7 @@ from scfile.options import DEFAULT_TARGETS, Options
 
 
 def test_animation() -> None:
-    assert not Options().raw_clips
+    assert not Options().preserve_clips
     assert Options(animation=True).skeleton_enabled
     assert Options(animation=True).model_features == (Feature.SKELETON, Feature.ANIMATION)
 

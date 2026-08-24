@@ -140,7 +140,7 @@ def test_animate(
     assert body.exit_code == 0
     assert tasks[0].operation is animate_module.convert.animate.face
     assert tasks[1].operation is animate_module.convert.animate.body
-    assert tasks[1].options.raw_clips
+    assert tasks[1].options.preserve_clips
 
 
 def test_animate_failure(
@@ -171,7 +171,7 @@ def test_mapcache(
 
     result = CliRunner().invoke(
         scfile,
-        ["mapcache", str(source), "-O", str(output), "--raw", "-W", "2", "--verbose"],
+        ["mapcache", str(source), "-O", str(output), "--no-biomes", "-W", "2", "--verbose"],
     )
 
     assert result.exit_code == 0
@@ -179,7 +179,7 @@ def test_mapcache(
     assert task.source == source
     assert task.output == output
     assert task.workers == 2
-    assert task.options.raw_blocks
+    assert not task.options.biomes
 
 
 def test_mapcache_failure(
