@@ -233,11 +233,11 @@ class BodyForm(AnimationForm):
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
         )
-        self.raw_clips = OptionWidget(
-            strings.get("option.animate.raw"),
-            strings.get("option.animate.raw.hint"),
+        self.preserve_clips = OptionWidget(
+            strings.get("option.animate.body.preserve"),
+            strings.get("option.animate.body.preserve.hint"),
         )
-        self.options.addWidget(self.raw_clips)
+        self.options.addWidget(self.preserve_clips)
 
     def create_task(self, output: Path) -> AnimateTask:
         return AnimateTask(
@@ -245,7 +245,7 @@ class BodyForm(AnimationForm):
             source=self.source_path,
             models=(self.model_path,),
             output=output,
-            options=Options(raw_clips=self.raw_clips.checked),
+            options=Options(preserve_clips=self.preserve_clips.checked),
         )
 
 

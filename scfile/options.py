@@ -35,11 +35,14 @@ class Options:
     animation: bool = False
     """Handle built-in animation clips from models."""
 
-    raw_clips: bool = False
-    """Keep technical clips in animation libraries."""
+    preserve_clips: bool = False
+    """Keep all clips from animation library."""
 
-    raw_blocks: bool = False
-    """Keep raw block IDs without lookup table replacement."""
+    biomes: bool = True
+    """Export biome data for world regions."""
+
+    extended_chunk: bool = False
+    """Expose auxiliary world chunk data."""
 
     targets: TargetConfig = field(default_factory=dict)
     """Normalized output format for every content type."""

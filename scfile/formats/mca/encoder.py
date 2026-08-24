@@ -8,7 +8,7 @@ from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 from scfile.io.nbt import Tag
 
-from . import projection
+from .mapping import BLOCKS_MAPPING
 
 
 VERSION = Tag.INT.header(b"DataVersion") + struct.pack(">i", 1343)  # Anvil 1.12.2
@@ -49,17 +49,15 @@ def byte_array(
 def section_payload(
     y: int,
     blocks: bytes,
-    metadata: bytes,
-    additions: bytes,
 ) -> bytes:
     return b"".join(
         (
             Y,
             Y_VALUES[y],
             byte_array(BLOCKS, blocks),
-            byte_array(DATA, metadata),
+            byte_array(DATA, EMPTY_NIBBLES),
             byte_array(BLOCK_LIGHT, EMPTY_NIBBLES),
-            byte_array(ADD, additions),
+            byte_array(ADD, EMPTY_NIBBLES),
             byte_array(SKY_LIGHT, FULL_NIBBLES),
             bytes((Tag.END,)),
         )
@@ -111,15 +109,11 @@ class McaEncoder(Encoder[RegionContent]):
         sections: list[bytes] = []
 
         for source in chunk.sections:
-            blocks, metadata, additions = projection.section(
-                source.blocks,
-                source.metadata,
-                source.additions,
-                self.options.raw_blocks,
-            )
-            sections.append(section_payload(source.y, blocks, metadata, additions))
+            blocks = bytes(source.blocks).translate(BLOCKS_MAPPING)
+            sections.append(section_payload(source.y, blocks))
 
         biomes = bytes(chunk.biomes)
+        biomes_data = byte_array(BIOMES, biomes) * bool(self.options.biomes and any(biomes))
         return b"".join(
             (
                 ROOT,
@@ -129,7 +123,7 @@ class McaEncoder(Encoder[RegionContent]):
                 struct.pack(">i", cx),
                 ZPOS,
                 struct.pack(">i", cz),
-                byte_array(BIOMES, biomes) * bool(any(biomes)),
+                biomes_data,
                 SECTIONS,
                 bytes((Tag.COMPOUND,)),
                 struct.pack(">i", len(sections)),

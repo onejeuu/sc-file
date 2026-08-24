@@ -68,4 +68,9 @@ class MdatDecoder(Decoder[RegionContent]):
                 offset=position,
             ) from error
 
-        return payload.chunk(index, header, data)
+        return payload.chunk(
+            index,
+            header,
+            data,
+            extended=self.options.extended_chunk,
+        )

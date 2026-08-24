@@ -10,6 +10,8 @@ def chunk(
     index: int,
     header: S.ChunkHeader,
     data: bytes,
+    *,
+    extended: bool,
 ) -> S.RegionChunk:
     raw = memoryview(data)
     section_count = header.section_mask.bit_count()
@@ -25,9 +27,10 @@ def chunk(
     add_end = lighting_end + add_size
     biomes_end = add_end + BIOME_SIZE
 
+    empty = raw[:0]
     blocks = raw[:blocks_end]
-    metadata = raw[blocks_end:metadata_end]
-    additions = raw[lighting_end:add_end]
+    metadata = raw[blocks_end:metadata_end] if extended else empty
+    additions = raw[lighting_end:add_end] if extended else empty
     sections: list[S.RegionSection] = []
 
     for section, y in enumerate(y for y in range(16) if (header.section_mask >> y) & 1):
@@ -49,7 +52,7 @@ def chunk(
         header=header,
         payload=data,
         sections=tuple(sections),
-        lighting=raw[metadata_end:lighting_end],
+        lighting=raw[metadata_end:lighting_end] if extended else empty,
         biomes=raw[add_end:biomes_end],
-        records=raw[biomes_end:],
+        records=raw[biomes_end:] if extended else empty,
     )

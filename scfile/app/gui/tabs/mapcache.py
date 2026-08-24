@@ -60,15 +60,16 @@ class MapCacheTab(QWidget):
         )
         self.output.changed.connect(self._edit_output)
 
-        self.raw_blocks = OptionWidget(
-            text=strings.get("option.mapcache.raw"),
-            hint=strings.get("option.mapcache.raw.hint"),
+        self.biomes = OptionWidget(
+            text=strings.get("option.mapcache.biomes"),
+            hint=strings.get("option.mapcache.biomes.hint"),
+            checked=True,
         )
 
         layout.addWidget(self.source)
         layout.addWidget(self.output)
         layout.addSpacing(10)
-        layout.addWidget(self.raw_blocks)
+        layout.addWidget(self.biomes)
         layout.addStretch()
 
         self.warnings = WarningsWidget()
@@ -246,7 +247,7 @@ class MapCacheTab(QWidget):
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
-            Options(raw_blocks=self.raw_blocks.checked),
+            Options(biomes=self.biomes.checked),
         )
         self.running = self.tasks.start(task)
         if self.running:

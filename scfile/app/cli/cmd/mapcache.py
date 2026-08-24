@@ -31,9 +31,9 @@ from scfile.options import Options
     help="Number of worker threads (default: CPU count)",
 )
 @click.option(
-    "--raw",
-    is_flag=True,
-    help="Raw blocks without lookup",
+    "--biomes/--no-biomes",
+    default=True,
+    help="Export biome data.",
 )
 @click.option(
     "-v",
@@ -45,14 +45,14 @@ def mapcache(
     source: types.SourcePath,
     output: types.OutputPath,
     workers: int | None,
-    raw: bool,
+    biomes: bool,
     verbose: bool,
 ) -> None:
     """Merge map cache regions."""
 
     warn("MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely.")
 
-    options = Options(raw_blocks=raw)
+    options = Options(biomes=biomes)
     feedback = TaskFeedback(verbose)
     summary = execute(MapCacheTask(source, output, options, workers), feedback)
     feedback.finish(summary)
