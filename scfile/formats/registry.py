@@ -1,4 +1,4 @@
-"""Built-in file format handlers."""
+"""Format handler registry."""
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass

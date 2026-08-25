@@ -1,9 +1,6 @@
-
 msgid ""
 msgstr ""
 "Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -246,8 +243,8 @@ msgstr ""
 "Папка для выходных файлов ``.mca``. Если не указана, создается папка "
 "рядом с ``SOURCE`` с суффиксом ``_mca``."
 
-msgid "Export biome data in Anvil chunks. Enabled by default. Use ``--no-biomes`` to omit it."
-msgstr "Экспортировать данные биомов в чанки Anvil. Включено по умолчанию. Используйте ``--no-biomes``, чтобы отключить экспорт."
+msgid "Export biome data. Enabled by default. Use ``--no-biomes`` to omit it."
+msgstr "Экспортировать данные биомов. Включено по умолчанию. Используйте ``--no-biomes``, чтобы отключить экспорт."
 
 msgid "Show the result of every processed region."
 msgstr "Показать результат обработки каждого региона."
@@ -339,8 +336,11 @@ msgstr "Обычно находятся в ``stalcraft/map_cache/5.0``."
 msgid "Export groups fragments by coordinates ``x`` and ``z`` in filenames."
 msgstr "Экспорт группирует фрагменты по координатам ``x`` и ``z`` в именах файлов."
 
+msgid "Map cache region files named ``reg.<x>.<z>.mdat``."
+msgstr "Файлы кэша карты названы ``reg.<x>.<z>.mdat``."
+
 msgid "Minecraft Anvil region files named ``r.<x>.<z>.mca``."
-msgstr "Файлы региона Minecraft Anvil названы ``r.<x>.<z>.mca``."
+msgstr "Файлы Minecraft Anvil названы ``r.<x>.<z>.mca``."
 
 msgid "What is exported"
 msgstr "Что экспортируется"
@@ -383,14 +383,13 @@ msgstr ""
 msgid "Always leave the world before replacing its regions."
 msgstr "Всегда выходите из мира перед заменой его регионов."
 
-msgid "Minecraft can overwrite changed region files with its cached chunks."
-msgstr "Майнкрафт может перезаписать измененные файлы региона своими кэшированными чанками."
+msgid "Minecraft can overwrite changed files with its cached chunks."
+msgstr "Майнкрафт может перезаписать измененные файлы своими кэшированными чанками."
 
 msgid ""
-"Existing files with the same ``r.<x>.<z>.mca`` name are replaced with "
-"``.mca.bck`` backups."
+"Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups."
 msgstr ""
-"Существующие файлы с именем ``r.<x>.<z>.mca`` заменяются файлами ``.mca.bck``."
+"Существующие файлы с именем ``r.<x>.<z>.mca`` заменяются файлами ``.mca.bck`` на случай бэкапа."
 
 msgid "Convert the cache"
 msgstr "Конвертация кэша"

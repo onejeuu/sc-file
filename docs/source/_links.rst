@@ -73,8 +73,10 @@
 .. _PyInstaller Issue: https://github.com/pyinstaller/pyinstaller/issues/9266
 
 .. Legal
-.. _EXBO License: https://stalcraft.net/legal/ru_launcher_licence.pdf
-.. _EXBO Mods: https://support.exbo.net/ru/help-center/articles/1/37/386
+.. _EXBO License: https://exbo.net/legal/gl_launcher_licence.pdf
+.. _EXBO Mods: https://support.exbo.net/en/help-center/articles/1/37/386
+.. _EXBO License RU: https://exbo.net/legal/ru_launcher_licence.pdf
+.. _EXBO Mods RU: https://support.exbo.net/ru/help-center/articles/1/37/386
 
 .. Map Cache
 .. _Coordinate Calculator: https://mclist.io/tools/minecraft-coordinate-calculator

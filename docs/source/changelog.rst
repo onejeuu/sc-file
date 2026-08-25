@@ -59,6 +59,7 @@ Application
 * ``scfile convert --output``: default layout changed from flat ``dump`` to ``rooted``.
 * ``TaskFeedback``: reworked with live progress, output location, and files summary.
 * ``McWorld.find()``: resolves Minecraft 26.1+ ``dimensions/minecraft/overworld/region`` directories.
+* **Documentation:** updated most pages.
 
 🐛 Fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

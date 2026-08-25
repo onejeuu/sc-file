@@ -212,7 +212,7 @@ Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Purpose: GUI and composed images.
-:Contents: PNG image data with an ``MIC`` signature.
+:Contents: ``PNG`` image data with an ``‰MIC`` signature.
 :Export: ``.png`` (`Portable Network Graphics <PNG_>`_).
 
 

@@ -1,9 +1,6 @@
-
 msgid ""
 msgstr ""
 "Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -16,11 +13,11 @@ msgstr "📌 Общее"
 msgid "Q: Is it safe to use this program?"
 msgstr "В: Безопасно ли использовать эту программу?"
 
-msgid "Yes. Using this program to unpack and export assets is safe."
-msgstr "Да. Использование этой программы для распаковки и экспорта ассетов безопасно."
+msgid "Yes. Using this program to export assets is safe."
+msgstr "Да. Использование этой программы для экспорта ассетов безопасно."
 
 msgid ""
-"*Be careful when sharing this project on official game channels or communities, "
+"*Be careful when sharing this project on official communities, "
 "as such tools may be considered undesirable and may be removed or moderated there.*"
 msgstr ""
 "*Будьте осторожны при распространении этого проекта в официальных сообществах, "
@@ -33,14 +30,14 @@ msgid "Not recommended."
 msgstr "Не рекомендуется."
 
 msgid ""
-"The `License Agreement <EXBO License_>`_ expressly prohibits modifying game files "
-"except in `documented cases <EXBO Mods_>`_. "
+"The `License Agreement <EXBO License_>`_ expressly prohibits modifying "
+"game files except `allowed cases <EXBO Mods_>`_. "
 "Violating this restriction may lead to ban. "
 "There is no known safe threshold for a particular modification. "
 "Avoid any changes that could provide in game advantages."
 msgstr ""
-"`Лицензионное соглашение <EXBO License_>`_ явно запрещает модифицировать файлы игры, "
-"кроме `описанных случаев <EXBO Mods_>`_. "
+"`Лицензионное соглашение <EXBO License RU_>`_ явно запрещает модифицировать файлы игры, "
+"кроме `разрешенных случаев <EXBO Mods RU_>`_. "
 "Нарушение этих ограничений может привести к блокировке. "
 "Безопасный порог допустимых изменений неизвестен. "
 "Избегайте любых изменений, которые могут дать преимущество в игре."
@@ -64,35 +61,57 @@ msgstr ""
 "что осложнит добросовестное извлечение и исследование. "
 "Таким образом, публичный функционал ограничивается лишь односторонним экспортом."
 
-msgid "Q: Game update broke <Any Filename> decoding!"
-msgstr "В: Обновление игры сломало парсинг <Любой Файл>!"
+msgid "🔄 Conversion"
+msgstr "🔄 Конвертация"
+
+msgid "Q: Are game asset files encrypted?"
+msgstr "В: Зашифрованы ли файлы игровых ассетов?"
+
+msgid "Mostly not."
+msgstr "В основном нет."
+
+msgid "Supported asset formats ordinary binary data in proprietary format."
+msgstr "Поддерживаемые форматы представляют собой обычные бинарные данные в проприетарном формате."
+
+msgid "See :doc:`Formats <formats>` for details."
+msgstr "Подробнее см. в разделе :doc:`Форматы <formats>`."
+
+msgid "Q: What does conversion actually do?"
+msgstr "В: Что именно делает конвертация?"
+
+msgid "Conversion usually transforms data between compatible formats."
+msgstr "Конвертация обычно преобразует данные между совместимыми форматами."
+
+msgid "Some operations perform a more specialized form of conversion."
+msgstr "Некоторые операции выполняют более специализированную форму конвертации."
+
+msgid "Default pipeline"
+msgstr "Стандартный пайплайн"
+
+msgid "Q: What determines which output formats are supported?"
+msgstr "В: Что определяет поддерживаемые выходные форматы?"
+
+msgid "Closest practical standard format with matching semantics."
+msgstr "Ближайший подходящий стандартный формат с той же семантикой."
 
 msgid ""
-"An update may introduce a new format version or a file variant unsupported by the current decoder. "
-"Try the latest release. If the problem remains, `open an issue <Issues_>`_ and attach the file. "
-"In case of large changes, it might take some time to adapt."
+"Conversions between different kinds of content are left to specialized tools, "
+"which can continue from decoded data."
 msgstr ""
-"Обновление могло добавить новый формат или несовместимый вариант файла, который текущий декодер неподдерживает. "
-"Попробуйте последнюю версию. Если проблема остается, `создайте issue <Issues_>`_ и приложите файл. "
-"При значительных изменениях адаптация может занять некоторое время."
+"Конвертация между разными типами содержимого оставляются специализированным инструментам, "
+"которые могут продолжить работу с декодированными данными."
 
-msgid "📤 Output Formats"
-msgstr "📤 Выходные форматы"
+msgid "🧩 Formats"
+msgstr "🧩 Форматы"
 
 msgid "Q: What programs support ``.dds`` files?"
 msgstr "В: Какие программы поддерживают файлы ``.dds``?"
 
-msgid "Recommended viewers:"
-msgstr "Рекомендуемые программы:"
-
-msgid "XnView_ (Universal)"
-msgstr "XnView_ (Универсальный)"
-
-msgid "WTV_ (Lightweight)"
-msgstr "WTV_ (Легковесный)"
+msgid "Recommended viewers are XnView_ for general use and WTV_ as a lightweight alternative."
+msgstr "Для общего использования рекомендуется XnView_, а в качестве легковесной альтернативы — WTV_."
 
 msgid "Q: How to convert ``.dds`` textures to ``.png``?"
-msgstr "В: Как конвертировать ``.dds`` текстуры в ``.png``?"
+msgstr "В: Как конвертировать текстуры ``.dds`` в ``.png``?"
 
 msgid "Use ImageMagick_ or FFmpeg_."
 msgstr "Используйте ImageMagick_ или FFmpeg_."
@@ -109,13 +128,25 @@ msgstr "В: Почему у модели странные или чёрные т
 msgid ""
 "In Blender, make sure node alpha mode is set to ``Channel Packed`` (`Screenshot <Alpha Mode_>`_)."
 msgstr ""
-"В Blender, убедитесь, что у ноды установлен режим альфа канала на ``Channel Packed`` (`Скриншот <Alpha Mode_>`_)."
+"В Blender убедитесь, что у ноды установлен режим альфа-канала ``Channel Packed`` (`Скриншот <Alpha Mode_>`_)."
 
 msgid "🛠 Troubleshooting"
-msgstr "🛠 Неисправности"
+msgstr "🛠 Устранение неполадок"
 
-msgid "Q: Antivirus or SmartScreen blocks ``scfile.exe``"
-msgstr "В: Антивирус или SmartScreen блокирует ``scfile.exe``"
+msgid "Q: Game update broke <Any Filename> decoding!"
+msgstr "В: Обновление игры сломало парсинг <Любой Файл>!"
+
+msgid ""
+"An update may introduce a new format version or a file variant unsupported by the current decoder. "
+"Try the latest release. If the problem remains, `open an issue <Issues_>`_ and attach the file. "
+"In case of large changes, it might take some time to adapt."
+msgstr ""
+"Обновление могло добавить новую версию формата или вариант файла, который текущий декодер не поддерживает. "
+"Попробуйте последнюю версию. Если проблема остается, `создайте issue <Issues_>`_ и приложите файл. "
+"При значительных изменениях адаптация может занять некоторое время."
+
+msgid "Q: Why antivirus blocks ``scfile.exe``?"
+msgstr "В: Почему антивирус блокирует ``scfile.exe``?"
 
 msgid ""
 "SmartScreen evaluates the reputation of a downloaded file and its publisher. "
@@ -140,29 +171,26 @@ msgstr ""
 msgid "Q: How to report a bug?"
 msgstr "В: Как сообщить об ошибке?"
 
-msgid "For a reproducible conversion failure, wrong output, or crash, `open an issue <Issues_>`_."
-msgstr "Для воспроизведения ошибки, неправильного вывода или сбоя, `создайте issue <Issues_>`_."
+msgid "`Open an issue <Issues_>`_."
+msgstr "`Создайте issue <Issues_>`_."
 
-msgid "Please include:"
-msgstr "Пожалуйста, включите:"
+msgid "Please try to include:"
+msgstr "Постарайтесь включить:"
 
-msgid "**Version and system**: sc-file version and operating system."
-msgstr "**Версия и система**: версия sc-file и операционная система."
+msgid "**Detailed action description**."
+msgstr "**Подробное описание действий**."
 
-msgid "**Exact action**: CLI command or GUI settings."
-msgstr "**Точное действие**: CLI команда или GUI настройки."
+msgid "**Expected and actual result**."
+msgstr "**Ожидаемый и фактический результат**."
 
-msgid "**Expected and actual result**: include the complete error message."
-msgstr "**Ожидаемый и фактический результат**: включите полное сообщение об ошибке."
-
-msgid "**File**: its path or an attachment when the problem concerns a file."
-msgstr "**Файл**: путь или сам файл при проблеме связанных с конкретным файлом."
+msgid "**Related file** (if applicable)."
+msgstr "**Связанный файл** (если применимо)."
 
 msgid "Questions and usage advice belong in `Telegram <TG_>`_."
-msgstr "Вопросы и советы по использованию доступны в личке `Telegram <TG_>`_."
+msgstr "Вопросы и советы по использованию задавайте в `Telegram <TG_>`_."
 
 msgid "❤️ Support"
 msgstr "❤️ Поддержка"
 
 msgid "If this tool has been useful, you can support its development by donation: NOWPayments_, CloudTips_."
-msgstr "Если этот инструмент был полезен, вы можете поддержать его разработку: NOWPayments_, CloudTips_."
+msgstr "Если этот инструмент был полезен, вы можете поддержать его разработку пожертвованием: NOWPayments_, CloudTips_."

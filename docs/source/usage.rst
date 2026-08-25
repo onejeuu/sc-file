@@ -328,7 +328,7 @@ mapcache
 
 
 ``--biomes / --no-biomes``
-  Export biome data in Anvil chunks. Enabled by default. Use ``--no-biomes`` to omit it.
+  Export biome data. Enabled by default. Use ``--no-biomes`` to omit it.
 
   .. code-block:: bash
     :caption: Example

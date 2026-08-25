@@ -8,6 +8,7 @@
 | Usually located at ``stalcraft/map_cache/5.0``.
 
 | Export groups fragments by coordinates ``x`` and ``z`` in filenames.
+| Map cache region files named ``reg.<x>.<z>.mdat``.
 | Minecraft Anvil region files named ``r.<x>.<z>.mca``.
 
 
@@ -44,7 +45,7 @@ You can clear existing ``.mca`` files from this directory before the first expor
 .. warning::
 
    | Always leave the world before replacing its regions.
-   | Minecraft can overwrite changed region files with its cached chunks.
+   | Minecraft can overwrite changed files with its cached chunks.
 
 Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups.
 
