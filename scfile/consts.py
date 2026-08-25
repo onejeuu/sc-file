@@ -1,3 +1,6 @@
+"""Shared constants."""
+
+
 class FormatSignature:
     """Binary format signatures."""
 

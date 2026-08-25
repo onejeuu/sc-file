@@ -11,10 +11,10 @@ Modules
    :maxdepth: 2
 
    scfile.convert
-   scfile.core
    scfile.formats
-   scfile.io
    scfile.content
+   scfile.core
+   scfile.io
 
 Consts
 ------

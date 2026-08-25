@@ -1,4 +1,4 @@
-"""Abstract core classes for reading and writing binary formats."""
+"""Core abstractions for binary format handlers."""
 
 from . import base, decoder, encoder, models
 from .base import Handler

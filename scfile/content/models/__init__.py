@@ -1,4 +1,4 @@
-"""Data structures for 3D model content."""
+"""3D scene representation."""
 
 from .animation import AnimationClip, ModelAnimation
 from .counts import MeshCounts, ModelCounts

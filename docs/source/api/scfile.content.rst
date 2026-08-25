@@ -1,19 +1,11 @@
-🗃️ Structures
+🗃️ Content
 ==================================================
 
 .. automodule:: scfile.content
    :no-members:
 
-Modules
--------
-
-.. toctree::
-   :maxdepth: 2
-
-   scfile.content.models
-
-Content
--------
+Base
+-----
 
 .. automodule:: scfile.content.base
    :members:
@@ -35,16 +27,24 @@ Content
 
    ``tuple[str, bytes]``
 
-Regions
--------
+🧊 Models
+-----------
+
+.. toctree::
+  :maxdepth: 2
+
+  scfile.content.models
+
+🗺 Regions
+-----------
 
 .. automodule:: scfile.content.regions
    :members:
    :show-inheritance:
    :undoc-members:
 
-Textures
---------
+🧱 Textures
+------------
 
 .. automodule:: scfile.content.textures
    :members:

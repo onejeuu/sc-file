@@ -1,3 +1,5 @@
+"""Shared types."""
+
 import os
 from collections.abc import Sequence
 from pathlib import Path

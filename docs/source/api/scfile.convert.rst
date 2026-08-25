@@ -4,14 +4,6 @@
 .. automodule:: scfile.convert
    :no-members:
 
-Animate
--------
-
-.. automodule:: scfile.convert.animate
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 Files
 -----
 
@@ -28,6 +20,14 @@ Formats
    :show-inheritance:
    :undoc-members:
 
+Animate
+-------
+
+.. automodule:: scfile.convert.animate
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
 Mapcache
 --------
 
@@ -35,21 +35,6 @@ Mapcache
    :members:
    :show-inheritance:
    :undoc-members:
-
-.. py:type:: RegionKey
-   :module: scfile.convert.mapcache
-
-   ``tuple[int, int]``
-
-.. py:type:: Regions
-   :module: scfile.convert.mapcache
-
-   ``dict[RegionKey, list[Path]]``
-
-.. py:type:: CancelCheck
-   :module: scfile.convert.mapcache
-
-   ``Callable[[], bool] | None``
 
 Named
 -----

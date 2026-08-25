@@ -1,4 +1,4 @@
-"""Library processing and conversion options."""
+"""Shared options."""
 
 from dataclasses import dataclass, field
 from typing import Mapping

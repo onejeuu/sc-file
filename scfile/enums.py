@@ -1,3 +1,5 @@
+"""Shared enumerations."""
+
 from enum import IntEnum, StrEnum, auto
 
 

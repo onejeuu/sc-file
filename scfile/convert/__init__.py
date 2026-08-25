@@ -1,4 +1,4 @@
-"""High-level file conversion."""
+"""Library convert operations."""
 
 from . import animate, files, formats, mapcache, paths
 from .animate import arms, body, face

@@ -1,4 +1,4 @@
-"""IR Content for files."""
+"""Intermediate data representation."""
 
 from .base import (
     ArchiveContent,

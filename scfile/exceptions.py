@@ -1,4 +1,4 @@
-"""Library exceptions and diagnostic context."""
+"""Library exceptions."""
 
 from typing import ClassVar
 

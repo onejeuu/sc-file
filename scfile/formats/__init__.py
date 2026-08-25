@@ -1,4 +1,4 @@
-"""Collection of submodules that implement specific file format decoder/encoder."""
+"""Format handlers catalog."""
 
 from . import (
     dds,

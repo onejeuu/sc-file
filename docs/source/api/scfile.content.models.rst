@@ -1,8 +1,32 @@
-Models
-======
+🧊 Models
+=========
 
 .. automodule:: scfile.content.models
    :no-members:
+
+Scene
+-----
+
+.. automodule:: scfile.content.models.scene
+  :members:
+  :show-inheritance:
+  :undoc-members:
+
+Mesh
+----
+
+.. automodule:: scfile.content.models.mesh
+    :members:
+    :show-inheritance:
+    :undoc-members:
+
+Skeleton
+--------
+
+.. automodule:: scfile.content.models.skeleton
+    :members:
+    :show-inheritance:
+    :undoc-members:
 
 Animation
 ---------
@@ -11,6 +35,14 @@ Animation
    :members:
    :show-inheritance:
    :undoc-members:
+
+Meta
+----
+
+.. automodule:: scfile.content.models.meta
+  :members:
+  :show-inheritance:
+  :undoc-members:
 
 Counts
 ------
@@ -40,38 +72,6 @@ Matrices
 --------
 
 .. automodule:: scfile.content.models.matrices
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Mesh
-----
-
-.. automodule:: scfile.content.models.mesh
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Meta
-----
-
-.. automodule:: scfile.content.models.meta
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Scene
------
-
-.. automodule:: scfile.content.models.scene
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Skeleton
---------
-
-.. automodule:: scfile.content.models.skeleton
    :members:
    :show-inheritance:
    :undoc-members:
