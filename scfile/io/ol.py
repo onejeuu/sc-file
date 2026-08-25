@@ -1,11 +1,13 @@
+"""Structured I/O extensions for OL."""
+
 from scfile.content.textures import CUBEMAP_FACE_COUNT
 from scfile.enums import F
 
 from .base import StructReader
 
 
-XOR = ord("g")
-NULL = ord("G")
+XOR = ord("g")  # 103
+NULL = ord("G")  # 71
 
 
 class OlReader(StructReader):

@@ -1,3 +1,5 @@
+"""Structured I/O extensions for models."""
+
 import numpy as np
 
 from scfile.consts import IntegerFactor as Factor

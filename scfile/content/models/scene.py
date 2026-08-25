@@ -1,4 +1,4 @@
-"""Data structures for scenes."""
+"""Scene structures."""
 
 from dataclasses import dataclass, field
 from typing import assert_never
@@ -21,7 +21,7 @@ from .types import (
 
 
 ROOT_BONE_ID = -1
-"""Parent ID used by root bones."""
+"""Default parent ID for root bones."""
 
 
 @dataclass

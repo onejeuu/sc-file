@@ -1,4 +1,4 @@
-"""Source metadata for model content."""
+"""Model source metadata."""
 
 from dataclasses import dataclass, field
 

@@ -1,4 +1,4 @@
-"""Named conversion functions."""
+"""Named conversion decorator."""
 
 from collections.abc import Callable
 from functools import wraps

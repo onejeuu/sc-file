@@ -1,3 +1,5 @@
+"""Structured I/O extensions for NBT."""
+
 from enum import IntEnum
 from typing import assert_never
 

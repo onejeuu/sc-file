@@ -1,4 +1,4 @@
-"""Binary format encoder base class."""
+"""Content encoding contract."""
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence

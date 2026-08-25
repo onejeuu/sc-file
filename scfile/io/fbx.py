@@ -1,3 +1,5 @@
+"""Structured I/O extensions for FBX."""
+
 from struct import Struct
 from typing import assert_never
 

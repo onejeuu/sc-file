@@ -1,4 +1,4 @@
-"""Enums for model data structures."""
+"""Model enumerations."""
 
 from enum import IntEnum, StrEnum, auto
 

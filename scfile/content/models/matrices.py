@@ -1,4 +1,4 @@
-"""Matrix transformations utilities."""
+"""Matrix transformations."""
 
 import numpy as np
 from numpy.typing import NDArray

@@ -1,4 +1,4 @@
-"""Binary format decoder base class."""
+"""Source decoding contract."""
 
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, cast

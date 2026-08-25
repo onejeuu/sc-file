@@ -1,4 +1,4 @@
-"""Model content handler base classes."""
+"""Model handler specializations."""
 
 from typing import ClassVar
 

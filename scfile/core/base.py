@@ -1,4 +1,4 @@
-"""Binary format handler base class."""
+"""Handler lifecycle abstraction."""
 
 from abc import ABC
 from collections.abc import Mapping

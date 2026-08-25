@@ -1,4 +1,4 @@
-"""External model animation."""
+"""External model animation operations."""
 
 from dataclasses import replace
 from hashlib import blake2b

@@ -1,4 +1,4 @@
-"""Type aliases for model data structures."""
+"""Model data types."""
 
 from typing import Annotated, NewType
 

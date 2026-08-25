@@ -1,4 +1,4 @@
-"""Map cache conversion."""
+"""Map cache merging operations."""
 
 import os
 from collections import defaultdict

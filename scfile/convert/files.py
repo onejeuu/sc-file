@@ -1,4 +1,4 @@
-"""File conversion."""
+"""File conversion operations."""
 
 from pathlib import Path
 from typing import Optional

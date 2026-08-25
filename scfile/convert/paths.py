@@ -1,4 +1,4 @@
-"""Paths used by conversion operations."""
+"""Conversion path management."""
 
 import os
 from collections.abc import Collection, Generator

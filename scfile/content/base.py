@@ -1,4 +1,4 @@
-"""Structured file content."""
+"""Base content containers."""
 
 from dataclasses import dataclass, field
 from typing import ClassVar
