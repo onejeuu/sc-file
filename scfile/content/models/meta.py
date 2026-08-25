@@ -8,6 +8,8 @@ from .types import FeatureFlags
 
 @dataclass
 class ModelCounts:
+    """Declared model counts."""
+
     meshes: int = 0
     bones: int = 0
     channels: int = 0
@@ -16,6 +18,8 @@ class ModelCounts:
 
 @dataclass
 class MeshCounts:
+    """Declared mesh counts."""
+
     vertices: int = 0
     polygons: int = 0
     max_influences: int = 0
@@ -25,6 +29,8 @@ class MeshCounts:
 
 @dataclass
 class ModelMeta:
+    """Model source metadata."""
+
     version: float = 0.0
     flags: FeatureFlags = field(default_factory=dict)
     counts: ModelCounts = field(default_factory=ModelCounts)

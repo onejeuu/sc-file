@@ -31,13 +31,13 @@ def chunk(
     blocks = raw[:blocks_end]
     metadata = raw[blocks_end:metadata_end] if extended else empty
     additions = raw[lighting_end:add_end] if extended else empty
-    sections: list[S.RegionSection] = []
+    sections: list[S.ChunkSection] = []
 
     for section, y in enumerate(y for y in range(16) if (header.section_mask >> y) & 1):
         add_section = (header.add_mask & ((1 << y) - 1)).bit_count()
         add_section_size = NIBBLE_SIZE * ((header.add_mask >> y) & 1)
         sections.append(
-            S.RegionSection(
+            S.ChunkSection(
                 y=y,
                 blocks=blocks[section * SECTION_SIZE : (section + 1) * SECTION_SIZE],
                 metadata=metadata[section * NIBBLE_SIZE : (section + 1) * NIBBLE_SIZE],

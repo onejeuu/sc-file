@@ -1,4 +1,4 @@
-"""Content containers."""
+"""Content representation containers."""
 
 from dataclasses import dataclass, field
 from typing import ClassVar
@@ -17,14 +17,14 @@ type ArchiveEntry = tuple[str, bytes]
 
 
 class BaseContent:
-    """Base type for structured handler content."""
+    """Base class for content representations."""
 
     kind: ClassVar[FileKind]
 
 
 @dataclass
 class ModelContent(BaseContent):
-    """Content container for 3D models."""
+    """Content representation of 3D model."""
 
     kind: ClassVar[FileKind] = FileKind.MODEL
 
@@ -40,7 +40,7 @@ class ModelContent(BaseContent):
 
 @dataclass
 class TextureContent(BaseContent):
-    """Content container for textures (2D or cubemap)."""
+    """Content representation of texture."""
 
     kind: ClassVar[FileKind] = FileKind.TEXTURE
 
@@ -74,7 +74,7 @@ class TextureContent(BaseContent):
 
 @dataclass
 class ImageContent(BaseContent):
-    """Content container for images."""
+    """Content representation of image."""
 
     kind: ClassVar[FileKind] = FileKind.IMAGE
 
@@ -83,7 +83,7 @@ class ImageContent(BaseContent):
 
 @dataclass
 class ArchiveContent(BaseContent):
-    """Content container for named binary entries."""
+    """Content representation of archive."""
 
     kind: ClassVar[FileKind] = FileKind.ARCHIVE
 
@@ -92,7 +92,7 @@ class ArchiveContent(BaseContent):
 
 @dataclass
 class DocumentContent(BaseContent):
-    """Content container for structured document data."""
+    """Content representation of structured document."""
 
     kind: ClassVar[FileKind] = FileKind.DOCUMENT
 
@@ -101,7 +101,7 @@ class DocumentContent(BaseContent):
 
 @dataclass
 class RegionContent(BaseContent):
-    """Content container for regions (world terrain)."""
+    """Content representation of world region."""
 
     kind: ClassVar[FileKind] = FileKind.REGION
 
