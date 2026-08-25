@@ -8,14 +8,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from scfile.content.models.animation import AnimationClip
 from scfile.exceptions import AnimationError
 
 from .enums import AnimationTranslation, LinkSpace, SkeletonSpace, UVOrigin, UVSign
 from .matrices import create_transform_matrix
 from .mesh import ModelMesh
-from .scene import ModelScene, ModelSkin
-from .skeleton import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
+from .scene import ROOT_BONE_ID, AnimationClip, ModelScene, ModelSkeleton, ModelSkin, SkeletonBone
 from .types import BindPose, InverseBindMatrices, TransformMatrix
 
 

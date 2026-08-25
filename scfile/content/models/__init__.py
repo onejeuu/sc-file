@@ -1,7 +1,5 @@
 """3D scene representation."""
 
-from .animation import AnimationClip, ModelAnimation
-from .counts import MeshCounts, ModelCounts
 from .enums import (
     AnimationRotation,
     AnimationTranslation,
@@ -13,10 +11,18 @@ from .enums import (
     UVSign,
 )
 from .matrices import create_rotation_matrix, create_transform_matrix, euler_to_quat, quaternions_to_euler
-from .meta import ModelMeta
+from .meta import MeshCounts, ModelCounts, ModelMeta
 from .mesh import BlendShape, MeshBounds, ModelMesh
-from .scene import ModelScene, ModelSkin, SceneScales
-from .skeleton import ROOT_BONE_ID, ModelSkeleton, SkeletonBone
+from .scene import (
+    AnimationClip,
+    ModelAnimation,
+    ModelScene,
+    ModelSkeleton,
+    ModelSkin,
+    ROOT_BONE_ID,
+    SceneScales,
+    SkeletonBone,
+)
 from .types import (
     AnimationRotations,
     AnimationTimes,
