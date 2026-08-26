@@ -74,6 +74,7 @@ BLOCKS: dict[int, int] = {
     # Grass Dandelion
     213: 37,  # magma
     216: 37,  # bone block
+    224: 37,  # lime shulker
     225: 37,  # pink shulker
     227: 37,  # light gray shulker
     245: 37,  # purple glazed

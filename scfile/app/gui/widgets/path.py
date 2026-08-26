@@ -327,6 +327,7 @@ class PathField(QWidget):
 
         if required:
             title.setText(f'{label} <span style="color: {Colors.ERROR}">*</span>')
+            title.setToolTip(strings.get("tooltip.form.required"))
 
         title.setStyleSheet(Styles.LABEL)
 

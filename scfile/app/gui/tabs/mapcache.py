@@ -229,7 +229,7 @@ class MapCacheTab(QWidget):
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
             "tooltip.mapcache.scanning" if self.scanner.busy else None,
-            "tooltip.invalid.form" if invalid_source or invalid_output else None,
+            "tooltip.form.invalid" if invalid_source or invalid_output else None,
         )
         return next((error for error in errors if error), None)
 

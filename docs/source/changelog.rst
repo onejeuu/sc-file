@@ -34,7 +34,6 @@ File Conversion
 
 * ``scfile convert --include``: filters source formats during directory conversion.
 * ``scfile convert --layout``: added ``dump``, ``relative``, and ``rooted`` output layouts.
-* ``scfile convert --workers``: processes files in parallel.
 * ``scfile convert --verbose``: prints the result of every processed file.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
 * ``scfile mapcache --biomes/--no-biomes``: controls biome data export to ``.mca`` files.
@@ -54,7 +53,6 @@ Application
 
 * Minimum Python version raised to ``3.13``.
 * ``convert.auto()`` now returns destination path on success or ``None`` on skip.
-* ``convert.files.manual()``: stages output files before publishing them.
 * ``scfile convert --model-format`` (``-F``): now accepts one target format.
 * ``scfile convert --output``: default layout changed from flat ``dump`` to ``rooted``.
 * ``TaskFeedback``: reworked with live progress, output location, and files summary.
@@ -65,7 +63,8 @@ Application
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **GUI:** disabled controls now display the unavailable cursor.
-* ``ConvertTask``: sources with colliding output paths no longer overwrite each other during conversion.
+* **Model transforms:** no longer modify source content.
+* **Conversion:** sources with colliding output paths no longer overwrite each other during conversion.
 
 🗑️ Removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,6 +91,12 @@ Library API
 * ``FileDecoder.decode()``: removed ``seek`` parameter.
 * ``BaseContent.reset()``.
 * ``scfile.core.types`` module.
+
+⚡ Optimized
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``scfile convert --workers``: processes files in parallel.
+* ``convert.files.manual()``: writes to staged temporary files before publishing output.
 
 ♻️ Refactored
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

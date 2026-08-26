@@ -237,6 +237,7 @@ class BodyForm(AnimationForm):
             strings.get("option.animate.body.preserve"),
             strings.get("option.animate.body.preserve.hint"),
         )
+        self.form_layout.insertSpacing(1, 10)
         self.options.addWidget(self.preserve_clips)
 
     def create_task(self, output: Path) -> AnimateTask:
@@ -384,7 +385,7 @@ class AnimateTab(QWidget):
     def _submit_error(self) -> str | None:
         errors = (
             "tooltip.task.busy" if self.tasks.busy else None,
-            "tooltip.invalid.form" if self.form.validation_error() or self._output_invalid() else None,
+            "tooltip.form.invalid" if self.form.validation_error() or self._output_invalid() else None,
         )
         return next((error for error in errors if error), None)
 
