@@ -1,7 +1,6 @@
 from typing import Any
 
 from scfile import __repository__ as REPO
-from scfile import __version__ as SEMVER
 
 
 type Props = list[tuple[Any, ...]]
@@ -13,7 +12,7 @@ class FBX:
     HEADER = b"Kaydara FBX Binary  \x00\x1a\x00"
     FILE_ID = b"\x28\xb5\x2f\xfd\x8e\xb5\x4e\x54\x9f\x38\x1e\xb9\xe6\x2b\x92\xad"
     NULL_NODE = b"\x00" * 13
-    CREATOR = f"{REPO} v{SEMVER}".encode()
+    CREATOR = REPO.encode()
     TICKS_PER_SECOND = 46_186_158_000
     KEY_VERSION = 4008
     AXES = (b"d|X", b"d|Y", b"d|Z")
