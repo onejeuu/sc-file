@@ -1,0 +1,159 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "📖 Library"
+msgstr "📖 Библиотека"
+
+msgid "API Reference"
+msgstr "Справочник API"
+
+msgid "Usage"
+msgstr "Использование"
+
+msgid "Conversion"
+msgstr "Конвертация"
+
+msgid "Automatic Conversion"
+msgstr "Автоматическая конвертация"
+
+msgid ""
+":func:`~scfile.convert.files.auto` resolves the source format from its suffix "
+"and uses its default target format."
+msgstr ""
+":func:`~scfile.convert.files.auto` определяет формат источника по его суффиксу "
+"и использует формат назначения по умолчанию."
+
+msgid "Without ``output``, the result is saved alongside the source."
+msgstr "Без ``output`` результат сохраняется рядом с исходным файлом."
+
+msgid "Explicit Conversion"
+msgstr "Явная конвертация"
+
+msgid ""
+"Use a named conversion from :mod:`~scfile.convert.formats` when the target "
+"format is known:"
+msgstr ""
+"Если целевой формат известен, используйте именованную конвертацию из "
+":mod:`~scfile.convert.formats`:"
+
+msgid "The output may be an exact file name or a directory."
+msgstr "В ``output`` можно указать точное имя файла или каталог."
+
+msgid "Options"
+msgstr "Параметры"
+
+msgid ":class:`~scfile.options.Options` configures conversion behavior."
+msgstr ":class:`~scfile.options.Options` настраивает поведение конвертации."
+
+msgid "By default, model conversion uses ``obj``."
+msgstr "По умолчанию модели конвертируются в ``obj``."
+
+msgid "With ``skeleton`` or ``animation``, it uses ``glb``."
+msgstr "При включении ``skeleton`` или ``animation`` используется ``glb``."
+
+msgid "Animations"
+msgstr "Анимации"
+
+msgid ":mod:`~scfile.convert.animate` exports external animations as ``.glb`` files."
+msgstr ":mod:`~scfile.convert.animate` экспортирует внешние анимации в файлы ``.glb``."
+
+msgid "See :doc:`Animation Export guide <../../usage/animate>`."
+msgstr "См. :doc:`Руководство по экспорту анимаций <../../usage/animate>`."
+
+msgid "Map Cache"
+msgstr "Кэш карты"
+
+msgid ""
+":mod:`~scfile.convert.mapcache` scans ``.mdat`` files, groups them by region, "
+"and merges them into ``.mca`` files."
+msgstr ""
+":mod:`~scfile.convert.mapcache` сканирует файлы ``.mdat``, группирует их по регионам "
+"и объединяет их в файлы ``.mca``."
+
+msgid "See the :doc:`Map Cache guide <../../usage/mapcache>`."
+msgstr "См. :doc:`Руководство по кэшу карты <../../usage/mapcache>`."
+
+msgid "Handlers"
+msgstr "Обработчики"
+
+msgid ":class:`~scfile.core.decoder.Decoder` parses binary data into content."
+msgstr ":class:`~scfile.core.decoder.Decoder` парсит бинарные данные в контент."
+
+msgid ":class:`~scfile.core.encoder.Encoder` serializes content into binary data."
+msgstr ":class:`~scfile.core.encoder.Encoder` сериализует контент в бинарные данные."
+
+msgid ":class:`~scfile.content.base.BaseContent` subclasses describe intermediate content structures."
+msgstr "Подклассы :class:`~scfile.content.base.BaseContent` описывают структуры контента."
+
+msgid "Manual Encoding"
+msgstr "Ручное кодирование"
+
+msgid "Use an encoder directly when conversion needs explicit control over content:"
+msgstr "Используйте кодировщик напрямую, если конвертация требует явного контроля над контентом:"
+
+msgid "Pipelines"
+msgstr "Конвейеры"
+
+msgid ":class:`~scfile.core.decoder.Decoder` provides two in-memory shortcuts:"
+msgstr ":class:`~scfile.core.decoder.Decoder` предоставляет два варианта конвертации в памяти:"
+
+msgid ":meth:`~scfile.core.decoder.Decoder.convert_to` returns an open encoder."
+msgstr ":meth:`~scfile.core.decoder.Decoder.convert_to` возвращает открытый кодировщик."
+
+msgid ":meth:`~scfile.core.decoder.Decoder.convert` returns encoded bytes."
+msgstr ":meth:`~scfile.core.decoder.Decoder.convert` возвращает закодированные байты."
+
+msgid "Streams"
+msgstr "Потоки"
+
+msgid ""
+"The encoder serializes its content when :meth:`~scfile.core.encoder.Encoder.save`, "
+":meth:`~scfile.core.encoder.Encoder.export`, or "
+":meth:`~scfile.core.encoder.Encoder.to_bytes` is called."
+msgstr ""
+"Кодировщик сериализует контент при вызове :meth:`~scfile.core.encoder.Encoder.save`, "
+":meth:`~scfile.core.encoder.Encoder.export` или "
+":meth:`~scfile.core.encoder.Encoder.to_bytes`."
+
+msgid "Method"
+msgstr "Метод"
+
+msgid "Result"
+msgstr "Результат"
+
+msgid "Closes by default"
+msgstr "Закрывает по умолчанию"
+
+msgid "Writes to ``model.obj``"
+msgstr "Записывает в ``model.obj``"
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "Returns encoded bytes"
+msgstr "Возвращает байты"
+
+msgid "No"
+msgstr "Нет"
+
+msgid ""
+"Decoders accept file paths, bytes, and open binary streams. "
+"Encoders use an in-memory stream by default or accept a file path or binary stream. "
+"Closing a handler closes its stream."
+msgstr ""
+"Декодеры принимают пути к файлам, байты и открытые бинарные потоки. "
+"Кодировщики по умолчанию используют поток в памяти, но также принимают путь к файлу или бинарный поток. "
+"Закрытие обработчика закрывает его поток."
+
+msgid ""
+"Always use handlers inside a context manager (``with``) whenever possible. "
+"Their resources are released automatically, even when decoding or encoding fails."
+msgstr ""
+"Всегда используйте контекстный менеджер (``with``) для обработчиков, когда это возможно. "
+"Так их ресурсы освобождаются автоматически, даже если обработка файла завершится ошибкой."
+
+msgid "For complete signatures and data structures, see :doc:`API Reference <../scfile>`."
+msgstr "Полные сигнатуры и структуры данных см. в :doc:`Справочнике API <../scfile>`."

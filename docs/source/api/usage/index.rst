@@ -92,6 +92,11 @@ Handlers
 | :class:`~scfile.core.encoder.Encoder` serializes content into binary data.
 | :class:`~scfile.content.base.BaseContent` subclasses describe intermediate content structures.
 
+.. important::
+
+  Always use handlers inside a context manager (``with``) whenever possible.
+  Their resources are released automatically, even when decoding or encoding fails.
+
 .. code-block:: python
 
   from scfile import Options
@@ -171,8 +176,6 @@ The encoder serializes its content when :meth:`~scfile.core.encoder.Encoder.save
 Decoders accept file paths, bytes, and open binary streams.
 Encoders use an in-memory stream by default or accept a file path or binary stream.
 Closing a handler closes its stream.
-
-Use a context manager whenever possible:
 
 .. code-block:: python
 
