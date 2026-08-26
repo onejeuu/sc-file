@@ -15,11 +15,14 @@ from scfile.types import SourceLike
 
 
 type IOStream = SourceLike | IOBase | bytes
+"""Binary source accepted by structured I/O."""
+
 type OutputStream = SourceLike | IOBase
+"""Binary destination accepted by structured I/O."""
 
 
 class StructIO[StreamType: IOStream]:
-    """Own a seekable binary stream used for structured I/O."""
+    """Seekable binary stream wrapper for structured I/O."""
 
     mode: ClassVar[str]
     """Binary mode used when opening a path."""
@@ -129,7 +132,7 @@ class StructIO[StreamType: IOStream]:
 
 
 class StructReader(StructIO[IOStream]):
-    """Read structured values from a binary stream."""
+    """Structured binary reader."""
 
     mode = "rb"
 
@@ -267,7 +270,7 @@ class StructReader(StructIO[IOStream]):
 
 
 class StructWriter(StructIO[OutputStream]):
-    """Write structured values to a binary stream."""
+    """Structured binary writer."""
 
     mode = "wb+"
 

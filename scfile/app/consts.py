@@ -6,6 +6,7 @@ from scfile.types import Formats
 
 ORGANIZATION: str = "onejeuu"
 APPLICATION: str = "scfile"
+
 TITLE: str = "scfile"
 
 ACCENT_COLOR: str = "#ffd666"
