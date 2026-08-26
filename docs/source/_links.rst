@@ -39,9 +39,9 @@
 .. _Propetries: https://en.wikipedia.org/wiki/.properties
 .. _Markdown: https://en.wikipedia.org/wiki/Markdown
 .. _SubRip: https://en.wikipedia.org/wiki/SubRip
-.. _Torrent: https://en.wikipedia.org/wiki/Torrent_file
+.. _Torrent File: https://en.wikipedia.org/wiki/Torrent_file
 .. _ZIP: https://en.wikipedia.org/wiki/ZIP_(file_format)
-.. _NBT: https://minecraft.wiki/w/NBT_format
+.. _NBT Format: https://minecraft.wiki/w/NBT_format
 .. _Anvil: https://minecraft.wiki/w/Anvil_file_format
 .. _MCA: https://minecraft.wiki/w/Chunk_format
 

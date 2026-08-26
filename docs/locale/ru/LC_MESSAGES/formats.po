@@ -205,9 +205,6 @@ msgstr ":doc:`Просмотр кэша карт → <usage/mapcache>`"
 msgid "⚙️ NBT Files"
 msgstr "⚙️ NBT"
 
-msgid "`Named Binary Tag <NBT_>`_ data."
-msgstr "`Named Binary Tag <NBT_>`_"
-
 msgid "None, gzip_, zstd_."
 msgstr "Отсутствует, gzip_, zstd_."
 
@@ -319,8 +316,8 @@ msgstr "Путы к игровым ассетам и их SHA-1 хеши."
 msgid "Game content delivery."
 msgstr "Скачивание игрового контента."
 
-msgid "Modified ``.torrent`` (Torrent_) data. Trackers require a token."
-msgstr "Модифицированный ``.torrent`` (Torrent_). Трекеры требуют токен."
+msgid "Modified ``.torrent`` (`Torrent File`_)."
+msgstr "Модифицированный ``.torrent`` (`Torrent File`_)."
 
 # ============================================================================
 # No translation required.

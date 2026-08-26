@@ -108,7 +108,7 @@ msgid "Q: What programs support ``.dds`` files?"
 msgstr "В: Какие программы поддерживают файлы ``.dds``?"
 
 msgid "Recommended viewers are XnView_ for general use and WTV_ as a lightweight alternative."
-msgstr "Для общего использования рекомендуется XnView_, а в качестве легковесной альтернативы — WTV_."
+msgstr "Для общего использования рекомендуется XnView_ или WTV_ в качестве легковесной альтернативы."
 
 msgid "Q: How to convert ``.dds`` textures to ``.png``?"
 msgstr "В: Как конвертировать текстуры ``.dds`` в ``.png``?"

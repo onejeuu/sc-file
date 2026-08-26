@@ -272,7 +272,7 @@ Export
 
 .. _nbt:
 
-:Format: `Named Binary Tag <NBT_>`_ data.
+:Format: `Named Binary Tag <NBT Format_>`_
 :Compression: None, gzip_, zstd_.
 :Export: ``.json`` (`JavaScript Object Notation <JSON_>`_).
 
@@ -447,4 +447,4 @@ Export
 
 :Template: TORRENT.bt_
 :Purpose: Game content delivery.
-:Contents: Modified ``.torrent`` (Torrent_) data. Trackers require a token.
+:Contents: Modified ``.torrent`` (`Torrent File`_).
