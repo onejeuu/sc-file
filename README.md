@@ -16,7 +16,7 @@
 
 [docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
-[docs-support]: https://sc-file.readthedocs.io/en/latest/support.html
+[docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
 [docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
 
@@ -58,7 +58,7 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 | 🗺 **Region**     | `.mdat`                                  | →   | `.mca`                 |
 | ⚙️ **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
-> [Details about formats →][docs-support]
+> [Details about formats →][docs-formats]
 
 </br>
 

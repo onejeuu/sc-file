@@ -16,7 +16,7 @@
 
 [docs-usage]: https://sc-file.readthedocs.io/ru/latest/usage.html
 [docs-faq]: https://sc-file.readthedocs.io/ru/latest/faq.html
-[docs-support]: https://sc-file.readthedocs.io/ru/latest/support.html
+[docs-formats]: https://sc-file.readthedocs.io/ru/latest/formats.html
 [docs-compile]: https://sc-file.readthedocs.io/ru/latest/compile.html
 [docs-library]: https://sc-file.readthedocs.io/ru/latest/api/index.html
 
@@ -51,7 +51,7 @@
 | 🗺 **Регион**       | `.mdat`                                  | →   | `.mca`                 |
 | ⚙️ **NBT**         | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
-> [Детальная информация о форматах →][docs-support]
+> [Детальная информация о форматах →][docs-formats]
 
 </br>
 
