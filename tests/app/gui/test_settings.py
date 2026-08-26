@@ -8,8 +8,18 @@ from scfile.app.gui.settings import Settings, Store
 def test_store(tmp_path: Path) -> None:
     data = QSettings(str(tmp_path / "settings.ini"), QSettings.Format.IniFormat)
     store = Store(data)
-    default = tmp_path / "default"
-    store.save(Settings(export_path=default))
+    expected = Settings(
+        game_root=tmp_path / "game",
+        resolve_paths=False,
+        verbose=True,
+        export_path=tmp_path / "export",
+    )
+    store.save(expected)
 
-    settings = store.load()
-    assert settings.export_path == default
+    assert store.load() == expected
+
+
+def test_store_defaults(tmp_path: Path) -> None:
+    data = QSettings(str(tmp_path / "settings.ini"), QSettings.Format.IniFormat)
+
+    assert Store(data).load() == Settings()
