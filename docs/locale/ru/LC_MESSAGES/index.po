@@ -77,7 +77,7 @@ msgstr "**Drag and drop**: перетащите файлы или папки н�
 msgid "**Command line:** run ``scfile.exe --help`` for commands and options."
 msgstr "**Командная строка**: выполните ``scfile.exe --help``, чтобы увидеть команды и параметры."
 
-msgid "For example:"
+msgid "For example"
 msgstr "Например"
 
 msgid "This exports the model and its armature to GLB."

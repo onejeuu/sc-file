@@ -86,9 +86,8 @@ Download ``scfile.exe`` from the `Releases page <Releases_>`_.
 - **Drag and drop:** drag files or folders onto ``scfile.exe`` in File Explorer.
 - **Command line:** run ``scfile.exe --help`` for commands and options.
 
-For example:
-
 .. code-block:: console
+  :caption: For example
 
   scfile.exe model.mcsb -F glb --skeleton
 

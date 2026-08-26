@@ -7,7 +7,7 @@ v6.0.0
 ✨ Added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Animation Export
+Animations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``scfile animate``: added ``arms()``, ``face()``, and ``body()`` commands for animation export to ``.glb``.
@@ -18,18 +18,19 @@ Animation Export
 * ``McvdDecoder``: standalone decoder instead of alias.
 * ``mcvd_to_obj()``, ``mcvd_to_glb()``, and ``mcvd_to_fbx()``: added named ``.mcvd`` conversions.
 
-Models
+Handlers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``McsaDecoder``: now supports blend shapes parsing.
 * ``GlbEncoder``: now exports blend shapes and morph animation clips.
 * ``FbxEncoder``: now exports armature and builtin bone animation clips.
 * ``EfkmodelDecoder``: now parses uv2, normals, tangents.
+* ``HandlerState`` and ``Handler.state``: added operation lifecycle states.
 * ``ModelMeta``: added source model version, feature flags, and element counts.
 * ``ModelContent.has()`` and ``ModelScene.has()``: report present model features.
 * ``ModelDecoder.features`` and ``ModelEncoder.features``: declare model features supported by handlers.
 
-File Conversion
+Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``scfile convert --include``: filters source formats during directory conversion.
@@ -37,6 +38,7 @@ File Conversion
 * ``scfile convert --verbose``: prints the result of every processed file.
 * ``scfile.formats.registry``: now defines built-in decoders, encoders, filename aliases, and supported conversion paths.
 * ``scfile mapcache --biomes/--no-biomes``: controls biome data export to ``.mca`` files.
+
 
 Application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -87,8 +89,11 @@ Library API
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Support of Python ``3.11`` and ``3.12``.
-* ``FileEncoder.save_as()`` and ``FileEncoder.export_as()``.
+* ``FileEncoder.save_as()`` and ``FileEncoder.export_as()``: replaced by ``Encoder.save(close=False)`` and ``Encoder.export(close=False)``.
 * ``FileDecoder.decode()``: removed ``seek`` parameter.
+* ``FileDecoder.convert()``: removed ``output`` parameter.
+* ``FileEncoder.getvalue()``: renamed to ``Encoder.to_bytes()``.
+* ``FileEncoder.save()`` and ``FileEncoder.export()``: removed ``mode`` parameter.
 * ``BaseContent.reset()``.
 * ``scfile.core.types`` module.
 
@@ -107,14 +112,20 @@ Application
 * ``scfile`` entry point: moved to ``scfile.app.launcher``.
 * ``scfile.cli`` and ``scfile.gui``: moved to ``scfile.app.cli`` and ``scfile.app.gui``.
 
-Content and Core
+Core and Content
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* ``BaseFile``: renamed to ``Handler``.
+* ``Handler``: no longer inherits ``IOBase``. Binary stream operations moved to ``Handler.io``.
+* ``StructIO``: no longer inherits ``IOBase``. Wraps a binary stream.
+* ``BaseFile.ctx``: replaced by read-only ``Handler.context``.
+* ``BaseFile.suffix``: replaced by ``Handler.suffix()``.
+* ``FileDecoder`` and ``FileEncoder`` hook methods: renamed to protected ``_*`` methods.
 * ``scfile.core.content`` and ``scfile.structures``: moved to ``scfile.content``.
 * ``ModelContent.version`` and ``ModelContent.flags``: replaced by ``ModelContent.meta.version`` and ``ModelContent.meta.flags``.
 * ``TexarrContent`` and ``NbtContent``: replaced by ``ArchiveContent`` and ``DocumentContent``.
 * ``FileType`` and ``BaseContent.type``: renamed to ``FileKind`` and ``BaseContent.kind``.
-* ``BaseFile``, ``FileDecoder``, and ``FileEncoder``: renamed to ``Handler``, ``Decoder``, and ``Encoder``.
+* ``FileDecoder`` and ``FileEncoder``: renamed to ``Decoder`` and ``Encoder``.
 * ``scfile.core.structio``: moved to ``scfile.io.base``.
 * ``scfile.core.options``: moved to ``scfile.options``.
 * ``scfile.consts`` and ``scfile.enums``: redistributed to more specific modules.
@@ -122,7 +133,7 @@ Content and Core
 * ``Options.full_chunk``: renamed to ``Options.extended_chunk``.
 * ``Options.on_conflict`` and ``scfile convert --on-conflict``: ``overwrite`` renamed to ``replace``.
 
-File Conversion
+Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * ``convert.convert``: renamed to ``convert.files.manual``.
