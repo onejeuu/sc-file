@@ -2,16 +2,17 @@
 MIC Format.
 
 :Name: **Media Image Container**
-:Type: **🖼️ Image Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mic-media-image-container>`_
+:Handler: :class:`~scfile.formats.mic.decoder.MicDecoder`
+:Content: :class:`~scfile.content.base.ImageContent`
 :Suffix: ``.mic``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#mic
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.mic.MicDecoder("image.mic") as mic:
+    with formats.MicDecoder("image.mic") as mic:
         data = mic.decode()
 """
 

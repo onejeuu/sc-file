@@ -2,18 +2,19 @@
 OBJ Format.
 
 :Name: **Wavefront OBJ**
-:Type: **🧊 Model Encoder**
-:Wiki: `<https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
+:Handler: :class:`~scfile.formats.obj.encoder.ObjEncoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.obj``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
 :Features: ``UV``, ``Normals``
+:Wiki: `<https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.obj.ObjEncoder(data) as obj:
-        obj.encode().save("output.obj")
+    with formats.ObjEncoder(data) as obj:
+        obj.save("output.obj")
 """
 
 from .encoder import ObjEncoder

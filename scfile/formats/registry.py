@@ -17,14 +17,14 @@ type EncoderType = type[Encoder[Any, Any]]
 
 @dataclass(frozen=True, slots=True)
 class Conversion:
-    """One supported conversion path."""
+    """Supported format conversion path."""
 
     decoder: DecoderType
     encoder: EncoderType
 
 
 class Registry:
-    """Indexes built-in format handlers and conversion paths."""
+    """Registry of format handlers and conversion paths."""
 
     def __init__(
         self,
@@ -60,7 +60,7 @@ class Registry:
         self,
         source: SourceLike,
     ) -> DecoderType | None:
-        """Find an input handler for a file path."""
+        """Resolve a decoder from a source name."""
 
         path = Path(source)
         return self._names.get(path.name.lower()) or self._names.get(path.suffix.lower())
@@ -69,7 +69,7 @@ class Registry:
         self,
         *formats: FileFormat,
     ) -> frozenset[str]:
-        """Return source filename filters."""
+        """Return filename filters for source formats."""
 
         selected = formats or tuple(self.decoders)
         return frozenset(

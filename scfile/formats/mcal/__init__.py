@@ -2,17 +2,18 @@
 MCAL Format.
 
 :Name: **Animation Library**
-:Type: **🧊 Model Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcal-animation-library-mcal-bt>`_
+:Handler: :class:`~scfile.formats.mcal.decoder.McalDecoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.mcal``
-:Support: ``🧪 Experimental``
+:Support: ``🧪 EXPERIMENTAL``
 :Features: ``Bone Animation``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#mcal
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.McalDecoder("anims.mcal") as mcal:
+    with formats.McalDecoder("animations.mcal") as mcal:
         data = mcal.decode()
 """
 

@@ -2,18 +2,19 @@
 EFKMODEL Format.
 
 :Name: **Effekseer Model**
-:Type: **🧊 Model Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#efkmodel-effekseer-model-efkmodel-bt>`_
+:Handler: :class:`~scfile.formats.efkmodel.decoder.EfkmodelDecoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.efkmodel``
-:Support: ``⚠️ Partial``
+:Support: ``⚠️ PARTIAL``
 :Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Colors``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#efkmodel
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.efkmodel.EfkmodelDecoder("model.efkmodel") as efk:
-        data = efk.decode()
+    with formats.EfkmodelDecoder("model.efkmodel") as efkmodel:
+        data = efkmodel.decode()
 """
 
 from .decoder import EfkmodelDecoder

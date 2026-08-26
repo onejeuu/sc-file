@@ -2,18 +2,19 @@
 GLB Format.
 
 :Name: **glTF Binary**
-:Type: **🧊 Model Encoder**
-:Wiki: `<https://en.wikipedia.org/wiki/GlTF>`_
+:Handler: :class:`~scfile.formats.glb.encoder.GlbEncoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.glb``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
 :Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
+:Wiki: https://en.wikipedia.org/wiki/GlTF
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.glb.GlbEncoder(data) as glb:
-        glb.encode().save("output.glb")
+    with formats.GlbEncoder(data) as glb:
+        glb.save("output.glb")
 """
 
 from .encoder import GlbEncoder

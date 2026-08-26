@@ -1,18 +1,20 @@
 """
 MCVD Format.
 
-:Name: **Vector Dynamic**
-:Type: **🧊 Model Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcvd-vector-dynamic-mcsa-bt>`_
+:Name: **Trace Model** / **Animation Set**
+:Handler: :class:`~scfile.formats.mcvd.decoder.McvdDecoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.mcvd``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
+:Versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``
 :Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#mcvd
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.mcvd.McvdDecoder("animation.mcvd") as mcvd:
+    with formats.McvdDecoder("file.mcvd") as mcvd:
         data = mcvd.decode()
 """
 

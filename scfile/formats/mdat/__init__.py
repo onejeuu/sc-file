@@ -2,18 +2,20 @@
 MDAT Format.
 
 :Name: **World Region Cache**
-:Type: **🗺 Region Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mdat-world-region-cache>`_
-:Co-authors: `<https://github.com/DeTTK>`_, BoJIwEbNuK7
+:Handler: :class:`~scfile.formats.mdat.decoder.MdatDecoder`
+:Content: :class:`~scfile.content.base.RegionContent`
 :Suffix: ``.mdat``
-:Support: ``🧪 Experimental``
-:Features: ``Blocks``
+:Support: ``🧪 EXPERIMENTAL``
+:Versions: ``5.0``
+:Contents: ``Blocks``, ``Metadata``, ``Lighting``, ``Biomes``
+:Co-authors: ``DeTTK``, ``BoJIwEbNuK7``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#mdat
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.mdat.MdatDecoder("reg.0.0.mdat") as mdat:
+    with formats.MdatDecoder("reg.0.0.mdat") as mdat:
         data = mdat.decode()
 """
 

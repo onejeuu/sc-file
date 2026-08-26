@@ -2,19 +2,21 @@
 MCA Format.
 
 :Name: **Minecraft Chunks Anvil**
-:Type: **🗺 Region Encoder**
-:Wiki: `<https://minecraft.wiki/w/Anvil_file_format>`_
-:Co-authors: `<https://github.com/DeTTK>`_, BoJIwEbNuK7
+:Handler: :class:`~scfile.formats.mca.encoder.McaEncoder`
+:Content: :class:`~scfile.content.base.RegionContent`
 :Suffix: ``.mca``
-:Support: ``🧪 Experimental``
-:Features: ``Blocks``
+:Support: ``🧪 EXPERIMENTAL``
+:Versions: Minecraft Java ``1.12.2+`` (Anvil ``1343``)
+:Contents: ``Blocks``, ``Biomes``
+:Co-authors: ``DeTTK``, ``BoJIwEbNuK7``
+:Wiki: https://minecraft.wiki/w/Anvil_file_format
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.mca.McaEncoder(data) as mca:
-        mca.encode().save("r.0.0.mca")
+    with formats.McaEncoder(data) as mca:
+        mca.save("r.0.0.mca")
 """
 
 from .encoder import McaEncoder

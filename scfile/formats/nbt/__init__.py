@@ -2,15 +2,17 @@
 NBT Format.
 
 :Name: **Named Binary Tag**
-:Type: **⚙️ NBT Decoder**
-:Wiki: `<https://minecraft.wiki/w/NBT_format>`_
-:Support: ``✅ Full``
+:Handler: :class:`~scfile.formats.nbt.decoder.NbtDecoder`
+:Content: :class:`~scfile.content.base.DocumentContent`
+:Support: ``✅ FULL``
+:Compression: None, ``gzip``, ``zstd``
+:Wiki: https://minecraft.wiki/w/NBT_format
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.nbt.NbtDecoder("itemnames.dat") as nbt:
+    with formats.NbtDecoder("itemnames.dat") as nbt:
         data = nbt.decode()
 """
 

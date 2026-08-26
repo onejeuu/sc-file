@@ -2,18 +2,18 @@
 OL Format.
 
 :Name: **Object Layer**
-:Type: **🧱 Texture Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#ol-object-layer-ol-bt>`_
+:Handler: :class:`~scfile.formats.ol.decoder.OlDecoder`
+:Content: :class:`~scfile.content.base.TextureContent`
 :Suffix: ``.ol``
-:Support: ``✅ Full``
-:Features: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_X`` (``ATI1``),
-           ``DXN_XY`` (``ATI2``), ``RGBA32F`` (``DX10``)
+:Support: ``✅ FULL``
+:Formats: ``DXT1``, ``DXT3``, ``DXT5``, ``RGBA8``, ``BGRA8``, ``DXN_X`` (``ATI1``), ``DXN_XY`` (``ATI2``), ``RGBA32F`` (``DX10``)
+:Wiki: https://sc-file.rtfd.io/page/formats.html#ol
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.ol.OlDecoder("texture.ol") as ol:
+    with formats.OlDecoder("texture.ol") as ol:
         data = ol.decode()
 """
 

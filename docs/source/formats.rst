@@ -23,6 +23,7 @@
 :Contents: Geometry, Skeleton, Animation clips, Blend shapes.
 :Support: Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``.
 
+
 .. _mcsb:
 
 ``.mcsb`` Scene Bundle
@@ -32,7 +33,8 @@
 :Purpose: Model scene.
 :Contents: Same as `.mcsa <mcsa_>`_. Has hash before signature.
 
-.. _mcvd-trace:
+
+.. _mcvd:
 
 ``.mcvd`` Trace Model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -40,6 +42,7 @@
 :Template: MCSA.bt_
 :Purpose: Colliders and physics.
 :Note: :ref:`Animation sets <mcvd-animation>` use the same suffix.
+
 
 .. _efkmodel:
 
@@ -51,6 +54,7 @@
 :Purpose: Animated particle model.
 :Contents: Frame based geometry.
 :Support: Version ``5``.
+
 
 .. _model-export:
 
@@ -94,6 +98,7 @@ Export
 | ``➖ Not supported by format``
 
 
+
 ----------------------------------------
 🌀 Animation Formats
 ----------------------------------------
@@ -108,6 +113,7 @@ Export
 :Contents: Skeletal and facial animation clips.
 :Note: Usually located in ``assets/highpoly``.
 
+
 .. _mcal:
 
 ``.mcal`` Animation Library
@@ -117,6 +123,9 @@ Export
 :Purpose: Shared animation by models with matching skeletons.
 :Contents: Skeletal animation clips.
 
+
+.. _animation-export:
+
 Export
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -125,9 +134,12 @@ Export
 :Note: Relation pairs can be found in `Audit Mappings`_.
 
 
+
 ----------------------------------------
 🧱 Texture Formats
 ----------------------------------------
+
+.. _ol:
 
 ``.ol`` Object Layer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -196,6 +208,9 @@ Export
     - ``R32G32B32A32``
     - ``None``
 
+
+.. _sign:
+
 ``.sign`` Texture Signatures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -204,9 +219,12 @@ Export
 :Contents: Texture paths, headers and mipmap images hashes.
 
 
+
 ----------------------------------------
 🖼️ Image Formats
 ----------------------------------------
+
+.. _mic:
 
 ``.mic`` Media Image Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -214,6 +232,7 @@ Export
 :Purpose: GUI and composed images.
 :Contents: ``PNG`` image data with an ``‰MIC`` signature.
 :Export: ``.png`` (`Portable Network Graphics <PNG_>`_).
+
 
 
 ----------------------------------------
@@ -230,9 +249,12 @@ Export
 :Export: ``.zip`` (ZIP_).
 
 
+
 ----------------------------------------
 🗺 Region Formats
 ----------------------------------------
+
+.. _mdat:
 
 ``.mdat`` World Region Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -240,13 +262,15 @@ Export
 :Templates: MDAT.bt_, MDAT.CHUNK.bt_
 :Purpose: Region container for 32×32 terrain chunks.
 :Contents: Blocks, metadata, lighting and biomes compressed with `zstd`_.
-:Export: Minecraft Java ``1.12.2`` (Anvil_ ``1343``), with approximate block mapping and biomes.
+:Export: Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes.
 
 | :doc:`Map Cache viewing guide → <usage/mapcache>`
 
 ----------------------------------------
 ⚙️ NBT Files
 ----------------------------------------
+
+.. _nbt:
 
 :Format: `Named Binary Tag <NBT_>`_ data.
 :Compression: None, gzip_, zstd_.
@@ -293,9 +317,12 @@ Export
     - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
 
 
+
 ----------------------------------------
 🛠️ Config Files
 ----------------------------------------
+
+.. _configs:
 
 .. list-table::
   :header-rows: 1
@@ -320,9 +347,12 @@ Export
     - Custom map markers
 
 
+
 ----------------------------------------
 📄 Text Formats
 ----------------------------------------
+
+.. _text:
 
 .. list-table::
   :header-rows: 1
@@ -347,13 +377,18 @@ Export
     - Mob configuration
 
 
+
 ----------------------------------------
 🔒 Encrypted Formats
 ----------------------------------------
 
+
 .. note::
 
    Used AES_. Decryption requires a key recovered from the protected game client.
+
+
+.. _xeon:
 
 ``.xeon`` Encrypted Bundle
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -361,17 +396,26 @@ Export
 :Purpose: Bundle with sensitive client data.
 :Contents: Copy of the assets folder structure.
 
+
+.. _mcws:
+
 ``.mcws`` World Slice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Purpose: Settlement progression screens.
 :Contents: World slice chunks.
 
+
+.. _ta:
+
 ``.ta`` Texture Array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Purpose: Protection of high resolution texture array.
 :Contents: :ref:`.texarr <texarr>` data.
+
+
+.. _bank:
 
 ``.bank`` Audio Bank
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -381,9 +425,12 @@ Export
 :Contents: Adaptive audio events.
 
 
+
 ----------------------------------------
 🕹️ Launcher Formats
 ----------------------------------------
+
+.. _map:
 
 ``.map`` Hash Mappings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -391,6 +438,9 @@ Export
 :Template: HASHMAP.bt_
 :Purpose: Launcher file integrity verification.
 :Contents: Game asset paths and SHA-1 hashes.
+
+
+.. _torrent:
 
 ``.torrent.bin`` Torrent Binary
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

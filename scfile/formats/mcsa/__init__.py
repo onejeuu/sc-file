@@ -1,18 +1,20 @@
 """
 MCSA Format.
 
-:Name: **Scene Assets**
-:Type: **🧊 Model Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#mcsa-scene-assets-mcsa-bt>`_
+:Name: **Scene Assets (Legacy)**
+:Handler: :class:`~scfile.formats.mcsa.decoder.McsaDecoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.mcsa``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
+:Versions: ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``
 :Features: ``UV``, ``UV2``, ``Normals``, ``Tangents``, ``Skeleton``, ``Blend Shapes``, ``Bone Animation``, ``Morph Animation``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#mcsa
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.mcsa.McsaDecoder("model.mcsa") as mcsa:
+    with formats.McsaDecoder("model.mcsa") as mcsa:
         data = mcsa.decode()
 """
 

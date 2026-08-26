@@ -2,17 +2,18 @@
 PNG Format.
 
 :Name: **Portable Network Graphics**
-:Type: **🖼️ Image Encoder**
-:Wiki: `<https://en.wikipedia.org/wiki/PNG>`_
+:Handler: :class:`~scfile.formats.png.encoder.PngEncoder`
+:Content: :class:`~scfile.content.base.ImageContent`
 :Suffix: ``.png``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
+:Wiki: https://en.wikipedia.org/wiki/Portable_Network_Graphics
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.png.PngEncoder(data) as png:
-        png.encode().save("output.png")
+    with formats.PngEncoder(data) as png:
+        png.save("output.png")
 """
 
 from .encoder import PngEncoder

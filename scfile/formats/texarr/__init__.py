@@ -2,16 +2,17 @@
 TEXARR Format.
 
 :Name: **Texture Array**
-:Type: **🗃️ Archive Decoder**
-:Wiki: `https://sc-file.rtfd.io/formats.html <https://sc-file.rtfd.io/en/latest/formats.html#texarr-texture-array-texarr-bt>`_
+:Handler: :class:`~scfile.formats.texarr.decoder.TexarrDecoder`
+:Content: :class:`~scfile.content.base.ArchiveContent`
 :Suffix: ``.texarr``
-:Support: ``✅ Full``
+:Support: ``✅ FULL``
+:Wiki: https://sc-file.rtfd.io/page/formats.html#texarr
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.texarr.TexarrDecoder("blocks.texarr") as texarr:
+    with formats.TexarrDecoder("blocks.texarr") as texarr:
         data = texarr.decode()
 """
 

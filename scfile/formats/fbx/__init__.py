@@ -2,18 +2,19 @@
 FBX Format.
 
 :Name: **Autodesk Filmbox**
-:Type: **🧊 Model Encoder**
-:Wiki: `<https://en.wikipedia.org/wiki/FBX>`_
+:Handler: :class:`~scfile.formats.fbx.encoder.FbxEncoder`
+:Content: :class:`~scfile.content.base.ModelContent`
 :Suffix: ``.fbx``
-:Support: ``⚠️ Partial``
+:Support: ``⚠️ PARTIAL``
 :Features: ``UV``, ``UV2``, ``Normals``, ``Skeleton``, ``Bone Animation``
+:Wiki: https://en.wikipedia.org/wiki/FBX
 
-Example::
+Usage Example::
 
     from scfile import formats
 
-    with formats.fbx.FbxEncoder(data) as fbx:
-        fbx.encode().save("output.fbx")
+    with formats.FbxEncoder(data) as fbx:
+        fbx.save("output.fbx")
 """
 
 from .encoder import FbxEncoder
