@@ -42,3 +42,22 @@ jobs:
         run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
         env:
           QT_QPA_PLATFORM: offscreen
+
+  tests-windows:
+    name: Windows
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Run Tests
+        run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
+        env:
+          QT_QPA_PLATFORM: offscreen

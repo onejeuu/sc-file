@@ -147,6 +147,7 @@ jobs:
           echo "date=$(date +'%B %d, %Y')" >> "$GITHUB_OUTPUT"
           echo "time=$(date +'%H:%M (GMT+3)')" >> "$GITHUB_OUTPUT"
           echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "changelog=https://sc-file.readthedocs.io/en/latest/changelog.html#${GITHUB_REF_NAME//./-}" >> "$GITHUB_OUTPUT"
 
           if [[ "${{ github.ref_name }}" == *"dev"* ]]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
@@ -171,7 +172,7 @@ jobs:
 
             ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and intended for testing.' || '' }}
-            ${{ steps.meta.outputs.prerelease == 'false' && format('**API Changelog:** [`{0}`](https://sc-file.readthedocs.io/en/latest/v/{1}.html)', github.ref_name, steps.meta.outputs.version) || '' }}
+            ${{ steps.meta.outputs.prerelease == 'false' && format('**API Changelog:** [`{0}`]({1})', github.ref_name, steps.meta.outputs.changelog) || '' }}
           files: |
             artifacts/windows-binary/scfile_windows_x64.exe
             artifacts/linux-binary/scfile_linux_x64
