@@ -16,7 +16,7 @@ from . import paths
 def format(
     source: types.SourceLike,
 ) -> str:
-    """Detect input file format."""
+    """Resolve source format from its name."""
 
     if decoder := registry.match(source):
         return str(decoder.format)
@@ -35,9 +35,18 @@ def manual[
     output: types.OutputLike = None,
     options: Optional[Options] = None,
 ) -> types.ResultPath:
-    """Convert one file using explicitly selected handlers.
+    """
+    Convert one file with selected handlers.
 
-    Returns ``None`` when an existing output is skipped.
+    Args:
+        decoder: Handler class used to decode the source.
+        encoder: Handler class used to encode the output.
+        source: Source file path.
+        output (optional): Output file or directory.
+        options (optional): Conversion options.
+
+    Returns:
+        Output path on success, or ``None`` on skip.
     """
 
     options = options or Options()
@@ -63,9 +72,16 @@ def auto(
     output: types.OutputLike = None,
     options: Optional[Options] = None,
 ) -> types.ResultPath:
-    """Convert one file using formats resolved from its extension.
+    """
+    Convert one file with handlers resolved based on name and options.
 
-    Returns ``None`` when an existing output is skipped.
+    Args:
+        source: Source file path.
+        output (optional): Output file or directory.
+        options (optional): Conversion options.
+
+    Returns:
+        Output path on success, or ``None`` on skip.
     """
 
     options = options or Options()

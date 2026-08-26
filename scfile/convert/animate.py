@@ -1,4 +1,4 @@
-"""External model animation operations."""
+"""Model animation operations."""
 
 from dataclasses import replace
 from hashlib import blake2b
@@ -43,7 +43,19 @@ def arms(
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
-    """Apply first-person animation to weapon and hands models."""
+    """
+    Apply first person animation to weapon and hands models.
+
+    Args:
+        animation: First person animation source.
+        weapon: Weapon model source.
+        hands: Hands model source.
+        output (optional): Output file or directory.
+        options (optional): Animation and conversion options.
+
+    Returns:
+        Output path on success, or ``None`` on skip.
+    """
 
     encoder = formats.GlbEncoder
     options = _options(options)
@@ -80,7 +92,18 @@ def body(
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
-    """Apply skeletal animation to a model."""
+    """
+    Apply skeletal animation to a model.
+
+    Args:
+        animation: Skeletal animation source.
+        model: Origin model source.
+        output (optional): Output file or directory.
+        options (optional): Animation and conversion options.
+
+    Returns:
+        Output path on success, or ``None`` on skip.
+    """
 
     return _apply_external_animation(
         decoder=formats.McalDecoder,
@@ -98,7 +121,18 @@ def face(
     output: types.OutputLike = None,
     options: Options | None = None,
 ) -> types.ResultPath:
-    """Apply facial animation to a head model."""
+    """
+    Apply facial animation to a head model.
+
+    Args:
+        animation: Facial animation source.
+        model: Head model source.
+        output (optional): Output file or directory.
+        options (optional): Animation and conversion options.
+
+    Returns:
+        Output path on success, or ``None`` on skip.
+    """
 
     return _apply_external_animation(
         decoder=formats.McvdDecoder,

@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Self
 
 from scfile import exceptions, formats
 from scfile.content import RegionContent
@@ -13,20 +13,45 @@ from scfile.options import Options
 from . import paths
 
 
-type RegionKey = tuple[int, int]
-type Regions = dict[RegionKey, list[Path]]
-type CancelCheck = Callable[[], bool] | None
-
 REGION_PREFIXES = ("reg.", "r.")
 BACKUP = ".bck"
 
+type Regions = dict[RegionKey, list[Path]]
+type CancelCheck = Callable[[], bool] | None
+
+
+class RegionKey(NamedTuple):
+    """Map cache region coordinates."""
+
+    x: int
+    z: int
+
+    @classmethod
+    def parse(cls, stem: str) -> Self | None:
+        """Parse region coordinates from filename."""
+
+        for prefix in REGION_PREFIXES:
+            stem = stem.removeprefix(prefix)
+
+        try:
+            x, z = map(int, stem.split("."))
+
+        except ValueError:
+            return None
+
+        return cls(x, z)
+
 
 class ScanResult(NamedTuple):
+    """Map cache scan result."""
+
     paths: list[Path]
     errors: list[OSError]
 
 
 class MergeResult(NamedTuple):
+    """Map cache merge result."""
+
     filename: str
     chunks: int
 
@@ -35,7 +60,7 @@ def scan(
     source: Path,
     cancelled: CancelCheck = None,
 ) -> ScanResult:
-    """Find non empty mapcache files."""
+    """Find valid map cache files."""
 
     decoder = formats.MdatDecoder
     files: list[Path] = []
@@ -66,13 +91,12 @@ def scan(
 def group(
     paths: Iterable[Path],
 ) -> Regions:
-    """Group mapcache paths by region coordinates."""
+    """Group map cache paths by region coordinates."""
 
     grouped: Regions = defaultdict(list)
 
     for path in paths:
-        key = _region_key(path)
-        if key is not None:
+        if key := RegionKey.parse(path.stem):
             grouped[key].append(path)
 
     return dict(grouped)
@@ -85,7 +109,19 @@ def merge(
     options: Options,
     cancelled: CancelCheck = None,
 ) -> MergeResult:
-    """Merge mapcache chunks into minecraft region."""
+    """
+    Merge ``.mdat`` map cache into an ``.mca`` region file.
+
+    Args:
+        key: Region coordinates.
+        sources: ``.mdat`` cache paths.
+        output: Output directory.
+        options (optional): Conversion options.
+        cancelled (optional): Cancel check function.
+
+    Returns:
+        Output filename and the number of merged chunks.
+    """
 
     decoder = formats.MdatDecoder
     encoder = formats.McaEncoder
@@ -123,20 +159,3 @@ def merge(
                 target.rename(backup)
 
     return MergeResult(filename, len(region.chunks))
-
-
-def _region_key(
-    path: Path,
-) -> RegionKey | None:
-    try:
-        stem = path.stem
-        for prefix in REGION_PREFIXES:
-            if stem.startswith(prefix):
-                stem = stem.removeprefix(prefix)
-                break
-
-        rx, rz = map(int, stem.split("."))
-        return rx, rz
-
-    except ValueError:
-        return None

@@ -24,7 +24,7 @@ def converter[
     decoder: type[Decoder[ContentType, ReaderType]],
     encoder: type[Encoder[ContentType, WriterType]],
 ) -> Callable[[Callable[..., Any]], Converter]:
-    """Create a named conversion function for two handlers."""
+    """Create a named conversion function for selected handlers."""
 
     def decorator(func: Callable[..., Any]) -> Converter:
         @wraps(func)
