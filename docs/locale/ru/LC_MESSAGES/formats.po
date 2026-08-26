@@ -262,8 +262,8 @@ msgstr "📄 Текстовые"
 msgid "Localization strings"
 msgstr "Строки локализации"
 
-msgid "Configuration"
-msgstr "Конфигурация"
+msgid "Configurations"
+msgstr "Конфигурации"
 
 msgid "Formatted text"
 msgstr "Форматированный текст"

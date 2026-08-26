@@ -365,7 +365,7 @@ Export
     - Localization strings
   * - ``.properties``
     - `Java Properties <Propetries_>`_
-    - Configuration
+    - Configurations
   * - ``.md``
     - Markdown_
     - Formatted text

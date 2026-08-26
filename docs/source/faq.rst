@@ -50,15 +50,15 @@ Q: Are game asset files encrypted?
 
 Mostly not.
 
-| Supported asset formats ordinary binary data in proprietary format.
-| See :doc:`Formats <formats>` for details.
+| Supported asset formats are ordinary binary data in proprietary formats.
+| :doc:`Details about formats → <formats>`
 
 
 Q: What does conversion actually do?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Conversion usually transforms data between compatible formats.
-| Some operations perform a more specialized form of conversion.
+| Usually, conversion transforms data between compatible formats.
+| Some operations combine multiple source files.
 
 .. code-block:: text
    :caption: Default pipeline
@@ -69,10 +69,12 @@ Q: What does conversion actually do?
 Q: What determines which output formats are supported?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Closest practical standard format with matching semantics.
+Output format must be able to represent same semantic kind of data as the source.
 
-Conversions between different kinds of content are left to specialized tools,
-which can continue from decoded data.
+Support also has to justify its maintenance cost.
+Each format should serve a distinct purpose rather than duplicate another without a meaningful benefit.
+
+Conversions between different kinds of content are left to other specialized tools.
 
 
 ----------------------------------------

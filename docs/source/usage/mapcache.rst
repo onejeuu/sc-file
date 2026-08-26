@@ -5,7 +5,7 @@
 
 
 | Map cache contains ``.mdat`` world region fragments.
-| Usually located at ``stalcraft/map_cache/5.0``.
+| Usually located in ``stalcraft/map_cache/5.0``.
 
 | Export groups fragments by coordinates ``x`` and ``z`` in filenames.
 | Map cache region files named ``reg.<x>.<z>.mdat``.
@@ -16,7 +16,7 @@
 What is exported
 ----------------------------------------
 
-| **Format:** Minecraft Java ``1.12.2`` (Anvil_ ``1343``).
+| **Format:** Minecraft Java ``1.12.2+`` (Anvil_ ``1343``).
 | **Exported:** Terrain block arrays and biomes.
 | **Not exported:** Models, block states, lighting, entities.
 
@@ -29,23 +29,18 @@ What is exported
 Prepare a world
 ----------------------------------------
 
-Create a separate local Minecraft Java world before the first export.
-A superflat world with structures disabled and only air is convenient for map preview.
+Create new local world for export.
+For map preview, use a superflat world without structures or blocks.
 Leave the world after creating it.
 
-The ``region`` directory inside that world is the output directory:
+Location of the ``region`` directory:
 
 .. code-block:: text
 
    .minecraft/saves/<world>/region
    .minecraft/saves/<world>/dimensions/minecraft/overworld/region (on 26.1+)
 
-You can clear existing ``.mca`` files from this directory before the first export.
-
-.. warning::
-
-   | Always leave the world before replacing its regions.
-   | Minecraft can overwrite changed files with its cached chunks.
+You can clear existing ``.mca`` files from this directory.
 
 Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups.
 
@@ -54,22 +49,32 @@ Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck
 Convert the cache
 ----------------------------------------
 
+.. warning::
+
+   | Always leave the world before replacing its regions.
+   | Minecraft can overwrite changed files with its cached chunks.
+
+Graphical interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 In graphical interface, select map cache directory and target world.
 Paths resolver changes selected world directory to its ``region`` directory automatically (if enabled).
 
+Command line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: console
-   :caption: From command line
 
-   scfile mapcache "C:/EXBO/runtime/stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
+   scfile mapcache "stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
 
-For command options see :ref:`mapcache-cli`.
+:ref:`Map Cache command options → <cli-mapcache>`
 
 
 ----------------------------------------
 Find the exported regions
 ----------------------------------------
 
-One ``r.<rx>.<rz>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks.
+One ``r.<x>.<z>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks.
 
 .. code-block:: text
    :caption: For example coordinates for r.-3.5.mca

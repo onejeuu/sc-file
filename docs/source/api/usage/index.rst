@@ -92,11 +92,6 @@ Handlers
 | :class:`~scfile.core.encoder.Encoder` serializes content into binary data.
 | :class:`~scfile.content.base.BaseContent` subclasses describe intermediate content structures.
 
-.. important::
-
-  Always use handlers inside a context manager (``with``) whenever possible.
-  Their resources are released automatically, even when decoding or encoding fails.
-
 .. code-block:: python
 
   from scfile import Options
@@ -109,6 +104,11 @@ Handlers
   print(model.scene.total_vertices)
   print([mesh.name for mesh in model.scene.meshes])
   print([bone.name for bone in model.scene.skeleton.bones])
+
+.. important::
+
+  Always use handlers inside a context manager (``with``) whenever possible.
+  Their resources are released automatically, even when decoding or encoding fails.
 
 Manual Encoding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

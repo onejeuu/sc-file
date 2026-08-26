@@ -86,6 +86,8 @@ General
       scfile --updates
 
 
+.. _cli-convert:
+
 convert
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -98,9 +100,9 @@ Default command. Converts game assets to standard formats.
   .. code-block:: bash
     :caption: Example
 
-    scfile "model.mcsb" # auto route
-    scfile "C:/assets" # auto route
-    scfile convert "model.mcsb" "texture.ol" # explicit command
+    scfile convert "model.mcsb"
+    scfile convert "model.mcsb" "texture.ol"
+    scfile convert "C:/assets"
 
 
 ``-O, --output``
@@ -251,12 +253,13 @@ Examples of how ``--layout`` changes output layout.
     └── vodka.dds
 
 
+.. _cli-animate:
+
 animate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Applies external animation data to one or more ``.mcsb`` models and exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a GLB file or directory. Without it, the GLB is saved next to the animation source.
-
-:doc:`Animation export guide → <usage/animate>`
+| Applies external animation data to one or more ``.mcsb`` models and exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a GLB file or directory. Without it, the GLB is saved next to the animation source.
+| :doc:`Animation export guide → <usage/animate>`
 
 ``arms ANIMATION MODEL [HANDS]``
   Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add an optional hands model.
@@ -264,7 +267,9 @@ Applies external animation data to one or more ``.mcsb`` models and exports a ``
   .. code-block:: bash
     :caption: Example
 
-    scfile animate arms "wpn_fp_ak.mcvd" "ak.mcsb" "hands.mcsb"
+    scfile animate arms "wpn_fp_akm.mcvd" "akm.mcsb" "hands.mcsb"
+    scfile animate arms "wpn_fp_akm.mcvd" "akm.mcsb"
+    scfile animate arms "wpn_fp_walkcycles.mcvd" "hands.mcsb"
 
 
 ``face ANIMATION MODEL``
@@ -273,7 +278,7 @@ Applies external animation data to one or more ``.mcsb`` models and exports a ``
   .. code-block:: bash
     :caption: Example
 
-    scfile animate face "character.mcvd" "head.mcsb"
+    scfile animate face "shaman.mcvd" "unique_shaman.mcsb"
 
 
 ``body ANIMATION MODEL``
@@ -285,10 +290,11 @@ Applies external animation data to one or more ``.mcsb`` models and exports a ``
   .. code-block:: bash
     :caption: Example
 
-    scfile animate body "character.mcal" "character.mcsb" --raw
+    scfile animate body "pack.mcal" "origin.mcsb"
+    scfile animate body "pack.mcal" "origin.mcsb" --raw
 
 
-.. _mapcache-cli:
+.. _cli-mapcache:
 
 mapcache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

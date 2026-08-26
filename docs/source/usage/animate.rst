@@ -12,7 +12,7 @@
 Find related assets
 ----------------------------------------
 
-| Animation and model usually located in different directories.
+| Animation and model can be located in different directories.
 | Paths below are relative to ``stalcraft/modassets/assets``.
 
 .. list-table::
@@ -44,12 +44,12 @@ Find related assets
 Arms
 ----------------------------------------
 
-| ``arms`` applies first-person weapon, item, and hands animations from ``.mcvd`` clips to ``.mcsb`` models.
-| Models are matched to the animation skeleton by bone name.
+``arms`` applies first-person weapon, item, and hands animations from ``.mcvd`` clips to ``.mcsb`` models.
 
-The shared hands model is ``highpoly/character_hands.mcsb``. A complete
-first-person result normally uses both the matching weapon model and this hands
-model. Some animations contain only hands and use this model without a weapon.
+Model and animation bones are matched by name.
+
+Weapon animations use a weapon model and the shared hands model ``highpoly/character_hands.mcsb``.
+Some animations use hands only.
 
 .. code-block:: console
    :caption: For example
@@ -63,8 +63,9 @@ model. Some animations contain only hands and use this model without a weapon.
 Face
 ----------------------------------------
 
-| ``face`` applies facial ``.mcvd`` clips to a head ``.mcsb`` model.
-| Models are matched by morph channel names.
+``face`` applies facial ``.mcvd`` clips to a head ``.mcsb`` model.
+
+Models are matched by morph channel names.
 
 .. code-block:: console
    :caption: For example
@@ -76,8 +77,9 @@ Face
 Body
 ----------------------------------------
 
-| ``body`` applies skeletal ``.mcal`` clips to body ``.mcsb`` model.
-| Models are matched by bone index.
+``body`` applies skeletal ``.mcal`` clips to body ``.mcsb`` model.
+
+Models are matched by bone index.
 
 ``--raw`` keeps technical and duplicate clips.
 

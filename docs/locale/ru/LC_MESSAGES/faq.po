@@ -70,36 +70,39 @@ msgstr "В: Зашифрованы ли файлы игровых ассетов
 msgid "Mostly not."
 msgstr "В основном нет."
 
-msgid "Supported asset formats ordinary binary data in proprietary format."
-msgstr "Поддерживаемые форматы представляют собой обычные бинарные данные в проприетарном формате."
+msgid "Supported asset formats are ordinary binary data in proprietary formats."
+msgstr "Поддерживаемые форматы ассетов содержат обычные бинарные данные в проприетарном виде."
 
-msgid "See :doc:`Formats <formats>` for details."
-msgstr "Подробнее см. в разделе :doc:`Форматы <formats>`."
+msgid ":doc:`Details about formats → <formats>`"
+msgstr ":doc:`Детальная информация о форматах → <formats>`"
 
 msgid "Q: What does conversion actually do?"
 msgstr "В: Что именно делает конвертация?"
 
-msgid "Conversion usually transforms data between compatible formats."
-msgstr "Конвертация обычно преобразует данные между совместимыми форматами."
+msgid "Usually, conversion transforms data between compatible formats."
+msgstr "Обычно конвертация преобразует данные между совместимыми форматами."
 
-msgid "Some operations perform a more specialized form of conversion."
-msgstr "Некоторые операции выполняют более специализированную форму конвертации."
+msgid "Some operations combine multiple source files."
+msgstr "Некоторые операции объединяют несколько исходных файлов."
 
 msgid "Default pipeline"
-msgstr "Стандартный пайплайн"
+msgstr "Стандартный процесс"
 
 msgid "Q: What determines which output formats are supported?"
-msgstr "В: Что определяет поддерживаемые выходные форматы?"
+msgstr "В: По какому принципу выбираются поддерживаемые выходные форматы?"
 
-msgid "Closest practical standard format with matching semantics."
-msgstr "Ближайший подходящий стандартный формат с той же семантикой."
+msgid "Output format must be able to represent same semantic kind of data as the source."
+msgstr "Выходной формат должен представлять тот же тип данных, что и исходный."
 
 msgid ""
-"Conversions between different kinds of content are left to specialized tools, "
-"which can continue from decoded data."
+"Support also has to justify its maintenance cost. "
+"Each format should serve a distinct purpose rather than duplicate another without a meaningful benefit."
 msgstr ""
-"Конвертация между разными типами содержимого оставляются специализированным инструментам, "
-"которые могут продолжить работу с декодированными данными."
+"Формат также должен оправдывать затраты на его поддержку. "
+"У каждого формата должно быть своё назначение, а не просто дублирование другого без существенной пользы."
+
+msgid "Conversions between different kinds of content are left to other specialized tools."
+msgstr "Конвертация между разными типами содержимого оставляется другим специализированным инструментам."
 
 msgid "🧩 Formats"
 msgstr "🧩 Форматы"
