@@ -173,7 +173,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "feature.animation": "Анимация",
         "option.convert.output.origin": "Рядом с оригинальным файлом",
         "option.convert.output.tree": "Сохранять структуру подпапок",
-        "option.convert.output.dump": "В одну папку",
+        "option.convert.output.dump": "В одну плоскую папку",
         "option.convert.onconflict.replace": "Перезапись",
         "option.convert.onconflict.rename": "Копия",
         "option.convert.onconflict.skip": "Пропуск",
