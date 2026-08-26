@@ -1,18 +1,14 @@
 Usage
 ==================================================
 
-Use conversion functions for ordinary file conversion. Format handlers expose
-the decoded content when it must be inspected, changed, or encoded manually.
-
-
 Conversion
 ----------------------------------------
 
 Automatic Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~scfile.convert.auto` resolves the source format from its suffix and
-uses its default target format.
+:func:`~scfile.convert.files.auto` resolves the source format from its suffix
+and uses its default target format.
 
 .. code-block:: python
 
@@ -21,35 +17,34 @@ uses its default target format.
   convert.auto("model.mcsb")
   convert.auto("model.mcsb", output="path/to/output")
 
-Without ``output``, the result is written next to the source. For automatic
-conversion, ``output`` must be a directory.
+Without ``output``, the result is saved alongside the source.
 
 
 Explicit Conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use a named conversion function when the target format is known:
+Use a named conversion from :mod:`~scfile.convert.formats`
+when the target format is known:
 
 .. code-block:: python
 
-  from scfile import Options, convert
+  from scfile import convert
 
-  convert.mcsb_to_obj("model.mcsb", "model.obj")
-  convert.mcsb_to_glb("model.mcsb", options=Options(skeleton=True))
+  convert.mcsb_to_obj("model.mcsb", output="model.obj")
+  convert.mcsb_to_glb("model.mcsb", output="path/to/output")
 
-The output may be an exact file name or a directory. Named conversion functions
-are available from :mod:`scfile.convert`.
+The output may be an exact file name or a directory.
 
 
 Options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:class:`~scfile.Options` controls parsing, conversion targets, and output
-conflict handling. Skeletons and built-in animations are disabled by default.
+:class:`~scfile.options.Options` configures conversion behavior.
 
 .. code-block:: python
 
   from scfile import Options, convert
+  from scfile.enums import OnConflict
 
   options = Options(
       skeleton=True,
@@ -59,15 +54,16 @@ conflict handling. Skeletons and built-in animations are disabled by default.
 
   convert.mcsb_to_glb("model.mcsb", options=options)
 
-Animation parsing also enables skeleton parsing. When skeleton processing is
-enabled, automatic model conversion targets GLB by default.
+| By default, model conversion uses ``obj``.
+| With ``skeleton`` or ``animation``, it uses ``glb``.
 
 
-External Animation
+Animations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-External animation functions combine animation data with compatible models and
-export GLB:
+| :mod:`~scfile.convert.animate` exports external animations as ``.glb`` files.
+| The output may be an exact file name or a directory.
+| See :doc:`Animation Export guide <../../usage/animate>`.
 
 .. code-block:: python
 
@@ -76,18 +72,25 @@ export GLB:
   convert.arms(
       "weapon.mcvd",
       weapon="weapon.mcsb",
-      hands="character_hands.mcsb",
+      hands="hands.mcsb",
   )
   convert.face("head.mcvd", "head.mcsb")
-  convert.body("character.mcal", "character.mcsb")
+  convert.body("body.mcal", "body.mcsb")
 
 
-Handlers and Content
+Map Cache
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| :mod:`~scfile.convert.mapcache` scans ``.mdat`` files, groups them by region, and merges them into ``.mca`` files.
+| See the :doc:`Map Cache guide <../../usage/mapcache>`.
+
+
+Handlers
 ----------------------------------------
 
-A decoder reads one binary format into a content object. An encoder writes a
-compatible content object to another format. The content remains usable after
-the decoder is closed.
+| :class:`~scfile.core.decoder.Decoder` parses binary data into content.
+| :class:`~scfile.core.encoder.Encoder` serializes content into binary data.
+| :class:`~scfile.content.base.BaseContent` subclasses describe intermediate content structures.
 
 .. code-block:: python
 
@@ -102,16 +105,10 @@ the decoder is closed.
   print([mesh.name for mesh in model.scene.meshes])
   print([bone.name for bone in model.scene.skeleton.bones])
 
-Format handlers inherit from :class:`~scfile.core.Decoder` and
-:class:`~scfile.core.Encoder`. Content types include
-:class:`~scfile.content.base.ModelContent` and
-:class:`~scfile.content.base.TextureContent`.
-
-
 Manual Encoding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use an encoder directly when the conversion pipeline needs explicit control:
+Use an encoder directly when conversion needs explicit control over content:
 
 .. code-block:: python
 
@@ -127,13 +124,13 @@ Use an encoder directly when the conversion pipeline needs explicit control:
       glb.encode()
 
 
-Pipelines and Streams
+Pipelines
 ----------------------------------------
 
-:class:`~scfile.core.Decoder` provides two in-memory shortcuts:
+:class:`~scfile.core.decoder.Decoder` provides two in-memory shortcuts:
 
-* ``convert_to(Encoder)`` returns an open encoder for the decoded content.
-* ``convert(Encoder)`` returns the encoded bytes.
+* :meth:`~scfile.core.decoder.Decoder.convert_to` returns an open encoder.
+* :meth:`~scfile.core.decoder.Decoder.convert` returns encoded bytes.
 
 .. code-block:: python
 
@@ -147,27 +144,33 @@ Pipelines and Streams
   with McsbDecoder("model.mcsb") as mcsb:
       data = mcsb.convert(ObjEncoder)
 
-Encoders write automatically when :meth:`~scfile.core.Encoder.save`,
-:meth:`~scfile.core.Encoder.export`, or
-:meth:`~scfile.core.Encoder.to_bytes` needs serialized data.
+
+Streams
+----------------------------------------
+
+The encoder serializes its content when :meth:`~scfile.core.encoder.Encoder.save`,
+:meth:`~scfile.core.encoder.Encoder.export`, or
+:meth:`~scfile.core.encoder.Encoder.to_bytes` is called.
 
 .. list-table::
   :header-rows: 1
 
   * - Method
-    - Output path
+    - Result
+    - Closes by default
   * - ``save("model.obj")``
-    - Used as given
+    - Writes to ``model.obj``
+    - Yes
   * - ``export("model")``
-    - ``model.obj``
+    - Writes to ``model.obj``
+    - Yes
+  * - ``to_bytes()``
+    - Returns encoded bytes
+    - No
 
-Both methods close the encoder by default. Pass ``close=False`` when the
-encoder must remain open.
-
-Decoders accept paths, raw bytes, and open binary streams. Encoders use an
-in-memory stream by default or accept an output path or binary stream. A
-handler owns a stream passed to it, so read an external output stream before
-the encoder closes.
+Decoders accept file paths, bytes, and open binary streams.
+Encoders use an in-memory stream by default or accept a file path or binary stream.
+Closing a handler closes its stream.
 
 Use a context manager whenever possible:
 
