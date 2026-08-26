@@ -12,21 +12,17 @@ from scfile.options import Options
 
 
 type HandlerContext = dict[str, Any]
-"""Format-specific values retained for diagnostics."""
+"""Format specific working context shared across handler methods."""
 
 
 class Handler[IOType: StructIO[Any]](ABC):
-    """
-    Base class for binary format handlers.
-
-    A handler owns structured I/O, options, and lifecycle state.
-    """
+    """Binary resource handler base class."""
 
     format: ClassVar[FileFormat] = FileFormat.NONE
-    """File format handled by this class."""
+    """Format handled by this handler."""
 
     signature: ClassVar[bytes | None] = None
-    """Expected binary signature, if defined."""
+    """Expected binary signature."""
 
     order: ClassVar[ByteOrder] = ByteOrder.LITTLE
     """Default byte order for structured I/O."""
@@ -35,7 +31,7 @@ class Handler[IOType: StructIO[Any]](ABC):
     """Structured I/O owned by this handler."""
 
     options: Options
-    """Options used by this handler."""
+    """Options applied by this handler."""
 
     def __init__(
         self,
@@ -81,7 +77,7 @@ class Handler[IOType: StructIO[Any]](ABC):
 
     @property
     def context(self) -> Mapping[str, Any]:
-        """Read-only format-specific values retained for diagnostics."""
+        """Read-only view of the format specific working context."""
 
         return MappingProxyType(self._ctx)
 

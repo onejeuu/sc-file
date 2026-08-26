@@ -17,17 +17,13 @@ class Decoder[
     ContentType: BaseContent,
     ReaderType: StructReader = StructReader,
 ](Handler[ReaderType], ABC):
-    """
-    Base class for decoding binary sources into structured content.
-
-    Subclasses define format-specific parsing logic.
-    """
+    """Binary source decoder base class."""
 
     content_type: ClassVar[type[BaseContent]]
-    """Content type created by this decoder."""
+    """Type of content produced by this decoder."""
 
     io_factory = cast(type[ReaderType], StructReader)
-    """Structured reader class used to open source input."""
+    """Reader class used to open source data."""
 
     standalone: ClassVar[bool] = True
     """Whether the source can be converted without related assets."""

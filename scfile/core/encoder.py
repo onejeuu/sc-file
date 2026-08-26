@@ -15,7 +15,7 @@ from .base import Handler
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
-"""Function that transforms content before serialization."""
+"""Function that transforms content before encoding."""
 
 type EncoderTransforms[ContentType] = Sequence[ContentTransform[ContentType]]
 """Ordered content transforms applied by an encoder."""
@@ -25,20 +25,16 @@ class Encoder[
     ContentType: BaseContent,
     WriterType: StructWriter = StructWriter,
 ](Handler[WriterType], ABC):
-    """
-    Base class for encoding structured content into binary output.
-
-    Subclasses define the format-specific serialization logic.
-    """
+    """Content encoder base class."""
 
     content_type: ClassVar[type[BaseContent]]
-    """Content type accepted by this encoder."""
+    """Type of content accepted by this encoder."""
 
     io_factory = cast(type[WriterType], StructWriter)
-    """Structured writer class used to open output."""
+    """Writer class used to open output data."""
 
     transforms: Sequence[ContentTransform[ContentType]] = ()
-    """Default content transforms applied before serialization."""
+    """Default content transforms applied before encoding."""
 
     def __init__(
         self,

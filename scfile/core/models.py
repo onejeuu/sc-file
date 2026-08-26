@@ -13,7 +13,7 @@ from .encoder import Encoder
 class ModelDecoder[
     ReaderType: StructReader = StructReader,
 ](Decoder[ModelContent, ReaderType]):
-    """Decoder base class for model content."""
+    """Model Content decoder base class."""
 
     content_type = ModelContent
 
@@ -33,7 +33,7 @@ class ModelDecoder[
 class ModelEncoder[
     WriterType: StructWriter = StructWriter,
 ](Encoder[ModelContent, WriterType]):
-    """Encoder base class for model content."""
+    """Model Content encoder base class."""
 
     content_type = ModelContent
 
