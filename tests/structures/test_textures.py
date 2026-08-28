@@ -5,6 +5,7 @@ def test_image() -> None:
     texture = DefaultTexture(mipmaps=[b"a", b"b", b"c"])
 
     assert texture.image == b"abc"
+    assert texture.mipmap_count == 3
 
 
 def test_linear_size() -> None:
@@ -14,9 +15,19 @@ def test_linear_size() -> None:
 
 
 def test_cubemap_image() -> None:
-    texture = CubemapTexture(faces=[[b"a"], [b"b"], [b"c"], [b"d"], [b"e"], [b"f"]])
+    texture = CubemapTexture(
+        faces=[
+            [b"a", b"1"],
+            [b"b", b"2"],
+            [b"c", b"3"],
+            [b"d", b"4"],
+            [b"e", b"5"],
+            [b"f", b"6"],
+        ]
+    )
 
-    assert texture.image == b"abcdef"
+    assert texture.image == b"a1b2c3d4e5f6"
+    assert texture.mipmap_count == 2
 
 
 def test_cubemap_size() -> None:

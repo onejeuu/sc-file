@@ -7,7 +7,7 @@ from scfile.enums import FileKind
 
 from .models import Feature, ModelMeta, ModelScene
 from .regions import RegionChunk
-from .textures import CubemapTexture, DefaultTexture, Texture
+from .textures import CubemapTexture, DefaultTexture, Texture, TextureMeta
 
 
 type DocumentPrimitive = int | float | bytes | str
@@ -46,10 +46,8 @@ class TextureContent(BaseContent):
 
     width: int = 0
     height: int = 0
-    mipmap_count: int = 0
-    format: bytes = field(default_factory=bytes)
+    meta: TextureMeta = field(default_factory=TextureMeta)
     texture: Texture = field(default_factory=DefaultTexture)
-    path_hash: bytes = field(default_factory=bytes)
 
     @property
     def is_cubemap(self) -> bool:
@@ -61,7 +59,7 @@ class TextureContent(BaseContent):
 
     @property
     def fourcc(self) -> bytes:
-        match self.format:
+        match self.meta.format:
             case b"DXN_X":
                 return b"ATI1"
             case b"DXN_XY":
@@ -69,7 +67,7 @@ class TextureContent(BaseContent):
             case b"RGBA32F":
                 return b"DX10"
             case _:
-                return self.format
+                return self.meta.format
 
 
 @dataclass

@@ -36,7 +36,7 @@ class DdsEncoder(Encoder[TextureContent]):
             self.data.width,  # dwWidth
             self._pitch_or_linear_size,  # dwPitchOrLinearSize
             0,  # dwDepth
-            self.data.mipmap_count,  # dwMipMapCount
+            self.data.texture.mipmap_count,  # dwMipMapCount
         )
         self.io.null(size=4 * 11)  # dwReserved1[11]
 

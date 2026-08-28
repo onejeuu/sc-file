@@ -1,3 +1,5 @@
+import pytest
+
 from scfile.content import ModelContent
 from scfile.content.models import Feature
 from scfile.enums import FileFormat
@@ -14,3 +16,12 @@ def test_targets() -> None:
     assert Options().targets == DEFAULT_TARGETS
     assert Options(skeleton=True).targets[ModelContent] is FileFormat.GLB
     assert Options(targets={ModelContent: FileFormat.FBX}).targets[ModelContent] is FileFormat.FBX
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    ((-1, 1), (0, 1), (1, 1), (3, 3)),
+)
+def test_max_mipmaps(value: int, expected: int) -> None:
+    assert Options().max_mipmaps is None
+    assert Options(max_mipmaps=value).max_mipmaps == expected

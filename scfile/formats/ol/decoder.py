@@ -34,14 +34,14 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
     def _parse_header(self):
         self.data.width = self.io.value(F.U32)
         self.data.height = self.io.value(F.U32)
-        self.data.mipmap_count = self.io.value(F.U32)
+        self.data.meta.mipmap_count = self.io.value(F.U32)
 
     def _parse_format(self):
-        self.data.format = self.io.format()
+        self.data.meta.format = self.io.format()
 
-        if self.data.format not in SUPPORTED_FORMATS:
+        if self.data.meta.format not in SUPPORTED_FORMATS:
             raise TextureFormatError(
-                self.data.format,
+                self.data.meta.format,
                 location=self.location,
                 offset=self.io.tell(),
             )
@@ -66,19 +66,23 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
     def _parse_sizes(self):
         match self.data.texture:
             case DefaultTexture() as texture:
-                texture.uncompressed = self.io.sizes(self.data.mipmap_count)
-                texture.compressed = self.io.sizes(self.data.mipmap_count)
+                texture.uncompressed = self.io.sizes(self.data.meta.mipmap_count)
+                texture.compressed = self.io.sizes(self.data.meta.mipmap_count)
 
             case CubemapTexture() as texture:
-                texture.uncompressed = self.io.cubemap_sizes(self.data.mipmap_count)
-                texture.compressed = self.io.cubemap_sizes(self.data.mipmap_count)
+                texture.uncompressed = self.io.cubemap_sizes(self.data.meta.mipmap_count)
+                texture.compressed = self.io.cubemap_sizes(self.data.meta.mipmap_count)
 
     def _parse_image(self):
-        self.data.path_hash = self.io.prefixed()
+        self.data.meta.path_hash = self.io.prefixed()
+
+        mipmaps = self.data.meta.mipmap_count
+        if self.options.max_mipmaps is not None:
+            mipmaps = min(mipmaps, self.options.max_mipmaps)
 
         match self.data.texture:
             case DefaultTexture() as texture:
-                for mipmap in range(self.data.mipmap_count):
+                for mipmap in range(mipmaps):
                     texture.mipmaps.append(
                         self._parse_mipmap(
                             texture.compressed[mipmap],
@@ -87,7 +91,7 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
                     )
 
             case CubemapTexture() as texture:
-                for mipmap in range(self.data.mipmap_count):
+                for mipmap in range(mipmaps):
                     for face in range(CUBEMAP_FACE_COUNT):
                         texture.faces[face].append(
                             self._parse_mipmap(
