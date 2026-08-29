@@ -20,9 +20,7 @@ PREFIX = "r."
 MIN_TILE_SIZE = 7 * 1024
 JPEG_QUALITY = 95
 OUTPUT_FORMATS = {
-    suffix: image_format
-    for suffix, image_format in Image.registered_extensions().items()
-    if image_format in Image.SAVE
+    suffix: image_format for suffix, image_format in Image.registered_extensions().items() if image_format in Image.SAVE
 }
 
 type Tiles = dict[Region, Path]
@@ -92,12 +90,21 @@ def render(
     tiles = dict(sorted(tiles.items()))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_options = replace(options, max_mipmaps=0)
     decoder_options = replace(options, max_mipmaps=1)
-    if cancelled and cancelled():
-        raise exceptions.MergeInterrupted()
+    sizes: dict[Path, Size] = {}
+    for path in tiles.values():
+        if cancelled and cancelled():
+            raise exceptions.MergeInterrupted()
+        sizes[path] = _size(path, metadata_options)
 
-    with _decode(next(iter(tiles.values())), decoder_options) as image:
-        tile_size = Size(width=image.width, height=image.height)
+    tile_size = min(sizes.values(), key=lambda size: size.width * size.height)
+    for path, size in sizes.items():
+        if size.width * tile_size.height != tile_size.width * size.height:
+            raise exceptions.ConversionError(
+                f"Map tile aspect ratio {size} does not match {tile_size}.",
+                location=str(path),
+            )
 
     bounds = Bounds.parse(tiles)
     canvas_size = bounds.size(tile_size)
@@ -109,7 +116,7 @@ def render(
                 raise exceptions.MergeInterrupted()
 
             with _decode(path, decoder_options) as image:
-                _paste(canvas, bounds, key, path, image, tile_size)
+                _paste(canvas, bounds, key, image, tile_size)
 
         with paths.stage(output_path) as temporary:
             save_options = {"quality": JPEG_QUALITY} if image_format == "JPEG" else {}
@@ -126,6 +133,16 @@ def _tile(path: Path) -> tuple[Region, Path] | None:
         return key, path
 
 
+def _size(path: Path, options: Options) -> Size:
+    with formats.OlDecoder(path, options) as decoder:
+        content = decoder.decode()
+
+    size = Size(width=content.width, height=content.height)
+    if size.width <= 0 or size.height <= 0:
+        raise exceptions.ConversionError("Map tile has invalid size.", location=str(path))
+    return size
+
+
 @contextmanager
 def _decode(path: Path, options: Options) -> Generator[Image.Image, None, None]:
     with formats.OlDecoder(path, options) as ol:
@@ -140,15 +157,13 @@ def _paste(
     canvas: Image.Image,
     bounds: Bounds,
     key: Region,
-    path: Path,
     image: Image.Image,
     tile_size: Size,
 ) -> None:
     image_size = Size(width=image.width, height=image.height)
-    if image_size != tile_size:
-        raise exceptions.ConversionError(
-            f"Map tile size {image_size} does not match {tile_size}.",
-            location=str(path),
-        )
+    if image_size == tile_size:
+        canvas.paste(image, bounds.offset(key, tile_size))
+        return
 
-    canvas.paste(image, bounds.offset(key, tile_size))
+    with image.resize(tile_size, Image.Resampling.LANCZOS) as resized:
+        canvas.paste(resized, bounds.offset(key, tile_size))

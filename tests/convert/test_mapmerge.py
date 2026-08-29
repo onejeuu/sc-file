@@ -86,13 +86,31 @@ def test_output_replaced(tmp_path: Path, conflict: OnConflict) -> None:
     assert output.read_bytes() != b"previous"
 
 
-def test_tile_size(tmp_path: Path, monkeypatch) -> None:
+def test_tile_size(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _tile(tmp_path, 0, 0)
     _tile(tmp_path, 1, 0)
-    images = [Image.new("RGB", (2, 2)), Image.new("RGB", (3, 2))]
+    sizes = [mapmerge.Size(2, 2), mapmerge.Size(4, 4)]
+    images = [Image.new("RGB", tuple(size)) for size in sizes]
+    monkeypatch.setattr(mapmerge, "_size", lambda *args: sizes.pop(0))
     monkeypatch.setattr(mapmerge, "_decode", lambda *args: images.pop(0))
 
-    with pytest.raises(exceptions.ConversionError, match="tile size"):
+    output = tmp_path / "map.png"
+    mapmerge.merge(tmp_path, output)
+
+    with Image.open(output) as image:
+        assert image.size == (4, 2)
+
+
+def test_tile_aspect_ratio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    first = _tile(tmp_path, 0, 0)
+    second = _tile(tmp_path, 1, 0)
+    sizes = {
+        first: mapmerge.Size(2, 2),
+        second: mapmerge.Size(4, 2),
+    }
+    monkeypatch.setattr(mapmerge, "_size", lambda path, options: sizes[path])
+
+    with pytest.raises(exceptions.ConversionError, match="aspect ratio"):
         mapmerge.merge(tmp_path, tmp_path / "map.jpg")
 
 
