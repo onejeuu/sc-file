@@ -47,6 +47,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "label.mapcache.source": "SC map cache",
         "label.mapcache.output": "Minecraft world regions",
         "label.mapmerge.source": "SC map tiles",
+        "label.mapmerge.map": "Map",
         "label.mapmerge.output": "Output",
         "label.experimental": "🧪",
         "label.settings.general": "General",
@@ -107,6 +108,8 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.mapcache.scanning": "Scanning for .mdat files",
         "tooltip.mapmerge.invalid.source": "No map tiles found in specified folder",
         "tooltip.mapmerge.invalid.output": "Specify an output JPG file",
+        "tooltip.mapmerge.map": "Select a game folder to choose a map",
+        "tooltip.mapmerge.empty.map": "No map tile folders found in the selected game",
         "warning.convert.gamedir": "Output path is inside game directory",
         "warning.convert.overlap": "Output path overlaps with a source",
         "warning.animate.invalid.weaponfp": "Selected file may not be a suitable weapon fp animation",
@@ -134,6 +137,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.error": "Update check failed",
         "update.manual": "Check manually",
         "placeholder.path": "Specify path...",
+        "placeholder.mapmerge.map": "Select a map...",
         "convert.sources": "Drag & Drop files and folders\nor use buttons above",
         "animate.guide": "Animation Export Guide ↗",
         "mapcache.preview": "Map Preview",
@@ -141,6 +145,16 @@ DATA: dict[Lang, dict[str, str]] = {
         "mapcache.limitation": "Terrain geometry with approximate Minecraft blocks.",
         "mapcache.credit": "Research: TeamDima, BoJIwEbNuK7",
         "mapcache.guide": "Map Cache Guide ↗",
+        "mapmerge.map.global_map": "Global Map",
+        "mapmerge.map.map": "Zone Map",
+        "mapmerge.map.map-arena_raven": "Raven Arena",
+        "mapmerge.map.map-dungeon_bolota_tutorial": "River Warehouse",
+        "mapmerge.map.map-kolizei": "Coliseum",
+        "mapmerge.map.map-nbolota": "Burial Ground",
+        "mapmerge.map.map-new_bar": "New Bar",
+        "mapmerge.map.map-prestige": "Area-16",
+        "mapmerge.map.map-reichstag": "Reichstag",
+        "mapmerge.map.map-sovetpunk": "GOST-17",
     },
     "RU": {
         "tab.convert": "Конвертер",
@@ -163,6 +177,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "label.mapcache.source": "SC кэш карты",
         "label.mapcache.output": "Minecraft регионы мира",
         "label.mapmerge.source": "SC тайлы карты",
+        "label.mapmerge.map": "Карта",
         "label.mapmerge.output": "Результат",
         "label.experimental": "🧪",
         "label.settings.general": "Общее",
@@ -223,6 +238,8 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.mapcache.scanning": "Поиск файлов .mdat",
         "tooltip.mapmerge.invalid.source": "В указанной папке не найдены тайлы карты",
         "tooltip.mapmerge.invalid.output": "Укажите выходной файл JPG",
+        "tooltip.mapmerge.map": "Выберите папку игры, чтобы выбрать карту",
+        "tooltip.mapmerge.empty.map": "В выбранной игре не найдены папки с тайлами карты",
         "warning.convert.gamedir": "Путь сохранения находится внутри папки игры",
         "warning.convert.overlap": "Путь сохранения пересекается с одним из источников",
         "warning.animate.invalid.weaponfp": "Выбранный файл возможно не является weapon fp анимацией",
@@ -250,6 +267,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "update.error": "Ошибка проверки обновлений",
         "update.manual": "Проверьте вручную",
         "placeholder.path": "Укажите путь...",
+        "placeholder.mapmerge.map": "Выберите карту...",
         "convert.sources": "Перетащите файлы и папки сюда\nлибо добавьте их кнопками выше",
         "animate.guide": "Руководство по Анимациям ↗",
         "mapcache.preview": "Предпросмотр карты",
@@ -257,9 +275,23 @@ DATA: dict[Lang, dict[str, str]] = {
         "mapcache.limitation": "Базовая геометрия приближёнными Minecraft блоками.",
         "mapcache.credit": "Помощь в исследовании: TeamDima, BoJIwEbNuK7",
         "mapcache.guide": "Руководство по Map Cache ↗",
+        "mapmerge.map.global_map": "Глобальная карта",
+        "mapmerge.map.map": "Карта Зоны",
+        "mapmerge.map.map-arena_raven": "Арена Ворона",
+        "mapmerge.map.map-dungeon_bolota_tutorial": "Речной склад",
+        "mapmerge.map.map-kolizei": "Колизей",
+        "mapmerge.map.map-nbolota": "Могильник",
+        "mapmerge.map.map-new_bar": "Новый бар",
+        "mapmerge.map.map-prestige": "Полигон-16",
+        "mapmerge.map.map-reichstag": "Рейхстаг",
+        "mapmerge.map.map-sovetpunk": "ГОСТ-17",
     },
 }
 
 
 def get(key: str) -> str:
     return DATA.get(LANG, {}).get(key, key)
+
+
+def mapmerge_map(name: str) -> str:
+    return DATA[LANG].get(f"mapmerge.map.{name}", name)

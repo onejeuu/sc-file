@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
         self.settings_tab.changed.connect(self._save_settings)
         self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
         self.settings_tab.game_root_changed.connect(self.animate.apply_game_root)
+        self.settings_tab.game_root_changed.connect(self.mapmerge.apply_game_root)
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
         self.settings_tab.path_resolution_changed.connect(self.animate.apply_path_resolution)
         self.settings_tab.path_resolution_changed.connect(self.mapmerge.apply_path_resolution)

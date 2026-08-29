@@ -1,9 +1,10 @@
 from pathlib import Path
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QWidget
+from PySide6.QtCore import QSignalBlocker, Qt
+from PySide6.QtWidgets import QComboBox, QLabel, QVBoxLayout, QWidget
 
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
+from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
@@ -17,6 +18,9 @@ from scfile.convert import mapmerge
 from scfile.options import Options
 
 
+IGNORED_MAP_FOLDERS = frozenset(("sound", "textures"))
+
+
 class MapMergeTab(QWidget):
     def __init__(self, tasks: TaskManager, settings: Settings):
         super().__init__()
@@ -25,11 +29,13 @@ class MapMergeTab(QWidget):
         self.source_touched = False
         self.output_touched = False
         self.running = False
+        self.game: GameRoot | None = None
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
         self.tasks.reported.connect(self._report)
         self.tasks.completed.connect(self._complete)
+        self.apply_game_root()
         self._sync()
 
     def _build_ui(self) -> None:
@@ -45,6 +51,14 @@ class MapMergeTab(QWidget):
         self.source.changed.connect(self._edit_source)
         self.source.text_changed.connect(self._source_changed)
 
+        self.map_label = QLabel(strings.get("label.mapmerge.map"))
+        self.map_label.setStyleSheet(Styles.LABEL)
+        self.map = QComboBox()
+        self.map.setStyleSheet(Styles.COMBO)
+        self.map.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.map.setPlaceholderText(strings.get("placeholder.mapmerge.map"))
+        self.map.currentIndexChanged.connect(self._map_changed)
+
         self.output = PathField(
             f"{strings.get('label.mapmerge.output')} (.jpg)",
             placeholder=strings.get("placeholder.path"),
@@ -56,7 +70,11 @@ class MapMergeTab(QWidget):
         self.output.changed.connect(self._edit_output)
 
         layout.addWidget(self.source)
+        layout.addWidget(self.map_label)
+        layout.addWidget(self.map)
         layout.addWidget(self.output)
+        self.map_cursor = DisabledCursor(self.map)
+        self.map_cursor.set(False, strings.get("tooltip.mapmerge.map"))
 
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
@@ -74,12 +92,18 @@ class MapMergeTab(QWidget):
         self.settings.export_path = path
         self._source_changed(self.source.value)
 
+    def apply_game_root(self) -> None:
+        if self.settings.resolve_paths and self.settings.game_root is not None:
+            self.source.value = self.settings.game_root.as_posix()
+        else:
+            self._source_changed(self.source.value)
+
     def apply_path_resolution(self) -> None:
         self._source_changed(self.source.value)
 
     def _suggested_output(self) -> Path | None:
-        source = Path(self.source.value.strip())
-        if not self.settings.resolve_paths or not source.is_dir():
+        source = self._source_path()
+        if not self.settings.resolve_paths or source is None:
             return None
         return self.settings.export_path / f"{source.name}.jpg"
 
@@ -91,12 +115,70 @@ class MapMergeTab(QWidget):
                 self.source.value = source.resolve().as_posix()
                 return
 
+        self.game = GameRoot.find(Path(value)) if value and self.settings.resolve_paths else None
+        selected = Path(value) if self.game and Path(value).parent == self.game.assets / "pda" else None
+        self._set_maps(selected)
+
         suggested = self._suggested_output()
         if suggested is not None:
             self.output.value = suggested.as_posix()
         elif self.settings.resolve_paths:
             self.output.value = ""
         self._sync()
+
+    def _map_changed(self, _: int) -> None:
+        suggested = self._suggested_output()
+        if suggested is not None:
+            self.output.value = suggested.as_posix()
+        self._sync()
+
+    def _set_maps(self, selected: Path | None = None) -> None:
+        selected = selected or self.map.currentData()
+
+        with QSignalBlocker(self.map):
+            self.map.clear()
+
+            if self.game is None:
+                self.map_label.setEnabled(False)
+                self.map_cursor.set(False, strings.get("tooltip.mapmerge.map"))
+                return
+
+            folders = self._map_folders(self.game)
+            for folder in folders:
+                title = strings.mapmerge_map(folder.name)
+                label = folder.name if title == folder.name else f"{title} ({folder.name})"
+                self.map.addItem(label, folder)
+
+            enabled = bool(folders)
+            self.map_label.setEnabled(enabled)
+            tooltip = "tooltip.mapmerge.map" if enabled else "tooltip.mapmerge.empty.map"
+            self.map_cursor.set(enabled, strings.get(tooltip))
+            index = self.map.findData(selected)
+            self.map.setCurrentIndex(index if index >= 0 else 0)
+
+    @staticmethod
+    def _map_folders(game: GameRoot) -> tuple[Path, ...]:
+        folder = game.assets / "pda"
+
+        try:
+            paths = tuple(sorted(path for path in folder.iterdir() if path.is_dir()))
+
+        except OSError:
+            return ()
+
+        maps: list[Path] = []
+        for path in paths:
+            if path.name in IGNORED_MAP_FOLDERS:
+                continue
+
+            try:
+                if mapmerge.scan(path):
+                    maps.append(path)
+
+            except OSError:
+                continue
+
+        return tuple(maps)
 
     def _edit_source(self, value: str) -> None:
         self.source_touched = True
@@ -106,12 +188,19 @@ class MapMergeTab(QWidget):
         self.output_touched = True
         self._sync()
 
-    def _source_invalid(self) -> bool:
+    def _source_path(self) -> Path | None:
+        if self.game is not None:
+            path = self.map.currentData()
+            return path if isinstance(path, Path) else None
+
         value = self.source.value.strip()
-        if not value:
+        return Path(value) if value else None
+
+    def _source_invalid(self) -> bool:
+        source = self._source_path()
+        if source is None:
             return True
 
-        source = Path(value)
         if not source.is_dir():
             return True
 
@@ -157,8 +246,12 @@ class MapMergeTab(QWidget):
             self.tasks.cancel()
             return
 
+        source = self._source_path()
+        if source is None:
+            return
+
         task = MapMergeTask(
-            Path(self.source.value.strip()),
+            source,
             Path(self.output.value.strip()),
             Options(),
         )
