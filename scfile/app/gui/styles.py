@@ -113,6 +113,19 @@ class Styles:
         QLineEdit:read-only {{ background: {Colors.CARD.darker}; color: {Colors.TEXT.darker}; border: 1px solid {Colors.CARD}; }}
     """
 
+    SLIDER = f"""
+        QSlider::groove:horizontal {{ height: 4px; background: {Colors.BORDER}; border-radius: 2px; }}
+        QSlider::sub-page:horizontal {{ background: {Colors.ACCENT}; border-radius: 2px; }}
+        QSlider::handle:horizontal {{ width: 14px; margin: -5px 0px; background: {Colors.TEXT}; border-radius: 7px; }}
+        QSlider::handle:horizontal:hover {{ background: {Colors.ACCENT}; }}
+    """
+
+    SPIN = f"""
+        QSpinBox {{ background: {Colors.CARD}; color: {Colors.TEXT}; border: 1px solid {Colors.BORDER}; border-radius: 4px; padding: 4px; }}
+        QSpinBox:hover {{ border: 1px solid {Colors.ACCENT}; }}
+        QSpinBox::up-button, QSpinBox::down-button {{ width: 14px; background: {Colors.CARD.light}; border: none; }}
+    """
+
     POPUP = f"""
         UpdatePopup {{ background-color: {Colors.BACKGROUND.lighter}; border: 1px solid {Colors.BORDER}; border-radius: 6px; }}
         QLabel {{ background: transparent; }}

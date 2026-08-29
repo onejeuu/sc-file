@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from io import BytesIO
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from PIL import Image
 
@@ -18,10 +18,11 @@ from .regions import Bounds, CancelCheck, Region, Size
 
 PREFIX = "r."
 MIN_TILE_SIZE = 7 * 1024
-JPEG_QUALITY = 95
-OUTPUT_FORMATS = {
-    suffix: image_format for suffix, image_format in Image.registered_extensions().items() if image_format in Image.SAVE
-}
+JPEG_QUALITY = 92
+PNG_COMPRESSION = 6
+
+type SaveOptions = Mapping[str, Any]
+DEFAULT_SAVE: SaveOptions = {"format": "JPEG", "quality": JPEG_QUALITY}
 
 type Tiles = dict[Region, Path]
 
@@ -58,6 +59,7 @@ def merge(
     source: types.SourceLike,
     output: types.SourceLike,
     options: Options | None = None,
+    save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
 ) -> MergeResult:
     """Merge map tiles from one folder into an image."""
@@ -67,22 +69,21 @@ def merge(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.", location=str(source))
 
-    return render(tiles, output_path, options, cancelled)
+    return render(tiles, output_path, options, save, cancelled)
 
 
 def render(
     tiles: Mapping[Region, Path],
     output: types.SourceLike,
     options: Options | None = None,
+    save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
 ) -> MergeResult:
     """Merge normalized map tiles into an image."""
 
     output_path = Path(output)
-    image_format = OUTPUT_FORMATS.get(output_path.suffix.lower())
-    if image_format is None:
-        raise exceptions.ConversionError("Unsupported map output format.", location=str(output_path))
     options = options or Options()
+    save = DEFAULT_SAVE if save is None else save
 
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.")
@@ -119,8 +120,7 @@ def render(
                 _paste(canvas, bounds, key, image, tile_size)
 
         with paths.stage(output_path) as temporary:
-            save_options = {"quality": JPEG_QUALITY} if image_format == "JPEG" else {}
-            canvas.save(temporary, format=image_format, **save_options)
+            canvas.save(temporary, **save)
 
     finally:
         canvas.close()

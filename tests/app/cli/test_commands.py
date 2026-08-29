@@ -281,6 +281,61 @@ def test_mapmerge(
     task = tasks[0]
     assert task.tiles == {Region(0, 0): tile}
     assert task.output == output
+    assert task.save == {"format": "JPEG", "quality": 92}
+
+    output = tmp_path / "default.png"
+    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+
+    assert result.exit_code == 0
+    assert tasks[1].save == {"format": "PNG", "compress_level": 6}
+
+    output = tmp_path / "map.png"
+    result = CliRunner().invoke(
+        scfile,
+        ["mapmerge", str(source), str(output), "--png-compression", "9"],
+    )
+
+    assert result.exit_code == 0
+    assert tasks[2].save == {"format": "PNG", "compress_level": 9}
+
+    output = tmp_path / "map.jpeg"
+    result = CliRunner().invoke(
+        scfile,
+        ["mapmerge", str(source), str(output), "--jpeg-quality", "95"],
+    )
+
+    assert result.exit_code == 0
+    assert tasks[3].save == {"format": "JPEG", "quality": 95}
+
+
+def test_mapmerge_encoding_errors(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+) -> None:
+    source = tmp_path / "tiles"
+    source.mkdir()
+    copyfile(MAP_TILE, source / "r.0.0.ol")
+    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    runner = CliRunner()
+
+    result = runner.invoke(
+        scfile,
+        ["mapmerge", str(source), str(tmp_path / "map.jpg"), "--png-compression", "6"],
+    )
+    assert result.exit_code != 0
+    assert "--png-compression requires PNG output" in result.output
+
+    result = runner.invoke(
+        scfile,
+        ["mapmerge", str(source), str(tmp_path / "map.png"), "--jpeg-quality", "92"],
+    )
+    assert result.exit_code != 0
+    assert "--jpeg-quality requires JPEG output" in result.output
+
+    result = runner.invoke(scfile, ["mapmerge", str(source), str(tmp_path / "map.webp")])
+    assert result.exit_code != 0
+    assert "Output extension must be .jpg, .jpeg, or .png" in result.output
+    assert not tasks
 
 
 def test_mapmerge_existing_output(

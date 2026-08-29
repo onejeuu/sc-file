@@ -385,6 +385,14 @@ class PathField(QWidget):
         self.input.initial_path = path
 
     @property
+    def default_suffix(self) -> str:
+        return self.input.default_suffix
+
+    @default_suffix.setter
+    def default_suffix(self, suffix: str) -> None:
+        self.input.default_suffix = suffix
+
+    @property
     def read_only(self) -> bool:
         return self.input.read_only
 

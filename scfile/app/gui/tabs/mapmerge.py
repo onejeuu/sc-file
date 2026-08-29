@@ -10,11 +10,12 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.encoding import ImageEncodingWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.localization import system_language
-from scfile.app.tasks.mapmerge import MapMergeTask
+from scfile.app.tasks.mapmerge import MapImageFormat, MapMergeTask
 from scfile.convert import mapmerge
 from scfile.options import Options
 
@@ -72,13 +73,15 @@ class MapMergeTab(QWidget):
         self.map.setPlaceholderText(strings.get("placeholder.mapmerge.map"))
         self.map.activated.connect(self._map_changed)
 
+        self.encoding = ImageEncodingWidget()
+        self.encoding.changed.connect(self._format_changed)
         self.output = PathField(
-            f"{strings.get('label.mapmerge.output')} (.jpg)",
+            strings.get("label.mapmerge.output"),
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.mapmerge.output"),
             mode="save",
             file_filter="Images (*.jpg *.jpeg *.png)",
-            default_suffix=".jpg",
+            default_suffix=self.encoding.format.suffix,
         )
         self.output.changed.connect(self._edit_output)
 
@@ -88,6 +91,7 @@ class MapMergeTab(QWidget):
         layout.addWidget(self.map_label)
         layout.addWidget(self.map)
         layout.addWidget(self.output)
+        layout.addWidget(self.encoding)
         self.region_cursor = DisabledCursor(self.region)
         self.region_cursor.set(False, strings.get("tooltip.mapmerge.region"))
         self.map_cursor = DisabledCursor(self.map)
@@ -124,7 +128,7 @@ class MapMergeTab(QWidget):
             return None
 
         name = self._source_name()
-        return self.settings.export_path / f"{name}.jpg" if name else None
+        return self.settings.export_path / f"{name}{self.encoding.format.suffix}" if name else None
 
     def _source_changed(self, _: str) -> None:
         value = self.source.value.strip()
@@ -302,7 +306,20 @@ class MapMergeTab(QWidget):
 
     def _edit_output(self, _: str) -> None:
         self.output_touched = True
+        if image_format := MapImageFormat.parse(Path(self.output.value.strip())):
+            self._set_format(image_format)
         self._sync()
+
+    def _format_changed(self, image_format: MapImageFormat) -> None:
+        self.output.default_suffix = image_format.suffix
+        if value := self.output.value.strip():
+            self.output.value = Path(value).with_suffix(image_format.suffix).as_posix()
+            self.output_touched = True
+        self._sync()
+
+    def _set_format(self, image_format: MapImageFormat) -> None:
+        self.encoding.format = image_format
+        self.output.default_suffix = image_format.suffix
 
     def _sources(self) -> tuple[Path, ...]:
         if self.game is not None:
@@ -337,7 +354,7 @@ class MapMergeTab(QWidget):
     def _output_invalid(self) -> bool:
         value = self.output.value.strip()
         output = Path(value)
-        return not value or output.is_dir() or output.suffix.lower() not in mapmerge.OUTPUT_FORMATS
+        return not value or output.is_dir() or MapImageFormat.parse(output) is None
 
     def _submit_error(self) -> str | None:
         errors = (
@@ -382,6 +399,7 @@ class MapMergeTab(QWidget):
             tiles,
             Path(self.output.value.strip()),
             Options(),
+            self.encoding.save,
         )
         self.running = self.tasks.start(task)
         if self.running:

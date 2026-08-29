@@ -68,10 +68,20 @@ def test_output_format(tmp_path: Path) -> None:
     _tile(tmp_path, 0, 0)
     output = tmp_path / "map.png"
 
-    mapmerge.merge(tmp_path, output)
+    mapmerge.merge(tmp_path, output, save={"format": "PNG", "compress_level": 1})
 
     with Image.open(output) as image:
         assert image.format == "PNG"
+
+
+def test_arbitrary_output_format(tmp_path: Path) -> None:
+    _tile(tmp_path, 0, 0)
+    output = tmp_path / "map.data"
+
+    mapmerge.merge(tmp_path, output, save={"format": "BMP"})
+
+    with Image.open(output) as image:
+        assert image.format == "BMP"
 
 
 @pytest.mark.parametrize("conflict", (OnConflict.SKIP, OnConflict.RENAME))
@@ -95,7 +105,7 @@ def test_tile_size(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(mapmerge, "_decode", lambda *args: images.pop(0))
 
     output = tmp_path / "map.png"
-    mapmerge.merge(tmp_path, output)
+    mapmerge.merge(tmp_path, output, save={"format": "PNG"})
 
     with Image.open(output) as image:
         assert image.size == (4, 2)

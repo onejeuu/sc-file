@@ -11,11 +11,19 @@ from scfile.options import Options
 def test_merge(tmp_path: Path, monkeypatch) -> None:
     output = tmp_path / "map.jpg"
     tiles = {mapmerge.Region(0, 0): tmp_path / "r.0.0.ol"}
-    task = MapMergeTask(tiles, output, Options())
-    monkeypatch.setattr(mapmerge, "render", lambda *args, **kwargs: mapmerge.MergeResult(output, 3))
+    save = {"format": "JPEG", "quality": 80}
+    task = MapMergeTask(tiles, output, Options(), save)
+    calls = []
+
+    def render(*args, **kwargs):
+        calls.append((args, kwargs))
+        return mapmerge.MergeResult(output, 3)
+
+    monkeypatch.setattr(mapmerge, "render", render)
 
     events = list(task.run(TaskContext()))
 
+    assert calls[0][1]["save"] == save
     assert isinstance(events[1], TaskItem)
     assert events[1].output == output
     assert events[1].detail == "Merged 3 tiles"
@@ -23,7 +31,7 @@ def test_merge(tmp_path: Path, monkeypatch) -> None:
 
 def test_cancelled(tmp_path: Path, monkeypatch) -> None:
     tiles = {mapmerge.Region(0, 0): tmp_path / "r.0.0.ol"}
-    task = MapMergeTask(tiles, tmp_path / "map.jpg", Options())
+    task = MapMergeTask(tiles, tmp_path / "map.jpg", Options(), {"format": "JPEG"})
 
     def interrupted(*args, **kwargs):
         raise exceptions.MergeInterrupted()
