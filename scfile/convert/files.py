@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from scfile import exceptions, types
-from scfile.content import BaseContent
+from scfile.content import BaseContent, TextureContent
 from scfile.core import Decoder, Encoder
 from scfile.formats import registry
 from scfile.io import StructReader, StructWriter
@@ -59,6 +59,12 @@ def manual[
 
     with decoder(src, options) as dec:
         content = dec.decode()
+
+    if isinstance(content, TextureContent) and not content.texture.mipmap_count:
+        raise exceptions.ConversionError(
+            "Cannot convert a texture without mipmaps.",
+            location=str(src),
+        )
 
     with paths.stage(out) as tmp:
         with encoder(content, options, output=tmp) as enc:

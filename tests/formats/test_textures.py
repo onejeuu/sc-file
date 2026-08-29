@@ -43,3 +43,16 @@ def test_mipmap_limit(source: Path, texture_type: type[DefaultTexture | CubemapT
         dds = encoder.to_bytes()
 
     assert unpack_from("<I", dds, 28) == (1,)
+
+
+def test_texture_metadata() -> None:
+    source = ROOT / "source/texture_dxt1.ol"
+
+    with OlDecoder(source, Options(max_mipmaps=0)) as decoder:
+        content = decoder.decode()
+        assert decoder.io.tell() < decoder.io.size()
+
+    assert content.width > 0
+    assert content.height > 0
+    assert content.meta.mipmap_count > 0
+    assert content.texture.mipmap_count == 0

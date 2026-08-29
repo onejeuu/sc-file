@@ -60,13 +60,13 @@ class Options:
     """
 
     max_mipmaps: int | None = None
-    """Maximum number of texture mipmaps to decode."""
+    """Maximum texture mipmaps to decode. Use zero to parse metadata only."""
 
     def __post_init__(self) -> None:
         self.on_conflict = OnConflict(self.on_conflict)
 
         if self.max_mipmaps is not None:
-            self.max_mipmaps = max(1, self.max_mipmaps)
+            self.max_mipmaps = max(0, self.max_mipmaps)
 
         defaults = dict(DEFAULT_TARGETS)
         if self.skeleton_enabled:

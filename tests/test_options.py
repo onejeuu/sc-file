@@ -20,7 +20,7 @@ def test_targets() -> None:
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    ((-1, 1), (0, 1), (1, 1), (3, 3)),
+    ((-1, 0), (0, 0), (1, 1), (3, 3)),
 )
 def test_max_mipmaps(value: int, expected: int) -> None:
     assert Options().max_mipmaps is None
