@@ -21,6 +21,10 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
 
     tab.source.value = str(folder)
 
+    assert not tab.map.isEnabled()
+    assert not tab.map.count()
+    assert tab.map.placeholderText() == strings.get("placeholder.mapmerge.map")
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.map")
     assert Path(tab.output.value) == settings.export_path / "map.jpg"
     assert tab._submit_error() is None
 
@@ -49,7 +53,7 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
 
     tab = MapMergeTab(TaskManager(), Settings(game_root=game, export_path=tmp_path / "export"))
 
-    assert Path(tab.source.value) == game
+    assert Path(tab.source.value) == pda
     assert tab.map.isEnabled()
     assert {tab.map.itemData(index).name for index in range(tab.map.count())} == {"map", "unknown"}
     assert strings.mapmerge_map("unknown") == "unknown"
@@ -60,7 +64,11 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
     assert Path(tab.output.value) == tmp_path / "export/unknown.jpg"
 
     tab.source.value = str(pda / "map")
+    assert not tab.map.isEnabled()
+    assert tab.map.count() == 2
     assert tab.map.currentData() == pda / "map"
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.fixed.map")
+    assert Path(tab.output.value) == tmp_path / "export/map.jpg"
 
     tab.deleteLater()
     qapp.processEvents()
@@ -77,8 +85,19 @@ def test_game_maps_without_path_resolution(qapp: QApplication, tmp_path: Path) -
 
     assert not tab.map.isEnabled()
     assert not tab.map.count()
-    assert tab.map.placeholderText() == strings.get("placeholder.mapmerge.map")
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.map")
+
+    tab.source.value = str(game / "modassets/assets/pda")
+    assert tab.map.isEnabled()
+    assert tab.map.count() == 1
+    assert tab.map.currentData() == folder
+    assert not tab.output.value
+
+    tab.source.value = str(folder)
+    assert Path(tab.source.value) == folder
+    assert not tab.map.isEnabled()
+    assert tab.map.count() == 1
+    assert tab.map.currentData() == folder
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.fixed.map")
 
     tab.deleteLater()
     qapp.processEvents()

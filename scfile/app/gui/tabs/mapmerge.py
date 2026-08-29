@@ -76,9 +76,10 @@ class MapMergeTab(QWidget):
         self.map_cursor = DisabledCursor(self.map)
         self.map_cursor.set(False, strings.get("tooltip.mapmerge.map"))
 
+        layout.addStretch()
+
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
-        layout.addStretch()
 
         self.submit = ProgressButton(strings.get("button.mapmerge"))
         self.submit.setFixedHeight(50)
@@ -109,52 +110,97 @@ class MapMergeTab(QWidget):
 
     def _source_changed(self, _: str) -> None:
         value = self.source.value.strip()
-        if value and self.settings.resolve_paths:
-            source = Path(value)
-            if source.is_dir() and source.resolve() != source:
-                self.source.value = source.resolve().as_posix()
+        source = Path(value) if value else None
+
+        if source is not None:
+            resolved = self._resolve_source(source)
+            if resolved != source:
+                self.source.value = resolved.as_posix()
                 return
 
-        self.game = GameRoot.find(Path(value)) if value and self.settings.resolve_paths else None
-        selected = Path(value) if self.game and Path(value).parent == self.game.assets / "pda" else None
-        self._set_maps(selected)
-
-        suggested = self._suggested_output()
-        if suggested is not None:
-            self.output.value = suggested.as_posix()
-        elif self.settings.resolve_paths:
-            self.output.value = ""
+        self._update_maps(source)
+        self._update_output()
         self._sync()
 
     def _map_changed(self, _: int) -> None:
-        suggested = self._suggested_output()
-        if suggested is not None:
-            self.output.value = suggested.as_posix()
+        self._update_output()
         self._sync()
 
-    def _set_maps(self, selected: Path | None = None) -> None:
-        selected = selected or self.map.currentData()
+    def _resolve_source(self, source: Path) -> Path:
+        if not self.settings.resolve_paths or not source.is_dir():
+            return source
+
+        source = source.resolve()
+        game = GameRoot.find(source)
+        if game is None:
+            return source
+
+        pda = (game.assets / "pda").resolve()
+        return source if source.is_relative_to(pda) else pda
+
+    def _update_maps(self, source: Path | None) -> None:
+        if source is None:
+            self._clear_maps()
+            return
+
+        source = source.resolve()
+        game = GameRoot.find(source)
+        if game is None:
+            self._clear_maps()
+            return
+
+        pda = (game.assets / "pda").resolve()
+        if source == pda:
+            self._load_maps(game)
+            return
+
+        if source.parent == pda:
+            self._load_maps(game, source)
+            return
+
+        self._clear_maps()
+
+    def _update_output(self) -> None:
+        if self.settings.resolve_paths:
+            suggested = self._suggested_output()
+            self.output.value = suggested.as_posix() if suggested else ""
+
+    def _load_maps(self, game: GameRoot, selected: Path | None = None) -> None:
+        folders = self._map_folders(game)
+        if selected is not None and selected not in folders:
+            self._clear_maps("tooltip.mapmerge.empty.map")
+            return
+
+        current = selected or self.map.currentData()
+        self.game = game
 
         with QSignalBlocker(self.map):
             self.map.clear()
 
-            if self.game is None:
-                self.map_label.setEnabled(False)
-                self.map_cursor.set(False, strings.get("tooltip.mapmerge.map"))
-                return
-
-            folders = self._map_folders(self.game)
             for folder in folders:
                 title = strings.mapmerge_map(folder.name)
                 label = folder.name if title == folder.name else f"{title} ({folder.name})"
                 self.map.addItem(label, folder)
 
-            enabled = bool(folders)
+            if not folders:
+                self._disable_maps("tooltip.mapmerge.empty.map")
+                return
+
+            enabled = selected is None
             self.map_label.setEnabled(enabled)
-            tooltip = "tooltip.mapmerge.map" if enabled else "tooltip.mapmerge.empty.map"
+            tooltip = "tooltip.mapmerge.map" if enabled else "tooltip.mapmerge.fixed.map"
             self.map_cursor.set(enabled, strings.get(tooltip))
-            index = self.map.findData(selected)
-            self.map.setCurrentIndex(index if index >= 0 else 0)
+            self.map.setCurrentIndex(folders.index(current) if current in folders else 0)
+
+    def _clear_maps(self, tooltip: str = "tooltip.mapmerge.map") -> None:
+        self.game = None
+        with QSignalBlocker(self.map):
+            self.map.clear()
+        self._disable_maps(tooltip)
+
+    def _disable_maps(self, tooltip: str) -> None:
+        self.map_label.setEnabled(False)
+        self.map_cursor.set(False, strings.get(tooltip))
 
     @staticmethod
     def _map_folders(game: GameRoot) -> tuple[Path, ...]:
@@ -191,7 +237,8 @@ class MapMergeTab(QWidget):
     def _source_path(self) -> Path | None:
         if self.game is not None:
             path = self.map.currentData()
-            return path if isinstance(path, Path) else None
+            if isinstance(path, Path):
+                return path
 
         value = self.source.value.strip()
         return Path(value) if value else None
