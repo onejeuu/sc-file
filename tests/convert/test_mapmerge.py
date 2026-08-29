@@ -27,6 +27,24 @@ def test_scan(tmp_path: Path) -> None:
     assert mapmerge.scan(tmp_path) == {mapmerge.Region(-1, 2): expected}
 
 
+def test_collect(tmp_path: Path) -> None:
+    base = tmp_path / "base"
+    patch = tmp_path / "patch"
+    base.mkdir()
+    patch.mkdir()
+
+    original = _tile(base, 0, 0)
+    unchanged = _tile(base, 1, 0)
+    replacement = _tile(patch, 0, 0)
+    (patch / "r.1.0.ol").write_bytes(b"garbage")
+
+    assert mapmerge.collect((base, patch)) == {
+        mapmerge.Region(0, 0): replacement,
+        mapmerge.Region(1, 0): unchanged,
+    }
+    assert original != replacement
+
+
 def test_merge(tmp_path: Path) -> None:
     _tile(tmp_path, -1, 1)
     _tile(tmp_path, 0, 1)
@@ -47,8 +65,13 @@ def test_empty(tmp_path: Path) -> None:
 
 
 def test_output_format(tmp_path: Path) -> None:
-    with pytest.raises(exceptions.ConversionError, match=r"\.jpg"):
-        mapmerge.merge(tmp_path, tmp_path / "map.png")
+    _tile(tmp_path, 0, 0)
+    output = tmp_path / "map.png"
+
+    mapmerge.merge(tmp_path, output)
+
+    with Image.open(output) as image:
+        assert image.format == "PNG"
 
 
 @pytest.mark.parametrize("conflict", (OnConflict.SKIP, OnConflict.RENAME))

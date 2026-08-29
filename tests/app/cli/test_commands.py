@@ -1,6 +1,7 @@
 import json
 from collections.abc import Callable
 from pathlib import Path
+from shutil import copyfile
 from typing import Any
 
 import pytest
@@ -14,6 +15,9 @@ from scfile.app.cli.cmd import mapmerge as mapmerge_module
 from scfile.app.enums import OutputLayout, TaskKind
 from scfile.content import ModelContent
 from scfile.enums import FileFormat, OnConflict
+
+
+MAP_TILE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
 
 
 def test_convert(
@@ -204,6 +208,46 @@ def test_mapcache(
     assert not task.options.backup_regions
 
 
+def test_mapmerge_game(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+) -> None:
+    game = tmp_path / "game"
+    base = game / "modassets/assets/pda/map"
+    localized = game / "modassets/assets/_localized/ru/pda/map_bar_save"
+    patch = game / "bin_ru/patchassets/assets/pda/map"
+    for folder in (base, localized, patch):
+        folder.mkdir(parents=True)
+        copyfile(MAP_TILE, folder / "r.0.0.ol")
+
+    output = tmp_path / "map.jpg"
+    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+
+    result = CliRunner().invoke(
+        scfile,
+        ["mapmerge", str(game), "map", str(output), "--region", "ru"],
+    )
+
+    assert result.exit_code == 0
+    assert tasks[0].sources == (base, patch)
+
+    result = CliRunner().invoke(
+        scfile,
+        ["mapmerge", str(game), "map_bar_save", str(output), "--region", "ru"],
+    )
+
+    assert result.exit_code == 0
+    assert tasks[1].sources == (localized,)
+
+    result = CliRunner().invoke(
+        scfile,
+        ["mapmerge", str(game), "map", str(output), "--region", "missing"],
+    )
+
+    assert result.exit_code != 0
+    assert "Unknown region 'missing'" in result.output
+
+
 def test_mapcache_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
@@ -232,7 +276,7 @@ def test_mapmerge(
 
     assert result.exit_code == 0
     task = tasks[0]
-    assert task.source == source
+    assert task.sources == (source,)
     assert task.output == output
 
 

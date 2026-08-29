@@ -10,8 +10,10 @@ from scfile.options import Options
 
 def test_merge(tmp_path: Path, monkeypatch) -> None:
     output = tmp_path / "map.jpg"
-    task = MapMergeTask(tmp_path, output, Options())
-    monkeypatch.setattr(mapmerge, "merge", lambda *args: mapmerge.MergeResult(output, 3))
+    task = MapMergeTask((tmp_path,), output, Options())
+    tiles = {mapmerge.Region(0, 0): tmp_path / "r.0.0.ol"}
+    monkeypatch.setattr(mapmerge, "collect", lambda sources: tiles)
+    monkeypatch.setattr(mapmerge, "render", lambda *args, **kwargs: mapmerge.MergeResult(output, 3))
 
     events = list(task.run(TaskContext()))
 
@@ -21,11 +23,12 @@ def test_merge(tmp_path: Path, monkeypatch) -> None:
 
 
 def test_cancelled(tmp_path: Path, monkeypatch) -> None:
-    task = MapMergeTask(tmp_path, tmp_path / "map.jpg", Options())
+    task = MapMergeTask((tmp_path,), tmp_path / "map.jpg", Options())
+    monkeypatch.setattr(mapmerge, "collect", lambda sources: {mapmerge.Region(0, 0): tmp_path / "r.0.0.ol"})
 
-    def interrupted(*args):
+    def interrupted(*args, **kwargs):
         raise exceptions.MergeInterrupted()
 
-    monkeypatch.setattr(mapmerge, "merge", interrupted)
+    monkeypatch.setattr(mapmerge, "render", interrupted)
 
     assert len(list(task.run(TaskContext()))) == 1

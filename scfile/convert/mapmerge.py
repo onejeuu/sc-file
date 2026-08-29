@@ -1,6 +1,6 @@
 """Flat map merging operations."""
 
-from collections.abc import Generator
+from collections.abc import Generator, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import replace
 from io import BytesIO
@@ -19,6 +19,11 @@ from .regions import Bounds, CancelCheck, Region, Size
 PREFIX = "r."
 MIN_TILE_SIZE = 7 * 1024
 JPEG_QUALITY = 95
+OUTPUT_FORMATS = {
+    suffix: image_format
+    for suffix, image_format in Image.registered_extensions().items()
+    if image_format in Image.SAVE
+}
 
 type Tiles = dict[Region, Path]
 
@@ -40,6 +45,17 @@ def scan(
     return dict(sorted(tiles))
 
 
+def collect(
+    sources: Iterable[types.SourceLike],
+) -> Tiles:
+    """Collect map tiles from ordered source folders."""
+
+    tiles: Tiles = {}
+    for source in sources:
+        tiles.update(scan(source))
+    return dict(sorted(tiles.items()))
+
+
 def merge(
     source: types.SourceLike,
     output: types.SourceLike,
@@ -48,16 +64,32 @@ def merge(
 ) -> MergeResult:
     """Merge map tiles from one folder into an image."""
 
-    source_path = Path(source)
     output_path = Path(output)
+    tiles = scan(source)
+    if not tiles:
+        raise exceptions.ConversionError("No map tiles found.", location=str(source))
+
+    return render(tiles, output_path, options, cancelled)
+
+
+def render(
+    tiles: Mapping[Region, Path],
+    output: types.SourceLike,
+    options: Options | None = None,
+    cancelled: CancelCheck = None,
+) -> MergeResult:
+    """Merge normalized map tiles into an image."""
+
+    output_path = Path(output)
+    image_format = OUTPUT_FORMATS.get(output_path.suffix.lower())
+    if image_format is None:
+        raise exceptions.ConversionError("Unsupported map output format.", location=str(output_path))
     options = options or Options()
 
-    if output_path.suffix.lower() != ".jpg":
-        raise exceptions.ConversionError("Map output must be a .jpg file.", location=str(output_path))
-
-    tiles = scan(source_path)
     if not tiles:
-        raise exceptions.ConversionError("No map tiles found.", location=str(source_path))
+        raise exceptions.ConversionError("No map tiles found.")
+
+    tiles = dict(sorted(tiles.items()))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     decoder_options = replace(options, max_mipmaps=1)
@@ -80,7 +112,8 @@ def merge(
                 _paste(canvas, bounds, key, path, image, tile_size)
 
         with paths.stage(output_path) as temporary:
-            canvas.save(temporary, format="JPEG", quality=JPEG_QUALITY)
+            save_options = {"quality": JPEG_QUALITY} if image_format == "JPEG" else {}
+            canvas.save(temporary, format=image_format, **save_options)
 
     finally:
         canvas.close()

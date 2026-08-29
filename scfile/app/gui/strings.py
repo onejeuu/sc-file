@@ -1,29 +1,5 @@
-import locale
-from typing import Literal
+from scfile.app.localization import LANG, Lang
 
-
-type Lang = Literal["EN"] | Literal["RU"]
-
-PREFIXES: dict[Lang, tuple[str, ...]] = {
-    "RU": ("russian", "ru_"),
-}
-
-
-def _resolve_lang() -> Lang:
-    try:
-        lang = (locale.getlocale()[0] or "").lower()
-
-        for code, prefixes in PREFIXES.items():
-            if lang.startswith(prefixes):
-                return code
-
-        return "EN"
-
-    except Exception:
-        return "EN"
-
-
-LANG: Lang = _resolve_lang()
 
 DATA: dict[Lang, dict[str, str]] = {
     "EN": {
@@ -47,6 +23,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "label.mapcache.source": "SC map cache",
         "label.mapcache.output": "Minecraft world regions",
         "label.mapmerge.source": "SC map tiles",
+        "label.mapmerge.region": "Region",
         "label.mapmerge.map": "Map",
         "label.mapmerge.output": "Output",
         "label.experimental": "🧪",
@@ -107,7 +84,8 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.mapcache.invalid.output": "Specify an output folder",
         "tooltip.mapcache.scanning": "Scanning for .mdat files",
         "tooltip.mapmerge.invalid.source": "No map tiles found in specified folder",
-        "tooltip.mapmerge.invalid.output": "Specify an output JPG file",
+        "tooltip.mapmerge.invalid.output": "Specify an output image file",
+        "tooltip.mapmerge.region": "Select a game folder to choose a region",
         "tooltip.mapmerge.map": "Select a game folder to choose a map",
         "tooltip.mapmerge.empty.map": "No map tile folders found in the selected game",
         "tooltip.mapmerge.fixed.map": "The map is fixed by the source path",
@@ -178,6 +156,7 @@ DATA: dict[Lang, dict[str, str]] = {
         "label.mapcache.source": "SC кэш карты",
         "label.mapcache.output": "Minecraft регионы мира",
         "label.mapmerge.source": "SC тайлы карты",
+        "label.mapmerge.region": "Регион",
         "label.mapmerge.map": "Карта",
         "label.mapmerge.output": "Результат",
         "label.experimental": "🧪",
@@ -238,7 +217,8 @@ DATA: dict[Lang, dict[str, str]] = {
         "tooltip.mapcache.invalid.output": "Укажите папку для сохранения",
         "tooltip.mapcache.scanning": "Поиск файлов .mdat",
         "tooltip.mapmerge.invalid.source": "В указанной папке не найдены тайлы карты",
-        "tooltip.mapmerge.invalid.output": "Укажите выходной файл JPG",
+        "tooltip.mapmerge.invalid.output": "Укажите выходной файл изображения",
+        "tooltip.mapmerge.region": "Выберите папку игры, чтобы выбрать регион",
         "tooltip.mapmerge.map": "Выберите папку игры, чтобы выбрать карту",
         "tooltip.mapmerge.empty.map": "В выбранной игре не найдены папки с тайлами карты",
         "tooltip.mapmerge.fixed.map": "Карта задана исходным путём",
@@ -291,9 +271,5 @@ DATA: dict[Lang, dict[str, str]] = {
 }
 
 
-def get(key: str) -> str:
-    return DATA.get(LANG, {}).get(key, key)
-
-
-def mapmerge_map(name: str) -> str:
-    return DATA[LANG].get(f"mapmerge.map.{name}", name)
+def get(key: str, fallback: str | None = None) -> str:
+    return DATA.get(LANG, {}).get(key, fallback if fallback is not None else key)

@@ -3,16 +3,31 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 
 ASSETS: Path = Path("modassets/assets")
 MAP_CACHE: Path = Path("map_cache/5.0")
+LOCALIZED: Path = Path("_localized")
+PATCHASSETS: Path = Path("patchassets/assets")
 
 GAME_ROOTS: tuple[Path, ...] = (
     Path("EXBO/runtime/stalcraft"),
     Path("steamapps/common/STALCRAFT"),
     Path("AppData/Roaming/EXBO/runtime/stalcraft"),
 )
+
+type Realm = Literal["ru", "global"]
+
+
+class GameRegion(str):
+    @property
+    def realm(self) -> Realm:
+        match self:
+            case "ru":
+                return "ru"
+            case _:
+                return "global"
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +62,32 @@ class GameRoot:
     @property
     def map_cache(self) -> Path:
         return self.root / MAP_CACHE
+
+    @property
+    def regions(self) -> tuple[GameRegion, ...]:
+        localized = self.assets / LOCALIZED
+        try:
+            return tuple(sorted(GameRegion(path.name) for path in localized.iterdir() if path.is_dir()))
+
+        except OSError:
+            return ()
+
+    def asset_layers(self, region: GameRegion) -> tuple[Path, ...]:
+        patch = self.root / f"bin_{region.realm}" / PATCHASSETS
+        paths = (
+            self.assets,
+            self.assets / LOCALIZED / region,
+            patch,
+            patch / LOCALIZED / region,
+        )
+        return tuple(path for path in paths if path.is_dir())
+
+    def asset_paths(self, relative: str | Path, region: GameRegion) -> tuple[Path, ...]:
+        relative = Path(relative)
+        if relative.anchor or ".." in relative.parts:
+            return ()
+
+        return tuple(path for layer in self.asset_layers(region) if (path := layer / relative).exists())
 
     def resolve_asset(self, value: str | Path) -> Path | None:
         value = str(value).replace("\\", "/")

@@ -16,7 +16,7 @@ from .base import Task, TaskContext
 class MapMergeTask(Task):
     kind: ClassVar[TaskKind] = TaskKind.MAPMERGE
 
-    source: Path
+    sources: tuple[Path, ...]
     output: Path
     options: Options
 
@@ -24,8 +24,13 @@ class MapMergeTask(Task):
         yield TaskStarted(self.kind, 1, self.output)
 
         try:
-            result = mapmerge.merge(
-                self.source,
+            tiles = mapmerge.collect(self.sources)
+            if not tiles:
+                location = str(self.sources[0]) if self.sources else None
+                raise exceptions.ConversionError("No map tiles found.", location=location)
+
+            result = mapmerge.render(
+                tiles,
                 self.output,
                 self.options,
                 context.cancelled.is_set,
@@ -34,4 +39,4 @@ class MapMergeTask(Task):
         except exceptions.MergeInterrupted:
             return
 
-        yield TaskItem(str(self.source), result.output, f"Merged {result.tiles} tiles")
+        yield TaskItem(str(self.sources[0]), result.output, f"Merged {result.tiles} tiles")

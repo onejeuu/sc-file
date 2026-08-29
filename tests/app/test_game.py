@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from scfile.app.game import ASSETS, MAP_CACHE, GameRoot, McWorld
+from scfile.app.game import ASSETS, LOCALIZED, MAP_CACHE, PATCHASSETS, GameRegion, GameRoot, McWorld
 
 
 @pytest.fixture
@@ -49,6 +49,49 @@ def test_asset(tmp_path: Path) -> None:
 
     assert game.resolve_asset(source) is None
     assert game.resolve_asset("assets/../outside.mcvd") is None
+
+
+def test_asset_layers(tmp_path: Path) -> None:
+    root = tmp_path / "game"
+    assets = root / ASSETS
+    localized = assets / LOCALIZED
+    patch_ru = root / "bin_ru" / PATCHASSETS
+    patch_global = root / "bin_global" / PATCHASSETS
+
+    for path in (
+        assets / "pda/map",
+        localized / "ru/pda/map",
+        localized / "en",
+        patch_ru / "pda/map",
+        patch_ru / "_localized/ru/pda/map",
+        patch_global / "pda/map",
+        patch_global / "_localized/en/pda/map",
+    ):
+        path.mkdir(parents=True)
+
+    game = GameRoot.from_path(root)
+    assert game is not None
+    assert game.regions == ("en", "ru")
+    assert GameRegion("ru").realm == "ru"
+    assert GameRegion("en").realm == "global"
+    assert game.asset_layers(GameRegion("ru")) == (
+        assets,
+        localized / "ru",
+        patch_ru,
+        patch_ru / "_localized/ru",
+    )
+    assert game.asset_layers(GameRegion("en")) == (
+        assets,
+        localized / "en",
+        patch_global,
+        patch_global / "_localized/en",
+    )
+    assert game.asset_paths(Path("pda/map"), GameRegion("ru")) == (
+        assets / "pda/map",
+        localized / "ru/pda/map",
+        patch_ru / "pda/map",
+        patch_ru / "_localized/ru/pda/map",
+    )
 
 
 def test_map_cache(tmp_path: Path) -> None:
