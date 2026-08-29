@@ -20,39 +20,53 @@ from scfile.options import Options
 @click.argument("OUTPUT", type=params.MapMergeOutput, required=False)
 @click.option("--region", metavar="REGION", help="Game region for localized map assets.")
 def mapmerge(source: Path, target: str, output: Path | None, region: str | None) -> None:
-    """Merge map tiles into an image."""
+    """Merge 2D map tiles."""
 
     if output is None:
-        if region is not None:
-            raise click.UsageError("--region requires a game folder and map name.")
-
-        output = Path(target).expanduser().resolve()
-        if output.is_dir():
-            raise click.BadParameter("Output must be a file path.", param_hint="OUTPUT")
-        sources = (source,)
-
+        task = _flat(source, target, region)
     else:
-        game = GameRoot.find(source)
-        if game is None:
-            raise click.BadParameter("Specify a STALCRAFT game folder.", param_hint="SOURCE")
+        task = _game(source, target, output, region)
 
-        if Path(target).name != target:
-            raise click.BadParameter("Map name must not contain a path.", param_hint="TARGET")
-
-        region = _region(game, region)
-        sources = game.asset_paths(Path("pda") / target, region)
-        if not maps.collect(sources):
-            raise click.BadParameter(f"No map tiles found for '{target}'.", param_hint="TARGET")
-
-    if output.exists():
-        warn(f"Output file will be replaced: {output}")
+    if task.output.exists():
+        warn(f"Output file will be replaced: {task.output}")
 
     feedback = TaskFeedback()
-    summary = execute(MapMergeTask(sources, output, Options()), feedback)
+    summary = execute(task, feedback)
     feedback.finish(summary)
 
     if summary.work.failed:
         raise click.exceptions.Exit(1)
+
+
+def _flat(source: Path, output: str, region: str | None) -> MapMergeTask:
+    if region is not None:
+        raise click.UsageError("--region requires a game folder and map name.")
+
+    path = Path(output).expanduser().resolve()
+    if path.is_dir():
+        raise click.BadParameter("Output must be a file path.", param_hint="OUTPUT")
+
+    tiles = maps.scan(source)
+    if not tiles:
+        raise click.BadParameter("No map tiles found.", param_hint="SOURCE")
+
+    return MapMergeTask(tiles, path, Options())
+
+
+def _game(source: Path, name: str, output: Path, region: str | None) -> MapMergeTask:
+    game = GameRoot.find(source)
+    if game is None:
+        raise click.BadParameter("Specify a STALCRAFT game folder.", param_hint="SOURCE")
+
+    if Path(name).name != name:
+        raise click.BadParameter("Map name must not contain a path.", param_hint="TARGET")
+
+    selected = _region(game, region)
+    tiles = maps.collect(game.asset_paths(Path("pda") / name, selected))
+    if not tiles:
+        raise click.BadParameter(f"No map tiles found for '{name}'.", param_hint="TARGET")
+
+    return MapMergeTask(tiles, output, Options())
 
 
 def _region(game: GameRoot, value: str | None) -> GameRegion:

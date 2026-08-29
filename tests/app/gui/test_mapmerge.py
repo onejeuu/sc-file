@@ -30,6 +30,10 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     assert Path(tab.output.value) == settings.export_path / "map.jpg"
     assert tab._submit_error() is None
 
+    tab.source.value = str(tmp_path / "missing")
+    assert not tab.output.value
+
+    tab.source.value = str(folder)
     output = Path(tab.output.value)
     output.parent.mkdir()
     output.touch()

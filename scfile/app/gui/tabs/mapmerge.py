@@ -59,6 +59,7 @@ class MapMergeTab(QWidget):
         self.region.setCursor(Qt.CursorShape.PointingHandCursor)
         self.region.setItemDelegate(QStyledItemDelegate())
         self.region.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.region.setPlaceholderText(strings.get("placeholder.mapmerge.region"))
         self.region.activated.connect(self._region_changed)
 
         self.map_label = QLabel(strings.get("label.mapmerge.map"))
@@ -119,7 +120,7 @@ class MapMergeTab(QWidget):
         self._source_changed(self.source.value)
 
     def _suggested_output(self) -> Path | None:
-        if not self.settings.resolve_paths:
+        if not self.settings.resolve_paths or self._source_invalid():
             return None
 
         name = self._source_name()
@@ -373,8 +374,12 @@ class MapMergeTab(QWidget):
         if not sources:
             return
 
+        tiles = mapmerge.collect(sources)
+        if not tiles:
+            return
+
         task = MapMergeTask(
-            sources,
+            tiles,
             Path(self.output.value.strip()),
             Options(),
         )
