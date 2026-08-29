@@ -2,6 +2,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 
+from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
 from scfile.app.gui.tasks import TaskManager
@@ -74,6 +75,11 @@ def test_export(qapp: QApplication, tmp_path: Path) -> None:
     tab.form.source.value = str(arms)
     tab._sync()
     assert Path(tab.output.value) == settings.export_path / "arms.glb"
+    output = Path(tab.output.value)
+    output.parent.mkdir()
+    output.touch()
+    tab._sync()
+    assert strings.get("warning.animate.overwrite") in tab.warnings.text()
 
     tab.tabs.setCurrentIndex(1)
     assert not tab.output.value

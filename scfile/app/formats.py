@@ -34,7 +34,7 @@ FORMAT_GROUPS = (
     FormatGroup("textures", "🧱", "format.textures", (".ol",), (FileFormat.OL,)),
     FormatGroup("images", "🖼", "format.images", (".mic",), (FileFormat.MIC,)),
     FormatGroup("archive", "🗃️", "format.archive", (".texarr",), (FileFormat.TEXARR,)),
-    FormatGroup("nbt", "⚙️", "format.nbt", ("itemnames.dat", "prefs", "sd1…sd4"), (FileFormat.NBT,)),
+    FormatGroup("nbt", "⚙️", "format.nbt", ("itemnames.dat", "prefs", "sd0…sd4"), (FileFormat.NBT,)),
 )
 
 

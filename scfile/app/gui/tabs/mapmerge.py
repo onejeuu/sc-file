@@ -11,6 +11,7 @@ from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
+from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.tasks.mapmerge import MapMergeTask
 from scfile.convert import mapmerge
 from scfile.options import Options
@@ -56,6 +57,9 @@ class MapMergeTab(QWidget):
 
         layout.addWidget(self.source)
         layout.addWidget(self.output)
+
+        self.warnings = WarningsWidget()
+        layout.addWidget(self.warnings)
         layout.addStretch()
 
         self.submit = ProgressButton(strings.get("button.mapmerge"))
@@ -140,6 +144,10 @@ class MapMergeTab(QWidget):
         output_invalid = self.output_touched and self._output_invalid()
         output_error = strings.get("tooltip.mapmerge.invalid.output") if output_invalid else None
         self.output.set_error(output_error)
+
+        output = Path(self.output.value.strip())
+        warnings = (strings.get("warning.mapmerge.overwrite"),) if output.is_file() else ()
+        self.warnings.set_messages(warnings)
 
         error = self._submit_error()
         self.submit_cursor.set(self.running or error is None, strings.get(error or ""))

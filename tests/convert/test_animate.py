@@ -20,29 +20,25 @@ EXPECTED = ASSETS / "convert" / "animate"
 
 
 @pytest.mark.parametrize(
-    ("operation", "suffix"),
+    ("operation", "animation", "model"),
     [
-        (animate.arms, ".mcvd"),
-        (animate.body, ".mcal"),
-        (animate.face, ".mcvd"),
+        (animate.arms, "animation.mcvd", "model_v15.mcsb"),
+        (animate.body, "library.mcal", "model_v15.mcsb"),
     ],
 )
-def test_skip(
+def test_replaces(
     operation: Operation,
-    suffix: str,
+    animation: str,
+    model: str,
     tmp_path: Path,
 ) -> None:
-    source = tmp_path / f"animation{suffix}"
-    model = tmp_path / "model.mcsb"
     output = tmp_path / "animation.glb"
-    source.write_bytes(b"")
-    model.write_bytes(b"")
     output.write_bytes(b"existing")
 
-    result = operation(source, model, options=Options(on_conflict=OnConflict.SKIP))
+    result = operation(SOURCE / animation, SOURCE / model, output=output, options=Options(on_conflict=OnConflict.SKIP))
 
-    assert result is None
-    assert output.read_bytes() == b"existing"
+    assert result == output
+    assert output.read_bytes() != b"existing"
 
 
 @pytest.mark.parametrize(

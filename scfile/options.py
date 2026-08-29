@@ -41,6 +41,9 @@ class Options:
     biomes: bool = True
     """Export biome data for world regions."""
 
+    backup_regions: bool = True
+    """Keep original world region."""
+
     extended_chunk: bool = False
     """Expose auxiliary world chunk data."""
 

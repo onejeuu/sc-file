@@ -42,7 +42,9 @@ Location of the ``region`` directory:
 
 You can clear existing ``.mca`` files from this directory.
 
-Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups.
+By default, the first original file with the same ``r.<x>.<z>.mca`` name is kept as
+``.mca.bck`` before replacement. An existing backup is never replaced. Use
+``--no-backup`` to replace regions without creating backups.
 
 
 ----------------------------------------

@@ -24,9 +24,7 @@ type Tiles = dict[Region, Path]
 
 
 class MergeResult(NamedTuple):
-    """Map merge result."""
-
-    output: types.ResultPath
+    output: Path
     tiles: int
 
 
@@ -61,11 +59,7 @@ def merge(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.", location=str(source_path))
 
-    target = paths.select(output_path, options)
-    if target is None:
-        return MergeResult(None, 0)
-
-    target.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     decoder_options = replace(options, max_mipmaps=1)
     if cancelled and cancelled():
         raise exceptions.MergeInterrupted()
@@ -85,13 +79,13 @@ def merge(
             with _decode(path, decoder_options) as image:
                 _paste(canvas, bounds, key, path, image, tile_size)
 
-        with paths.stage(target) as temporary:
+        with paths.stage(output_path) as temporary:
             canvas.save(temporary, format="JPEG", quality=JPEG_QUALITY)
 
     finally:
         canvas.close()
 
-    return MergeResult(target, len(tiles))
+    return MergeResult(output_path, len(tiles))
 
 
 def _tile(path: Path) -> tuple[Region, Path] | None:

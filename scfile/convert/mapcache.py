@@ -15,21 +15,19 @@ from .regions import CancelCheck, Region
 
 
 PREFIX = "reg."
+MCA_PREFIX = "r."
+MCA_SUFFIX = formats.McaEncoder.suffix()
 BACKUP_SUFFIX = ".bck"
 
 type Regions = dict[Region, list[Path]]
 
 
 class ScanResult(NamedTuple):
-    """Map cache scan result."""
-
     paths: list[Path]
     errors: list[OSError]
 
 
 class MergeResult(NamedTuple):
-    """Map cache merge result."""
-
     filename: str
     chunks: int
 
@@ -123,7 +121,7 @@ def merge(
                 seen.add(chunk.index)
 
     region.rx, region.rz = key
-    filename = f"r.{region.rx}.{region.rz}{encoder.suffix()}"
+    filename = f"{MCA_PREFIX}{region.rx}.{region.rz}{MCA_SUFFIX}"
     target = output / filename
 
     with paths.stage(target) as temporary:
@@ -131,9 +129,9 @@ def merge(
             mca.encode()
             mca.save(temporary, close=False)
 
-        if target.exists():
-            backup = target.with_suffix(f"{encoder.suffix()}{BACKUP_SUFFIX}")
-            if not backup.exists():
-                target.rename(backup)
+        if options.backup_regions and target.exists():
+            backup_path = target.with_suffix(f"{MCA_SUFFIX}{BACKUP_SUFFIX}")
+            if not backup_path.exists():
+                target.rename(backup_path)
 
     return MergeResult(filename, len(region.chunks))

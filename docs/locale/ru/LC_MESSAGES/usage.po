@@ -384,9 +384,13 @@ msgid "Minecraft can overwrite changed files with its cached chunks."
 msgstr "Майнкрафт может перезаписать измененные файлы своими кэшированными чанками."
 
 msgid ""
-"Existing files with the same ``r.<x>.<z>.mca`` name are replaced with ``.mca.bck`` backups."
+"By default, the first original file with the same ``r.<x>.<z>.mca`` name is kept as\n"
+"``.mca.bck`` before replacement. An existing backup is never replaced. Use\n"
+"``--no-backup`` to replace regions without creating backups."
 msgstr ""
-"Существующие файлы с именем ``r.<x>.<z>.mca`` заменяются файлами ``.mca.bck`` на случай бэкапа."
+"По умолчанию исходный файл с тем же именем ``r.<x>.<z>.mca`` при первой замене\n"
+"сохраняется как ``.mca.bck``. Существующий бэкап никогда не заменяется. Используйте\n"
+"``--no-backup``, чтобы заменять регионы без создания бэкапов."
 
 msgid "Convert the cache"
 msgstr "Конвертация кэша"
@@ -527,6 +531,16 @@ msgstr ""
 
 msgid "``--biomes / --no-biomes``"
 msgstr ""
+
+msgid "``--backup / --no-backup``"
+msgstr ""
+
+msgid ""
+"Keep the first original ``.mca`` region as ``.mca.bck`` before replacement. "
+"Enabled by default. Existing backups are kept unchanged."
+msgstr ""
+"Сохраняет исходный регион ``.mca`` как ``.mca.bck`` перед первой заменой. "
+"Включено по умолчанию. Существующие бэкапы не изменяются."
 
 msgid "mapcache"
 msgstr ""

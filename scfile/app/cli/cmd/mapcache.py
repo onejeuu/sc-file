@@ -36,6 +36,11 @@ from scfile.options import Options
     help="Export biome data.",
 )
 @click.option(
+    "--backup/--no-backup",
+    default=True,
+    help="Keep the original region before its first replacement.",
+)
+@click.option(
     "-v",
     "--verbose",
     is_flag=True,
@@ -46,13 +51,14 @@ def mapcache(
     output: types.OutputPath,
     workers: int | None,
     biomes: bool,
+    backup: bool,
     verbose: bool,
 ) -> None:
     """Merge map cache regions."""
 
     warn("MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely.")
 
-    options = Options(biomes=biomes)
+    options = Options(biomes=biomes, backup_regions=backup)
     feedback = TaskFeedback(verbose)
     summary = execute(MapCacheTask(source, output, options, workers), feedback)
     feedback.finish(summary)

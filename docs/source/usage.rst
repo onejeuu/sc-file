@@ -342,5 +342,10 @@ mapcache
     scfile mapcache "C:/map_cache/5.0" --no-biomes
 
 
+``--backup / --no-backup``
+  Keep the first original ``.mca`` region as ``.mca.bck`` before replacement.
+  Enabled by default. Existing backups are kept unchanged.
+
+
 ``-v, --verbose``
   Show the result of every processed region.

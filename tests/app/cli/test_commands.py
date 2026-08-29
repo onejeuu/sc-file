@@ -144,6 +144,26 @@ def test_animate(
     assert tasks[1].options.preserve_clips
 
 
+def test_animate_existing_output(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+    monkeypatch,
+) -> None:
+    animation = tmp_path / "animation.mcvd"
+    model = tmp_path / "model.mcsb"
+    output = tmp_path / "output.glb"
+    for path in (animation, model, output):
+        path.touch()
+    command_runner(animate_module, TaskKind.ANIMATE, False)
+    warnings: list[str] = []
+    monkeypatch.setattr(animate_module, "warn", warnings.append)
+
+    result = CliRunner().invoke(scfile, ["animate", "face", str(animation), str(model), "-O", str(output)])
+
+    assert result.exit_code == 0
+    assert warnings == [f"Output file will be replaced: {output}"]
+
+
 def test_animate_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
@@ -172,7 +192,7 @@ def test_mapcache(
 
     result = CliRunner().invoke(
         scfile,
-        ["mapcache", str(source), "-O", str(output), "--no-biomes", "-W", "2", "--verbose"],
+        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-backup", "-W", "2", "--verbose"],
     )
 
     assert result.exit_code == 0
@@ -181,6 +201,7 @@ def test_mapcache(
     assert task.output == output
     assert task.workers == 2
     assert not task.options.biomes
+    assert not task.options.backup_regions
 
 
 def test_mapcache_failure(
@@ -213,6 +234,25 @@ def test_mapmerge(
     task = tasks[0]
     assert task.source == source
     assert task.output == output
+
+
+def test_mapmerge_existing_output(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+    monkeypatch,
+) -> None:
+    source = tmp_path / "tiles"
+    source.mkdir()
+    output = tmp_path / "map.jpg"
+    output.touch()
+    command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    warnings: list[str] = []
+    monkeypatch.setattr(mapmerge_module, "warn", warnings.append)
+
+    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+
+    assert result.exit_code == 0
+    assert warnings == [f"Output file will be replaced: {output}"]
 
 
 def test_mapmerge_failure(

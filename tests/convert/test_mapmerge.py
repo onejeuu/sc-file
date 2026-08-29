@@ -6,6 +6,8 @@ from PIL import Image
 
 from scfile import exceptions
 from scfile.convert import mapmerge
+from scfile.enums import OnConflict
+from scfile.options import Options
 
 
 SOURCE = Path(__file__).parents[1] / "assets/formats/textures/source/texture_rgba.ol"
@@ -47,6 +49,18 @@ def test_empty(tmp_path: Path) -> None:
 def test_output_format(tmp_path: Path) -> None:
     with pytest.raises(exceptions.ConversionError, match=r"\.jpg"):
         mapmerge.merge(tmp_path, tmp_path / "map.png")
+
+
+@pytest.mark.parametrize("conflict", (OnConflict.SKIP, OnConflict.RENAME))
+def test_output_replaced(tmp_path: Path, conflict: OnConflict) -> None:
+    _tile(tmp_path, 0, 0)
+    output = tmp_path / "map.jpg"
+    output.write_bytes(b"previous")
+
+    result = mapmerge.merge(tmp_path, output, Options(on_conflict=conflict))
+
+    assert result.output == output
+    assert output.read_bytes() != b"previous"
 
 
 def test_tile_size(tmp_path: Path, monkeypatch) -> None:

@@ -50,9 +50,6 @@ class MapCacheTab(QWidget):
         )
         self.source.changed.connect(self._edit_source)
 
-        if source := self._game_cache():
-            self.source.value = source.as_posix()
-
         self.output = PathField(
             f"{strings.get('label.mapcache.output')} (.mca)",
             placeholder=".minecraft/saves/{world}",
@@ -60,9 +57,17 @@ class MapCacheTab(QWidget):
         )
         self.output.changed.connect(self._edit_output)
 
+        if source := self._game_cache():
+            self.source.value = source.as_posix()
+
         self.biomes = OptionWidget(
             text=strings.get("option.mapcache.biomes"),
             hint=strings.get("option.mapcache.biomes.hint"),
+            checked=True,
+        )
+        self.backup = OptionWidget(
+            text=strings.get("option.mapcache.backup"),
+            hint=strings.get("option.mapcache.backup.hint"),
             checked=True,
         )
 
@@ -70,6 +75,7 @@ class MapCacheTab(QWidget):
         layout.addWidget(self.output)
         layout.addSpacing(10)
         layout.addWidget(self.biomes)
+        layout.addWidget(self.backup)
         layout.addStretch()
 
         self.warnings = WarningsWidget()
@@ -164,7 +170,7 @@ class MapCacheTab(QWidget):
         self._source_changed(value)
 
     def _refresh(self) -> None:
-        self.scanner.refresh(self.source.value.strip())
+        self.scanner.refresh(self.source.value.strip(), self.output.value.strip())
 
     def _output_changed(self, _: str) -> None:
         value = self.output.value.strip()
@@ -179,7 +185,7 @@ class MapCacheTab(QWidget):
             self.world = McWorld.find(output)
             if self.world:
                 self.output.value = self.world.regions.as_posix()
-        self._sync()
+        self._refresh()
 
     def _edit_output(self, value: str) -> None:
         self.touched.add(self.output)
@@ -191,7 +197,6 @@ class MapCacheTab(QWidget):
             return []
 
         output = Path(output_value)
-        regions = any(output.glob("*.mca"))
         world = output.name
         valid = False
 
@@ -205,7 +210,7 @@ class MapCacheTab(QWidget):
             message
             for condition, message in (
                 (not valid, strings.get("warning.mapcache.invalid.mcworld")),
-                (regions, strings.get(overwrite).format(world=world)),
+                (self.scanner.replaces, strings.get(overwrite).format(world=world)),
             )
             if condition
         ]
@@ -247,7 +252,7 @@ class MapCacheTab(QWidget):
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
-            Options(biomes=self.biomes.checked),
+            Options(biomes=self.biomes.checked, backup_regions=self.backup.checked),
         )
         self.running = self.tasks.start(task)
         if self.running:

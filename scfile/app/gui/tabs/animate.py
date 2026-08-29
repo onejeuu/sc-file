@@ -429,7 +429,11 @@ class AnimateTab(QWidget):
             strings.get("tooltip.animate.invalid.output") if form.output_touched and self._output_invalid() else None
         )
         output.set_error(error)
-        self.warnings.set_messages(form.warnings)
+        output_path = Path(output.value.strip())
+        warnings = form.warnings
+        if output_path.is_file() and not self._output_invalid():
+            warnings += (strings.get("warning.animate.overwrite"),)
+        self.warnings.set_messages(warnings)
 
         error = self._submit_error()
         self.submit_cursor.set(error is None, strings.get(error or ""))

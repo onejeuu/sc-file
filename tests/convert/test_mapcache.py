@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from scfile import exceptions
-from scfile.convert.mapcache import group, merge, scan
+from scfile.convert.mapcache import Region, group, merge, scan
 from scfile.options import Options
 
 
@@ -44,7 +44,7 @@ def test_scan_cancel(tmp_path: Path) -> None:
 
 def test_merge_cancel(tmp_path: Path) -> None:
     with pytest.raises(exceptions.MergeInterrupted):
-        merge((0, 0), [tmp_path / "r.0.0.mdat"], tmp_path, Options(), lambda: True)
+        merge(Region(0, 0), [tmp_path / "r.0.0.mdat"], tmp_path, Options(), lambda: True)
 
 
 def test_merge_backup(tmp_path: Path) -> None:
@@ -52,9 +52,32 @@ def test_merge_backup(tmp_path: Path) -> None:
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
-    result = merge((0, 0), [source, source], tmp_path, Options())
+    result = merge(Region(0, 0), [source, source], tmp_path, Options())
 
     assert result.filename == target.name
     assert result.chunks > 0
     assert target.exists()
     assert target.with_suffix(".mca.bck").read_bytes() == b"previous"
+
+
+def test_merge_without_backup(tmp_path: Path) -> None:
+    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    target = tmp_path / "r.0.0.mca"
+    target.write_bytes(b"previous")
+
+    merge(Region(0, 0), [source], tmp_path, Options(backup_regions=False))
+
+    assert target.exists()
+    assert not target.with_suffix(".mca.bck").exists()
+
+
+def test_merge_keeps_first_backup(tmp_path: Path) -> None:
+    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    target = tmp_path / "r.0.0.mca"
+    backup = target.with_suffix(".mca.bck")
+    target.write_bytes(b"later")
+    backup.write_bytes(b"original")
+
+    merge(Region(0, 0), [source], tmp_path, Options())
+
+    assert backup.read_bytes() == b"original"

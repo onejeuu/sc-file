@@ -57,7 +57,7 @@ def test_merge_error(tmp_path: Path, monkeypatch) -> None:
 
 def test_merge_errors(tmp_path: Path, monkeypatch) -> None:
     task = MapCacheTask(tmp_path, None, Options())
-    region = ((0, 0), [tmp_path / "reg.0.0.mdat"])
+    region = (mapcache.Region(0, 0), [tmp_path / "reg.0.0.mdat"])
     context = TaskContext()
 
     monkeypatch.setattr(
