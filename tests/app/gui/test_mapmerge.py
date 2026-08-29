@@ -65,6 +65,7 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
 
     assert Path(tab.source.value) == pda
     assert tab.region.isEnabled()
+    assert tab.region.currentText() == "RU"
     assert tab.region.currentData() == "ru"
     assert tab.map.isEnabled()
     assert {tab.map.itemData(index) for index in range(tab.map.count())} == {"map", "map_bar_save", "unknown"}

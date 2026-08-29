@@ -202,7 +202,7 @@ class MapMergeTab(QWidget):
 
         self.region.clear()
         for region in regions:
-            self.region.addItem(region, region)
+            self.region.addItem(region.upper(), region)
         self.region.setCurrentIndex(regions.index(selected) if selected else -1)
 
         enabled = bool(regions)
