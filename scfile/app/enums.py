@@ -4,9 +4,10 @@ from enum import StrEnum, auto
 class CliCommand(StrEnum):
     """CLI commands."""
 
-    ANIMATE = auto()
     CONVERT = auto()
+    ANIMATE = auto()
     MAPCACHE = auto()
+    MAPMERGE = auto()
 
 
 class AnimateCommand(StrEnum):
@@ -29,8 +30,9 @@ class TaskKind(StrEnum):
     """Application operations."""
 
     CONVERT = auto()
-    MAPCACHE = auto()
     ANIMATE = auto()
+    MAPCACHE = auto()
+    MAPMERGE = auto()
 
 
 class TaskOutcome(StrEnum):

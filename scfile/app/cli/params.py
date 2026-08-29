@@ -45,6 +45,21 @@ MapCacheDir = click.Path(
     resolve_path=True,
 )
 
+MapMergeDir = click.Path(
+    path_type=Path,
+    dir_okay=True,
+    file_okay=False,
+    exists=True,
+    resolve_path=True,
+)
+
+MapMergeOutput = click.Path(
+    path_type=Path,
+    dir_okay=False,
+    file_okay=True,
+    resolve_path=True,
+)
+
 ModelFormats = click.Choice(
     choices=model_formats(),
     case_sensitive=False,

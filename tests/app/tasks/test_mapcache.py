@@ -40,7 +40,7 @@ def test_invalid(tmp_path: Path) -> None:
 
 
 def test_merge_error(tmp_path: Path, monkeypatch) -> None:
-    source = tmp_path / "r.0.0.mdat"
+    source = tmp_path / "reg.0.0.mdat"
     source.write_bytes(b"data")
     monkeypatch.setattr(
         "scfile.app.tasks.mapcache.mapcache.merge",
@@ -57,7 +57,7 @@ def test_merge_error(tmp_path: Path, monkeypatch) -> None:
 
 def test_merge_errors(tmp_path: Path, monkeypatch) -> None:
     task = MapCacheTask(tmp_path, None, Options())
-    region = ((0, 0), [tmp_path / "r.0.0.mdat"])
+    region = ((0, 0), [tmp_path / "reg.0.0.mdat"])
     context = TaskContext()
 
     monkeypatch.setattr(

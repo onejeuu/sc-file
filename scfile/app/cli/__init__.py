@@ -4,6 +4,7 @@ from .callbacks import updates_callback, version_callback
 from .cmd.animate import animate
 from .cmd.convert import convert
 from .cmd.mapcache import mapcache
+from .cmd.mapmerge import mapmerge
 from .routing import resolve
 
 
@@ -30,6 +31,7 @@ def scfile() -> None: ...
 scfile.add_command(animate)
 scfile.add_command(convert)
 scfile.add_command(mapcache)
+scfile.add_command(mapmerge)
 
 
 def run(

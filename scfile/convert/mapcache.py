@@ -2,44 +2,22 @@
 
 import os
 from collections import defaultdict
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from pathlib import Path
-from typing import NamedTuple, Self
+from typing import NamedTuple
 
 from scfile import exceptions, formats
 from scfile.content import RegionContent
 from scfile.options import Options
 
 from . import paths
+from .regions import CancelCheck, Region
 
 
-REGION_PREFIXES = ("reg.", "r.")
-BACKUP = ".bck"
+PREFIX = "reg."
+BACKUP_SUFFIX = ".bck"
 
-type Regions = dict[RegionKey, list[Path]]
-type CancelCheck = Callable[[], bool] | None
-
-
-class RegionKey(NamedTuple):
-    """Map cache region coordinates."""
-
-    x: int
-    z: int
-
-    @classmethod
-    def parse(cls, stem: str) -> Self | None:
-        """Parse region coordinates from filename."""
-
-        for prefix in REGION_PREFIXES:
-            stem = stem.removeprefix(prefix)
-
-        try:
-            x, z = map(int, stem.split("."))
-
-        except ValueError:
-            return None
-
-        return cls(x, z)
+type Regions = dict[Region, list[Path]]
 
 
 class ScanResult(NamedTuple):
@@ -75,7 +53,7 @@ def scan(
                 break
 
             path = Path(root, name)
-            if path.suffix != decoder.suffix() or BACKUP in path.suffixes:
+            if path.suffix != decoder.suffix() or BACKUP_SUFFIX in path.suffixes:
                 continue
 
             try:
@@ -96,14 +74,14 @@ def group(
     grouped: Regions = defaultdict(list)
 
     for path in paths:
-        if key := RegionKey.parse(path.stem):
+        if key := Region.parse(path.stem.removeprefix(PREFIX)):
             grouped[key].append(path)
 
     return dict(grouped)
 
 
 def merge(
-    key: RegionKey,
+    key: Region,
     sources: Iterable[Path],
     output: Path,
     options: Options,
@@ -154,7 +132,7 @@ def merge(
             mca.save(temporary, close=False)
 
         if target.exists():
-            backup = target.with_suffix(f"{encoder.suffix()}{BACKUP}")
+            backup = target.with_suffix(f"{encoder.suffix()}{BACKUP_SUFFIX}")
             if not backup.exists():
                 target.rename(backup)
 

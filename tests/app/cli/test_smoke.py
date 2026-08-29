@@ -58,6 +58,7 @@ def _copy(source: Path, destination: Path) -> Path:
         ["animate", "face", "--help"],
         ["animate", "body", "--help"],
         ["mapcache", "--help"],
+        ["mapmerge", "--help"],
     ],
 )
 def test_cli_help_smoke(args: list[str]) -> None:
@@ -382,9 +383,9 @@ def test_animate_broken_model_smoke(kind: str, tmp_path: Path) -> None:
 
 def _mapcache_sources(tmp_path: Path) -> Path:
     source = tmp_path / "mapcache"
-    _copy(REGION_SOURCE / "r.0.0.mdat", source / "r.0.0.mdat")
+    _copy(REGION_SOURCE / "r.0.0.mdat", source / "reg.0.0.mdat")
     _copy(REGION_SOURCE / "r.0.0.mdat", source / "nested" / "reg.1.-1.mdat")
-    _copy(REGION_SOURCE / "r.0.0.mdat", source / "nested" / "r.0.0.mdat")
+    _copy(REGION_SOURCE / "r.0.0.mdat", source / "nested" / "invalid.mdat")
     _copy(REGION_SOURCE / "r.0.0.mdat", source / "cached.mdat.bck")
     (source / "empty.mdat").touch()
     (source / "invalid.mdat").write_bytes(b"invalid")
@@ -414,7 +415,7 @@ def test_mapcache_invalid_input_smoke(kind: str, tmp_path: Path) -> None:
     if kind == "invalid-name":
         copy2(REGION_SOURCE / "r.0.0.mdat", source / "invalid.mdat")
     elif kind == "broken-region":
-        (source / "r.0.0.mdat").write_bytes(b"broken")
+        (source / "reg.0.0.mdat").write_bytes(b"broken")
 
     _launch(["mapcache", str(source), "-O", str(tmp_path / "output"), "-W", "1"])
 
@@ -486,7 +487,7 @@ def test_implicit_convert_fallback_smoke(kind: str, tmp_path: Path) -> None:
 def test_implicit_mapcache_smoke(tmp_path: Path) -> None:
     source = tmp_path / "map_cache"
     source.mkdir()
-    copy2(REGION_SOURCE / "r.0.0.mdat", source / "r.0.0.mdat")
+    copy2(REGION_SOURCE / "r.0.0.mdat", source / "reg.0.0.mdat")
 
     _launch([str(source)])
 

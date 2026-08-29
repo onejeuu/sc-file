@@ -15,7 +15,7 @@ from .base import Task, TaskContext
 from .parallel import parallel
 
 
-type Region = tuple[mapcache.RegionKey, list[Path]]
+type MapCacheRegion = tuple[mapcache.Region, list[Path]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,7 +27,7 @@ class MapCacheTask(Task):
     options: Options
     workers: int | None = None
 
-    def _merge(self, region: Region, context: TaskContext) -> TaskItem | TaskItemFailure | None:
+    def _merge(self, region: MapCacheRegion, context: TaskContext) -> TaskItem | TaskItemFailure | None:
         key, paths = region
         output = self.output or self.source.with_name(f"{self.source.name}_mca")
 

@@ -19,8 +19,9 @@ from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted,
 
 TASKS = {
     TaskKind.CONVERT: ("Converting", "Converted"),
-    TaskKind.MAPCACHE: ("Merging", "Merged"),
     TaskKind.ANIMATE: ("Exporting", "Exported"),
+    TaskKind.MAPCACHE: ("Merging", "Merged"),
+    TaskKind.MAPMERGE: ("Merging", "Merged"),
 }
 
 OUTCOMES = {

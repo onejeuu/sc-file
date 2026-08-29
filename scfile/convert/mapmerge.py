@@ -1,0 +1,127 @@
+"""Flat map merging operations."""
+
+from collections.abc import Generator
+from contextlib import contextmanager
+from dataclasses import replace
+from io import BytesIO
+from pathlib import Path
+from typing import NamedTuple
+
+from PIL import Image
+
+from scfile import exceptions, formats, types
+from scfile.options import Options
+
+from . import paths
+from .regions import Bounds, CancelCheck, Region, Size
+
+
+PREFIX = "r."
+MIN_TILE_SIZE = 7 * 1024
+JPEG_QUALITY = 95
+
+type Tiles = dict[Region, Path]
+
+
+class MergeResult(NamedTuple):
+    """Map merge result."""
+
+    output: types.ResultPath
+    tiles: int
+
+
+def scan(
+    source: types.SourceLike,
+) -> Tiles:
+    """Find usable map tiles directly inside a folder."""
+
+    suffix = formats.OlDecoder.suffix()
+    paths = filter(lambda path: path.is_file() and path.suffix.lower() == suffix, Path(source).iterdir())
+    paths = filter(lambda path: path.stat().st_size >= MIN_TILE_SIZE, paths)
+    tiles = filter(None, map(_tile, paths))
+    return dict(sorted(tiles))
+
+
+def merge(
+    source: types.SourceLike,
+    output: types.SourceLike,
+    options: Options | None = None,
+    cancelled: CancelCheck = None,
+) -> MergeResult:
+    """Merge map tiles from one folder into an image."""
+
+    source_path = Path(source)
+    output_path = Path(output)
+    options = options or Options()
+
+    if output_path.suffix.lower() != ".jpg":
+        raise exceptions.ConversionError("Map output must be a .jpg file.", location=str(output_path))
+
+    tiles = scan(source_path)
+    if not tiles:
+        raise exceptions.ConversionError("No map tiles found.", location=str(source_path))
+
+    target = paths.select(output_path, options)
+    if target is None:
+        return MergeResult(None, 0)
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    decoder_options = replace(options, max_mipmaps=1)
+    if cancelled and cancelled():
+        raise exceptions.MergeInterrupted()
+
+    with _decode(next(iter(tiles.values())), decoder_options) as image:
+        tile_size = Size(width=image.width, height=image.height)
+
+    bounds = Bounds.parse(tiles)
+    canvas_size = bounds.size(tile_size)
+    canvas = Image.new("RGB", canvas_size)
+
+    try:
+        for key, path in tiles.items():
+            if cancelled and cancelled():
+                raise exceptions.MergeInterrupted()
+
+            with _decode(path, decoder_options) as image:
+                _paste(canvas, bounds, key, path, image, tile_size)
+
+        with paths.stage(target) as temporary:
+            canvas.save(temporary, format="JPEG", quality=JPEG_QUALITY)
+
+    finally:
+        canvas.close()
+
+    return MergeResult(target, len(tiles))
+
+
+def _tile(path: Path) -> tuple[Region, Path] | None:
+    if key := Region.parse(path.stem.removeprefix(PREFIX)):
+        return key, path
+
+
+@contextmanager
+def _decode(path: Path, options: Options) -> Generator[Image.Image, None, None]:
+    with formats.OlDecoder(path, options) as ol:
+        dds = ol.convert(formats.DdsEncoder)
+
+    with Image.open(BytesIO(dds)) as decoded:
+        with decoded.convert("RGB") as image:
+            yield image
+
+
+def _paste(
+    canvas: Image.Image,
+    bounds: Bounds,
+    key: Region,
+    path: Path,
+    image: Image.Image,
+    tile_size: Size,
+) -> None:
+    image_size = Size(width=image.width, height=image.height)
+    if image_size != tile_size:
+        raise exceptions.ConversionError(
+            f"Map tile size {image_size} does not match {tile_size}.",
+            location=str(path),
+        )
+
+    canvas.paste(image, bounds.offset(key, tile_size))

@@ -10,6 +10,7 @@ from scfile.app.cli import scfile
 from scfile.app.cli.cmd import animate as animate_module
 from scfile.app.cli.cmd import convert as convert_module
 from scfile.app.cli.cmd import mapcache as mapcache_module
+from scfile.app.cli.cmd import mapmerge as mapmerge_module
 from scfile.app.enums import OutputLayout, TaskKind
 from scfile.content import ModelContent
 from scfile.enums import FileFormat, OnConflict
@@ -193,6 +194,36 @@ def test_mapcache_failure(
     monkeypatch.setattr(mapcache_module, "warn", lambda _: None)
 
     result = CliRunner().invoke(scfile, ["mapcache", str(source)])
+
+    assert result.exit_code == 1
+
+
+def test_mapmerge(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+) -> None:
+    source = tmp_path / "tiles"
+    source.mkdir()
+    output = tmp_path / "map.jpg"
+    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+
+    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+
+    assert result.exit_code == 0
+    task = tasks[0]
+    assert task.source == source
+    assert task.output == output
+
+
+def test_mapmerge_failure(
+    tmp_path: Path,
+    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+) -> None:
+    source = tmp_path / "tiles"
+    source.mkdir()
+    command_runner(mapmerge_module, TaskKind.MAPMERGE, True)
+
+    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(tmp_path / "map.jpg")])
 
     assert result.exit_code == 1
 

@@ -15,7 +15,6 @@ def test_group() -> None:
     ]
 
     assert group(paths) == {
-        (0, 0): [Path("r.0.0.mdat")],
         (1, -1): [Path("reg.1.-1.mdat")],
     }
 
