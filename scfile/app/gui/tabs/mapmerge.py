@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget
 
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.game import GameRegion, GameRoot
@@ -57,6 +57,8 @@ class MapMergeTab(QWidget):
         self.region = QComboBox()
         self.region.setStyleSheet(Styles.COMBO)
         self.region.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.region.setItemDelegate(QStyledItemDelegate())
+        self.region.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.region.activated.connect(self._region_changed)
 
         self.map_label = QLabel(strings.get("label.mapmerge.map"))
@@ -64,6 +66,8 @@ class MapMergeTab(QWidget):
         self.map = QComboBox()
         self.map.setStyleSheet(Styles.COMBO)
         self.map.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.map.setItemDelegate(QStyledItemDelegate())
+        self.map.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.map.setPlaceholderText(strings.get("placeholder.mapmerge.map"))
         self.map.activated.connect(self._map_changed)
 
