@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from scfile import __repository__ as REPO
+from scfile.app.gui import strings
+from scfile.app.localization import DOCS_URL
 
 from .link import LinkWidget
 from .updates import VersionWidget
@@ -21,9 +23,11 @@ class FooterWidget(QWidget):
 
         self.version = VersionWidget()
         repo = LinkWidget(text=f"{REPO}", url=f"https://github.com/{REPO}")
+        docs = LinkWidget(text=strings.get("label.documentation"), url=DOCS_URL)
 
         links_layout.addWidget(self.version)
         links_layout.addWidget(repo)
+        links_layout.addWidget(docs)
         links_layout.addStretch()
 
         layout.addWidget(links)

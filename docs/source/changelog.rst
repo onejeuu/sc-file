@@ -14,6 +14,7 @@ v6.1.0 (2026-08-30)
 * ``scfile maptiles --jpeg-quality`` and ``--png-compression``: control image encoding.
 * ``scfile.convert.maptiles``: added map tile scanning, collection, measurement, and assembly operations.
 * **GUI:** added 2D Map tab.
+* **GUI:** added docs url to footer.
 * ``Options.backup_regions`` and ``scfile mapcache --backup/--no-backup``: control backups before region replacement.
 * ``Options.max_mipmaps``: limits decoded texture mipmaps. Use ``0`` to read metadata without image.
 * **API**: added Pillow dependency.

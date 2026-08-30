@@ -16,6 +16,7 @@ from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.mapcache import MapCacheScanner
+from scfile.app.localization import DOCS_URL
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
@@ -125,9 +126,7 @@ class MapCacheTab(QWidget):
         footer.addWidget(credit)
         footer.addStretch()
 
-        language = strings.LANG.lower()
-        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/mapcache.html"
-        footer.addWidget(LinkWidget(strings.get("label.guide"), url))
+        footer.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/mapcache.html"))
         layout.addLayout(footer)
         return info
 
@@ -239,6 +238,9 @@ class MapCacheTab(QWidget):
 
     def _sync(self) -> None:
         self.warnings.set_messages(self._warnings())
+
+        if not self.submit.running:
+            self.submit.setText(f"{strings.get('button.mapcache')} ({self.scanner.files:,})")
 
         error = self._submit_error()
         self.submit_cursor.set(self.running or error is None, strings.get(error or ""))

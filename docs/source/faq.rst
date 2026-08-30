@@ -63,7 +63,7 @@ Q: What does conversion actually do?
 .. code-block:: text
    :caption: Default pipeline
 
-   Source game format → Decoder → IR Content → Encoder → Output standard format
+   Source game format → Decoder → Intermediate Content → Encoder → Output standard format
 
 
 Q: What determines which output formats are supported?

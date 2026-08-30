@@ -26,4 +26,4 @@ def test_overlap(tmp_path: Path, target: str, overlap: bool) -> None:
 
     scanner.scan(request, str(source), str(output))
 
-    assert results == [(request, 1, overlap, None)]
+    assert results == [(request, 1, 1, overlap, None)]

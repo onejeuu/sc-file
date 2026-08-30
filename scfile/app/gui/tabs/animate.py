@@ -18,6 +18,7 @@ from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
+from scfile.app.localization import DOCS_URL
 from scfile.app.tasks.animate import AnimateTask
 from scfile.options import Options
 
@@ -320,12 +321,10 @@ class AnimateTab(QWidget):
         layout.addWidget(self.stack, 1)
 
         self.warnings = WarningsWidget()
-        language = strings.LANG.lower()
-        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/animate.html"
         notice = QHBoxLayout()
         notice.addWidget(self.warnings, 1)
         notice.addStretch()
-        notice.addWidget(LinkWidget(strings.get("label.guide"), url))
+        notice.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/animate.html"))
         layout.addLayout(notice)
 
         self.submit = QPushButton(strings.get("button.animate"))

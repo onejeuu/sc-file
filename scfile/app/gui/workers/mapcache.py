@@ -7,7 +7,7 @@ from scfile.convert import mapcache
 
 
 class Scanner(QObject):
-    scanned = Signal(int, int, bool, object)
+    scanned = Signal(int, int, int, bool, object)
 
     def __init__(self, requests: threads.RequestTokens) -> None:
         super().__init__()
@@ -36,7 +36,13 @@ class Scanner(QObject):
         replaces = bool(regions.keys() & existing)
 
         if self.requests.matches(request):
-            self.scanned.emit(request, len(regions), replaces, result.errors[0] if result.errors else None)
+            self.scanned.emit(
+                request,
+                len(result.paths),
+                len(regions),
+                replaces,
+                result.errors[0] if result.errors else None,
+            )
 
 
 class MapCacheScanner(QObject):
@@ -45,6 +51,7 @@ class MapCacheScanner(QObject):
 
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
+        self.files = 0
         self.regions = 0
         self.replaces = False
         self.error: OSError | None = None
@@ -61,18 +68,19 @@ class MapCacheScanner(QObject):
         request = self._requests.next()
 
         if not source:
-            self._set(0, False, False, None)
+            self._set(0, 0, False, False, None)
             return
 
-        self._set(0, False, True, None)
+        self._set(0, 0, False, True, None)
         self.requested.emit(request, source, output)
 
-    @Slot(int, int, bool, object)
-    def _scanned(self, request: int, regions: int, replaces: bool, error: object) -> None:
+    @Slot(int, int, int, bool, object)
+    def _scanned(self, request: int, files: int, regions: int, replaces: bool, error: object) -> None:
         if self._requests.matches(request):
-            self._set(regions, replaces, False, error if isinstance(error, OSError) else None)
+            self._set(files, regions, replaces, False, error if isinstance(error, OSError) else None)
 
-    def _set(self, regions: int, replaces: bool, busy: bool, error: OSError | None) -> None:
+    def _set(self, files: int, regions: int, replaces: bool, busy: bool, error: OSError | None) -> None:
+        self.files = files
         self.regions = regions
         self.replaces = replaces
         self.busy = busy

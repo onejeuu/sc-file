@@ -16,7 +16,7 @@ from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.tiles import MapTilesEncodingWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.localization import system_language
+from scfile.app.localization import DOCS_URL, system_language
 from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
 from scfile.convert import maptiles
 from scfile.convert.regions import Size
@@ -113,9 +113,7 @@ class MapTilesTab(QWidget):
         self.estimate.setStyleSheet(Styles.INFO)
         notice.addWidget(self.estimate)
         notice.addStretch()
-        language = strings.LANG.lower()
-        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/maptiles.html"
-        notice.addWidget(LinkWidget(strings.get("label.guide"), url))
+        notice.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/maptiles.html"))
         layout.addLayout(notice)
 
         self.submit = ProgressButton(strings.get("button.maptiles"))

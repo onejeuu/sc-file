@@ -178,7 +178,7 @@ def _decode(path: Path, options: Options) -> Generator[Image.Image, None, None]:
     with formats.OlDecoder(path, options) as ol:
         dds = ol.convert(formats.DdsEncoder)
 
-    with Image.open(BytesIO(dds)) as decoded:
+    with Image.open(BytesIO(dds), formats=("DDS",)) as decoded:
         with decoded.convert("RGB") as image:
             yield image
 

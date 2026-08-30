@@ -4,5 +4,7 @@ __all__ = ("Options",)
 
 __version__ = "6.1.0"
 __author__ = "onejeuu"
-__repository__ = "onejeuu/sc-file"
 __license__ = "MIT"
+
+__repository__ = "onejeuu/sc-file"
+__documentation__ = "sc-file.readthedocs.io"
