@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget
 
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.game import GameRegion, GameRoot
@@ -11,6 +11,7 @@ from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.encoding import ImageEncodingWidget
+from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
@@ -100,7 +101,13 @@ class MapMergeTab(QWidget):
         layout.addStretch()
 
         self.warnings = WarningsWidget()
-        layout.addWidget(self.warnings)
+        notice = QHBoxLayout()
+        notice.addWidget(self.warnings, 1)
+        notice.addStretch()
+        language = strings.LANG.lower()
+        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/mapmerge.html"
+        notice.addWidget(LinkWidget(strings.get("label.guide"), url))
+        layout.addLayout(notice)
 
         self.submit = ProgressButton(strings.get("button.mapmerge"))
         self.submit.setFixedHeight(50)

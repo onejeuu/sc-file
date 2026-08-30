@@ -128,7 +128,7 @@ class MapCacheTab(QWidget):
 
         language = strings.LANG.lower()
         url = f"https://sc-file.readthedocs.io/{language}/latest/usage/mapcache.html"
-        footer.addWidget(LinkWidget(strings.get("mapcache.guide"), url))
+        footer.addWidget(LinkWidget(strings.get("label.guide"), url))
         layout.addLayout(footer)
         return info
 

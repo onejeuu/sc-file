@@ -322,8 +322,8 @@ msgstr ""
 "Формат и практические рабочие процессы еще не полностью изучены. "
 "Сообщайте о проблемах или идеях для улучшения в `Issues`_."
 
-msgid "🗺 Map Cache Preview"
-msgstr "🗺 Просмотр кэша карты"
+msgid "⛰️ Map Cache Preview"
+msgstr "⛰️ Просмотр кэша карты"
 
 msgid "Map cache contains ``.mdat`` world region fragments."
 msgstr "Кэш карты состоит из ``.mdat`` фрагментов регионов мира."

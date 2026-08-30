@@ -325,7 +325,7 @@ class AnimateTab(QWidget):
         notice = QHBoxLayout()
         notice.addWidget(self.warnings, 1)
         notice.addStretch()
-        notice.addWidget(LinkWidget(strings.get("animate.guide"), url))
+        notice.addWidget(LinkWidget(strings.get("label.guide"), url))
         layout.addLayout(notice)
 
         self.submit = QPushButton(strings.get("button.animate"))

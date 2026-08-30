@@ -1,4 +1,4 @@
-🗺 Map Cache Preview
+⛰️ Map Cache Preview
 ==================================================
 
 .. include:: ../_links.rst

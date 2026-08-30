@@ -4,10 +4,10 @@
 .. include:: _links.rst
 
 .. toctree::
-  :hidden:
+   :maxdepth: 1
+   :glob:
 
-  usage/mapcache
-  usage/animate
+   *
 
 
 ----------------------------------------
@@ -17,7 +17,7 @@ Quick Start
 🖥️ **GUI**
   Launch ``scfile.exe`` without arguments to open the graphical interface.
   Use **Convert** for standalone assets, **Animation** for model and animation pairs,
-  and **Map Cache** for region caches.
+  **Map Cache** for region caches, and **2D Map** for map tiles.
 
 
 📥 **Drag & Drop**
@@ -66,7 +66,7 @@ General
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``COMMAND``
-  | Available commands: ``convert``, ``animate``, and ``mapcache``.
+  | Available commands: ``convert``, ``animate``, ``mapcache``, and ``mapmerge``.
   | When paths are supplied without a command, the CLI selects one from their names and formats.
 
 ``--version``
@@ -349,3 +349,41 @@ mapcache
 
 ``-v, --verbose``
   Show the result of every processed region.
+
+
+.. _cli-mapmerge:
+
+mapmerge
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image.
+| :doc:`2D Map guide → <usage/mapmerge>`
+
+``SOURCE OUTPUT``
+  Assemble tiles directly from one flat folder. ``OUTPUT`` must be an image file
+  ending in ``.jpg``, ``.jpeg``, or ``.png``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapmerge "D:/tiles" "D:/exports/zone.jpg"
+
+
+``GAME MAP OUTPUT``
+  Assemble a named map from game asset layers. ``--region`` optionally selects
+  the localization region; otherwise the system language is preferred.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapmerge "C:/Steam/steamapps/common/STALCRAFT" map "D:/exports/zone.png" --region ru
+
+
+``--jpeg-quality``
+  JPEG quality from ``0`` through ``100``. Only valid for ``.jpg`` or ``.jpeg`` output.
+  Default: ``92``.
+
+
+``--png-compression``
+  PNG compression level from ``0`` through ``9``. Only valid for ``.png`` output.
+  Default: ``6``.

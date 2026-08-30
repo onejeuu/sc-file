@@ -6,7 +6,7 @@ sc-file
 .. toctree::
   :maxdepth: 1
 
-  usage
+  usage/index
   faq
   formats
   compile
