@@ -1,4 +1,4 @@
-🌀 Animation Export
+🌀 Animation
 ==================================================
 
 .. include:: ../_links.rst

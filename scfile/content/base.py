@@ -38,6 +38,7 @@ class ModelContent(BaseContent):
         return self.scene.has(feature)
 
 
+# TODO: deprecated aliases
 @dataclass
 class TextureContent(BaseContent):
     """Content representation of texture."""
@@ -97,17 +98,18 @@ class DocumentContent(BaseContent):
     value: DocumentValue = None
 
 
+# TODO: deprecated aliases
 @dataclass
 class RegionContent(BaseContent):
     """Content representation of world region."""
 
     kind: ClassVar[FileKind] = FileKind.REGION
 
-    rx: int = 0
-    rz: int = 0
+    x: int = 0
+    z: int = 0
 
-    sector_offsets: list[int] = field(default_factory=list)
-    sector_counts: list[int] = field(default_factory=list)
+    offsets: list[int] = field(default_factory=list)
+    counts: list[int] = field(default_factory=list)
     uuids: list[bytes] = field(default_factory=list)
 
     chunks: list[RegionChunk] = field(default_factory=list)

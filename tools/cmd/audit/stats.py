@@ -145,9 +145,9 @@ def _texture(
             width=content.width,
             height=content.height,
             kind=kind,
-            mipmaps=content.mipmap_count,
+            mipmaps=content.meta.mipmap_count,
             faces=faces,
-            path_hash=content.path_hash.decode(errors="replace"),
+            path_hash=content.meta.path_hash.decode(errors="replace"),
         )
     ]
 

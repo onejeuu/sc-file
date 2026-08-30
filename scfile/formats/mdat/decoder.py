@@ -31,19 +31,19 @@ class MdatDecoder(Decoder[RegionContent]):
             )
             for _ in range(CHUNK_COUNT)
         ]
-        sector_offsets, sector_counts, uuids = map(list, zip(*table))
+        offsets, counts, uuids = map(list, zip(*table))
 
         zctx = zstd.ZstdDecompressor()
         chunks: list[S.RegionChunk] = []
 
-        for index, sector in enumerate(sector_offsets):
+        for index, sector in enumerate(offsets):
             if sector == 0:
                 continue
 
             chunks.append(self._parse_chunk(index, sector, zctx))
 
-        self.data.sector_offsets = sector_offsets
-        self.data.sector_counts = sector_counts
+        self.data.offsets = offsets
+        self.data.counts = counts
         self.data.uuids = uuids
         self.data.chunks = chunks
 

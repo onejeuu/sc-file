@@ -76,7 +76,7 @@ def content(
             rows.extend(
                 (
                     ("Chunks", len(data.chunks)),
-                    ("Slots", sum(offset != 0 for offset in data.sector_offsets)),
+                    ("Slots", sum(offset != 0 for offset in data.offsets)),
                 )
             )
 
@@ -157,12 +157,12 @@ def _texture(data: C.TextureContent) -> list[Row]:
         ("Width", data.width),
         ("Height", data.height),
         ("Kind", kind),
-        ("Format", data.format.decode(errors="replace")),
+        ("Format", data.meta.format.decode(errors="replace")),
         ("FourCC", data.fourcc.decode(errors="replace")),
-        ("Mipmaps", data.mipmap_count),
+        ("Mipmaps", data.meta.mipmap_count),
         ("Faces", faces),
         ("Image", _size(len(data.texture.image))),
-        ("Path Hash", data.path_hash.decode(errors="replace") or "-"),
+        ("Path Hash", data.meta.path_hash.decode(errors="replace") or "-"),
     ]
 
 

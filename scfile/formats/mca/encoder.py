@@ -33,7 +33,7 @@ class McaEncoder(Encoder[RegionContent]):
         for chunk in self.data.chunks:
             # Resolve world coordinates
             local_x, local_z = chunk.index % 32, chunk.index // 32
-            chunk_x, chunk_z = self.data.rx * 32 + local_x, self.data.rz * 32 + local_z
+            chunk_x, chunk_z = self.data.x * 32 + local_x, self.data.z * 32 + local_z
 
             # Encode chunk
             compressed = zlib.compress(

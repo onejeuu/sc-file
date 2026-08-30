@@ -120,8 +120,8 @@ def merge(
                 region.chunks.append(chunk)
                 seen.add(chunk.index)
 
-    region.rx, region.rz = key
-    filename = f"{MCA_PREFIX}{region.rx}.{region.rz}{MCA_SUFFIX}"
+    region.x, region.z = key
+    filename = f"{MCA_PREFIX}{region.x}.{region.z}{MCA_SUFFIX}"
     target = output / filename
 
     with paths.stage(target) as temporary:
