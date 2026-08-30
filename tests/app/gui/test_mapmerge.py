@@ -8,6 +8,7 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.mapmerge import MapMergeTab
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.tasks.mapmerge import MapImageFormat
+from scfile.convert.regions import Size
 
 
 SOURCE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
@@ -34,6 +35,9 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     assert tab.output.default_suffix == ".jpg"
     assert tab.encoding.jpeg_quality == 92
     assert tab.encoding.png_compression == 6
+    assert tab.submit.text() == f"{strings.get('button.mapmerge')} (1)"
+    assert tab.estimate.text()
+    assert not tab.estimate.isHidden()
     assert tab._submit_error() is None
 
     tab.source.value = str(tmp_path / "missing")
@@ -62,8 +66,12 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
     copyfile(SOURCE, folder / "r.0.0.ol")
     tab = MapMergeTab(TaskManager(), Settings(export_path=tmp_path))
     tab.source.value = str(folder)
+    tab.image_size = Size(20_000, 15_000)
+    tab._sync()
+    estimate = tab.estimate.text()
 
     tab.encoding.spin.setValue(95)
+    assert tab.estimate.text() != estimate
     tab.encoding._buttons[MapImageFormat.PNG].click()
     assert tab.encoding.format is MapImageFormat.PNG
     assert Path(tab.output.value) == tmp_path / "map.png"

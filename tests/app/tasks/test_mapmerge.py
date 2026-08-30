@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from scfile import exceptions
-from scfile.app.events import TaskItem
-from scfile.app.tasks import TaskContext
+from scfile.app.events import TaskItem, TaskProgress, TaskStarted
+from scfile.app.tasks import TaskContext, execute
 from scfile.app.tasks.mapmerge import MapMergeTask
 from scfile.convert import mapmerge
 from scfile.options import Options
@@ -17,16 +17,25 @@ def test_merge(tmp_path: Path, monkeypatch) -> None:
 
     def render(*args, **kwargs):
         calls.append((args, kwargs))
+        for path in tiles.values():
+            kwargs["progress"](path)
         return mapmerge.MergeResult(output, 3)
 
     monkeypatch.setattr(mapmerge, "render", render)
 
-    events = list(task.run(TaskContext()))
+    events = []
+    summary = execute(task, events.append)
 
     assert calls[0][1]["save"] == save
-    assert isinstance(events[1], TaskItem)
-    assert events[1].output == output
-    assert events[1].detail == "Merged 3 tiles"
+    assert isinstance(events[0], TaskStarted)
+    assert events[0].total == 2
+    assert isinstance(events[1], TaskProgress)
+    assert events[1].source == str(next(iter(tiles.values())))
+    assert isinstance(events[2], TaskItem)
+    assert events[2].output == output
+    assert events[2].detail == "Merged 3 tiles"
+    assert summary.work.completed == 1
+    assert summary.files.written == 1
 
 
 def test_cancelled(tmp_path: Path, monkeypatch) -> None:

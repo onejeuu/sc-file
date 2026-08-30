@@ -14,14 +14,14 @@ from rich.text import Text
 
 from scfile import exceptions
 from scfile.app.enums import TaskKind, TaskOutcome
-from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
 
 
 TASKS = {
     TaskKind.CONVERT: ("Converting", "Converted"),
     TaskKind.ANIMATE: ("Exporting", "Exported"),
     TaskKind.MAPCACHE: ("Merging", "Merged"),
-    TaskKind.MAPMERGE: ("Merging", "Merged"),
+    TaskKind.MAPMERGE: ("Assembling", "Assembled"),
 }
 
 OUTCOMES = {
@@ -55,6 +55,9 @@ class TaskFeedback:
         match event:
             case TaskStarted():
                 self._start(event)
+
+            case TaskProgress():
+                self._advance()
 
             case TaskItem():
                 self._advance()

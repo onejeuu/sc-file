@@ -1,6 +1,6 @@
 """Flat map merging operations."""
 
-from collections.abc import Generator, Iterable, Mapping
+from collections.abc import Callable, Generator, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import replace
 from io import BytesIO
@@ -25,6 +25,7 @@ type SaveOptions = Mapping[str, Any]
 DEFAULT_SAVE: SaveOptions = {"format": "JPEG", "quality": JPEG_QUALITY}
 
 type Tiles = dict[Region, Path]
+type Progress = Callable[[Path], None] | None
 
 
 class MergeResult(NamedTuple):
@@ -55,12 +56,28 @@ def collect(
     return dict(sorted(tiles.items()))
 
 
+def measure(
+    tiles: Mapping[Region, Path],
+    options: Options | None = None,
+    cancelled: CancelCheck = None,
+) -> Size:
+    """Measure the output image without decoding tile pixels."""
+
+    if not tiles:
+        raise exceptions.ConversionError("No map tiles found.")
+
+    options = options or Options()
+    bounds = Bounds.parse(tiles)
+    return bounds.size(_tile_size(tiles, options, cancelled))
+
+
 def merge(
     source: types.SourceLike,
     output: types.SourceLike,
     options: Options | None = None,
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
+    progress: Progress = None,
 ) -> MergeResult:
     """Merge map tiles from one folder into an image."""
 
@@ -69,7 +86,7 @@ def merge(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.", location=str(source))
 
-    return render(tiles, output_path, options, save, cancelled)
+    return render(tiles, output_path, options, save, cancelled, progress)
 
 
 def render(
@@ -78,6 +95,7 @@ def render(
     options: Options | None = None,
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
+    progress: Progress = None,
 ) -> MergeResult:
     """Merge normalized map tiles into an image."""
 
@@ -91,8 +109,43 @@ def render(
     tiles = dict(sorted(tiles.items()))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_options = replace(options, max_mipmaps=0)
     decoder_options = replace(options, max_mipmaps=1)
+    bounds = Bounds.parse(tiles)
+    tile_size = _tile_size(tiles, options, cancelled)
+    canvas_size = bounds.size(tile_size)
+    canvas = Image.new("RGB", canvas_size)
+
+    try:
+        for key, path in tiles.items():
+            if cancelled and cancelled():
+                raise exceptions.MergeInterrupted()
+
+            with _decode(path, decoder_options) as image:
+                _paste(canvas, bounds, key, image, tile_size)
+
+            if progress:
+                progress(path)
+
+        with paths.stage(output_path) as temporary:
+            canvas.save(temporary, **save)
+
+    finally:
+        canvas.close()
+
+    return MergeResult(output_path, len(tiles))
+
+
+def _tile(path: Path) -> tuple[Region, Path] | None:
+    if key := Region.parse(path.stem.removeprefix(PREFIX)):
+        return key, path
+
+
+def _tile_size(
+    tiles: Mapping[Region, Path],
+    options: Options,
+    cancelled: CancelCheck,
+) -> Size:
+    metadata_options = replace(options, max_mipmaps=0)
     sizes: dict[Path, Size] = {}
     for path in tiles.values():
         if cancelled and cancelled():
@@ -107,30 +160,7 @@ def render(
                 location=str(path),
             )
 
-    bounds = Bounds.parse(tiles)
-    canvas_size = bounds.size(tile_size)
-    canvas = Image.new("RGB", canvas_size)
-
-    try:
-        for key, path in tiles.items():
-            if cancelled and cancelled():
-                raise exceptions.MergeInterrupted()
-
-            with _decode(path, decoder_options) as image:
-                _paste(canvas, bounds, key, image, tile_size)
-
-        with paths.stage(output_path) as temporary:
-            canvas.save(temporary, **save)
-
-    finally:
-        canvas.close()
-
-    return MergeResult(output_path, len(tiles))
-
-
-def _tile(path: Path) -> tuple[Region, Path] | None:
-    if key := Region.parse(path.stem.removeprefix(PREFIX)):
-        return key, path
+    return tile_size
 
 
 def _size(path: Path, options: Options) -> Size:

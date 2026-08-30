@@ -6,7 +6,7 @@ from rich.console import Console
 
 from scfile import exceptions
 from scfile.app.enums import TaskKind
-from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskStarted, TaskSummary
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
 from scfile.app.feedback import TaskFeedback
 
 
@@ -28,6 +28,14 @@ def test_progress(feedback: TaskFeedback) -> None:
     assert feedback.completed == 2
     assert feedback.progress is not None
     assert feedback.progress.live.is_started is False
+
+
+def test_subprogress(feedback: TaskFeedback) -> None:
+    feedback(TaskStarted(TaskKind.MAPMERGE, 2))
+    feedback(TaskProgress("tile.ol"))
+    feedback(TaskItem("tile.ol", Path("map.jpg")))
+
+    assert feedback.completed == 2
 
 
 def test_verbose(feedback: TaskFeedback) -> None:

@@ -15,6 +15,13 @@ class TaskStarted:
 
 
 @dataclass(frozen=True, slots=True)
+class TaskProgress:
+    """Completed progress unit without an output file."""
+
+    source: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class TaskItem:
     """Completed source item and its optional output."""
 
@@ -41,7 +48,7 @@ class TaskError:
     traceback: str | None = None
 
 
-type TaskEvent = TaskStarted | TaskItem | TaskItemFailure | TaskError
+type TaskEvent = TaskStarted | TaskProgress | TaskItem | TaskItemFailure | TaskError
 
 
 @dataclass(slots=True)

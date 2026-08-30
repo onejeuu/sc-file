@@ -17,6 +17,7 @@ from scfile.convert import mapmerge
 
 class ImageEncodingWidget(QWidget):
     changed = Signal(object)
+    value_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -46,6 +47,10 @@ class ImageEncodingWidget(QWidget):
     @property
     def png_compression(self) -> int:
         return self._values[MapImageFormat.PNG]
+
+    @property
+    def value(self) -> int:
+        return self._values[self.format]
 
     @property
     def save(self) -> mapmerge.SaveOptions:
@@ -119,3 +124,4 @@ class ImageEncodingWidget(QWidget):
     def _store(self, value: int) -> None:
         if not self._syncing:
             self._values[self.format] = value
+            self.value_changed.emit()

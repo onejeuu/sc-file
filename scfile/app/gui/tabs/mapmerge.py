@@ -3,7 +3,8 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget
 
-from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
+from scfile import exceptions
+from scfile.app.events import TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
 from scfile.app.game import GameRegion, GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
@@ -18,6 +19,7 @@ from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.localization import system_language
 from scfile.app.tasks.mapmerge import MapImageFormat, MapMergeTask
 from scfile.convert import mapmerge
+from scfile.convert.regions import Size
 from scfile.options import Options
 
 
@@ -33,6 +35,8 @@ class MapMergeTab(QWidget):
         self.output_touched = False
         self.running = False
         self.game: GameRoot | None = None
+        self.tiles: mapmerge.Tiles = {}
+        self.image_size: Size | None = None
         self._build_ui()
 
         self.tasks.busy_changed.connect(self._sync)
@@ -76,6 +80,7 @@ class MapMergeTab(QWidget):
 
         self.encoding = ImageEncodingWidget()
         self.encoding.changed.connect(self._format_changed)
+        self.encoding.value_changed.connect(self._sync)
         self.output = PathField(
             strings.get("label.mapmerge.output"),
             placeholder=strings.get("placeholder.path"),
@@ -101,8 +106,12 @@ class MapMergeTab(QWidget):
         layout.addStretch()
 
         self.warnings = WarningsWidget()
+        layout.addWidget(self.warnings)
+
         notice = QHBoxLayout()
-        notice.addWidget(self.warnings, 1)
+        self.estimate = QLabel()
+        self.estimate.setStyleSheet(Styles.HINT)
+        notice.addWidget(self.estimate)
         notice.addStretch()
         language = strings.LANG.lower()
         url = f"https://sc-file.readthedocs.io/{language}/latest/usage/mapmerge.html"
@@ -148,16 +157,19 @@ class MapMergeTab(QWidget):
                 return
 
         self._update_game(source)
+        self._refresh()
         self._update_output()
         self._sync()
 
     def _region_changed(self, _: int) -> None:
         if self.game is not None:
             self._load_maps()
+        self._refresh()
         self._update_output()
         self._sync()
 
     def _map_changed(self, _: int) -> None:
+        self._refresh()
         self._update_output()
         self._sync()
 
@@ -348,15 +360,7 @@ class MapMergeTab(QWidget):
         return value if isinstance(value, str) else None
 
     def _source_invalid(self) -> bool:
-        sources = self._sources()
-        if not sources:
-            return True
-
-        try:
-            return not mapmerge.collect(sources)
-
-        except OSError:
-            return True
+        return not self.tiles
 
     def _output_invalid(self) -> bool:
         value = self.output.value.strip()
@@ -385,6 +389,10 @@ class MapMergeTab(QWidget):
         output = Path(self.output.value.strip())
         warnings = (strings.get("warning.mapmerge.overwrite"),) if output.is_file() else ()
         self.warnings.set_messages(warnings)
+        self._update_estimate()
+
+        if not self.submit.running:
+            self.submit.setText(f"{strings.get('button.mapmerge')} ({len(self.tiles):,})")
 
         error = self._submit_error()
         self.submit_cursor.set(self.running or error is None, strings.get(error or ""))
@@ -394,16 +402,12 @@ class MapMergeTab(QWidget):
             self.tasks.cancel()
             return
 
-        sources = self._sources()
-        if not sources:
-            return
-
-        tiles = mapmerge.collect(sources)
-        if not tiles:
+        self._refresh()
+        if not self.tiles:
             return
 
         task = MapMergeTask(
-            tiles,
+            self.tiles,
             Path(self.output.value.strip()),
             Options(),
             self.encoding.save,
@@ -422,7 +426,7 @@ class MapMergeTab(QWidget):
             case TaskStarted():
                 self.submit.start(event.total)
                 self.submit_cursor.set(True)
-            case TaskItem() | TaskItemFailure():
+            case TaskProgress() | TaskItem() | TaskItemFailure():
                 self.submit.advance()
 
     def _complete(self, summary: object) -> None:
@@ -430,3 +434,34 @@ class MapMergeTab(QWidget):
             self.running = False
             self.submit.finish()
             self._sync()
+
+    def _refresh(self) -> None:
+        try:
+            self.tiles = mapmerge.collect(self._sources())
+        except OSError:
+            self.tiles = {}
+
+        self.image_size = None
+        if not self.tiles:
+            return
+
+        try:
+            self.image_size = mapmerge.measure(self.tiles, Options())
+        except (OSError, exceptions.ScFileException):
+            pass
+
+    def _update_estimate(self) -> None:
+        value = self.output.value.strip()
+        image_format = MapImageFormat.parse(Path(value)) if value else None
+        if image_format is None or self.image_size is None:
+            self.estimate.clear()
+            self.estimate.hide()
+            return
+
+        pixels = self.image_size.width * self.image_size.height
+        lower, upper = image_format.estimate(pixels, self.encoding.value)
+        lower_mb = max(1, round(lower / 1024**2))
+        upper_mb = max(lower_mb, round(upper / 1024**2))
+        size = str(lower_mb) if lower_mb == upper_mb else f"{lower_mb}–{upper_mb}"
+        self.estimate.setText(strings.get("mapmerge.estimate").format(size=size))
+        self.estimate.show()

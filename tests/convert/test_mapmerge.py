@@ -59,6 +59,26 @@ def test_merge(tmp_path: Path) -> None:
         assert image.size == (1344, 504)
 
 
+def test_measure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    first = _tile(tmp_path, 0, 0)
+    second = _tile(tmp_path, 1, 1)
+    tiles = mapmerge.scan(tmp_path)
+    monkeypatch.setattr(mapmerge, "_size", lambda *args: mapmerge.Size(4, 3))
+    monkeypatch.setattr(mapmerge, "_decode", lambda *args: pytest.fail("decoded tile pixels"))
+
+    assert tiles == {mapmerge.Region(0, 0): first, mapmerge.Region(1, 1): second}
+    assert mapmerge.measure(tiles) == mapmerge.Size(8, 6)
+
+
+def test_progress(tmp_path: Path) -> None:
+    paths = [_tile(tmp_path, 0, 0), _tile(tmp_path, 1, 0)]
+    completed: list[Path] = []
+
+    mapmerge.merge(tmp_path, tmp_path / "map.jpg", progress=completed.append)
+
+    assert completed == paths
+
+
 def test_empty(tmp_path: Path) -> None:
     with pytest.raises(exceptions.ConversionError, match="No map tiles found"):
         mapmerge.merge(tmp_path, tmp_path / "map.jpg")
