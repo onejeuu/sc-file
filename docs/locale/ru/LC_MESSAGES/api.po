@@ -60,8 +60,8 @@ msgstr "Анимации"
 msgid ":mod:`~scfile.convert.animate` exports external animations as ``.glb`` files."
 msgstr ":mod:`~scfile.convert.animate` экспортирует внешние анимации в файлы ``.glb``."
 
-msgid "See :doc:`Animation Export guide <../../usage/animate>`."
-msgstr "См. :doc:`Руководство по экспорту анимаций <../../usage/animate>`."
+msgid ":doc:`Usage guide <../../usage/animate>`."
+msgstr ":doc:`Руководство по использованию → <../../usage/animate>`."
 
 msgid "Map Cache"
 msgstr "Кэш карты"
@@ -73,8 +73,8 @@ msgstr ""
 ":mod:`~scfile.convert.mapcache` сканирует файлы ``.mdat``, группирует их по регионам "
 "и объединяет их в файлы ``.mca``."
 
-msgid "See the :doc:`Map Cache guide <../../usage/mapcache>`."
-msgstr "См. :doc:`Руководство по кэшу карты <../../usage/mapcache>`."
+msgid ":doc:`Usage guide <../../usage/mapcache>`."
+msgstr ":doc:`Руководство по использованию → <../../usage/mapcache>`."
 
 msgid "Handlers"
 msgstr "Обработчики"

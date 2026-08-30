@@ -63,7 +63,7 @@ Animations
 
 | :mod:`~scfile.convert.animate` exports external animations as ``.glb`` files.
 | The output may be an exact file name or a directory.
-| See :doc:`Animation Export guide <../../usage/animate>`.
+| :doc:`Usage guide <../../usage/animate>`.
 
 .. code-block:: python
 
@@ -82,7 +82,7 @@ Map Cache
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | :mod:`~scfile.convert.mapcache` scans ``.mdat`` files, groups them by region, and merges them into ``.mca`` files.
-| See the :doc:`Map Cache guide <../../usage/mapcache>`.
+| :doc:`Usage guide <../../usage/mapcache>`.
 
 
 Handlers

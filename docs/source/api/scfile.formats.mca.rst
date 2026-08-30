@@ -1,4 +1,4 @@
-🗺 MCA
+⛰️ MCA
 ==================================================
 
 .. automodule:: scfile.formats.mca

@@ -187,8 +187,8 @@ msgstr "🗃️ Архивы"
 msgid "Container for ``.dds`` blocks textures."
 msgstr "Контейнер для ``.dds`` текстур блоков."
 
-msgid "🗺 Region Formats"
-msgstr "🗺 Регионы"
+msgid "⛰️ Region Formats"
+msgstr "⛰️ Регионы"
 
 msgid "Region container for 32×32 terrain chunks."
 msgstr "Контейнер регионов для 32×32 чанков мира."
@@ -199,8 +199,8 @@ msgstr "Блоки, метаданные, освещение и биомы, сж
 msgid "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes."
 msgstr "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), с блоками (приблизительными) и биомами."
 
-msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
-msgstr ":doc:`Просмотр кэша карт → <usage/mapcache>`"
+msgid ":doc:`Usage guide → <usage/mapcache>`"
+msgstr ":doc:`Руководство по использованию → <usage/mapcache>`"
 
 msgid "⚙️ NBT Files"
 msgstr "⚙️ NBT"

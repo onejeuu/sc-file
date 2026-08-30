@@ -1,4 +1,4 @@
-🗺 MDAT
+⛰️ MDAT
 ==================================================
 
 .. automodule:: scfile.formats.mdat

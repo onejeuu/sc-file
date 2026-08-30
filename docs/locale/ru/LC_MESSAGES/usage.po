@@ -15,12 +15,12 @@ msgstr "🖥️ **Интерфейс**"
 
 msgid ""
 "Launch ``scfile.exe`` without arguments to open the graphical interface. "
-"Use **Convert** for standalone assets, **Animation** for model and "
-"animation pairs, and **Map Cache** for region caches."
+"Use **Converter** for standalone assets, **Animation** for model and animation pairs, "
+"**Map cache** for region caches, and **2D Map** for map tiles."
 msgstr ""
 "Запустите ``scfile.exe`` без аргументов, чтобы открыть графический интерфейс. "
-"Используйте **Convert** для отдельных ассетов, **Animation** для пар моделей и анимаций, "
-"и **Map Cache** для кэшей регионов."
+"Используйте **Конвертер** для отдельных ассетов, **Анимации** для пар моделей и анимаций, "
+"**Кэш карты** для кэшей регионов, и **2D Карта** для тайлов карты."
 
 msgid "📥 **Drag & Drop**"
 msgstr "📥 **Drag & Drop**"
@@ -62,25 +62,22 @@ msgstr "📟 **Командная строка**"
 
 msgid ""
 "Run ``scfile.exe --help`` to see all available arguments and options. "
-"Paths are routed automatically to conversion, animation, or map cache "
-"operations."
+"Paths are routed automatically to commands by context."
 msgstr ""
-"Запустите ``scfile.exe --help``, чтобы увидеть все доступные аргументы и "
-"опции. Пути автоматически маршрутизируются к операциям конвертации, "
-"анимации или кэша региона."
+"Запустите ``scfile.exe --help``, чтобы увидеть все доступные аргументы и опции. "
+"Пути автоматически маршрутизируются к соответствующим командам исходя из контекста."
 
 msgid "📖 **Python Library**"
 msgstr "📖 **Библиотека Python**"
 
-msgid ""
-"Install the package from PyPI: ``pip install sc-file -U``. Use ``scfile``"
-" from your Python scripts."
-msgstr ""
-"Установите пакет из PyPI: ``pip install sc-file -U``. Используйте "
-"``scfile`` в своих скриптах."
+msgid "Install the package from PyPI: ``pip install sc-file -U``."
+msgstr "Установите пакет из PyPI: ``pip install sc-file -U``."
 
-msgid ":doc:`Full API Reference <api/index>`"
-msgstr ":doc:`Подробное описание API <api/index>`"
+msgid "Use ``scfile`` package from your Python scripts."
+msgstr "Используйте библиотеку ``scfile`` в своих скриптах."
+
+msgid ":doc:`Full API Reference </api/index>`"
+msgstr ":doc:`Подробное описание API </api/index>`"
 
 msgid "Example"
 msgstr "Пример"
@@ -91,8 +88,8 @@ msgstr "Интерфейс командной строки"
 msgid "General"
 msgstr "Общее"
 
-msgid "Available commands: ``convert``, ``animate``, and ``mapcache``."
-msgstr "Доступные команды: ``convert``, ``animate`` и ``mapcache``."
+msgid "Available commands: ``convert``, ``animate``, ``mapcache``, and ``maptiles``."
+msgstr "Доступные команды: ``convert``, ``animate``, ``mapcache`` и ``maptiles``."
 
 msgid ""
 "When paths are supplied without a command, the CLI selects one from their"
@@ -207,8 +204,8 @@ msgstr ""
 "Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и экспортирует ``.glb`` файл. "
 "Каждая подкоманда принимает ``-O, --output`` для GLB файла или директории. Без него GLB сохраняется рядом с исходным файлом анимации."
 
-msgid ":doc:`Animation export guide → <usage/animate>`"
-msgstr ":doc:`Руководство по экспорту анимации → <usage/animate>`"
+msgid ":doc:`Usage guide → <animate>`"
+msgstr ":doc:`Руководство по использованию → <animate>`"
 
 msgid ""
 "Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add"
@@ -230,8 +227,8 @@ msgstr "Объединяет кэши регионов ``.mdat`` в файлы �
 msgid "Run with explicit command or use a path containing ``map_cache`` to auto-detect."
 msgstr "Запустите с явной командой или используйте путь, содержащий ``map_cache``."
 
-msgid ":doc:`Map Cache viewing guide → <usage/mapcache>`"
-msgstr ":doc:`Руководство по просмотру Map Cache → <usage/mapcache>`"
+msgid ":doc:`Usage guide → <mapcache>`"
+msgstr ":doc:`Руководство по использованию → <mapcache>`"
 
 msgid "Directory containing ``.mdat`` files."
 msgstr "Папка, содержащая файлы ``.mdat``."
@@ -249,14 +246,41 @@ msgstr "Экспортировать данные биомов. Включено
 msgid "Show the result of every processed region."
 msgstr "Показать результат обработки каждого региона."
 
+msgid "Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image."
+msgstr "Собирает плоские тайлы ``r.<x>.<z>.ol`` в одно изображение JPEG или PNG."
+
+msgid "Assemble tiles directly from one flat folder."
+msgstr "Собрать тайлы напрямую из одной папки."
+
+msgid "``OUTPUT`` must be an image file ending in ``.jpg``, ``.jpeg``, or ``.png``."
+msgstr "``OUTPUT`` должен быть файлом изображения с расширением ``.jpg``, ``.jpeg`` или ``.png``."
+
+msgid "Assemble a named map from game asset layers."
+msgstr "Собрать указанную карту из слоёв игровых ассетов."
+
+msgid "``--region`` optionally selects localization region. Otherwise system language is preferred."
+msgstr "Параметр ``--region`` позволяет выбрать регион локализации. Если он не указан, используется язык системы."
+
+msgid "JPEG quality from ``0`` through ``100``."
+msgstr "Качество JPEG от ``0`` до ``100``."
+
+msgid "Default: ``92``."
+msgstr "По умолчанию: ``92``."
+
+msgid "PNG compression level from ``0`` through ``9``."
+msgstr "Уровень сжатия PNG от ``0`` до ``9``."
+
+msgid "Default: ``6``."
+msgstr "По умолчанию: ``6``."
+
 msgid "🌀 Animation"
 msgstr "🌀 Анимации"
 
-msgid "Animation files are exported together with their target models."
-msgstr "Файлы анимации экспортируются вместе с их целевыми моделями."
+msgid ":ref:`animate <cli-animate>` applies animation data to ``.mcsb`` models."
+msgstr ":ref:`animate <cli-animate>` применяет данные анимации к моделям ``.mcsb``."
 
-msgid "Result is a ``.glb`` file containing model with applied animation clips."
-msgstr "В результате получается ``.glb`` файл, содержащий модель с примененными анимациями."
+msgid "The result is a ``.glb`` file with applied animation clips."
+msgstr "В результате получается файл ``.glb`` с применёнными клипами анимации."
 
 msgid "Find related assets"
 msgstr "Поиск связанных ассетов"
@@ -322,11 +346,11 @@ msgstr ""
 "Формат и практические рабочие процессы еще не полностью изучены. "
 "Сообщайте о проблемах или идеях для улучшения в `Issues`_."
 
-msgid "⛰️ Map Cache"
+msgid "⛰️ Map cache"
 msgstr "⛰️ Кэш карты"
 
-msgid "Map cache contains ``.mdat`` world region fragments."
-msgstr "Кэш карты состоит из ``.mdat`` фрагментов регионов мира."
+msgid ":ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files."
+msgstr ":ref:`mapcache <cli-mapcache>` объединяет фрагменты регионов ``.mdat`` в файлы ``.mca``."
 
 msgid "Usually located in ``stalcraft/map_cache/5.0``."
 msgstr "Обычно находится в ``stalcraft/map_cache/5.0``."
@@ -377,20 +401,18 @@ msgstr "Расположение папки ``region``:"
 msgid "You can clear existing ``.mca`` files from this directory."
 msgstr "При необходимости очистите эту папку от существующих файлов ``.mca``."
 
+msgid ""
+"By default, existing region file is backed up as ``.mca.bck`` before replacement (existing backups are kept). "
+"Use ``--no-backup`` to replace without backups."
+msgstr ""
+"По умолчанию перед заменой существующий файл региона сохраняется как ``.mca.bck`` (бэкапы не перезаписываются). "
+"Используйте ``--no-backup``, чтобы заменять регионы без создания бэкапов."
+
 msgid "Always leave the world before replacing its regions."
 msgstr "Всегда выходите из мира перед заменой его регионов."
 
 msgid "Minecraft can overwrite changed files with its cached chunks."
 msgstr "Майнкрафт может перезаписать измененные файлы своими кэшированными чанками."
-
-msgid ""
-"By default, the first original file with the same ``r.<x>.<z>.mca`` name is kept as\n"
-"``.mca.bck`` before replacement. An existing backup is never replaced. Use\n"
-"``--no-backup`` to replace regions without creating backups."
-msgstr ""
-"По умолчанию исходный файл с тем же именем ``r.<x>.<z>.mca`` при первой замене\n"
-"сохраняется как ``.mca.bck``. Существующий бэкап никогда не заменяется. Используйте\n"
-"``--no-backup``, чтобы заменять регионы без создания бэкапов."
 
 msgid "Convert the cache"
 msgstr "Конвертация кэша"
@@ -411,8 +433,8 @@ msgstr ""
 msgid "Command line"
 msgstr "Командная строка"
 
-msgid ":ref:`Map Cache command options → <cli-mapcache>`"
-msgstr ":ref:`Параметры Map Cache → <cli-mapcache>`"
+msgid ":ref:`Other options → <cli-mapcache>`"
+msgstr ":ref:`Остальные параметры → <cli-mapcache>`"
 
 msgid "Find the exported regions"
 msgstr "Поиск экспортированных регионов"
@@ -461,6 +483,84 @@ msgstr "Axiom_ для редактирования карты."
 
 msgid "Optionally other optimisation mods (like Sodium, Lithium, etc)."
 msgstr "Опционально другие моды оптимизации (например, Sodium, Lithium и т.д.)."
+
+msgid "🗺️ 2D Map"
+msgstr "🗺️ 2D карта"
+
+msgid ":ref:`maptiles <cli-maptiles>` assembles flat ``r.<x>.<z>.ol`` tiles into one image."
+msgstr ":ref:`maptiles <cli-maptiles>` собирает плоские тайлы ``r.<x>.<z>.ol`` в одно изображение."
+
+msgid "The result is a 2D map at the scale of the source tiles."
+msgstr "В результате получается 2D карта в масштабе исходных тайлов."
+
+msgid "Source"
+msgstr "Источник"
+
+msgid "Flat folder"
+msgstr "Папка с тайлами"
+
+msgid ""
+"Specify a folder with map tiles directly inside it. "
+"Use this mode when the tiles were copied from the game beforehand."
+msgstr ""
+"Укажите папку, где тайлы лежат непосредственно в ней. "
+"Этот вариант подходит для заранее скопированных файлов."
+
+msgid "Game folder"
+msgstr "Папка игры"
+
+msgid ""
+"Specify the game assets to choose a region and map. "
+"Map tiles from all asset layers are combined in the order the game loads them."
+msgstr ""
+"Укажите папку ассетов игры, чтобы выбрать регион и карту. "
+"Тайлы карты из всех слоёв ассетов объединяются в порядке их загрузки игрой."
+
+msgid "Image format"
+msgstr "Формат изображения"
+
+msgid ""
+"JPEG is default output format: "
+"its smaller file size and faster encoding matter most for baseline use, "
+"at the cost of lossy compression."
+msgstr ""
+"JPEG используется по умолчанию: "
+"его меньший размер файла и быстрое кодирование важнее для базового использования, "
+"но ценой сжатия с потерями."
+
+msgid "Default quality is ``92``."
+msgstr "Качество по умолчанию: ``92``."
+
+msgid ""
+"PNG is lossless alternative: "
+"every pixel is preserved, but files are much larger."
+msgstr ""
+"PNG это альтернатива без потерь: "
+"каждый пиксель сохраняется, но файлы получаются значительно больше."
+
+msgid "Default compression level is ``6``."
+msgstr "Сжатие по умолчанию: ``6``."
+
+msgid "Higher levels can take substantially longer."
+msgstr "Высокий уровень сжатия может занять значительно больше времени."
+
+msgid "Limits"
+msgstr "Ограничения"
+
+msgid "Files smaller than ``7 KB`` are ignored to exclude obsolete game tiles."
+msgstr "Файлы меньше ``7 КБ`` игнорируются, чтобы исключить пустые игровые тайлы."
+
+msgid "Tiles with the same aspect ratio may have different resolutions. Larger tiles are reduced to the smallest size. A different aspect ratio stops the export."
+msgstr "Тайлы с одинаковым соотношением сторон могут иметь разное разрешение. Крупные тайлы уменьшаются до наименьшего размера. При другом соотношении сторон экспорт завершается с ошибкой."
+
+msgid "The assembled RGB image is held in memory before writing. Large maps need substantial free RAM, often over ``1 GB`` with temporary images and encoding."
+msgstr "Собранное RGB изображение хранится в памяти до записи. Для больших карт нужно много свободной ОЗУ, часто больше ``1 ГБ``, с учётом временных изображений и кодирования."
+
+msgid ":ref:`Other options → <cli-maptiles>`"
+msgstr ":ref:`Остальные параметры → <cli-maptiles>`"
+
+msgid ":doc:`Usage guide → <maptiles>`"
+msgstr ":doc:`Руководство по использованию → <maptiles>`"
 
 # ============================================================================
 # No translation required.

@@ -53,7 +53,7 @@ FORMAT_ICONS = {
     FileKind.IMAGE: "🖼️",
     FileKind.ARCHIVE: "🗃️",
     FileKind.DOCUMENT: "⚙️",
-    FileKind.REGION: "🗺",
+    FileKind.REGION: "⛰️",
 }
 
 KIND_ORDER = (

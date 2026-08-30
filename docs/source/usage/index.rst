@@ -16,8 +16,8 @@ Quick Start
 
 🖥️ **GUI**
   Launch ``scfile.exe`` without arguments to open the graphical interface.
-  Use **Convert** for standalone assets, **Animation** for model and animation pairs,
-  **Map Cache** for region caches, and **2D Map** for map tiles.
+  Use **Converter** for standalone assets, **Animation** for model and animation pairs,
+  **Map cache** for region caches, and **2D Map** for map tiles.
 
 
 📥 **Drag & Drop**
@@ -35,7 +35,7 @@ Quick Start
 
 📟 **Command Line**
   Run ``scfile.exe --help`` to see all available arguments and options.
-  Paths are routed automatically to conversion, animation, or map cache operations.
+  Paths are routed automatically to commands by context.
 
   .. code-block:: bash
 
@@ -45,10 +45,10 @@ Quick Start
 
 
 📖 **Python Library**
-  Install the package from PyPI: ``pip install sc-file -U``.
-  Use ``scfile`` from your Python scripts.
+  | Install the package from PyPI: ``pip install sc-file -U``.
+  | Use ``scfile`` package from your Python scripts.
 
-  :doc:`Full API Reference <api/index>`
+  :doc:`Full API Reference </api/index>`
 
   .. code-block:: python
     :caption: Example
@@ -259,7 +259,7 @@ animate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Applies external animation data to one or more ``.mcsb`` models and exports a ``.glb`` file. Each subcommand accepts ``-O, --output`` for a GLB file or directory. Without it, the GLB is saved next to the animation source.
-| :doc:`Animation export guide → <usage/animate>`
+| :doc:`Usage guide → <animate>`
 
 ``arms ANIMATION MODEL [HANDS]``
   Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add an optional hands model.
@@ -301,7 +301,7 @@ mapcache
 
 | Merges ``.mdat`` region caches into ``.mca`` region files.
 | Run with explicit command or use a path containing ``map_cache`` to auto-detect.
-| :doc:`Map Cache viewing guide → <usage/mapcache>`
+| :doc:`Usage guide → <mapcache>`
 
 ``SOURCE``
   Directory containing ``.mdat`` files.
@@ -357,33 +357,33 @@ maptiles
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image.
-| :doc:`2D Map guide → <usage/maptiles>`
+| :doc:`Usage guide → <maptiles>`
 
 ``SOURCE OUTPUT``
-  Assemble tiles directly from one flat folder. ``OUTPUT`` must be an image file
-  ending in ``.jpg``, ``.jpeg``, or ``.png``.
+  | Assemble tiles directly from one flat folder.
+  | ``OUTPUT`` must be an image file ending in ``.jpg``, ``.jpeg``, or ``.png``.
 
   .. code-block:: bash
     :caption: Example
 
-    scfile maptiles "D:/tiles" "D:/exports/zone.jpg"
+    scfile maptiles "C:/tiles" "D:/zone.jpg"
 
 
-``GAME MAP OUTPUT``
-  Assemble a named map from game asset layers. ``--region`` optionally selects
-  the localization region; otherwise the system language is preferred.
+``SOURCE TARGET OUTPUT``
+  | Assemble a named map from game asset layers.
+  | ``--region`` optionally selects localization region. Otherwise system language is preferred.
 
   .. code-block:: bash
     :caption: Example
 
-    scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" map "D:/exports/zone.png" --region ru
+    scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" "global_map" "D:/global.jpg" --region ru
 
 
 ``--jpeg-quality``
-  JPEG quality from ``0`` through ``100``. Only valid for ``.jpg`` or ``.jpeg`` output.
-  Default: ``92``.
+  | JPEG quality from ``0`` through ``100``.
+  | Default: ``92``.
 
 
 ``--png-compression``
-  PNG compression level from ``0`` through ``9``. Only valid for ``.png`` output.
-  Default: ``6``.
+  | PNG compression level from ``0`` through ``9``.
+  | Default: ``6``.

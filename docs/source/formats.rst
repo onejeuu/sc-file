@@ -251,7 +251,7 @@ Export
 
 
 ----------------------------------------
-🗺 Region Formats
+⛰️ Region Formats
 ----------------------------------------
 
 .. _mdat:
@@ -264,7 +264,7 @@ Export
 :Contents: Blocks, metadata, lighting and biomes compressed with `zstd`_.
 :Export: Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes.
 
-| :doc:`Map Cache viewing guide → <usage/mapcache>`
+| :doc:`Usage guide → <usage/mapcache>`
 
 ----------------------------------------
 ⚙️ NBT Files

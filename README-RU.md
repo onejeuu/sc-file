@@ -14,11 +14,11 @@
 
 <!-- Documentation -->
 
-[docs-usage]: https://sc-file.readthedocs.io/ru/latest/usage.html
+[docs-usage]: https://sc-file.readthedocs.io/ru/latest/usage
+[docs-library]: https://sc-file.readthedocs.io/ru/latest/api
 [docs-faq]: https://sc-file.readthedocs.io/ru/latest/faq.html
 [docs-formats]: https://sc-file.readthedocs.io/ru/latest/formats.html
 [docs-compile]: https://sc-file.readthedocs.io/ru/latest/compile.html
-[docs-library]: https://sc-file.readthedocs.io/ru/latest/api/index.html
 
 <!-- Badges -->
 
@@ -46,9 +46,10 @@
 | 🧊 **Модель**      | `.mcsb`, `.efkmodel`                     | →   | `.obj`, `.glb`, `.fbx` |
 | 🌀 **Анимация**    | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb` | →   | `.glb`                 |
 | 🧱 **Текстура**    | `.ol`                                    | →   | `.dds`                 |
+| 🗺️ **Тайлы**       | `pda/*.ol`                               | →   | `.jpeg`, `.png`        |
 | 🖼️ **Изображение** | `.mic`                                   | →   | `.png`                 |
 | 🗃️ **Архив**       | `.texarr`                                | →   | `.zip`                 |
-| 🗺 **Регион**       | `.mdat`                                  | →   | `.mca`                 |
+| ⛰️ **Регион**      | `.mdat`                                  | →   | `.mca`                 |
 | ⚙️ **NBT**         | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
 > [Детальная информация о форматах →][docs-formats]

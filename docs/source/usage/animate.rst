@@ -4,8 +4,8 @@
 .. include:: ../_links.rst
 
 
-| Animation files are exported together with their target models.
-| Result is a ``.glb`` file containing model with applied animation clips.
+| :ref:`animate <cli-animate>` applies animation data to ``.mcsb`` models.
+| The result is a ``.glb`` file with applied animation clips.
 
 
 ----------------------------------------

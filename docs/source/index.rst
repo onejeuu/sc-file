@@ -44,6 +44,10 @@ sc-file
     - ``.ol``
     - →
     - ``.dds``
+  * - 🗺️ **Tiles**
+    - ``pda/*.ol``
+    - →
+    - ``.jpeg``, ``.png``
   * - 🖼️ **Image**
     - ``.mic``
     - →
@@ -52,7 +56,7 @@ sc-file
     - ``.texarr``
     - →
     - ``.zip``
-  * - 🗺 **Region**
+  * - ⛰️ **Region**
     - ``.mdat``
     - →
     - ``.mca``
@@ -92,7 +96,7 @@ Download ``scfile.exe`` from the `Releases page <Releases_>`_.
   scfile.exe model.mcsb -F glb --skeleton
 
 | This exports the model and its armature to GLB.
-| See the :doc:`usage guide <usage>` for other options.
+| :doc:`Usage guide <usage/index>` for other options.
 
 
 Install the Python package

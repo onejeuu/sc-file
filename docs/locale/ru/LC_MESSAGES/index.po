@@ -35,14 +35,17 @@ msgstr "🌀 **Анимация**"
 msgid "🧱 **Texture**"
 msgstr "🧱 **Текстура**"
 
+msgid "🗺️ **Tiles**"
+msgstr "🗺️ **Тайлы**"
+
 msgid "🖼️ **Image**"
 msgstr "🖼️ **Изображение**"
 
 msgid "🗃️ **Archive**"
 msgstr "🗃️ **Архив**"
 
-msgid "🗺 **Region**"
-msgstr "🗺 **Регион**"
+msgid "⛰️ **Region**"
+msgstr "⛰️ **Регион**"
 
 msgid "⚙️ **NBT**"
 msgstr "⚙️ **NBT**"
@@ -83,8 +86,8 @@ msgstr "Например"
 msgid "This exports the model and its armature to GLB."
 msgstr "Эта команда экспортирует модель и её скелет в GLB."
 
-msgid "See the :doc:`usage guide <usage>` for other options."
-msgstr "В :doc:`руководстве по использованию <usage>` описаны остальные параметры."
+msgid ":doc:`Usage guide <usage/index>` for other options."
+msgstr ":doc:`Руководство по использованию <usage/index>` для остальных параметров."
 
 msgid "Install the Python package"
 msgstr "Установить Python пакет"

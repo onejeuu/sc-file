@@ -1,6 +1,36 @@
 📋 Changelog
 ==================================================
 
+.. _v6.1.0:
+
+v6.1.0 (2026-08-30)
+----------------------------------------
+
+✨ Added
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``scfile maptiles``: assembles ``.ol`` 2D map tiles into JPEG or PNG images.
+* ``scfile maptiles --region``: selects localized game map assets.
+* ``scfile maptiles --jpeg-quality`` and ``--png-compression``: control image encoding.
+* ``scfile.convert.maptiles``: added map tile scanning, collection, measurement, and assembly operations.
+* **GUI:** added 2D Map tab.
+* ``Options.backup_regions`` and ``scfile mapcache --backup/--no-backup``: control backups before region replacement.
+* ``Options.max_mipmaps``: limits decoded texture mipmaps. Use ``0`` to read metadata without image.
+* **API**: added Pillow dependency.
+
+📝 Changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``TextureContent``: source texture metadata is now stored in ``meta`` and decoded data in ``texture``.
+* ``RegionContent``: region coordinates and sector data are now named ``x``, ``z``, ``offsets``, and ``counts``.
+* **GUI:** Map Cache overwrite warnings now apply only to output regions selected for replacement.
+
+⚠️ Deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``TextureContent.mipmap_count``, ``TextureContent.format``, and ``TextureContent.path_hash`` (use ``TextureContent.meta``).
+* ``RegionContent.rx``, ``RegionContent.rz``, ``RegionContent.sector_offsets``, and ``RegionContent.sector_counts``.
+
 .. _v6.0.0:
 
 v6.0.0 (2026-08-26)

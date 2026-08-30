@@ -14,11 +14,11 @@
 
 <!-- Documentation -->
 
-[docs-usage]: https://sc-file.readthedocs.io/en/latest/usage.html
+[docs-usage]: https://sc-file.readthedocs.io/en/latest/usage
+[docs-library]: https://sc-file.readthedocs.io/en/latest/api
 [docs-faq]: https://sc-file.readthedocs.io/en/latest/faq.html
 [docs-formats]: https://sc-file.readthedocs.io/en/latest/formats.html
 [docs-compile]: https://sc-file.readthedocs.io/en/latest/compile.html
-[docs-library]: https://sc-file.readthedocs.io/en/latest/api/index.html
 
 <!-- Badges -->
 
@@ -53,9 +53,10 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 | 🧊 **Model**     | `.mcsb`, `.efkmodel`                     | →   | `.obj`, `.glb`, `.fbx` |
 | 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb` | →   | `.glb`                 |
 | 🧱 **Texture**   | `.ol`                                    | →   | `.dds`                 |
+| 🗺️ **Tiles**     | `pda/*.ol`                               | →   | `.jpeg`, `.png`        |
 | 🖼️ **Image**     | `.mic`                                   | →   | `.png`                 |
 | 🗃️ **Archive**   | `.texarr`                                | →   | `.zip`                 |
-| 🗺 **Region**     | `.mdat`                                  | →   | `.mca`                 |
+| ⛰️ **Region**    | `.mdat`                                  | →   | `.mca`                 |
 | ⚙️ **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
 > [Details about formats →][docs-formats]

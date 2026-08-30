@@ -1,10 +1,10 @@
-⛰️ Map Cache
+⛰️ Map cache
 ==================================================
 
 .. include:: ../_links.rst
 
 
-| Map cache contains ``.mdat`` world region fragments.
+| :ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files.
 | Usually located in ``stalcraft/map_cache/5.0``.
 
 | Export groups fragments by coordinates ``x`` and ``z`` in filenames.
@@ -42,9 +42,8 @@ Location of the ``region`` directory:
 
 You can clear existing ``.mca`` files from this directory.
 
-By default, the first original file with the same ``r.<x>.<z>.mca`` name is kept as
-``.mca.bck`` before replacement. An existing backup is never replaced. Use
-``--no-backup`` to replace regions without creating backups.
+By default, existing region file is backed up as ``.mca.bck`` before replacement (existing backups are kept).
+Use ``--no-backup`` to replace without backups.
 
 
 ----------------------------------------
@@ -69,7 +68,7 @@ Command line
 
    scfile mapcache "stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
 
-:ref:`Map Cache command options → <cli-mapcache>`
+:ref:`Other options → <cli-mapcache>`
 
 
 ----------------------------------------
