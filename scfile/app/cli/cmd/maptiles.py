@@ -3,7 +3,6 @@ from pathlib import Path
 import click
 
 from scfile.app.cli import params
-from scfile.app.cli.console import warn
 from scfile.app.enums import CliCommand
 from scfile.app.feedback import TaskFeedback
 from scfile.app.game import GameRegion, GameRoot
@@ -32,9 +31,6 @@ def maptiles(
     """Assemble 2D map tiles."""
 
     task = _task(source, target, output, region, jpeg_quality, png_compression)
-
-    if task.output.exists():
-        warn(f"Output file will be replaced: {task.output}")
 
     feedback = TaskFeedback()
     summary = execute(task, feedback)

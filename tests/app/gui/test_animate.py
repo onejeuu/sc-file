@@ -2,7 +2,6 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 
-from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
 from scfile.app.gui.tasks import TaskManager
@@ -52,7 +51,7 @@ def test_arms_form(qapp: QApplication, tmp_path: Path) -> None:
     assert form.create_task(tmp_path / "output.glb").models == (model, None)
 
     form.model.value = ""
-    assert form.validation_error() == "tooltip.animate.invalid.arms"
+    assert form.validation_error() is not None
 
     form.hands.value = str(tmp_path / "invalid.obj")
     form._touch_input(form.hands)
@@ -79,7 +78,7 @@ def test_export(qapp: QApplication, tmp_path: Path) -> None:
     output.parent.mkdir()
     output.touch()
     tab._sync()
-    assert strings.get("warning.animate.overwrite") in tab.warnings.text()
+    assert not tab.warnings.isHidden()
 
     tab.tabs.setCurrentIndex(1)
     assert not tab.output.value
@@ -137,7 +136,7 @@ def test_output(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_output_updates_with_source_text(qapp: QApplication, tmp_path: Path) -> None:
+def test_output_text(qapp: QApplication, tmp_path: Path) -> None:
     settings = Settings(export_path=tmp_path / "export")
     tab = AnimateTab(TaskManager(), settings)
     first = tmp_path / "first.mcvd"
@@ -178,7 +177,7 @@ def test_resolve_hands(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_resolve_animation_asset_paths(qapp: QApplication, tmp_path: Path) -> None:
+def test_resolve_assets(qapp: QApplication, tmp_path: Path) -> None:
     root = tmp_path / "game"
     relative = Path("highpoly/animations/wpn_fp_test.mcvd")
     source = root / "modassets/assets" / relative

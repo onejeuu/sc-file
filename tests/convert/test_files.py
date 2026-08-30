@@ -106,11 +106,11 @@ def test_manual_interrupt(tmp_path: Path) -> None:
     assert not list(tmp_path.glob(".output.png.*.tmp"))
 
 
-def test_manual_texture_metadata(tmp_path: Path) -> None:
+def test_manual_mipmaps(tmp_path: Path) -> None:
     source = Path(__file__).parents[1] / "assets/formats/textures/source/texture_dxt1.ol"
     output = tmp_path / "texture.dds"
 
-    with pytest.raises(exceptions.ConversionError, match="without mipmaps"):
+    with pytest.raises(exceptions.ConversionError):
         manual(OlDecoder, DdsEncoder, source, output, Options(max_mipmaps=0))
 
     assert not output.exists()

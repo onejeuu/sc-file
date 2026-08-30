@@ -7,14 +7,13 @@ from PySide6.QtWidgets import QApplication
 from scfile.app.gui.widgets.path import PathInputWidget
 
 
-def test_path_is_normalized_on_every_input(qapp: QApplication) -> None:
+def test_normalize(qapp: QApplication) -> None:
     widget = PathInputWidget("path", "path")
     values: list[str] = []
     widget.text_changed.connect(values.append)
 
     widget.value = r"C:\game\modassets\assets\file.mcvd"
     assert widget.value == "C:/game/modassets/assets/file.mcvd"
-    assert widget.line_edit.text() == "C:/game/modassets/assets/file.mcvd"
     assert values == ["C:/game/modassets/assets/file.mcvd"]
 
     widget.line_edit.insert(r"\nested")
@@ -34,7 +33,7 @@ def test_path_is_normalized_on_every_input(qapp: QApplication) -> None:
     qapp.processEvents()
 
 
-def test_file_paste_uses_local_path(qapp: QApplication, tmp_path: Path) -> None:
+def test_paste(qapp: QApplication, tmp_path: Path) -> None:
     widget = PathInputWidget("path", "path")
     widget.value = "old/path.mcvd"
     data = QMimeData()

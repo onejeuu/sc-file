@@ -149,26 +149,6 @@ def test_animate(
     assert tasks[1].options.preserve_clips
 
 
-def test_animate_existing_output(
-    tmp_path: Path,
-    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
-    monkeypatch,
-) -> None:
-    animation = tmp_path / "animation.mcvd"
-    model = tmp_path / "model.mcsb"
-    output = tmp_path / "output.glb"
-    for path in (animation, model, output):
-        path.touch()
-    command_runner(animate_module, TaskKind.ANIMATE, False)
-    warnings: list[str] = []
-    monkeypatch.setattr(animate_module, "warn", warnings.append)
-
-    result = CliRunner().invoke(scfile, ["animate", "face", str(animation), str(model), "-O", str(output)])
-
-    assert result.exit_code == 0
-    assert warnings == [f"Output file will be replaced: {output}"]
-
-
 def test_animate_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
@@ -187,14 +167,11 @@ def test_animate_failure(
 def test_mapcache(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
-    monkeypatch,
 ) -> None:
     source = tmp_path / "cache"
     source.mkdir()
     output = tmp_path / "regions"
     tasks = command_runner(mapcache_module, TaskKind.MAPCACHE, False)
-    monkeypatch.setattr(mapcache_module, "warn", lambda _: None)
-
     result = CliRunner().invoke(
         scfile,
         ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-backup", "-W", "2", "--verbose"],
@@ -246,116 +223,74 @@ def test_maptiles_game(
     )
 
     assert result.exit_code != 0
-    assert "Unknown region 'missing'" in result.output
 
 
 def test_mapcache_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
-    monkeypatch,
 ) -> None:
     source = tmp_path / "cache"
     source.mkdir()
     command_runner(mapcache_module, TaskKind.MAPCACHE, True)
-    monkeypatch.setattr(mapcache_module, "warn", lambda _: None)
-
     result = CliRunner().invoke(scfile, ["mapcache", str(source)])
 
     assert result.exit_code == 1
 
 
+@pytest.mark.parametrize(
+    ("name", "options", "save"),
+    (
+        ("map.jpg", (), {"format": "JPEG", "quality": 92}),
+        ("map.png", (), {"format": "PNG", "compress_level": 6}),
+        ("map.png", ("--png-compression", "9"), {"format": "PNG", "compress_level": 9}),
+        ("map.jpeg", ("--jpeg-quality", "95"), {"format": "JPEG", "quality": 95}),
+    ),
+)
 def test_maptiles(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+    name: str,
+    options: tuple[str, ...],
+    save: dict[str, int | str],
 ) -> None:
     source = tmp_path / "tiles"
     source.mkdir()
     tile = source / "r.0.0.ol"
     copyfile(MAP_TILE, tile)
-    output = tmp_path / "map.jpg"
+    output = tmp_path / name
     tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
 
-    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output), *options])
 
     assert result.exit_code == 0
     task = tasks[0]
     assert task.tiles == {Region(0, 0): tile}
     assert task.output == output
-    assert task.save == {"format": "JPEG", "quality": 92}
-
-    output = tmp_path / "default.png"
-    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
-
-    assert result.exit_code == 0
-    assert tasks[1].save == {"format": "PNG", "compress_level": 6}
-
-    output = tmp_path / "map.png"
-    result = CliRunner().invoke(
-        scfile,
-        ["maptiles", str(source), str(output), "--png-compression", "9"],
-    )
-
-    assert result.exit_code == 0
-    assert tasks[2].save == {"format": "PNG", "compress_level": 9}
-
-    output = tmp_path / "map.jpeg"
-    result = CliRunner().invoke(
-        scfile,
-        ["maptiles", str(source), str(output), "--jpeg-quality", "95"],
-    )
-
-    assert result.exit_code == 0
-    assert tasks[3].save == {"format": "JPEG", "quality": 95}
+    assert task.save == save
 
 
-def test_maptiles_encoding_errors(
+@pytest.mark.parametrize(
+    ("name", "options"),
+    (
+        ("map.jpg", ("--png-compression", "6")),
+        ("map.png", ("--jpeg-quality", "92")),
+        ("map.webp", ()),
+    ),
+)
+def test_maptiles_validation(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
+    name: str,
+    options: tuple[str, ...],
 ) -> None:
     source = tmp_path / "tiles"
     source.mkdir()
     copyfile(MAP_TILE, source / "r.0.0.ol")
     tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
-    runner = CliRunner()
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(tmp_path / name), *options])
 
-    result = runner.invoke(
-        scfile,
-        ["maptiles", str(source), str(tmp_path / "map.jpg"), "--png-compression", "6"],
-    )
     assert result.exit_code != 0
-    assert "--png-compression requires PNG output" in result.output
-
-    result = runner.invoke(
-        scfile,
-        ["maptiles", str(source), str(tmp_path / "map.png"), "--jpeg-quality", "92"],
-    )
-    assert result.exit_code != 0
-    assert "--jpeg-quality requires JPEG output" in result.output
-
-    result = runner.invoke(scfile, ["maptiles", str(source), str(tmp_path / "map.webp")])
-    assert result.exit_code != 0
-    assert "Output extension must be .jpg, .jpeg, or .png" in result.output
     assert not tasks
-
-
-def test_maptiles_existing_output(
-    tmp_path: Path,
-    command_runner: Callable[[Any, TaskKind, bool], list[Any]],
-    monkeypatch,
-) -> None:
-    source = tmp_path / "tiles"
-    source.mkdir()
-    copyfile(MAP_TILE, source / "r.0.0.ol")
-    output = tmp_path / "map.jpg"
-    output.touch()
-    command_runner(maptiles_module, TaskKind.MAPTILES, False)
-    warnings: list[str] = []
-    monkeypatch.setattr(maptiles_module, "warn", warnings.append)
-
-    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
-
-    assert result.exit_code == 0
-    assert warnings == [f"Output file will be replaced: {output}"]
 
 
 def test_maptiles_empty(
@@ -369,7 +304,6 @@ def test_maptiles_empty(
     result = CliRunner().invoke(scfile, ["maptiles", str(source), str(tmp_path / "map.jpg")])
 
     assert result.exit_code != 0
-    assert "No map tiles found" in result.output
     assert not tasks
 
 

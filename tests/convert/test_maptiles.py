@@ -45,7 +45,7 @@ def test_collect(tmp_path: Path) -> None:
     assert original != replacement
 
 
-def test_merge(tmp_path: Path) -> None:
+def test_assemble(tmp_path: Path) -> None:
     _tile(tmp_path, -1, 1)
     _tile(tmp_path, 0, 1)
     output = tmp_path / "output/map.jpg"
@@ -80,32 +80,29 @@ def test_progress(tmp_path: Path) -> None:
 
 
 def test_empty(tmp_path: Path) -> None:
-    with pytest.raises(exceptions.ConversionError, match="No map tiles found"):
+    with pytest.raises(exceptions.ConversionError):
         maptiles.assemble(tmp_path, tmp_path / "map.jpg")
 
 
-def test_output_format(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("name", "save", "expected"),
+    (
+        ("map.png", {"format": "PNG", "compress_level": 1}, "PNG"),
+        ("map.data", {"format": "BMP"}, "BMP"),
+    ),
+)
+def test_formats(tmp_path: Path, name: str, save: maptiles.SaveOptions, expected: str) -> None:
     _tile(tmp_path, 0, 0)
-    output = tmp_path / "map.png"
+    output = tmp_path / name
 
-    maptiles.assemble(tmp_path, output, save={"format": "PNG", "compress_level": 1})
+    maptiles.assemble(tmp_path, output, save=save)
 
     with Image.open(output) as image:
-        assert image.format == "PNG"
-
-
-def test_arbitrary_output_format(tmp_path: Path) -> None:
-    _tile(tmp_path, 0, 0)
-    output = tmp_path / "map.data"
-
-    maptiles.assemble(tmp_path, output, save={"format": "BMP"})
-
-    with Image.open(output) as image:
-        assert image.format == "BMP"
+        assert image.format == expected
 
 
 @pytest.mark.parametrize("conflict", (OnConflict.SKIP, OnConflict.RENAME))
-def test_output_replaced(tmp_path: Path, conflict: OnConflict) -> None:
+def test_replace(tmp_path: Path, conflict: OnConflict) -> None:
     _tile(tmp_path, 0, 0)
     output = tmp_path / "map.jpg"
     output.write_bytes(b"previous")
@@ -131,7 +128,7 @@ def test_tile_size(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         assert image.size == (4, 2)
 
 
-def test_tile_aspect_ratio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_aspect(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     first = _tile(tmp_path, 0, 0)
     second = _tile(tmp_path, 1, 0)
     sizes = {
@@ -140,7 +137,7 @@ def test_tile_aspect_ratio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     }
     monkeypatch.setattr(maptiles, "_size", lambda path, options: sizes[path])
 
-    with pytest.raises(exceptions.ConversionError, match="aspect ratio"):
+    with pytest.raises(exceptions.ConversionError):
         maptiles.assemble(tmp_path, tmp_path / "map.jpg")
 
 

@@ -160,7 +160,7 @@ def test_rooted_layout(tmp_path: Path) -> None:
     assert (tmp_path / "output/assets/documents/document.json").exists()
 
 
-def test_dump_replace_disambiguates_collisions(tmp_path: Path) -> None:
+def test_dump_replace(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -188,7 +188,7 @@ def test_dump_replace_disambiguates_collisions(tmp_path: Path) -> None:
     assert hashed.exists()
 
 
-def test_dump_rename_reserves_collisions(tmp_path: Path) -> None:
+def test_dump_rename(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -213,7 +213,7 @@ def test_dump_rename_reserves_collisions(tmp_path: Path) -> None:
     assert (output / "document (1).json").exists()
 
 
-def test_dump_skip_skips_collisions(tmp_path: Path) -> None:
+def test_dump_skip(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
@@ -238,7 +238,7 @@ def test_dump_skip_skips_collisions(tmp_path: Path) -> None:
     assert (output / "document.json").exists()
 
 
-def test_relative_replace_disambiguates_collisions(tmp_path: Path) -> None:
+def test_relative_replace(tmp_path: Path) -> None:
     source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"

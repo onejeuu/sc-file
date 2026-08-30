@@ -2,7 +2,6 @@ import click
 
 from scfile import types
 from scfile.app.cli import params
-from scfile.app.cli.console import warn
 from scfile.app.enums import CliCommand
 from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
@@ -55,8 +54,6 @@ def mapcache(
     verbose: bool,
 ) -> None:
     """Merge map cache regions."""
-
-    warn("MDAT decoder is experimental. Blocks representation is not accurate. Full compatibility is unlikely.")
 
     options = Options(biomes=biomes, backup_regions=backup)
     feedback = TaskFeedback(verbose)

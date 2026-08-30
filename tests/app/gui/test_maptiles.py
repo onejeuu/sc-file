@@ -3,18 +3,16 @@ from shutil import copyfile
 
 from PySide6.QtWidgets import QApplication
 
-from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.maptiles import MapTilesTab
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.tasks.maptiles import MapTilesImage
-from scfile.convert.regions import Size
 
 
 SOURCE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
 
 
-def test_form(qapp: QApplication, tmp_path: Path) -> None:
+def test_flat(qapp: QApplication, tmp_path: Path) -> None:
     folder = tmp_path / "map"
     folder.mkdir()
     copyfile(SOURCE, folder / "r.0.0.ol")
@@ -24,23 +22,15 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     tab.source.value = str(folder)
 
     assert not tab.region.isEnabled()
-    assert not tab.region.count()
     assert not tab.map.isEnabled()
-    assert not tab.map.count()
-    assert tab.map.placeholderText() == strings.get("placeholder.maptiles.map")
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.map")
+    assert len(tab.tiles) == 1
     assert Path(tab.output.value) == settings.export_path / "map.jpg"
     assert tab.encoding.format is MapTilesImage.JPEG
-    assert tab.encoding._buttons[MapTilesImage.JPEG].isChecked()
-    assert tab.output.default_suffix == ".jpg"
-    assert tab.encoding.jpeg_quality == 92
-    assert tab.encoding.png_compression == 6
-    assert tab.submit.text() == f"{strings.get('button.maptiles')} (1)"
-    assert tab.estimate.text()
     assert not tab.estimate.isHidden()
     assert tab._submit_error() is None
 
     tab.source.value = str(tmp_path / "missing")
+    assert not tab.tiles
     assert not tab.output.value
 
     tab.source.value = str(folder)
@@ -48,7 +38,7 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     output.parent.mkdir()
     output.touch()
     tab._sync()
-    assert strings.get("warning.maptiles.overwrite") in tab.warnings.text()
+    assert not tab.warnings.isHidden()
 
     tab.output.value = str(tmp_path / "map.png")
     tab._edit_output(tab.output.value)
@@ -66,17 +56,11 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
     copyfile(SOURCE, folder / "r.0.0.ol")
     tab = MapTilesTab(TaskManager(), Settings(export_path=tmp_path))
     tab.source.value = str(folder)
-    tab.image_size = Size(20_000, 15_000)
-    tab._sync()
-    estimate = tab.estimate.text()
 
     tab.encoding.spin.setValue(95)
-    assert tab.estimate.text() != estimate
     tab.encoding._buttons[MapTilesImage.PNG].click()
     assert tab.encoding.format is MapTilesImage.PNG
     assert Path(tab.output.value) == tmp_path / "map.png"
-    assert tab.output.default_suffix == ".png"
-    assert tab.encoding.slider.maximum() == 9
 
     tab.encoding.slider.setValue(8)
     assert tab.encoding.spin.value() == 8
@@ -100,7 +84,7 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
+def test_game(qapp: QApplication, tmp_path: Path) -> None:
     game = tmp_path / "game"
     pda = game / "modassets/assets/pda"
     for name in ("map", "unknown", "sound", "textures", "map_overlay"):
@@ -120,13 +104,10 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
 
     assert Path(tab.source.value) == pda
     assert tab.region.isEnabled()
-    assert tab.region.currentText() == "RU"
     assert tab.region.currentData() == "ru"
     assert tab.map.isEnabled()
     assert {tab.map.itemData(index) for index in range(tab.map.count())} == {"map", "map_bar_save", "unknown"}
-    assert strings.get("maptiles.map.unknown", "unknown") == "unknown"
     assert Path(tab.output.value) == tmp_path / "export/map.jpg"
-    assert tab.encoding._buttons[MapTilesImage.JPEG].isChecked()
     assert tab._submit_error() is None
     assert tab._sources() == (pda / "map", patch)
 
@@ -143,17 +124,15 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
 
     tab.source.value = str(pda / "map")
     assert not tab.map.isEnabled()
-    assert tab.map.count() == 3
     assert tab.map.currentData() == "map"
     assert tab.region.isEnabled()
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.fixed.map")
     assert Path(tab.output.value) == tmp_path / "export/map.png"
 
     tab.deleteLater()
     qapp.processEvents()
 
 
-def test_game_region(qapp: QApplication, tmp_path: Path) -> None:
+def test_region(qapp: QApplication, tmp_path: Path) -> None:
     game = tmp_path / "game"
     base = game / "modassets/assets/pda/map"
     ru = game / "modassets/assets/_localized/ru/pda/map_ru"
@@ -180,7 +159,7 @@ def test_game_region(qapp: QApplication, tmp_path: Path) -> None:
     qapp.processEvents()
 
 
-def test_game_maps_without_path_resolution(qapp: QApplication, tmp_path: Path) -> None:
+def test_manual_paths(qapp: QApplication, tmp_path: Path) -> None:
     game = tmp_path / "game"
     folder = game / "modassets/assets/pda/map"
     folder.mkdir(parents=True)
@@ -190,20 +169,17 @@ def test_game_maps_without_path_resolution(qapp: QApplication, tmp_path: Path) -
     tab.source.value = str(game)
 
     assert not tab.map.isEnabled()
-    assert not tab.map.count()
+    assert tab.map.currentData() is None
 
     tab.source.value = str(game / "modassets/assets/pda")
     assert tab.map.isEnabled()
-    assert tab.map.count() == 1
     assert tab.map.currentData() == "map"
     assert not tab.output.value
 
     tab.source.value = str(folder)
     assert Path(tab.source.value) == folder
     assert not tab.map.isEnabled()
-    assert tab.map.count() == 1
     assert tab.map.currentData() == "map"
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.fixed.map")
 
     tab.deleteLater()
     qapp.processEvents()

@@ -61,29 +61,29 @@ def _copy(source: Path, destination: Path) -> Path:
         ["maptiles", "--help"],
     ],
 )
-def test_cli_help_smoke(args: list[str]) -> None:
+def test_cli_help(args: list[str]) -> None:
     _launch(args)
 
 
 @pytest.mark.parametrize("source", (*SOURCES, *BROKEN_SOURCES), ids=_source_id)
-def test_convert_every_fixture_smoke(source: Path, tmp_path: Path) -> None:
+def test_convert_every_fixture(source: Path, tmp_path: Path) -> None:
     _launch(["convert", str(source), "-O", str(tmp_path), "-W", "1"])
 
 
 @pytest.mark.parametrize("layout", OutputLayout)
-def test_convert_layout_smoke(layout: OutputLayout, tmp_path: Path) -> None:
+def test_convert_layout(layout: OutputLayout, tmp_path: Path) -> None:
     _launch(["convert", str(FORMATS), "-O", str(tmp_path), "--layout", layout, "-W", "1"])
 
 
 @pytest.mark.parametrize("format", registry.decoders, ids=str)
-def test_convert_filter_smoke(format: str, tmp_path: Path) -> None:
+def test_convert_filter(format: str, tmp_path: Path) -> None:
     _launch(["convert", str(FORMATS), "-O", str(tmp_path), "-I", format, "-W", "1"])
 
 
 @pytest.mark.parametrize("source", MODEL_SOURCES, ids=_source_id)
 @pytest.mark.parametrize("format", model_formats(), ids=str)
 @pytest.mark.parametrize(("skeleton", "animation"), ((False, False), (True, False), (False, True), (True, True)))
-def test_convert_model_option_smoke(
+def test_convert_model_option(
     source: Path,
     format: FileFormat,
     skeleton: bool,
@@ -100,7 +100,7 @@ def test_convert_model_option_smoke(
 
 @pytest.mark.parametrize("layout", OutputLayout)
 @pytest.mark.parametrize("on_conflict", ("replace", "rename", "skip"))
-def test_convert_existing_conflict_smoke(
+def test_convert_existing_conflict(
     layout: OutputLayout,
     on_conflict: str,
     tmp_path: Path,
@@ -125,7 +125,7 @@ def test_convert_existing_conflict_smoke(
     )
 
 
-def test_convert_default_output_smoke(tmp_path: Path) -> None:
+def test_convert_default_output(tmp_path: Path) -> None:
     source = tmp_path / MODEL_SOURCE.name
     copy2(MODEL_SOURCE, source)
 
@@ -133,12 +133,12 @@ def test_convert_default_output_smoke(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("output_name", ("output", "result.json"))
-def test_convert_output_path_smoke(output_name: str, tmp_path: Path) -> None:
+def test_convert_output_path(output_name: str, tmp_path: Path) -> None:
     _launch(["convert", str(DOCUMENT_SOURCE), "-O", str(tmp_path / output_name), "-W", "1"])
 
 
 @pytest.mark.parametrize("workers", ("0", "1", "2"))
-def test_convert_workers_smoke(workers: str, tmp_path: Path) -> None:
+def test_convert_workers(workers: str, tmp_path: Path) -> None:
     _launch(
         [
             "convert",
@@ -155,7 +155,7 @@ def test_convert_workers_smoke(workers: str, tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("formats", (("nbt", "mic"), ("texarr", "mdat")))
-def test_convert_multiple_filters_smoke(formats: tuple[str, ...], tmp_path: Path) -> None:
+def test_convert_multiple_filters(formats: tuple[str, ...], tmp_path: Path) -> None:
     args = ["convert", str(FORMATS), "-O", str(tmp_path), "-W", "1"]
     for format in formats:
         args.extend(("-I", format))
@@ -164,7 +164,7 @@ def test_convert_multiple_filters_smoke(formats: tuple[str, ...], tmp_path: Path
 
 @pytest.mark.parametrize("source", NBT_SOURCES, ids=_source_id)
 @pytest.mark.parametrize("name", NBT_NAMES)
-def test_convert_nbt_alias_smoke(source: Path, name: str, tmp_path: Path) -> None:
+def test_convert_nbt_alias(source: Path, name: str, tmp_path: Path) -> None:
     input_path = _copy(source, tmp_path / "source" / name)
     _launch(["convert", str(input_path), "-O", str(tmp_path / "output"), "-I", "nbt", "-W", "1"])
 
@@ -235,7 +235,7 @@ def _convert_shape(kind: str, tmp_path: Path) -> tuple[list[Path], Path]:
     ),
 )
 @pytest.mark.parametrize("layout", OutputLayout)
-def test_convert_source_shape_smoke(kind: str, layout: OutputLayout, tmp_path: Path) -> None:
+def test_convert_source_shape(kind: str, layout: OutputLayout, tmp_path: Path) -> None:
     sources, output = _convert_shape(kind, tmp_path)
     _launch(
         [
@@ -273,7 +273,7 @@ def _collision_sources(kind: str, tmp_path: Path) -> list[Path]:
 @pytest.mark.parametrize("kind", ("same-directory", "separate-roots", "same-relative-path"))
 @pytest.mark.parametrize("layout", OutputLayout)
 @pytest.mark.parametrize("on_conflict", ("replace", "rename", "skip"))
-def test_convert_source_collision_smoke(
+def test_convert_source_collision(
     kind: str,
     layout: OutputLayout,
     on_conflict: str,
@@ -298,7 +298,7 @@ def test_convert_source_collision_smoke(
     )
 
 
-def test_convert_failed_collision_smoke(tmp_path: Path) -> None:
+def test_convert_failed_collision(tmp_path: Path) -> None:
     left = _copy(ASSETS / "invalid" / "counts.mcsb", tmp_path / "left" / "model.mcsb")
     right = _copy(MODEL_SOURCE, tmp_path / "right" / "model.mcsb")
     _launch(
@@ -318,7 +318,7 @@ def test_convert_failed_collision_smoke(tmp_path: Path) -> None:
     )
 
 
-def test_convert_relative_path_smoke(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_convert_relative_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     source = _copy(DOCUMENT_SOURCE, tmp_path / "вход с пробелом" / "prefs")
     monkeypatch.chdir(tmp_path)
 
@@ -336,7 +336,7 @@ def test_convert_relative_path_smoke(monkeypatch: pytest.MonkeyPatch, tmp_path: 
         ("body", False, True, "directory"),
     ],
 )
-def test_animate_smoke(
+def test_animate(
     kind: str,
     hands: bool,
     raw: bool,
@@ -356,7 +356,7 @@ def test_animate_smoke(
 
 
 @pytest.mark.parametrize("kind", ("arms", "face", "body"))
-def test_animate_default_output_smoke(kind: str, tmp_path: Path) -> None:
+def test_animate_default_output(kind: str, tmp_path: Path) -> None:
     animation_source = LIBRARY_SOURCE if kind == "body" else ANIMATION_SOURCE
     animation = _copy(animation_source, tmp_path / animation_source.name)
     model = _copy(MODEL_SOURCE, tmp_path / "model.mcsb")
@@ -364,7 +364,7 @@ def test_animate_default_output_smoke(kind: str, tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("kind", ("arms", "face", "body"))
-def test_animate_existing_output_smoke(kind: str, tmp_path: Path) -> None:
+def test_animate_existing_output(kind: str, tmp_path: Path) -> None:
     animation_source = LIBRARY_SOURCE if kind == "body" else ANIMATION_SOURCE
     animation = _copy(animation_source, tmp_path / animation_source.name)
     model = _copy(MODEL_SOURCE, tmp_path / "model.mcsb")
@@ -374,7 +374,7 @@ def test_animate_existing_output_smoke(kind: str, tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("kind", ("arms", "face", "body"))
-def test_animate_broken_model_smoke(kind: str, tmp_path: Path) -> None:
+def test_animate_broken_model(kind: str, tmp_path: Path) -> None:
     animation_source = LIBRARY_SOURCE if kind == "body" else ANIMATION_SOURCE
     animation = _copy(animation_source, tmp_path / animation_source.name)
     model = _copy(ASSETS / "invalid" / "counts.mcsb", tmp_path / "model.mcsb")
@@ -394,7 +394,7 @@ def _mapcache_sources(tmp_path: Path) -> Path:
 
 @pytest.mark.parametrize("biomes", ("--biomes", "--no-biomes"))
 @pytest.mark.parametrize("workers", (None, "0", "1", "2"))
-def test_mapcache_smoke(biomes: str, workers: str | None, tmp_path: Path) -> None:
+def test_mapcache(biomes: str, workers: str | None, tmp_path: Path) -> None:
     source = _mapcache_sources(tmp_path)
     args = ["mapcache", str(source), "-O", str(tmp_path / "output"), biomes, "--verbose"]
     if workers is not None:
@@ -403,7 +403,7 @@ def test_mapcache_smoke(biomes: str, workers: str | None, tmp_path: Path) -> Non
 
 
 @pytest.mark.parametrize("kind", ("empty", "invalid-name", "broken-region", "file-source"))
-def test_mapcache_invalid_input_smoke(kind: str, tmp_path: Path) -> None:
+def test_mapcache_invalid_input(kind: str, tmp_path: Path) -> None:
     source = tmp_path / "mapcache"
     if kind == "file-source":
         _copy(REGION_SOURCE / "r.0.0.mdat", source)
@@ -420,7 +420,7 @@ def test_mapcache_invalid_input_smoke(kind: str, tmp_path: Path) -> None:
     _launch(["mapcache", str(source), "-O", str(tmp_path / "output"), "-W", "1"])
 
 
-def test_mapcache_existing_output_smoke(tmp_path: Path) -> None:
+def test_mapcache_existing_output(tmp_path: Path) -> None:
     source = _mapcache_sources(tmp_path)
     output = tmp_path / "output"
     output.mkdir()
@@ -428,12 +428,12 @@ def test_mapcache_existing_output_smoke(tmp_path: Path) -> None:
     _launch(["mapcache", str(source), "-O", str(output), "-W", "2"])
 
 
-def test_mapcache_default_output_smoke(tmp_path: Path) -> None:
+def test_mapcache_default_output(tmp_path: Path) -> None:
     source = _mapcache_sources(tmp_path)
     _launch(["mapcache", str(source), "-W", "1"])
 
 
-def test_implicit_convert_smoke(tmp_path: Path) -> None:
+def test_implicit_convert(tmp_path: Path) -> None:
     source = tmp_path / "document.nbt"
     copy2(FORMATS / "document" / "source" / source.name, source)
 
@@ -441,7 +441,7 @@ def test_implicit_convert_smoke(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("kind", ("arms", "face", "body"))
-def test_implicit_animation_smoke(kind: str, tmp_path: Path) -> None:
+def test_implicit_animation(kind: str, tmp_path: Path) -> None:
     model = tmp_path / MODEL_SOURCE.name
     copy2(MODEL_SOURCE, model)
 
@@ -456,7 +456,7 @@ def test_implicit_animation_smoke(kind: str, tmp_path: Path) -> None:
     _launch([str(animation), str(model)])
 
 
-def test_implicit_arms_with_hands_smoke(tmp_path: Path) -> None:
+def test_implicit_arms_with_hands(tmp_path: Path) -> None:
     animation = _copy(ANIMATION_SOURCE, tmp_path / "wpn_fp_animation.mcvd")
     weapon = _copy(MODEL_SOURCE, tmp_path / "weapon.mcsb")
     hands = _copy(MODEL_SOURCE, tmp_path / "hands.mcsb")
@@ -464,7 +464,7 @@ def test_implicit_arms_with_hands_smoke(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("kind", ("mcal-many-models", "mcvd-many-models", "mixed-models", "options"))
-def test_implicit_convert_fallback_smoke(kind: str, tmp_path: Path) -> None:
+def test_implicit_convert_fallback(kind: str, tmp_path: Path) -> None:
     animation = _copy(ANIMATION_SOURCE, tmp_path / "animation.mcvd")
     weapon = _copy(MODEL_SOURCE, tmp_path / "weapon.mcsb")
     hands = _copy(MODEL_SOURCE, tmp_path / "hands.mcsb")
@@ -484,7 +484,7 @@ def test_implicit_convert_fallback_smoke(kind: str, tmp_path: Path) -> None:
             _launch([str(animation), str(weapon), "-O", str(tmp_path / "output")])
 
 
-def test_implicit_mapcache_smoke(tmp_path: Path) -> None:
+def test_implicit_mapcache(tmp_path: Path) -> None:
     source = tmp_path / "map_cache"
     source.mkdir()
     copy2(REGION_SOURCE / "r.0.0.mdat", source / "reg.0.0.mdat")
@@ -503,5 +503,5 @@ def test_implicit_mapcache_smoke(tmp_path: Path) -> None:
         ["mapcache"],
     ],
 )
-def test_cli_validation_smoke(args: list[str]) -> None:
+def test_cli_validation(args: list[str]) -> None:
     _launch(args)

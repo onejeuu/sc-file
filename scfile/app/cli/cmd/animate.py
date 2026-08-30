@@ -4,7 +4,6 @@ import click
 
 from scfile import convert, types
 from scfile.app.cli import params
-from scfile.app.cli.console import warn
 from scfile.app.enums import AnimateCommand, CliCommand
 from scfile.app.feedback import TaskFeedback
 from scfile.app.tasks import execute
@@ -26,9 +25,6 @@ def _execute(
     options: Options | None = None,
 ) -> None:
     output_path = convert.paths.destination(source, output, FileFormat.GLB.suffix)
-    if output_path.exists():
-        warn(f"Output file will be replaced: {output_path}")
-
     feedback = TaskFeedback()
     summary = execute(AnimateTask(operation, source, models, output_path, options or Options()), feedback)
     feedback.finish(summary)
