@@ -31,7 +31,7 @@ def test_progress(feedback: TaskFeedback) -> None:
 
 
 def test_subprogress(feedback: TaskFeedback) -> None:
-    feedback(TaskStarted(TaskKind.MAPMERGE, 2))
+    feedback(TaskStarted(TaskKind.MAPTILES, 2))
     feedback(TaskProgress("tile.ol"))
     feedback(TaskItem("tile.ol", Path("map.jpg")))
 

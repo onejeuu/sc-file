@@ -11,7 +11,7 @@ from scfile.app.cli import scfile
 from scfile.app.cli.cmd import animate as animate_module
 from scfile.app.cli.cmd import convert as convert_module
 from scfile.app.cli.cmd import mapcache as mapcache_module
-from scfile.app.cli.cmd import mapmerge as mapmerge_module
+from scfile.app.cli.cmd import maptiles as maptiles_module
 from scfile.app.enums import OutputLayout, TaskKind
 from scfile.content import ModelContent
 from scfile.convert.regions import Region
@@ -209,7 +209,7 @@ def test_mapcache(
     assert not task.options.backup_regions
 
 
-def test_mapmerge_game(
+def test_maptiles_game(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -222,11 +222,11 @@ def test_mapmerge_game(
         copyfile(MAP_TILE, folder / "r.0.0.ol")
 
     output = tmp_path / "map.jpg"
-    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
 
     result = CliRunner().invoke(
         scfile,
-        ["mapmerge", str(game), "map", str(output), "--region", "ru"],
+        ["maptiles", str(game), "map", str(output), "--region", "ru"],
     )
 
     assert result.exit_code == 0
@@ -234,7 +234,7 @@ def test_mapmerge_game(
 
     result = CliRunner().invoke(
         scfile,
-        ["mapmerge", str(game), "map_bar_save", str(output), "--region", "ru"],
+        ["maptiles", str(game), "map_bar_save", str(output), "--region", "ru"],
     )
 
     assert result.exit_code == 0
@@ -242,7 +242,7 @@ def test_mapmerge_game(
 
     result = CliRunner().invoke(
         scfile,
-        ["mapmerge", str(game), "map", str(output), "--region", "missing"],
+        ["maptiles", str(game), "map", str(output), "--region", "missing"],
     )
 
     assert result.exit_code != 0
@@ -264,7 +264,7 @@ def test_mapcache_failure(
     assert result.exit_code == 1
 
 
-def test_mapmerge(
+def test_maptiles(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -273,9 +273,9 @@ def test_mapmerge(
     tile = source / "r.0.0.ol"
     copyfile(MAP_TILE, tile)
     output = tmp_path / "map.jpg"
-    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
 
-    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
 
     assert result.exit_code == 0
     task = tasks[0]
@@ -284,7 +284,7 @@ def test_mapmerge(
     assert task.save == {"format": "JPEG", "quality": 92}
 
     output = tmp_path / "default.png"
-    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
 
     assert result.exit_code == 0
     assert tasks[1].save == {"format": "PNG", "compress_level": 6}
@@ -292,7 +292,7 @@ def test_mapmerge(
     output = tmp_path / "map.png"
     result = CliRunner().invoke(
         scfile,
-        ["mapmerge", str(source), str(output), "--png-compression", "9"],
+        ["maptiles", str(source), str(output), "--png-compression", "9"],
     )
 
     assert result.exit_code == 0
@@ -301,44 +301,44 @@ def test_mapmerge(
     output = tmp_path / "map.jpeg"
     result = CliRunner().invoke(
         scfile,
-        ["mapmerge", str(source), str(output), "--jpeg-quality", "95"],
+        ["maptiles", str(source), str(output), "--jpeg-quality", "95"],
     )
 
     assert result.exit_code == 0
     assert tasks[3].save == {"format": "JPEG", "quality": 95}
 
 
-def test_mapmerge_encoding_errors(
+def test_maptiles_encoding_errors(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
     source = tmp_path / "tiles"
     source.mkdir()
     copyfile(MAP_TILE, source / "r.0.0.ol")
-    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
     runner = CliRunner()
 
     result = runner.invoke(
         scfile,
-        ["mapmerge", str(source), str(tmp_path / "map.jpg"), "--png-compression", "6"],
+        ["maptiles", str(source), str(tmp_path / "map.jpg"), "--png-compression", "6"],
     )
     assert result.exit_code != 0
     assert "--png-compression requires PNG output" in result.output
 
     result = runner.invoke(
         scfile,
-        ["mapmerge", str(source), str(tmp_path / "map.png"), "--jpeg-quality", "92"],
+        ["maptiles", str(source), str(tmp_path / "map.png"), "--jpeg-quality", "92"],
     )
     assert result.exit_code != 0
     assert "--jpeg-quality requires JPEG output" in result.output
 
-    result = runner.invoke(scfile, ["mapmerge", str(source), str(tmp_path / "map.webp")])
+    result = runner.invoke(scfile, ["maptiles", str(source), str(tmp_path / "map.webp")])
     assert result.exit_code != 0
     assert "Output extension must be .jpg, .jpeg, or .png" in result.output
     assert not tasks
 
 
-def test_mapmerge_existing_output(
+def test_maptiles_existing_output(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
     monkeypatch,
@@ -348,41 +348,41 @@ def test_mapmerge_existing_output(
     copyfile(MAP_TILE, source / "r.0.0.ol")
     output = tmp_path / "map.jpg"
     output.touch()
-    command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    command_runner(maptiles_module, TaskKind.MAPTILES, False)
     warnings: list[str] = []
-    monkeypatch.setattr(mapmerge_module, "warn", warnings.append)
+    monkeypatch.setattr(maptiles_module, "warn", warnings.append)
 
-    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(output)])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(output)])
 
     assert result.exit_code == 0
     assert warnings == [f"Output file will be replaced: {output}"]
 
 
-def test_mapmerge_empty(
+def test_maptiles_empty(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
     source = tmp_path / "tiles"
     source.mkdir()
-    tasks = command_runner(mapmerge_module, TaskKind.MAPMERGE, False)
+    tasks = command_runner(maptiles_module, TaskKind.MAPTILES, False)
 
-    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(tmp_path / "map.jpg")])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(tmp_path / "map.jpg")])
 
     assert result.exit_code != 0
     assert "No map tiles found" in result.output
     assert not tasks
 
 
-def test_mapmerge_failure(
+def test_maptiles_failure(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
     source = tmp_path / "tiles"
     source.mkdir()
     copyfile(MAP_TILE, source / "r.0.0.ol")
-    command_runner(mapmerge_module, TaskKind.MAPMERGE, True)
+    command_runner(maptiles_module, TaskKind.MAPTILES, True)
 
-    result = CliRunner().invoke(scfile, ["mapmerge", str(source), str(tmp_path / "map.jpg")])
+    result = CliRunner().invoke(scfile, ["maptiles", str(source), str(tmp_path / "map.jpg")])
 
     assert result.exit_code == 1
 

@@ -45,7 +45,7 @@ MapCacheDir = click.Path(
     resolve_path=True,
 )
 
-MapMergeDir = click.Path(
+MapTilesDir = click.Path(
     path_type=Path,
     dir_okay=True,
     file_okay=False,
@@ -53,7 +53,7 @@ MapMergeDir = click.Path(
     resolve_path=True,
 )
 
-MapMergeOutput = click.Path(
+MapTilesOutput = click.Path(
     path_type=Path,
     dir_okay=False,
     file_okay=True,

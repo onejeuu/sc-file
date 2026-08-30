@@ -1,6 +1,6 @@
 """Library convert operations."""
 
-from . import animate, files, formats, mapcache, mapmerge, paths, regions
+from . import animate, files, formats, mapcache, maptiles, paths, regions
 from .animate import arms, body, face
 from .files import auto, manual
 from .formats import (
@@ -34,7 +34,7 @@ __all__ = (
     "formats",
     "manual",
     "mapcache",
-    "mapmerge",
+    "maptiles",
     "paths",
     "regions",
     "mcsa_to_obj",

@@ -7,7 +7,7 @@ class CliCommand(StrEnum):
     CONVERT = auto()
     ANIMATE = auto()
     MAPCACHE = auto()
-    MAPMERGE = auto()
+    MAPTILES = auto()
 
 
 class AnimateCommand(StrEnum):
@@ -32,7 +32,7 @@ class TaskKind(StrEnum):
     CONVERT = auto()
     ANIMATE = auto()
     MAPCACHE = auto()
-    MAPMERGE = auto()
+    MAPTILES = auto()
 
 
 class TaskOutcome(StrEnum):

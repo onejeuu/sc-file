@@ -11,49 +11,49 @@ from PySide6.QtWidgets import (
 
 from scfile.app.gui import strings
 from scfile.app.gui.styles import Styles
-from scfile.app.tasks.mapmerge import MapImageFormat
-from scfile.convert import mapmerge
+from scfile.app.tasks.maptiles import MapTilesImage
+from scfile.convert import maptiles
 
 
-class ImageEncodingWidget(QWidget):
+class MapTilesEncodingWidget(QWidget):
     changed = Signal(object)
     value_changed = Signal()
 
     def __init__(self):
         super().__init__()
         self._values = {
-            MapImageFormat.JPEG: mapmerge.JPEG_QUALITY,
-            MapImageFormat.PNG: mapmerge.PNG_COMPRESSION,
+            MapTilesImage.JPEG: maptiles.JPEG_QUALITY,
+            MapTilesImage.PNG: maptiles.PNG_COMPRESSION,
         }
         self._syncing = False
         self._build_ui()
 
-        self.format = MapImageFormat(mapmerge.DEFAULT_SAVE["format"])
+        self.format = MapTilesImage(maptiles.DEFAULT_SAVE["format"])
 
     @property
-    def format(self) -> MapImageFormat:
+    def format(self) -> MapTilesImage:
         return self._format
 
     @format.setter
-    def format(self, value: MapImageFormat) -> None:
+    def format(self, value: MapTilesImage) -> None:
         self._format = value
         self._buttons[value].setChecked(True)
         self._refresh()
 
     @property
     def jpeg_quality(self) -> int:
-        return self._values[MapImageFormat.JPEG]
+        return self._values[MapTilesImage.JPEG]
 
     @property
     def png_compression(self) -> int:
-        return self._values[MapImageFormat.PNG]
+        return self._values[MapTilesImage.PNG]
 
     @property
     def value(self) -> int:
         return self._values[self.format]
 
     @property
-    def save(self) -> mapmerge.SaveOptions:
+    def save(self) -> maptiles.SaveOptions:
         return self.format.save(self._values[self.format])
 
     def _build_ui(self) -> None:
@@ -69,8 +69,8 @@ class ImageEncodingWidget(QWidget):
 
         self.buttons = QButtonGroup(self)
         self.buttons.setExclusive(True)
-        self._buttons: dict[MapImageFormat, QPushButton] = {}
-        for image_format in MapImageFormat:
+        self._buttons: dict[MapTilesImage, QPushButton] = {}
+        for image_format in MapTilesImage:
             button = QPushButton(image_format.value)
             button.setCheckable(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -99,7 +99,7 @@ class ImageEncodingWidget(QWidget):
         layout.addWidget(self.spin)
 
     def _selected(self, button: QPushButton) -> None:
-        image_format = MapImageFormat(button.property("image_format"))
+        image_format = MapTilesImage(button.property("image_format"))
         self.format = image_format
         self.changed.emit(image_format)
 
@@ -107,17 +107,18 @@ class ImageEncodingWidget(QWidget):
         self._syncing = True
         try:
             match self.format:
-                case MapImageFormat.JPEG:
-                    self.label.setText(strings.get("label.mapmerge.quality"))
+                case MapTilesImage.JPEG:
+                    self.label.setText(strings.get("label.maptiles.quality"))
                     bounds = (0, 100)
-                case MapImageFormat.PNG:
-                    self.label.setText(strings.get("label.mapmerge.compression"))
+                case MapTilesImage.PNG:
+                    self.label.setText(strings.get("label.maptiles.compression"))
                     bounds = (0, 9)
 
             self.slider.setRange(*bounds)
             self.spin.setRange(*bounds)
             self.spin.setValue(self._values[self.format])
             self.slider.setValue(self._values[self.format])
+
         finally:
             self._syncing = False
 

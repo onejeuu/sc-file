@@ -66,7 +66,7 @@ General
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``COMMAND``
-  | Available commands: ``convert``, ``animate``, ``mapcache``, and ``mapmerge``.
+  | Available commands: ``convert``, ``animate``, ``mapcache``, and ``maptiles``.
   | When paths are supplied without a command, the CLI selects one from their names and formats.
 
 ``--version``
@@ -351,13 +351,13 @@ mapcache
   Show the result of every processed region.
 
 
-.. _cli-mapmerge:
+.. _cli-maptiles:
 
-mapmerge
+maptiles
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image.
-| :doc:`2D Map guide → <usage/mapmerge>`
+| :doc:`2D Map guide → <usage/maptiles>`
 
 ``SOURCE OUTPUT``
   Assemble tiles directly from one flat folder. ``OUTPUT`` must be an image file
@@ -366,7 +366,7 @@ mapmerge
   .. code-block:: bash
     :caption: Example
 
-    scfile mapmerge "D:/tiles" "D:/exports/zone.jpg"
+    scfile maptiles "D:/tiles" "D:/exports/zone.jpg"
 
 
 ``GAME MAP OUTPUT``
@@ -376,7 +376,7 @@ mapmerge
   .. code-block:: bash
     :caption: Example
 
-    scfile mapmerge "C:/Steam/steamapps/common/STALCRAFT" map "D:/exports/zone.png" --region ru
+    scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" map "D:/exports/zone.png" --region ru
 
 
 ``--jpeg-quality``

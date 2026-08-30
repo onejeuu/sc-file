@@ -9,19 +9,19 @@ from scfile.app.feedback import TaskFeedback
 from scfile.app.game import GameRegion, GameRoot
 from scfile.app.localization import system_language
 from scfile.app.tasks import execute
-from scfile.app.tasks.mapmerge import MapImageFormat, MapMergeTask
-from scfile.convert import mapmerge as maps
+from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
+from scfile.convert import maptiles as maps
 from scfile.options import Options
 
 
-@click.command(name=CliCommand.MAPMERGE)
-@click.argument("SOURCE", type=params.MapMergeDir)
+@click.command(name=CliCommand.MAPTILES)
+@click.argument("SOURCE", type=params.MapTilesDir)
 @click.argument("TARGET")
-@click.argument("OUTPUT", type=params.MapMergeOutput, required=False)
+@click.argument("OUTPUT", type=params.MapTilesOutput, required=False)
 @click.option("--region", metavar="REGION", help="Game region for localized map assets.")
 @click.option("--jpeg-quality", type=click.IntRange(0, 100), help="JPEG quality.")
 @click.option("--png-compression", type=click.IntRange(0, 9), help="PNG compression level.")
-def mapmerge(
+def maptiles(
     source: Path,
     target: str,
     output: Path | None,
@@ -29,7 +29,7 @@ def mapmerge(
     jpeg_quality: int | None,
     png_compression: int | None,
 ) -> None:
-    """Merge 2D map tiles."""
+    """Assemble 2D map tiles."""
 
     task = _task(source, target, output, region, jpeg_quality, png_compression)
 
@@ -51,7 +51,7 @@ def _task(
     region: str | None,
     jpeg_quality: int | None,
     png_compression: int | None,
-) -> MapMergeTask:
+) -> MapTilesTask:
     if output is None:
         output = Path(target).expanduser().resolve()
         if output.is_dir():
@@ -61,7 +61,7 @@ def _task(
         tiles = _game(source, target, region)
 
     save = _save(output, jpeg_quality, png_compression)
-    return MapMergeTask(tiles, output, Options(), save)
+    return MapTilesTask(tiles, output, Options(), save)
 
 
 def _flat(source: Path, region: str | None) -> maps.Tiles:
@@ -96,19 +96,19 @@ def _save(
     jpeg_quality: int | None,
     png_compression: int | None,
 ) -> maps.SaveOptions:
-    image_format = MapImageFormat.parse(output)
+    image_format = MapTilesImage.parse(output)
     if image_format is None:
         raise click.BadParameter("Output extension must be .jpg, .jpeg, or .png.", param_hint="OUTPUT")
 
     match image_format:
-        case MapImageFormat.JPEG:
+        case MapTilesImage.JPEG:
             if png_compression is not None:
                 raise click.BadParameter(
                     "--png-compression requires PNG output.",
                     param_hint="--png-compression",
                 )
             return image_format.save(jpeg_quality)
-        case MapImageFormat.PNG:
+        case MapTilesImage.PNG:
             if jpeg_quality is not None:
                 raise click.BadParameter(
                     "--jpeg-quality requires JPEG output.",

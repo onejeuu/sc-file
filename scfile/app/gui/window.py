@@ -24,7 +24,7 @@ from scfile.app.gui.styles import Styles
 from scfile.app.gui.tabs.animate import AnimateTab
 from scfile.app.gui.tabs.convert import ConvertTab
 from scfile.app.gui.tabs.mapcache import MapCacheTab
-from scfile.app.gui.tabs.mapmerge import MapMergeTab
+from scfile.app.gui.tabs.maptiles import MapTilesTab
 from scfile.app.gui.tabs.settings import SettingsTab
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.footer import FooterWidget
@@ -105,22 +105,22 @@ class MainWindow(QMainWindow):
         self.mapcache = MapCacheTab(self.tasks, self.settings)
         self._add_tab(self.mapcache, "tab.mapcache", "assets/tab.mapcache.png")
 
-        self.mapmerge = MapMergeTab(self.tasks, self.settings)
-        self._add_tab(self.mapmerge, "tab.mapmerge", "assets/tab.mapmerge.png")
+        self.maptiles = MapTilesTab(self.tasks, self.settings)
+        self._add_tab(self.maptiles, "tab.maptiles", "assets/tab.maptiles.png")
         self.sidebar.addStretch()
 
         self.settings_tab = SettingsTab(self.settings)
         self.settings_tab.changed.connect(self._save_settings)
         self.settings_tab.game_root_changed.connect(self.mapcache.apply_game_root)
         self.settings_tab.game_root_changed.connect(self.animate.apply_game_root)
-        self.settings_tab.game_root_changed.connect(self.mapmerge.apply_game_root)
+        self.settings_tab.game_root_changed.connect(self.maptiles.apply_game_root)
         self.settings_tab.path_resolution_changed.connect(self.mapcache.apply_path_resolution)
         self.settings_tab.path_resolution_changed.connect(self.animate.apply_path_resolution)
-        self.settings_tab.path_resolution_changed.connect(self.mapmerge.apply_path_resolution)
+        self.settings_tab.path_resolution_changed.connect(self.maptiles.apply_path_resolution)
         self.settings_tab.verbose_changed.connect(self.feedback.set_verbose)
         self.settings_tab.export_path_changed.connect(self.convert.apply_export_path)
         self.settings_tab.export_path_changed.connect(self.animate.apply_export_path)
-        self.settings_tab.export_path_changed.connect(self.mapmerge.apply_export_path)
+        self.settings_tab.export_path_changed.connect(self.maptiles.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
         self.navigation.buttons()[0].setChecked(True)

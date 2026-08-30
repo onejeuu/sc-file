@@ -21,7 +21,7 @@ TASKS = {
     TaskKind.CONVERT: ("Converting", "Converted"),
     TaskKind.ANIMATE: ("Exporting", "Exported"),
     TaskKind.MAPCACHE: ("Merging", "Merged"),
-    TaskKind.MAPMERGE: ("Assembling", "Assembled"),
+    TaskKind.MAPTILES: ("Assembling", "Assembled"),
 }
 
 OUTCOMES = {

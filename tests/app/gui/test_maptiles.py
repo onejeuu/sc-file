@@ -5,9 +5,9 @@ from PySide6.QtWidgets import QApplication
 
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.tabs.mapmerge import MapMergeTab
+from scfile.app.gui.tabs.maptiles import MapTilesTab
 from scfile.app.gui.tasks import TaskManager
-from scfile.app.tasks.mapmerge import MapImageFormat
+from scfile.app.tasks.maptiles import MapTilesImage
 from scfile.convert.regions import Size
 
 
@@ -19,7 +19,7 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     folder.mkdir()
     copyfile(SOURCE, folder / "r.0.0.ol")
     settings = Settings(export_path=tmp_path / "export")
-    tab = MapMergeTab(TaskManager(), settings)
+    tab = MapTilesTab(TaskManager(), settings)
 
     tab.source.value = str(folder)
 
@@ -27,15 +27,15 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     assert not tab.region.count()
     assert not tab.map.isEnabled()
     assert not tab.map.count()
-    assert tab.map.placeholderText() == strings.get("placeholder.mapmerge.map")
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.map")
+    assert tab.map.placeholderText() == strings.get("placeholder.maptiles.map")
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.map")
     assert Path(tab.output.value) == settings.export_path / "map.jpg"
-    assert tab.encoding.format is MapImageFormat.JPEG
-    assert tab.encoding._buttons[MapImageFormat.JPEG].isChecked()
+    assert tab.encoding.format is MapTilesImage.JPEG
+    assert tab.encoding._buttons[MapTilesImage.JPEG].isChecked()
     assert tab.output.default_suffix == ".jpg"
     assert tab.encoding.jpeg_quality == 92
     assert tab.encoding.png_compression == 6
-    assert tab.submit.text() == f"{strings.get('button.mapmerge')} (1)"
+    assert tab.submit.text() == f"{strings.get('button.maptiles')} (1)"
     assert tab.estimate.text()
     assert not tab.estimate.isHidden()
     assert tab._submit_error() is None
@@ -48,11 +48,11 @@ def test_form(qapp: QApplication, tmp_path: Path) -> None:
     output.parent.mkdir()
     output.touch()
     tab._sync()
-    assert strings.get("warning.mapmerge.overwrite") in tab.warnings.text()
+    assert strings.get("warning.maptiles.overwrite") in tab.warnings.text()
 
     tab.output.value = str(tmp_path / "map.png")
     tab._edit_output(tab.output.value)
-    assert tab.encoding.format is MapImageFormat.PNG
+    assert tab.encoding.format is MapTilesImage.PNG
     assert tab._submit_error() is None
     assert not tab.output.invalid
 
@@ -64,7 +64,7 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
     folder = tmp_path / "map"
     folder.mkdir()
     copyfile(SOURCE, folder / "r.0.0.ol")
-    tab = MapMergeTab(TaskManager(), Settings(export_path=tmp_path))
+    tab = MapTilesTab(TaskManager(), Settings(export_path=tmp_path))
     tab.source.value = str(folder)
     tab.image_size = Size(20_000, 15_000)
     tab._sync()
@@ -72,8 +72,8 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
 
     tab.encoding.spin.setValue(95)
     assert tab.estimate.text() != estimate
-    tab.encoding._buttons[MapImageFormat.PNG].click()
-    assert tab.encoding.format is MapImageFormat.PNG
+    tab.encoding._buttons[MapTilesImage.PNG].click()
+    assert tab.encoding.format is MapTilesImage.PNG
     assert Path(tab.output.value) == tmp_path / "map.png"
     assert tab.output.default_suffix == ".png"
     assert tab.encoding.slider.maximum() == 9
@@ -81,19 +81,19 @@ def test_encoding(qapp: QApplication, tmp_path: Path) -> None:
     tab.encoding.slider.setValue(8)
     assert tab.encoding.spin.value() == 8
     assert tab.encoding.save == {"format": "PNG", "compress_level": 8}
-    tab.encoding._buttons[MapImageFormat.JPEG].click()
+    tab.encoding._buttons[MapTilesImage.JPEG].click()
     assert Path(tab.output.value) == tmp_path / "map.jpg"
     assert tab.encoding.spin.value() == 95
     assert tab.encoding.save == {"format": "JPEG", "quality": 95}
 
     tab.output.value = str(tmp_path / "manual.jpeg")
     tab._edit_output(tab.output.value)
-    assert tab.encoding.format is MapImageFormat.JPEG
+    assert tab.encoding.format is MapTilesImage.JPEG
     assert Path(tab.output.value) == tmp_path / "manual.jpeg"
 
     tab.output.value = str(tmp_path / "manual.unknown")
     tab._edit_output(tab.output.value)
-    assert tab.encoding.format is MapImageFormat.JPEG
+    assert tab.encoding.format is MapTilesImage.JPEG
     assert tab._output_invalid()
 
     tab.deleteLater()
@@ -116,7 +116,7 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
     patch.mkdir(parents=True)
     copyfile(SOURCE, patch / "r.1.0.ol")
 
-    tab = MapMergeTab(TaskManager(), Settings(game_root=game, export_path=tmp_path / "export"))
+    tab = MapTilesTab(TaskManager(), Settings(game_root=game, export_path=tmp_path / "export"))
 
     assert Path(tab.source.value) == pda
     assert tab.region.isEnabled()
@@ -124,13 +124,13 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
     assert tab.region.currentData() == "ru"
     assert tab.map.isEnabled()
     assert {tab.map.itemData(index) for index in range(tab.map.count())} == {"map", "map_bar_save", "unknown"}
-    assert strings.get("mapmerge.map.unknown", "unknown") == "unknown"
+    assert strings.get("maptiles.map.unknown", "unknown") == "unknown"
     assert Path(tab.output.value) == tmp_path / "export/map.jpg"
-    assert tab.encoding._buttons[MapImageFormat.JPEG].isChecked()
+    assert tab.encoding._buttons[MapTilesImage.JPEG].isChecked()
     assert tab._submit_error() is None
     assert tab._sources() == (pda / "map", patch)
 
-    tab.encoding._buttons[MapImageFormat.PNG].click()
+    tab.encoding._buttons[MapTilesImage.PNG].click()
     assert Path(tab.output.value) == tmp_path / "export/map.png"
 
     index = tab.map.findData("unknown")
@@ -146,7 +146,7 @@ def test_game_maps(qapp: QApplication, tmp_path: Path) -> None:
     assert tab.map.count() == 3
     assert tab.map.currentData() == "map"
     assert tab.region.isEnabled()
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.fixed.map")
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.fixed.map")
     assert Path(tab.output.value) == tmp_path / "export/map.png"
 
     tab.deleteLater()
@@ -163,7 +163,7 @@ def test_game_region(qapp: QApplication, tmp_path: Path) -> None:
         folder.mkdir(parents=True)
         copyfile(SOURCE, folder / "r.0.0.ol")
 
-    tab = MapMergeTab(TaskManager(), Settings(game_root=game))
+    tab = MapTilesTab(TaskManager(), Settings(game_root=game))
 
     index = tab.region.findData("ru")
     tab.region.setCurrentIndex(index)
@@ -186,7 +186,7 @@ def test_game_maps_without_path_resolution(qapp: QApplication, tmp_path: Path) -
     folder.mkdir(parents=True)
     copyfile(SOURCE, folder / "r.0.0.ol")
 
-    tab = MapMergeTab(TaskManager(), Settings(resolve_paths=False))
+    tab = MapTilesTab(TaskManager(), Settings(resolve_paths=False))
     tab.source.value = str(game)
 
     assert not tab.map.isEnabled()
@@ -203,7 +203,7 @@ def test_game_maps_without_path_resolution(qapp: QApplication, tmp_path: Path) -
     assert not tab.map.isEnabled()
     assert tab.map.count() == 1
     assert tab.map.currentData() == "map"
-    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.mapmerge.fixed.map")
+    assert tab.map_cursor.overlay.toolTip() == strings.get("tooltip.maptiles.fixed.map")
 
     tab.deleteLater()
     qapp.processEvents()

@@ -1,4 +1,4 @@
-"""Flat map merging operations."""
+"""Flat map tile assembly operations."""
 
 from collections.abc import Callable, Generator, Iterable, Mapping
 from contextlib import contextmanager
@@ -28,7 +28,7 @@ type Tiles = dict[Region, Path]
 type Progress = Callable[[Path], None] | None
 
 
-class MergeResult(NamedTuple):
+class AssembleResult(NamedTuple):
     output: Path
     tiles: int
 
@@ -71,15 +71,15 @@ def measure(
     return bounds.size(_tile_size(tiles, options, cancelled))
 
 
-def merge(
+def assemble(
     source: types.SourceLike,
     output: types.SourceLike,
     options: Options | None = None,
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
     progress: Progress = None,
-) -> MergeResult:
-    """Merge map tiles from one folder into an image."""
+) -> AssembleResult:
+    """Assemble map tiles from one folder into an image."""
 
     output_path = Path(output)
     tiles = scan(source)
@@ -96,8 +96,8 @@ def render(
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
     progress: Progress = None,
-) -> MergeResult:
-    """Merge normalized map tiles into an image."""
+) -> AssembleResult:
+    """Assemble normalized map tiles into an image."""
 
     output_path = Path(output)
     options = options or Options()
@@ -132,7 +132,7 @@ def render(
     finally:
         canvas.close()
 
-    return MergeResult(output_path, len(tiles))
+    return AssembleResult(output_path, len(tiles))
 
 
 def _tile(path: Path) -> tuple[Region, Path] | None:

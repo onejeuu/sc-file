@@ -11,14 +11,14 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.disabled import DisabledCursor
-from scfile.app.gui.widgets.encoding import ImageEncodingWidget
 from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
+from scfile.app.gui.widgets.tiles import MapTilesEncodingWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.localization import system_language
-from scfile.app.tasks.mapmerge import MapImageFormat, MapMergeTask
-from scfile.convert import mapmerge
+from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
+from scfile.convert import maptiles
 from scfile.convert.regions import Size
 from scfile.options import Options
 
@@ -26,7 +26,7 @@ from scfile.options import Options
 IGNORED_MAP_SUFFIXES = ("textures", "sound", "overlay")
 
 
-class MapMergeTab(QWidget):
+class MapTilesTab(QWidget):
     def __init__(self, tasks: TaskManager, settings: Settings):
         super().__init__()
         self.tasks = tasks
@@ -35,7 +35,7 @@ class MapMergeTab(QWidget):
         self.output_touched = False
         self.running = False
         self.game: GameRoot | None = None
-        self.tiles: mapmerge.Tiles = {}
+        self.tiles: maptiles.Tiles = {}
         self.image_size: Size | None = None
         self._build_ui()
 
@@ -51,40 +51,40 @@ class MapMergeTab(QWidget):
         layout.setSpacing(10)
 
         self.source = PathField(
-            f"{strings.get('label.mapmerge.source')} (.ol)",
+            f"{strings.get('label.maptiles.source')} (.ol)",
             placeholder="pda/map",
-            caption=strings.get("dialog.mapmerge.source"),
+            caption=strings.get("dialog.maptiles.source"),
         )
         self.source.changed.connect(self._edit_source)
         self.source.text_changed.connect(self._source_changed)
 
-        self.region_label = QLabel(strings.get("label.mapmerge.region"))
+        self.region_label = QLabel(strings.get("label.maptiles.region"))
         self.region_label.setStyleSheet(Styles.LABEL)
         self.region = QComboBox()
         self.region.setStyleSheet(Styles.COMBO)
         self.region.setCursor(Qt.CursorShape.PointingHandCursor)
         self.region.setItemDelegate(QStyledItemDelegate())
         self.region.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.region.setPlaceholderText(strings.get("placeholder.mapmerge.region"))
+        self.region.setPlaceholderText(strings.get("placeholder.maptiles.region"))
         self.region.activated.connect(self._region_changed)
 
-        self.map_label = QLabel(strings.get("label.mapmerge.map"))
+        self.map_label = QLabel(strings.get("label.maptiles.map"))
         self.map_label.setStyleSheet(Styles.LABEL)
         self.map = QComboBox()
         self.map.setStyleSheet(Styles.COMBO)
         self.map.setCursor(Qt.CursorShape.PointingHandCursor)
         self.map.setItemDelegate(QStyledItemDelegate())
         self.map.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.map.setPlaceholderText(strings.get("placeholder.mapmerge.map"))
+        self.map.setPlaceholderText(strings.get("placeholder.maptiles.map"))
         self.map.activated.connect(self._map_changed)
 
-        self.encoding = ImageEncodingWidget()
+        self.encoding = MapTilesEncodingWidget()
         self.encoding.changed.connect(self._format_changed)
         self.encoding.value_changed.connect(self._sync)
         self.output = PathField(
-            strings.get("label.mapmerge.output"),
+            strings.get("label.maptiles.output"),
             placeholder=strings.get("placeholder.path"),
-            caption=strings.get("dialog.mapmerge.output"),
+            caption=strings.get("dialog.maptiles.output"),
             mode="save",
             file_filter="Images (*.jpg *.jpeg *.png)",
             default_suffix=self.encoding.format.suffix,
@@ -99,9 +99,9 @@ class MapMergeTab(QWidget):
         layout.addWidget(self.output)
         layout.addWidget(self.encoding)
         self.region_cursor = DisabledCursor(self.region)
-        self.region_cursor.set(False, strings.get("tooltip.mapmerge.region"))
+        self.region_cursor.set(False, strings.get("tooltip.maptiles.region"))
         self.map_cursor = DisabledCursor(self.map)
-        self.map_cursor.set(False, strings.get("tooltip.mapmerge.map"))
+        self.map_cursor.set(False, strings.get("tooltip.maptiles.map"))
 
         layout.addStretch()
 
@@ -114,11 +114,11 @@ class MapMergeTab(QWidget):
         notice.addWidget(self.estimate)
         notice.addStretch()
         language = strings.LANG.lower()
-        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/mapmerge.html"
+        url = f"https://sc-file.readthedocs.io/{language}/latest/usage/maptiles.html"
         notice.addWidget(LinkWidget(strings.get("label.guide"), url))
         layout.addLayout(notice)
 
-        self.submit = ProgressButton(strings.get("button.mapmerge"))
+        self.submit = ProgressButton(strings.get("button.maptiles"))
         self.submit.setFixedHeight(50)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -235,7 +235,7 @@ class MapMergeTab(QWidget):
 
         enabled = bool(regions)
         self.region_label.setEnabled(enabled)
-        self.region_cursor.set(enabled, strings.get("tooltip.mapmerge.region"))
+        self.region_cursor.set(enabled, strings.get("tooltip.maptiles.region"))
 
     def _load_maps(self) -> None:
         if self.game is None:
@@ -244,23 +244,23 @@ class MapMergeTab(QWidget):
         names = self._map_names(self.game, self._region())
         fixed = self._fixed_map()
         if fixed is not None and fixed not in names:
-            self._clear_maps("tooltip.mapmerge.empty.map")
+            self._clear_maps("tooltip.maptiles.empty.map")
             return
 
         current = fixed or self.map.currentData()
         self.map.clear()
         for name in names:
-            title = strings.get(f"mapmerge.map.{name}", name)
+            title = strings.get(f"maptiles.map.{name}", name)
             label = name if title == name else f"{title} ({name})"
             self.map.addItem(label, name)
 
         if not names:
-            self._disable_maps("tooltip.mapmerge.empty.map")
+            self._disable_maps("tooltip.maptiles.empty.map")
             return
 
         enabled = fixed is None
         self.map_label.setEnabled(enabled)
-        tooltip = "tooltip.mapmerge.map" if enabled else "tooltip.mapmerge.fixed.map"
+        tooltip = "tooltip.maptiles.map" if enabled else "tooltip.maptiles.fixed.map"
         self.map_cursor.set(enabled, strings.get(tooltip))
         self.map.setCurrentIndex(names.index(current) if current in names else 0)
 
@@ -268,10 +268,10 @@ class MapMergeTab(QWidget):
         self.game = None
         self.region.clear()
         self.region_label.setEnabled(False)
-        self.region_cursor.set(False, strings.get("tooltip.mapmerge.region"))
+        self.region_cursor.set(False, strings.get("tooltip.maptiles.region"))
         self._clear_maps()
 
-    def _clear_maps(self, tooltip: str = "tooltip.mapmerge.map") -> None:
+    def _clear_maps(self, tooltip: str = "tooltip.maptiles.map") -> None:
         self.map.clear()
         self._disable_maps(tooltip)
 
@@ -311,7 +311,7 @@ class MapMergeTab(QWidget):
         maps: list[str] = []
         for name in sorted(names):
             try:
-                if mapmerge.collect(game.asset_paths(Path("pda") / name, region)):
+                if maptiles.collect(game.asset_paths(Path("pda") / name, region)):
                     maps.append(name)
 
             except OSError:
@@ -325,18 +325,18 @@ class MapMergeTab(QWidget):
 
     def _edit_output(self, _: str) -> None:
         self.output_touched = True
-        if image_format := MapImageFormat.parse(Path(self.output.value.strip())):
+        if image_format := MapTilesImage.parse(Path(self.output.value.strip())):
             self._set_format(image_format)
         self._sync()
 
-    def _format_changed(self, image_format: MapImageFormat) -> None:
+    def _format_changed(self, image_format: MapTilesImage) -> None:
         self.output.default_suffix = image_format.suffix
         if value := self.output.value.strip():
             self.output.value = Path(value).with_suffix(image_format.suffix).as_posix()
             self.output_touched = True
         self._sync()
 
-    def _set_format(self, image_format: MapImageFormat) -> None:
+    def _set_format(self, image_format: MapTilesImage) -> None:
         self.encoding.format = image_format
         self.output.default_suffix = image_format.suffix
 
@@ -365,7 +365,7 @@ class MapMergeTab(QWidget):
     def _output_invalid(self) -> bool:
         value = self.output.value.strip()
         output = Path(value)
-        return not value or output.is_dir() or MapImageFormat.parse(output) is None
+        return not value or output.is_dir() or MapTilesImage.parse(output) is None
 
     def _submit_error(self) -> str | None:
         errors = (
@@ -379,20 +379,20 @@ class MapMergeTab(QWidget):
         self.output.initial_path = (suggested or self.settings.export_path).as_posix()
 
         source_invalid = self.source_touched and self._source_invalid()
-        source_error = strings.get("tooltip.mapmerge.invalid.source") if source_invalid else None
+        source_error = strings.get("tooltip.maptiles.invalid.source") if source_invalid else None
         self.source.set_error(source_error)
 
         output_invalid = self.output_touched and self._output_invalid()
-        output_error = strings.get("tooltip.mapmerge.invalid.output") if output_invalid else None
+        output_error = strings.get("tooltip.maptiles.invalid.output") if output_invalid else None
         self.output.set_error(output_error)
 
         output = Path(self.output.value.strip())
-        warnings = (strings.get("warning.mapmerge.overwrite"),) if output.is_file() else ()
+        warnings = (strings.get("warning.maptiles.overwrite"),) if output.is_file() else ()
         self.warnings.set_messages(warnings)
         self._update_estimate()
 
         if not self.submit.running:
-            self.submit.setText(f"{strings.get('button.mapmerge')} ({len(self.tiles):,})")
+            self.submit.setText(f"{strings.get('button.maptiles')} ({len(self.tiles):,})")
 
         error = self._submit_error()
         self.submit_cursor.set(self.running or error is None, strings.get(error or ""))
@@ -406,7 +406,7 @@ class MapMergeTab(QWidget):
         if not self.tiles:
             return
 
-        task = MapMergeTask(
+        task = MapTilesTask(
             self.tiles,
             Path(self.output.value.strip()),
             Options(),
@@ -437,7 +437,7 @@ class MapMergeTab(QWidget):
 
     def _refresh(self) -> None:
         try:
-            self.tiles = mapmerge.collect(self._sources())
+            self.tiles = maptiles.collect(self._sources())
         except OSError:
             self.tiles = {}
 
@@ -446,13 +446,13 @@ class MapMergeTab(QWidget):
             return
 
         try:
-            self.image_size = mapmerge.measure(self.tiles, Options())
+            self.image_size = maptiles.measure(self.tiles, Options())
         except (OSError, exceptions.ScFileException):
             pass
 
     def _update_estimate(self) -> None:
         value = self.output.value.strip()
-        image_format = MapImageFormat.parse(Path(value)) if value else None
+        image_format = MapTilesImage.parse(Path(value)) if value else None
         if image_format is None or self.image_size is None:
             self.estimate.clear()
             self.estimate.hide()
@@ -463,5 +463,5 @@ class MapMergeTab(QWidget):
         lower_mb = max(1, round(lower / 1024**2))
         upper_mb = max(lower_mb, round(upper / 1024**2))
         size = str(lower_mb) if lower_mb == upper_mb else f"{lower_mb}–{upper_mb}"
-        self.estimate.setText(strings.get("mapmerge.estimate").format(size=size))
+        self.estimate.setText(strings.get("maptiles.estimate").format(size=size))
         self.estimate.show()

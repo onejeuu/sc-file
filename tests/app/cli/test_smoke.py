@@ -58,7 +58,7 @@ def _copy(source: Path, destination: Path) -> Path:
         ["animate", "face", "--help"],
         ["animate", "body", "--help"],
         ["mapcache", "--help"],
-        ["mapmerge", "--help"],
+        ["maptiles", "--help"],
     ],
 )
 def test_cli_help_smoke(args: list[str]) -> None:
