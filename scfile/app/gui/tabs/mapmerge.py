@@ -110,7 +110,7 @@ class MapMergeTab(QWidget):
 
         notice = QHBoxLayout()
         self.estimate = QLabel()
-        self.estimate.setStyleSheet(Styles.HINT)
+        self.estimate.setStyleSheet(Styles.INFO)
         notice.addWidget(self.estimate)
         notice.addStretch()
         language = strings.LANG.lower()

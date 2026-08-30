@@ -3,7 +3,7 @@ from pathlib import Path
 from scfile import exceptions
 from scfile.app.events import TaskItem, TaskProgress, TaskStarted
 from scfile.app.tasks import TaskContext, execute
-from scfile.app.tasks.mapmerge import MapMergeTask
+from scfile.app.tasks.mapmerge import MapImageFormat, MapMergeTask
 from scfile.convert import mapmerge
 from scfile.options import Options
 
@@ -48,3 +48,9 @@ def test_cancelled(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(mapmerge, "render", interrupted)
 
     assert len(list(task.run(TaskContext()))) == 1
+
+
+def test_image_size_estimate() -> None:
+    assert MapImageFormat.JPEG.estimate(1_000, 92) == (100, 180)
+    assert MapImageFormat.PNG.estimate(1_000, 0) == (3_000, 3_000)
+    assert MapImageFormat.PNG.estimate(1_000, 6) == (483, 959)

@@ -112,17 +112,17 @@ class MapCacheTab(QWidget):
         layout.addLayout(title_row)
 
         version = QLabel(strings.get("mapcache.version"))
-        version.setStyleSheet(Styles.MAPCACHE)
+        version.setStyleSheet(Styles.INFO)
         layout.addWidget(version)
 
         limitation = QLabel(strings.get("mapcache.limitation"))
-        limitation.setStyleSheet(Styles.MAPCACHE)
+        limitation.setStyleSheet(Styles.INFO)
         limitation.setWordWrap(True)
         layout.addWidget(limitation)
 
         footer = QHBoxLayout()
         credit = QLabel(strings.get("mapcache.credit"))
-        credit.setStyleSheet(Styles.MAPCACHE)
+        credit.setStyleSheet(Styles.INFO)
         footer.addWidget(credit)
         footer.addStretch()
 

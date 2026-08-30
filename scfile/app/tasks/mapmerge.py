@@ -48,13 +48,13 @@ class MapImageFormat(StrEnum):
         match self:
             case self.JPEG:
                 scale = (10 / (102 - value)) ** 0.8
-                return round(pixels * scale * 0.10), round(pixels * scale * 0.20)
+                return round(pixels * scale * 0.10), round(pixels * scale * 0.18)
             case self.PNG:
                 if value == 0:
                     size = pixels * 3
                     return size, size
-                scale = 1 + 0.6 / value**2.5
-                return round(pixels * scale * 0.5), round(pixels * scale)
+                scale = 0.63 + (0.46 / value**1.5)
+                return round(pixels * scale * 0.73), round(pixels * scale * 1.45)
 
 
 @dataclass(frozen=True, slots=True)
