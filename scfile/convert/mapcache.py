@@ -16,7 +16,7 @@ from .regions import CancelCheck, Region
 
 PREFIX = "reg."
 MCA_PREFIX = "r."
-MCA_SUFFIX = formats.McaEncoder.suffix()
+MCA_SUFFIX = ".mca"
 BACKUP_SUFFIX = ".bck"
 
 type Regions = dict[Region, list[Path]]

@@ -1,7 +1,8 @@
 """Content representation containers."""
 
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import Any, ClassVar
+from warnings import warn
 
 from scfile.enums import FileKind
 
@@ -14,6 +15,26 @@ type DocumentPrimitive = int | float | bytes | str
 type DocumentValue = None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]
 
 type ArchiveEntry = tuple[str, bytes]
+
+
+def _deprecated(name: str, replacement: str) -> None:
+    warn(f"{name} is deprecated; use {replacement} instead.", DeprecationWarning, stacklevel=3)
+
+
+def _alias(name: str, target: str) -> property:
+    parent, _, attribute = target.rpartition(".")
+
+    def get(content: Any) -> Any:
+        cls = type(content).__name__
+        _deprecated(f"{cls}.{name}", f"{cls}.{target}")
+        return getattr(getattr(content, parent) if parent else content, attribute)
+
+    def set(content: Any, value: Any) -> None:
+        cls = type(content).__name__
+        _deprecated(f"{cls}.{name}", f"{cls}.{target}")
+        setattr(getattr(content, parent) if parent else content, attribute, value)
+
+    return property(get, set)
 
 
 class BaseContent:
@@ -38,7 +59,6 @@ class ModelContent(BaseContent):
         return self.scene.has(feature)
 
 
-# TODO: deprecated aliases
 @dataclass
 class TextureContent(BaseContent):
     """Content representation of texture."""
@@ -49,6 +69,10 @@ class TextureContent(BaseContent):
     height: int = 0
     meta: TextureMeta = field(default_factory=TextureMeta)
     texture: Texture = field(default_factory=DefaultTexture)
+
+    mipmap_count = _alias("mipmap_count", "meta.mipmap_count")
+    format = _alias("format", "meta.format")
+    path_hash = _alias("path_hash", "meta.path_hash")
 
     @property
     def is_cubemap(self) -> bool:
@@ -98,7 +122,6 @@ class DocumentContent(BaseContent):
     value: DocumentValue = None
 
 
-# TODO: deprecated aliases
 @dataclass
 class RegionContent(BaseContent):
     """Content representation of world region."""
@@ -113,3 +136,8 @@ class RegionContent(BaseContent):
     uuids: list[bytes] = field(default_factory=list)
 
     chunks: list[RegionChunk] = field(default_factory=list)
+
+    rx = _alias("rx", "x")
+    rz = _alias("rz", "z")
+    sector_offsets = _alias("sector_offsets", "offsets")
+    sector_counts = _alias("sector_counts", "counts")
