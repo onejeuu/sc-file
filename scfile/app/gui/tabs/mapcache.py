@@ -97,23 +97,22 @@ class MapCacheTab(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        title_row = QHBoxLayout()
-        title_row.setContentsMargins(0, 0, 0, 0)
+        header = QWidget()
+        header.setToolTip(strings.get("tooltip.experimental"))
+        title_row = QHBoxLayout(header)
+        title_row.setContentsMargins(0, 1, 0, 1)
         title_row.setSpacing(4)
+
         experimental = QLabel(strings.get("label.experimental"))
         experimental.setStyleSheet(Styles.LABEL)
         experimental.setToolTip(strings.get("tooltip.experimental"))
         title_row.addWidget(experimental)
 
-        title = QLabel(strings.get("mapcache.preview"))
-        title.setStyleSheet(Styles.LABEL)
-        title_row.addWidget(title)
+        format_label = QLabel(strings.get("mapcache.format"))
+        format_label.setStyleSheet(Styles.INFO)
+        title_row.addWidget(format_label)
         title_row.addStretch()
-        layout.addLayout(title_row)
-
-        version = QLabel(strings.get("mapcache.version"))
-        version.setStyleSheet(Styles.INFO)
-        layout.addWidget(version)
+        layout.addWidget(header)
 
         limitation = QLabel(strings.get("mapcache.limitation"))
         limitation.setStyleSheet(Styles.INFO)
