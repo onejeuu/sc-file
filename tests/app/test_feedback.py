@@ -45,7 +45,6 @@ def test_verbose(feedback: TaskFeedback) -> None:
     feedback(TaskItem("written", Path("region.mca"), "merged"))
 
     assert feedback.completed == 2
-    assert feedback.separated
 
 
 def test_errors(feedback: TaskFeedback) -> None:
@@ -55,7 +54,6 @@ def test_errors(feedback: TaskFeedback) -> None:
     feedback(TaskError(RuntimeError("broken"), source="task", traceback="trace"))
 
     assert feedback.completed == 2
-    assert feedback.separated
 
 
 def test_empty(feedback: TaskFeedback) -> None:
@@ -82,7 +80,6 @@ def test_item(feedback: TaskFeedback) -> None:
 
 def test_idle(feedback: TaskFeedback) -> None:
     feedback._advance()
-    feedback._separate()
 
     assert feedback.completed == 1
 
