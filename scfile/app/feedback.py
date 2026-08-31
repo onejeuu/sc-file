@@ -169,6 +169,15 @@ class TaskFeedback:
         if event.total == 0:
             return
 
+        progress = (
+            (
+                BarColumn(bar_width=32),
+                TaskProgressColumn(),
+                MofNCompleteColumn(),
+            )
+            if event.total > 1
+            else ()
+        )
         self.progress = ProgressBlock(
             StatusColumn(),
             TextColumn(
@@ -176,9 +185,7 @@ class TaskFeedback:
                 style="bold",
                 table_column=Column(width=10, no_wrap=True),
             ),
-            BarColumn(bar_width=32),
-            TaskProgressColumn(),
-            MofNCompleteColumn(),
+            *progress,
             ElapsedColumn(),
             console=self.console,
         )
