@@ -23,6 +23,7 @@ from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress
 
 
 class TaskText(NamedTuple):
+    header: str
     running: str
     finished: str
 
@@ -65,10 +66,10 @@ CANCELLED = Marker("~", "yellow")
 SKIPPED = Marker("•", "blue")
 
 TASKS: dict[TaskKind, TaskText] = {
-    TaskKind.CONVERT: TaskText("Converting", "Converted"),
-    TaskKind.ANIMATE: TaskText("Exporting", "Exported"),
-    TaskKind.MAPCACHE: TaskText("Merging", "Merged"),
-    TaskKind.MAPTILES: TaskText("Assembling", "Assembled"),
+    TaskKind.CONVERT: TaskText("Conversion", "Converting", "Converted"),
+    TaskKind.ANIMATE: TaskText("Animation export", "Exporting", "Exported"),
+    TaskKind.MAPCACHE: TaskText("Map cache merge", "Merging", "Merged"),
+    TaskKind.MAPTILES: TaskText("Map tiles assembly", "Assembling", "Assembled"),
 }
 
 OUTCOMES: dict[TaskOutcome, tuple[str, Marker]] = {
@@ -160,7 +161,7 @@ class TaskFeedback:
 
     def _start(self, event: TaskStarted) -> None:
         if self.timestamps:
-            self._timestamp()
+            self._header(event)
 
         self.kind = event.kind
         self.completed = 0
@@ -184,12 +185,15 @@ class TaskFeedback:
         self.progress.start()
         self.progress_id = self.progress.add_task(TASKS[event.kind].running, total=event.total)
 
-    def _timestamp(self) -> None:
-        self.console.print()
-        self.console.print()
-        self.console.print()
-        self.console.print(datetime.now().strftime("%H:%M:%S"), style="dim", highlight=False)
-        self.console.print()
+    def _header(self, event: TaskStarted) -> None:
+        text = Text.assemble(
+            "\n\n\n",
+            (datetime.now().strftime("%H:%M:%S"), "dim"),
+            "\n",
+            TASKS[event.kind].header,
+            "\n",
+        )
+        self.console.print(text, highlight=False)
 
     def _finish_progress(self, outcome: TaskOutcome) -> None:
         if self.progress is None or self.progress_id is None:
