@@ -41,7 +41,15 @@ def records(
             return _texture(path, content, source.stat().st_size)
 
         case C.ImageContent():
-            return [Image(path=path, filesize=len(content.image))]
+            return [
+                Image(
+                    path=path,
+                    filesize=len(content.image),
+                    width=content.width,
+                    height=content.height,
+                    bit_depth=content.bit_depth,
+                )
+            ]
 
         case _:
             return []

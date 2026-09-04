@@ -1,8 +1,10 @@
+# Known broken assets files
 EXCLUDED: set[str] = {
-    "customitems/models/blocks/skafa.mcmtl.mcsb",
-    "vegetation/models/wrk/optical.mic",
-    "customitems/models/blocks/things/prestige_teleport.mcvd",
-    "gloomycore/colliders/krovosos_clone/collider.mcvd",
-    "gloomycore/colliders/pseudodog_clone/collider.mcvd",
-    "gloomycore/colliders/tushkan_clone/collider.mcvd",
+    "_localized/ru/stalkerguide/handbook/articles/arthunt/artefakty_attachment_6.mic",  # raw jpeg
+    "customitems/models/blocks/skafa.mcmtl.mcsb",  # fake mcmtl
+    "vegetation/models/wrk/optical.mic",  # invalid structure
+    "customitems/models/blocks/things/prestige_teleport.mcvd",  # invalid structure
+    "gloomycore/colliders/krovosos_clone/collider.mcvd",  # invalid structure
+    "gloomycore/colliders/pseudodog_clone/collider.mcvd",  # invalid structure
+    "gloomycore/colliders/tushkan_clone/collider.mcvd",  # invalid structure
 }

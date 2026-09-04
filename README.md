@@ -57,7 +57,7 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 | 🖼️ **Image**     | `.mic`                                   | →   | `.png`                 |
 | 🗃️ **Archive**   | `.texarr`                                | →   | `.zip`                 |
 | ⛰️ **Region**    | `.mdat`                                  | →   | `.mca`                 |
-| ⚙️ **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
+| 📄 **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
 > [Details about formats →][docs-formats]
 

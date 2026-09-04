@@ -267,7 +267,7 @@ Export
 | :doc:`Usage guide → <usage/mapcache>`
 
 ----------------------------------------
-⚙️ NBT Files
+📄 NBT Files
 ----------------------------------------
 
 .. _nbt:

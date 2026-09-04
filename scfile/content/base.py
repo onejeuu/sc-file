@@ -101,6 +101,9 @@ class ImageContent(BaseContent):
 
     kind: ClassVar[FileKind] = FileKind.IMAGE
 
+    width: int = 0
+    height: int = 0
+    bit_depth: int = 0
     image: bytes = field(default_factory=bytes)
 
 

@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
         self.store.save(self.settings)
 
     def _build_ui(self) -> None:
-        self.setWindowIcon(QIcon(str(files.resource("assets/app.icon.ico"))))
+        self.setWindowIcon(QIcon(str(files.resource("assets/app.ico"))))
         self.setWindowTitle(TITLE)
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 800)

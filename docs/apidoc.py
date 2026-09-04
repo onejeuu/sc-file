@@ -52,7 +52,7 @@ FORMAT_ICONS = {
     FileKind.TEXTURE: "🧱",
     FileKind.IMAGE: "🖼️",
     FileKind.ARCHIVE: "🗃️",
-    FileKind.DOCUMENT: "⚙️",
+    FileKind.DOCUMENT: "📄",
     FileKind.REGION: "⛰️",
 }
 

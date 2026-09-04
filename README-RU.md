@@ -50,7 +50,7 @@
 | 🖼️ **Изображение** | `.mic`                                   | →   | `.png`                 |
 | 🗃️ **Архив**       | `.texarr`                                | →   | `.zip`                 |
 | ⛰️ **Регион**      | `.mdat`                                  | →   | `.mca`                 |
-| ⚙️ **NBT**         | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
+| 📄 **NBT**         | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
 
 > [Детальная информация о форматах →][docs-formats]
 

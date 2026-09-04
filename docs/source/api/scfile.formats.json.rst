@@ -1,4 +1,4 @@
-⚙️ JSON
+📄 JSON
 ==================================================
 
 .. automodule:: scfile.formats.json

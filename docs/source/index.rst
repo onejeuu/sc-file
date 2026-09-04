@@ -60,7 +60,7 @@ sc-file
     - ``.mdat``
     - →
     - ``.mca``
-  * - ⚙️ **NBT**
+  * - 📄 **NBT**
     - | ``itemnames.dat`` ``common``
       | ``prefs`` ``sd0-4``
     - →

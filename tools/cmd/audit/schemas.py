@@ -66,6 +66,9 @@ class Texture(NamedTuple):
 class Image(NamedTuple):
     path: str
     filesize: int
+    width: int
+    height: int
+    bit_depth: int
 
 
 class Arms(NamedTuple):

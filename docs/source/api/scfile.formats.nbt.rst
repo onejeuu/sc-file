@@ -1,4 +1,4 @@
-⚙️ NBT
+📄 NBT
 ==================================================
 
 .. automodule:: scfile.formats.nbt

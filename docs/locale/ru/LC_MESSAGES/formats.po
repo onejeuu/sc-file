@@ -202,8 +202,8 @@ msgstr "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), с блоками (при�
 msgid ":doc:`Usage guide → <usage/mapcache>`"
 msgstr ":doc:`Руководство по использованию → <usage/mapcache>`"
 
-msgid "⚙️ NBT Files"
-msgstr "⚙️ NBT"
+msgid "📄 NBT Files"
+msgstr "📄 NBT"
 
 msgid "None, gzip_, zstd_."
 msgstr "Отсутствует, gzip_, zstd_."

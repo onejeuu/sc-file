@@ -47,8 +47,8 @@ msgstr "🗃️ **Архив**"
 msgid "⛰️ **Region**"
 msgstr "⛰️ **Регион**"
 
-msgid "⚙️ **NBT**"
-msgstr "⚙️ **NBT**"
+msgid "📄 **NBT**"
+msgstr "📄 **NBT**"
 
 msgid ":doc:`Details about formats → <formats>`"
 msgstr ":doc:`Детальная информация о форматах → <formats>`"
