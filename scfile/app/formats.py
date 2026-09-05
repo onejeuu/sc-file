@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from scfile.app.consts import MODEL_FORMAT_ORDER
-from scfile.content import ModelContent
-from scfile.content.models import Feature
+from scfile.content import BaseContent, ModelContent
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.formats import registry
@@ -11,30 +10,50 @@ from scfile.formats import registry
 @dataclass(frozen=True, slots=True)
 class FormatGroup:
     name: str
-    icon: str
     label: str
     display: tuple[str, ...]
     formats: tuple[FileFormat, ...]
-    features: tuple[Feature, ...] = ()
 
     @property
     def filters(self) -> tuple[str, ...]:
         return tuple(sorted(registry.filters(*self.formats)))
 
+    @property
+    def content_type(self) -> type[BaseContent]:
+        return registry.decoders[self.formats[0]].content_type
+
 
 FORMAT_GROUPS = (
     FormatGroup(
-        "models",
-        "🧊",
-        "format.models",
-        (".mcsb", ".mcvd", ".efkmodel"),
-        (FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.EFKMODEL),
-        (Feature.SKELETON, Feature.ANIMATION),
+        name="models",
+        label="format.models",
+        display=(".mcsb", ".mcvd", ".efkmodel"),
+        formats=(FileFormat.MCSA, FileFormat.MCSB, FileFormat.MCVD, FileFormat.EFKMODEL),
     ),
-    FormatGroup("textures", "🧱", "format.textures", (".ol",), (FileFormat.OL,)),
-    FormatGroup("images", "🖼", "format.images", (".mic",), (FileFormat.MIC,)),
-    FormatGroup("archive", "🗃️", "format.archive", (".texarr",), (FileFormat.TEXARR,)),
-    FormatGroup("nbt", "📄", "format.nbt", ("itemnames.dat", "prefs", "sd0…sd4"), (FileFormat.NBT,)),
+    FormatGroup(
+        name="textures",
+        label="format.textures",
+        display=(".ol",),
+        formats=(FileFormat.OL,),
+    ),
+    FormatGroup(
+        name="images",
+        label="format.images",
+        display=(".mic",),
+        formats=(FileFormat.MIC,),
+    ),
+    FormatGroup(
+        name="archive",
+        label="format.archive",
+        display=(".texarr",),
+        formats=(FileFormat.TEXARR,),
+    ),
+    FormatGroup(
+        name="nbt",
+        label="format.nbt",
+        display=("itemnames.dat", "prefs", "sd0…sd4"),
+        formats=(FileFormat.NBT,),
+    ),
 )
 
 

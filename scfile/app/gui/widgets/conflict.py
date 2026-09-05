@@ -18,8 +18,10 @@ class ConflictWidget(QWidget):
         label.setStyleSheet(Styles.LABEL)
 
         toggle_group = QWidget()
+        toggle_group.setObjectName("toggleGroup")
+        toggle_group.setFixedHeight(32)
         toggle_layout = QHBoxLayout(toggle_group)
-        toggle_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_layout.setContentsMargins(1, 1, 1, 1)
         toggle_layout.setSpacing(0)
 
         self.buttons = QButtonGroup(self)
@@ -31,6 +33,7 @@ class ConflictWidget(QWidget):
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setProperty("conflict_option", option.value)
             button.setStyleSheet(Styles.TOGGLE_ITEM)
+            button.setFixedHeight(30)
             self.buttons.addButton(button)
             toggle_layout.addWidget(button)
 

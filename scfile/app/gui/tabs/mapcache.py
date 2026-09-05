@@ -9,14 +9,13 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui.widgets.card import CalloutWidget, CardWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
-from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.mapcache import MapCacheScanner
-from scfile.app.localization import DOCS_URL
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
 
@@ -41,8 +40,19 @@ class MapCacheTab(QWidget):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
-        layout.setSpacing(10)
+        layout.setContentsMargins(16, 16, 16, 0)
+        layout.setSpacing(16)
+
+        heading = QHBoxLayout()
+        title = QLabel(strings.get("title.mapcache"))
+        title.setStyleSheet(Styles.TITLE)
+        heading.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
+        badge = QLabel(strings.get("badge.experimental"))
+        badge.setStyleSheet(Styles.BADGE_WARNING)
+        badge.setToolTip(strings.get("tooltip.experimental"))
+        heading.addWidget(badge, 0, Qt.AlignmentFlag.AlignVCenter)
+        heading.addStretch()
+        layout.addLayout(heading)
 
         self.source = PathField(
             f"{strings.get('label.mapcache.source')} (.mdat)",
@@ -72,20 +82,27 @@ class MapCacheTab(QWidget):
             checked=True,
         )
 
-        layout.addWidget(self.source)
-        layout.addWidget(self.output)
-        layout.addSpacing(10)
-        layout.addWidget(self.biomes)
-        layout.addWidget(self.backup)
+        source_card = CardWidget(strings.get("label.form.source"))
+        source_card.content.addWidget(self.source)
+        layout.addWidget(source_card)
+
+        result_card = CardWidget(strings.get("label.form.result"))
+        result_card.content.addWidget(self.output)
+        options = QVBoxLayout()
+        options.setContentsMargins(0, 0, 0, 0)
+        options.setSpacing(14)
+        options.addWidget(self.biomes)
+        options.addWidget(self.backup)
+        result_card.content.addLayout(options)
+        layout.addWidget(result_card)
+        layout.addWidget(self._info())
         layout.addStretch()
 
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
-        layout.addWidget(self._info())
-
         self.submit = ProgressButton(strings.get("button.mapcache"))
-        self.submit.setFixedHeight(50)
+        self.submit.setFixedHeight(54)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self._start_merge)
@@ -93,41 +110,20 @@ class MapCacheTab(QWidget):
         self.submit_cursor = DisabledCursor(self.submit)
 
     def _info(self) -> QWidget:
-        info = QWidget()
-        layout = QVBoxLayout(info)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-
-        header = QWidget()
-        header.setToolTip(strings.get("tooltip.experimental"))
-        title_row = QHBoxLayout(header)
-        title_row.setContentsMargins(0, 1, 0, 1)
-        title_row.setSpacing(4)
-
-        experimental = QLabel(strings.get("label.experimental"))
-        experimental.setStyleSheet(Styles.LABEL)
-        experimental.setToolTip(strings.get("tooltip.experimental"))
-        title_row.addWidget(experimental)
-
+        info = CalloutWidget()
+        layout = info.content
         format_label = QLabel(strings.get("mapcache.format"))
-        format_label.setStyleSheet(Styles.INFO)
-        title_row.addWidget(format_label)
-        title_row.addStretch()
-        layout.addWidget(header)
+        format_label.setStyleSheet(Styles.LABEL)
+        layout.addWidget(format_label)
 
         limitation = QLabel(strings.get("mapcache.limitation"))
         limitation.setStyleSheet(Styles.INFO)
         limitation.setWordWrap(True)
         layout.addWidget(limitation)
 
-        footer = QHBoxLayout()
         credit = QLabel(strings.get("mapcache.credit"))
         credit.setStyleSheet(Styles.INFO)
-        footer.addWidget(credit)
-        footer.addStretch()
-
-        footer.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/mapcache.html"))
-        layout.addLayout(footer)
+        layout.addWidget(credit)
         return info
 
     def apply_game_root(self) -> None:

@@ -62,9 +62,11 @@ class MapTilesEncodingWidget(QWidget):
         layout.setSpacing(10)
 
         toggle = QWidget()
+        toggle.setObjectName("toggleGroup")
         toggle.setStyleSheet(Styles.TOGGLE_GROUP)
+        toggle.setFixedHeight(32)
         toggle_layout = QHBoxLayout(toggle)
-        toggle_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_layout.setContentsMargins(1, 1, 1, 1)
         toggle_layout.setSpacing(0)
 
         self.buttons = QButtonGroup(self)
@@ -75,10 +77,11 @@ class MapTilesEncodingWidget(QWidget):
             button.setCheckable(True)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setStyleSheet(Styles.TOGGLE_ITEM)
+            button.setFixedHeight(30)
             button.setProperty("image_format", image_format.value)
             self.buttons.addButton(button)
             self._buttons[image_format] = button
-            toggle_layout.addWidget(button)
+            toggle_layout.addWidget(button, 1)
         self.buttons.buttonClicked.connect(self._selected)
 
         self.label = QLabel()
@@ -87,7 +90,7 @@ class MapTilesEncodingWidget(QWidget):
         self.slider.setCursor(Qt.CursorShape.PointingHandCursor)
         self.spin = QSpinBox()
         self.spin.setStyleSheet(Styles.SPIN)
-        self.spin.setFixedWidth(60)
+        self.spin.setFixedWidth(74)
 
         self.slider.valueChanged.connect(self.spin.setValue)
         self.spin.valueChanged.connect(self.slider.setValue)

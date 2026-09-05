@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pytest
 from PySide6.QtWidgets import QApplication
 
 from scfile.app.enums import OutputLayout
@@ -8,8 +7,6 @@ from scfile.app.formats import model_formats
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.convert import ConvertForm, ConvertTab
 from scfile.app.gui.tasks import TaskManager
-from scfile.core import ModelEncoder
-from scfile.formats import registry
 
 
 def test_convert_form(qapp: QApplication) -> None:
@@ -35,20 +32,6 @@ def test_convert_form(qapp: QApplication) -> None:
 
     form.deleteLater()
     qapp.processEvents()
-@pytest.mark.parametrize("fmt", model_formats())
-def test_convert_features(qapp: QApplication, fmt) -> None:
-    form = ConvertForm()
-    form.model_format.setCurrentIndex(form.model_format.findData(fmt))
-
-    for feature, checkbox in form.features.items():
-        encoder = registry.encoders[fmt]
-        assert issubclass(encoder, ModelEncoder)
-        assert checkbox.isEnabled() is encoder.supports(feature)
-
-    form.deleteLater()
-    qapp.processEvents()
-
-
 def test_default_output(qapp: QApplication, tmp_path: Path) -> None:
     default = tmp_path / "default"
     settings = Settings(export_path=default)

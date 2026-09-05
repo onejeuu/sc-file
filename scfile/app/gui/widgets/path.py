@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from scfile.app.gui import strings
-from scfile.app.gui.styles import Colors, Styles
+from scfile.app.gui.styles import Styles
 
 
 type PathMode = Literal["directory", "open", "save"]
@@ -310,7 +310,6 @@ class PathField(QWidget):
         placeholder: str,
         caption: str,
         *,
-        required: bool = True,
         mode: PathMode = "directory",
         file_filter: str = "",
         default_suffix: str = "",
@@ -324,10 +323,6 @@ class PathField(QWidget):
         layout.setSpacing(4)
 
         title = QLabel(label)
-
-        if required:
-            title.setText(f'{label} <span style="color: {Colors.ERROR}">*</span>')
-            title.setToolTip(strings.get("tooltip.form.required"))
 
         title.setStyleSheet(Styles.LABEL)
 

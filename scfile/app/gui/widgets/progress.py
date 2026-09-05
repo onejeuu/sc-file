@@ -48,9 +48,9 @@ class ProgressButton(QPushButton):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         rect = self.rect().adjusted(0, 0, -1, -1)
         path = QPainterPath()
-        path.addRoundedRect(rect, 4, 4)
+        path.addRoundedRect(rect, 8, 8)
 
-        painter.fillPath(path, Colors.CARD.value.lighter(150))
+        painter.fillPath(path, Colors.CONTROL_HOVER.value)
         progress = rect.width() * self._completed / self._total if self._total else 0
         painter.save()
         painter.setClipPath(path)

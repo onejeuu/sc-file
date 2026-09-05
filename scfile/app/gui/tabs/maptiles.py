@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import exceptions
 from scfile.app.events import TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
@@ -10,13 +10,14 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui.widgets.card import CardWidget
+from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.disabled import DisabledCursor
-from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.tiles import MapTilesEncodingWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.localization import DOCS_URL, system_language
+from scfile.app.localization import system_language
 from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
 from scfile.convert import maptiles
 from scfile.convert.regions import Size
@@ -47,8 +48,12 @@ class MapTilesTab(QWidget):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
-        layout.setSpacing(10)
+        layout.setContentsMargins(16, 16, 16, 0)
+        layout.setSpacing(16)
+
+        title = QLabel(strings.get("title.maptiles"))
+        title.setStyleSheet(Styles.TITLE)
+        layout.addWidget(title)
 
         self.source = PathField(
             f"{strings.get('label.maptiles.source')} (.ol)",
@@ -60,20 +65,14 @@ class MapTilesTab(QWidget):
 
         self.region_label = QLabel(strings.get("label.maptiles.region"))
         self.region_label.setStyleSheet(Styles.LABEL)
-        self.region = QComboBox()
-        self.region.setStyleSheet(Styles.COMBO)
-        self.region.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.region.setItemDelegate(QStyledItemDelegate())
+        self.region = ComboBox()
         self.region.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.region.setPlaceholderText(strings.get("placeholder.maptiles.region"))
         self.region.activated.connect(self._region_changed)
 
         self.map_label = QLabel(strings.get("label.maptiles.map"))
         self.map_label.setStyleSheet(Styles.LABEL)
-        self.map = QComboBox()
-        self.map.setStyleSheet(Styles.COMBO)
-        self.map.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.map.setItemDelegate(QStyledItemDelegate())
+        self.map = ComboBox()
         self.map.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.map.setPlaceholderText(strings.get("placeholder.maptiles.map"))
         self.map.activated.connect(self._map_changed)
@@ -91,13 +90,30 @@ class MapTilesTab(QWidget):
         )
         self.output.changed.connect(self._edit_output)
 
-        layout.addWidget(self.source)
-        layout.addWidget(self.region_label)
-        layout.addWidget(self.region)
-        layout.addWidget(self.map_label)
-        layout.addWidget(self.map)
-        layout.addWidget(self.output)
-        layout.addWidget(self.encoding)
+        source_card = CardWidget(strings.get("label.form.source"))
+        source_card.content.addWidget(self.source)
+
+        selectors = QHBoxLayout()
+        selectors.setContentsMargins(0, 0, 0, 0)
+        selectors.setSpacing(10)
+        for label, select in ((self.region_label, self.region), (self.map_label, self.map)):
+            field = QWidget()
+            field_layout = QVBoxLayout(field)
+            field_layout.setContentsMargins(0, 0, 0, 0)
+            field_layout.setSpacing(4)
+            field_layout.addWidget(label)
+            field_layout.addWidget(select)
+            selectors.addWidget(field, 1)
+        source_card.content.addLayout(selectors)
+        layout.addWidget(source_card)
+
+        self.estimate = QLabel()
+        self.estimate.setStyleSheet(Styles.INFO)
+        result_card = CardWidget(strings.get("label.form.result"))
+        result_card.content.addWidget(self.output)
+        result_card.content.addWidget(self.encoding)
+        result_card.content.addWidget(self.estimate)
+        layout.addWidget(result_card)
         self.region_cursor = DisabledCursor(self.region)
         self.region_cursor.set(False, strings.get("tooltip.maptiles.region"))
         self.map_cursor = DisabledCursor(self.map)
@@ -108,16 +124,8 @@ class MapTilesTab(QWidget):
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
-        notice = QHBoxLayout()
-        self.estimate = QLabel()
-        self.estimate.setStyleSheet(Styles.INFO)
-        notice.addWidget(self.estimate)
-        notice.addStretch()
-        notice.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/maptiles.html"))
-        layout.addLayout(notice)
-
         self.submit = ProgressButton(strings.get("button.maptiles"))
-        self.submit.setFixedHeight(50)
+        self.submit.setFixedHeight(54)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self._start_merge)

@@ -159,14 +159,15 @@ class UpdatePopup(QWidget):
 class VersionWidget(QWidget):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
+        self.setObjectName("versionBadge")
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
-        self.setStyleSheet(Styles.LINK)
+        self.setStyleSheet(Styles.VERSION_BADGE)
 
         self.main_layout = QHBoxLayout(self)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setContentsMargins(3, 0, 3, 0)
         self.main_layout.setSpacing(0)
-        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         v = Version.parse(SEMVER)
         tag = v.tag if v else SEMVER
@@ -179,11 +180,11 @@ class VersionWidget(QWidget):
         self.checker.status.connect(self._status)
 
     def leaveEvent(self, event):
-        self.setStyleSheet(Styles.LINK)
+        self.setStyleSheet(Styles.VERSION_BADGE)
         super().leaveEvent(event)
 
     def enterEvent(self, event):
-        self.setStyleSheet(Styles.LINK_HOVER)
+        self.setStyleSheet(Styles.VERSION_BADGE_HOVER)
         super().enterEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):

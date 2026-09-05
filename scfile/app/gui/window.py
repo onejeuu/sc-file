@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import override
 
 from PySide6.QtCore import QSize
-from PySide6.QtGui import QCloseEvent, QIcon, Qt
+from PySide6.QtGui import QCloseEvent, QColor, QIcon, QPainter, QPixmap, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -20,7 +20,7 @@ from scfile.app.feedback import TaskFeedback
 from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Store
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import Colors, Styles
 from scfile.app.gui.tabs.animate import AnimateTab
 from scfile.app.gui.tabs.convert import ConvertTab
 from scfile.app.gui.tabs.mapcache import MapCacheTab
@@ -28,6 +28,8 @@ from scfile.app.gui.tabs.maptiles import MapTilesTab
 from scfile.app.gui.tabs.settings import SettingsTab
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.footer import FooterWidget
+from scfile.app.gui.widgets.updates import VersionWidget
+from scfile.app.localization import DOCS_URL
 
 
 class MainWindow(QMainWindow):
@@ -63,6 +65,8 @@ class MainWindow(QMainWindow):
         self.resize(1000, 800)
 
         root = QWidget()
+        root.setObjectName("appRoot")
+        root.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setCentralWidget(root)
 
         layout = QHBoxLayout(root)
@@ -72,16 +76,18 @@ class MainWindow(QMainWindow):
         sidebar = QWidget()
         sidebar.setObjectName("sidebar")
         sidebar.setStyleSheet(Styles.SIDEBAR)
-        sidebar.setFixedWidth(54)
+        sidebar.setFixedWidth(56)
         self.sidebar = QVBoxLayout(sidebar)
-        self.sidebar.setContentsMargins(0, 16, 0, 16)
+        self.sidebar.setContentsMargins(0, 12, 0, 12)
         self.sidebar.setSpacing(8)
 
         content = QWidget()
+        content.setObjectName("mainContent")
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(0, 4, 0, 0)
+        content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
         self.stack = QStackedWidget()
+        self._help_urls: dict[int, str] = {}
 
         self.footer = FooterWidget()
         content_layout.addWidget(self.stack)
@@ -100,13 +106,29 @@ class MainWindow(QMainWindow):
         self._add_tab(self.convert, "tab.convert", "assets/tab.convert.png")
 
         self.animate = AnimateTab(self.tasks, self.settings)
-        self._add_tab(self.animate, "tab.animate", "assets/tab.animate.png")
-
-        self.mapcache = MapCacheTab(self.tasks, self.settings)
-        self._add_tab(self.mapcache, "tab.mapcache", "assets/tab.mapcache.png")
+        self._add_tab(
+            self.animate,
+            "tab.animate",
+            "assets/tab.animate.png",
+            help_url=f"{DOCS_URL}/latest/usage/animate.html",
+        )
 
         self.maptiles = MapTilesTab(self.tasks, self.settings)
-        self._add_tab(self.maptiles, "tab.maptiles", "assets/tab.maptiles.png")
+        self._add_tab(
+            self.maptiles,
+            "tab.maptiles",
+            "assets/tab.maptiles.png",
+            help_url=f"{DOCS_URL}/latest/usage/maptiles.html",
+        )
+
+        self.mapcache = MapCacheTab(self.tasks, self.settings)
+        self._add_tab(
+            self.mapcache,
+            "tab.mapcache",
+            "assets/tab.mapcache.png",
+            help_url=f"{DOCS_URL}/latest/usage/mapcache.html",
+        )
+
         self.sidebar.addStretch()
 
         self.settings_tab = SettingsTab(self.settings)
@@ -123,21 +145,53 @@ class MainWindow(QMainWindow):
         self.settings_tab.export_path_changed.connect(self.maptiles.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
+        self.version = VersionWidget()
+        self.version.setFixedSize(48, 28)
+        self.sidebar.addWidget(self.version, 0, Qt.AlignmentFlag.AlignHCenter)
+
         self.navigation.buttons()[0].setChecked(True)
         self.stack.setCurrentIndex(0)
+        self._sync_footer(0)
+        self.stack.currentChanged.connect(self._sync_footer)
+        root.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def _add_tab(self, widget: QWidget, title: str, icon: str) -> None:
+    def _add_tab(self, widget: QWidget, title: str, icon: str, help_url: str | None = None) -> None:
         index = self.stack.addWidget(widget)
+        if help_url:
+            self._help_urls[index] = help_url
         button = QPushButton()
         button.setCheckable(True)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setStyleSheet(Styles.SIDEBAR_ITEM)
         button.setToolTip(strings.get(title))
-        button.setIcon(QIcon(str(files.resource(icon))))
+        button.setIcon(self._sidebar_icon(icon))
         button.setIconSize(QSize(20, 20))
 
         self.sidebar.addWidget(button)
         self.navigation.addButton(button, index)
+
+    def _sync_footer(self, index: int) -> None:
+        self.footer.set_section_help(self._help_urls.get(index))
+
+    def _sidebar_icon(self, resource: str) -> QIcon:
+        raw = QPixmap(str(files.resource(resource)))
+        icon = QIcon()
+        icon.addPixmap(self._tint_icon(raw, Colors.TEXT.value), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addPixmap(self._tint_icon(raw, Colors.ACCENT.value), QIcon.Mode.Normal, QIcon.State.On)
+        icon.addPixmap(self._tint_icon(raw, Colors.TEXT_DISABLED.value), QIcon.Mode.Disabled, QIcon.State.Off)
+        return icon
+
+    @staticmethod
+    def _tint_icon(source: QPixmap, color: QColor) -> QPixmap:
+        tinted = QPixmap(source.size())
+        tinted.fill(Qt.GlobalColor.transparent)
+
+        painter = QPainter(tinted)
+        painter.drawPixmap(0, 0, source)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(tinted.rect(), color)
+        painter.end()
+        return tinted
 
     def _save_settings(self) -> None:
         self.store.save(self.settings)
@@ -154,7 +208,7 @@ class MainWindow(QMainWindow):
         self._stopped = True
         self.convert.stop()
         self.mapcache.stop()
-        self.footer.stop()
+        self.version.stop()
 
     @override
     def closeEvent(self, event: QCloseEvent) -> None:

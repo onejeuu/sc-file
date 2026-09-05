@@ -1,8 +1,9 @@
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon, QMouseEvent
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QAbstractButton, QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile.app.gui.styles import Styles
+from scfile.app.gui.widgets.switch import Switch
 
 
 class OptionWidget(QWidget):
@@ -21,22 +22,25 @@ class OptionWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        self.checkbox = QCheckBox()
-        self.checkbox.setStyleSheet(Styles.CHECKBOX)
-        self.checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.checkbox: QAbstractButton = Switch() if icon is not None else QCheckBox()
+        if isinstance(self.checkbox, QCheckBox):
+            self.checkbox.setStyleSheet(Styles.CHECKBOX)
+            self.checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
         self.checkbox.setChecked(checked)
         self.checkbox.toggled.connect(self.changed.emit)
 
         if icon is None:
-            self.checkbox.setText(text)
-            layout.addWidget(self.checkbox)
-
             if hint:
-                label = QLabel(hint)
-                label.setStyleSheet(Styles.HINT)
-                label.setWordWrap(True)
-                label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-                layout.addWidget(label)
+                title = QLabel(text)
+                title.setStyleSheet(Styles.OPTION_TITLE)
+                title.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+                layout.addWidget(title)
+                self.checkbox.setText(hint)
+            else:
+                self.checkbox.setText(text)
+
+            self.checkbox.setStyleSheet(Styles.OPTION_CHECKBOX)
+            layout.addWidget(self.checkbox)
             return
 
         row = QHBoxLayout()
@@ -57,7 +61,7 @@ class OptionWidget(QWidget):
         content.addWidget(label)
         if hint:
             description = QLabel(hint)
-            description.setStyleSheet(Styles.HINT)
+            description.setStyleSheet(Styles.DESCRIPTION)
             description.setWordWrap(True)
             description.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
             content.addWidget(description)
@@ -88,6 +92,7 @@ class OptionWidget(QWidget):
         self.checkbox.setProperty("hovered", hovered)
         self.checkbox.style().unpolish(self.checkbox)
         self.checkbox.style().polish(self.checkbox)
+        self.checkbox.update()
 
     @property
     def checked(self) -> bool:

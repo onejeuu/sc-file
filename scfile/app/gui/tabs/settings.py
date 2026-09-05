@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Signal
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -10,11 +10,12 @@ from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
+from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
 
 
-ICON_SIZE = QSize(16, 16)
+ICON_SIZE = QSize(22, 22)
 
 
 def _icon(name: str) -> QIcon:
@@ -35,13 +36,15 @@ class SettingsTab(QWidget):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
-        layout.setSpacing(0)
+        layout.setContentsMargins(16, 16, 16, 0)
+        layout.setSpacing(16)
 
-        general = QLabel(strings.get("label.settings.general"))
-        general.setStyleSheet(Styles.SECTION)
-        layout.addWidget(general)
-        layout.addSpacing(8)
+        title = QLabel(strings.get("tab.settings"))
+        title.setStyleSheet(Styles.TITLE)
+        layout.addWidget(title)
+
+        general = CardWidget(strings.get("label.settings.general"))
+        general.content.setSpacing(16)
 
         self.resolve_paths = OptionWidget(
             text=strings.get("option.settings.resolve"),
@@ -50,8 +53,7 @@ class SettingsTab(QWidget):
             icon=_icon("resolve_paths"),
         )
         self.resolve_paths.changed.connect(self._set_path_resolution)
-        layout.addWidget(self.resolve_paths)
-        layout.addSpacing(12)
+        general.content.addWidget(self.resolve_paths)
 
         self.verbose = OptionWidget(
             text=strings.get("option.settings.verbose"),
@@ -60,27 +62,11 @@ class SettingsTab(QWidget):
             icon=_icon("verbose"),
         )
         self.verbose.changed.connect(self._set_verbose)
-        layout.addWidget(self.verbose)
-        layout.addSpacing(20)
+        general.content.addWidget(self.verbose)
+        layout.addWidget(general)
 
-        paths = QLabel(strings.get("label.settings.paths"))
-        paths.setStyleSheet(Styles.SECTION)
-        layout.addWidget(paths)
-        layout.addSpacing(8)
-
-        root_header = QWidget()
-        root_layout = QHBoxLayout(root_header)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(5)
-
-        root_icon = QLabel()
-        root_icon.setPixmap(_icon("gameroot").pixmap(ICON_SIZE))
-        root_layout.addWidget(root_icon)
-
-        root_label = QLabel(strings.get("label.settings.game"))
-        root_label.setStyleSheet(Styles.LABEL)
-        root_layout.addWidget(root_label)
-        root_layout.addStretch()
+        paths = CardWidget(strings.get("label.settings.paths"))
+        paths.content.setSpacing(16)
         self.root = PathInputWidget(
             placeholder="C:/EXBO/runtime/stalcraft",
             caption=strings.get("dialog.settings.game"),
@@ -89,44 +75,55 @@ class SettingsTab(QWidget):
             self.root.value = self.settings.game_root.as_posix()
         self.root.changed.connect(self._set_game_root)
 
-        hint = QLabel(strings.get("label.settings.game.hint"))
-        hint.setStyleSheet(Styles.HINT)
-        hint.setWordWrap(True)
-
-        layout.addWidget(root_header)
-        layout.addWidget(self.root)
-        layout.addWidget(hint)
-        layout.addSpacing(12)
-
-        export_header = QWidget()
-        export_layout = QHBoxLayout(export_header)
-        export_layout.setContentsMargins(0, 0, 0, 0)
-        export_layout.setSpacing(5)
-
-        export_icon = QLabel()
-        export_icon.setPixmap(_icon("export_path").pixmap(ICON_SIZE))
-        export_layout.addWidget(export_icon)
-
-        export_label = QLabel(strings.get("label.settings.export"))
-        export_label.setStyleSheet(Styles.LABEL)
-        export_layout.addWidget(export_label)
-        export_layout.addStretch()
-
         self.export = PathInputWidget(
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.settings.export"),
         )
         self.export.value = self.settings.export_path.as_posix()
         self.export.changed.connect(self._set_export_path)
-        export_hint = QLabel(strings.get("label.settings.export.hint"))
-        export_hint.setStyleSheet(Styles.HINT)
 
-        layout.addWidget(export_header)
-        layout.addWidget(self.export)
-        layout.addWidget(export_hint)
-        layout.addSpacing(12)
-
+        paths.content.addWidget(
+            self._path_setting(
+                "gameroot",
+                strings.get("label.settings.game"),
+                strings.get("label.settings.game.hint"),
+                self.root,
+            )
+        )
+        paths.content.addWidget(
+            self._path_setting(
+                "export_path",
+                strings.get("label.settings.export"),
+                strings.get("label.settings.export.hint"),
+                self.export,
+            )
+        )
+        layout.addWidget(paths)
         layout.addStretch()
+
+    def _path_setting(self, icon: str, title: str, hint: str, field: PathInputWidget) -> QWidget:
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
+
+        image = QLabel()
+        image.setPixmap(_icon(icon).pixmap(ICON_SIZE))
+        layout.addWidget(image, 0, Qt.AlignmentFlag.AlignTop)
+
+        content = QVBoxLayout()
+        content.setContentsMargins(0, 0, 0, 0)
+        content.setSpacing(3)
+        label = QLabel(title)
+        label.setStyleSheet(Styles.LABEL)
+        content.addWidget(label)
+        description = QLabel(hint)
+        description.setStyleSheet(Styles.DESCRIPTION)
+        content.addWidget(description)
+        content.addSpacing(5)
+        content.addWidget(field)
+        layout.addLayout(content, 1)
+        return widget
 
     def _set_game_root(self, value: str) -> None:
         value = value.strip()

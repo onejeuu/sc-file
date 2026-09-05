@@ -2,23 +2,20 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import QSignalBlocker, QSize, Qt, Signal
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
+from PySide6.QtCore import QSignalBlocker, Qt, Signal
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QStackedWidget, QTabBar, QVBoxLayout, QWidget
 
 from scfile import convert
-from scfile.app import files
 from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
-from scfile.app.gui.widgets.link import LinkWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.localization import DOCS_URL
 from scfile.app.tasks.animate import AnimateTask
 from scfile.options import Options
 
@@ -56,17 +53,20 @@ class AnimationForm(QWidget):
 
         self.form_layout = QVBoxLayout(self)
         self.form_layout.setContentsMargins(0, 0, 0, 0)
-        self.form_layout.setSpacing(10)
+        self.form_layout.setSpacing(16)
 
-        self.inputs = QVBoxLayout()
-        self.inputs.setContentsMargins(0, 0, 0, 0)
-        self.inputs.setSpacing(10)
-        self.form_layout.addLayout(self.inputs)
+        self.source_card = CardWidget(strings.get("label.form.sources"))
+        self.inputs = self.source_card.content
+        self.form_layout.addWidget(self.source_card)
 
-        self.options = QVBoxLayout()
+        self.result_card = CardWidget()
+        self.options_widget = QWidget()
+        self.options = QVBoxLayout(self.options_widget)
         self.options.setContentsMargins(0, 0, 0, 0)
         self.options.setSpacing(10)
-        self.form_layout.addLayout(self.options)
+        self.options_widget.hide()
+        self.result_card.content.addWidget(self.options_widget)
+        self.form_layout.addWidget(self.result_card)
         self.form_layout.addStretch()
 
     @property
@@ -97,7 +97,6 @@ class AnimationForm(QWidget):
             f"{label} ({suffix})",
             placeholder=placeholder,
             caption=caption,
-            required=required,
             mode="open",
             file_filter=f"{file_type} (*{suffix})",
         )
@@ -137,7 +136,7 @@ class AnimationForm(QWidget):
             default_suffix=".glb",
         )
         self.output.changed.connect(changed)
-        self.inputs.addWidget(self.output)
+        self.result_card.content.insertWidget(0, self.output)
 
     def validation_error(self) -> str | None:
         invalid = {rule.widget for rule in self.rules if not _valid(rule)}
@@ -238,8 +237,8 @@ class BodyForm(AnimationForm):
             strings.get("option.animate.body.preserve"),
             strings.get("option.animate.body.preserve.hint"),
         )
-        self.form_layout.insertSpacing(1, 10)
         self.options.addWidget(self.preserve_clips)
+        self.options_widget.show()
 
     def create_task(self, output: Path) -> AnimateTask:
         return AnimateTask(
@@ -307,11 +306,19 @@ class AnimateTab(QWidget):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
-        layout.setSpacing(10)
+        layout.setContentsMargins(16, 16, 16, 0)
+        layout.setSpacing(16)
 
         self.stack = QStackedWidget()
-        self._build_modes(layout)
+        header = QHBoxLayout()
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(24)
+        title = QLabel(strings.get("title.animate"))
+        title.setStyleSheet(Styles.TITLE)
+        header.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
+        self._build_modes()
+        header.addWidget(self.tabs, 1)
+        layout.addLayout(header)
         for form in self.forms:
             form.changed.connect(lambda form=form: self._inputs_changed(form))
             form.source_changed.connect(lambda form=form: self._source_changed(form))
@@ -321,32 +328,25 @@ class AnimateTab(QWidget):
         layout.addWidget(self.stack, 1)
 
         self.warnings = WarningsWidget()
-        notice = QHBoxLayout()
-        notice.addWidget(self.warnings, 1)
-        notice.addStretch()
-        notice.addWidget(LinkWidget(strings.get("label.guide"), url=f"{DOCS_URL}/latest/usage/animate.html"))
-        layout.addLayout(notice)
+        layout.addWidget(self.warnings)
 
         self.submit = QPushButton(strings.get("button.animate"))
-        self.submit.setFixedHeight(50)
+        self.submit.setFixedHeight(54)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self._start_export)
         layout.addWidget(self.submit)
         self.submit_cursor = DisabledCursor(self.submit)
 
-    def _build_modes(self, layout: QVBoxLayout) -> None:
+    def _build_modes(self) -> None:
         self.tabs = QTabBar()
         self.tabs.setStyleSheet(Styles.TABS)
         self.tabs.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.tabs.setIconSize(QSize(16, 16))
 
         for form in self.forms:
-            icon = QIcon(str(files.resource(f"assets/animate.{form.icon}.png")))
-            self.tabs.addTab(icon, strings.get(form.title))
+            self.tabs.addTab(strings.get(form.title))
 
         self.tabs.currentChanged.connect(self._change_form)
-        layout.addWidget(self.tabs)
 
     def _change_form(self, index: int) -> None:
         self.stack.setCurrentIndex(index)

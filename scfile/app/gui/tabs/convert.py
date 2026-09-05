@@ -1,22 +1,21 @@
 from pathlib import Path
 from typing import override
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QCloseEvent, QKeyEvent
+from PySide6.QtCore import QEvent, QSize, Qt, Signal
+from PySide6.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QPixmap
 from PySide6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
-    QComboBox,
     QFileDialog,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QRadioButton,
-    QStyledItemDelegate,
     QVBoxLayout,
     QWidget,
 )
 
+from scfile.app import files
 from scfile.app.consts import DEFAULT_OUTPUT
 from scfile.app.enums import OutputLayout
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
@@ -25,6 +24,8 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.tasks import TaskManager
+from scfile.app.gui.widgets.card import CardWidget
+from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.conflict import ConflictWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathInputWidget
@@ -34,27 +35,115 @@ from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
 from scfile.content import ModelContent
-from scfile.content.models import Feature
-from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
-from scfile.formats import registry
-from scfile.options import Options
+from scfile.options import DEFAULT_TARGETS, Options
 
 
-FEATURES = {
-    Feature.SKELETON: ("🦴", "feature.skeleton"),
-    Feature.ANIMATION: ("🌀", "feature.animation"),
-}
+class FormatCard(QWidget):
+    """A selectable conversion category with an optional target format control."""
 
+    toggled = Signal(bool)
 
-def _format_title(fmt: FileFormat) -> str:
-    encoder = registry.encoders.get(fmt)
-    icons = " ".join(
-        icon
-        for feature, (icon, _) in FEATURES.items()
-        if encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature)
-    )
-    return f"{fmt.upper()} {icons}".strip()
+    def __init__(self, group, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._hovered = False
+        self._target_hovered = False
+        self._target: QWidget | None = None
+        self.setObjectName("formatCard")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet(Styles.FORMAT_CARD)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 9, 12, 9)
+        layout.setSpacing(10)
+
+        self.checkbox = QCheckBox()
+        self.checkbox.setStyleSheet(Styles.CHECKBOX)
+        self.checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.checkbox.setChecked(True)
+        self.checkbox.toggled.connect(self._checked_changed)
+        layout.addWidget(self.checkbox)
+
+        image = QLabel()
+        image.setPixmap(
+            QPixmap(str(files.resource(f"assets/formats.{group.name}.png"))).scaled(
+                QSize(32, 32),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
+        image.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        layout.addWidget(image)
+
+        content = QVBoxLayout()
+        content.setContentsMargins(0, 0, 0, 0)
+        content.setSpacing(0)
+
+        title = QLabel(strings.get(group.label))
+        title.setObjectName("formatCardTitle")
+        title.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        content.addWidget(title)
+        self._title = title
+
+        hint = QLabel(" ".join(group.display))
+        hint.setObjectName("formatCardHint")
+        hint.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        content.addWidget(hint)
+
+        layout.addLayout(content, 1)
+        self._layout = layout
+        self.setMinimumHeight(58)
+        self._sync_style()
+
+    def add_target(self, target: QWidget) -> None:
+        self._layout.addWidget(target)
+        self.checkbox.toggled.connect(target.setEnabled)
+        if isinstance(target, ComboBox):
+            self._target = target
+            target.installEventFilter(self)
+
+    @property
+    def checked(self) -> bool:
+        return self.checkbox.isChecked()
+
+    def _checked_changed(self, checked: bool) -> None:
+        self._sync_style()
+        self.toggled.emit(checked)
+
+    def _sync_style(self) -> None:
+        self.setProperty("checked", self.checkbox.isChecked())
+        self.setProperty("hovered", self._hovered and not self._target_hovered)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
+    @override
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if self.isEnabled() and event.button() is Qt.MouseButton.LeftButton:
+            self.checkbox.toggle()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    @override
+    def enterEvent(self, event) -> None:
+        self._hovered = True
+        self._sync_style()
+        super().enterEvent(event)
+
+    @override
+    def leaveEvent(self, event) -> None:
+        self._hovered = False
+        self._sync_style()
+        super().leaveEvent(event)
+
+    @override
+    def eventFilter(self, watched, event) -> bool:
+        if watched is self._target and event.type() in (QEvent.Type.Enter, QEvent.Type.Leave):
+            self._target_hovered = event.type() is QEvent.Type.Enter and self._target and self._target.isEnabled()
+            self._sync_style()
+        return super().eventFilter(watched, event)
 
 
 class ConvertForm(QWidget):
@@ -67,11 +156,8 @@ class ConvertForm(QWidget):
         super().__init__(parent)
         self.default_output = output
         self.groups: dict[str, QCheckBox] = {}
-        self.features: dict[Feature, QCheckBox] = {}
-        self.feature_cursors: dict[Feature, DisabledCursor] = {}
         self._build_ui(output)
         self._sync_output()
-        self._sync_features()
 
     @property
     def filters(self) -> tuple[str, ...]:
@@ -86,11 +172,7 @@ class ConvertForm(QWidget):
 
     @property
     def options(self) -> Options:
-        skeleton = self.features[Feature.SKELETON]
-        animation = self.features[Feature.ANIMATION]
         return Options(
-            skeleton=skeleton.isEnabled() and skeleton.isChecked(),
-            animation=animation.isEnabled() and animation.isChecked(),
             targets={ModelContent: self.selected_format},
             on_conflict=self.conflict.value,
         )
@@ -121,7 +203,8 @@ class ConvertForm(QWidget):
 
     def set_count(self, text: str) -> None:
         if not self.submit.running:
-            self.submit.setText(f"{strings.get('button.convert')} ({text})")
+            label = strings.get("button.convert")
+            self.submit.setText(f"{label} ({text})" if text else label)
 
     def set_available(self, available: bool, tooltip: str = "") -> None:
         self.submit_cursor.set(self.submit.running or available, strings.get(tooltip))
@@ -142,27 +225,32 @@ class ConvertForm(QWidget):
     def _build_ui(self, output: Path) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
 
+        heading = QWidget()
+        heading.setFixedHeight(28)
+        heading_layout = QHBoxLayout(heading)
+        heading_layout.setContentsMargins(0, 0, 0, 0)
         title = QLabel(strings.get("label.convert.settings"))
         title.setStyleSheet(Styles.TITLE)
-        layout.addWidget(title)
-        layout.addSpacing(10)
+        heading_layout.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
+        heading_layout.addStretch()
+        layout.addWidget(heading)
 
         self._build_format_groups(layout)
-        layout.addSpacing(10)
         self._build_output(layout, output)
-        self._build_layout(layout)
-        layout.addSpacing(20)
 
         self.conflict = ConflictWidget()
-        layout.addWidget(self.conflict)
+        conflict_card = CardWidget()
+        conflict_card.content.addWidget(self.conflict)
+        layout.addWidget(conflict_card)
         layout.addStretch()
 
         self.warnings = WarningsWidget()
         layout.addWidget(self.warnings)
 
         self.submit = ProgressButton(strings.get("button.convert"))
-        self.submit.setMinimumHeight(50)
+        self.submit.setMinimumHeight(54)
         self.submit.setStyleSheet(Styles.BUTTON_ACCENT)
         self.submit.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit.clicked.connect(self.submitted.emit)
@@ -170,79 +258,43 @@ class ConvertForm(QWidget):
         self.submit_cursor = DisabledCursor(self.submit)
 
     def _build_format_groups(self, layout: QVBoxLayout) -> None:
-        self.model_format = QComboBox()
-        self.model_format.setStyleSheet(Styles.COMBO)
-        self.model_format.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.model_format.setItemDelegate(QStyledItemDelegate())
+        self.model_format = ComboBox()
+        self.model_format.setFixedWidth(76)
         self.model_format.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         for fmt in model_formats():
-            self.model_format.addItem(_format_title(fmt), fmt)
-        self.model_format.currentIndexChanged.connect(self._sync_features)
+            self.model_format.addItem(fmt.suffix, fmt)
 
         for group in FORMAT_GROUPS:
-            widget = QWidget()
-            group_layout = QVBoxLayout(widget)
-            group_layout.setContentsMargins(0, 0, 0, 0)
-            group_layout.setSpacing(0)
-
-            toggle = QCheckBox(f"{group.icon} {strings.get(group.label)}")
-            toggle.setStyleSheet(Styles.CHECKBOX)
-            toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-            toggle.setChecked(True)
-            self.groups[group.name] = toggle
-
-            options = QWidget()
-            options_layout = QVBoxLayout(options)
-            options_layout.setContentsMargins(26, 4, 0, 8)
-            options_layout.setSpacing(2)
-
+            card = FormatCard(group)
+            self.groups[group.name] = card.checkbox
             if group.name == "models":
-                options_layout.addWidget(self.model_format)
+                card.add_target(self.model_format)
+            else:
+                target = QLabel(DEFAULT_TARGETS[group.content_type].suffix)
+                target.setObjectName("formatCardTarget")
+                target.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+                card.add_target(target)
 
-            for feature in group.features:
-                icon, label = FEATURES[feature]
-                checkbox = QCheckBox(f"{icon} {strings.get(label)}")
-                checkbox.setStyleSheet(Styles.CHECKBOX)
-                checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
-                options_layout.addWidget(checkbox)
-                self.features[feature] = checkbox
-                self.feature_cursors[feature] = DisabledCursor(checkbox)
-
-            suffixes = QLabel(", ".join(group.display))
-            suffixes.setStyleSheet(f"{Styles.HINT}; margin-left: 24px;")
-
-            toggle.toggled.connect(options.setEnabled)
-            toggle.toggled.connect(lambda _: self.filters_changed.emit())
-            group_layout.addWidget(toggle)
-            group_layout.addWidget(suffixes)
-            group_layout.addWidget(options)
-            layout.addWidget(widget)
-
-        self.features[Feature.SKELETON].toggled.connect(self._skeleton_changed)
-        self.features[Feature.ANIMATION].toggled.connect(self._animation_changed)
+            card.toggled.connect(lambda _: self.filters_changed.emit())
+            layout.addWidget(card)
 
     def _build_output(self, layout: QVBoxLayout, output: Path) -> None:
-        label = QLabel(strings.get("label.convert.output"))
-        label.setStyleSheet(Styles.LABEL)
-        layout.addWidget(label)
+        card = CardWidget(strings.get("label.convert.output"))
+        content = card.content
 
         modes = QButtonGroup(self)
         self.output_origin = QRadioButton(strings.get("option.convert.output.origin"))
         self.output_origin.setStyleSheet(Styles.RADIO)
         self.output_origin.setCursor(Qt.CursorShape.PointingHandCursor)
         modes.addButton(self.output_origin)
-        layout.addWidget(self.output_origin)
+        content.addWidget(self.output_origin)
 
-        row = QWidget()
-        row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(0, 0, 0, 0)
-        row_layout.setSpacing(0)
-
-        self.output_custom = QRadioButton()
+        self.output_custom = QRadioButton(strings.get("option.convert.output.custom"))
         self.output_custom.setStyleSheet(Styles.RADIO)
         self.output_custom.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_custom.setChecked(True)
         modes.addButton(self.output_custom)
+        content.addWidget(self.output_custom)
 
         self.output_path = PathInputWidget(
             placeholder=strings.get("placeholder.path"),
@@ -250,31 +302,40 @@ class ConvertForm(QWidget):
         )
         self.output_path.value = output.as_posix()
 
-        row_layout.addWidget(self.output_custom)
-        row_layout.addWidget(self.output_path)
-        layout.addWidget(row)
+        path_row = QWidget()
+        path_layout = QVBoxLayout(path_row)
+        path_layout.setContentsMargins(0, 0, 0, 0)
+        path_layout.setSpacing(0)
+        path_layout.addWidget(self.output_path)
+        content.addWidget(path_row)
 
         error_row = QWidget()
         error_layout = QVBoxLayout(error_row)
-        error_layout.setContentsMargins(25, 0, 0, 0)
+        error_layout.setContentsMargins(0, 0, 0, 0)
         error_layout.setSpacing(0)
 
         self.output_error = QLabel()
         self.output_error.setStyleSheet(Styles.ERROR)
         self.output_error.hide()
         error_layout.addWidget(self.output_error)
-        layout.addWidget(error_row)
+        content.addWidget(error_row)
 
         self.output_path.changed.connect(self._output_changed)
         self.output_path.activated.connect(self._select_custom_output)
         self.output_path.reset_requested.connect(self._restore_default_output)
         modes.buttonToggled.connect(self._output_changed)
+        self._build_layout(content)
+        layout.addWidget(card)
 
     def _build_layout(self, layout: QVBoxLayout) -> None:
+        label = QLabel(strings.get("label.convert.output.layout"))
+        label.setStyleSheet(Styles.LABEL)
+        layout.addWidget(label)
+
         self.structure = QWidget()
         structure = QVBoxLayout(self.structure)
-        structure.setContentsMargins(25, 0, 0, 0)
-        structure.setSpacing(5)
+        structure.setContentsMargins(0, 0, 0, 0)
+        structure.setSpacing(4)
 
         self.output_tree = QRadioButton(strings.get("option.convert.output.tree"))
         self.output_tree.setStyleSheet(Styles.RADIO)
@@ -320,21 +381,6 @@ class ConvertForm(QWidget):
         self.output_error.setText(error)
         self.output_error.setVisible(bool(error))
 
-    def _sync_features(self) -> None:
-        encoder = registry.encoders.get(self.selected_format)
-        for feature, widget in self.features.items():
-            supported = encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature)
-            self.feature_cursors[feature].set(supported)
-            widget.setChecked(supported)
-
-    def _skeleton_changed(self, enabled: bool) -> None:
-        if not enabled:
-            self.features[Feature.ANIMATION].setChecked(False)
-
-    def _animation_changed(self, enabled: bool) -> None:
-        if enabled:
-            self.features[Feature.SKELETON].setChecked(True)
-
 
 class ConvertTab(QWidget):
     error = Signal(object)
@@ -358,35 +404,51 @@ class ConvertTab(QWidget):
         self.tasks.completed.connect(self._complete)
         self.tasks.busy_changed.connect(self._sync)
 
+        self._sync_source_count()
         self._refresh()
 
     def _build_ui(self) -> None:
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setContentsMargins(16, 16, 16, 0)
+        layout.setSpacing(16)
 
         left = QVBoxLayout()
-        header = QHBoxLayout()
+        left.setContentsMargins(0, 0, 0, 0)
+        left.setSpacing(0)
+
+        header_widget = QWidget()
+        header_widget.setFixedHeight(28)
+        header = QHBoxLayout(header_widget)
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(8)
 
         title = QLabel(strings.get("label.convert.sources"))
         title.setStyleSheet(Styles.TITLE)
+        self.source_count = QLabel()
+        self.source_count.setObjectName("sourceCount")
+        self.source_count.setStyleSheet(Styles.COUNT_BADGE)
+        self.source_count.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.source_count.hide()
 
         add_files = QPushButton(strings.get("button.convert.add.files"))
-        add_files.setStyleSheet(Styles.BUTTON)
+        add_files.setStyleSheet(Styles.BUTTON_UTILITY)
         add_files.setCursor(Qt.CursorShape.PointingHandCursor)
         add_files.clicked.connect(self._browse_files)
 
         add_folder = QPushButton(strings.get("button.convert.add.folder"))
-        add_folder.setStyleSheet(Styles.BUTTON)
+        add_folder.setStyleSheet(Styles.BUTTON_UTILITY)
         add_folder.setCursor(Qt.CursorShape.PointingHandCursor)
         add_folder.clicked.connect(self._browse_folder)
 
-        header.addWidget(title)
+        header.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
+        header.addWidget(self.source_count, 0, Qt.AlignmentFlag.AlignVCenter)
         header.addStretch()
         header.addWidget(add_files)
         header.addWidget(add_folder)
 
         self.sources = SourcesWidget()
-        left.addLayout(header)
+        left.addWidget(header_widget)
+        left.addSpacing(10)
         left.addWidget(self.sources, 1)
 
         self.form = ConvertForm(self.settings.export_path)
@@ -394,7 +456,13 @@ class ConvertTab(QWidget):
         layout.addWidget(self.form, stretch=1)
 
     def _sources_changed(self) -> None:
+        self._sync_source_count()
         self._refresh()
+
+    def _sync_source_count(self) -> None:
+        count = self.sources.count()
+        self.source_count.setText(str(count))
+        self.source_count.setVisible(count > 0)
 
     def _filters_changed(self) -> None:
         self._refresh()
@@ -432,7 +500,7 @@ class ConvertTab(QWidget):
         sources = tuple(Path(source) for source in self.sources.values)
         output = self.form.output
 
-        self.form.set_count(self.counter.text)
+        self.form.set_count(self.counter.text if self.sources.values else "")
         self.form.set_warnings(self._warnings(sources, output))
 
         error = self._submit_error(sources)
