@@ -47,7 +47,7 @@ class MapCacheTab(QWidget):
         title = QLabel(strings.get("title.mapcache"))
         title.setStyleSheet(Styles.TITLE)
         heading.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
-        badge = QLabel(strings.get("badge.experimental"))
+        badge = QLabel(strings.get("label.experimental"))
         badge.setStyleSheet(Styles.BADGE_WARNING)
         badge.setToolTip(strings.get("tooltip.experimental"))
         heading.addWidget(badge, 0, Qt.AlignmentFlag.AlignVCenter)
@@ -110,7 +110,7 @@ class MapCacheTab(QWidget):
         self.submit_cursor = DisabledCursor(self.submit)
 
     def _info(self) -> QWidget:
-        info = CalloutWidget()
+        info = CalloutWidget(strings.get("label.mapcache.format"))
         layout = info.content
         format_label = QLabel(strings.get("mapcache.format"))
         format_label.setStyleSheet(Styles.LABEL)
@@ -250,6 +250,7 @@ class MapCacheTab(QWidget):
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
             Options(biomes=self.biomes.checked, backup_regions=self.backup.checked),
+            workers=self.settings.workers,
         )
         self.running = self.tasks.start(task)
         if self.running:

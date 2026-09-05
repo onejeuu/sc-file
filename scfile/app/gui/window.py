@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
 
         self.store = Store()
         self.settings = self.store.load()
+        strings.LANG = self.settings.language
         self._resolve_game_root()
 
         self.tasks = TaskManager(self)

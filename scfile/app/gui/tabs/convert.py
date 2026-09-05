@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QRadioButton,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -35,13 +36,14 @@ from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
 from scfile.content import ModelContent
+from scfile.content.models import Feature
+from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
+from scfile.formats import registry
 from scfile.options import DEFAULT_TARGETS, Options
 
 
 class FormatCard(QWidget):
-    """A selectable conversion category with an optional target format control."""
-
     toggled = Signal(bool)
 
     def __init__(self, group, parent: QWidget | None = None) -> None:
@@ -54,7 +56,14 @@ class FormatCard(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(Styles.FORMAT_CARD)
 
-        layout = QHBoxLayout(self)
+        self._rows = QVBoxLayout(self)
+        self._rows.setContentsMargins(0, 0, 0, 0)
+        self._rows.setSpacing(0)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        header = QWidget()
+        header.setFixedHeight(58)
+        self._rows.addWidget(header)
+        layout = QHBoxLayout(header)
         layout.setContentsMargins(12, 9, 12, 9)
         layout.setSpacing(10)
 
@@ -95,6 +104,11 @@ class FormatCard(QWidget):
         self._layout = layout
         self.setMinimumHeight(58)
         self._sync_style()
+
+    def add_details(self, widget: QWidget) -> None:
+        self._rows.addWidget(widget)
+        widget.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.setMinimumHeight(58 + widget.sizeHint().height())
 
     def add_target(self, target: QWidget) -> None:
         self._layout.addWidget(target)
@@ -173,6 +187,8 @@ class ConvertForm(QWidget):
     @property
     def options(self) -> Options:
         return Options(
+            skeleton=self.skeleton.isEnabled() and self.skeleton.isChecked(),
+            animation=self.animation.isEnabled() and self.animation.isChecked(),
             targets={ModelContent: self.selected_format},
             on_conflict=self.conflict.value,
         )
@@ -264,11 +280,35 @@ class ConvertForm(QWidget):
         for fmt in model_formats():
             self.model_format.addItem(fmt.suffix, fmt)
 
+        features = QWidget()
+        feature_layout = QHBoxLayout(features)
+        feature_layout.setContentsMargins(12, 0, 12, 9)
+        feature_layout.setSpacing(8)
+        self.skeleton = QCheckBox(strings.get("format.models.skeleton"))
+        self.animation = QCheckBox(strings.get("format.models.animation"))
+        for action in (self.skeleton, self.animation):
+            action.setStyleSheet(Styles.CHECKBOX)
+            action.setCursor(Qt.CursorShape.PointingHandCursor)
+            action.setChecked(True)
+            action.toggled.connect(lambda _: self.changed.emit())
+            feature_layout.addWidget(action)
+        feature_layout.addStretch()
+        self.skeleton_cursor = DisabledCursor(self.skeleton)
+        self.animation_cursor = DisabledCursor(self.animation)
+        self.skeleton.toggled.connect(lambda enabled: self.animation.setChecked(False) if not enabled else None)
+        self.animation.toggled.connect(lambda enabled: self.skeleton.setChecked(True) if enabled else None)
+        self.model_format.currentIndexChanged.connect(self._sync_features)
+        self._sync_features()
+
         for group in FORMAT_GROUPS:
             card = FormatCard(group)
             self.groups[group.name] = card.checkbox
             if group.name == "models":
                 card.add_target(self.model_format)
+                card.add_details(features)
+                self.features_cursor = DisabledCursor(features)
+                self.features_cursor.set(card.checkbox.isChecked())
+                card.checkbox.toggled.connect(self.features_cursor.set)
             else:
                 target = QLabel(DEFAULT_TARGETS[group.content_type].suffix)
                 target.setObjectName("formatCardTarget")
@@ -278,23 +318,37 @@ class ConvertForm(QWidget):
             card.toggled.connect(lambda _: self.filters_changed.emit())
             layout.addWidget(card)
 
+    def _sync_features(self) -> None:
+        encoder = registry.encoders.get(self.selected_format)
+        for feature, cursor in (
+            (Feature.SKELETON, self.skeleton_cursor),
+            (Feature.ANIMATION, self.animation_cursor),
+        ):
+            cursor.set(encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature))
+        self.changed.emit()
+
     def _build_output(self, layout: QVBoxLayout, output: Path) -> None:
         card = CardWidget(strings.get("label.convert.output"))
         content = card.content
+
+        destination = QVBoxLayout()
+        destination.setContentsMargins(0, 0, 0, 0)
+        destination.setSpacing(4)
+        content.addLayout(destination)
 
         modes = QButtonGroup(self)
         self.output_origin = QRadioButton(strings.get("option.convert.output.origin"))
         self.output_origin.setStyleSheet(Styles.RADIO)
         self.output_origin.setCursor(Qt.CursorShape.PointingHandCursor)
         modes.addButton(self.output_origin)
-        content.addWidget(self.output_origin)
+        destination.addWidget(self.output_origin)
 
         self.output_custom = QRadioButton(strings.get("option.convert.output.custom"))
         self.output_custom.setStyleSheet(Styles.RADIO)
         self.output_custom.setCursor(Qt.CursorShape.PointingHandCursor)
         self.output_custom.setChecked(True)
         modes.addButton(self.output_custom)
-        content.addWidget(self.output_custom)
+        destination.addWidget(self.output_custom)
 
         self.output_path = PathInputWidget(
             placeholder=strings.get("placeholder.path"),
@@ -307,7 +361,7 @@ class ConvertForm(QWidget):
         path_layout.setContentsMargins(0, 0, 0, 0)
         path_layout.setSpacing(0)
         path_layout.addWidget(self.output_path)
-        content.addWidget(path_row)
+        destination.addWidget(path_row)
 
         error_row = QWidget()
         error_layout = QVBoxLayout(error_row)
@@ -353,6 +407,7 @@ class ConvertForm(QWidget):
         structure.addWidget(self.output_tree)
         structure.addWidget(self.output_dump)
         layout.addWidget(self.structure)
+        self.structure_cursor = DisabledCursor(self.structure)
 
     def _output_changed(self, *_: object) -> None:
         self._sync_output()
@@ -375,7 +430,7 @@ class ConvertForm(QWidget):
     def _sync_output(self) -> None:
         custom = self.output_custom.isChecked()
         self.output_path.read_only = not custom
-        self.structure.setEnabled(custom)
+        self.structure_cursor.set(custom)
         error = strings.get("tooltip.convert.invalid.output") if custom and not self.output_valid else ""
         self.output_path.invalid = bool(error)
         self.output_error.setText(error)
@@ -512,6 +567,7 @@ class ConvertTab(QWidget):
             return
 
         task = ConvertTask(
+            workers=self.settings.workers,
             sources=self.sources.values,
             filters=self.form.filters,
             options=self.form.options,

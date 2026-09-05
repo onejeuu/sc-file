@@ -25,6 +25,7 @@ from scfile.options import Options
 
 
 IGNORED_MAP_SUFFIXES = ("textures", "sound", "overlay")
+REGION_NAMES = {"ru": "Russian", "en": "English", "es": "Spanish", "fr": "French", "ko": "Korean"}
 
 
 class MapTilesTab(QWidget):
@@ -236,7 +237,7 @@ class MapTilesTab(QWidget):
 
         self.region.clear()
         for region in regions:
-            self.region.addItem(region.upper(), region)
+            self.region.add_named_item(region, REGION_NAMES.get(region))
         self.region.setCurrentIndex(regions.index(selected) if selected else -1)
 
         enabled = bool(regions)
@@ -257,8 +258,7 @@ class MapTilesTab(QWidget):
         self.map.clear()
         for name in names:
             title = strings.get(f"maptiles.map.{name}", name)
-            label = name if title == name else f"{title} ({name})"
-            self.map.addItem(label, name)
+            self.map.add_named_item(name, title if title != name else None)
 
         if not names:
             self._disable_maps("tooltip.maptiles.empty.map")

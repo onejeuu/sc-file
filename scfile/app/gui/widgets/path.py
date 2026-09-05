@@ -202,7 +202,7 @@ class PathInputWidget(QWidget):
         self.browse_btn = QPushButton("...")
         self.browse_btn.setStyleSheet(Styles.BUTTON)
         self.browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.browse_btn.setFixedSize(30, 30)
+        self.browse_btn.setFixedWidth(32)
 
         tooltip = "tooltip.browse.directory" if self.mode == "directory" else "tooltip.browse.file"
         self.browse_btn.setToolTip(strings.get(tooltip))

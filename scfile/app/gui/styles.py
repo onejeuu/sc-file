@@ -241,13 +241,12 @@ class Styles:
 
     CARD_TITLE = f"font-size: 14px; font-weight: 600; color: {Colors.TEXT};"
 
-    CALLOUT = f"""
-        QWidget#callout {{
-            background: {Colors.SURFACE};
-            border: 1px solid {Colors.BORDER};
-            border-left: 3px solid {Colors.INFO};
+    CALLOUT = """
+        QWidget#callout {
+            background: rgba(120, 183, 255, 0.04);
+            border: 1px solid rgba(120, 183, 255, 0.24);
             border-radius: 8px;
-        }}
+        }
     """
 
     BADGE_WARNING = f"""

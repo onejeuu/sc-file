@@ -24,13 +24,13 @@ class FooterWidget(QWidget):
         links_layout.setSpacing(10)
 
         repo = LinkWidget(text=f"{REPO}", url=f"https://github.com/{REPO}")
-        docs = LinkWidget(text=strings.get("label.documentation"), url=DOCS_URL)
+        docs = LinkWidget(text=strings.get("label.footer.docs"), url=DOCS_URL)
 
         links_layout.addWidget(repo)
         links_layout.addWidget(docs)
         links_layout.addStretch()
 
-        self.section_help = LinkWidget(text=strings.get("label.section.help"), url="")
+        self.section_help = LinkWidget(text=strings.get("label.footer.guide"), url="")
         self.section_help.hide()
         links_layout.addWidget(self.section_help)
 

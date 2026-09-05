@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import Colors, Styles
 
 
 class CardWidget(QWidget):
@@ -22,12 +22,15 @@ class CardWidget(QWidget):
 
         self.content = QVBoxLayout()
         self.content.setContentsMargins(0, 0, 0, 0)
-        self.content.setSpacing(4)
+        self.content.setSpacing(8)
         layout.addLayout(self.content)
 
 
 class CalloutWidget(CardWidget):
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, title: str, parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
         self.setObjectName("callout")
         self.setStyleSheet(Styles.CALLOUT)
+        title = QLabel(title)
+        title.setStyleSheet(f"{Styles.LABEL} color: {Colors.INFO};")
+        self.layout().insertWidget(0, title)

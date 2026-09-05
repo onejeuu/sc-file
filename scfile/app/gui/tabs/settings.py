@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QSignalBlocker, QSize, Qt, Signal
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSlider, QVBoxLayout, QWidget
 
 from scfile.app import files
 from scfile.app.consts import DEFAULT_OUTPUT
@@ -11,8 +12,10 @@ from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.widgets.card import CardWidget
+from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.workers import WorkersSpinBox
 
 
 ICON_SIZE = QSize(22, 22)
@@ -83,7 +86,7 @@ class SettingsTab(QWidget):
         self.export.changed.connect(self._set_export_path)
 
         paths.content.addWidget(
-            self._path_setting(
+            self._setting(
                 "gameroot",
                 strings.get("label.settings.game"),
                 strings.get("label.settings.game.hint"),
@@ -91,17 +94,60 @@ class SettingsTab(QWidget):
             )
         )
         paths.content.addWidget(
-            self._path_setting(
+            self._setting(
                 "export_path",
                 strings.get("label.settings.export"),
                 strings.get("label.settings.export.hint"),
                 self.export,
             )
         )
+        performance = CardWidget(strings.get("label.settings.performance"))
+        controls = QWidget()
+        controls_layout = QHBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 0, 0)
+        controls_layout.setSpacing(10)
+        self.workers_slider = QSlider(Qt.Orientation.Horizontal)
+        self.workers_slider.setStyleSheet(Styles.SLIDER)
+        self.workers_slider.setRange(1, min(99, os.cpu_count() or 4))
+        self.workers_slider.setValue(self.settings.workers)
+        self.workers_spin = WorkersSpinBox()
+        self.workers_spin.setStyleSheet(Styles.SPIN)
+        self.workers_spin.setFixedWidth(74)
+        self.workers_spin.setRange(1, 99)
+        self.workers_spin.setValue(self.settings.workers)
+        self.workers_slider.valueChanged.connect(self.workers_spin.setValue)
+        self.workers_spin.valueChanged.connect(self._set_workers)
+        controls_layout.addWidget(self.workers_slider, 1)
+        controls_layout.addWidget(self.workers_spin)
+        performance.content.addWidget(
+            self._setting(
+                "cpu",
+                strings.get("label.settings.workers"),
+                strings.get("label.settings.workers.hint"),
+                controls,
+            )
+        )
+        layout.addWidget(performance)
+
+        interface = CardWidget(strings.get("label.settings.interface"))
+        self.language = ComboBox()
+        for language, translation in strings.DATA.items():
+            self.language.addItem(translation["name"], language)
+        self.language.setCurrentIndex(self.language.findData(self.settings.language))
+        self.language.currentIndexChanged.connect(self._set_language)
+        interface.content.addWidget(
+            self._setting(
+                "lang",
+                strings.get("label.settings.language"),
+                strings.get("label.settings.language.hint"),
+                self.language,
+            )
+        )
+        layout.addWidget(interface)
         layout.addWidget(paths)
         layout.addStretch()
 
-    def _path_setting(self, icon: str, title: str, hint: str, field: PathInputWidget) -> QWidget:
+    def _setting(self, icon: str, title: str, hint: str, field: QWidget) -> QWidget:
         widget = QWidget()
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -124,6 +170,16 @@ class SettingsTab(QWidget):
         content.addWidget(field)
         layout.addLayout(content, 1)
         return widget
+
+    def _set_workers(self, value: int) -> None:
+        self.settings.workers = value
+        with QSignalBlocker(self.workers_slider):
+            self.workers_slider.setValue(value)
+        self.changed.emit()
+
+    def _set_language(self, _: int) -> None:
+        self.settings.language = self.language.currentData()
+        self.changed.emit()
 
     def _set_game_root(self, value: str) -> None:
         value = value.strip()
