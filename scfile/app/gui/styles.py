@@ -418,7 +418,8 @@ class Styles:
     """
 
     POPUP = f"""
-        UpdatePopup {{ background-color: {Colors.SURFACE_RAISED}; border: 1px solid {Colors.BORDER_STRONG}; border-radius: 8px; }}
+        UpdatePopup {{ background: transparent; }}
+        QWidget#updateSurface {{ background-color: {Colors.SURFACE_RAISED}; border: 1px solid {Colors.BORDER_STRONG}; border-radius: 8px; }}
         QLabel {{ background: transparent; }}
     """
 
@@ -447,38 +448,45 @@ class Styles:
 
     VERSION_BADGE = f"""
         QWidget#versionBadge {{
-            background-color: {Colors.SURFACE};
-            border: 1px solid {Colors.BORDER};
-            border-radius: 6px;
+            background-color: {Colors.CONTROL};
+            border: none;
+            border-radius: 11px;
         }}
         QWidget#versionBadge QLabel {{
             background: transparent;
             border: none;
-            color: {Colors.TEXT_MUTED};
+            color: {Colors.TEXT_SECONDARY};
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
         }}
     """
     VERSION_BADGE_HOVER = f"""
         QWidget#versionBadge {{
-            background-color: {Colors.CONTROL};
-            border: 1px solid {Colors.BORDER_STRONG};
-            border-radius: 6px;
+            background-color: rgba(255, 214, 102, 0.12);
+            border: none;
+            border-radius: 11px;
         }}
         QWidget#versionBadge QLabel {{
             background: transparent;
             border: none;
             color: {Colors.ACCENT};
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
         }}
+    """
+
+    TOGGLE_STATES = f"""
+        QPushButton:checked {{ background: {Colors.ACCENT}; border-color: {Colors.ACCENT}; color: {Colors.ACCENT_FOREGROUND}; font-weight: 700; }}
+        QPushButton:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
+        QPushButton:hover:!checked {{ background: {Colors.CONTROL}; color: {Colors.TEXT}; }}
     """
 
     TOGGLE_GROUP = f"""
         QWidget#toggleGroup {{ background: {Colors.SURFACE_SUNKEN}; border: 1px solid {Colors.BORDER}; border-radius: 6px; }}
     """
 
-    TOGGLE_ITEM = f"""
+    TOGGLE_ITEM = (
+        f"""
         QPushButton {{
             background: transparent;
             color: {Colors.TEXT_SECONDARY};
@@ -489,10 +497,9 @@ class Styles:
             font-size: 12px;
             outline: none;
         }}
-        QPushButton:checked {{ background: {Colors.ACCENT}; border-color: {Colors.ACCENT}; color: {Colors.ACCENT_FOREGROUND}; font-weight: 700; }}
-        QPushButton:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
-        QPushButton:hover:!checked {{ background: {Colors.CONTROL}; color: {Colors.TEXT}; }}
     """
+        + TOGGLE_STATES
+    )
 
     TABS = f"""
         QTabBar::tab {{ color: {Colors.TEXT_MUTED}; background: transparent; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; }}

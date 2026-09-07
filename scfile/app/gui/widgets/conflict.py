@@ -42,6 +42,7 @@ class ConflictWidget(QWidget):
 
         hint = QLabel(strings.get("label.convert.onconflict.hint"))
         hint.setStyleSheet(Styles.HINT)
+        hint.setWordWrap(True)
 
         layout.addWidget(label)
         layout.addWidget(toggle_group)

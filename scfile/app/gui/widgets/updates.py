@@ -1,9 +1,9 @@
 import time
 from typing import override
 
-from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QMouseEvent, QPainter
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QStyle, QStyleOption, QVBoxLayout, QWidget
+from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QMouseEvent
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.app import updates
@@ -83,25 +83,28 @@ class UpdatePopup(QWidget):
         flags = Qt.WindowType.Popup | Qt.WindowType.FramelessWindowHint | Qt.WindowType.NoDropShadowWindowHint
         super().__init__(anchor, flags)
         self.anchor = anchor
+        owner = anchor
+        while owner is not None:
+            owner.installEventFilter(self)
+            owner = owner.parentWidget()
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setStyleSheet(Styles.POPUP)
 
-        self.main_layout = QVBoxLayout(self)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        surface = QWidget(self)
+        surface.setObjectName("updateSurface")
+        surface.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        layout.addWidget(surface)
+
+        self.main_layout = QVBoxLayout(surface)
         self.main_layout.setContentsMargins(10, 8, 10, 8)
         self.main_layout.setSpacing(6)
 
         self.close_timer = QTimer(self)
         self.close_timer.setSingleShot(True)
         self.close_timer.timeout.connect(self.close)
-
-    @override
-    def paintEvent(self, event):
-        option = QStyleOption()
-        option.initFrom(self)
-        painter = QPainter(self)
-        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget, option, painter, self)
 
     def _clear_state(self):
         self.close_timer.stop()
@@ -134,21 +137,34 @@ class UpdatePopup(QWidget):
                 label = QLabel(strings.get("update.available"))
                 label.setStyleSheet(f"color: {Colors.INFO};")
                 self.main_layout.addWidget(label)
-                self.main_layout.addWidget(LinkWidget(text=url, url=url))
+                if url:
+                    self.main_layout.addWidget(LinkWidget(text=url, url=url))
 
             case UpdateStatus.ERROR:
-                label = QLabel(f"{strings.get('update.error')}: {message}")
-                label.setStyleSheet(f"color: {Colors.ERROR};")
+                label = QLabel(strings.get("update.error"))
+                label.setStyleSheet(f"color: {Colors.WARNING};")
+                label.setToolTip(message)
                 self.main_layout.addWidget(label)
 
                 if url:
-                    warn = QLabel(strings.get("update.manual"))
-                    warn.setStyleSheet(f"color: {Colors.WARNING};")
-                    self.main_layout.addWidget(warn)
                     self.main_layout.addWidget(LinkWidget(text=url, url=url))
 
         self.adjustSize()
         self.show()
+
+    @override
+    def eventFilter(self, watched, event):
+        if self.isVisible():
+            if event.type() in (QEvent.Type.Move, QEvent.Type.Resize):
+                self.update_position()
+            elif event.type() == QEvent.Type.Hide:
+                self.close()
+        return super().eventFilter(watched, event)
+
+    @override
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.update_position()
 
     @override
     def resizeEvent(self, event):
@@ -161,6 +177,11 @@ class UpdatePopup(QWidget):
 
         x = position.x()
         y = position.y() - self.height() - 4
+        screen = self.anchor.screen().availableGeometry()
+        if y < screen.top():
+            y = position.y() + anchor.height() + 4
+        x = max(screen.left(), min(x, screen.right() - self.width() + 1))
+        y = max(screen.top(), min(y, screen.bottom() - self.height() + 1))
         self.move(x, y)
 
 
@@ -171,6 +192,7 @@ class VersionWidget(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setStyleSheet(Styles.VERSION_BADGE)
+        self.setToolTip(strings.get("update.check"))
 
         self.main_layout = QHBoxLayout(self)
         self.main_layout.setContentsMargins(3, 0, 3, 0)
@@ -181,6 +203,7 @@ class VersionWidget(QWidget):
         tag = v.tag if v else SEMVER
 
         self.text_label = QLabel(tag)
+        self.text_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.main_layout.addWidget(self.text_label)
 
         self.popup: UpdatePopup | None = None

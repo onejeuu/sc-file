@@ -32,6 +32,7 @@ from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.path import PathInputWidget
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.sources import SourcesWidget
+from scfile.app.gui.widgets.toggle import ToggleButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.counter import FileCounter
 from scfile.app.tasks.convert import ConvertTask
@@ -173,6 +174,22 @@ class ConvertForm(QWidget):
         self.groups: dict[str, QCheckBox] = {}
         self._build_ui(output)
         self._sync_output()
+
+    @override
+    def minimumSizeHint(self) -> QSize:
+        size = super().minimumSizeHint()
+        width = self.structure.layout().minimumSize().width()
+        for layout in (self.output_card.content, self.output_card.layout(), self.layout()):
+            margins = layout.contentsMargins()
+            width += margins.left() + margins.right()
+        size.setWidth(max(size.width(), width))
+        return size
+
+    @override
+    def sizeHint(self) -> QSize:
+        size = super().sizeHint()
+        size.setWidth(max(size.width(), self.minimumSizeHint().width()))
+        return size
 
     @property
     def filters(self) -> tuple[str, ...]:
@@ -333,6 +350,7 @@ class ConvertForm(QWidget):
 
     def _build_output(self, layout: QVBoxLayout, output: Path) -> None:
         card = CardWidget(strings.get("label.convert.output"))
+        self.output_card = card
         content = card.content
 
         destination = QVBoxLayout()
@@ -386,32 +404,38 @@ class ConvertForm(QWidget):
         layout.addWidget(card)
 
     def _build_layout(self, layout: QVBoxLayout) -> None:
+        self.structure = QWidget()
+        self.structure.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        section = QVBoxLayout(self.structure)
+        section.setContentsMargins(0, 0, 0, 0)
+        section.setSpacing(4)
         label = QLabel(strings.get("label.convert.output.layout"))
         label.setStyleSheet(Styles.LABEL)
-        layout.addWidget(label)
+        section.addWidget(label)
+        toggle_group = QWidget()
+        toggle_group.setObjectName("toggleGroup")
+        toggle_group.setStyleSheet(Styles.TOGGLE_GROUP)
+        toggle_group.setFixedHeight(32)
+        structure = QHBoxLayout(toggle_group)
+        structure.setContentsMargins(1, 1, 1, 1)
+        structure.setSpacing(0)
+        section.addWidget(toggle_group)
 
-        self.structure = QWidget()
-        structure = QVBoxLayout(self.structure)
-        structure.setContentsMargins(0, 0, 0, 0)
-        structure.setSpacing(4)
-
-        self.output_tree = QRadioButton(strings.get("option.convert.output.tree"))
-        self.output_tree.setStyleSheet(Styles.RADIO)
-        self.output_tree.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.output_tree.setChecked(True)
-
-        self.output_dump = QRadioButton(strings.get("option.convert.output.dump"))
-        self.output_dump.setStyleSheet(Styles.RADIO)
-        self.output_dump.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.output_tree = ToggleButton(strings.get("option.convert.output.tree"))
+        self.output_dump = ToggleButton(strings.get("option.convert.output.dump"))
 
         modes = QButtonGroup(self)
-        modes.addButton(self.output_tree)
-        modes.addButton(self.output_dump)
+        for button in (self.output_tree, self.output_dump):
+            button.setCheckable(True)
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setStyleSheet(Styles.TOGGLE_ITEM)
+            button.setFixedHeight(30)
+            modes.addButton(button)
+            structure.addWidget(button, 1)
+        self.output_tree.setChecked(True)
 
-        structure.addWidget(self.output_tree)
-        structure.addWidget(self.output_dump)
+        modes.buttonToggled.connect(self._output_changed)
         layout.addWidget(self.structure)
-        self.structure_cursor = DisabledCursor(self.structure)
 
     def _output_changed(self, *_: object) -> None:
         self._sync_output()
@@ -434,7 +458,7 @@ class ConvertForm(QWidget):
     def _sync_output(self) -> None:
         custom = self.output_custom.isChecked()
         self.output_path.read_only = not custom
-        self.structure_cursor.set(custom)
+        self.structure.setVisible(custom)
         error = strings.get("tooltip.convert.invalid.output") if custom and not self.output_valid else ""
         self.output_path.invalid = bool(error)
         self.output_error.setText(error)

@@ -163,7 +163,7 @@ class MainWindow(QMainWindow):
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
         self.version = VersionWidget()
-        self.version.setFixedSize(48, 28)
+        self.version.setFixedSize(48, 22)
         self.sidebar.addWidget(self.version, 0, Qt.AlignmentFlag.AlignHCenter)
 
         self.navigation.buttons()[0].setChecked(True)

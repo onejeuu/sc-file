@@ -15,6 +15,7 @@ from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathInputWidget
+from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.widgets.workers import WorkersSpinBox
 
 
@@ -35,6 +36,7 @@ class SettingsTab(QWidget):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings = settings
+        self._startup_language = strings.LANG
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -144,6 +146,8 @@ class SettingsTab(QWidget):
             )
         )
         layout.addWidget(interface)
+        self.language_warning = WarningsWidget()
+        interface.content.addWidget(self.language_warning)
         layout.addWidget(paths)
         layout.addStretch()
 
@@ -179,6 +183,11 @@ class SettingsTab(QWidget):
 
     def _set_language(self, _: int) -> None:
         self.settings.language = self.language.currentData()
+        self.language_warning.set_messages(
+            (strings.DATA[self.settings.language]["warning.settings.restart"],)
+            if self.settings.language != self._startup_language
+            else ()
+        )
         self.changed.emit()
 
     def _set_game_root(self, value: str) -> None:
