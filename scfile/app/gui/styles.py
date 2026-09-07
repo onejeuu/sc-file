@@ -79,12 +79,12 @@ class Styles:
             border-color: {Colors.ACCENT};
         }}
         QCheckBox::indicator:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
-        QCheckBox::indicator:checked:disabled {{ background: {Colors.CONTROL}; border-color: {Colors.CONTROL}; }}
+        QCheckBox::indicator:checked:disabled {{ background: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}
     """
 
     RADIO = f"""
         QRadioButton {{ color: {Colors.TEXT}; spacing: 8px; min-height: 20px; outline: none; }}
-        QRadioButton:disabled {{ color: {Colors.TEXT_DISABLED}; }}
+        QRadioButton:disabled {{ color: {Colors.TEXT_MUTED}; }}
         QRadioButton::indicator {{
             width: 16px; height: 16px;
             border: 1px solid {Colors.BORDER_STRONG};
@@ -92,10 +92,10 @@ class Styles:
             border-radius: 8px;
         }}
         QRadioButton::indicator:unchecked:hover {{ border-color: {Colors.ACCENT}; }}
-        QRadioButton::indicator:disabled {{ background: {Colors.DISABLED}; border-color: {Colors.BORDER}; }}
+        QRadioButton::indicator:disabled {{ background: {Colors.DISABLED}; border-color: {Colors.BORDER_STRONG}; }}
         QRadioButton::indicator:checked {{ background: {Colors.ACCENT}; border-color: {Colors.ACCENT}; }}
         QRadioButton::indicator:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
-        QRadioButton::indicator:checked:disabled {{ background: {Colors.CONTROL}; border-color: {Colors.CONTROL}; }}
+        QRadioButton::indicator:checked:disabled {{ background: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}
     """
 
     LIST = f"""

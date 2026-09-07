@@ -65,10 +65,11 @@ class FormatCard(QWidget):
         self._rows.addWidget(header)
         layout = QHBoxLayout(header)
         layout.setContentsMargins(12, 9, 12, 9)
-        layout.setSpacing(10)
+        layout.setSpacing(12)
 
         self.checkbox = QCheckBox()
         self.checkbox.setStyleSheet(Styles.CHECKBOX)
+        self.checkbox.setFixedWidth(18)
         self.checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
         self.checkbox.setChecked(True)
         self.checkbox.toggled.connect(self._checked_changed)
@@ -282,7 +283,7 @@ class ConvertForm(QWidget):
 
         features = QWidget()
         feature_layout = QHBoxLayout(features)
-        feature_layout.setContentsMargins(12, 0, 12, 9)
+        feature_layout.setContentsMargins(86, 0, 12, 9)
         feature_layout.setSpacing(8)
         self.skeleton = QCheckBox(strings.get("format.models.skeleton"))
         self.animation = QCheckBox(strings.get("format.models.animation"))
@@ -324,7 +325,10 @@ class ConvertForm(QWidget):
             (Feature.SKELETON, self.skeleton_cursor),
             (Feature.ANIMATION, self.animation_cursor),
         ):
-            cursor.set(encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature))
+            cursor.set(
+                encoder is not None and issubclass(encoder, ModelEncoder) and encoder.supports(feature),
+                strings.get("tooltip.convert.unsupported.feature"),
+            )
         self.changed.emit()
 
     def _build_output(self, layout: QVBoxLayout, output: Path) -> None:

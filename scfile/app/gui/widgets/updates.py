@@ -2,8 +2,8 @@ import time
 from typing import override
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QMouseEvent
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtGui import QMouseEvent, QPainter
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QStyle, QStyleOption, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.app import updates
@@ -84,6 +84,7 @@ class UpdatePopup(QWidget):
         super().__init__(anchor, flags)
         self.anchor = anchor
 
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setStyleSheet(Styles.POPUP)
 
@@ -94,6 +95,13 @@ class UpdatePopup(QWidget):
         self.close_timer = QTimer(self)
         self.close_timer.setSingleShot(True)
         self.close_timer.timeout.connect(self.close)
+
+    @override
+    def paintEvent(self, event):
+        option = QStyleOption()
+        option.initFrom(self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget, option, painter, self)
 
     def _clear_state(self):
         self.close_timer.stop()

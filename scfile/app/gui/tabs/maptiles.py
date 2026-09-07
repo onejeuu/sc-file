@@ -26,6 +26,8 @@ from scfile.options import Options
 
 IGNORED_MAP_SUFFIXES = ("textures", "sound", "overlay")
 REGION_NAMES = {"ru": "Russian", "en": "English", "es": "Spanish", "fr": "French", "ko": "Korean"}
+PNG_WARNING_COMPRESSION = 7
+PNG_WARNING_TILES = 20
 
 
 class MapTilesTab(QWidget):
@@ -394,6 +396,10 @@ class MapTilesTab(QWidget):
 
         output = Path(self.output.value.strip())
         warnings = (strings.get("warning.maptiles.overwrite"),) if output.is_file() else ()
+        if self.encoding.format is MapTilesImage.PNG and (
+            len(self.tiles) > PNG_WARNING_TILES or self.encoding.png_compression >= PNG_WARNING_COMPRESSION
+        ):
+            warnings += (strings.get("warning.maptiles.slow.png"),)
         self.warnings.set_messages(warnings)
         self._update_estimate()
 

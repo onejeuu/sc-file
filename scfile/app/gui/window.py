@@ -32,6 +32,22 @@ from scfile.app.gui.widgets.updates import VersionWidget
 from scfile.app.localization import DOCS_URL
 
 
+class PageStack(QStackedWidget):
+    def __init__(self):
+        super().__init__()
+        self.currentChanged.connect(self.updateGeometry)
+
+    @override
+    def minimumSizeHint(self) -> QSize:
+        page = self.currentWidget()
+        return page.minimumSizeHint().expandedTo(page.minimumSize()) if page else QSize()
+
+    @override
+    def sizeHint(self) -> QSize:
+        page = self.currentWidget()
+        return page.sizeHint() if page else QSize()
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -87,7 +103,7 @@ class MainWindow(QMainWindow):
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
-        self.stack = QStackedWidget()
+        self.stack = PageStack()
         self._help_urls: dict[int, str] = {}
 
         self.footer = FooterWidget()
