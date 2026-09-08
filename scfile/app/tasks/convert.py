@@ -71,6 +71,10 @@ def _outputs(
             yield TaskError(error, source=item.path)
             continue
 
+        if not decoder.standalone:
+            yield item, None
+            continue
+
         source = Path(item.path)
         suffix = options.targets[decoder.content_type].suffix
         directory = _directory(item, output, layout)
@@ -131,7 +135,13 @@ class ConvertTask(Task):
     ) -> TaskItem | TaskItemFailure:
         entry, destination = item
         if destination is None:
-            return TaskItem(entry.path)
+            decoder = registry.match(entry.path)
+            detail = (
+                f"Format '{decoder.format}' does not support standalone conversion."
+                if decoder is not None and not decoder.standalone
+                else None
+            )
+            return TaskItem(entry.path, detail=detail)
 
         try:
             result = convert.auto(entry.path, destination, self.options)

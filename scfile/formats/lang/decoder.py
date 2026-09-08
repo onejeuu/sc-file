@@ -11,7 +11,6 @@ class LangDecoder(Decoder[DocumentContent]):
     order = ByteOrder.LITTLE
 
     content_type = DocumentContent
-    standalone = False
 
     @override
     def _parse(self):

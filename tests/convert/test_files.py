@@ -154,3 +154,11 @@ def test_auto_target(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
     with pytest.raises(exceptions.ConversionError):
         files.auto(source, options=Options(targets={BytesDecoder.content_type: FileFormat.PNG}))
+
+
+def test_auto_nonstandalone(tmp_path: Path) -> None:
+    options = Options()
+    options.targets = {}
+
+    assert files.auto(tmp_path / "library.mcal", tmp_path / "output", options) is None
+    assert not (tmp_path / "output").exists()

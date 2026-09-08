@@ -98,6 +98,9 @@ def auto(
     if decoder is None:
         raise exceptions.UnknownFormatError(str(src), src.suffix)
 
+    if not decoder.standalone:
+        return
+
     target = options.targets[decoder.content_type]
     conversion = registry.conversions.get((decoder.format, target))
     if conversion is None:

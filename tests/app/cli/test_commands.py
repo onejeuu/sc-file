@@ -321,13 +321,29 @@ def test_maptiles_failure(
     assert result.exit_code == 1
 
 
-def test_convert_run(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+@pytest.mark.parametrize("name", ("document.nbt", "translations.lang"))
+def test_convert_run(name: str, tmp_path: Path) -> None:
+    root = Path(__file__).parents[2] / "assets/formats/document"
+    source = root / "source" / name
     output = tmp_path / "output"
 
     result = CliRunner().invoke(scfile, ["convert", str(source), "-O", str(output), "-W", "1"])
 
     assert result.exit_code == 0
-    target = output / "document.json"
+    target = output / f"{source.stem}.json"
     assert target.exists()
-    assert isinstance(json.loads(target.read_text(encoding="utf-8")), dict)
+    assert json.loads(target.read_bytes()) == json.loads((root / "json" / target.name).read_bytes())
+
+
+@pytest.mark.parametrize("verbose", (False, True))
+def test_convert_nonstandalone(verbose: bool, tmp_path: Path) -> None:
+    source = Path(__file__).parents[2] / "assets/formats/models/source/library.mcal"
+    output = tmp_path / "output"
+    args = ["convert", str(source), "-O", str(output), "-W", "1"]
+    if verbose:
+        args.append("--verbose")
+
+    result = CliRunner().invoke(scfile, args)
+
+    assert result.exit_code == 0
+    assert not list(output.glob("**/*"))

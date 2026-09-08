@@ -27,6 +27,6 @@ def test_conversions() -> None:
     assert conversion.decoder is registry.decoders[FileFormat.MCSB]
     assert conversion.encoder is registry.encoders[FileFormat.GLB]
     assert (FileFormat.MCAL, FileFormat.GLB) not in registry.conversions
-    assert (FileFormat.LANG, FileFormat.JSON) not in registry.conversions
+    assert (FileFormat.LANG, FileFormat.JSON) in registry.conversions
     assert (FileFormat.SIGN, FileFormat.JSON) in registry.conversions
     assert (FileFormat.MAP, FileFormat.JSON) in registry.conversions

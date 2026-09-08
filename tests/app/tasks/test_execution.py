@@ -95,6 +95,24 @@ def test_convert(tmp_path: Path) -> None:
     assert (tmp_path / "document.json").exists()
 
 
+def test_convert_nonstandalone(tmp_path: Path) -> None:
+    root = Path(__file__).parents[2] / "assets/formats"
+    sources = (root / "models/source/library.mcal",)
+    options = Options()
+    options.targets = {}
+    events: list[TaskEvent] = []
+    task = ConvertTask(sources, (), options, output=tmp_path, workers=2)
+
+    summary = execute(task, events.append)
+
+    assert summary.work.completed == 1
+    assert summary.work.failed == 0
+    assert summary.files.skipped == 1
+    assert summary.files.written == 0
+    assert len([event for event in events if isinstance(event, TaskItem) and event.detail]) == 1
+    assert not list(tmp_path.iterdir())
+
+
 def test_convert_missing(tmp_path: Path) -> None:
     events: list[TaskEvent] = []
     task = ConvertTask((tmp_path / "missing",), (), Options(), workers=2)

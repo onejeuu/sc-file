@@ -26,7 +26,7 @@ class ScFileException(Exception):
         message = super().__str__()
         if self.offset is None:
             return message
-        return f"{message} (offset: {self.offset})."
+        return f"{message} (offset 0x{self.offset:02X})."
 
 
 class HandlerStateError(ScFileException):

@@ -138,7 +138,7 @@ class TaskFeedback:
 
             case TaskItem():
                 self._advance()
-                if self.verbose:
+                if self.verbose or (event.output is None and event.detail is not None):
                     self._item(event)
 
             case TaskItemFailure():
@@ -258,11 +258,12 @@ class TaskFeedback:
             self.progress.update(self.progress_id, completed=self.completed)
 
     def _item(self, event: TaskItem) -> None:
-        if event.output is None and event.detail is None:
+        if event.output is None:
             text = self._line(
                 event.source,
                 Text("Skip", style=f"bold {SKIPPED.color}"),
                 SKIPPED,
+                event.detail,
             )
         else:
             content = (

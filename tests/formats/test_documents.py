@@ -15,9 +15,9 @@ SOURCE = ROOT / "source"
 
 @pytest.mark.parametrize(
     ("decoder", "name"),
-    ((HashmapDecoder, "mapping.map"), (SignDecoder, "textures.sign")),
+    ((HashmapDecoder, "mapping.map"), (SignDecoder, "textures.sign"), (LangDecoder, "translations.lang")),
 )
-def test_json(decoder: type[HashmapDecoder] | type[SignDecoder], name: str) -> None:
+def test_json(decoder: type[HashmapDecoder] | type[SignDecoder] | type[LangDecoder], name: str) -> None:
     actual = export(decoder, JsonEncoder, SOURCE / name)
     expected = (ROOT / "json" / f"{Path(name).stem}.json").read_bytes()
     assert json.loads(actual) == json.loads(expected)
