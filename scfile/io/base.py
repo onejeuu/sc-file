@@ -158,12 +158,10 @@ class StructReader(StructIO[IOStream]):
         self,
         size: int,
     ) -> bytes:
-        offset = self.tell()
-
         if size < 0:
             raise BinaryStructureError(
                 location=self.location,
-                offset=offset,
+                offset=self.tell(),
             )
 
         data = self.read(size)
@@ -171,7 +169,7 @@ class StructReader(StructIO[IOStream]):
         if len(data) != size:
             raise BinaryStructureError(
                 location=self.location,
-                offset=offset,
+                offset=self.tell() - len(data),
             )
 
         return data
@@ -239,7 +237,7 @@ class StructReader(StructIO[IOStream]):
         size = self.value(prefix, order)
         if limit is not None:
             self.check(size, limit)
-        return self.unpack(f"{size}s")[0]
+        return self.read_exact(size)
 
     def count(
         self,

@@ -12,6 +12,8 @@ class FileFormat(StrEnum):
     FBX = auto()
     GLB = auto()
     JSON = auto()
+    LANG = auto()
+    MAP = auto()
     MCA = auto()
     MCAL = auto()
     MCSA = auto()
@@ -23,6 +25,7 @@ class FileFormat(StrEnum):
     OBJ = auto()
     OL = auto()
     PNG = auto()
+    SIGN = auto()
     TEXARR = auto()
     ZIP = auto()
 

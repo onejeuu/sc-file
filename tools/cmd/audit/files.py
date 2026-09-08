@@ -12,7 +12,7 @@ from scfile.enums import FileFormat
 from scfile.exceptions import EmptyFileError
 from scfile.options import Options
 
-from . import stats
+from . import schemas, stats
 from .consts import EXCLUDED
 from .runner import Case, Plan, Suite, Warning
 
@@ -26,7 +26,7 @@ def decode(
     format: str,
     options: Options,
     statistics: bool,
-) -> list[stats.Record]:
+) -> list[schemas.Record]:
     try:
         with DECODERS[format](path, options) as decoder:
             content = decoder.decode()

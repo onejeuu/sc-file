@@ -7,19 +7,22 @@ from scfile import content as C
 from scfile.content.models import Feature
 from scfile.content.textures import CubemapTexture, DefaultTexture
 from scfile.formats.ol.enums import TextureKind
-from tools.cmd.audit.schemas import Animation, Arms, Body, Bone, Face, Image, Mesh, Model, Record, Texture
+from tools.cmd.audit import schemas
 
 
 TABLES = {
-    Model: "models.csv",
-    Mesh: "meshes.csv",
-    Bone: "bones.csv",
-    Animation: "animations.csv",
-    Texture: "textures.csv",
-    Image: "images.csv",
-    Arms: "animate.arms.csv",
-    Face: "animate.face.csv",
-    Body: "animate.body.csv",
+    schemas.Model: "models.csv",
+    schemas.Mesh: "meshes.csv",
+    schemas.Bone: "bones.csv",
+    schemas.Animation: "animations.csv",
+    schemas.Texture: "textures.csv",
+    schemas.Image: "images.csv",
+    schemas.Lang: "lang.csv",
+    schemas.Hashmap: "hashmap.csv",
+    schemas.Sign: "sign.csv",
+    schemas.Arms: "animate.arms.csv",
+    schemas.Face: "animate.face.csv",
+    schemas.Body: "animate.body.csv",
 }
 FORMATS_CSV = "formats.csv"
 FILES = (*TABLES.values(), FORMATS_CSV)
@@ -30,7 +33,7 @@ def records(
     source: Path,
     content: C.BaseContent,
     animation: bool,
-) -> list[Record]:
+) -> list[schemas.Record]:
     path = source.relative_to(root).as_posix()
 
     match content:
@@ -42,13 +45,44 @@ def records(
 
         case C.ImageContent():
             return [
-                Image(
+                schemas.Image(
                     path=path,
                     filesize=len(content.image),
                     width=content.width,
                     height=content.height,
                     bit_depth=content.bit_depth,
                 )
+            ]
+
+        case C.DocumentContent():
+            return _document(path, content, source.stat().st_size, source.suffix.lower())
+
+        case _:
+            return []
+
+
+def _document(
+    path: str,
+    content: C.DocumentContent,
+    filesize: int,
+    suffix: str,
+) -> list[schemas.Record]:
+    match suffix, content.value:
+        case ".lang", dict() as values:
+            return [schemas.Lang(path=path, filesize=filesize, entries=len(values))]
+
+        case ".map", dict() as values:
+            return [schemas.Hashmap(path=path, filesize=filesize, entries=len(values))]
+
+        case ".sign", {"version": int() as version, "textures": list() as textures}:
+            mipmaps = 0
+            for texture in textures:
+                match texture:
+                    case {"mipmaps": list() as values}:
+                        mipmaps += len(values)
+
+            return [
+                schemas.Sign(path=path, filesize=filesize, version=version, textures=len(textures), mipmaps=mipmaps)
             ]
 
         case _:
@@ -60,14 +94,14 @@ def _model(
     content: C.ModelContent,
     filesize: int,
     animation: bool,
-) -> list[Record]:
+) -> list[schemas.Record]:
     meta = content.meta
     flags = meta.flags
     scene = content.scene
     scale = content.scene.scale
 
     meshes = [
-        Mesh(
+        schemas.Mesh(
             path=path,
             idx=index,
             name=mesh.name,
@@ -81,7 +115,7 @@ def _model(
     ]
 
     bones = [
-        Bone(
+        schemas.Bone(
             path=path,
             idx=bone.id,
             name=bone.name,
@@ -91,7 +125,7 @@ def _model(
     ]
 
     animations = [
-        Animation(
+        schemas.Animation(
             path=path,
             idx=index,
             name=clip.name,
@@ -101,7 +135,7 @@ def _model(
         for index, clip in enumerate(scene.animation.clips)
     ]
 
-    model = Model(
+    model = schemas.Model(
         path=path,
         filesize=filesize,
         version=meta.version,
@@ -132,7 +166,7 @@ def _texture(
     path: str,
     content: C.TextureContent,
     filesize: int,
-) -> list[Record]:
+) -> list[schemas.Record]:
     match content.texture:
         case DefaultTexture() as texture:
             kind = TextureKind.DEFAULT.name
@@ -146,7 +180,7 @@ def _texture(
             return []
 
     return [
-        Texture(
+        schemas.Texture(
             path=path,
             filesize=filesize,
             fourcc=content.fourcc.decode(errors="replace"),
@@ -173,7 +207,7 @@ class Writer:
         for file in self._files:
             file.close()
 
-    def write(self, records: list[Record]) -> None:
+    def write(self, records: list[schemas.Record]) -> None:
         for record in records:
             table = type(record)
             writer = self._writers.get(table)

@@ -48,8 +48,26 @@ def test_skip() -> None:
 
 def test_exact_read() -> None:
     with StructReader(b"ab") as reader:
-        with pytest.raises(BinaryStructureError):
+        reader.skip(1)
+        with pytest.raises(BinaryStructureError) as error:
             reader.read_exact(4)
+        assert error.value.offset == 1
+
+
+def test_negative_exact_read() -> None:
+    with StructReader(b"ab") as reader:
+        reader.skip(1)
+        with pytest.raises(BinaryStructureError) as error:
+            reader.read_exact(-1)
+        assert error.value.offset == 1
+        assert reader.tell() == 1
+
+
+def test_truncated_prefixed() -> None:
+    with StructReader(b"\x04\x00ab") as reader:
+        with pytest.raises(BinaryStructureError) as error:
+            reader.prefixed()
+        assert error.value.offset == 2
 
 
 def test_signed_count() -> None:

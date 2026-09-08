@@ -6,7 +6,7 @@
   "float": 0.5,
   "double": 2.718281828459045,
   "string": "always mount a scratch monkey 🐒💾",
-  "byte_array": "b'\\x00\\x01\\x02\\x03\\x04\\xff'",
+  "byte_array": "0001020304ff",
   "int_array": [
     1,
     -2,

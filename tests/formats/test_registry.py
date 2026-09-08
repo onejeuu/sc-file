@@ -10,6 +10,9 @@ def test_handlers() -> None:
 def test_match() -> None:
     assert registry.match("model.mcsb") is registry.decoders[FileFormat.MCSB]
     assert registry.match("data/itemnames.dat") is registry.decoders[FileFormat.NBT]
+    assert registry.match("en.lang") is registry.decoders[FileFormat.LANG]
+    assert registry.match("textures.sign") is registry.decoders[FileFormat.SIGN]
+    assert registry.match("stalcraft.map") is registry.decoders[FileFormat.MAP]
     assert registry.match("unknown.bin") is None
 
 
@@ -24,3 +27,6 @@ def test_conversions() -> None:
     assert conversion.decoder is registry.decoders[FileFormat.MCSB]
     assert conversion.encoder is registry.encoders[FileFormat.GLB]
     assert (FileFormat.MCAL, FileFormat.GLB) not in registry.conversions
+    assert (FileFormat.LANG, FileFormat.JSON) not in registry.conversions
+    assert (FileFormat.SIGN, FileFormat.JSON) in registry.conversions
+    assert (FileFormat.MAP, FileFormat.JSON) in registry.conversions

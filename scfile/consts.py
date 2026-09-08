@@ -8,6 +8,7 @@ class FormatSignature:
     MCAL = b"MCAL"
     MIC = b"\x89MIC"
     OL = b"\x0a\x95\x23\xfd"
+    SIGN = b"TXSG"
 
     DDS = b"DDS "
     PNG = b"\x89PNG"

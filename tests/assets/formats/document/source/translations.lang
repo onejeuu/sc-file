@@ -1,0 +1,9 @@
+# Comment=value
+
+general.gui.done=Done
+general.gui.done=Готово
+general.gui.empty=
+general.gui.formula=a=b
+general.gui.message=First\nSecond
+bpseason.24/spring.title=Привет §2@@{amount number grouping}
+general.gui.spaces= leading and trailing 

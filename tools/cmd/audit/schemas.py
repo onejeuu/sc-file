@@ -71,6 +71,26 @@ class Image(NamedTuple):
     bit_depth: int
 
 
+class Lang(NamedTuple):
+    path: str
+    filesize: int
+    entries: int
+
+
+class Hashmap(NamedTuple):
+    path: str
+    filesize: int
+    entries: int
+
+
+class Sign(NamedTuple):
+    path: str
+    filesize: int
+    version: int
+    textures: int
+    mipmaps: int
+
+
 class Arms(NamedTuple):
     animation: str
     model: str
@@ -106,4 +126,4 @@ class Body(NamedTuple):
     polygons: int
 
 
-type Record = Model | Mesh | Bone | Animation | Texture | Image | Arms | Face | Body
+type Record = Model | Mesh | Bone | Animation | Texture | Image | Lang | Hashmap | Sign | Arms | Face | Body

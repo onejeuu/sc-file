@@ -28,6 +28,9 @@ Modules
    scfile.formats.mca
    scfile.formats.nbt
    scfile.formats.json
+   scfile.formats.hashmap
+   scfile.formats.lang
+   scfile.formats.sign
 
 Registry
 --------

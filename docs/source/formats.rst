@@ -217,6 +217,7 @@ Export
 :Template: SIGN.bt_
 :Purpose: Texture integrity verification.
 :Contents: Texture paths, headers and mipmap images hashes.
+:Export: ``.json`` (JSON_).
 
 
 
@@ -438,6 +439,7 @@ Export
 :Template: HASHMAP.bt_
 :Purpose: Launcher file integrity verification.
 :Contents: Game asset paths and SHA-1 hashes.
+:Export: ``.json`` (JSON_).
 
 
 .. _torrent:
