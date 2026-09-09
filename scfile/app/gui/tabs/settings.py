@@ -168,7 +168,7 @@ class SettingsTab(QWidget):
         label.setStyleSheet(Styles.LABEL)
         content.addWidget(label)
         description = QLabel(hint)
-        description.setStyleSheet(Styles.DESCRIPTION)
+        description.setStyleSheet(Styles.HINT)
         content.addWidget(description)
         content.addSpacing(5)
         content.addWidget(field)

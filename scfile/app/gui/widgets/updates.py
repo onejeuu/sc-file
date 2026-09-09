@@ -89,7 +89,7 @@ class UpdatePopup(QWidget):
             owner = owner.parentWidget()
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setStyleSheet(Styles.POPUP)
+        self.setStyleSheet(Styles.UPDATE)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

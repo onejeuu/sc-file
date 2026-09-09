@@ -62,7 +62,7 @@ class ProgressButton(QPushButton):
         painter.save()
         painter.setClipPath(path)
         painter.setClipRect(0, 0, int(progress), rect.height())
-        painter.setPen(Qt.GlobalColor.black)
+        painter.setPen(Colors.ACCENT_FOREGROUND.value)
         painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.text())
         painter.restore()
         painter.end()

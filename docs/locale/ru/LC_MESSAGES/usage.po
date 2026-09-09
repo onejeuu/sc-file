@@ -494,7 +494,7 @@ msgid "The result is a 2D map at the scale of the source tiles."
 msgstr "В результате получается 2D карта в масштабе исходных тайлов."
 
 msgid "Source"
-msgstr "Источник"
+msgstr "Исходник"
 
 msgid "Flat folder"
 msgstr "Папка с тайлами"

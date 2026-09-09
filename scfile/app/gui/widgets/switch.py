@@ -28,8 +28,8 @@ class Switch(QAbstractButton):
 
         hovered = self.underMouse() or bool(self.property("hovered"))
         if not self.isEnabled():
-            track = Colors.DISABLED.value
-            thumb = Colors.TEXT_DISABLED.value
+            track = Colors.CONTROL_DISABLED.value
+            thumb = Colors.INDICATOR_DISABLED.value
         elif self.isChecked():
             track = Colors.ACCENT_HOVER.value if hovered else Colors.ACCENT.value
             thumb = Colors.ACCENT_FOREGROUND.value

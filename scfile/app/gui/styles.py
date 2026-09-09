@@ -25,21 +25,26 @@ class Colors(Enum):
     CONTROL = QColor("#1E232A")
     CONTROL_HOVER = QColor("#262C34")
     CONTROL_PRESSED = QColor("#303741")
-    DISABLED = QColor("#171B20")
+    CONTROL_DISABLED = QColor("#171B20")
 
     BORDER = QColor("#2B313A")
     BORDER_STRONG = QColor("#3A424E")
 
+    INDICATOR = QColor("#737C89")
+    INDICATOR_DISABLED = QColor("#5E6672")
+
     TEXT = QColor("#F3F4F6")
-    TEXT_DIMMED = QColor("#D0D5DD")
     TEXT_SECONDARY = QColor("#A6AEBB")
-    TEXT_MUTED = QColor("#737C89")
+    TEXT_MUTED = QColor("#8993A1")
     TEXT_DISABLED = QColor("#5E6672")
 
     INFO = QColor("#78B7FF")
     SUCCESS = QColor("#63C98E")
     WARNING = QColor("#F2B84B")
     ERROR = QColor("#F07178")
+
+    def alpha(self, opacity: float) -> str:
+        return f"rgba({self.value.red()}, {self.value.green()}, {self.value.blue()}, {opacity})"
 
     def __str__(self) -> str:
         return self.value.name()
@@ -67,50 +72,35 @@ class Styles:
         QCheckBox:disabled {{ color: {Colors.TEXT_DISABLED}; }}
         QCheckBox::indicator {{
             width: 16px; height: 16px;
-            border: 1px solid {Colors.BORDER_STRONG};
+            border: 1px solid {Colors.INDICATOR};
             background: {Colors.CONTROL};
             border-radius: 4px;
         }}
         QCheckBox::indicator:unchecked:hover {{ border-color: {Colors.ACCENT}; }}
-        QCheckBox::indicator:disabled {{ background: {Colors.DISABLED}; border-color: {Colors.BORDER}; }}
+        QCheckBox::indicator:disabled {{ background: {Colors.CONTROL_DISABLED}; border-color: {Colors.BORDER}; }}
         QCheckBox::indicator:checked {{
             image: url("{CHECK_ICON}");
             background: {Colors.ACCENT};
             border-color: {Colors.ACCENT};
         }}
         QCheckBox::indicator:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
-        QCheckBox::indicator:checked:disabled {{ background: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}
+        QCheckBox::indicator:checked:disabled {{ background: {Colors.INDICATOR_DISABLED}; border-color: {Colors.INDICATOR_DISABLED}; }}
     """
 
     RADIO = f"""
         QRadioButton {{ color: {Colors.TEXT}; spacing: 8px; min-height: 20px; outline: none; }}
-        QRadioButton:disabled {{ color: {Colors.TEXT_MUTED}; }}
+        QRadioButton:disabled {{ color: {Colors.TEXT_DISABLED}; }}
         QRadioButton::indicator {{
             width: 16px; height: 16px;
-            border: 1px solid {Colors.BORDER_STRONG};
+            border: 1px solid {Colors.INDICATOR};
             background: {Colors.CONTROL};
             border-radius: 8px;
         }}
         QRadioButton::indicator:unchecked:hover {{ border-color: {Colors.ACCENT}; }}
-        QRadioButton::indicator:disabled {{ background: {Colors.DISABLED}; border-color: {Colors.BORDER_STRONG}; }}
+        QRadioButton::indicator:disabled {{ background: {Colors.CONTROL_DISABLED}; border-color: {Colors.BORDER}; }}
         QRadioButton::indicator:checked {{ background: {Colors.ACCENT}; border-color: {Colors.ACCENT}; }}
         QRadioButton::indicator:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
-        QRadioButton::indicator:checked:disabled {{ background: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}
-    """
-
-    LIST = f"""
-        QListWidget {{
-            background: {Colors.SURFACE_SUNKEN};
-            color: {Colors.TEXT};
-            border: 1px solid {Colors.BORDER};
-            border-radius: 8px;
-            outline: none;
-            font-size: 12px;
-        }}
-        QListWidget:hover {{ border-color: {Colors.BORDER_STRONG}; }}
-        QListWidget::item {{ padding: 6px 8px; border-radius: 4px; }}
-        QListWidget::item:selected {{ background: {Colors.CONTROL_HOVER}; color: {Colors.TEXT}; }}
-        QListWidget::item:hover, QListWidget::item:selected:hover {{ background: {Colors.CONTROL}; }}
+        QRadioButton::indicator:checked:disabled {{ background: {Colors.INDICATOR_DISABLED}; border-color: {Colors.INDICATOR_DISABLED}; }}
     """
 
     SOURCES_EMPTY = """
@@ -202,7 +192,7 @@ class Styles:
             border-color: {Colors.ACCENT};
         }}
         QWidget#formatCard:disabled {{
-            background: {Colors.DISABLED};
+            background: {Colors.CONTROL_DISABLED};
             border-color: {Colors.BORDER};
         }}
         QWidget#formatCard QLabel#formatCardTitle {{
@@ -241,17 +231,17 @@ class Styles:
 
     CARD_TITLE = f"font-size: 14px; font-weight: 600; color: {Colors.TEXT};"
 
-    CALLOUT = """
-        QWidget#callout {
-            background: rgba(120, 183, 255, 0.04);
-            border: 1px solid rgba(120, 183, 255, 0.24);
+    CALLOUT = f"""
+        QWidget#callout {{
+            background: {Colors.INFO.alpha(0.04)};
+            border: 1px solid {Colors.INFO.alpha(0.24)};
             border-radius: 8px;
-        }
+        }}
     """
 
     BADGE_WARNING = f"""
         QLabel {{
-            background: rgba(242, 184, 75, 0.10);
+            background: {Colors.WARNING.alpha(0.10)};
             color: {Colors.WARNING};
             border: 1px solid {Colors.WARNING};
             border-radius: 7px;
@@ -273,7 +263,7 @@ class Styles:
             font-weight: 600;
         }}
         QComboBox:hover {{ border-color: {Colors.BORDER_STRONG}; background: {Colors.CONTROL_HOVER}; }}
-        QComboBox:disabled {{ background: {Colors.DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
+        QComboBox:disabled {{ background: {Colors.CONTROL_DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
         QComboBox::drop-down {{ border: none; background: transparent; width: 28px; }}
         QComboBox::down-arrow {{
             image: url("{CHEVRON_DOWN_ICON}");
@@ -316,23 +306,7 @@ class Styles:
         }}
         QPushButton:hover {{ background: {Colors.CONTROL_HOVER}; border-color: {Colors.BORDER_STRONG}; }}
         QPushButton:pressed {{ background: {Colors.CONTROL_PRESSED}; }}
-        QPushButton:disabled {{ background: {Colors.DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
-    """
-
-    BUTTON_COMPACT = f"""
-        QPushButton {{
-            background: {Colors.CONTROL};
-            border: 1px solid {Colors.BORDER};
-            border-radius: 5px;
-            color: {Colors.TEXT};
-            min-height: 24px;
-            max-height: 24px;
-            padding: 0px 9px;
-            outline: none;
-        }}
-        QPushButton:hover {{ background: {Colors.CONTROL_HOVER}; border-color: {Colors.BORDER_STRONG}; }}
-        QPushButton:pressed {{ background: {Colors.CONTROL_PRESSED}; }}
-        QPushButton:disabled {{ background: {Colors.DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
+        QPushButton:disabled {{ background: {Colors.CONTROL_DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
     """
 
     BUTTON_UTILITY = f"""
@@ -371,6 +345,7 @@ class Styles:
 
     INPUT = f"""
         QLineEdit {{
+            placeholder-text-color: {Colors.TEXT_MUTED};
             background: {Colors.SURFACE_SUNKEN};
             color: {Colors.TEXT};
             border: 1px solid {Colors.BORDER};
@@ -381,8 +356,8 @@ class Styles:
         }}
         QLineEdit:hover {{ border-color: {Colors.BORDER_STRONG}; }}
         QLineEdit[invalid="true"] {{ border-color: {Colors.ERROR}; }}
-        QLineEdit:disabled {{ background: {Colors.DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
-        QLineEdit:read-only {{ background: {Colors.DISABLED}; color: {Colors.TEXT_MUTED}; border-color: {Colors.BORDER}; }}
+        QLineEdit:disabled {{ background: {Colors.CONTROL_DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
+        QLineEdit:read-only:enabled {{ color: {Colors.TEXT_SECONDARY}; }}
     """
 
     SLIDER = f"""
@@ -390,6 +365,8 @@ class Styles:
         QSlider::sub-page:horizontal {{ background: {Colors.ACCENT}; border-radius: 2px; }}
         QSlider::handle:horizontal {{ width: 14px; margin: -5px 0px; background: {Colors.TEXT}; border-radius: 7px; }}
         QSlider::handle:horizontal:hover {{ background: {Colors.ACCENT}; }}
+        QSlider::sub-page:horizontal:disabled {{ background: {Colors.BORDER_STRONG}; }}
+        QSlider::handle:horizontal:disabled {{ background: {Colors.INDICATOR_DISABLED}; }}
     """
 
     SPIN = f"""
@@ -403,6 +380,7 @@ class Styles:
             outline: none;
         }}
         QSpinBox:hover {{ border-color: {Colors.BORDER_STRONG}; background: {Colors.CONTROL_HOVER}; }}
+        QSpinBox:disabled {{ background: {Colors.CONTROL_DISABLED}; color: {Colors.TEXT_DISABLED}; border-color: {Colors.BORDER}; }}
         QSpinBox::up-button, QSpinBox::down-button {{
             subcontrol-origin: border;
             width: 18px;
@@ -417,7 +395,7 @@ class Styles:
         QSpinBox::down-arrow {{ image: url("{CHEVRON_DOWN_ICON}"); width: 10px; height: 10px; }}
     """
 
-    POPUP = f"""
+    UPDATE = f"""
         UpdatePopup {{ background: transparent; }}
         QWidget#updateSurface {{ background-color: {Colors.SURFACE_RAISED}; border: 1px solid {Colors.BORDER_STRONG}; border-radius: 8px; }}
         QLabel {{ background: transparent; }}
@@ -442,8 +420,8 @@ class Styles:
             outline: none;
         }}
         QPushButton:hover {{ background: {Colors.SURFACE}; }}
-        QPushButton:checked {{ background: rgba(255, 214, 102, 0.08); border-left-color: {Colors.ACCENT}; }}
-        QPushButton:checked:hover {{ background: rgba(255, 214, 102, 0.12); }}
+        QPushButton:checked {{ background: {Colors.ACCENT.alpha(0.08)}; border-left-color: {Colors.ACCENT}; }}
+        QPushButton:checked:hover {{ background: {Colors.ACCENT.alpha(0.12)}; }}
     """
 
     VERSION_BADGE = f"""
@@ -462,7 +440,7 @@ class Styles:
     """
     VERSION_BADGE_HOVER = f"""
         QWidget#versionBadge {{
-            background-color: rgba(255, 214, 102, 0.12);
+            background-color: {Colors.ACCENT.alpha(0.12)};
             border: none;
             border-radius: 11px;
         }}
@@ -512,19 +490,17 @@ class Styles:
 
     TITLE = f"font-weight: 700; color: {Colors.TEXT}; font-size: 16px;"
     LABEL = f"font-weight: 600; color: {Colors.TEXT}; font-size: 13px;"
-    SECTION = f"font-weight: 600; color: {Colors.TEXT}; font-size: 16px;"
 
-    INFO = f"color: {Colors.TEXT_SECONDARY}; font-size: 12px;"
-    HINT = f"color: {Colors.TEXT_MUTED}; font-size: 10px;"
-    DESCRIPTION = f"color: {Colors.TEXT_MUTED}; font-size: 12px;"
-    OPTION_TITLE = f"color: {Colors.TEXT}; font-size: 13px; font-weight: 600;"
+    SECONDARY = f"color: {Colors.TEXT_SECONDARY}; font-size: 12px;"
+    HINT = f"color: {Colors.TEXT_MUTED}; font-size: 12px;"
     OPTION_CHECKBOX = (
         CHECKBOX
         + f"""
         QCheckBox {{ color: {Colors.TEXT_SECONDARY}; }}
         QCheckBox:hover {{ color: {Colors.TEXT}; }}
+        QCheckBox:disabled {{ color: {Colors.TEXT_DISABLED}; }}
     """
     )
-    ERROR = f"color: {Colors.ERROR}; font-size: 10px;"
+    ERROR = f"color: {Colors.ERROR}; font-size: 12px;"
 
-    WARNING = f"font-weight: 500; color: {Colors.TEXT_SECONDARY}; font-size: 12px; line-height: 120%;"
+    WARNING = f"font-weight: 500; color: {Colors.TEXT_SECONDARY}; font-size: 12px;"

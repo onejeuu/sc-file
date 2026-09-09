@@ -118,12 +118,12 @@ class MapCacheTab(QWidget):
         layout.addWidget(format_label)
 
         limitation = QLabel(strings.get("mapcache.limitation"))
-        limitation.setStyleSheet(Styles.INFO)
+        limitation.setStyleSheet(Styles.SECONDARY)
         limitation.setWordWrap(True)
         layout.addWidget(limitation)
 
         credit = QLabel(strings.get("mapcache.credit"))
-        credit.setStyleSheet(Styles.INFO)
+        credit.setStyleSheet(Styles.SECONDARY)
         layout.addWidget(credit)
         return info
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import override
 
 from PySide6.QtCore import QSize
-from PySide6.QtGui import QCloseEvent, QColor, QIcon, QPainter, QPixmap, Qt
+from PySide6.QtGui import QCloseEvent, QColor, QIcon, QPainter, QPixmap, QResizeEvent, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -40,12 +40,22 @@ class PageStack(QStackedWidget):
     @override
     def minimumSizeHint(self) -> QSize:
         page = self.currentWidget()
-        return page.minimumSizeHint().expandedTo(page.minimumSize()) if page else QSize()
+        if page is None:
+            return QSize()
+
+        size = page.minimumSizeHint().expandedTo(page.minimumSize())
+        size.setHeight(max(size.height(), page.heightForWidth(page.width())))
+        return size
 
     @override
     def sizeHint(self) -> QSize:
         page = self.currentWidget()
         return page.sizeHint() if page else QSize()
+
+    @override
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self.updateGeometry()
 
 
 class MainWindow(QMainWindow):

@@ -32,7 +32,7 @@ class OptionWidget(QWidget):
         if icon is None:
             if hint:
                 title = QLabel(text)
-                title.setStyleSheet(Styles.OPTION_TITLE)
+                title.setStyleSheet(Styles.LABEL)
                 title.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
                 layout.addWidget(title)
                 self.checkbox.setText(hint)
@@ -61,7 +61,7 @@ class OptionWidget(QWidget):
         content.addWidget(label)
         if hint:
             description = QLabel(hint)
-            description.setStyleSheet(Styles.DESCRIPTION)
+            description.setStyleSheet(Styles.HINT)
             description.setWordWrap(True)
             description.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
             content.addWidget(description)

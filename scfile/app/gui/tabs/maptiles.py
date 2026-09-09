@@ -112,7 +112,7 @@ class MapTilesTab(QWidget):
         layout.addWidget(source_card)
 
         self.estimate = QLabel()
-        self.estimate.setStyleSheet(Styles.INFO)
+        self.estimate.setStyleSheet(Styles.SECONDARY)
         result_card = CardWidget(strings.get("label.form.result"))
         result_card.content.addWidget(self.output)
         result_card.content.addWidget(self.encoding)

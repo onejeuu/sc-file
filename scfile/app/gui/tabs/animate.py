@@ -341,6 +341,8 @@ class AnimateTab(QWidget):
 
     def _build_modes(self) -> None:
         self.tabs = QTabBar()
+        self.tabs.setUsesScrollButtons(False)
+        self.tabs.setElideMode(Qt.TextElideMode.ElideNone)
         self.tabs.setStyleSheet(Styles.TABS)
         self.tabs.setCursor(Qt.CursorShape.PointingHandCursor)
 
