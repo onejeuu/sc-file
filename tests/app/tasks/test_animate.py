@@ -17,6 +17,21 @@ def test_success(tmp_path: Path) -> None:
     assert events[1].output == output
 
 
+def test_models_detail(tmp_path: Path) -> None:
+    output = tmp_path / "animation.glb"
+    task = AnimateTask(
+        lambda *args, **kwargs: output,
+        tmp_path / "animation.mcvd",
+        (tmp_path / "weapon.mcsb", None, tmp_path / "hands.mcsb"),
+        output,
+    )
+
+    events = list(task.run(TaskContext()))
+
+    assert isinstance(events[1], TaskItem)
+    assert events[1].detail == "weapon.mcsb, hands.mcsb"
+
+
 def test_cancel(tmp_path: Path) -> None:
     called = False
 

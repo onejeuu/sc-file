@@ -129,10 +129,11 @@ class FormatCard(QWidget):
 
     def _sync_style(self) -> None:
         self.setProperty("checked", self.checkbox.isChecked())
-        self.setProperty("hovered", self._hovered and not self._target_hovered)
-        self.style().unpolish(self)
-        self.style().polish(self)
-        self.update()
+        for widget in (self, self.checkbox):
+            widget.setProperty("hovered", self._hovered and not self._target_hovered)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+            widget.update()
 
     @override
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:

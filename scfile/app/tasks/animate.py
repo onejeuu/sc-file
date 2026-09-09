@@ -37,7 +37,8 @@ class AnimateTask(Task):
         src = str(self.source)
         try:
             result = self.operation(self.source, *self.models, output=self.output, options=self.options)
-            yield TaskItem(src, result)
+            models = ", ".join(path.name for path in self.models if path is not None)
+            yield TaskItem(src, result, detail=models or None)
 
         except exceptions.ScFileException as error:
             yield TaskItemFailure(src, error)

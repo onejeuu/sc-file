@@ -72,18 +72,20 @@ class Styles:
         QCheckBox:disabled {{ color: {Colors.TEXT_DISABLED}; }}
         QCheckBox::indicator {{
             width: 16px; height: 16px;
-            border: 1px solid {Colors.INDICATOR};
+            border: 1px solid {Colors.BORDER};
             background: {Colors.CONTROL};
             border-radius: 4px;
         }}
-        QCheckBox::indicator:unchecked:hover {{ border-color: {Colors.ACCENT}; }}
+        QCheckBox::indicator:unchecked:hover,
+        QCheckBox[hovered="true"]::indicator:unchecked:enabled {{ border-color: {Colors.ACCENT}; }}
         QCheckBox::indicator:disabled {{ background: {Colors.CONTROL_DISABLED}; border-color: {Colors.BORDER}; }}
         QCheckBox::indicator:checked {{
             image: url("{CHECK_ICON}");
             background: {Colors.ACCENT};
             border-color: {Colors.ACCENT};
         }}
-        QCheckBox::indicator:checked:hover {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
+        QCheckBox::indicator:checked:hover,
+        QCheckBox[hovered="true"]::indicator:checked:enabled {{ background: {Colors.ACCENT_HOVER}; border-color: {Colors.ACCENT_HOVER}; }}
         QCheckBox::indicator:checked:disabled {{ background: {Colors.INDICATOR_DISABLED}; border-color: {Colors.INDICATOR_DISABLED}; }}
     """
 

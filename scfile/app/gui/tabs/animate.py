@@ -128,7 +128,7 @@ class AnimationForm(QWidget):
 
     def add_output(self, changed: Callable[[str], None]) -> None:
         self.output = PathField(
-            f"{strings.get('label.animate.output')} (.glb)",
+            f"{strings.get('label.form.output')} (.glb)",
             placeholder=strings.get("placeholder.path"),
             caption=strings.get("dialog.animate.output"),
             mode="save",

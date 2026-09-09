@@ -87,7 +87,7 @@ class MapCacheTab(QWidget):
         source_card.content.addWidget(self.source)
         layout.addWidget(source_card)
 
-        result_card = CardWidget(strings.get("label.form.result"))
+        result_card = CardWidget(strings.get("label.form.output"))
         result_card.content.addWidget(self.output)
         options = QVBoxLayout()
         options.setContentsMargins(0, 0, 0, 0)
