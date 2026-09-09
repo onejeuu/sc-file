@@ -1,12 +1,12 @@
 import time
 from typing import override
 
-from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QMouseEvent
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QMouseEvent, QPainter, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
-from scfile.app import updates
+from scfile.app import files, updates
 from scfile.app.enums import UpdateStatus
 from scfile.app.gui import strings, threads
 from scfile.app.gui.styles import Colors, Styles
@@ -118,33 +118,50 @@ class UpdatePopup(QWidget):
     def show_loading(self):
         self._clear_state()
 
-        label = QLabel(strings.get("update.checking"))
-        self.main_layout.addWidget(label)
+        self._message(strings.get("update.checking"), "updates.checking", Colors.INFO)
         self.adjustSize()
         self.show()
+
+    def _message(self, text: str, icon: str, color: Colors) -> QLabel:
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        pixmap = QPixmap(str(files.resource(f"assets/{icon}.png"))).scaled(
+            QSize(20, 20), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+        )
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(pixmap.rect(), color.value)
+        painter.end()
+
+        image = QLabel()
+        image.setPixmap(pixmap)
+        layout.addWidget(image)
+
+        label = QLabel(text)
+        label.setStyleSheet(f"color: {color};")
+        layout.addWidget(label, 1)
+        self.main_layout.addWidget(row)
+        return label
 
     def show_status(self, status: UpdateStatus, message: str, url: str):
         self._clear_state()
 
         match status:
             case UpdateStatus.UPTODATE:
-                label = QLabel(strings.get("update.uptodate"))
-                label.setStyleSheet(f"color: {Colors.SUCCESS};")
-                self.main_layout.addWidget(label)
+                self._message(strings.get("update.uptodate"), "updates.uptodate", Colors.SUCCESS)
                 self.close_timer.start(3000)
 
             case UpdateStatus.AVAILABLE:
-                label = QLabel(strings.get("update.available"))
-                label.setStyleSheet(f"color: {Colors.INFO};")
-                self.main_layout.addWidget(label)
+                self._message(strings.get("update.available"), "updates.available", Colors.INFO)
                 if url:
                     self.main_layout.addWidget(LinkWidget(text=url, url=url))
 
             case UpdateStatus.ERROR:
-                label = QLabel(strings.get("update.error"))
-                label.setStyleSheet(f"color: {Colors.WARNING};")
+                label = self._message(strings.get("update.error"), "widget.warning", Colors.WARNING)
                 label.setToolTip(message)
-                self.main_layout.addWidget(label)
 
                 if url:
                     self.main_layout.addWidget(LinkWidget(text=url, url=url))
