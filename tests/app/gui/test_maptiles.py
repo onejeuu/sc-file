@@ -1,6 +1,8 @@
 from pathlib import Path
 from shutil import copyfile
 
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from scfile.app.gui.settings import Settings
@@ -10,6 +12,26 @@ from scfile.app.tasks.maptiles import MapTilesImage
 
 
 SOURCE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
+
+
+def test_restore_output(qapp: QApplication, tmp_path: Path) -> None:
+    tab = MapTilesTab(TaskManager(), Settings(export_path=tmp_path / "export"))
+    output = tab.output.input.line_edit
+    QTest.keyClick(output, Qt.Key.Key_Backspace)
+    assert not tab.output.value
+
+    source = tmp_path / "map"
+    source.mkdir()
+    copyfile(SOURCE, source / "r.0.0.ol")
+    tab.source.value = str(source)
+    tab._source_changed(tab.source.value)
+    tab.encoding._buttons[MapTilesImage.PNG].click()
+    output.clear()
+    QTest.keyClick(output, Qt.Key.Key_Delete)
+    assert Path(tab.output.value) == tmp_path / "export/map.png"
+
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_flat(qapp: QApplication, tmp_path: Path) -> None:

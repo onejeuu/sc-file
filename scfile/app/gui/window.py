@@ -160,6 +160,7 @@ class MainWindow(QMainWindow):
         self.settings_tab.export_path_changed.connect(self.convert.apply_export_path)
         self.settings_tab.export_path_changed.connect(self.animate.apply_export_path)
         self.settings_tab.export_path_changed.connect(self.maptiles.apply_export_path)
+        self.settings_tab.export_path_changed.connect(self.mapcache.apply_export_path)
         self._add_tab(self.settings_tab, "tab.settings", "assets/tab.settings.png")
 
         self.version = VersionWidget()

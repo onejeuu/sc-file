@@ -92,6 +92,7 @@ class MapTilesTab(QWidget):
             default_suffix=self.encoding.format.suffix,
         )
         self.output.changed.connect(self._edit_output)
+        self.output.reset_requested.connect(self._restore_default_output)
 
         source_card = CardWidget(strings.get("label.form.source"))
         source_card.content.addWidget(self.source)
@@ -220,6 +221,11 @@ class MapTilesTab(QWidget):
         if self.settings.resolve_paths:
             suggested = self._suggested_output()
             self.output.value = suggested.as_posix() if suggested else ""
+
+    def _restore_default_output(self) -> None:
+        if output := self._suggested_output():
+            self.output.value = output.as_posix()
+            self._sync()
 
     def _load_game(self, game: GameRoot) -> None:
         self.game = game

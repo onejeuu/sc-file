@@ -35,7 +35,7 @@ class MapCacheTab(QWidget):
         self.tasks.reported.connect(self._report)
         self.tasks.completed.connect(self._complete)
         self.scanner.changed.connect(self._sync)
-        self._refresh()
+        self._source_changed(self.source.value)
         self._sync()
 
     def _build_ui(self) -> None:
@@ -67,6 +67,7 @@ class MapCacheTab(QWidget):
             caption=strings.get("dialog.mapcache.output"),
         )
         self.output.changed.connect(self._edit_output)
+        self.output.reset_requested.connect(self._restore_default_output)
 
         if source := self._game_cache():
             self.source.value = source.as_posix()
@@ -129,7 +130,12 @@ class MapCacheTab(QWidget):
     def apply_game_root(self) -> None:
         if source := self._game_cache():
             self.source.value = source.as_posix()
-        self._sync()
+        self._source_changed(self.source.value)
+
+    def apply_export_path(self, path: Path) -> None:
+        self.settings.export_path = path
+        if self.output not in self.touched:
+            self._restore_default_output()
 
     def apply_path_resolution(self) -> None:
         if self.settings.resolve_paths:
@@ -144,6 +150,22 @@ class MapCacheTab(QWidget):
             return game.map_cache
         return None
 
+    def _suggested_output(self) -> Path | None:
+        value = self.source.value.strip()
+        if not self.settings.resolve_paths or not value:
+            return None
+
+        source = Path(value)
+        if source.is_dir() and source.name:
+            return self.settings.export_path / f"{source.name}_mca"
+        return None
+
+    def _restore_default_output(self) -> None:
+        if output := self._suggested_output():
+            self.output.value = output.as_posix()
+            self.touched.discard(self.output)
+            self._output_changed(self.output.value)
+
     def _source_changed(self, _: str) -> None:
         value = self.source.value.strip()
         if not value:
@@ -157,6 +179,10 @@ class MapCacheTab(QWidget):
             resolved = game.resolve_map_cache(source) if game else source.resolve()
             if resolved != source:
                 self.source.value = resolved.as_posix()
+        if self.output not in self.touched:
+            if output := self._suggested_output():
+                self.output.value = output.as_posix()
+                self.world = None
         self._refresh()
 
     def _edit_source(self, value: str) -> None:
@@ -168,9 +194,9 @@ class MapCacheTab(QWidget):
 
     def _output_changed(self, _: str) -> None:
         value = self.output.value.strip()
+        self.world = None
         if not value:
-            self.world = None
-            self._sync()
+            self._refresh()
             return
 
         output = Path(value)
@@ -233,6 +259,7 @@ class MapCacheTab(QWidget):
         return next((error for error in errors if error), None)
 
     def _sync(self) -> None:
+        self.output.initial_path = (self._suggested_output() or self.settings.export_path).as_posix()
         self.warnings.set_messages(self._warnings())
 
         if not self.submit.running:

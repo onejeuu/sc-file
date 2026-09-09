@@ -1,10 +1,33 @@
 from pathlib import Path
 
+import pytest
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from scfile.app.gui.settings import Settings
 from scfile.app.gui.tabs.animate import AnimateTab, ArmsForm, BodyForm
 from scfile.app.gui.tasks import TaskManager
+
+
+@pytest.mark.parametrize("index", (0, 1, 2))
+def test_restore_output(qapp: QApplication, tmp_path: Path, index: int) -> None:
+    tab = AnimateTab(TaskManager(), Settings(export_path=tmp_path / "export"))
+    tab.tabs.setCurrentIndex(index)
+    output = tab.output.input.line_edit
+    QTest.keyClick(output, Qt.Key.Key_Backspace)
+    assert not tab.output.value
+
+    source = tmp_path / f"animation{tab.form.rules[0].suffix}"
+    source.touch()
+    tab.form.source.value = str(source)
+    tab._source_changed()
+    output.clear()
+    QTest.keyClick(output, Qt.Key.Key_Delete)
+    assert Path(tab.output.value) == tmp_path / "export/animation.glb"
+
+    tab.deleteLater()
+    qapp.processEvents()
 
 
 def test_body_form(qapp: QApplication, tmp_path: Path) -> None:

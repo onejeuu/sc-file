@@ -325,6 +325,7 @@ class AnimateTab(QWidget):
             form.defaults_requested.connect(lambda form=form: self._apply_defaults(form))
             self.stack.addWidget(form)
             form.add_output(lambda value, form=form: self._output_changed(value, form))
+            form.output.reset_requested.connect(lambda form=form: self._restore_default_output(form))
         layout.addWidget(self.stack, 1)
 
         self.warnings = WarningsWidget()
@@ -374,6 +375,11 @@ class AnimateTab(QWidget):
 
     def _output_invalid(self) -> bool:
         return Path(self.output.value.strip()).suffix.lower() != ".glb"
+
+    def _restore_default_output(self, form: Form) -> None:
+        if output := self._suggested_output(form):
+            form.output.value = output.as_posix()
+            self._sync()
 
     def _game(self) -> GameRoot | None:
         if not self.settings.resolve_paths or self.settings.game_root is None:
