@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from scfile import exceptions
-from scfile.app.events import TaskItem, TaskProgress, TaskStarted
+from scfile.app.events import TaskError, TaskItem, TaskProgress, TaskStarted, TaskStatus
 from scfile.app.tasks import TaskContext, execute
 from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
 from scfile.convert import maptiles
@@ -11,7 +11,8 @@ from scfile.options import Options
 def test_run(tmp_path: Path, monkeypatch) -> None:
     output = tmp_path / "map.jpg"
     tile = tmp_path / "r.0.0.ol"
-    tiles = {maptiles.Region(0, 0): tile}
+    second = tmp_path / "r.1.0.ol"
+    tiles = {maptiles.Region(0, 0): tile, maptiles.Region(1, 0): second}
     save = {"format": "JPEG", "quality": 80}
     task = MapTilesTask(tiles, output, Options(), save)
     received = {}
@@ -21,7 +22,12 @@ def test_run(tmp_path: Path, monkeypatch) -> None:
         assert target == output
         received.update(options)
         options["progress"](tile)
-        return maptiles.AssembleResult(output, 3)
+        assert not any(isinstance(event, TaskStatus) for event in events)
+        options["progress"](second)
+        assert not any(isinstance(event, TaskStatus) for event in events)
+        options["encoding"]()
+        assert isinstance(events[-1], TaskStatus)
+        return maptiles.AssembleResult(output, len(tiles))
 
     monkeypatch.setattr(maptiles, "render", render)
 
@@ -29,11 +35,33 @@ def test_run(tmp_path: Path, monkeypatch) -> None:
     summary = execute(task, events.append)
 
     assert received["save"] == save
-    assert [type(event) for event in events] == [TaskStarted, TaskProgress, TaskItem]
+    assert [type(event) for event in events] == [TaskStarted, TaskProgress, TaskProgress, TaskStatus, TaskItem]
     assert events[0].total == len(tiles) + 1
     assert events[1].source == str(tile)
-    assert events[2].output == output
+    assert events[2].source == str(second)
+    assert events[-1].output == output
+    assert events[-1].source is None
     assert summary.files.written == 1
+    assert summary.files.skipped == 0
+    assert summary.work.completed == 1
+
+
+def test_encoding_failure(tmp_path: Path, monkeypatch) -> None:
+    tile = tmp_path / "r.0.0.ol"
+    task = MapTilesTask({maptiles.Region(0, 0): tile}, tmp_path / "map.png", Options(), {"format": "PNG"})
+
+    def render(*args, **options):
+        options["progress"](tile)
+        options["encoding"]()
+        raise OSError()
+
+    monkeypatch.setattr(maptiles, "render", render)
+    events = []
+    summary = execute(task, events.append)
+
+    assert [type(event) for event in events] == [TaskStarted, TaskProgress, TaskStatus, TaskError]
+    assert summary.work.failed == 1
+    assert summary.files.written == 0
 
 
 def test_cancelled(tmp_path: Path, monkeypatch) -> None:

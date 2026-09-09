@@ -30,26 +30,26 @@ class MapCacheTask(Task):
     def _merge(self, region: MapCacheRegion, context: TaskContext) -> TaskItem | TaskItemFailure | None:
         key, paths = region
         output = self.output or self.source.with_name(f"{self.source.name}_mca")
+        source = f"({key.x}, {key.z})"
 
         try:
             filename, chunks = mapcache.merge(key, paths, output, self.options, context.cancelled.is_set)
             return TaskItem(
-                f"Region {key}",
-                output / filename,
-                f"{filename} merged {chunks} chunks",
+                output=output / filename,
+                detail=f"Merged {chunks} chunks",
             )
 
         except exceptions.MergeInterrupted:
             return None
 
         except exceptions.ScFileException as error:
-            return TaskItemFailure(str(error.location or key), error)
+            return TaskItemFailure(error.location or source, error)
 
         except OSError as error:
-            return TaskItemFailure(str(error.filename or key), error)
+            return TaskItemFailure(str(error.filename or source), error)
 
         except Exception as error:
-            return TaskItemFailure(f"Region {key}", error, traceback.format_exc())
+            return TaskItemFailure(source, error, traceback.format_exc())
 
     def run(
         self,

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from scfile import exceptions
-from scfile.app.events import TaskError, TaskItemFailure
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure
 from scfile.app.tasks import TaskContext, execute
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.convert import mapcache
@@ -82,6 +82,20 @@ def test_merge_errors(tmp_path: Path, monkeypatch) -> None:
     failure = task._merge(region, context)
     assert isinstance(failure, TaskItemFailure)
     assert failure.traceback is not None
+
+
+def test_merge_result(tmp_path: Path, monkeypatch) -> None:
+    output = tmp_path / "output"
+    task = MapCacheTask(tmp_path, output, Options())
+    region = (mapcache.Region(-8, 6), [tmp_path / "r.-8.6.mdat"])
+    filename = "r.-8.6.mca"
+    monkeypatch.setattr(mapcache, "merge", lambda *args: (filename, 1024))
+
+    result = task._merge(region, TaskContext())
+
+    assert isinstance(result, TaskItem)
+    assert result.source is None
+    assert result.output == output / filename
 
 
 def test_scan_error(tmp_path: Path, monkeypatch) -> None:

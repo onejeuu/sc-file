@@ -6,7 +6,7 @@ from threading import Event as CancelEvent
 from typing import ClassVar
 
 from scfile.app.enums import TaskKind
-from scfile.app.events import TaskError, TaskEvent, TaskProgress, TaskSummary
+from scfile.app.events import TaskError, TaskEvent, TaskProgress, TaskStatus, TaskSummary
 
 
 type Reporter = Callable[[TaskEvent], None]
@@ -15,13 +15,10 @@ type Reporter = Callable[[TaskEvent], None]
 def _ignore(_: TaskEvent) -> None: ...
 
 
-def _ignore_progress(_: TaskProgress) -> None: ...
-
-
 @dataclass(slots=True)
 class TaskContext:
     cancelled: CancelEvent = field(default_factory=CancelEvent)
-    _progress: Callable[[TaskProgress], None] = field(default=_ignore_progress, repr=False)
+    _report: Reporter = field(default=_ignore, repr=False)
 
     @property
     def stopped(self) -> bool:
@@ -30,8 +27,11 @@ class TaskContext:
     def stop(self) -> None:
         self.cancelled.set()
 
-    def advance(self, source: str | None = None) -> None:
-        self._progress(TaskProgress(source))
+    def advance(self, source: str | None = None, detail: str | None = None) -> None:
+        self._report(TaskProgress(source, detail))
+
+    def status(self, description: str) -> None:
+        self._report(TaskStatus(description))
 
 
 class Task(ABC):
@@ -53,21 +53,24 @@ def execute(
         context = TaskContext()
 
     summary = TaskSummary(task.kind)
-    progress = context._progress
-    context._progress = report
 
-    try:
-        for event in task.run(context):
-            summary.add(event)
-            report(event)
-
-    except Exception as error:
-        event = TaskError(error, traceback=traceback.format_exc())
+    def emit(event: TaskEvent) -> None:
         summary.add(event)
         report(event)
 
+    previous = context._report
+    context._report = emit
+
+    try:
+        for event in task.run(context):
+            emit(event)
+
+    except Exception as error:
+        event = TaskError(error, traceback=traceback.format_exc())
+        emit(event)
+
     finally:
-        context._progress = progress
+        context._report = previous
 
     summary.cancelled = context.stopped
     return summary

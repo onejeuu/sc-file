@@ -78,6 +78,7 @@ def assemble(
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
     progress: Progress = None,
+    encoding: Callable[[], None] | None = None,
 ) -> AssembleResult:
     """Assemble map tiles from one folder into an image."""
 
@@ -86,7 +87,7 @@ def assemble(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.", location=str(source))
 
-    return render(tiles, output_path, options, save, cancelled, progress)
+    return render(tiles, output_path, options, save, cancelled, progress, encoding)
 
 
 def render(
@@ -96,6 +97,7 @@ def render(
     save: SaveOptions | None = None,
     cancelled: CancelCheck = None,
     progress: Progress = None,
+    encoding: Callable[[], None] | None = None,
 ) -> AssembleResult:
     """Assemble normalized map tiles into an image."""
 
@@ -127,6 +129,8 @@ def render(
                 progress(path)
 
         with paths.stage(output_path) as temporary:
+            if encoding:
+                encoding()
             canvas.save(temporary, **save)
 
     finally:

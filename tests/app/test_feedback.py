@@ -6,7 +6,7 @@ from rich.console import Console
 
 from scfile import exceptions
 from scfile.app.enums import TaskKind
-from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskStatus, TaskSummary
 from scfile.app.feedback import TaskFeedback
 
 
@@ -36,6 +36,32 @@ def test_subprogress(feedback: TaskFeedback) -> None:
     feedback(TaskItem("tile.ol", Path("map.jpg")))
 
     assert feedback.completed == 2
+
+
+def test_status(feedback: TaskFeedback) -> None:
+    feedback(TaskStarted(TaskKind.MAPTILES, 2))
+    feedback(TaskProgress("tile.ol"))
+    feedback(TaskStatus("Encoding"))
+
+    assert feedback.completed == 1
+    assert feedback.progress is not None
+    assert feedback.progress.tasks[0].completed == 1
+    assert not feedback.progress.tasks[0].finished
+
+    feedback(TaskItem(output=Path("map.png")))
+    assert feedback.completed == 2
+
+
+@pytest.mark.parametrize("verbose", (False, True))
+def test_progress_visibility(feedback: TaskFeedback, verbose: bool, monkeypatch: pytest.MonkeyPatch) -> None:
+    printed = []
+    monkeypatch.setattr(feedback.console, "print", lambda *args, **kwargs: printed.append(args))
+    feedback.set_verbose(verbose)
+
+    feedback(TaskProgress("tile.ol", "Assembled"))
+
+    assert len(printed) == int(verbose)
+    assert feedback.completed == 1
 
 
 def test_verbose(feedback: TaskFeedback) -> None:

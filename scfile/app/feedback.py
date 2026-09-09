@@ -19,7 +19,7 @@ from rich.text import Text
 
 from scfile import exceptions
 from scfile.app.enums import TaskKind, TaskOutcome
-from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskSummary
+from scfile.app.events import TaskError, TaskItem, TaskItemFailure, TaskProgress, TaskStarted, TaskStatus, TaskSummary
 
 
 class TaskText(NamedTuple):
@@ -135,6 +135,13 @@ class TaskFeedback:
 
             case TaskProgress():
                 self._advance()
+                if self.verbose and event.source is not None:
+                    text = self._line(None, _path(event.source, SUCCESS), SUCCESS, event.detail)
+                    self.console.print(text, highlight=False)
+
+            case TaskStatus():
+                if self.progress is not None and self.progress_id is not None:
+                    self.progress.update(self.progress_id, description=event.description, refresh=True)
 
             case TaskItem():
                 self._advance()
@@ -266,13 +273,7 @@ class TaskFeedback:
                 event.detail,
             )
         else:
-            content = (
-                _path(event.output, SUCCESS)
-                if event.output is not None
-                else Text(event.detail or "", style=f"bold {SUCCESS.color}")
-            )
-            detail = event.detail if event.output is not None else None
-            text = self._line(event.source, content, SUCCESS, detail)
+            text = self._line(event.source, _path(event.output, SUCCESS), SUCCESS, event.detail)
 
         self.console.print(text, highlight=False)
 
@@ -291,7 +292,7 @@ class TaskFeedback:
 
     def _line(
         self,
-        source: str | Path,
+        source: str | Path | None,
         content: Text,
         marker: Marker,
         detail: str | None = None,
@@ -305,10 +306,10 @@ class TaskFeedback:
             else Text()
         )
 
-        return Text.assemble(
-            (f"{marker.icon} ", f"bold {marker.color}"),
-            _path(source, marker),
-            (" → ", "bold white"),
-            content,
-            suffix,
-        )
+        text = Text(f"{marker.icon} ", style=f"bold {marker.color}")
+        if source is not None:
+            text.append_text(_path(source, marker))
+            text.append(" → ", style="bold white")
+        text.append_text(content)
+        text.append_text(suffix)
+        return text

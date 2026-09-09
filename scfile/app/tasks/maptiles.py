@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import StrEnum
+from functools import partial
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -76,11 +77,11 @@ class MapTilesTask(Task):
                 options=self.options,
                 save=self.save,
                 cancelled=context.cancelled.is_set,
-                progress=lambda path: context.advance(str(path)),
+                progress=lambda path: context.advance(str(path), "Assembled"),
+                encoding=partial(context.status, "Encoding"),
             )
 
         except exceptions.MergeInterrupted:
             return
 
-        source = next(iter(self.tiles.values()))
-        yield TaskItem(str(source), result.output, f"Assembled {result.tiles} tiles")
+        yield TaskItem(output=result.output, detail=f"Assembled {result.tiles} tiles")

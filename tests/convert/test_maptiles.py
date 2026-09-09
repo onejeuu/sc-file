@@ -72,11 +72,16 @@ def test_measure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_progress(tmp_path: Path) -> None:
     paths = [_tile(tmp_path, 0, 0), _tile(tmp_path, 1, 0)]
-    completed: list[Path] = []
+    completed: list[Path | None] = []
 
-    maptiles.assemble(tmp_path, tmp_path / "map.jpg", progress=completed.append)
+    maptiles.assemble(
+        tmp_path,
+        tmp_path / "map.jpg",
+        progress=completed.append,
+        encoding=lambda: completed.append(None),
+    )
 
-    assert completed == paths
+    assert completed == [*paths, None]
 
 
 def test_empty(tmp_path: Path) -> None:

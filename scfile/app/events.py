@@ -19,13 +19,21 @@ class TaskProgress:
     """Completed progress unit without an output file."""
 
     source: str | None = None
+    detail: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class TaskStatus:
+    """Current processing stage without a progress increment."""
+
+    description: str
 
 
 @dataclass(frozen=True, slots=True)
 class TaskItem:
     """Completed source item and its optional output."""
 
-    source: str
+    source: str | None = None
     output: Path | None = None
     detail: str | None = None
 
@@ -48,7 +56,7 @@ class TaskError:
     traceback: str | None = None
 
 
-type TaskEvent = TaskStarted | TaskProgress | TaskItem | TaskItemFailure | TaskError
+type TaskEvent = TaskStarted | TaskProgress | TaskStatus | TaskItem | TaskItemFailure | TaskError
 
 
 @dataclass(slots=True)
