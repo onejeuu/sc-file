@@ -7,7 +7,7 @@ from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummar
 from scfile.app.game import GameRoot, McWorld
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import MAX_FORM_WIDTH, Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.card import CalloutWidget, CardWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
@@ -18,7 +18,6 @@ from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.mapcache import MapCacheScanner
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.options import Options
-
 
 class MapCacheTab(QWidget):
     def __init__(self, tasks: TaskManager, settings: Settings):
@@ -85,6 +84,7 @@ class MapCacheTab(QWidget):
 
         source_card = CardWidget(strings.get("label.form.source"))
         source_card.content.addWidget(self.source)
+        source_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(source_card)
 
         result_card = CardWidget(strings.get("label.form.output"))
@@ -95,11 +95,15 @@ class MapCacheTab(QWidget):
         options.addWidget(self.biomes)
         options.addWidget(self.backup)
         result_card.content.addLayout(options)
+        result_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(result_card)
-        layout.addWidget(self._info())
+        info = self._info()
+        info.setMaximumWidth(MAX_FORM_WIDTH)
+        layout.addWidget(info)
         layout.addStretch()
 
         self.warnings = WarningsWidget()
+        self.warnings.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(self.warnings)
 
         self.submit = ProgressButton(strings.get("button.mapcache"))

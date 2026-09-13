@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
 
         root_layout = QVBoxLayout(root)
-        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setContentsMargins(1, 1, 1, 1)
         root_layout.setSpacing(0)
         self.title_bar = TitleBar(self)
         root_layout.addWidget(self.title_bar)

@@ -9,6 +9,7 @@ from scfile.app.consts import ACCENT_COLOR
 CHECK_ICON = files.resource("assets/ui.check.png").as_posix()
 CHEVRON_DOWN_ICON = files.resource("assets/ui.chevron.down.png").as_posix()
 CHEVRON_UP_ICON = files.resource("assets/ui.chevron.up.png").as_posix()
+MAX_FORM_WIDTH = 960
 
 
 class Colors(Enum):

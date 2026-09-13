@@ -27,7 +27,7 @@ class TitleBar(QWidget):
         brand_layout.setContentsMargins(0, 0, 0, 0)
         icon = QLabel()
         icon.setObjectName("windowIcon")
-        icon.setPixmap(qwindow.windowIcon().pixmap(16, 16))
+        icon.setPixmap(qwindow.windowIcon().pixmap(18, 18))
         icon.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         brand_layout.addWidget(icon, 0, Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(brand)

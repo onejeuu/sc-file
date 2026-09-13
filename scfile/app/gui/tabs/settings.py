@@ -10,7 +10,7 @@ from scfile.app.consts import DEFAULT_OUTPUT
 from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import MAX_FORM_WIDTH, Styles
 from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.option import OptionWidget
@@ -68,6 +68,7 @@ class SettingsTab(QWidget):
         )
         self.verbose.changed.connect(self._set_verbose)
         general.content.addWidget(self.verbose)
+        general.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(general)
 
         paths = CardWidget(strings.get("label.settings.paths"))
@@ -129,6 +130,7 @@ class SettingsTab(QWidget):
                 controls,
             )
         )
+        performance.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(performance)
 
         interface = CardWidget(strings.get("label.settings.interface"))
@@ -145,9 +147,11 @@ class SettingsTab(QWidget):
                 self.language,
             )
         )
+        interface.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(interface)
         self.language_warning = WarningsWidget()
         interface.content.addWidget(self.language_warning)
+        paths.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(paths)
         layout.addStretch()
 

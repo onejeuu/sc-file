@@ -8,7 +8,7 @@ from scfile.app.events import TaskItem, TaskItemFailure, TaskProgress, TaskStart
 from scfile.app.game import GameRegion, GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import MAX_FORM_WIDTH, Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.combo import ComboBox
@@ -109,6 +109,7 @@ class MapTilesTab(QWidget):
             field_layout.addWidget(select)
             selectors.addWidget(field, 1)
         source_card.content.addLayout(selectors)
+        source_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(source_card)
 
         self.estimate = QLabel()
@@ -117,6 +118,7 @@ class MapTilesTab(QWidget):
         result_card.content.addWidget(self.output)
         result_card.content.addWidget(self.encoding)
         result_card.content.addWidget(self.estimate)
+        result_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(result_card)
         self.region_cursor = DisabledCursor(self.region)
         self.region_cursor.set(False, strings.get("tooltip.maptiles.region"))
@@ -126,6 +128,7 @@ class MapTilesTab(QWidget):
         layout.addStretch()
 
         self.warnings = WarningsWidget()
+        self.warnings.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(self.warnings)
 
         self.submit = ProgressButton(strings.get("button.maptiles"))

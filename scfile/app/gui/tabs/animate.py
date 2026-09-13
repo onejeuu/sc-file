@@ -9,7 +9,7 @@ from scfile import convert
 from scfile.app.game import GameRoot
 from scfile.app.gui import strings
 from scfile.app.gui.settings import Settings
-from scfile.app.gui.styles import Styles
+from scfile.app.gui.styles import MAX_FORM_WIDTH, Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.card import CardWidget
 from scfile.app.gui.widgets.disabled import DisabledCursor
@@ -51,7 +51,15 @@ class AnimationForm(QWidget):
         self.touched: set[PathField] = set()
         self.output_touched = False
 
-        self.form_layout = QVBoxLayout(self)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        column = QWidget()
+        column.setMaximumWidth(MAX_FORM_WIDTH)
+        layout.addWidget(column)
+        layout.addStretch()
+
+        self.form_layout = QVBoxLayout(column)
         self.form_layout.setContentsMargins(0, 0, 0, 0)
         self.form_layout.setSpacing(16)
 
@@ -67,7 +75,6 @@ class AnimationForm(QWidget):
         self.options_widget.hide()
         self.result_card.content.addWidget(self.options_widget)
         self.form_layout.addWidget(self.result_card)
-        self.form_layout.addStretch()
 
     @property
     def warnings(self) -> tuple[str, ...]:
@@ -329,6 +336,7 @@ class AnimateTab(QWidget):
         layout.addWidget(self.stack, 1)
 
         self.warnings = WarningsWidget()
+        self.warnings.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(self.warnings)
 
         self.submit = QPushButton(strings.get("button.animate"))
