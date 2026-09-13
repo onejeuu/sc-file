@@ -82,7 +82,12 @@ sc-file
 Download executable
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Download ``scfile.exe`` from the `Releases page <Releases_>`_.
+Choose a build on the `Releases page <Releases_>`_:
+
+- **Windows:** ``Setup`` (recommended) or ``Portable``
+- **Linux:** ``Portable``
+
+  Portable builds unpack themselves to temp directory on every launch.
 
 **Usage:**
 

@@ -67,6 +67,7 @@
 .. _UV: https://github.com/astral-sh/uv
 .. _WTV: https://www.softpedia.com/get/Multimedia/Graphic/Graphic-Viewers/WTV.shtml
 .. _XnView: https://xnview.com
+.. _Inno Setup: https://jrsoftware.org/isinfo.php
 
 .. Antivirus
 .. _SmartScreen: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation

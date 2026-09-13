@@ -71,7 +71,12 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 
 ### Download executable
 
-Download `scfile.exe` from the [Releases page][releases].
+Choose a build on the [Releases page][releases]:
+
+- **Windows:** `Setup` (recommended) or `Portable`
+- **Linux:** `Portable`
+
+> Portable builds unpack themselves to temp directory on every launch.
 
 **Usage:**
 

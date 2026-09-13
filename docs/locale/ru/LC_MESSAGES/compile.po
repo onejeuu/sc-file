@@ -13,11 +13,23 @@ msgstr "Эти инструкции предназначены для `astral-sh
 msgid "Download source code"
 msgstr "Скачайте исходный код"
 
+msgid "Portable executable"
+msgstr "Портативный исполняемый файл"
+
 msgid "Compile without GUI"
 msgstr "Сборка без GUI"
 
 msgid "Compile with GUI"
 msgstr "Сборка с GUI"
 
-msgid "Executable ``scfile.exe`` will be created in ``/dist`` directory."
-msgstr "Исполняемый файл ``scfile.exe`` будет создан в директории ``/dist``."
+msgid "Creates ``dist/scfile.exe`` on Windows or ``dist/scfile`` on Linux."
+msgstr "Будет создан ``dist/scfile.exe`` на Windows или ``dist/scfile`` на Linux."
+
+msgid "Windows setup"
+msgstr "Установщик для Windows"
+
+msgid "Install `Inno Setup`_. Restart the terminal after installation."
+msgstr "Установите `Inno Setup`_. После установки перезапустите терминал."
+
+msgid "Creates ``dist/scfile_setup.exe``."
+msgstr "Будет создан ``dist/scfile_setup.exe``."

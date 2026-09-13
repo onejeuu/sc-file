@@ -65,8 +65,17 @@ msgstr "🚀 Использование"
 msgid "Download executable"
 msgstr "Скачать исполняемый файл"
 
-msgid "Download ``scfile.exe`` from the `Releases page <Releases_>`_."
-msgstr "Скачайте ``scfile.exe`` со `страницы Releases <Releases_>`_."
+msgid "Choose a build on the `Releases page <Releases_>`_:"
+msgstr "Выберите сборку на `странице Releases <Releases_>`_:"
+
+msgid "**Windows:** ``Setup`` (recommended) or ``Portable``"
+msgstr "**Windows:** ``Setup`` (рекомендуется) или ``Portable``"
+
+msgid "**Linux:** ``Portable``"
+msgstr "**Linux:** ``Portable``"
+
+msgid "Portable builds unpack themselves to temp directory on every launch."
+msgstr "Portable сборки распаковываются во временную папку при каждом запуске."
 
 msgid "**Usage:**"
 msgstr "**Использование:**"

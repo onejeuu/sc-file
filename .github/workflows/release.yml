@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: debian:11
             name: Linux
           - os: windows-latest
             name: Windows
@@ -184,6 +184,15 @@ jobs:
 
             ${{ steps.meta.outputs.prerelease == 'true' && '> [!WARNING]' || '' }}
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and intended for testing.' || '' }}
+
+            ### Downloads
+
+            | System | Build | File |
+            | --- | --- | --- |
+            | Windows | Setup | [scfile_windows_setup_x64.exe](https://github.com/onejeuu/sc-file/releases/download/${{ github.ref_name }}/scfile_windows_setup_x64.exe) |
+            | Windows | Portable | [scfile_windows_portable_x64.exe](https://github.com/onejeuu/sc-file/releases/download/${{ github.ref_name }}/scfile_windows_portable_x64.exe) |
+            | Linux (glibc) | Portable | [scfile_linux_portable_x64](https://github.com/onejeuu/sc-file/releases/download/${{ github.ref_name }}/scfile_linux_portable_x64) |
+
             ${{ steps.meta.outputs.prerelease == 'false' && format('**API Changelog:** [`{0}`]({1})', github.ref_name, steps.meta.outputs.changelog) || '' }}
           files: |
             artifacts/windows-binaries/scfile_windows_setup_x64.exe

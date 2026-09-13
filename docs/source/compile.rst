@@ -13,6 +13,9 @@
     git clone https://github.com/onejeuu/sc-file.git
     cd sc-file
 
+Portable executable
+----------------------------------------
+
 .. code-block:: bash
     :caption: Compile without GUI
 
@@ -23,4 +26,15 @@
 
     uv run --group build --extra gui scripts/build.py
 
-Executable ``scfile.exe`` will be created in ``/dist`` directory.
+Creates ``dist/scfile.exe`` on Windows or ``dist/scfile`` on Linux.
+
+Windows setup
+----------------------------------------
+
+Install `Inno Setup`_. Restart the terminal after installation.
+
+.. code-block:: bash
+
+    uv run --group build --extra gui scripts/build.py --setup
+
+Creates ``dist/scfile_setup.exe``.
