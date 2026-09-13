@@ -62,18 +62,19 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
             name: Linux
             artifact: linux-binary
-            binary: scfile_linux_x64
-            cmd: mv dist/scfile scfile_linux_x64 && chmod +x scfile_linux_x64
+            files: scfile_linux_portable_x64
+            cmd: mv dist/scfile scfile_linux_portable_x64 && chmod +x scfile_linux_portable_x64
           - os: windows-latest
             name: Windows
-            artifact: windows-binary
-            binary: scfile_windows_x64.exe
-            cmd: mv dist/scfile.exe scfile_windows_x64.exe
+            artifact: windows-binaries
+            files: |
+              scfile_windows_portable_x64.exe
+              scfile_windows_setup_x64.exe
+            cmd: mv dist/scfile.exe scfile_windows_portable_x64.exe
 
     runs-on: ${{ matrix.os }}
     name: Build ${{ matrix.name }}
@@ -89,19 +90,30 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install --yes libegl1
 
-      - name: Build Binary
+      - name: Build Portable
         run: uv run --group build --extra gui scripts/build.py
         env:
           QT_QPA_PLATFORM: offscreen
 
-      - name: Prepare Artifact
+      - name: Prepare Portable
         shell: bash
         run: ${{ matrix.cmd }}
+
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          uv run --group build --extra gui scripts/build.py --setup
+          Move-Item dist/scfile_setup.exe scfile_windows_setup_x64.exe
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.binary }}
+          path: ${{ matrix.files }}
           retention-days: 1
 
   publish-package:
@@ -174,5 +186,6 @@ jobs:
             ${{ steps.meta.outputs.prerelease == 'true' && '> This build is auto-generated from latest commit and intended for testing.' || '' }}
             ${{ steps.meta.outputs.prerelease == 'false' && format('**API Changelog:** [`{0}`]({1})', github.ref_name, steps.meta.outputs.changelog) || '' }}
           files: |
-            artifacts/windows-binary/scfile_windows_x64.exe
-            artifacts/linux-binary/scfile_linux_x64
+            artifacts/windows-binaries/scfile_windows_setup_x64.exe
+            artifacts/windows-binaries/scfile_windows_portable_x64.exe
+            artifacts/linux-binary/scfile_linux_portable_x64

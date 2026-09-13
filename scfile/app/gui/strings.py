@@ -27,7 +27,6 @@ DATA: dict[Lang, dict[str, str]] = {
         "label.animate.weapon": "Weapon",
         "label.animate.hands": "Hands",
         "label.animate.head": "Head",
-        "label.animate.output": "Output",
         "label.maptiles.source": "SC map tiles",
         "label.maptiles.region": "Region",
         "label.maptiles.map": "Map",
