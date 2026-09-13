@@ -12,6 +12,7 @@ def run_gui() -> int:  # pragma: no cover
     try:
         from .gui import application
 
+        console.info("GUI started")
         return application.run()
 
     except ImportError:

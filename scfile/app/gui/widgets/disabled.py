@@ -21,7 +21,11 @@ class DisabledCursor(QObject):
 
     @override
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        if watched is self.target and event.type() in (QEvent.Type.Move, QEvent.Type.Resize, QEvent.Type.Show):
+        if watched is getattr(self, "target", None) and event.type() in (
+            QEvent.Type.Move,
+            QEvent.Type.Resize,
+            QEvent.Type.Show,
+        ):
             self._sync()
 
         return super().eventFilter(watched, event)

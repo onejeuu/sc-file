@@ -53,7 +53,6 @@ class Colors(Enum):
 class Styles:
     WINDOW = f"""
         QMainWindow, QDialog {{
-            background: {Colors.CANVAS};
             color: {Colors.TEXT};
             font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
             font-size: 13px;
@@ -62,7 +61,11 @@ class Styles:
             color: {Colors.TEXT};
             font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
         }}
-        QWidget#appRoot, QWidget#mainContent, QStackedWidget {{ background: {Colors.CANVAS}; }}
+        QMainWindow {{ background: transparent; }}
+        QDialog {{ background: {Colors.CANVAS}; }}
+        QWidget#appRoot {{ background: {Colors.CANVAS}; border: 1px solid {Colors.BORDER}; border-radius: 8px; }}
+        QWidget#appRoot[maximized="true"] {{ border-radius: 0px; }}
+        QWidget#windowBody, QWidget#mainContent, QStackedWidget {{ background: {Colors.CANVAS}; }}
         QLabel {{ background: transparent; color: {Colors.TEXT}; }}
     """
 
@@ -294,6 +297,29 @@ class Styles:
         QAbstractItemView::item:selected {{ background: {Colors.CONTROL_HOVER}; color: {Colors.TEXT}; }}
         QAbstractItemView::item:hover {{ background: {Colors.CONTROL}; color: {Colors.TEXT}; }}
         QAbstractItemView::item:selected:hover {{ background: {Colors.CONTROL_PRESSED}; }}
+    """
+
+    COMBO_CONTAINER = """
+        QWidget#comboPopup { background: transparent; border: none; }
+    """
+
+    TITLE_BAR = f"""
+        QWidget#titleBar {{ background: {Colors.CANVAS}; border: none; }}
+        QWidget#titleBrand {{ background: {Colors.SIDEBAR}; border: none; border-right: 1px solid {Colors.BORDER}; }}
+        QLabel#windowIcon, QLabel#windowTitle {{ background: transparent; border: none; }}
+        QLabel#windowTitle {{ color: {Colors.TEXT}; font-size: 12px; font-weight: 600; }}
+        QPushButton {{
+            background: transparent;
+            border: none;
+            border-radius: 0px;
+            color: {Colors.TEXT_SECONDARY};
+            padding: 0px;
+            outline: none;
+        }}
+        QPushButton:hover {{ background: {Colors.CONTROL_HOVER}; color: {Colors.TEXT}; }}
+        QPushButton:pressed {{ background: {Colors.CONTROL_PRESSED}; }}
+        QPushButton#closeButton:hover {{ background: #C42B1C; color: white; }}
+        QPushButton#closeButton:pressed {{ background: #A51D13; color: white; }}
     """
 
     BUTTON = f"""

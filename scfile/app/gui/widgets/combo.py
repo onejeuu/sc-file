@@ -1,10 +1,11 @@
 from typing import override
 
-from PySide6.QtCore import QPointF, QSize, Qt
-from PySide6.QtGui import QPalette, QTextCharFormat, QTextLayout
-from PySide6.QtWidgets import QApplication, QComboBox, QStyle, QStyledItemDelegate, QStyleOptionViewItem
+from PySide6.QtCore import QEvent, QObject, QPointF, QRectF, QSize, Qt, QTimer
+from PySide6.QtGui import QPainterPath, QPalette, QRegion, QTextCharFormat, QTextLayout
+from PySide6.QtWidgets import QApplication, QComboBox, QStyle, QStyledItemDelegate, QStyleOptionViewItem, QWidget
 
 from scfile.app.gui.styles import Colors, Styles
+
 
 TITLE_ROLE = int(Qt.ItemDataRole.UserRole) + 1
 DETAIL_ROLE = TITLE_ROLE + 1
@@ -70,6 +71,7 @@ class ComboBox(QComboBox):
         popup.setStyleSheet(Styles.COMBO_POPUP)
         popup.setMouseTracking(True)
         popup.viewport().setMouseTracking(True)
+        self._prepare_popup()
 
         palette = popup.palette()
         palette.setColor(QPalette.ColorRole.Base, Colors.SURFACE_RAISED.value)
@@ -80,3 +82,39 @@ class ComboBox(QComboBox):
 
         self.setStyleSheet(Styles.COMBO)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def _prepare_popup(self) -> None:
+        container = self.view().window()
+        container.setObjectName("comboPopup")
+        container.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        container.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
+        container.setAutoFillBackground(False)
+        palette = container.palette()
+        palette.setColor(QPalette.ColorRole.Window, Qt.GlobalColor.transparent)
+        container.setPalette(palette)
+        container.setStyleSheet(Styles.COMBO_CONTAINER)
+        if not container.property("roundedPopup"):
+            container.setProperty("roundedPopup", True)
+            container.installEventFilter(self)
+        self._mask_popup(container)
+
+    def _mask_popup(self, container: QWidget | None = None) -> None:
+        widget = container or self.view().window()
+        if widget.width() <= 0 or widget.height() <= 0:
+            return
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(widget.rect()), 6, 6)
+        widget.setMask(QRegion(path.toFillPolygon().toPolygon()))
+
+    @override
+    def showPopup(self) -> None:
+        self._prepare_popup()
+        super().showPopup()
+        self._prepare_popup()
+        QTimer.singleShot(0, self._prepare_popup)
+
+    @override
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        if watched is self.view().window() and event.type() in (QEvent.Type.Show, QEvent.Type.Resize):
+            QTimer.singleShot(0, self._prepare_popup)
+        return super().eventFilter(watched, event)

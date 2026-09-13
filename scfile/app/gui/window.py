@@ -28,6 +28,7 @@ from scfile.app.gui.tabs.maptiles import MapTilesTab
 from scfile.app.gui.tabs.settings import SettingsTab
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.footer import FooterWidget
+from scfile.app.gui.widgets.titlebar import TitleBar, WindowResizeFrame
 from scfile.app.gui.widgets.updates import VersionWidget
 from scfile.app.localization import DOCS_URL
 
@@ -88,6 +89,8 @@ class MainWindow(QMainWindow):
     def _build_ui(self) -> None:
         self.setWindowIcon(QIcon(str(files.resource("assets/app.ico"))))
         self.setWindowTitle(TITLE)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setStyleSheet(Styles.WINDOW)
         self.resize(1000, 800)
 
@@ -96,9 +99,18 @@ class MainWindow(QMainWindow):
         root.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setCentralWidget(root)
 
-        layout = QHBoxLayout(root)
+        root_layout = QVBoxLayout(root)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+        self.title_bar = TitleBar(self)
+        root_layout.addWidget(self.title_bar)
+
+        body = QWidget()
+        body.setObjectName("windowBody")
+        layout = QHBoxLayout(body)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
+        root_layout.addWidget(body, 1)
 
         sidebar = QWidget()
         sidebar.setObjectName("sidebar")
@@ -182,6 +194,7 @@ class MainWindow(QMainWindow):
         self._sync_footer(0)
         self.stack.currentChanged.connect(self._sync_footer)
         root.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.resize_frame = WindowResizeFrame(self, root)
 
     def _add_tab(self, widget: QWidget, title: str, icon: str, help_url: str | None = None) -> None:
         index = self.stack.addWidget(widget)

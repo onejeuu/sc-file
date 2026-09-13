@@ -49,7 +49,7 @@ class MapCacheTab(QWidget):
         heading.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
         badge = QLabel(strings.get("label.experimental"))
         badge.setStyleSheet(Styles.BADGE_WARNING)
-        badge.setToolTip(strings.get("tooltip.experimental"))
+        badge.setToolTip(strings.get("tooltip.mapcache.experimental"))
         heading.addWidget(badge, 0, Qt.AlignmentFlag.AlignVCenter)
         heading.addStretch()
         layout.addLayout(heading)
