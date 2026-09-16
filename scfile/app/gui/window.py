@@ -142,7 +142,12 @@ class MainWindow(QMainWindow):
         self.convert = ConvertTab(self.tasks, self.settings)
         self.convert.error.connect(self.feedback)
         self.convert.settings_changed.connect(self._save_settings)
-        self._add_tab(self.convert, "tab.convert", "assets/tab.convert.png")
+        self._add_tab(
+            self.convert,
+            "tab.convert",
+            "assets/tab.convert.png",
+            help_url=f"{DOCS_URL}/latest/usage/convert.html",
+        )
 
         self.animate = AnimateTab(self.tasks, self.settings)
         self._add_tab(
