@@ -60,7 +60,7 @@ sc-file
     - ``.mdat``
     - →
     - ``.mca``
-  * - 📄 **NBT**
+  * - 📄 **Document**
     - | ``itemnames.dat`` ``common``
       | ``prefs`` ``sd0-4``
     - →
@@ -71,7 +71,7 @@ sc-file
 
 .. important::
 
-  | **Reverse conversion** (``standard`` → ``game``) **is not available.**
+  | **Reverse conversion** (``standard`` to ``game``) **is not available.**
   | :doc:`See FAQ for details → <faq>`
 
 

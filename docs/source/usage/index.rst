@@ -1,13 +1,15 @@
 🚀 Usage
 ==================================================
 
-.. include:: _links.rst
+.. include:: ../_links.rst
 
 .. toctree::
    :maxdepth: 1
-   :glob:
 
-   *
+   convert
+   animate
+   maptiles
+   mapcache
 
 
 ----------------------------------------
@@ -93,6 +95,8 @@ convert
 
 Default command. Converts game assets to standard formats.
 
+| :doc:`Usage guide → <convert>`
+
 ``PATHS``
   One or more files or directories. Accepts absolute and relative paths.
   Only supported files are processed.
@@ -177,7 +181,8 @@ Default command. Converts game assets to standard formats.
 
 ``--layout``
   | Output layout inside ``--output``. Defaults to ``rooted``.
-  | Accepted values: ``rooted``, ``relative``, ``dump``. `Examples → <layout_>`_
+  | Accepted values: ``rooted``, ``relative``, ``dump``.
+  | :doc:`Output structure examples → <convert>`
 
   .. code-block:: bash
     :caption: Example
@@ -197,60 +202,6 @@ Default command. Converts game assets to standard formats.
 
 ``-v, --verbose``
   Show the result of every processed file.
-
-
-.. _layout:
-
-Output Structure
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Examples of how ``--layout`` changes output layout.
-
-.. code-block:: text
-  :caption: Source structure
-
-  ./assets/
-  ├── armor/albatros.mcsb
-  └── items/vodka.ol
-
-
-``rooted`` (default)
-  .. code-block:: bash
-
-    scfile convert "./assets" --output "./output"
-
-  .. code-block:: text
-    :caption: Output
-
-    ./output/
-    ├── assets/armor/albatros.obj
-    └── assets/items/vodka.dds
-
-
-``relative``
-  .. code-block:: bash
-
-    scfile convert "./assets" --output "./output" --layout relative
-
-  .. code-block:: text
-    :caption: Output
-
-    ./output/
-    ├── armor/albatros.obj
-    └── items/vodka.dds
-
-
-``dump``
-  .. code-block:: bash
-
-    scfile convert "./assets" --output "./output" --layout dump
-
-  .. code-block:: text
-    :caption: Output
-
-    ./output/
-    ├── albatros.obj
-    └── vodka.dds
 
 
 .. _cli-animate:

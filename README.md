@@ -48,23 +48,23 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 
 ## ✨ Supported Formats
 
-| Type             | Game formats                             | →   | Standard formats       |
-| ---------------- | ---------------------------------------- | --- | ---------------------- |
-| 🧊 **Model**     | `.mcsb`, `.efkmodel`                     | →   | `.obj`, `.glb`, `.fbx` |
-| 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb` | →   | `.glb`                 |
-| 🧱 **Texture**   | `.ol`                                    | →   | `.dds`                 |
-| 🗺️ **Tiles**     | `pda/*.ol`                               | →   | `.jpeg`, `.png`        |
-| 🖼️ **Image**     | `.mic`                                   | →   | `.png`                 |
-| 🗃️ **Archive**   | `.texarr`                                | →   | `.zip`                 |
-| ⛰️ **Region**    | `.mdat`                                  | →   | `.mca`                 |
-| 📄 **NBT**       | `itemnames.dat` `common` `prefs` `sd0-4` | →   | `.json`                |
+| Type             | Game formats                                    | →   | Standard formats       |
+| ---------------- | ----------------------------------------------- | --- | ---------------------- |
+| 🧊 **Model**     | `.mcsb`, `.efkmodel`                            | →   | `.obj`, `.glb`, `.fbx` |
+| 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb`        | →   | `.glb`                 |
+| 🧱 **Texture**   | `.ol`                                           | →   | `.dds`                 |
+| 🗺️ **Tiles**     | `pda/*.ol`                                      | →   | `.jpeg`, `.png`        |
+| 🖼️ **Image**     | `.mic`                                          | →   | `.png`                 |
+| 🗃️ **Archive**   | `.texarr`                                       | →   | `.zip`                 |
+| ⛰️ **Region**    | `.mdat`                                         | →   | `.mca`                 |
+| 📄 **Document**  | `itemnames.dat`, `common`,<br/>`prefs`, `sd0-4` | →   | `.json`                |
 
 > [Details about formats →][docs-formats]
 
 </br>
 
 > [!IMPORTANT]  
-> **Reverse conversion (`standard` → `game`) is not available.**  
+> **Reverse conversion (`standard` to `game`) is not available.**  
 > [See FAQ for details →][docs-faq]
 
 ## 🚀 Usage

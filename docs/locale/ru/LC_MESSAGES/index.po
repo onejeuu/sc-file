@@ -47,14 +47,14 @@ msgstr "🗃️ **Архив**"
 msgid "⛰️ **Region**"
 msgstr "⛰️ **Регион**"
 
-msgid "📄 **NBT**"
-msgstr "📄 **NBT**"
+msgid "📄 **Document**"
+msgstr "📄 **Документ**"
 
 msgid ":doc:`Details about formats → <formats>`"
 msgstr ":doc:`Детальная информация о форматах → <formats>`"
 
-msgid "**Reverse conversion** (``standard`` → ``game``) **is not available.**"
-msgstr "**Обратная конвертация** (``стандартный`` → ``игровой``) **недоступна.**"
+msgid "**Reverse conversion** (``standard`` to ``game``) **is not available.**"
+msgstr "**Обратная конвертация** (``стандартный`` в ``игровой``) **недоступна.**"
 
 msgid ":doc:`See FAQ for details → <faq>`"
 msgstr ":doc:`Подробности в FAQ → <faq>`"
