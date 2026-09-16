@@ -390,7 +390,6 @@ Export
 :Template: HASHMAP.bt_
 :Purpose: Launcher file integrity verification.
 :Contents: Game asset paths and SHA-1 hashes.
-:Export: ``.json`` (JSON_).
 
 
 .. _torrent:

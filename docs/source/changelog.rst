@@ -1,6 +1,40 @@
 📋 Changelog
 ==================================================
 
+.. _v6.2.0:
+
+v6.2.0 (2026-09-16)
+----------------------------------------
+
+✨ Added
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``LangDecoder``: parsing for ``.lang`` localization files.
+* ``SignDecoder``: parsing for ``.sign`` texture signatures manifests.
+* ``HashmapDecoder``: parsing for ``.map`` launcher file.
+* ``SettingsTab``: added a worker thread count setting for GUI tasks.
+* ``SettingsTab``: added an interface language selector (applied on next launch).
+* ``scfile_setup.exe``: Windows installer distribution.
+* ``ImageContent.width``, ``ImageContent.height``, and ``ImageContent.bit_depth``: added source image metadata.
+* **Docs**: added documentation for converter cli and gui tab.
+
+📝 Changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``ConvertTab``: redesigned source selection, format filtering, and output settings.
+* ``MainWindow``: redesigned application window, including the title bar, navigation, forms, and update check.
+* ``TaskFeedback``: now shows task stages, per-file outcomes, and completion summaries.
+* ``MicDecoder``: now parses image dimensions and bit depth from the file header.
+* ``Decoder.exportable`` and ``Decoder.convertible``: distinguish automatic conversion from parsing formats that require related assets.
+* ``convert.maptiles.assemble()`` and ``convert.maptiles.render()``: report when output image encoding begins.
+* ``ScFileException``: binary error offsets now use hexadecimal notation.
+
+🐛 Fixed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **CLI**: recognizes animation pairs in auto routing.
+* ``StructReader.read_exact()``: reports the correct offset for truncated data and validates length-prefixed byte fields.
+
 .. _v6.1.0:
 
 v6.1.0 (2026-08-30)

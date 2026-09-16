@@ -11,6 +11,8 @@ class HashmapDecoder(Decoder[DocumentContent]):
 
     content_type = DocumentContent
 
+    exportable = False
+
     @override
     def _parse(self):
         count = self.io.value(F.U32)
