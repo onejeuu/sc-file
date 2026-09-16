@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: debian:11
+          - os: ubuntu-latest
             name: Linux
           - os: windows-latest
             name: Windows
