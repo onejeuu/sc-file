@@ -49,10 +49,10 @@ FORMAT_GROUPS = (
         formats=(FileFormat.TEXARR,),
     ),
     FormatGroup(
-        name="nbt",
-        label="format.nbt",
-        display=("itemnames.dat", "prefs", "sd0…sd4"),
-        formats=(FileFormat.NBT,),
+        name="documents",
+        label="format.documents",
+        display=("itemnames.dat", "sd0-4"),
+        formats=(FileFormat.NBT, FileFormat.MAP),
     ),
 )
 

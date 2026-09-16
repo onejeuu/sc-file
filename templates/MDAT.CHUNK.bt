@@ -7,9 +7,6 @@
 // File Mask: *.chunk
 //------------------------------------------------
 
-// The file consists of the 20-byte MDAT chunk header followed by the
-// ZSTD-decompressed payload. It is not a template for a raw MDAT sector.
-
 BigEndian();
 
 local int SECTION_SIZE = 16 * 16 * 16;  // 4096

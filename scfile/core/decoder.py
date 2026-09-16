@@ -26,7 +26,10 @@ class Decoder[
     """Reader class used to open source data."""
 
     standalone: ClassVar[bool] = True
-    """Whether the source can be converted without related assets."""
+    """Whether source can be converted without related assets."""
+
+    exportable: ClassVar[bool] = True
+    """Whether format is included in automatic conversion."""
 
     def __init__(
         self,
@@ -52,6 +55,11 @@ class Decoder[
             ),
             options=options if options is not None else Options(),
         )
+
+    @property
+    def convertible(self) -> bool:
+        """Whether standalone conversion is available for this format."""
+        return self.standalone and self.exportable
 
     def decode(self) -> ContentType:
         """Decode source data and return content."""

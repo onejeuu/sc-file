@@ -8,12 +8,9 @@
 // ID Bytes: 4D 43 41 4C // MCAL
 //------------------------------------------------
 
-
-// Byte Order
-
 LittleEndian();
 
-
+// Types
 // Length Prefixed String
 
 typedef struct {
@@ -33,13 +30,15 @@ typedef struct { short x, y, z; } Vec3s <read=Str("%f, %f, %f", nS(x), nS(y), nS
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
 
 
+
+// File Content
 // Header
 
 char signature[4] <name="Signature", fgcolor=cGreen>;
 float version <name="Version", fgcolor=cRed>;
 
 
-// Animation Library
+// Animation
 
 struct BoneTransform {
     Vec4s rotation <name="Rotation", bgcolor=cGray>;

@@ -20,7 +20,8 @@ See [Game Formats](https://sc-file.readthedocs.io/en/latest/formats.html) for de
 | [TEXARR.bt](TEXARR.bt)         | `*.texarr`                   | DDS arrays                        |
 | [MDAT.bt](MDAT.bt)             | `*.mdat`                     | World region cache                |
 | [MDAT.CHUNK.bt](MDAT.CHUNK.bt) | `*.chunk`                    | World chunk data                  |
-| [SIGN.bt](SIGN.bt)             | `*.sign`                     | Texture signatures                |
+| [SIGN.bt](SIGN.bt)             | `textures.sign`              | Texture signatures                |
+| [PACK.bt](PACK.bt)             | `model_list.pack`            | Allowed models list               |
 | [HASHMAP.bt](HASHMAP.bt)       | `*.map`                      | Launcher hash mappings            |
 | [TORRENT.bt](TORRENT.bt)       | `*.torrent.bin`              | Launcher torrent metadata         |
 

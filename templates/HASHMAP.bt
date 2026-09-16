@@ -7,26 +7,24 @@
 // File Mask: *.map
 //------------------------------------------------
 
-
-// Define byte order
-
 BigEndian();
 
-
-// Data Types
+// Types
+// Length Prefixed String
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
     if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
 } String <read=(exists(data) ? data : "")>;
 
+
+
+// File Content
+
 typedef struct {
     String path <name="Path">;
     char sha1[20] <name="SHA-1", fgcolor=cGreen, bgcolor=cDkGreen>;
 } FileEntry;
-
-
-// File
 
 uint count <name="Entry Count", bgcolor=cPurple>;
 FileEntry entries[count] <name="Entry", optimize=false>;

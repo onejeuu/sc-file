@@ -1,24 +1,21 @@
 //------------------------------------------------
 // File: MCSA.bt
 // Authors: onejeuu
-// Version: 3.4
+// Version: 3.5
 // Purpose: Parse models, skeletons, and animations.
 // Category: STALCRAFT
 // File Mask: *.mcsa,*.mcsb,*.mcvd
 //------------------------------------------------
 
-// Hash Prefix (MCSB)
-
-local string ext = FileNameGetExtension(GetFileName());
-
-BigEndian();
-
-if ( ext == ".mcsb" ) {
-    uint hashSize <hidden=true, bgcolor=cLtGray>;
-    char hashData[hashSize] <hidden=true, bgcolor=cGray>;
-}
-
 LittleEndian();
+
+// Types
+// Length Prefixed String
+
+typedef struct {
+    ushort size <bgcolor=cDkYellow>;
+    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
+} String <read=(exists(data) ? data : "")>;
 
 
 // Boolean
@@ -27,14 +24,6 @@ typedef enum <ubyte> {
     False = 0,
     True = 1
 } bool;
-
-
-// Length Prefixed String
-
-typedef struct {
-    ushort size <bgcolor=cDkYellow>;
-    if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
-} String <read=(exists(data) ? data : "")>;
 
 
 // Dequantization
@@ -47,24 +36,19 @@ float nUS(ushort i) { return (float)i / 65535.0f; }  // NormalizeUnsignedShort
 // Vectors
 
 typedef struct { short u, v; } Vec2s <read=Str("%f, %f", nS(u), nS(v))>;
-
 typedef struct { short x, y, z; } Vec3s <read=Str("%f, %f, %f", nS(x), nS(y), nS(z))>;
 typedef struct { float x, y, z; } Vec3f <read=Str("%f, %f, %f", x, y, z)>;
-
 typedef struct { byte  x, y, z, w; } Vec4b <read=Str("%f, %f, %f, %f", nB(x), nB(y), nB(z), nB(w))>;
 typedef struct { short x, y, z, w; } Vec4s <read=Str("%f, %f, %f, %f", nS(x), nS(y), nS(z), nS(w))>;
 typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, w)>;
-
 typedef struct { ubyte r, g, b, a; } RGBA <read=Str("%d, %d, %d, %d", r, g, b, a)>;
-
 typedef struct { ushort a, b, c; } Tri16 <read=Str("%d, %d, %d", a, b, c)>;
 typedef struct { uint   a, b, c; } Tri32 <read=Str("%d, %d, %d", a, b, c)>;
-
 typedef struct { ushort a, b, c, d; } Quad16 <read=Str("%d, %d, %d, %d", a, b, c, d)>;
 typedef struct { uint   a, b, c, d; } Quad32 <read=Str("%d, %d, %d, %d", a, b, c, d)>;
 
 
-// Header Flags
+// Feature Flags
 
 typedef bool Flag;
 typedef struct FlagsV7 { Flag SKELETON, UV, NORMALS, COLORS; };
@@ -72,7 +56,21 @@ typedef struct FlagsV8 { Flag SKELETON, UV, NORMALS, TANGENTS, COLORS; };
 typedef struct FlagsV9 { Flag SKELETON, UV, UV2, NORMALS, TANGENTS, COLORS; };
 
 
-// File Header
+
+// File Content
+// Anti-tamper RSA Signature (MCSB)
+
+local string ext = FileNameGetExtension(GetFileName());
+
+if ( ext == ".mcsb" ) {
+    BigEndian();
+    uint rsaSignatureSize <name="RSA Signature Size", bgcolor=cLtGray>;
+    ubyte rsaSignature[rsaSignatureSize] <name="RSA Signature", bgcolor=cGray>;
+    LittleEndian();
+}
+
+
+// Header
 
 char signature[4] <name="Signature", fgcolor=cGreen>;
 float version <name="Version", fgcolor=cRed>;
@@ -94,7 +92,7 @@ switch( version ) {
 }
 
 struct Scales {
-    float positions <name="Positions">;
+    float positions <name="Positions quantization">;
 
     if ( flags.UV )
         float uv <name="UV">;
@@ -105,9 +103,7 @@ struct Scales {
 } scales <name="Scales">;
 
 
-// Model Meshes
-
-LittleEndian();
+// Mesh
 
 typedef struct {
     ubyte maxInfluences <name="Max Influences">;
@@ -135,7 +131,7 @@ typedef struct {
 
 typedef struct {
     ubyte count <name="Blend Shape Count">;
-    short channelIds[count] <name="Morph Channel ID">;
+    ushort channelIds[count] <name="Morph Channel ID">;
 } BlendShapeMapping;
 
 typedef struct {
@@ -223,8 +219,6 @@ typedef struct {
         }
     }
 
-    LittleEndian();
-
     if ( version >= 15.0 ) {
         if ( hasBlendShapes ) BlendShape blendShape <name="Blend Shape">;
     }
@@ -236,9 +230,7 @@ struct Model {
 } model <name="Model">;
 
 
-// Model Skeleton
-
-LittleEndian();
+// Skeleton
 
 typedef struct {
     String name <name="Name">;
@@ -255,18 +247,15 @@ if ( flags.SKELETON )
         }
 
         if ( version >= 15.0 ) {
-            ushort facialBoneCount <name="Facial Bone Count", bgcolor=cPurple>;
-            if   ( facialBoneCount > 0 ) {
-                String facialBoneNames[facialBoneCount] <name="Name", optimize=false>;
+            ushort morphChannelCount <name="Morph Channel Count", bgcolor=cPurple>;
+            if   ( morphChannelCount > 0 ) {
+                String morphChannelNames[morphChannelCount] <name="Name", optimize=false>;
             }
         }
     } skeleton <name="Skeleton">;
 
 
-
-// Model Animation
-
-LittleEndian();
+// Animation
 
 struct BoneTransform {
     Vec4s rotation <name="Rotation", bgcolor=cGray>;
@@ -292,10 +281,9 @@ typedef struct {
     }
 } AnimationClip <read=(exists(this.name.data) ? this.name.data : "")>;
 
-
 if ( !FEof() )
     if ( flags.SKELETON ) {
-        if ( skeleton.boneCount > 0 || (version >= 15.0 && skeleton.facialBoneCount > 0) ) {
+        if ( skeleton.boneCount > 0 || (version >= 15.0 && skeleton.morphChannelCount > 0) ) {
             struct Animation {
                 int clipCount <name="Clip Count", bgcolor=cBlue>;
                 if ( clipCount > 0 ) {

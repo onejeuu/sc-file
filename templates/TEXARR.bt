@@ -7,26 +7,24 @@
 // File Mask: *.texarr
 //------------------------------------------------
 
-// Define byte order
-
 BigEndian();
 
-
-// Data Types
+// Types
 
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
     if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
 } String <read=(exists(data) ? data : "")>;
 
+
+
+// File Content
+
 typedef struct {
     String id <name="Reference">;
     uint filesize <name="File Size", bgcolor=cDkGreen>;
     byte image[filesize] <name="DDS", bgcolor=cLtGreen>;
 } Texture <read=(exists(this.id.data) ? this.id.data : "")>;
-
-
-// File
 
 uint textureCount <name="Texture Count", bgcolor=cAqua>;
 Texture textures[textureCount] <name="Texture", optimize=false>;

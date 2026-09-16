@@ -34,7 +34,7 @@ sc-file
   * - 🧊 **Model**
     - ``.mcsb``, ``.efkmodel``
     - →
-    - ``.obj``, ``.glb``, ``.fbx``
+    - ``.obj`` / ``.glb`` / ``.fbx``
   * - 🌀 **Animation**
     - | ``.mcvd`` + ``.mcsb``,
       | ``.mcal`` + ``.mcsb``
@@ -47,7 +47,7 @@ sc-file
   * - 🗺️ **Tiles**
     - ``pda/*.ol``
     - →
-    - ``.jpeg``, ``.png``
+    - ``.jpeg`` / ``.png``
   * - 🖼️ **Image**
     - ``.mic``
     - →

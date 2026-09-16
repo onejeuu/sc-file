@@ -93,8 +93,7 @@ General
 convert
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Default command. Converts game assets to standard formats.
-
+| Default command. Converts game assets to standard formats.
 | :doc:`Usage guide → <convert>`
 
 ``PATHS``

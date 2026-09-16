@@ -256,8 +256,8 @@ msgstr "Переключатели видимости квестов"
 msgid "Custom map markers"
 msgstr "Пользовательские метки на карте"
 
-msgid "📄 Text Formats"
-msgstr "📄 Текстовые"
+msgid "📝 Text Formats"
+msgstr "📝 Текстовые"
 
 msgid "Localization strings"
 msgstr "Строки локализации"

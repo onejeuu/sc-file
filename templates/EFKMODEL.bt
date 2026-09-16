@@ -7,12 +7,9 @@
 // File Mask: *.efkmodel
 //------------------------------------------------
 
-
-// Default Byte Order
-
 LittleEndian();
 
-
+// Types
 // Vectors
 
 typedef struct { float u, v; } Vec2f <read=Str("%f, %f", u, v)>;
@@ -20,7 +17,9 @@ typedef struct { float x, y, z; } Vec3f <read=Str("%f, %f, %f", x, y, z)>;
 typedef struct { float x, y, z, w; } Vec4f <read=Str("%f, %f, %f, %f", x, y, z, w)>;
 
 
-// File Header
+
+// File Content
+// Header
 
 struct Header {
     uint version <name="Version", fgcolor=cRed>;
@@ -30,7 +29,7 @@ struct Header {
 } header <name="Header">;
 
 
-// Model Meshes
+// Mesh
 
 typedef struct {
     Vec3f position <name="Position", bgcolor=cGreen>;
@@ -50,7 +49,7 @@ typedef struct {
 } Mesh;
 
 
-// Model
+// Animated Mesh Frames
 
 if ( header.frameCount > 0 )
     Mesh frames[header.frameCount] <name="Frame", optimize=false>;

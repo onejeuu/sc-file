@@ -1,20 +1,15 @@
 //------------------------------------------------
 // File: SIGN.bt
 // Authors: onejeuu
-// Version: 1.1
+// Version: 1.2
 // Purpose: Parse texture signatures.
 // Category: STALCRAFT
-// File Mask: *.sign
+// File Mask: textures.sign
 //------------------------------------------------
-
-// Hash Prefix
 
 BigEndian();
 
-uint hashSize <hidden=true, bgcolor=cLtGray>;
-char hashData[hashSize] <hidden=true, bgcolor=cGray>;
-
-
+// Types
 // Length Prefixed String
 
 typedef struct {
@@ -23,11 +18,21 @@ typedef struct {
 } String <read=(exists(data) ? data : "")>;
 
 
-// File
+// File Content
+// Anti-tamper RSA Signature
+
+uint rsaSignatureSize <name="RSA Signature Size", bgcolor=cLtGray>;
+ubyte rsaSignature[rsaSignatureSize] <name="RSA Signature", bgcolor=cGray>;
+
+
+// Header
 
 char signature[4] <name="Signature", fgcolor=cGreen>;
 uint version <name="Version", fgcolor=cRed>;
 uint textureCount <name="Texture Count">;
+
+
+// Signatures
 
 struct Mipmap {
     uint index <name="Index", fgcolor=cLtRed>;

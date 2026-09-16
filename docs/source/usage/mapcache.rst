@@ -5,7 +5,7 @@
 
 
 | :ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files.
-| Usually located in ``stalcraft/map_cache/5.0``.
+| Regions located in ``stalcraft/map_cache/5.0``.
 
 | Export groups fragments by coordinates ``x`` and ``z`` in filenames.
 | Map cache region files named ``reg.<x>.<z>.mdat``.
@@ -78,11 +78,11 @@ Find the exported regions
 One ``r.<x>.<z>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks.
 
 .. code-block:: text
-   :caption: For example coordinates for r.-3.5.mca
+   :caption: For example ``r.4.2.mca`` coordinates
 
-   x = -3 × 512 = -1536
-   z =  5 × 512 =  2560
-   /tp @s -1536 100 2560
+   x = 4 × 512 = 2048
+   z = 2 × 512 = 1024
+   /tp @s 2048 100 1024
 
 Use the `Coordinate Calculator`_ if necessary.
 
@@ -96,7 +96,7 @@ Resourcepack
 
 Download the `Map Cache Resource Packs`_.
 Original pack targets Minecraft ``1.6.4``.
-Updated variants are available for newer formats.
+Updated variants are available for newer versions.
 
 
 Mods
@@ -104,7 +104,7 @@ Mods
 
 The following Fabric setup is useful for viewing an exported world:
 
-- Fabric_ and `Fabric API`_ for the mods loader.
+- Fabric_ and `Fabric API`_ mods loader.
 - Voxy_ for distant terrain rendering.
 - C2ME_ for chunk loading optimisation.
 - Axiom_ for map editing.

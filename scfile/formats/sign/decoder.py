@@ -14,6 +14,8 @@ class SignDecoder(Decoder[DocumentContent]):
 
     content_type = DocumentContent
 
+    exportable = False
+
     @override
     def _prelude(self):
         self._ctx["hash"] = self.io.prefixed(F.U32)

@@ -48,16 +48,16 @@ blender rig anims 3d bones scene unpack decrypt decryptor
 
 ## ✨ Supported Formats
 
-| Type             | Game formats                                    | →   | Standard formats       |
-| ---------------- | ----------------------------------------------- | --- | ---------------------- |
-| 🧊 **Model**     | `.mcsb`, `.efkmodel`                            | →   | `.obj`, `.glb`, `.fbx` |
-| 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb`        | →   | `.glb`                 |
-| 🧱 **Texture**   | `.ol`                                           | →   | `.dds`                 |
-| 🗺️ **Tiles**     | `pda/*.ol`                                      | →   | `.jpeg`, `.png`        |
-| 🖼️ **Image**     | `.mic`                                          | →   | `.png`                 |
-| 🗃️ **Archive**   | `.texarr`                                       | →   | `.zip`                 |
-| ⛰️ **Region**    | `.mdat`                                         | →   | `.mca`                 |
-| 📄 **Document**  | `itemnames.dat`, `common`,<br/>`prefs`, `sd0-4` | →   | `.json`                |
+| Type             | Game formats                                    | →   | Standard formats         |
+| ---------------- | ----------------------------------------------- | --- | ------------------------ |
+| 🧊 **Model**     | `.mcsb`, `.efkmodel`                            | →   | `.obj` / `.glb` / `.fbx` |
+| 🌀 **Animation** | `.mcvd` + `.mcsb`,<br/>`.mcal` + `.mcsb`        | →   | `.glb`                   |
+| 🧱 **Texture**   | `.ol`                                           | →   | `.dds`                   |
+| 🗺️ **Tiles**     | `pda/*.ol`                                      | →   | `.jpeg` / `.png`         |
+| 🖼️ **Image**     | `.mic`                                          | →   | `.png`                   |
+| 🗃️ **Archive**   | `.texarr`                                       | →   | `.zip`                   |
+| ⛰️ **Region**    | `.mdat`                                         | →   | `.mca`                   |
+| 📄 **Document**  | `itemnames.dat`, `common`,<br/>`prefs`, `sd0-4` | →   | `.json`                  |
 
 > [Details about formats →][docs-formats]
 

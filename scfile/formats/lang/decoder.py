@@ -12,6 +12,8 @@ class LangDecoder(Decoder[DocumentContent]):
 
     content_type = DocumentContent
 
+    exportable = False
+
     @override
     def _parse(self):
         data: dict[str, DocumentValue] = {}

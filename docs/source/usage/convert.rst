@@ -5,16 +5,16 @@
 
 
 | :ref:`convert <cli-convert>` converts supported standalone files.
-| Several files and folders can be processed in one operation.
-| Folders are scanned recursively.
+| Several files and directories can be processed in one operation.
+| Directories are scanned recursively.
 
 
 ----------------------------------------
 Standalone files
 ----------------------------------------
 
-A standalone file contains enough data for its own output.
-The converter does not need a second file to convert it.
+A standalone file contains enough data for independent export.
+No additional files or other metadata are required to convert it.
 
 .. list-table::
   :header-rows: 1
@@ -24,7 +24,7 @@ The converter does not need a second file to convert it.
     - Output
   * - 🧊 Model
     - ``.mcsa``, ``.mcsb``, ``.mcvd``, ``.efkmodel``
-    - ``.obj``, ``.glb``, ``.fbx``
+    - ``.obj`` / ``.glb`` / ``.fbx``
   * - 🧱 Texture
     - ``.ol``
     - ``.dds``
@@ -38,57 +38,59 @@ The converter does not need a second file to convert it.
     - ``.mdat``
     - ``.mca``
   * - 📄 Document
-    - | ``itemnames.dat``, ``.lang``, ``.sign``, ``.map`` (launcher),
-      | ``common``, ``prefs``, ``sd0``, ``sd1``, ``sd2``, ``sd3``, ``sd4``
+    - | ``.map`` (launcher), ``itemnames.dat``, ``common``, ``prefs``,
+      | ``sd0``, ``sd1``, ``sd2``, ``sd3``, ``sd4``
     - ``.json``
 
-More details about each format are in :doc:`Formats <../formats>`.
+Read more about formats and their support in :doc:`Formats <../formats>`.
 
 
 ----------------------------------------
 Model data
 ----------------------------------------
 
-A model file may contain geometry, a skeleton, and animation clips.
-These parts are optional and depend on the source file.
+| A model file can contain geometry, a skeleton, and embedded animation clips.
+| These parts are optional and depend on the source file.
 
-``--skeleton`` reads the skeleton when it is present in the model file.
-It does not create a new rig or make the skeleton easier to edit.
-The exported skeleton is engine data and may need additional work in a 3D editor.
+Geometry is always parsed. However, it may be absent from the source file, for example in ``.mcvd`` files with first-person animations.
+The export then completes with an empty file.
 
-``--animation`` reads clips embedded in the same model file.
-It does not search for animation files or create clips.
-The flag does not mean that the model contains animation data.
+The ``--skeleton`` and ``--animation`` flags enable parsing and exporting the skeleton and animations.
+They are exported only when present in the source file.
 
-Some prop and mutant animations are stored in model files.
-Most first-person, character, and head animations use separate files and related models.
-Use :doc:`Animation <animate>` for these workflows.
+The skeleton is created for the game engine and may need further work in a 3D editor.
+
+Embedded animations are quite rare. They are usually found in animated decorations (e.g. doors) or mobs (e.g. mutants).
+Almost all animations related to the player or NPCs require several linked files.
+Use :doc:`Animation <animate>` for these tasks.
 
 
 ----------------------------------------
 Output
 ----------------------------------------
 
-Without an output directory, each result is saved next to its source file.
+Without a save path, each exported file is saved next to its source file.
 
-With an output directory, the output structure controls how source folders are placed inside it.
+When a path is specified, it becomes the root of the export folder. Its structure can be configured.
 
 .. _convert-output-layout:
 
-Output Structure
+Output structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Examples of how the output structure changes the result.
+Examples of result changes depending on the ``--layout`` option.
 
 .. code-block:: text
   :caption: Source structure
 
-  ./assets/
+  assets/
   ├── armor/albatros.mcsb
   └── items/vodka.ol
 
 
 ``rooted`` (default)
+  Repeats the relative path with the root at the beginning.
+
   .. code-block:: bash
 
     scfile convert "./assets" --output "./output"
@@ -96,12 +98,14 @@ Examples of how the output structure changes the result.
   .. code-block:: text
     :caption: Output
 
-    ./output/
+    output/
     ├── assets/armor/albatros.obj
     └── assets/items/vodka.dds
 
 
 ``relative``
+  Repeats the relative path without the root at the beginning.
+
   .. code-block:: bash
 
     scfile convert "./assets" --output "./output" --layout relative
@@ -109,12 +113,14 @@ Examples of how the output structure changes the result.
   .. code-block:: text
     :caption: Output
 
-    ./output/
+    output/
     ├── armor/albatros.obj
     └── items/vodka.dds
 
 
 ``dump``
+  Places everything in one flat folder without subfolders.
+
   .. code-block:: bash
 
     scfile convert "./assets" --output "./output" --layout dump
@@ -122,63 +128,51 @@ Examples of how the output structure changes the result.
   .. code-block:: text
     :caption: Output
 
-    ./output/
+    output/
     ├── albatros.obj
     └── vodka.dds
 
+Destination conflicts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-----------------------------------------
-Name conflicts and collisions
-----------------------------------------
+An output filename conflict means that the file already existed before conversion began.
+The ``--on-conflict`` option determines how to resolve the conflict.
 
-A name conflict means that the destination file already exists before conversion starts.
-The conflict policy decides whether to replace, rename, or skip that file.
+- ``replace`` replaces the existing file with a new one.
+- ``rename`` creates a new file with a counter in its name.
+- ``skip`` does not create a new file and leaves the existing one unchanged.
 
-A collision is different.
-It means that several source files resolve to the same destination path during one operation.
+Destination collisions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Collisions are common with ``dump`` and with several source folders using ``relative``.
-For example, two different ``models/weapon.mcsb`` files can both resolve to ``output/weapon.obj``.
+An output filename collision is when several sources claim the same path.
+They can occur often with ``--layout dump`` and sometimes with ``--layout relative``.
 
-With the default ``replace`` policy, the first source keeps the clean name.
-The other sources receive a short hash of their source path:
+For a name collision with ``--on-conflict replace``, the first source keeps its original name by default.
+The other sources receive a short hash of their source path.
+This preserves all files without repeated replacement in a single conversion operation.
 
-.. code-block:: text
-
-  output/
-  ├── weapon.obj
-  └── weapon~<hash>.obj
-
-This keeps the results from different sources instead of silently replacing one with another.
-
-``rename`` uses numbered names when a destination is already used.
-``skip`` omits a result when its destination is already used.
-
-
-----------------------------------------
 Safe replacement
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each result is written to a temporary file in the destination folder.
-The final path is replaced only after conversion succeeds.
-An interrupted conversion therefore does not leave a partially written result at the final path.
+The file at the final path is replaced only after successful conversion.
+Therefore, an interrupted conversion does not leave a partially written result.
 
 
 ----------------------------------------
 Graphical interface
 ----------------------------------------
 
-Add files and folders to **Sources**.
-The source list also accepts drag and drop.
+Add files or folders to Sources.
+You can also drag and drop them into the drop zone or paste them with ``Ctrl+V``.
 
-Format cards select which source groups are processed.
-The model card selects the model output format.
-Skeleton and animation options are available only for formats that support them.
+Format cards select which source groups to convert.
+In the models group, you can select the required format and options for the skeleton and embedded animations.
 
-In **Output**, choose whether to save results alongside each source or in a selected folder.
-The structure selector is used with a selected folder.
+Results can be saved next to source files or to a specified save path.
 
-**On Name Collision** selects the action for an existing destination file.
+For output file name conflicts, you can choose a suitable action policy.
 
 
 ----------------------------------------
@@ -191,4 +185,4 @@ Command line
    scfile convert "model.mcsb" --model-format glb --skeleton
    scfile convert "C:/assets" --output "D:/output" --layout relative
 
-:ref:`Command options → <cli-convert>`
+:ref:`Full command options → <cli-convert>`

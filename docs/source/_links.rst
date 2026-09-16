@@ -79,6 +79,9 @@
 .. _EXBO License RU: https://exbo.net/legal/ru_launcher_licence.pdf
 .. _EXBO Mods RU: https://support.exbo.net/ru/help-center/articles/1/37/386
 
+.. Animate
+.. _3D Avatar Facial Mocap: https://forum.exbo.net/d/189963
+
 .. Map Cache
 .. _Coordinate Calculator: https://mclist.io/tools/minecraft-coordinate-calculator
 .. _Map Cache Resource Packs: https://www.mediafire.com/folder/ra6iiu7oc7gtx

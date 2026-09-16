@@ -52,7 +52,7 @@ class Registry:
                 (decoder.format, encoder.format): Conversion(decoder, encoder)
                 for decoder in self.decoders.values()
                 for encoder in self.encoders.values()
-                if decoder.standalone and decoder.content_type is encoder.content_type
+                if decoder.convertible and decoder.content_type is encoder.content_type
             }
         )
 
@@ -76,5 +76,5 @@ class Registry:
             name
             for format in selected
             for name in (format.suffix, *self.aliases.get(format, ()))
-            if format in self.decoders
+            if format in self.decoders and self.decoders[format].exportable
         )

@@ -9,10 +9,17 @@
 
 BigEndian();
 
+
+// Types
+
 typedef struct {
     ushort size <bgcolor=cDkYellow>;
     if ( size > 0 ) char data[size] <bgcolor=cYellow, optimize=false>;
 } String <read=(exists(data) ? data : "")>;
+
+
+
+// File Content
 
 typedef struct {
     String path <name="File Path">;

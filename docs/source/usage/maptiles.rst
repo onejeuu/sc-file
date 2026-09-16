@@ -24,6 +24,9 @@ Game folder
 Specify the game assets to choose a region and map.
 Map tiles from all asset layers are combined in the order the game loads them.
 
+.. important::
+    Some single map tiles can be partially located in ``_localized/pda/map``.
+
 
 ----------------------------------------
 Image format

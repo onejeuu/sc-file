@@ -12,7 +12,7 @@
 Find related assets
 ----------------------------------------
 
-| Animation and model can be located in different directories.
+| Animation and model usally located in different directories.
 | Paths below are relative to ``stalcraft/modassets/assets``.
 
 .. list-table::
@@ -72,6 +72,10 @@ Models are matched by morph channel names.
 
    scfile animate face "shaman.mcvd" "unique_shaman.mcsb"
 
+
+.. seealso::
+
+  Blender source files for 3D avatar facial mocap: `forum.exbo.net <3D Avatar Facial Mocap_>`_
 
 ----------------------------------------
 Body

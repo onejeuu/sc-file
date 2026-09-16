@@ -187,7 +187,7 @@ msgid "Show the result of every processed file."
 msgstr "Показать результат обработки каждого файла."
 
 msgid "Output"
-msgstr "Вывод"
+msgstr "Результат"
 
 msgid ""
 "Applies external animation data to one or more ``.mcsb`` models and "
@@ -279,8 +279,8 @@ msgstr "В результате получается файл ``.glb`` с при
 msgid "Find related assets"
 msgstr "Поиск связанных ассетов"
 
-msgid "Animation and model can be located in different directories."
-msgstr "Анимация и модель могут находиться в разных папках."
+msgid "Animation and model usally located in different directories."
+msgstr "Анимация и модель обычно находятся в разных папках."
 
 msgid "Paths below are relative to ``stalcraft/modassets/assets``."
 msgstr "Пути ниже относительны ``stalcraft/modassets/assets``."
@@ -322,6 +322,9 @@ msgstr "``face`` применяет лицевую ``.mcvd`` анимацию н
 msgid "Models are matched by morph channel names."
 msgstr "Модели сопоставляются по именам каналов морфинга."
 
+msgid "Blender source files for 3D avatar facial mocap: `forum.exbo.net <3D Avatar Facial Mocap_>`_"
+msgstr "Исходники Blender для лицевого мокапа 3D аватаров: `forum.exbo.net <3D Avatar Facial Mocap_>`_"
+
 msgid "``body`` applies skeletal ``.mcal`` clips to body ``.mcsb`` model."
 msgstr "``body`` применяет скелетную ``.mcal`` анимацию на ``.mcsb`` модель тела."
 
@@ -346,8 +349,8 @@ msgstr "⛰️ Кэш карты"
 msgid ":ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files."
 msgstr ":ref:`mapcache <cli-mapcache>` объединяет фрагменты регионов ``.mdat`` в файлы ``.mca``."
 
-msgid "Usually located in ``stalcraft/map_cache/5.0``."
-msgstr "Обычно находится в ``stalcraft/map_cache/5.0``."
+msgid "Regions located in ``stalcraft/map_cache/5.0``."
+msgstr "Регионы находятся в ``stalcraft/map_cache/5.0``."
 
 msgid "Export groups fragments by coordinates ``x`` and ``z`` in filenames."
 msgstr "Экспорт группирует фрагменты по координатам ``x`` и ``z`` в именах файлов."
@@ -434,10 +437,10 @@ msgid "Find the exported regions"
 msgstr "Поиск экспортированных регионов"
 
 msgid "One ``r.<x>.<z>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks."
-msgstr "Один файл ``r.<x>.<z>.mca`` охватывает ``32 × 32`` чанкака, или же ``512 × 512`` блоков."
+msgstr "Один файл ``r.<x>.<z>.mca`` охватывает ``32 × 32`` чанка, или же ``512 × 512`` блоков."
 
-msgid "For example coordinates for r.-3.5.mca"
-msgstr "Для примера координаты для ``r.-3.5.mca``"
+msgid "For example ``r.4.2.mca`` coordinates"
+msgstr "Для примера координаты ``r.4.2.mca``"
 
 msgid "Use the `Coordinate Calculator`_ if necessary."
 msgstr "Используйте `Coordinate Calculator`_ при необходимости."
@@ -451,11 +454,11 @@ msgstr "Ресурспак"
 msgid ""
 "Download the `Map Cache Resource Packs`_. "
 "Original pack targets Minecraft ``1.6.4``. "
-"Updated variants are available for newer formats."
+"Updated variants are available for newer versions."
 msgstr ""
 "Скачайте `Map Cache Resource Packs`_. "
-"Оригинальный пак предназначен для Minecraft ``1.6.4``. "
-"Обновленные варианты доступны для более новых форматов."
+"Оригинальный пак создан под Minecraft ``1.6.4``. "
+"Обновленные варианты доступны для более новых версий."
 
 msgid "Mods"
 msgstr "Моды"
@@ -463,8 +466,8 @@ msgstr "Моды"
 msgid "The following Fabric setup is useful for viewing an exported world:"
 msgstr "Следующие Fabric моды полезны для просмотра экспортированного мира:"
 
-msgid "Fabric_ and `Fabric API`_ for the mods loader."
-msgstr "Fabric_ и `Fabric API`_ для загрузчика модов."
+msgid "Fabric_ and `Fabric API`_ mods loader."
+msgstr "Fabric_ и `Fabric API`_ загрузчик модов."
 
 msgid "Voxy_ for distant terrain rendering."
 msgstr "Voxy_ для максимальной прогрузки чанков."
@@ -509,6 +512,9 @@ msgid ""
 msgstr ""
 "Укажите папку ассетов игры, чтобы выбрать регион и карту. "
 "Тайлы карты из всех слоёв ассетов объединяются в порядке их загрузки игрой."
+
+msgid "Some single map tiles can be partially located in ``_localized/pda/map``."
+msgstr "Некоторые тайлы одной карты могут частично находиться в ``_localized/pda/map``."
 
 msgid "Image format"
 msgstr "Формат изображения"
@@ -562,23 +568,26 @@ msgstr "🔄 Конвертер"
 msgid ":ref:`convert <cli-convert>` converts supported standalone files."
 msgstr ":ref:`convert <cli-convert>` конвертирует поддерживаемые самостоятельные файлы."
 
-msgid "Several files and folders can be processed in one operation."
-msgstr "За одну операцию можно обработать несколько файлов и папок."
+msgid "Several files and directories can be processed in one operation."
+msgstr "За одну операцию можно обработать несколько файлов и каталогов."
 
-msgid "Folders are scanned recursively."
-msgstr "Папки сканируются рекурсивно."
+msgid "Directories are scanned recursively."
+msgstr "Каталоги сканируются рекурсивно."
 
 msgid "Standalone files"
 msgstr "Самостоятельные файлы"
 
-msgid "A standalone file contains enough data for its own output. The converter does not need a second file to convert it."
-msgstr "Самостоятельный файл содержит достаточно данных для собственного результата. Конвертеру не нужен второй файл для его обработки."
+msgid "A standalone file contains enough data for independent export. No additional files or other metadata are required to convert it."
+msgstr "Такие файлы содержат достаточно данных для самостоятельного экспорта. Для их обработки не нужны дополнительные файлы или другая метаинформация."
 
 msgid "Type"
 msgstr "Тип"
 
-msgid "Standalone sources"
-msgstr "Самостоятельные источники"
+msgid "Sources"
+msgstr "Исходники"
+
+msgid "Result"
+msgstr "Результат"
 
 msgid "🧊 Model"
 msgstr "🧊 Модель"
@@ -598,41 +607,44 @@ msgstr "⛰️ Регион"
 msgid "📄 Document"
 msgstr "📄 Документ"
 
-msgid "NBT"
-msgstr "NBT"
-
-msgid "More details about each format are in :doc:`Formats <../formats>`."
-msgstr "Подробнее о форматах написано в разделе :doc:`Форматы <../formats>`."
-
-msgid "Shared animation libraries are not standalone. ``.mcal`` data needs a compatible model and is handled by :doc:`Animation <animate>`."
-msgstr "Общие библиотеки анимаций не являются самостоятельными файлами. Данные ``.mcal`` требуют совместимую модель и обрабатываются в разделе :doc:`Анимации <animate>`."
+msgid "Read more about formats and their support in :doc:`Formats <../formats>`."
+msgstr "Подробнее о форматах и их поддержке написано в разделе :doc:`Форматы <../formats>`."
 
 msgid "Model data"
 msgstr "Данные модели"
 
-msgid "A model file may contain geometry, a skeleton, and animation clips. These parts are optional and depend on the source file."
-msgstr "Файл модели может содержать геометрию, скелет и клипы анимации. Эти части необязательны и зависят от исходного файла."
+msgid "A model file can contain geometry, a skeleton, and embedded animation clips."
+msgstr "Файл модели может содержать геометрию, скелет и встроенные клипы анимации."
 
-msgid "``--skeleton`` reads the skeleton when it is present in the model file. It does not create a new rig or make the skeleton easier to edit. The exported skeleton is engine data and may need additional work in a 3D editor."
-msgstr "``--skeleton`` извлекает скелет, если он есть в файле модели. Он не создаёт новый риг и не упрощает редактирование скелета. Экспортированный скелет является данными игрового движка и может потребовать доработки в 3D-редакторе."
+msgid "These parts are optional and depend on the source file."
+msgstr "Эти части необязательны и зависят от исходного файла."
 
-msgid "``--animation`` reads clips embedded in the same model file. It does not search for animation files or create clips. The flag does not mean that the model contains animation data."
-msgstr "``--animation`` извлекает клипы, встроенные в тот же файл модели. Он не ищет файлы анимаций и не создаёт клипы. Наличие флага не означает, что модель содержит данные анимации."
+msgid "Geometry is always parsed. However, it may be absent from the source file, for example in ``.mcvd`` files with first-person animations. The export then completes with an empty file."
+msgstr "Геометрия парсится всегда. Но она может отсутствовать в исходном файле (например в ``.mcvd`` с анимациями для fp). Тогда экспорт завершается пустым файлом."
 
-msgid "Some prop and mutant animations are stored in model files. Most first-person, character, and head animations use separate files and related models. Use :doc:`Animation <animate>` for these workflows."
-msgstr "Некоторые анимации объектов и мутантов хранятся в файлах моделей. Для большинства анимаций от первого лица, персонажей и голов нужны отдельные файлы и связанные модели. Для таких задач используйте раздел :doc:`Анимации <animate>`."
+msgid "The ``--skeleton`` and ``--animation`` flags enable parsing and exporting the skeleton and animations. They are exported only when present in the source file."
+msgstr "Флаги ``--skeleton`` и ``--animation`` включают парсинг и экспорт скелета и анимаций. Они экспортируются только когда есть в исходном файле."
 
-msgid "Without an output directory, each result is saved next to its source file."
-msgstr "Без выходной папки каждый результат сохраняется рядом с исходным файлом."
+msgid "The skeleton is created for the game engine and may need further work in a 3D editor."
+msgstr "Скелет создан под игровой движок, поэтому может потребовать доработки в 3D-редакторе."
 
-msgid "With an output directory, the output structure controls how source folders are placed inside it."
-msgstr "При указании выходной папки структура вывода определяет, как исходные папки будут размещены внутри неё."
+msgid "Embedded animations are quite rare. They are usually found in animated decorations (e.g. doors) or mobs (e.g. mutants). Almost all animations related to the player or NPCs require several linked files. Use :doc:`Animation <animate>` for these tasks."
+msgstr "Встроенные анимации встречаются довольно редко. Обычно это относится к анимированному декору (например двери) или мобам (мутантам). Практически все анимации связанные игроком или npc требуют несколько связанных файлов. Для таких задач используйте раздел :doc:`Анимации <animate>`."
 
-msgid "Output Structure"
+msgid "Save path"
+msgstr "Путь сохранения"
+
+msgid "Without a save path, each exported file is saved next to its source file."
+msgstr "Без указания пути сохранения, каждый экспортированный файл сохраняется рядом с исходным файлом."
+
+msgid "When a path is specified, it becomes the root of the export folder. Its structure can be configured."
+msgstr "При указании пути он становится корнем папки экспорта. Структура этой папки может быть настроена."
+
+msgid "Output structure"
 msgstr "Структура вывода"
 
-msgid "Examples of how the output structure changes the result."
-msgstr "Примеры изменения результата в зависимости от структуры вывода."
+msgid "Examples of result changes depending on the ``--layout`` option."
+msgstr "Примеры изменения результата в зависимости от параметра ``--layout``."
 
 msgid "Source structure"
 msgstr "Структура исходных файлов"
@@ -640,47 +652,59 @@ msgstr "Структура исходных файлов"
 msgid "``rooted`` (default)"
 msgstr "``rooted`` (по умолчанию)"
 
-msgid "Name conflicts and collisions"
-msgstr "Конфликты имён и коллизии"
+msgid "Repeats the relative path with the root at the beginning."
+msgstr "Повторяет относительный путь с корнем в начале"
 
-msgid "A name conflict means that the destination file already exists before conversion starts. The conflict policy decides whether to replace, rename, or skip that file."
-msgstr "Конфликт имён означает, что файл назначения уже существует до начала конвертации. Политика конфликта определяет, заменить, переименовать или пропустить этот файл."
+msgid "Repeats the relative path without the root at the beginning."
+msgstr "Повторяет относительный путь без корня в начале."
 
-msgid "A collision is different. It means that several source files resolve to the same destination path during one operation."
-msgstr "Коллизия означает другое. Несколько исходных файлов получают один и тот же путь назначения в рамках одной операции."
+msgid "Places everything in one flat folder without subfolders."
+msgstr "Складывает всё в одну плоскую папку без подпапок."
 
-msgid "Collisions are common with ``dump`` and with several source folders using ``relative``. For example, two different ``models/weapon.mcsb`` files can both resolve to ``output/weapon.obj``."
-msgstr "Коллизии часто возникают при ``dump`` и при обработке нескольких исходных папок с ``relative``. Например, два разных файла ``models/weapon.mcsb`` могут получить путь ``output/weapon.obj``."
+msgid "Destination conflicts"
+msgstr "Конфликты назначения"
 
-msgid "With the default ``replace`` policy, the first source keeps the clean name. The other sources receive a short hash of their source path:"
-msgstr "При политике ``replace`` по умолчанию первый источник сохраняет исходное имя. Остальные источники получают короткий хеш исходного пути:"
+msgid "An output filename conflict means that the file already existed before conversion began. The ``--on-conflict`` option determines how to resolve the conflict."
+msgstr "Конфликт имени выходного файла означает что такой файл уже существовал до начала конвертации. Параметр ``--on-conflict`` отвечает за политику решения такого конфликта."
 
-msgid "This keeps the results from different sources instead of silently replacing one with another."
-msgstr "Это сохраняет результаты разных источников вместо незаметной замены одного результата другим."
+msgid "``replace`` replaces the existing file with a new one."
+msgstr "``replace`` заменяет существующий файл на новый."
 
-msgid "``rename`` uses numbered names when a destination is already used. ``skip`` omits a result when its destination is already used."
-msgstr "``rename`` использует имена с номерами, если путь назначения уже занят. ``skip`` пропускает результат, если путь назначения уже занят."
+msgid "``rename`` creates a new file with a counter in its name."
+msgstr "``rename`` создает новый файл со счетчиком в имени."
+
+msgid "``skip`` does not create a new file and leaves the existing one unchanged."
+msgstr "``skip`` не создает новый файл оставляя существующий."
+
+msgid "Destination collisions"
+msgstr "Коллизии назначения"
+
+msgid "An output filename collision is when several sources claim the same path. They can occur often with ``--layout dump`` and sometimes with ``--layout relative``."
+msgstr "Коллизия же это когда несколько источников претендуют на один и тот же путь. Они могут часто возникать при ``--layout dump`` и иногда при ``--layout relative``."
+
+msgid "For a name collision with ``--on-conflict replace``, the first source keeps its original name by default. The other sources receive a short hash of their source path. This preserves all files without repeated replacement in a single conversion operation."
+msgstr "При коллизии имени и при ``--on-conflict replace`` по умолчанию первый источник сохранит исходное имя. Остальные источники получают короткий хеш из их исходного пути. Такой подход позволяет сохранять все файлы без повторной перезаписи в рамках одной операции конвертации."
 
 msgid "Safe replacement"
 msgstr "Безопасная замена"
 
-msgid "Each result is written to a temporary file in the destination folder. The final path is replaced only after conversion succeeds. An interrupted conversion therefore does not leave a partially written result at the final path."
-msgstr "Каждый результат записывается во временный файл в папке назначения. Файл по конечному пути заменяется только после успешной конвертации. Поэтому прерванная конвертация не оставляет частично записанный результат по конечному пути."
+msgid "Each result is written to a temporary file in the destination folder. The file at the final path is replaced only after successful conversion. Therefore, an interrupted conversion does not leave a partially written result."
+msgstr "Каждый результат записывается во временный файл в папке назначения. Файл по конечному пути заменяется только после успешной конвертации. Поэтому прерванная конвертация не оставляет частично записанный результат."
 
-msgid "Add files and folders to **Sources**. The source list also accepts drag and drop."
-msgstr "Добавьте файлы и папки в **Источники**. Также можно использовать перетаскивание."
+msgid "Add files or folders to Sources. You can also drag and drop them into the drop zone or paste them with ``Ctrl+V``."
+msgstr "Добавьте файлы или папки в Источники. Также можно использовать перетаскивание их в зону drag and drop или вставку через ``Ctrl+V``."
 
-msgid "Format cards select which source groups are processed. The model card selects the model output format. Skeleton and animation options are available only for formats that support them."
-msgstr "Карточки форматов выбирают обрабатываемые группы источников. В карточке моделей выбирается выходной формат модели. Параметры скелета и анимации доступны только для поддерживающих их форматов."
+msgid "Format cards select which source groups to convert. In the models group, you can select the required format and options for the skeleton and embedded animations."
+msgstr "Карточки форматов выбирают какие группы источников конвертировать. В группе моделей можно выбрать нужный формат, а также параметры скелета и встроенных анимаций."
 
-msgid "In **Output**, choose whether to save results alongside each source or in a selected folder. The structure selector is used with a selected folder."
-msgstr "В разделе **Вывод** выберите, сохранять ли результаты рядом с каждым источником или в выбранной папке. Переключатель структуры используется при выборе папки."
+msgid "Results can be saved next to source files or to a specified save path."
+msgstr "Результаты можно сохранять рядом с исходными файлами или указать путь сохранения."
 
-msgid "**On Name Collision** selects the action for an existing destination file."
-msgstr "**При совпадении имени** выбирается действие для существующего файла назначения."
+msgid "For output file name conflicts, you can choose a suitable action policy."
+msgstr "Для конфликтов имен выходных файлов можно выбрать подходящую политику действий."
 
-msgid ":ref:`Command options → <cli-convert>`"
-msgstr ":ref:`Параметры команды → <cli-convert>`"
+msgid ":ref:`Full command options → <cli-convert>`"
+msgstr ":ref:`Полное описание параметров команды → <cli-convert>`"
 
 # ============================================================================
 # No translation required.
@@ -719,13 +743,13 @@ msgstr ""
 msgid "``.mca``"
 msgstr ""
 
-msgid "``.map``, ``.lang``, ``.sign``"
+msgid "``.map`` (launcher), ``itemnames.dat``, ``common``, ``prefs``,"
 msgstr ""
 
 msgid "``.json``"
 msgstr ""
 
-msgid "``itemnames.dat``, ``prefs``, ``common``, ``sd0``-``sd4``"
+msgid "``sd0``, ``sd1``, ``sd2``, ``sd3``, ``sd4``"
 msgstr ""
 
 msgid "``dump``"

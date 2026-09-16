@@ -1,0 +1,37 @@
+//------------------------------------------------
+// File: PACK.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse models signatures.
+// Category: STALCRAFT
+// File Mask: model_list.pack
+//------------------------------------------------
+
+BigEndian();
+
+// Types
+// Terminator End String
+
+int StringSize()
+{
+    local int size = 0;
+    while ( ReadByte(FTell() + size) != 0x0A )
+        size++;
+    return size;
+}
+
+typedef struct {
+    char data[StringSize()] <bgcolor=cYellow, optimize=false>;
+    ubyte terminator <hidden=true>;
+} String <read=data>;
+
+
+
+// File Content
+// Anti-tamper RSA Signature
+
+uint rsaSignatureSize <name="RSA Signature Size", bgcolor=cLtGray>;
+ubyte rsaSignature[rsaSignatureSize] <name="RSA Signature", bgcolor=cGray>;
+
+while ( !FEof() )
+    String models <name="Model", optimize=false>;

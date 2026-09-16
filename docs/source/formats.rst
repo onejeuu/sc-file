@@ -217,7 +217,6 @@ Export
 :Template: SIGN.bt_
 :Purpose: Texture integrity verification.
 :Contents: Texture paths, headers and mipmap images hashes.
-:Export: ``.json`` (JSON_).
 
 
 
@@ -275,7 +274,7 @@ Export
 
 :Format: `Named Binary Tag <NBT Format_>`_
 :Compression: None, gzip_, zstd_.
-:Export: ``.json`` (`JavaScript Object Notation <JSON_>`_).
+:Export: ``.json`` (JSON_).
 
 .. list-table::
   :header-rows: 1
@@ -320,6 +319,36 @@ Export
 
 
 ----------------------------------------
+📝 Text Formats
+----------------------------------------
+
+.. _text:
+
+.. list-table::
+  :header-rows: 1
+
+  * - Suffix
+    - Format
+    - Purpose
+  * - ``.lang``
+    - `Java Properties <Propetries_>`_
+    - Localization strings
+  * - ``.properties``
+    - `Java Properties <Propetries_>`_
+    - Configurations
+  * - ``.md``
+    - Markdown_
+    - Formatted text
+  * - ``.srt``
+    - SubRip_
+    - Subtitles
+  * - ``.smm``
+    - JSON_
+    - Mob configuration
+
+
+
+----------------------------------------
 🛠️ Config Files
 ----------------------------------------
 
@@ -350,32 +379,28 @@ Export
 
 
 ----------------------------------------
-📄 Text Formats
+🕹️ Launcher Formats
 ----------------------------------------
 
-.. _text:
+.. _map:
 
-.. list-table::
-  :header-rows: 1
+``.map`` Hash Mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  * - Suffix
-    - Format
-    - Purpose
-  * - ``.lang``
-    - `Java Properties <Propetries_>`_
-    - Localization strings
-  * - ``.properties``
-    - `Java Properties <Propetries_>`_
-    - Configurations
-  * - ``.md``
-    - Markdown_
-    - Formatted text
-  * - ``.srt``
-    - SubRip_
-    - Subtitles
-  * - ``.smm``
-    - JSON_
-    - Mob configuration
+:Template: HASHMAP.bt_
+:Purpose: Launcher file integrity verification.
+:Contents: Game asset paths and SHA-1 hashes.
+:Export: ``.json`` (JSON_).
+
+
+.. _torrent:
+
+``.torrent.bin`` Torrent Binary
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Template: TORRENT.bt_
+:Purpose: Game content delivery.
+:Contents: Modified ``.torrent`` (`Torrent File`_).
 
 
 
@@ -424,29 +449,3 @@ Export
 :Engine: `FMOD Studio <FMOD_>`_.
 :Purpose: Primarily voice acting and OST.
 :Contents: Adaptive audio events.
-
-
-
-----------------------------------------
-🕹️ Launcher Formats
-----------------------------------------
-
-.. _map:
-
-``.map`` Hash Mappings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-:Template: HASHMAP.bt_
-:Purpose: Launcher file integrity verification.
-:Contents: Game asset paths and SHA-1 hashes.
-:Export: ``.json`` (JSON_).
-
-
-.. _torrent:
-
-``.torrent.bin`` Torrent Binary
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-:Template: TORRENT.bt_
-:Purpose: Game content delivery.
-:Contents: Modified ``.torrent`` (`Torrent File`_).
