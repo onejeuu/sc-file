@@ -244,6 +244,44 @@ animate
     scfile animate body "pack.mcal" "origin.mcsb" --raw
 
 
+.. _cli-maptiles:
+
+maptiles
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image.
+| :doc:`Usage guide → <maptiles>`
+
+``SOURCE OUTPUT``
+  | Assemble tiles directly from one flat folder.
+  | ``OUTPUT`` must be an image file ending in ``.jpg``, ``.jpeg``, or ``.png``.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile maptiles "C:/tiles" "D:/zone.jpg"
+
+
+``SOURCE TARGET OUTPUT``
+  | Assemble a named map from game asset layers.
+  | ``--region`` optionally selects localization region. Otherwise system language is preferred.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" "global_map" "D:/global.jpg" --region ru
+
+
+``--jpeg-quality``
+  | JPEG quality from ``0`` through ``100``.
+  | Default: ``92``.
+
+
+``--png-compression``
+  | PNG compression level from ``0`` through ``9``.
+  | Default: ``6``.
+
+
 .. _cli-mapcache:
 
 mapcache
@@ -299,41 +337,3 @@ mapcache
 
 ``-v, --verbose``
   Show the result of every processed region.
-
-
-.. _cli-maptiles:
-
-maptiles
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| Assembles flat ``r.<x>.<z>.ol`` map tiles into one JPEG or PNG image.
-| :doc:`Usage guide → <maptiles>`
-
-``SOURCE OUTPUT``
-  | Assemble tiles directly from one flat folder.
-  | ``OUTPUT`` must be an image file ending in ``.jpg``, ``.jpeg``, or ``.png``.
-
-  .. code-block:: bash
-    :caption: Example
-
-    scfile maptiles "C:/tiles" "D:/zone.jpg"
-
-
-``SOURCE TARGET OUTPUT``
-  | Assemble a named map from game asset layers.
-  | ``--region`` optionally selects localization region. Otherwise system language is preferred.
-
-  .. code-block:: bash
-    :caption: Example
-
-    scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" "global_map" "D:/global.jpg" --region ru
-
-
-``--jpeg-quality``
-  | JPEG quality from ``0`` through ``100``.
-  | Default: ``92``.
-
-
-``--png-compression``
-  | PNG compression level from ``0`` through ``9``.
-  | Default: ``6``.

@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from scfile.app.enums import AnimateCommand, CliCommand
-from scfile.enums import FileFormat
 
 
 ROOT_OPTIONS = frozenset(("--help", "--version", "--updates"))
@@ -27,17 +26,17 @@ def _command(paths: tuple[Path, ...]) -> tuple[CliCommand | AnimateCommand, ...]
 
 
 def _animation(paths: tuple[Path, ...]) -> AnimateCommand | None:
-    if len(paths) < 2:
+    animations = tuple(path for path in paths if path.suffix.lower() in (".mcal", ".mcvd"))
+    models = tuple(path for path in paths if path.suffix.lower() == ".mcsb")
+    if len(animations) != 1 or not models:
         return None
 
-    animation, *models = paths
-    if any(model.suffix.lower() != FileFormat.MCSB.suffix for model in models):
-        return None
+    animation = animations[0]
 
-    if animation.suffix.lower() == FileFormat.MCAL.suffix and len(models) == 1:
+    if animation.suffix.lower() == ".mcal" and len(models) == 1:
         return AnimateCommand.BODY
 
-    if animation.suffix.lower() != FileFormat.MCVD.suffix:
+    if animation.suffix.lower() != ".mcvd":
         return None
 
     stem = animation.stem.lower()

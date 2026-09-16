@@ -25,11 +25,22 @@ def test_resolve(args: list[str], command: str) -> None:
 
 def test_animation() -> None:
     assert routing._animation((Path("library.mcal"), Path("model.mcsb"))) is AnimateCommand.BODY
+    assert routing._animation((Path("model.mcsb"), Path("library.mcal"))) is AnimateCommand.BODY
     assert routing._animation((Path("wpn_idle.mcvd"), Path("model.mcsb"))) is AnimateCommand.ARMS
     assert routing._animation((Path("fp_idle.mcvd"), Path("model.mcsb"), Path("hands.mcsb"))) is AnimateCommand.ARMS
     assert routing._animation((Path("idle.mcvd"), Path("model.mcsb"))) is AnimateCommand.FACE
     assert routing._animation((Path("library.mcal"), Path("model.mcsb"), Path("hands.mcsb"))) is None
     assert routing._animation((Path("wpn_idle.mcvd"), Path("model.obj"))) is None
+
+
+def test_animation_options() -> None:
+    paths = (Path("wpn_idle.mcvd"), Path("model.mcsb"), Path("-O"), Path("output.glb"))
+    assert routing._animation(paths) is AnimateCommand.ARMS
+
+
+def test_resolve_keeps_argument_order() -> None:
+    args = ["model.mcsb", "library.mcal"]
+    assert routing.resolve(args) == ["animate", "body", *args]
 
 
 def test_run(monkeypatch: pytest.MonkeyPatch) -> None:
