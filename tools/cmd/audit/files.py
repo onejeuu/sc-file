@@ -51,7 +51,7 @@ def build(
     grouped: defaultdict[str, list[Path]] = defaultdict(list)
     warnings: list[Warning] = []
     ignored = 0
-    excluded = EXCLUDED | set(configured_excludes)
+    excluded = {path.casefold() for path in EXCLUDED | set(configured_excludes)}
     filters = formats.registry.filters(*(FileFormat(format) for format in selected))
 
     with console.status("Searching... 0 files") as status:
