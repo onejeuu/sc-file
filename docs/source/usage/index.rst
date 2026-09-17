@@ -43,7 +43,7 @@ Quick Start
 
     scfile.exe model.mcsb -F fbx --skeleton # convert to fbx with skeleton
     scfile.exe clips.mcvd model.mcsb # convert animation clips
-    scfile.exe path/to/map_cache/5.0 # convert map cache
+    scfile.exe path/to/map_cache/6.0 # convert map cache
 
 
 📖 **Python Library**
@@ -297,8 +297,8 @@ mapcache
   .. code-block:: bash
     :caption: Example
 
-    scfile "C:/map_cache/5.0"
-    scfile mapcache "C:/map_cache/5.0"
+    scfile "C:/map_cache/6.0"
+    scfile mapcache "C:/map_cache/6.0"
 
 
 ``-O, --output``
@@ -308,7 +308,7 @@ mapcache
   .. code-block:: bash
     :caption: Example
 
-    scfile mapcache "C:/map_cache/5.0" --output "D:/output"
+    scfile mapcache "C:/map_cache/6.0" --output "D:/output"
 
 
 ``-W, --workers``
@@ -318,7 +318,7 @@ mapcache
   .. code-block:: bash
     :caption: Example
 
-    scfile mapcache "C:/map_cache/5.0" --workers 4
+    scfile mapcache "C:/map_cache/6.0" --workers 4
 
 
 ``--biomes / --no-biomes``
@@ -327,7 +327,7 @@ mapcache
   .. code-block:: bash
     :caption: Example
 
-    scfile mapcache "C:/map_cache/5.0" --no-biomes
+    scfile mapcache "C:/map_cache/6.0" --no-biomes
 
 
 ``--backup / --no-backup``

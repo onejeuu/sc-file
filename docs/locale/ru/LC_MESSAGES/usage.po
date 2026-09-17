@@ -349,8 +349,8 @@ msgstr "⛰️ Кэш карты"
 msgid ":ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files."
 msgstr ":ref:`mapcache <cli-mapcache>` объединяет фрагменты регионов ``.mdat`` в файлы ``.mca``."
 
-msgid "Regions located in ``stalcraft/map_cache/5.0``."
-msgstr "Регионы находятся в ``stalcraft/map_cache/5.0``."
+msgid "Regions located in ``stalcraft/map_cache/6.0``."
+msgstr "Регионы находятся в ``stalcraft/map_cache/6.0``."
 
 msgid "Export groups fragments by coordinates ``x`` and ``z`` in filenames."
 msgstr "Экспорт группирует фрагменты по координатам ``x`` и ``z`` в именах файлов."

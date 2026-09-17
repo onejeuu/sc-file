@@ -1,0 +1,40 @@
+//------------------------------------------------
+// File: MDAT.OBJECTS.bt
+// Authors: onejeuu
+// Version: 1.0
+// Purpose: Parse decompressed objects payload.
+// Category: STALCRAFT
+// File Mask: *.objects
+//------------------------------------------------
+
+BigEndian();
+
+// File Content
+
+typedef struct {
+    local uint size = 0;
+    local uint shift = 0;
+    local ubyte lastByte;
+
+    do {
+        ubyte encodedSize <name="Size", fgcolor=cGreen, format=hex>;
+        size |= (encodedSize & 0x7F) << shift;
+        shift += 7;
+        lastByte = encodedSize;
+    } while (lastByte & 0x80);
+
+    ubyte data[size] <name="Data", bgcolor=cDkGreen, optimize=false>;
+} Object;
+
+local uint objectCount = 0;
+local uint objectCountShift = 0;
+local ubyte lastCountByte;
+
+do {
+    ubyte encodedCount <name="Object Count", fgcolor=cAqua, format=hex>;
+    objectCount |= (encodedCount & 0x7F) << objectCountShift;
+    objectCountShift += 7;
+    lastCountByte = encodedCount;
+} while (lastCountByte & 0x80);
+
+Object objects[objectCount] <name="Objects", optimize=false>;

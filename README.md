@@ -39,13 +39,6 @@
 
 > This is an **unofficial** project and is **not affiliated** with EXBO.
 
-<!--
-keywords: sc scx stalcraft x майн ск сталкрафт
-runtime/stalcraft/modassets/assets map_cache/5.0
-blender rig anims 3d bones scene unpack decrypt decryptor
-блендер риг анимки 3д кости сцена моделька локи распаковать расшифровать дешифратор
--->
-
 ## ✨ Supported Formats
 
 | Type             | Game formats                                    | →   | Standard formats         |

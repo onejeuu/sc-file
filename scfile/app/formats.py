@@ -52,7 +52,7 @@ FORMAT_GROUPS = (
         name="documents",
         label="format.documents",
         display=("itemnames.dat", "sd0-4"),
-        formats=(FileFormat.NBT, FileFormat.MAP),
+        formats=(FileFormat.NBT,),
     ),
 )
 

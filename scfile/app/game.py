@@ -7,7 +7,7 @@ from typing import Literal
 
 
 ASSETS: Path = Path("modassets/assets")
-MAP_CACHE: Path = Path("map_cache/5.0")
+MAP_CACHE: Path = Path("map_cache/6.0")
 LOCALIZED: Path = Path("_localized")
 PATCHASSETS: Path = Path("patchassets/assets")
 

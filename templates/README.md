@@ -11,19 +11,20 @@ See [Game Formats](https://sc-file.readthedocs.io/en/latest/formats.html) for de
 
 ## Templates
 
-| Template                       | Files                        | Contents                          |
-| ------------------------------ | ---------------------------- | --------------------------------- |
-| [MCSA.bt](MCSA.bt)             | `*.mcsa`, `*.mcsb`, `*.mcvd` | Models, skeletons, and animations |
-| [EFKMODEL.bt](EFKMODEL.bt)     | `*.efkmodel`                 | Effekseer model geometry          |
-| [MCAL.bt](MCAL.bt)             | `*.mcal`                     | Animation libraries               |
-| [OL.bt](OL.bt)                 | `*.ol`                       | Mipmapped texel data              |
-| [TEXARR.bt](TEXARR.bt)         | `*.texarr`                   | DDS arrays                        |
-| [MDAT.bt](MDAT.bt)             | `*.mdat`                     | World region cache                |
-| [MDAT.CHUNK.bt](MDAT.CHUNK.bt) | `*.chunk`                    | World chunk data                  |
-| [SIGN.bt](SIGN.bt)             | `textures.sign`              | Texture signatures                |
-| [PACK.bt](PACK.bt)             | `model_list.pack`            | Allowed models list               |
-| [HASHMAP.bt](HASHMAP.bt)       | `*.map`                      | Launcher hash mappings            |
-| [TORRENT.bt](TORRENT.bt)       | `*.torrent.bin`              | Launcher torrent metadata         |
+| Template                           | Files                        | Contents                          |
+| ---------------------------------- | ---------------------------- | --------------------------------- |
+| [MCSA.bt](MCSA.bt)                 | `*.mcsa`, `*.mcsb`, `*.mcvd` | Models, skeletons, and animations |
+| [EFKMODEL.bt](EFKMODEL.bt)         | `*.efkmodel`                 | Effekseer model geometry          |
+| [MCAL.bt](MCAL.bt)                 | `*.mcal`                     | Animation libraries               |
+| [OL.bt](OL.bt)                     | `*.ol`                       | Mipmapped texel data              |
+| [TEXARR.bt](TEXARR.bt)             | `*.texarr`                   | DDS arrays                        |
+| [MDAT.bt](MDAT.bt)                 | `*.mdat`                     | World region cache                |
+| [MDAT.CHUNK.bt](MDAT.CHUNK.bt)     | `*.chunk`                    | World chunk data                  |
+| [MDAT.OBJECTS.bt](MDAT.OBJECTS.bt) | `*.objects`                  | World objects payload             |
+| [SIGN.bt](SIGN.bt)                 | `textures.sign`              | Texture signatures                |
+| [PACK.bt](PACK.bt)                 | `model_list.pack`            | Allowed models list               |
+| [HASHMAP.bt](HASHMAP.bt)           | `*.map`                      | Launcher hash mappings            |
+| [TORRENT.bt](TORRENT.bt)           | `*.torrent.bin`              | Launcher torrent metadata         |
 
 ## Installation
 

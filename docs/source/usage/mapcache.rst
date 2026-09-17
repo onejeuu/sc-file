@@ -5,7 +5,7 @@
 
 
 | :ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files.
-| Regions located in ``stalcraft/map_cache/5.0``.
+| Regions located in ``stalcraft/map_cache/6.0``.
 
 | Export groups fragments by coordinates ``x`` and ``z`` in filenames.
 | Map cache region files named ``reg.<x>.<z>.mdat``.
@@ -66,7 +66,7 @@ Command line
 
 .. code-block:: console
 
-   scfile mapcache "stalcraft/map_cache/5.0" --output ".minecraft/saves/MapPreview/region"
+   scfile mapcache "stalcraft/map_cache/6.0" --output ".minecraft/saves/MapPreview/region"
 
 :ref:`Other options → <cli-mapcache>`
 

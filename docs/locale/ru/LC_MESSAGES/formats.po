@@ -193,8 +193,8 @@ msgstr "⛰️ Регионы"
 msgid "Region container for 32×32 terrain chunks."
 msgstr "Контейнер регионов для 32×32 чанков мира."
 
-msgid "Blocks, metadata, lighting and biomes compressed with `zstd`_."
-msgstr "Блоки, метаданные, освещение и биомы, сжатые через `zstd`_."
+msgid "Metadata table, Chunk payload and Objects payload. Payloads are `zstd`_ compressed."
+msgstr "Таблица метаданных, данные чанков и данные объектов. Данные сжаты через `zstd`_."
 
 msgid "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes."
 msgstr "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), с блоками (приблизительными) и биомами."

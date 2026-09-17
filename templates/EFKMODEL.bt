@@ -45,7 +45,7 @@ typedef struct {
     Vertex vertices[vertexCount] <name="Vertex", optimize=false>;
 
     uint polygonCount <name="Polygon Count", bgcolor=cLtGreen>;
-    int32 polygons[polygonCount * 3] <name="Polygons", bgcolor=cLtBlue>;
+    int polygons[polygonCount * 3] <name="Polygons", bgcolor=cLtBlue>;
 } Mesh;
 
 

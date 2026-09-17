@@ -55,7 +55,7 @@ class MapCacheTab(QWidget):
 
         self.source = PathField(
             f"{strings.get('label.mapcache.source')} (.mdat)",
-            placeholder="stalcraft/map_cache/5.0",
+            placeholder="stalcraft/map_cache/6.0",
             caption=strings.get("dialog.mapcache.source"),
         )
         self.source.changed.connect(self._edit_source)

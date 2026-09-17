@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MDAT.bt
 // Authors: onejeuu, DeTTK
-// Version: 1.1
-// Purpose: Parse world region caches.
+// Version: 2.0
+// Purpose: Parse world region caches (v6.0).
 // Category: STALCRAFT
 // File Mask: *.mdat
 //------------------------------------------------
@@ -12,30 +12,38 @@ BigEndian();
 // File Content
 // Metadata
 
-local uint32 SIZE = 32 * 32;  // 1024
+local uint SIZE = 32 * 32;  // 1024
 
 typedef struct {
-    int32 offset <name="Offset">;
-    int32 sectorCount <name="Sector Count">;
+    int offset <name="Offset">;
+    int sectorCount <name="Sector Count">;
     GUID uuid <name="UUID", fgcolor=cLtBlue>;
 } Metadata;
 
 Metadata metadata[SIZE] <name="Metadata">;
 
 
-// Chunk
+// Chunks
 
 typedef struct {
-    int32 recordSize <name="Record Size">;
-    int32 sectionMask <name="Section Mask">;
-    int32 addMask <name="Add Mask">;
-    int32 terrainSize <name="Terrain Size">;
-    int32 compressedSize <name="Compressed Size", fgcolor=cDkGreen>;
+    int recordSize <name="Record Size">;
+    int sectionMask <name="Section Mask">;
+    int addMask <name="Add Mask">;
+    int terrainSize <name="Terrain Size">;
 
-    // ZSTD compressed data
-    char data[compressedSize] <name="Data", bgcolor=cDkGreen>;
+    // Chunk payload (zstd)
+    int chunkSize <name="Data Size", fgcolor=cGreen>;
+    if (chunkSize > 0) {
+        ubyte data[chunkSize] <name="Data", comment="zstd", bgcolor=cDkGreen>;
+    }
 
-    // padding
+    // Objects payload (zstd)
+    int objectsSize <name="Objects Size", fgcolor=cYellow>;
+    if (objectsSize > 0) {
+        ubyte objects[objectsSize] <name="Objects", comment="zstd", bgcolor=cDkYellow>;
+    }
+
+    // Padding
     local uint _current = FTell();
     local uint _aligned = (_current + 0xFFF) & ~0xFFF;
     local uint _padding = _aligned - _current;
