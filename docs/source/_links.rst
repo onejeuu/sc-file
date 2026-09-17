@@ -13,6 +13,7 @@
 .. _TEXARR.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TEXARR.bt
 .. _MDAT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MDAT.bt
 .. _MDAT.CHUNK.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MDAT.CHUNK.bt
+.. _MDAT.OBJECTS.bt: https://github.com/onejeuu/sc-file/blob/master/templates/MDAT.OBJECTS.bt
 .. _HASHMAP.bt: https://github.com/onejeuu/sc-file/blob/master/templates/HASHMAP.bt
 .. _SIGN.bt: https://github.com/onejeuu/sc-file/blob/master/templates/SIGN.bt
 .. _TORRENT.bt: https://github.com/onejeuu/sc-file/blob/master/templates/TORRENT.bt
