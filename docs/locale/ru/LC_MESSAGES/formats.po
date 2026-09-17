@@ -238,24 +238,6 @@ msgstr "История просмотра магазина"
 msgid "Profile customization UI state"
 msgstr "Состояние UI кастомизации профиля"
 
-msgid "🛠️ Config Files"
-msgstr "🛠️ Конфиги"
-
-msgid "Selected display ID"
-msgstr "ID монитора"
-
-msgid "Keyboard control mappings"
-msgstr "Назначения клавиш управления"
-
-msgid "Game settings (graphics, audio, gameplay)"
-msgstr "Настройки игры (графика, звук, геймплей)"
-
-msgid "Quest visibility toggles"
-msgstr "Переключатели видимости квестов"
-
-msgid "Custom map markers"
-msgstr "Пользовательские метки на карте"
-
 msgid "📝 Text Formats"
 msgstr "📝 Текстовые"
 
@@ -274,11 +256,50 @@ msgstr "Субтитры"
 msgid "Mob configuration"
 msgstr "Конфигурация мобов"
 
+msgid "🛠️ Config Files"
+msgstr "🛠️ Конфиги"
+
+msgid "Selected display ID"
+msgstr "ID монитора"
+
+msgid "Keyboard control mappings"
+msgstr "Назначения клавиш управления"
+
+msgid "Game settings (graphics, audio, gameplay)"
+msgstr "Настройки игры (графика, звук, геймплей)"
+
+msgid "Quest visibility toggles"
+msgstr "Переключатели видимости квестов"
+
+msgid "Custom map markers"
+msgstr "Пользовательские метки на карте"
+
+msgid "🕹️ Launcher Formats"
+msgstr "🕹️ Лаунчер"
+
+msgid "Launcher file integrity verification."
+msgstr "Проверка целостности файлов лаунчером."
+
+msgid "Game asset paths and SHA-1 hashes."
+msgstr "Путы к игровым ассетам и их SHA-1 хеши."
+
+msgid "Game content delivery."
+msgstr "Скачивание игрового контента."
+
+msgid "Modified ``.torrent`` (`Torrent File`_)."
+msgstr "Модифицированный ``.torrent`` (`Torrent File`_)."
+
 msgid "🔒 Encrypted Formats"
 msgstr "🔒 Зашифрованные"
 
 msgid "Used AES_. Decryption requires a key recovered from the protected game client."
 msgstr "Использован AES_. Расшифровка требует ключи из защищенного клиента игры."
+
+msgid "Manifest of ``.xeon`` bundles."
+msgstr "Манифест ``.xeon`` бандлов."
+
+msgid "Relative paths to asset bundles."
+msgstr "Относительные пути к бандлам ассетов."
 
 msgid "Bundle with sensitive client data."
 msgstr "Бандл с чувствительными данными клиента."
@@ -304,20 +325,11 @@ msgstr "Адаптивные аудио события."
 msgid "Primarily voice acting and OST."
 msgstr "В основном озвучка и OST."
 
-msgid "🕹️ Launcher Formats"
-msgstr "🕹️ Лаунчер"
+msgid "Recovery of obfuscated symbol names for debugging."
+msgstr "Восстановление обфусцированных имён символов для отладки."
 
-msgid "Launcher file integrity verification."
-msgstr "Проверка целостности файлов лаунчером."
-
-msgid "Game asset paths and SHA-1 hashes."
-msgstr "Путы к игровым ассетам и их SHA-1 хеши."
-
-msgid "Game content delivery."
-msgstr "Скачивание игрового контента."
-
-msgid "Modified ``.torrent`` (`Torrent File`_)."
-msgstr "Модифицированный ``.torrent`` (`Torrent File`_)."
+msgid "Symbol name mappings."
+msgstr "Сопоставления имён символов."
 
 # ============================================================================
 # No translation required.

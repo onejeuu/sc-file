@@ -273,48 +273,65 @@ Export
 .. _nbt:
 
 :Format: `Named Binary Tag <NBT Format_>`_
-:Compression: None, gzip_, zstd_.
 :Export: ``.json`` (JSON_).
+
+
+``stalker/itemnames.dat``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Compression: gzip_.
+:Purpose: Local item display data.
+
+
+``config/prefs``
+^^^^^^^^^^^^^^^^
+
+:Compression: zstd_.
+:Purpose: UI preferences and view history.
+:Contents: ``seenArticleLinks[]``, ``seenExperiences[]``, ``hasSeen*``.
+
+
+``config/<Name>/common``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Compression: zstd_.
+:Purpose: Character-specific UI and presentation state.
+:Contents: ``trashedItems[]``, ``caseLastOpenCount[]``, ``complaintsData{...}``, ``seenFrontlineIntros``.
+
+
+``config/<Name>/sd*``
+^^^^^^^^^^^^^^^^^^^^^
+
+:Compression: zstd_.
+:Purpose: Character-specific state data separated by feature domains.
 
 .. list-table::
   :header-rows: 1
 
-  * - Path
-    - Compression
+  * - File
     - Purpose
-    - Keys (examples)
-  * - ``stalker/itemnames.dat``
-    - gzip_
-    - Quest item descriptions
-    - ➖
-  * - ``config/prefs``
-    - zstd_
-    - UI read state cache
-    - ``seenArticleLinks[], seenExperiences[], hasSeen*``
-  * - ``config/<Name>/common``
-    - zstd_
-    - General settings and UI states
-    - ``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``
-  * - ``config/<Name>/sd0``
-    - zstd_
+    - Contents
+  * - ``sd0``
     - Incoming friend requests
     - ``requests[]``
-  * - ``config/<Name>/sd1``
-    - zstd_
-    - Recent interactions (last 200 players)
+  * - ``sd1``
+    - Recent player interactions
     - ``interacts[{allianceId, type, username}]``
-  * - ``config/<Name>/sd2``
-    - zstd_
-    - Notifications history (last 100 popups)
+  * - ``sd2``
+    - Notification history
     - ``notifications[{isRead, receivedMoment, notification{...}}]``
-  * - ``config/<Name>/sd3``
-    - zstd_
-    - Donate shop view history
+  * - ``sd3``
+    - Donate shop offer view history
     - ``observedOffers[]``
-  * - ``config/<Name>/sd4``
-    - zstd_
-    - Profile customization UI state
-    - ``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``
+  * - ``sd4``
+    - Profile customization catalog view state
+    - ``lastSeen*Version``, ``observedElements[]``
+  * - ``sd5``
+    - Notes about players
+    - ``<playerId>: <note>``
+  * - ``sd6``
+    - Survey form state
+    - ``backupState{...}``
 
 
 
@@ -413,6 +430,15 @@ Export
    Used AES_. Decryption requires a key recovered from the protected game client.
 
 
+.. _l:
+
+``.l`` Assets Layer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Purpose: Manifest of ``.xeon`` bundles.
+:Contents: Relative paths to asset bundles.
+
+
 .. _xeon:
 
 ``.xeon`` Encrypted Bundle
@@ -448,3 +474,12 @@ Export
 :Engine: `FMOD Studio <FMOD_>`_.
 :Purpose: Primarily voice acting and OST.
 :Contents: Adaptive audio events.
+
+
+.. _metadata:
+
+``metadata`` Deobfuscation Mappings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Purpose: Recovery of obfuscated symbol names for debugging.
+:Contents: Symbol name mappings.
