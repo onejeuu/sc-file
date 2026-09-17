@@ -1,6 +1,28 @@
 📋 Changelog
 ==================================================
 
+.. _v6.2.1:
+
+v6.2.1 (2026-09-17)
+----------------------------------------
+
+✨ Added
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``MDAT.OBJECTS.bt``: new template for decompressed map cache object payloads.
+
+📝 Changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``MDAT.bt`` and ``MDAT.CHUNK.bt``: updated for the v6.0 map cache payload structure.
+
+🐛 Fixed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``GameRoot.resolve_map_cache()``: now resolves the game map cache from ``map_cache/6.0``.
+
+
+
 .. _v6.2.0:
 
 v6.2.0 (2026-09-16)
@@ -35,6 +57,8 @@ v6.2.0 (2026-09-16)
 * **CLI**: recognizes animation pairs in auto routing.
 * ``StructReader.read_exact()``: reports the correct offset for truncated data and validates length-prefixed byte fields.
 
+
+
 .. _v6.1.0:
 
 v6.1.0 (2026-08-30)
@@ -65,6 +89,8 @@ v6.1.0 (2026-08-30)
 
 * ``TextureContent.mipmap_count``, ``TextureContent.format``, and ``TextureContent.path_hash`` (use ``TextureContent.meta``).
 * ``RegionContent.rx``, ``RegionContent.rz``, ``RegionContent.sector_offsets``, and ``RegionContent.sector_counts``.
+
+
 
 .. _v6.0.0:
 
@@ -206,6 +232,7 @@ Conversion
 * ``convert.convert``: renamed to ``convert.files.manual``.
 * ``convert.detect``: replaced by ``convert.files.auto`` and ``convert.files.format``.
 * ``convert.factory``: replaced by ``scfile.formats.registry`` and ``convert.named``.
+
 
 
 .. _v5.2.1:
