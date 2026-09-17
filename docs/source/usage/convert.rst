@@ -38,7 +38,7 @@ No additional files or other metadata are required to convert it.
     - ``.mdat``
     - ``.mca``
   * - 📄 Document
-    - | ``.map`` (launcher), ``itemnames.dat``, ``common``, ``prefs``,
+    - | ``itemnames.dat``, ``common``, ``prefs``,
       | ``sd0``, ``sd1``, ``sd2``, ``sd3``, ``sd4``
     - ``.json``
 
@@ -138,7 +138,7 @@ Destination conflicts
 An output filename conflict means that the file already existed before conversion began.
 The ``--on-conflict`` option determines how to resolve the conflict.
 
-- ``replace`` replaces the existing file with a new one.
+- ``replace`` (default) replaces the existing file with a new one.
 - ``rename`` creates a new file with a counter in its name.
 - ``skip`` does not create a new file and leaves the existing one unchanged.
 

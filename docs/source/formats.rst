@@ -31,7 +31,7 @@
 
 :Template: MCSA.bt_
 :Purpose: Model scene.
-:Contents: Same as `.mcsa <mcsa_>`_. Has hash before signature.
+:Contents: Same as `.mcsa <mcsa_>`_. Has rsa signature before content.
 
 
 .. _mcvd:

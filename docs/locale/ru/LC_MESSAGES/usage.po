@@ -620,7 +620,7 @@ msgid "These parts are optional and depend on the source file."
 msgstr "Эти части необязательны и зависят от исходного файла."
 
 msgid "Geometry is always parsed. However, it may be absent from the source file, for example in ``.mcvd`` files with first-person animations. The export then completes with an empty file."
-msgstr "Геометрия парсится всегда. Но она может отсутствовать в исходном файле (например в ``.mcvd`` с анимациями для fp). Тогда экспорт завершается пустым файлом."
+msgstr "Геометрия парсится всегда. Но она может отсутствовать в исходном файле (например в ``.mcvd`` с fp анимациями). Тогда экспорт завершается пустым файлом."
 
 msgid "The ``--skeleton`` and ``--animation`` flags enable parsing and exporting the skeleton and animations. They are exported only when present in the source file."
 msgstr "Флаги ``--skeleton`` и ``--animation`` включают парсинг и экспорт скелета и анимаций. Они экспортируются только когда есть в исходном файле."
@@ -667,8 +667,8 @@ msgstr "Конфликты назначения"
 msgid "An output filename conflict means that the file already existed before conversion began. The ``--on-conflict`` option determines how to resolve the conflict."
 msgstr "Конфликт имени выходного файла означает что такой файл уже существовал до начала конвертации. Параметр ``--on-conflict`` отвечает за политику решения такого конфликта."
 
-msgid "``replace`` replaces the existing file with a new one."
-msgstr "``replace`` заменяет существующий файл на новый."
+msgid "``replace`` (default) replaces the existing file with a new one."
+msgstr "``replace`` (по умолчанию) заменяет существующий файл на новый."
 
 msgid "``rename`` creates a new file with a counter in its name."
 msgstr "``rename`` создает новый файл со счетчиком в имени."

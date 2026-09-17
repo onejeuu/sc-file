@@ -76,8 +76,8 @@ msgstr "Геометрия, Скелет, Анимации, Blend shapes."
 msgid "Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
 msgstr "Версии ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
 
-msgid "Same as `.mcsa <mcsa_>`_. Has hash before signature."
-msgstr "Такое же как `.mcsa <mcsa_>`_. Содержит хэш перед сигнатурой."
+msgid "Same as `.mcsa <mcsa_>`_. Has rsa signature before content."
+msgstr "Такое же как `.mcsa <mcsa_>`_. Содержит rsa сигнатуру перед контентом."
 
 msgid "Colliders and physics."
 msgstr "Коллайдеры и физика."
