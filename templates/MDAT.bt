@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MDAT.bt
 // Authors: onejeuu, DeTTK
-// Version: 2.0
-// Purpose: Parse world region caches (v6.0).
+// Version: 3.0
+// Purpose: Parse world region cache container (v7.x).
 // Category: STALCRAFT
 // File Mask: *.mdat
 //------------------------------------------------
@@ -12,49 +12,58 @@ BigEndian();
 // File Content
 // Metadata
 
-local uint SIZE = 32 * 32;  // 1024
+local uint CHUNK_COUNT = 32 * 32;  // 1024 chunks
+local uint SECTOR_SIZE = 4 * 1024;  // 4 KiB
 
 typedef struct {
-    int offset <name="Offset">;
+    int sectorOffset <name="Sector Offset">;
     int sectorCount <name="Sector Count">;
-    GUID uuid <name="UUID", fgcolor=cLtBlue>;
+    uint64 chunkKey <name="Chunk Key", format=hex, fgcolor=cLtBlue>;
 } Metadata;
 
-Metadata metadata[SIZE] <name="Metadata">;
+Metadata metadata[CHUNK_COUNT] <name="Metadata">;
 
 
 // Chunks
 
-typedef struct {
-    int recordSize <name="Record Size">;
-    int sectionMask <name="Section Mask">;
-    int addMask <name="Add Mask">;
-    int terrainSize <name="Terrain Size">;
+local int64 _counter;
+local int64 _end;
 
-    // Chunk payload (zstd)
-    int chunkSize <name="Data Size", fgcolor=cGreen>;
+typedef struct {
+    // Chunk payload
+    int streamLength <name="Stream Length", fgcolor=cLtRed>;
+    uint64 chunkKey <name="Chunk Key", format=hex, fgcolor=cLtBlue>;
+    int sectionMask <name="Section Mask", format=binary, bgcolor=cPurple>;
+    int addMask <name="Add Mask", format=binary, bgcolor=cPurple>;
+    int dataSize <name="Uncompressed Size", fgcolor=cLtGreen>;
+    int chunkSize <name="Compressed Size", fgcolor=cGreen>;
+
+    // Chunk data (zstd)
     if (chunkSize > 0) {
-        ubyte data[chunkSize] <name="Data", comment="zstd", bgcolor=cDkGreen>;
+        ubyte chunk[chunkSize] <name="Chunk", comment="zstd", bgcolor=cDkGreen>;
     }
 
-    // Objects payload (zstd)
+    // Objects payload data (zstd)
     int objectsSize <name="Objects Size", fgcolor=cYellow>;
     if (objectsSize > 0) {
         ubyte objects[objectsSize] <name="Objects", comment="zstd", bgcolor=cDkYellow>;
     }
 
     // Padding
-    local uint _current = FTell();
-    local uint _aligned = (_current + 0xFFF) & ~0xFFF;
-    local uint _padding = _aligned - _current;
+    local int64 _padding = _end - FTell();
 
     if(_padding > 0) {
         char padding[_padding] <bgcolor=cGray, hidden=true>;
     }
 } Chunk;
 
-local uint _counter;
-while(_counter < SIZE & !FEof()) {
-    Chunk chunk <name="Chunk">;
-    _counter++;
+void parseChunk(Metadata &entry) {
+    if (entry.sectorOffset > 0) {
+        FSeek((int64)entry.sectorOffset * SECTOR_SIZE);
+        _end = FTell() + (int64)entry.sectorCount * SECTOR_SIZE;
+        Chunk chunk <name="Chunk">;
+    }
 }
+
+for (_counter = 0; _counter < CHUNK_COUNT; _counter++)
+    parseChunk(metadata[_counter]);

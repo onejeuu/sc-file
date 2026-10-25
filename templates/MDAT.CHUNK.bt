@@ -1,8 +1,8 @@
 //------------------------------------------------
 // File: MDAT.CHUNK.bt
 // Authors: onejeuu, DeTTK
-// Version: 2.0
-// Purpose: Parse decompressed chunk payload.
+// Version: 3.0
+// Purpose: Parse decompressed chunk payload (v7.x).
 // Category: STALCRAFT
 // File Mask: *.chunk
 //------------------------------------------------
@@ -14,11 +14,12 @@ local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
 local int BIOME_SIZE   = 16 * 16;       // 256
 
 typedef struct {
-    uint recordSize <name="Record Size">;
-    uint sectionMask <name="Section Mask", format=binary>;
-    uint addMask <name="Add Mask", format=binary>;
-    uint terrainSize <name="Terrain Size">;
-    uint compressedSize <name="Compressed Size">;
+    int streamLength <name="Stream Length", fgcolor=cLtRed>;
+    uint64 chunkKey <name="Chunk Key", format=hex, fgcolor=cLtBlue>;
+    int sectionMask <name="Section Mask", format=binary, bgcolor=cPurple>;
+    int addMask <name="Add Mask", format=binary, bgcolor=cPurple>;
+    int dataSize <name="Uncompressed Size", fgcolor=cLtGreen>;
+    int chunkSize <name="Compressed Size", fgcolor=cGreen>;
 } ChunkHeader;
 
 ChunkHeader header <name="Header">;

@@ -47,6 +47,9 @@ class Options:
     extended_chunk: bool = False
     """Expose auxiliary world chunk data."""
 
+    mdat_version: int = 7
+    """Major version of the MDAT source format."""
+
     targets: TargetConfig = field(default_factory=dict)
     """Normalized output format for every content type."""
 

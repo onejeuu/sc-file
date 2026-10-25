@@ -1,0 +1,61 @@
+//------------------------------------------------
+// File: MDAT-v5.bt
+// Authors: onejeuu, DeTTK
+// Version: 2.1
+// Purpose: Parse world region cache container (v5.x).
+// Category: STALCRAFT
+// File Mask: *.mdat
+//------------------------------------------------
+
+BigEndian();
+
+// File Content
+// Metadata
+
+local uint CHUNK_COUNT = 32 * 32;  // 1024 chunks
+local uint SECTOR_SIZE = 4 * 1024;  // 4 KiB
+
+typedef struct {
+    int sectorOffset <name="Sector Offset">;
+    int sectorCount <name="Sector Count">;
+    int uuid[4] <name="UUID Words", format=hex, fgcolor=cLtBlue>;
+} Metadata;
+
+Metadata metadata[CHUNK_COUNT] <name="Metadata">;
+
+
+// Chunks
+
+local int64 _end;
+
+typedef struct {
+    int streamLength <name="Stream Length", fgcolor=cLtRed>;
+    int sectionMask <name="Section Mask", format=binary, bgcolor=cPurple>;
+    int addMask <name="Add Mask", format=binary, bgcolor=cPurple>;
+    int dataSize <name="Uncompressed Size", fgcolor=cLtGreen>;
+
+    // Chunk payload (zstd)
+    int chunkSize <name="Compressed Size", fgcolor=cGreen>;
+    if (chunkSize > 0) {
+        ubyte chunk[chunkSize] <name="Chunk", comment="zstd", bgcolor=cDkGreen>;
+    }
+
+    // Padding
+    local int64 _padding = _end - FTell();
+
+    if(_padding > 0) {
+        char padding[_padding] <bgcolor=cGray, hidden=true>;
+    }
+} Chunk;
+
+void parseChunk(Metadata &entry) {
+    if (entry.sectorOffset > 0) {
+        FSeek((int64)entry.sectorOffset * SECTOR_SIZE);
+        _end = FTell() + (int64)entry.sectorCount * SECTOR_SIZE;
+        Chunk chunk <name="Chunk">;
+    }
+}
+
+local uint _counter;
+for (_counter = 0; _counter < CHUNK_COUNT; _counter++)
+    parseChunk(metadata[_counter]);

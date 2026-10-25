@@ -137,6 +137,8 @@ class RegionContent(BaseContent):
     offsets: list[int] = field(default_factory=list)
     counts: list[int] = field(default_factory=list)
     uuids: list[bytes] = field(default_factory=list)
+    chunk_keys: list[bytes] = field(default_factory=list)
+    version: int = 0
 
     chunks: list[RegionChunk] = field(default_factory=list)
 

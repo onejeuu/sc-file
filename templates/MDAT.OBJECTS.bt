@@ -1,13 +1,28 @@
 //------------------------------------------------
 // File: MDAT.OBJECTS.bt
 // Authors: onejeuu
-// Version: 1.0
-// Purpose: Parse decompressed objects payload.
+// Version: 2.0
+// Purpose: Parse decompressed objects payload (v7.x).
 // Category: STALCRAFT
 // File Mask: *.objects
 //------------------------------------------------
 
 BigEndian();
+
+// Types
+
+typedef struct {
+    ushort size <name="Size">;
+    if (size > 0) {
+        char data[size] <name="Data", bgcolor=cYellow, optimize=false>;
+    }
+} String;
+
+typedef struct {
+    uint64 most <format=hex>;
+    uint64 least <format=hex>;
+} UUID;
+
 
 // File Content
 
@@ -23,7 +38,33 @@ typedef struct {
         lastByte = encodedSize;
     } while (lastByte & 0x80);
 
-    ubyte data[size] <name="Data", bgcolor=cDkGreen, optimize=false>;
+    local int64 _end = FTell() + size;
+
+    uint64 typeHash <name="Type Hash", format=hex, fgcolor=cLtBlue>;
+    uint flags <name="Flags", format=hex>;
+    ubyte flags2 <name="Flags 2", format=hex>;
+
+    if (flags & 0x80) {
+        UUID group <name="Group">;
+    }
+    if (flags & 0x8000) {
+        String materialPatch <name="Material Patch">;
+    }
+    if (flags & 0x4000) {
+        int clientCsv <name="Client CSV">;
+    }
+    if (flags & 0x2000) {
+        int clientCbv <name="Client CBV">;
+    }
+
+    UUID uuid <name="UUID", fgcolor=cLtBlue>;
+    float transform[9] <name="Transform", bgcolor=cLtGreen>;
+    float position[3] <name="Position", bgcolor=cLtBlue>;
+
+    local int64 dataSize = _end - FTell();
+    if (dataSize > 0) {
+        ubyte data[dataSize] <name="Data", bgcolor=cDkGreen, optimize=false>;
+    }
 } Object;
 
 local uint objectCount = 0;

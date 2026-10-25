@@ -1,0 +1,50 @@
+//------------------------------------------------
+// File: MDAT.CHUNK-v5-v6.bt
+// Authors: onejeuu, DeTTK
+// Version: 2.0
+// Purpose: Parse decompressed chunk payload (v5.x-v6.x).
+// Category: STALCRAFT
+// File Mask: *.chunk
+//------------------------------------------------
+
+BigEndian();
+
+local int SECTION_SIZE = 16 * 16 * 16;  // 4096
+local int NIBBLE_SIZE  = 16 * 16 * 8;   // 2048
+local int BIOME_SIZE   = 16 * 16;       // 256
+
+typedef struct {
+    uint streamLength <name="Stream Length", fgcolor=cLtRed>;
+    uint sectionMask <name="Section Mask", format=binary, bgcolor=cPurple>;
+    uint addMask <name="Add Mask", format=binary, bgcolor=cPurple>;
+    uint dataSize <name="Uncompressed Size", fgcolor=cLtGreen>;
+    uint chunkSize <name="Compressed Size", fgcolor=cGreen>;
+} ChunkHeader;
+
+ChunkHeader header <name="Header">;
+
+local int sectionCount = 0;
+local int addCount = 0;
+local int _i;
+for (_i = 0; _i < 16; _i++) {
+    sectionCount += (header.sectionMask >> _i) & 1;
+    addCount += (header.addMask >> _i) & 1;
+}
+
+typedef struct { ubyte data[SECTION_SIZE]; } BlockSection;
+typedef struct { ubyte data[NIBBLE_SIZE]; } NibblePlane;
+
+BlockSection blocks[sectionCount] <name="Blocks", optimize=false, bgcolor=cLtGreen>;
+NibblePlane metadata[sectionCount] <name="Metadata", optimize=false, bgcolor=cLtBlue>;
+NibblePlane lighting[sectionCount * 3] <name="Lighting", optimize=false, bgcolor=cGray>;
+NibblePlane add[addCount] <name="Add", optimize=false, bgcolor=cDkYellow>;
+ubyte biomes[BIOME_SIZE] <name="Biomes", bgcolor=cPurple>;
+
+if (!FEof()) {
+    uint recordCount <name="Record Count">;
+    local int recordsSize = FileSize() - FTell();
+
+    if (recordsSize > 0) {
+        ubyte records[recordsSize] <name="Records", bgcolor=cDkGreen>;
+    }
+}

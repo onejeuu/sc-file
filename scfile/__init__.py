@@ -2,7 +2,7 @@ from .options import Options
 
 __all__ = ("Options",)
 
-__version__ = "6.2.1"
+__version__ = "6.3.0"
 __author__ = "onejeuu"
 __license__ = "MIT"
 
