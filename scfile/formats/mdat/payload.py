@@ -1,9 +1,16 @@
+"""Chunk terrain and section data."""
+
 from scfile.content import regions as S
 
 
 SECTION_SIZE = 16 * 16 * 16
-NIBBLE_SIZE = 16 * 16 * 8
+NIBBLE_SIZE = SECTION_SIZE // 2
 BIOME_SIZE = 16 * 16
+
+
+def required_size(section_mask: int, add_mask: int) -> int:
+    """Minimum size of terrain without records, in bytes."""
+    return section_mask.bit_count() * (SECTION_SIZE + 4 * NIBBLE_SIZE) + add_mask.bit_count() * NIBBLE_SIZE + BIOME_SIZE
 
 
 def chunk(
@@ -14,43 +21,42 @@ def chunk(
     extended: bool,
 ) -> S.RegionChunk:
     raw = memoryview(data)
-    section_count = header.section_mask.bit_count()
-    add_count = header.add_mask.bit_count()
-    block_size = section_count * SECTION_SIZE
-    metadata_size = section_count * NIBBLE_SIZE
-    lighting_size = metadata_size * 3
-    add_size = add_count * NIBBLE_SIZE
+    section_ids = [y for y in range(16) if header.section_mask & (1 << y)]
 
-    blocks_end = block_size
-    metadata_end = blocks_end + metadata_size
-    lighting_end = metadata_end + lighting_size
-    add_end = lighting_end + add_size
-    biomes_end = add_end + BIOME_SIZE
+    block_end = len(section_ids) * SECTION_SIZE
+    metadata_end = block_end + len(section_ids) * NIBBLE_SIZE
+    lighting_end = metadata_end + len(section_ids) * NIBBLE_SIZE * 3
+    additions_end = lighting_end + header.add_mask.bit_count() * NIBBLE_SIZE
+    biomes_end = additions_end + BIOME_SIZE
 
-    empty = memoryview(b"")
-    blocks = raw[:blocks_end]
-    metadata = raw[blocks_end:metadata_end] if extended else empty
-    additions = raw[lighting_end:add_end] if extended else empty
     sections: list[S.ChunkSection] = []
+    addition_index = 0
+    for index_in_data, y in enumerate(section_ids):
+        block_offset = index_in_data * SECTION_SIZE
+        block_data = raw[block_offset : block_offset + SECTION_SIZE]
+        section = S.ChunkSection(y=y, blocks=block_data)
 
-    for section, y in enumerate(y for y in range(16) if (header.section_mask >> y) & 1):
-        add_section = (header.add_mask & ((1 << y) - 1)).bit_count()
-        add_section_size = NIBBLE_SIZE * ((header.add_mask >> y) & 1)
-        sections.append(
-            S.ChunkSection(
-                y=y,
-                blocks=blocks[section * SECTION_SIZE : (section + 1) * SECTION_SIZE],
-                metadata=metadata[section * NIBBLE_SIZE : (section + 1) * NIBBLE_SIZE],
-                additions=additions[add_section * NIBBLE_SIZE : add_section * NIBBLE_SIZE + add_section_size],
-            )
-        )
+        if extended:
+            metadata_offset = block_end + index_in_data * NIBBLE_SIZE
+            section.metadata = raw[metadata_offset : metadata_offset + NIBBLE_SIZE]
 
-    return S.RegionChunk(
+            if header.add_mask & (1 << y):
+                addition_offset = lighting_end + addition_index * NIBBLE_SIZE
+                section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
+                addition_index += 1
+
+        sections.append(section)
+
+    result = S.RegionChunk(
         index=index,
         header=header,
         payload=data,
         sections=tuple(sections),
-        lighting=raw[metadata_end:lighting_end] if extended else empty,
-        biomes=raw[add_end:biomes_end],
-        records=raw[biomes_end:] if extended else empty,
+        biomes=raw[additions_end:biomes_end],
     )
+
+    if extended:
+        result.lighting = raw[metadata_end:lighting_end]
+        result.records = raw[biomes_end:]
+
+    return result

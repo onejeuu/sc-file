@@ -6,7 +6,7 @@ MDAT Format.
 :Content: :class:`~scfile.content.base.RegionContent`
 :Suffix: ``.mdat``
 :Support: ``🧪 EXPERIMENTAL``
-:Versions: ``5.0``
+:Versions: ``5.0``, ``6.0``, ``6.1``, ``7.0``
 :Contents: ``Blocks``, ``Metadata``, ``Lighting``, ``Biomes``
 :Co-authors: ``DeTTK``, ``BoJIwEbNuK7``
 :Wiki: https://sc-file.rtfd.io/page/formats.html#mdat

@@ -4,25 +4,28 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 
+type Vector3 = tuple[float, float, float]
+type Matrix3 = tuple[Vector3, Vector3, Vector3]
+
+
 @dataclass
 class ChunkHeader:
-    """Header of compressed world chunk."""
+    """Fields at the start of a compressed chunk."""
 
-    record_size: int = 0
-    section_mask: int = 0
-    add_mask: int = 0
-    terrain_size: int = 0
-    compressed_size: int = 0
+    stream_length: int
+    section_mask: int
+    add_mask: int
+    terrain_size: int
+    compressed_size: int
     chunk_key: bytes = b""
-    objects_size: int = 0
 
 
 @dataclass
 class ChunkSection:
-    """Vertical section of world chunk."""
+    """Vertical section of a world chunk."""
 
-    y: int = 0
-    blocks: memoryview = field(default_factory=lambda: memoryview(b""))
+    y: int
+    blocks: memoryview
     metadata: memoryview = field(default_factory=lambda: memoryview(b""))
     additions: memoryview = field(default_factory=lambda: memoryview(b""))
 
@@ -31,16 +34,16 @@ class ChunkSection:
 class RegionChunk:
     """Decompressed world chunk."""
 
-    index: int = 0
-    header: ChunkHeader = field(default_factory=ChunkHeader)
-    payload: bytes = field(default_factory=bytes)
-
+    index: int
+    header: ChunkHeader
+    payload: bytes
     sections: tuple[ChunkSection, ...] = ()
     lighting: memoryview = field(default_factory=lambda: memoryview(b""))
     biomes: memoryview = field(default_factory=lambda: memoryview(b""))
     records: memoryview = field(default_factory=lambda: memoryview(b""))
     header_raw: bytes = b""
     compressed: bytes = b""
+    objects_size: int = 0
     objects_compressed: bytes = b""
     objects_payload: bytes = b""
     record_list: "ChunkRecords | None" = None
@@ -49,7 +52,7 @@ class RegionChunk:
 
 @dataclass(frozen=True)
 class ChunkRecord:
-    """Known Carpenters record with its original bytes."""
+    """Carpenters wire fields and their original bytes."""
 
     type: int
     position: tuple[int, int, int]
@@ -68,43 +71,36 @@ class ChunkRecord:
 
 @dataclass
 class ChunkRecords:
-    """Parsed records followed by an uninterpreted remainder."""
+    """Records decoded from a chunk, with an optional parsing error."""
 
-    raw: memoryview
     count: int | None = None
     records: tuple[ChunkRecord, ...] = ()
-    consumed: int = 0
     error: str | None = None
-
-    @property
-    def tail(self) -> memoryview:
-        return self.raw[self.consumed:]
 
 
 @dataclass(frozen=True)
 class ObjectHeader:
-    """Version-specific identity and common instance flags."""
+    """Common object header. type_id is a registry ID in v6, a hash in v7."""
 
-    network_id: int | None
-    type_hash: int | None
+    type_id: int
     flags: int
     flags2: int
     group: UUID | None
-    material_patch: str | None
-    client_csv: int | None
-    client_cbv: int | None
-    instance_serial: int | None
 
 
 @dataclass(frozen=True)
 class ObjectPlacement:
+    """Object transform; matrix contains three column vectors."""
+
     uuid: UUID
-    matrix_columns: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
-    position: tuple[float, float, float]
+    matrix: Matrix3
+    position: Vector3
 
 
 @dataclass(frozen=True)
 class ObjectSettings:
+    """Known instance settings read before behaviour data."""
+
     active: bool
     activation: int
     feature_flag: str | None
@@ -116,7 +112,7 @@ class ObjectSettings:
 
 @dataclass
 class ChunkObject:
-    """Map object; behaviour-dependent bytes remain available in tail."""
+    """Known prefix of an object. raw retains the entire object entry."""
 
     index: int
     offset: int
@@ -124,24 +120,13 @@ class ChunkObject:
     header: ObjectHeader | None = None
     placement: ObjectPlacement | None = None
     settings: ObjectSettings | None = None
-    consumed: int = 0
     error: str | None = None
-
-    @property
-    def tail(self) -> memoryview:
-        return self.raw[self.consumed:]
 
 
 @dataclass
 class ChunkObjects:
-    """Length-prefixed map objects and any unparsed container bytes."""
+    """Objects parsed from a length-prefixed container."""
 
-    raw: memoryview
     count: int | None = None
     objects: tuple[ChunkObject, ...] = ()
-    consumed: int = 0
     error: str | None = None
-
-    @property
-    def tail(self) -> memoryview:
-        return self.raw[self.consumed:]
