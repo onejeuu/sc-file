@@ -73,12 +73,7 @@ def content(
             rows.extend(_document(data))
 
         case C.RegionContent():
-            rows.extend(
-                (
-                    ("Chunks", len(data.chunks)),
-                    ("Slots", sum(offset != 0 for offset in data.offsets)),
-                )
-            )
+            rows.append(("Chunks", len(data.chunks)))
 
     return _table(rows)
 

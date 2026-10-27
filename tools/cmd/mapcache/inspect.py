@@ -5,10 +5,11 @@ from pathlib import Path
 from . import carpenters, scan
 from .carpenters import Carpenter
 from .mdat import objects, records
-from .mdat.models import Chunk, ObjectItem, Record, RecordHeader, Slice, State, view
-from .mdat.objects import Instance
-from .mdat.reader import Region
-from .mdat.terrain import Terrain
+from .mdat.models import Chunk, Slice, view
+from .mdat.objects import Instance, ObjectItem
+from .mdat.reader import Region, decompress
+from .mdat.records import Record, RecordHeader
+from .mdat.terrain import State, Terrain
 from .metadata import Catalog, ObjectDefinition
 from .reports import (
     ChunkInfo,
@@ -89,12 +90,14 @@ def overview(region: Region, chunk: Chunk) -> Overview:
     if terrain is not None:
         data = records.read(terrain.records)
         record_info = ContainerInfo(data.count, len(data.items), Range.of(data.tail), data.notes)
+
     data_objects = scan.object_items(chunk)
     object_info = (
         ContainerInfo(data_objects.count, len(data_objects.items), Range.of(data_objects.tail), data_objects.notes)
         if data_objects is not None
         else None
     )
+
     return Overview(
         chunk_info(region, chunk), terrain_info(terrain) if terrain is not None else None, record_info, object_info
     )
@@ -111,9 +114,11 @@ def record_view(
     terrain = Terrain.from_chunk(chunk)
     if terrain is None:
         return None
+
     data = records.read(terrain.records)
     items = [data.items[index]] if index is not None else data.items[:limit]
     container = ContainerInfo(data.count, len(data.items), Range.of(data.tail), terrain.notes + data.notes)
+
     return RecordView(
         chunk_info(region, chunk),
         container,
@@ -135,8 +140,10 @@ def object_view(
     data = scan.object_items(chunk)
     if data is None:
         return None
+
     items = [data.items[index]] if index is not None else data.items[:limit]
     rows = [object_details(item, catalog) for item in items]
+
     return ObjectsView(
         chunk_info(region, chunk),
         ContainerInfo(
@@ -153,8 +160,10 @@ def object_view(
 
 def dump(region: Region, chunk: Chunk, output: Path) -> Dump:
     output.mkdir(parents=True, exist_ok=True)
+
     if any(output.iterdir()):
         raise FileExistsError(f"Dump requires an empty output directory: {output}")
+
     artifacts: list[Artifact] = []
 
     def save(name: str, data: bytes | memoryview) -> None:
@@ -163,12 +172,15 @@ def dump(region: Region, chunk: Chunk, output: Path) -> Dump:
 
     save("entry.bin", chunk.entry.raw.data)
     save("allocation.bin", chunk.allocation.data)
+
     if chunk.header is not None:
         save("header.bin", chunk.header_raw.data)
+
     if chunk.terrain is not None:
         save("terrain.zst", chunk.terrain.raw.data)
         if chunk.terrain.data is not None:
             save("terrain.chunk", chunk.header_raw.data.tobytes() + chunk.terrain.data)
+
     terrain = Terrain.from_chunk(chunk)
     if terrain is not None:
         for name, raw in (
@@ -182,12 +194,15 @@ def dump(region: Region, chunk: Chunk, output: Path) -> Dump:
             ("records", terrain.records),
         ):
             save(name + ".bin", raw.data)
+
     if chunk.objects is not None:
+        decompress(chunk.objects, chunk.notes)
         size = view(region.raw, chunk.objects.raw.offset - 4, 4)
         save("objects-size.bin", size.data)
         save("objects.zst", chunk.objects.raw.data)
         if chunk.objects.data is not None:
             save("objects.objects", chunk.objects.data)
+
     result = Dump(region_info(region), overview(region, chunk), artifacts)
     write(output / "chunk.json", result)
     return result

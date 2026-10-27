@@ -5,7 +5,7 @@ from rich.text import Text
 
 from .carpenters import Carpenter
 from .inspect import ObjectsView, Overview, RecordDetails, RecordView
-from .mdat.models import Block
+from .mdat.terrain import Block
 from .reports import ChunkInfo, Diagnostic
 
 
@@ -53,12 +53,12 @@ def records(view: RecordView) -> Table:
 
 
 def objects(view: ObjectsView) -> Table:
-    table = Table("Item", "Network ID", "Definition candidate", "UUID", "Position", "Unparsed bytes")
+    table = Table("Item", "Type ID", "Definition candidate", "UUID", "Position", "Unparsed bytes")
     for row in view.items:
         placement = row.instance.placement
         table.add_row(
             str(row.item.index),
-            str(row.item.prefix),
+            str(row.item.type_id),
             row.definition.object_id if row.definition else "",
             str(placement.uuid) if placement is not None else "",
             str(placement.position) if placement is not None else "",

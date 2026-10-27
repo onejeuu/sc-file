@@ -17,10 +17,12 @@ type DocumentValue = None | DocumentPrimitive | list[DocumentValue] | dict[str, 
 type ArchiveEntry = tuple[str, bytes]
 
 
+# TODO: kill aliases
 def _deprecated(name: str, replacement: str) -> None:
     warn(f"{name} is deprecated; use {replacement} instead.", DeprecationWarning, stacklevel=3)
 
 
+# TODO: kill aliases
 def _alias(name: str, target: str) -> property:
     parent, _, attribute = target.rpartition(".")
 
@@ -134,15 +136,8 @@ class RegionContent(BaseContent):
     x: int = 0
     z: int = 0
 
-    offsets: list[int] = field(default_factory=list)
-    counts: list[int] = field(default_factory=list)
-    uuids: list[bytes] = field(default_factory=list)
-    chunk_keys: list[bytes] = field(default_factory=list)
     version: int = 0
-
     chunks: list[RegionChunk] = field(default_factory=list)
 
     rx = _alias("rx", "x")
     rz = _alias("rz", "z")
-    sector_offsets = _alias("sector_offsets", "offsets")
-    sector_counts = _alias("sector_counts", "counts")

@@ -17,17 +17,17 @@ class Reader:
         return values
 
     def number(self, format: str) -> int:
-        return int(self.unpack(format)[0])
+        return self.unpack(format)[0]
 
     def numbers(self, format: str, count: int) -> tuple[int, ...]:
         if count < 0:
             raise EOFError(f"Negative element count at {self.offset}")
-        return tuple(int(value) for value in self.unpack(f">{count}{format}"))
+        return self.unpack(f">{count}{format}")
 
     def floats(self, count: int) -> tuple[float, ...]:
         if count < 0:
             raise EOFError(f"Negative element count at {self.offset}")
-        return tuple(float(value) for value in self.unpack(f">{count}f"))
+        return self.unpack(f">{count}f")
 
     def vector(self) -> tuple[float, float, float]:
         x, y, z = self.floats(3)

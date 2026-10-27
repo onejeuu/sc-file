@@ -5,7 +5,8 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from .mdat.models import Note, State
+from .mdat.models import Note
+from .mdat.terrain import State
 from .reports import Diagnostic
 
 
@@ -84,10 +85,13 @@ def load(root: Path) -> Catalog:
                 row["iconName"],
                 (row["red"], row["green"], row["blue"], row["alpha"]),
             )
+
             key = value.block_id | value.metadata << 12
             if key in result.blocks:
                 result.notes.append(Diagnostic(blocks_path, None, Note("file", 0, f"Duplicate block state {key}")))
+
             result.blocks[key] = value
+
     else:
         result.notes.append(Diagnostic(blocks_path, None, Note("file", 0, "Block metadata file is unavailable")))
 
@@ -96,23 +100,29 @@ def load(root: Path) -> Catalog:
         for path in sorted((namespace / "items").rglob("*.json")):
             try:
                 data = document(path)
+
             except (OSError, UnicodeError, json.JSONDecodeError) as error:
                 result.registry_complete = False
                 result.notes.append(Diagnostic(path, None, Note("file", 0, str(error))))
                 continue
+
             for row in data if isinstance(data, list) else (data,):
                 if not isinstance(row, dict) or row.get("type") != "game_object":
                     continue
+
                 name = row.get("object_id")
+
                 if not isinstance(name, str):
                     result.registry_complete = False
                     result.notes.append(
                         Diagnostic(path, None, Note("file", 0, "Object definition has no string object_id"))
                     )
                     continue
+
                 if name in definitions:
                     result.registry_complete = False
                     result.notes.append(Diagnostic(path, None, Note("file", 0, f"Duplicate object_id {name}")))
+
                 definitions[name] = path, row, False
 
     mines = assets / "stalker" / "mine_presets.json"
@@ -123,6 +133,7 @@ def load(root: Path) -> Catalog:
                 result.registry_complete = False
                 result.notes.append(Diagnostic(mines, None, Note("file", 0, f"Generated ID duplicates {key}")))
             definitions[key] = mines, {"behaviour": "mining_point"}, True
+
     else:
         result.registry_complete = False
         result.notes.append(Diagnostic(mines, None, Note("file", 0, "Generated mine definitions are unavailable")))
@@ -133,12 +144,16 @@ def load(root: Path) -> Catalog:
             result.registry_complete = False
             result.notes.append(Diagnostic(path, None, Note("file", 0, f"Inheritance cycle at {name}")))
             return {}
+
         parent = row.get("extends_gameobject")
         values = inherited(parent, ancestors + (name,)) if isinstance(parent, str) and parent in definitions else {}
+
         if isinstance(parent, str) and parent not in definitions:
             result.registry_complete = False
             result.notes.append(Diagnostic(path, None, Note("file", 0, f"Parent definition {parent} is unavailable")))
+
         values.update(row)
+
         return {
             key: value for key, value in values.items() if not (isinstance(value, str) and value.lower() == "<default>")
         }
@@ -162,5 +177,6 @@ def load(root: Path) -> Catalog:
                 values.get("category"),
             )
         )
+
     result.objects = tuple(rows)
     return result

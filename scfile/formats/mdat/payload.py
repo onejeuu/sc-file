@@ -2,15 +2,12 @@
 
 from scfile.content import regions as S
 
+from .records import records
+
 
 SECTION_SIZE = 16 * 16 * 16
 NIBBLE_SIZE = SECTION_SIZE // 2
 BIOME_SIZE = 16 * 16
-
-
-def required_size(section_mask: int, add_mask: int) -> int:
-    """Minimum size of terrain without records, in bytes."""
-    return section_mask.bit_count() * (SECTION_SIZE + 4 * NIBBLE_SIZE) + add_mask.bit_count() * NIBBLE_SIZE + BIOME_SIZE
 
 
 def chunk(
@@ -47,16 +44,14 @@ def chunk(
 
         sections.append(section)
 
-    result = S.RegionChunk(
+    chunk = S.RegionChunk(
         index=index,
-        header=header,
-        payload=data,
         sections=tuple(sections),
         biomes=raw[additions_end:biomes_end],
     )
 
     if extended:
-        result.lighting = raw[metadata_end:lighting_end]
-        result.records = raw[biomes_end:]
+        chunk.lighting = raw[metadata_end:lighting_end]
+        chunk.records = records(raw[biomes_end:])
 
-    return result
+    return chunk

@@ -17,6 +17,7 @@ from scfile.formats import (
     TexarrDecoder,
     ZipEncoder,
 )
+from scfile.options import Options
 
 from .conftest import ASSETS, export
 
@@ -38,7 +39,7 @@ def test_nbt(
 
 def test_mdat() -> None:
     root = ASSETS / "region"
-    actual = export(MdatDecoder, McaEncoder, root / "source" / "r.0.0.mdat")
+    actual = export(MdatDecoder, McaEncoder, root / "source" / "r.0.0.mdat", Options(mdat_version=5))
     expected = (root / "mca" / "r.0.0.mca").read_bytes()
     assert _mca_chunks(actual) == _mca_chunks(expected)
 

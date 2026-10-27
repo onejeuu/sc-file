@@ -47,30 +47,38 @@ class Surface:
             self.status[window] = Status.OVERLAP
             chunk.notes.append(Note("file", chunk.allocation.offset, "Multiple entries cover this map cell"))
             return
+
         terrain = Terrain.from_chunk(chunk)
         if terrain is None:
             self.status[window] = Status.UNAVAILABLE
             return
+
         chunk.notes.extend(terrain.notes)
         local_states = np.zeros((16, 16), dtype=np.uint16)
         local_heights = np.full((16, 16), -1, dtype=np.int16)
+
         for section in reversed(terrain.sections):
             low, high = max(0, minimum - section.y * 16), min(16, maximum - section.y * 16 + 1)
             if low >= high:
                 continue
+
             array = section.states()
             if array is None:
                 self.status[window] = Status.UNAVAILABLE
                 return
+
             array = array[low:high]
             nonair = (array & 0xFFF) != 0
+
             if ignore:
                 nonair &= ~np.isin(array & 0xFFF, ignore)
+
             present = nonair.any(axis=0) & (local_heights == -1)
             ys = len(array) - 1 - nonair[::-1].argmax(axis=0)
             zs, xs = np.nonzero(present)
             local_states[zs, xs] = array[ys[zs, xs], zs, xs]
             local_heights[zs, xs] = section.y * 16 + low + ys[zs, xs]
+
         self.states[window] = local_states
         self.heights[window] = local_heights
         self.status[window] = np.where(local_heights >= 0, Status.SURFACE, Status.EMPTY)
@@ -120,84 +128,87 @@ class MapInfo:
     notes: list[Diagnostic]
 
 
+def _render_map(
+    folder: Path,
+    inputs: list[Path],
+    target: Path,
+    minimum: int,
+    maximum: int,
+    ignore: tuple[int, ...],
+    max_pixels: int,
+    version: int | None,
+) -> MapInfo:
+    positions = [position for path in inputs if (position := coordinates(path)) is not None]
+    notes: list[Diagnostic] = []
+    sources: list[RegionInfo] = []
+    origin = None
+    size = None
+    counts: list[StatusCount] = []
+    rendered = False
+
+    if not positions:
+        notes.extend(Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")) for path in inputs)
+    else:
+        x0 = min(x for x, _ in positions) * 512
+        z0 = min(z for _, z in positions) * 512
+        width = (max(x for x, _ in positions) + 1) * 512 - x0
+        height = (max(z for _, z in positions) + 1) * 512 - z0
+        origin = (x0, z0)
+        size = (width, height)
+
+        if width * height > max_pixels:
+            notes.append(Diagnostic(folder, None, Note("file", 0, f"Extent {width}x{height} exceeds --max-pixels")))
+        else:
+            surface = Surface.create(origin, width, height)
+            for path in inputs:
+                try:
+                    region = Region(path, version)
+                except OSError as error:
+                    notes.append(Diagnostic(path, None, Note("file", 0, str(error))))
+                    continue
+                sources.append(region_info(region))
+                notes.extend(Diagnostic(path, None, note) for note in region.notes)
+                if region.coordinates is None:
+                    notes.append(Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")))
+                    continue
+                for entry in region.entries:
+                    if not entry.present:
+                        continue
+                    chunk = region.chunk(entry.index)
+                    surface.put(chunk, minimum, maximum, ignore)
+                    notes.extend(Diagnostic(path, entry.index, note) for note in chunk.notes)
+            surface.save(target)
+            values = Counter(surface.status.ravel().tolist())
+            counts = [StatusCount(status.name.lower(), values[status]) for status in Status]
+            rendered = True
+
+    return MapInfo(folder, target.resolve(), origin, size, (minimum, maximum), ignore, sources, rendered, counts, notes)
+
+
 def run(
-    source: Path, output: Path, minimum: int, maximum: int, ignore: tuple[int, ...], max_pixels: int
+    source: Path,
+    output: Path,
+    minimum: int,
+    maximum: int,
+    ignore: tuple[int, ...],
+    max_pixels: int,
+    version: int | None = None,
 ) -> list[MapInfo]:
     groups: dict[Path, list[Path]] = defaultdict(list)
     for path in paths(source):
         groups[path.parent.resolve()].append(path.resolve())
-    results = []
+
+    results: list[MapInfo] = []
     for folder, inputs in sorted(groups.items()):
-        positions = [position for path in inputs if (position := coordinates(path)) is not None]
-        target = output / (
+        relative = (
             folder.relative_to(source.resolve())
             if source.is_dir() and folder != source.resolve()
             else Path(folder.name)
         )
-        notes: list[Diagnostic] = []
-        sources = []
-        if not positions:
-            notes.extend(
-                Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")) for path in inputs
-            )
-            result = MapInfo(
-                folder, target.resolve(), None, None, (minimum, maximum), ignore, sources, False, [], notes
-            )
-            write(target / "map.json", result)
-            results.append(result)
-            continue
-        x0, z0 = min(x for x, _ in positions) * 512, min(z for _, z in positions) * 512
-        width, height = (max(x for x, _ in positions) + 1) * 512 - x0, (max(z for _, z in positions) + 1) * 512 - z0
-        if width * height > max_pixels:
-            notes.append(Diagnostic(folder, None, Note("file", 0, f"Extent {width}x{height} exceeds --max-pixels")))
-            result = MapInfo(
-                folder,
-                target.resolve(),
-                (x0, z0),
-                (width, height),
-                (minimum, maximum),
-                ignore,
-                sources,
-                False,
-                [],
-                notes,
-            )
-            write(target / "map.json", result)
-            results.append(result)
-            continue
-        surface = Surface.create((x0, z0), width, height)
-        for path in inputs:
-            try:
-                region = Region(path)
-            except OSError as error:
-                notes.append(Diagnostic(path, None, Note("file", 0, str(error))))
-                continue
-            sources.append(region_info(region))
-            notes.extend(Diagnostic(path, None, note) for note in region.notes)
-            if region.coordinates is None:
-                notes.append(Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")))
-                continue
-            for entry in region.entries:
-                if entry.present:
-                    chunk = region.chunk(entry.index)
-                    surface.put(chunk, minimum, maximum, ignore)
-                    notes.extend(Diagnostic(path, entry.index, note) for note in chunk.notes)
-        surface.save(target)
-        values = Counter(surface.status.ravel().tolist())
-        counts = [StatusCount(status.name.lower(), values[status]) for status in Status]
-        result = MapInfo(
-            folder,
-            target.resolve(),
-            (x0, z0),
-            (width, height),
-            (minimum, maximum),
-            ignore,
-            sources,
-            True,
-            counts,
-            notes,
-        )
+        target = output / relative
+        result = _render_map(folder, inputs, target, minimum, maximum, ignore, max_pixels, version)
         write(target / "map.json", result)
         results.append(result)
+
     write(output / "maps.json", results)
     return results

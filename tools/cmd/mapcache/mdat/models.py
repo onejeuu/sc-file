@@ -1,7 +1,10 @@
+import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 from uuid import UUID
+
+from scfile.content import regions as S
 
 
 type XZ = tuple[int, int]
@@ -41,7 +44,7 @@ class Entry:
     index: int
     sector: int
     sectors: int
-    uuid_words: tuple[int, int, int, int]
+    key: bytes
     raw: Slice
 
     @property
@@ -49,21 +52,16 @@ class Entry:
         return self.sector != 0
 
     @property
-    def uuid(self) -> UUID:
-        a, b, c, d = self.uuid_words
+    def uuid(self) -> UUID | None:
+        if len(self.key) != 16:
+            return None
+        a, b, c, d = struct.unpack(">4i", self.key)
         high = ((a & 0xFFFFFFFF) << 32) | (b + 0x80000000)
         low = ((c & 0xFFFFFFFF) << 32) | (d + 0x80000000)
         return UUID(int=(high << 64) | low)
 
 
-@dataclass(frozen=True)
-class Header:
-    stream_length: int
-    section_mask: int
-    add_mask: int
-    terrain_size: int
-    compressed_size: int
-
+class Header(S.ChunkHeader):
     @property
     def layout_size(self) -> int:
         return (self.section_mask & 0xFFFF).bit_count() * 12288 + (self.add_mask & 0xFFFF).bit_count() * 2048 + 256
@@ -73,6 +71,7 @@ class Header:
 class Frame:
     raw: Slice
     data: bytes | None = None
+    attempted: bool = False
 
 
 @dataclass
@@ -81,6 +80,7 @@ class Chunk:
     coordinates: XZ | None
     allocation: Slice
     header_raw: Slice
+    version: int
     header: Header | None = None
     terrain: Frame | None = None
     objects: Frame | None = None
@@ -89,9 +89,13 @@ class Chunk:
 
     @property
     def physical_size(self) -> int | None:
-        if self.header is None or self.objects_size is None:
+        if self.header is None:
             return None
-        return self.header.compressed_size + self.objects_size + 24
+        if self.version == 5:
+            return 20 + self.header.compressed_size
+        if self.objects_size is None:
+            return None
+        return (24 if self.version == 6 else 32) + self.header.compressed_size + self.objects_size
 
 
 @dataclass(frozen=True)
@@ -100,127 +104,3 @@ class Location:
     region: XZ | None
     index: int
     chunk: XZ | None
-
-
-@dataclass(frozen=True)
-class RecordHeader:
-    type: int
-    position: XYZ
-
-
-@dataclass(frozen=True)
-class RecordPayload:
-    flags: int
-    covers: tuple[int, ...]
-    color_short: tuple[int, ...]
-    color_exponent: int | None
-    overlay: tuple[int, ...]
-    rot: int | None
-    packcovers: int | None
-    ctm_data: tuple[int, ...]
-    data: int
-    data_ext: int | None
-
-
-@dataclass(frozen=True)
-class Record:
-    index: int
-    raw: Slice
-    header: RecordHeader
-    payload: RecordPayload
-
-
-@dataclass
-class Records:
-    raw: Slice
-    count: int | None = None
-    items: list[Record] = field(default_factory=list)
-    consumed: int = 0
-    stopped: RecordHeader | None = None
-    notes: list[Note] = field(default_factory=list)
-
-    @property
-    def tail(self) -> Slice:
-        return Slice(
-            self.raw.offset + self.consumed, len(self.raw.data) - self.consumed, self.raw.data[self.consumed :]
-        )
-
-
-@dataclass(frozen=True)
-class ObjectItem:
-    index: int
-    length_offset: int
-    raw: Slice
-
-    @property
-    def prefix(self) -> int | None:
-        return int.from_bytes(self.raw.data[:2], "big") if len(self.raw.data) >= 2 else None
-
-
-@dataclass
-class Objects:
-    raw: memoryview
-    count: int | None = None
-    items: list[ObjectItem] = field(default_factory=list)
-    consumed: int = 0
-    notes: list[Note] = field(default_factory=list)
-
-    @property
-    def tail(self) -> Slice:
-        return view(self.raw, self.consumed, len(self.raw) - self.consumed)
-
-
-@dataclass(frozen=True)
-class Placement:
-    uuid: UUID
-    matrix_columns: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]
-    position: tuple[float, float, float]
-    raw: Slice
-    tail: Slice
-
-    def transform(self, point: tuple[float, float, float]) -> tuple[float, float, float]:
-        a, b, c = self.matrix_columns
-        x, y, z = point
-        tx, ty, tz = self.position
-        return (
-            a[0] * x + b[0] * y + c[0] * z + tx,
-            a[1] * x + b[1] * y + c[1] * z + ty,
-            a[2] * x + b[2] * y + c[2] * z + tz,
-        )
-
-
-@dataclass(frozen=True)
-class State:
-    value: int
-
-    @property
-    def block_id(self) -> int:
-        return self.value & 0xFFF
-
-    @property
-    def metadata(self) -> int:
-        return self.value >> 12
-
-    @property
-    def addition(self) -> int:
-        return (self.value >> 8) & 15
-
-
-@dataclass(frozen=True)
-class Sample:
-    plane: str
-    offset: int | None
-    byte: int | None
-    value: int | None
-    nibble: Literal["low", "high"] | None = None
-
-
-@dataclass(frozen=True)
-class Block:
-    local: XYZ
-    world: XYZ | None
-    section: int
-    index: int
-    status: Literal["stored", "absent", "unavailable"]
-    state: State | None
-    samples: tuple[Sample, ...]

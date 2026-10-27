@@ -4,7 +4,45 @@ from typing import Literal
 import numpy as np
 from numpy.typing import NDArray
 
-from .models import Block, Chunk, Header, Note, Sample, Slice, State, XYZ, view
+from .models import XYZ, Chunk, Header, Note, Slice, view
+from .reader import decompress
+
+
+@dataclass(frozen=True)
+class State:
+    value: int
+
+    @property
+    def block_id(self) -> int:
+        return self.value & 0xFFF
+
+    @property
+    def metadata(self) -> int:
+        return self.value >> 12
+
+    @property
+    def addition(self) -> int:
+        return (self.value >> 8) & 15
+
+
+@dataclass(frozen=True)
+class Sample:
+    plane: str
+    offset: int | None
+    byte: int | None
+    value: int | None
+    nibble: Literal["low", "high"] | None = None
+
+
+@dataclass(frozen=True)
+class Block:
+    local: XYZ
+    world: XYZ | None
+    section: int
+    index: int
+    status: Literal["stored", "absent", "unavailable"]
+    state: State | None
+    samples: tuple[Sample, ...]
 
 
 def nibble(raw: memoryview, index: int) -> int:
@@ -53,7 +91,7 @@ class Terrain:
         self.lighting = light0, light1, light2
         self.additions = view(self.raw, light2.end, len(adds) * 2048)
         self.biomes = view(self.raw, self.additions.end, 256)
-        self.records = view(self.raw, header.terrain_size, max(0, len(self.raw) - header.terrain_size))
+        self.records = view(self.raw, self.biomes.end, max(0, len(self.raw) - self.biomes.end))
         self.sections = tuple(
             Section(
                 y,
@@ -71,25 +109,28 @@ class Terrain:
         self.notes: list[Note] = []
         if self.biomes.end > len(self.raw):
             self.notes.append(Note("terrain", len(self.raw), "Incomplete terrain planes"))
-        if self.biomes.end != header.terrain_size:
-            self.notes.append(Note("terrain", header.terrain_size, "Records boundary differs from mask layout"))
 
     @classmethod
     def from_chunk(cls, chunk: Chunk) -> "Terrain | None":
-        if chunk.header is None or chunk.terrain is None or chunk.terrain.data is None:
+        if chunk.header is None or chunk.terrain is None:
             return None
-        return cls(chunk.header, chunk.terrain.data)
+        data = decompress(chunk.terrain, chunk.notes)
+        return cls(chunk.header, data) if data is not None else None
 
     def block(self, position: XYZ, chunk: Chunk) -> Block:
         x, y, z = position
         index = (y & 15) * 256 + z * 16 + x
         world = None
+
         if chunk.coordinates is not None:
             cx, cz = chunk.coordinates
             world = cx * 16 + x, y, cz * 16 + z
+
         section = next((section for section in self.sections if section.y == y // 16), None)
+
         if section is None:
             return Block(position, world, y // 16, index, "absent", None, ())
+
         samples: list[Sample] = []
         for name, plane in (
             ("blocks", section.blocks),
@@ -102,12 +143,14 @@ class Terrain:
             if plane is None:
                 samples.append(Sample(name, None, None, 0))
                 continue
+
             packed = name != "blocks"
             byte_index = index // 2 if packed else index
             byte = plane.data[byte_index] if byte_index < len(plane.data) else None
             value = (byte >> (4 * (index & 1))) & 15 if packed and byte is not None else byte
             half: Literal["low", "high"] | None = ("high" if index & 1 else "low") if packed else None
             samples.append(Sample(name, plane.offset + byte_index, byte, value, half))
+
         low, metadata, addition = (sample.value for sample in samples[:3])
         state = (
             State(low | (addition << 8) | (metadata << 12))
@@ -117,6 +160,7 @@ class Terrain:
         biome_index = z * 16 + x
         biome = self.biomes.data[biome_index] if biome_index < len(self.biomes.data) else None
         samples.append(Sample("biome", self.biomes.offset + biome_index, biome, biome))
+
         return Block(
             position, world, y // 16, index, "stored" if state is not None else "unavailable", state, tuple(samples)
         )

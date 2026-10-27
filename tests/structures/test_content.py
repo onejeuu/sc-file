@@ -39,8 +39,6 @@ def test_compressed() -> None:
         (TextureContent(), "path_hash", "meta.path_hash", b"path"),
         (RegionContent(), "rx", "x", 1),
         (RegionContent(), "rz", "z", -2),
-        (RegionContent(), "sector_offsets", "offsets", [3]),
-        (RegionContent(), "sector_counts", "counts", [4]),
     ),
 )
 def test_aliases(content, alias: str, target: str, value) -> None:

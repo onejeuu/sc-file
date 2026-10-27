@@ -14,9 +14,10 @@ from tools.paths import ROOT
 from . import census, compare, inspect, maps, metadata, reports, search, tables
 from .inspect import RecordDetails
 from .mdat import records
-from .mdat.models import Block, Chunk, Location
+from .mdat.models import Chunk, Location
 from .mdat.reader import Region, paths
-from .mdat.terrain import Terrain
+from .mdat.terrain import Block, Terrain
+from .mdat.versions import SUPPORTED_VERSIONS
 from .metadata import BlockDefinition, Catalog
 from .reports import ChunkInfo, Diagnostic, RegionInfo
 
@@ -32,6 +33,7 @@ def io_errors[**P, T](callback: Callable[P, T]) -> Callable[P, T]:
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         try:
             return callback(*args, **kwargs)
+
         except OSError as error:
             raise click.ClickException(str(error)) from None
 
@@ -79,19 +81,25 @@ class Number(click.ParamType):
 
 
 def selected(source: Path, index: int | None, position: tuple[int, int] | None) -> tuple[Region, Chunk]:
-    region = Region(source)
+    region = Region(source, _version())
     if position is not None:
         if index is not None or region.coordinates is None:
             raise click.UsageError("--chunk requires a region filename and cannot be combined with --index")
+
         rx, rz = region.coordinates
         x, z = position[0] - rx * 32, position[1] - rz * 32
+
         if not (0 <= x < 32 and 0 <= z < 32):
             raise click.UsageError("Chunk coordinates do not belong to this region")
+
         index = x + z * 32
+
     if index is None:
         raise click.UsageError("Select --index or --chunk X Z")
+
     if index >= len(region.entries):
         raise click.UsageError("Selected table entry is unavailable")
+
     return region, region.chunk(index)
 
 
@@ -109,9 +117,19 @@ def print_notes(values: list[Diagnostic]) -> None:
         Console().print(tables.notes(values))
 
 
-@tools.group()
-def mapcache() -> None:
-    """Inspect MDAT bytes, full terrain states, Carpenters, and object instances."""
+@tools.group(help="Inspect MDAT bytes, terrain states, Carpenters, and object instances.")
+@click.option(
+    "--mdat-version",
+    type=click.IntRange(min(SUPPORTED_VERSIONS), max(SUPPORTED_VERSIONS)),
+    help="MDAT major version (default: newest supported).",
+)
+@click.pass_context
+def mapcache(ctx: click.Context, mdat_version: int | None) -> None:
+    ctx.ensure_object(dict)["mdat_version"] = mdat_version
+
+
+def _version() -> int | None:
+    return click.get_current_context().obj.get("mdat_version")
 
 
 @dataclass(frozen=True)
@@ -120,22 +138,23 @@ class RegionView:
     entries: list[ChunkInfo]
 
 
-@mapcache.command("region")
+@mapcache.command("region", help="Show the location table and chunk headers without decompression.")
 @click.argument("source", type=REGION)
 @click.option("--all", "all_entries", is_flag=True, help="Include unoccupied table cells.")
 @json_option
 @io_errors
 def region_command(source: Path, all_entries: bool, as_json: bool) -> None:
-    """Show the location table and chunk headers without decompression."""
-    region = Region(source)
+    region = Region(source, _version())
     rows = [
-        reports.chunk_info(region, region.chunk(entry.index, decode=False))
+        reports.chunk_info(region, region.chunk(entry.index))
         for entry in region.entries
         if all_entries or entry.present
     ]
+
     if as_json:
         print_json(RegionView(reports.region_info(region), rows))
         return
+
     console = Console()
     console.print(
         tables.details(
@@ -153,21 +172,22 @@ def region_command(source: Path, all_entries: bool, as_json: bool) -> None:
     print_notes(notes)
 
 
-@mapcache.command("chunk")
+@mapcache.command("chunk", help="Show masks, frame boundaries, terrain planes, and container counts.")
 @click.argument("source", type=REGION)
 @selection
 @json_option
 @io_errors
 def chunk_command(source: Path, index: int | None, position: tuple[int, int] | None, as_json: bool) -> None:
-    """Show masks, frame boundaries, terrain planes, and container counts."""
     region, chunk = selected(source, index, position)
     value = inspect.overview(region, chunk)
     if as_json:
         print_json(value)
         return
+
     console = Console()
     console.print(tables.chunk(value))
     console.print(tables.terrain(value))
+
     notes = region.notes + chunk.notes
     if value.terrain is not None:
         notes += value.terrain.notes
@@ -175,6 +195,7 @@ def chunk_command(source: Path, index: int | None, position: tuple[int, int] | N
         notes += value.records.notes
     if value.objects is not None:
         notes += value.objects.notes
+
     print_notes([Diagnostic(region.path, chunk.entry.index, note) for note in notes])
 
 
@@ -187,7 +208,11 @@ class BlockView:
     notes: list[Diagnostic]
 
 
-@mapcache.command("block", context_settings={"ignore_unknown_options": True})
+@mapcache.command(
+    "block",
+    context_settings={"ignore_unknown_options": True},
+    help="Inspect full state, biome, lighting, offsets, and original nibble bytes.",
+)
 @click.argument("source", type=REGION)
 @click.argument("x", type=int)
 @click.argument("y", type=click.IntRange(0, 255))
@@ -208,21 +233,25 @@ def block_command(
     xeon: Path | None,
     as_json: bool,
 ) -> None:
-    """Inspect full state, biome, lighting, offsets, and original nibble bytes."""
     if local:
         if not (0 <= x < 16 and 0 <= z < 16):
             raise click.UsageError("Local x/z must be 0..15")
+
         region, chunk = selected(source, index, position)
+
     else:
         if index is not None or position is not None:
             raise click.UsageError("World coordinates select the chunk; --index/--chunk require --local")
+
         cx, x = divmod(x, 16)
         cz, z = divmod(z, 16)
         region, chunk = selected(source, None, (cx, cz))
+
     terrain = Terrain.from_chunk(chunk)
     if terrain is None:
         print_json(inspect.overview(region, chunk))
         return
+
     block = terrain.block((x, y, z), chunk)
     catalog = catalog_from(xeon)
     container = records.read(terrain.records)
@@ -235,12 +264,16 @@ def block_command(
         Diagnostic(region.path, chunk.entry.index, note)
         for note in region.notes + chunk.notes + terrain.notes + container.notes
     ]
+
     if catalog is not None:
         notes.extend(catalog.notes)
+
     definition = catalog.block(block.state) if catalog is not None and block.state is not None else None
+
     if as_json:
         print_json(BlockView(region.location(chunk.entry.index), block, definition, associated, notes))
         return
+
     state = block.state
     Console().print(
         tables.details(
@@ -256,13 +289,15 @@ def block_command(
         )
     )
     Console().print(tables.block(block))
+
     for record in associated:
         Console().print(tables.carpenter(record))
         Console().print(tables.faces(record.carpenter))
+
     print_notes(notes)
 
 
-@mapcache.command("records")
+@mapcache.command("records", help="Read the confirmed record layout; retain an unknown remainder.")
 @click.argument("source", type=REGION)
 @selection
 @xeon_option
@@ -279,37 +314,42 @@ def records_command(
     limit: int,
     as_json: bool,
 ) -> None:
-    """Read the confirmed record layout; retain an unknown remainder."""
     region, chunk = selected(source, index, position)
     catalog = catalog_from(xeon)
+
     try:
         value = inspect.record_view(region, chunk, record, limit, catalog)
+
     except IndexError:
         raise click.UsageError("Requested record is not available as a complete record") from None
+
     if value is None:
         print_json(inspect.overview(region, chunk))
-    elif as_json or record is not None:
+        return
+
+    if as_json or record is not None:
         print_json(value)
-    else:
-        Console().print(
-            tables.details(
-                (
-                    ("Path", region.path),
-                    ("Chunk", chunk.coordinates),
-                    ("Declared", value.container.declared),
-                    ("Parsed", value.container.parsed),
-                    ("Unparsed bytes", value.container.tail.size),
-                )
+        return
+
+    Console().print(
+        tables.details(
+            (
+                ("Path", region.path),
+                ("Chunk", chunk.coordinates),
+                ("Declared", value.container.declared),
+                ("Parsed", value.container.parsed),
+                ("Unparsed bytes", value.container.tail.size),
             )
         )
-        Console().print(tables.records(value))
-        print_notes(
-            [Diagnostic(region.path, chunk.entry.index, note) for note in chunk.notes + value.container.notes]
-            + value.metadata_notes
-        )
+    )
+    Console().print(tables.records(value))
+    print_notes(
+        [Diagnostic(region.path, chunk.entry.index, note) for note in chunk.notes + value.container.notes]
+        + value.metadata_notes
+    )
 
 
-@mapcache.command("objects")
+@mapcache.command("objects", help="Read instance fields and transforms; resolve definition candidates with xeon.")
 @click.argument("source", type=REGION)
 @selection
 @xeon_option
@@ -326,37 +366,41 @@ def objects_command(
     xeon: Path | None,
     as_json: bool,
 ) -> None:
-    """Read instance fields and transforms; resolve definition candidates with xeon."""
     region, chunk = selected(source, index, position)
     catalog = catalog_from(xeon)
     try:
         value = inspect.object_view(region, chunk, item, limit, catalog)
+
     except IndexError:
         raise click.UsageError("Requested object item is not available") from None
+
     if value is None:
         print_json(inspect.overview(region, chunk))
-    elif as_json or item is not None:
+        return
+
+    if as_json or item is not None:
         print_json(value)
-    else:
-        Console().print(
-            tables.details(
-                (
-                    ("Path", region.path),
-                    ("Chunk", chunk.coordinates),
-                    ("Declared", value.container.declared),
-                    ("Parsed", value.container.parsed),
-                    ("Unparsed bytes", value.container.tail.size),
-                )
+        return
+
+    Console().print(
+        tables.details(
+            (
+                ("Path", region.path),
+                ("Chunk", chunk.coordinates),
+                ("Declared", value.container.declared),
+                ("Parsed", value.container.parsed),
+                ("Unparsed bytes", value.container.tail.size),
             )
         )
-        Console().print(tables.objects(value))
-        print_notes(
-            [Diagnostic(region.path, chunk.entry.index, note) for note in chunk.notes + value.container.notes]
-            + value.metadata_notes
-        )
+    )
+    Console().print(tables.objects(value))
+    print_notes(
+        [Diagnostic(region.path, chunk.entry.index, note) for note in chunk.notes + value.container.notes]
+        + value.metadata_notes
+    )
 
 
-@mapcache.command("dump")
+@mapcache.command("dump", help="Write frames, header + terrain payload, planes, and a source manifest.")
 @click.argument("source", type=REGION)
 @selection
 @click.option("-o", "--output", type=OUTPUT, required=True, help="Empty directory for this chunk's artifacts.")
@@ -365,25 +409,26 @@ def objects_command(
 def dump_command(
     source: Path, index: int | None, position: tuple[int, int] | None, output: Path, as_json: bool
 ) -> None:
-    """Write frames, header + terrain payload, planes, and a source manifest."""
     region, chunk = selected(source, index, position)
     value = inspect.dump(region, chunk, output)
+
     if as_json:
         print_json(value)
-    else:
-        Console().print(
-            tables.details(
-                (
-                    ("Source", region.path),
-                    ("Index", chunk.entry.index),
-                    ("Output", output.resolve()),
-                    ("Files", len(value.files)),
-                )
+        return
+
+    Console().print(
+        tables.details(
+            (
+                ("Source", region.path),
+                ("Index", chunk.entry.index),
+                ("Output", output.resolve()),
+                ("Files", len(value.files)),
             )
         )
+    )
 
 
-@mapcache.command("census")
+@mapcache.command("census", help="Write state, biome, record, and interpreted object statistics to JSON.")
 @click.argument("source", type=SOURCE)
 @click.option("-o", "--output", type=OUTPUT, default=REPORTS / "census", show_default=True)
 @click.option("--details", is_flag=True, help="Also write each chunk's metadata to JSONL.")
@@ -391,50 +436,49 @@ def dump_command(
 @json_option
 @io_errors
 def census_command(source: Path, output: Path, details: bool, xeon: Path | None, as_json: bool) -> None:
-    """Write state, biome, record, and interpreted object statistics to JSON."""
     require_source(source)
-    value = census.run(source, output, details=details, catalog=catalog_from(xeon))
+    value = census.run(source, output, details=details, catalog=catalog_from(xeon), version=_version())
+
     if as_json:
         print_json(value.totals)
-    else:
-        total = value.totals
-        Console().print(
-            tables.details(
-                (
-                    ("Regions", total.regions),
-                    ("Chunks", total.chunks),
-                    ("Stored voxels", total.stored_voxels),
-                    ("States", len(value.states)),
-                    ("Records", total.records),
-                    ("Objects", total.objects),
-                    ("Instances read", total.instances_read),
-                    ("Instance unparsed bytes", total.instance_unparsed_bytes),
-                    ("Notes", len(value.notes)),
-                    ("Report", (output / "census.json").resolve()),
-                )
+        return
+
+    total = value.totals
+    Console().print(
+        tables.details(
+            (
+                ("Regions", total.regions),
+                ("Chunks", total.chunks),
+                ("Stored voxels", total.stored_voxels),
+                ("States", len(value.states)),
+                ("Records", total.records),
+                ("Objects", total.objects),
+                ("Instances read", total.instances_read),
+                ("Instance unparsed bytes", total.instance_unparsed_bytes),
+                ("Notes", len(value.notes)),
+                ("Report", (output / "census.json").resolve()),
             )
         )
-        print_notes(value.metadata_notes)
+    )
+    print_notes(value.metadata_notes)
 
 
-@mapcache.command("compare")
+@mapcache.command("compare", help="Compare payload hashes and UUIDs within maps with the same name.")
 @click.argument("before", type=SOURCE)
 @click.argument("after", type=SOURCE)
 @click.option("-o", "--output", type=OUTPUT, default=REPORTS / "compare", show_default=True)
 @io_errors
 def compare_command(before: Path, after: Path, output: Path) -> None:
-    """Compare payload hashes and UUIDs within maps with the same name."""
     require_source(before)
     require_source(after)
-    print_json(compare.run(before, after, output))
+    print_json(compare.run(before, after, output, version=_version()))
 
 
-@mapcache.command("metadata")
+@mapcache.command("metadata", help="Write current block metadata and sorted object registry candidates from xeon.")
 @click.argument("source", type=click.Path(path_type=Path, exists=True, file_okay=False))
 @click.option("-o", "--output", type=click.Path(path_type=Path, dir_okay=False), required=True)
 @io_errors
 def metadata_command(source: Path, output: Path) -> None:
-    """Write current block metadata and sorted object registry candidates from xeon."""
     catalog = metadata.load(source)
     reports.write(output, catalog)
     Console().print(
@@ -450,7 +494,7 @@ def metadata_command(source: Path, output: Path) -> None:
     print_notes(catalog.notes)
 
 
-@mapcache.command("map")
+@mapcache.command("map", help="Write diagnostic height/state PNG and exact surface arrays per map folder.")
 @click.argument("source", type=SOURCE)
 @click.option("-o", "--output", type=OUTPUT, default=REPORTS / "maps", show_default=True)
 @click.option("--min-y", type=click.IntRange(0, 255), default=0, show_default=True)
@@ -461,11 +505,12 @@ def metadata_command(source: Path, output: Path) -> None:
 def map_command(
     source: Path, output: Path, min_y: int, max_y: int, ignore_block: tuple[int, ...], max_pixels: int
 ) -> None:
-    """Write diagnostic height/state PNG and exact surface arrays per map folder."""
     require_source(source)
+
     if min_y > max_y:
         raise click.UsageError("--min-y must not exceed --max-y")
-    for value in maps.run(source, output, min_y, max_y, ignore_block, max_pixels):
+
+    for value in maps.run(source, output, min_y, max_y, ignore_block, max_pixels, version=_version()):
         Console().print(
             tables.details(
                 (
@@ -479,6 +524,21 @@ def map_command(
         )
 
 
+def _object_type_from_id(object_id: str, catalog: Catalog | None, version: int) -> int:
+    if catalog is None or not catalog.registry_complete:
+        raise click.UsageError("--object-id requires a complete --xeon catalog")
+
+    definition = next((row for row in catalog.objects if row.object_id == object_id), None)
+
+    if definition is None:
+        raise click.UsageError(f"Unknown object_id {object_id}")
+
+    if version >= 7:
+        raise click.UsageError("--object-id uses the MDAT 6 registry; use --object-type for MDAT 7 hashes")
+
+    return definition.network_id_candidate
+
+
 @dataclass(frozen=True)
 class SearchResult:
     matches: int
@@ -486,12 +546,12 @@ class SearchResult:
     notes: list[Diagnostic]
 
 
-@mapcache.command("find")
+@mapcache.command("find", help="Emit JSONL matches with typed data and source addresses.")
 @click.argument("source", type=SOURCE)
 @click.option("--state", type=Number(65535))
 @click.option("--block-id", type=Number(4095))
 @click.option("--record-type", type=click.IntRange(-128, 127))
-@click.option("--object-prefix", type=Number(65535))
+@click.option("--object-type", type=Number(2**64 - 1))
 @click.option("--object-id", help="Exact definition candidate from --xeon.")
 @xeon_option
 @click.option("--text", help="Find literal UTF-8 bytes in raw object items.")
@@ -503,38 +563,43 @@ def find_command(
     state: int | None,
     block_id: int | None,
     record_type: int | None,
-    object_prefix: int | None,
+    object_type: int | None,
     object_id: str | None,
     xeon: Path | None,
     text: str | None,
     limit: int,
     output: Path | None,
 ) -> None:
-    """Emit JSONL matches with typed data and source addresses."""
     catalog = catalog_from(xeon)
     if object_id is not None:
-        if catalog is None or not catalog.registry_complete:
-            raise click.UsageError("--object-id requires a complete --xeon catalog")
-        if object_prefix is not None:
-            raise click.UsageError("Use either --object-id or --object-prefix")
-        definition = next((row for row in catalog.objects if row.object_id == object_id), None)
-        if definition is None:
-            raise click.UsageError(f"Unknown object_id {object_id}")
-        object_prefix = definition.network_id_candidate
-    if all(value is None for value in (state, block_id, record_type, object_prefix, text)):
-        raise click.UsageError("Specify a state, block ID, record type, object prefix, or literal text")
+        if object_type is not None:
+            raise click.UsageError("Use either --object-id or --object-type")
+        object_type = _object_type_from_id(object_id, catalog, _version() or max(SUPPORTED_VERSIONS))
+
+    if all(value is None for value in (state, block_id, record_type, object_type, text)):
+        raise click.UsageError("Specify a state, block ID, record type, object type, or literal text")
+
     require_source(source)
+
     if output is not None and output.resolve() in (path.resolve() for path in paths(source)):
         raise click.UsageError("Output must differ from the input files")
-    query = search.Query(
-        state, block_id, record_type, object_prefix, text.encode("utf-8") if text is not None else None
-    )
+
+    query = search.Query(state, block_id, record_type, object_type, text.encode("utf-8") if text is not None else None)
     notes: list[Diagnostic] = list(catalog.notes) if catalog is not None else []
+
     if output is not None:
         output.parent.mkdir(parents=True, exist_ok=True)
+
     with click.open_file(str(output) if output is not None else "-", "w", encoding="utf-8") as stream:
         count = 0
-        for hit in islice(search.find(source, query, notes, catalog), limit):
+        truncated = False
+
+        for hit in islice(search.find(source, query, notes, catalog, version=_version()), limit + 1):
+            if count == limit:
+                truncated = True
+                break
+
             stream.write(reports.line(hit) + "\n")
             count += 1
-        stream.write(reports.line(SearchResult(count, count == limit, notes)) + "\n")
+
+        stream.write(reports.line(SearchResult(count, truncated, notes)) + "\n")

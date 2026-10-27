@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any, Self
 from uuid import UUID
 
-from .mdat.models import Chunk, Entry, Frame, Header, Location, Note, Slice, State
+from .mdat.models import Chunk, Entry, Frame, Header, Location, Note, Slice
 from .mdat.reader import Region
-from .mdat.terrain import Terrain
+from .mdat.terrain import State, Terrain
 
 
 @dataclass(frozen=True)
@@ -114,6 +114,7 @@ def terrain_info(terrain: Terrain) -> TerrainInfo:
         ("biomes", terrain.biomes),
         ("records", terrain.records),
     )
+
     return TerrainInfo(
         tuple(section.y for section in terrain.sections),
         tuple(y for y in range(16) if terrain.header.add_mask & (1 << y)),

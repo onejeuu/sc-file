@@ -1,6 +1,6 @@
 """World region structures."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from uuid import UUID
 
 
@@ -26,27 +26,19 @@ class ChunkSection:
 
     y: int
     blocks: memoryview
-    metadata: memoryview = field(default_factory=lambda: memoryview(b""))
-    additions: memoryview = field(default_factory=lambda: memoryview(b""))
+    metadata: memoryview | None = None
+    additions: memoryview | None = None
 
 
 @dataclass
 class RegionChunk:
-    """Decompressed world chunk."""
+    """World chunk data used by conversion and optional extended parsing."""
 
     index: int
-    header: ChunkHeader
-    payload: bytes
-    sections: tuple[ChunkSection, ...] = ()
-    lighting: memoryview = field(default_factory=lambda: memoryview(b""))
-    biomes: memoryview = field(default_factory=lambda: memoryview(b""))
-    records: memoryview = field(default_factory=lambda: memoryview(b""))
-    header_raw: bytes = b""
-    compressed: bytes = b""
-    objects_size: int = 0
-    objects_compressed: bytes = b""
-    objects_payload: bytes = b""
-    record_list: "ChunkRecords | None" = None
+    sections: tuple[ChunkSection, ...]
+    biomes: memoryview
+    lighting: memoryview | None = None
+    records: "ChunkRecords | None" = None
     objects: "ChunkObjects | None" = None
 
 
@@ -80,7 +72,7 @@ class ChunkRecords:
 
 @dataclass(frozen=True)
 class ObjectHeader:
-    """Common object header. type_id is a registry ID in v6, a hash in v7."""
+    """Object header fields decoded from MDAT 6 and 7."""
 
     type_id: int
     flags: int

@@ -52,7 +52,7 @@ def test_merge_backup(tmp_path: Path) -> None:
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
-    result = merge(Region(0, 0), [source, source], tmp_path, Options())
+    result = merge(Region(0, 0), [source, source], tmp_path, Options(mdat_version=5))
 
     assert result.filename == target.name
     assert result.chunks > 0
@@ -65,7 +65,7 @@ def test_merge_without_backup(tmp_path: Path) -> None:
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
-    merge(Region(0, 0), [source], tmp_path, Options(backup_regions=False))
+    merge(Region(0, 0), [source], tmp_path, Options(backup_regions=False, mdat_version=5))
 
     assert target.exists()
     assert not target.with_suffix(".mca.bck").exists()
@@ -78,6 +78,6 @@ def test_merge_keeps_first_backup(tmp_path: Path) -> None:
     target.write_bytes(b"later")
     backup.write_bytes(b"original")
 
-    merge(Region(0, 0), [source], tmp_path, Options())
+    merge(Region(0, 0), [source], tmp_path, Options(mdat_version=5))
 
     assert backup.read_bytes() == b"original"

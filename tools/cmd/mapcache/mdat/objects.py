@@ -1,38 +1,19 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
+from scfile.content import regions as S
 from scfile.content.base import DocumentValue
 from scfile.exceptions import BinaryStructureError, SafetyLimitError
 from scfile.io.nbt import NbtReader
 
 from .binary import Reader
-from .models import Note, ObjectItem, Objects, Placement, Slice, view
+from .models import Note, Slice, view
 
 
 type Vector = tuple[float, float, float]
 
 
-@dataclass(frozen=True)
-class ObjectHeader:
-    network_id: int
-    flags: int
-    flags2: int
-    group: UUID | None
-    material_patch: str | None
-    client_csv: int
-    client_cbv: int
-    instance_serial: int
-
-
-@dataclass(frozen=True)
-class Settings:
-    active: bool
-    activation: int
-    feature_flag: str | None
-    render_collision_status: int | None
-    collision_status: int
-    render_model_selection: int
-    custom_behaviour: str | None
+Settings = S.ObjectSettings
 
 
 @dataclass(frozen=True)
@@ -92,10 +73,56 @@ class Appearance:
     emission_map_opacity: float
 
 
+@dataclass(frozen=True)
+class ObjectItem:
+    index: int
+    length_offset: int
+    raw: Slice
+    version: int
+
+    @property
+    def type_id(self) -> int | None:
+        size = 8 if self.version >= 7 else 2
+        return int.from_bytes(self.raw.data[:size], "big") if len(self.raw.data) >= size else None
+
+    @property
+    def prefix(self) -> int | None:
+        return self.type_id if self.version == 6 else None
+
+
+@dataclass
+class Objects:
+    raw: memoryview
+    count: int | None = None
+    items: list[ObjectItem] = field(default_factory=list)
+    consumed: int = 0
+    notes: list[Note] = field(default_factory=list)
+
+    @property
+    def tail(self) -> Slice:
+        return view(self.raw, self.consumed, len(self.raw) - self.consumed)
+
+
+@dataclass(frozen=True)
+class Placement(S.ObjectPlacement):
+    raw: Slice
+    tail: Slice
+
+    def transform(self, point: tuple[float, float, float]) -> tuple[float, float, float]:
+        a, b, c = self.matrix
+        x, y, z = point
+        tx, ty, tz = self.position
+        return (
+            a[0] * x + b[0] * y + c[0] * z + tx,
+            a[1] * x + b[1] * y + c[1] * z + ty,
+            a[2] * x + b[2] * y + c[2] * z + tz,
+        )
+
+
 @dataclass
 class Instance:
     raw: Slice
-    header: ObjectHeader | None = None
+    header: S.ObjectHeader | None = None
     placement: Placement | None = None
     settings: Settings | None = None
     behaviour: Behaviour | None = None
@@ -108,7 +135,7 @@ class Instance:
         return view(self.raw.data, self.consumed, len(self.raw.data) - self.consumed)
 
 
-def read(data: bytes) -> Objects:
+def read(data: bytes, version: int) -> Objects:
     raw = memoryview(data)
     result = Objects(raw)
     reader = Reader(raw)
@@ -120,7 +147,7 @@ def read(data: bytes) -> Objects:
             size = reader.varint()
             item = view(raw, reader.offset, size)
             reader.skip(size)
-            result.items.append(ObjectItem(index, length_offset, item))
+            result.items.append(ObjectItem(index, length_offset, item, version))
             result.consumed = reader.offset
     except EOFError as error:
         result.notes.append(Note("objects", reader.offset, str(error)))
@@ -153,6 +180,54 @@ def curve(reader: Reader) -> Curve:
     return Curve(tuple(nodes), vertices, lines, reader.floats(1)[0], reader.floats(6))
 
 
+def _header(reader: Reader, version: int) -> S.ObjectHeader:
+    match version:
+        case 6:
+            type_id = reader.number(">H")
+        case 7:
+            type_id = reader.number(">Q")
+        case _:
+            raise EOFError(f"Unsupported object version: {version}")
+
+    flags, flags2 = reader.unpack(">IB")
+    if flags & ~0x3FBFF or flags2 & ~7:
+        raise EOFError("Unknown instance flag bits; optional field ordering is unavailable")
+
+    group = reader.uuid() if flags & 0x80 else None
+    if flags & 0x8000:
+        reader.utf()
+    if flags & 0x4000:
+        reader.number(">i")
+    if flags & 0x2000:
+        reader.number(">i")
+    if version == 6:
+        reader.number(">i")
+    return S.ObjectHeader(type_id, flags, flags2, group)
+
+
+def _placement(reader: Reader, item: ObjectItem) -> Placement:
+    start = reader.offset
+    uuid = reader.uuid()
+    columns = reader.vector(), reader.vector(), reader.vector()
+    position = reader.vector()
+    return Placement(
+        uuid,
+        columns,
+        position,
+        view(item.raw.data, start, reader.offset - start),
+        view(item.raw.data, reader.offset, len(item.raw.data) - reader.offset),
+    )
+
+
+def placement(item: ObjectItem) -> Placement | None:
+    reader = Reader(item.raw.data)
+    try:
+        _header(reader, item.version)
+        return _placement(reader, item)
+    except (EOFError, UnicodeError):
+        return None
+
+
 def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
     result = Instance(view(item.raw.data, 0, len(item.raw.data)))
     reader = Reader(item.raw.data)
@@ -163,26 +238,9 @@ def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
         return result
 
     try:
-        network = reader.number(">H")
-        flags, flags2 = reader.unpack(">IB")
-        if flags & ~0x3FBFF or flags2 & ~7:
-            return stop("Unknown instance flag bits; optional field ordering is unavailable")
-        group = reader.uuid() if flags & 0x80 else None
-        patch = reader.utf() if flags & 0x8000 else None
-        csv = reader.number(">i") if flags & 0x4000 else 16
-        cbv = reader.number(">i") if flags & 0x2000 else -1
-        result.header = ObjectHeader(network, flags, flags2, group, patch, csv, cbv, reader.number(">i"))
-        start = reader.offset
-        uuid = reader.uuid()
-        columns = reader.vector(), reader.vector(), reader.vector()
-        position = reader.vector()
-        result.placement = Placement(
-            uuid,
-            columns,
-            position,
-            view(item.raw.data, start, 64),
-            view(item.raw.data, reader.offset, len(item.raw.data) - reader.offset),
-        )
+        result.header = header = _header(reader, item.version)
+        flags, flags2 = header.flags, header.flags2
+        result.placement = _placement(reader, item)
         result.settings = Settings(
             bool(flags2 & 4),
             reader.number(">b"),
@@ -193,6 +251,7 @@ def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
             reader.utf() if flags & 0x200 else None,
         )
         start = reader.offset
+
         match behaviour:
             case "cable3d":
                 data = cable(reader)
@@ -207,9 +266,12 @@ def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
                     data = nbt.document()
                     reader.skip(nbt.tell())
                 name = "nbt"
+
         result.behaviour = Behaviour(name, view(item.raw.data, start, reader.offset - start), data)
+
         if flags2 & 1 or flags & 0x183:
             return stop("Runtime/editor/tag fields are not interpreted by this tool")
+
         brightness = reader.number(">i") if flags & 0x40 else -1
         source = reader.number(">b")
         diffuse = reader.vector() if flags & 0x20 else (1.0, 1.0, 1.0)
@@ -226,12 +288,11 @@ def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
             brightness, source, diffuse, strength, tree, mask, volume, ignore, label, shadows, emission, opacity
         )
         result.consumed = reader.offset
+
         if result.tail.data:
             return stop("Bytes remain after the interpreted instance")
+
     except (EOFError, UnicodeError, BinaryStructureError, SafetyLimitError) as error:
         return stop(str(error))
+
     return result
-
-
-def placement(item: ObjectItem) -> Placement | None:
-    return instance(item).placement
