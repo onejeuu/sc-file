@@ -14,18 +14,18 @@ DETAIL_ROLE = TITLE_ROLE + 1
 class ComboItemDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index) -> None:
         detail = index.data(DETAIL_ROLE)
-        if not detail:
+        title = index.data(TITLE_ROLE) or index.data(Qt.ItemDataRole.DisplayRole)
+        if not title:
             super().paint(painter, option, index)
             return
 
         item = QStyleOptionViewItem(option)
         self.initStyleOption(item, index)
-        title = index.data(TITLE_ROLE)
         item.text = ""
         style = item.widget.style() if item.widget else QApplication.style()
         style.drawControl(QStyle.ControlElement.CE_ItemViewItem, item, painter, item.widget)
         rect = option.rect.adjusted(10, 0, -10, 0)
-        text = f"{title} ({detail})"
+        text = f"{title} ({detail})" if detail else str(title)
         text_layout = QTextLayout(text, item.font, painter.device())
         formats = []
         for start, length, color in (
@@ -58,9 +58,9 @@ class ComboItemDelegate(QStyledItemDelegate):
 class ComboBox(QComboBox):
     def add_named_item(self, key: str, title: str | None = None) -> None:
         self.addItem(f"{title} ({key})" if title else key, key)
+        index = self.count() - 1
+        self.setItemData(index, title or key, TITLE_ROLE)
         if title:
-            index = self.count() - 1
-            self.setItemData(index, title, TITLE_ROLE)
             self.setItemData(index, key, DETAIL_ROLE)
 
     def __init__(self, parent=None) -> None:
