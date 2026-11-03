@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from scfile.formats.mca.mapping import BLOCKS_MAPPING
+from scfile.formats.mca.mapping import MAPPING
 
 from . import scan
 from .mdat import objects, records
@@ -150,7 +150,7 @@ class _Collector:
                         0,
                         location,
                         (int(vx), section.y * 16 + int(vy), int(vz)),
-                        BLOCKS_MAPPING[value & 255],
+                        int(MAPPING[value] & 0xFFF),
                         self.catalog.block(state) if self.catalog is not None else None,
                     )
 
@@ -161,7 +161,7 @@ class _Collector:
                 self.result.projection.voxels_with_metadata += frequency if state.metadata else 0
                 self.result.projection.metadata_on_air += frequency if state.block_id == 0 and state.metadata else 0
                 self.result.projection.nonair_to_air += (
-                    frequency if state.block_id and BLOCKS_MAPPING[value & 255] == 0 else 0
+                    frequency if state.block_id and int(MAPPING[value] & 0xFFF) == 0 else 0
                 )
 
         for value in seen:

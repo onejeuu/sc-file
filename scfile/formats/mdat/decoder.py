@@ -9,7 +9,7 @@ from scfile.content import RegionContent
 from scfile.content import regions as S
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.exceptions import BinaryStructureError, DecodingError
+from scfile.exceptions import BinaryStructureError, DecodingError, MdatVersionError
 from scfile.io.mdat import MdatReader
 
 from . import payload
@@ -30,9 +30,8 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
     @override
     def _parse(self) -> None:
         version = self.options.mdat_version or max(SUPPORTED_VERSIONS)
-        # TODO: custom exception?
         if version not in SUPPORTED_VERSIONS:
-            raise DecodingError(f"Unsupported MDAT version: {version}.", location=self.location)
+            raise MdatVersionError(version, location=self.location)
 
         self.data.version = version
         match version:
@@ -138,6 +137,7 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
         try:
             if compressed:
                 data = decompressor.decompress(compressed)
+
         except zstd.ZstdError as error:
             raise BinaryStructureError(location=self.location, offset=offset) from error
 

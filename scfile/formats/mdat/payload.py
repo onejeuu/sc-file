@@ -31,16 +31,17 @@ def chunk(
     for index_in_data, y in enumerate(section_ids):
         block_offset = index_in_data * SECTION_SIZE
         block_data = raw[block_offset : block_offset + SECTION_SIZE]
-        section = S.ChunkSection(y=y, blocks=block_data)
+        metadata_offset = block_end + index_in_data * NIBBLE_SIZE
+        section = S.ChunkSection(
+            y=y,
+            blocks=block_data,
+            metadata=raw[metadata_offset : metadata_offset + NIBBLE_SIZE],
+        )
 
-        if extended:
-            metadata_offset = block_end + index_in_data * NIBBLE_SIZE
-            section.metadata = raw[metadata_offset : metadata_offset + NIBBLE_SIZE]
-
-            if header.add_mask & (1 << y):
-                addition_offset = lighting_end + addition_index * NIBBLE_SIZE
-                section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
-                addition_index += 1
+        if header.add_mask & (1 << y):
+            addition_offset = lighting_end + addition_index * NIBBLE_SIZE
+            section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
+            addition_index += 1
 
         sections.append(section)
 

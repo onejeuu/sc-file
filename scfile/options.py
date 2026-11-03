@@ -1,7 +1,7 @@
 """Shared options."""
 
 from dataclasses import dataclass, field
-from typing import Mapping
+from typing import Literal, Mapping
 
 from scfile import content as C
 from scfile.content.models import Feature, Features
@@ -23,6 +23,9 @@ SKELETON_TARGET = FileFormat.GLB
 
 type TargetConfig = Mapping[type[C.BaseContent], FileFormat]
 """Requested conversion targets by content type."""
+
+type MdatVersion = Literal[5, 6, 7]
+"""Supported MDAT format major versions."""
 
 
 @dataclass
@@ -47,7 +50,7 @@ class Options:
     extended_chunk: bool = False
     """Expose auxiliary world chunk data."""
 
-    mdat_version: int = 7
+    mdat_version: MdatVersion | None = None
     """Major version of the MDAT source format."""
 
     targets: TargetConfig = field(default_factory=dict)

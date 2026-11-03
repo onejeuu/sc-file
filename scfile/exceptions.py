@@ -30,7 +30,7 @@ class ScFileException(Exception):
 
 
 class HandlerStateError(ScFileException):
-    """Raised when an operation is unavailable in the current handler state."""
+    """Raised when operation is unavailable in the current handler state."""
 
     def __init__(
         self,
@@ -40,9 +40,8 @@ class HandlerStateError(ScFileException):
         closed: bool = False,
         location: str | None = None,
     ) -> None:
-        condition = "handler is closed" if closed else f"handler is in '{state}' state"
         super().__init__(
-            f"Cannot {operation}: {condition}.",
+            message=f"Cannot {operation}: {'handler is closed' if closed else f"handler is in '{state}' state"}.",
             location=location,
         )
         self.operation = operation
@@ -57,34 +56,43 @@ class FileError(ScFileException):
 
 
 class FileNotFound(FileError):
-    """Raised when a source file does not exist."""
+    """Raised when source file does not exist."""
 
     def __init__(
         self,
         location: str,
     ) -> None:
-        super().__init__("File not found.", location=location)
+        super().__init__(
+            message="File not found.",
+            location=location,
+        )
 
 
 class EmptyFileError(FileError):
-    """Raised when a source file is empty."""
+    """Raised when source file is empty."""
 
     def __init__(
         self,
         location: str,
     ) -> None:
-        super().__init__("File is empty.", location=location)
+        super().__init__(
+            message="File is empty.",
+            location=location,
+        )
 
 
 class UnknownFormatError(FileError):
-    """Raised when a source file format cannot be identified."""
+    """Raised when source file format cannot be identified."""
 
     def __init__(
         self,
         location: str,
         format: str,
     ) -> None:
-        super().__init__(f"Unknown format '{format}'.", location=location)
+        super().__init__(
+            message=f"Unknown format '{format}'.",
+            location=location,
+        )
         self.format = format
 
 
@@ -95,7 +103,7 @@ class DecodingError(ScFileException):
 
 
 class ModelVersionError(DecodingError):
-    """Raised when a model version is not supported."""
+    """Raised when model version is not supported."""
 
     unsupported = True
 
@@ -107,7 +115,7 @@ class ModelVersionError(DecodingError):
         offset: int | None = None,
     ) -> None:
         super().__init__(
-            f"Unsupported model version: {version}.",
+            message=f"Unsupported model version: {version}.",
             location=location,
             offset=offset,
         )
@@ -115,7 +123,7 @@ class ModelVersionError(DecodingError):
 
 
 class TextureFormatError(DecodingError):
-    """Raised when a texture format is not supported."""
+    """Raised when texture format is not supported."""
 
     unsupported = True
 
@@ -127,7 +135,7 @@ class TextureFormatError(DecodingError):
         offset: int | None = None,
     ) -> None:
         super().__init__(
-            f"Unsupported texture format: {format!r}.",
+            message=f"Unsupported texture format: {format!r}.",
             location=location,
             offset=offset,
         )
@@ -135,7 +143,7 @@ class TextureFormatError(DecodingError):
 
 
 class TextureKindError(DecodingError):
-    """Raised when a texture kind is not supported."""
+    """Raised when texture kind is not supported."""
 
     unsupported = True
 
@@ -147,15 +155,33 @@ class TextureKindError(DecodingError):
         offset: int | None = None,
     ) -> None:
         super().__init__(
-            f"Unsupported texture kind: {kind}.",
+            message=f"Unsupported texture kind: {kind}.",
             location=location,
             offset=offset,
         )
         self.kind = kind
 
 
+class MdatVersionError(DecodingError):
+    """Raised when map cache version is not supported."""
+
+    unsupported = True
+
+    def __init__(
+        self,
+        version: int,
+        *,
+        location: str | None = None,
+    ) -> None:
+        super().__init__(
+            f"Unsupported map cache version: {version}.",
+            location=location,
+        )
+        self.version = version
+
+
 class SignatureMismatchError(DecodingError):
-    """Raised when a file signature differs from the expected value."""
+    """Raised when file signature differs from the expected value."""
 
     def __init__(
         self,
@@ -166,7 +192,7 @@ class SignatureMismatchError(DecodingError):
         offset: int | None = None,
     ) -> None:
         super().__init__(
-            f"Signature mismatch: {actual.hex().upper()} != {expected.hex().upper()}.",
+            message=f"Signature mismatch: {actual.hex().upper()} != {expected.hex().upper()}.",
             location=location,
             offset=offset,
         )
@@ -177,7 +203,7 @@ class SignatureMismatchError(DecodingError):
 class BinaryStructureError(DecodingError):
     """Raised when binary data does not match the expected structure."""
 
-    hint: ClassVar[str] = "Input file appears to be corrupted or invalid."
+    hint: ClassVar[str] = "Data may be corrupted or incompatible with this decoder."
 
     def __init__(
         self,
@@ -185,14 +211,15 @@ class BinaryStructureError(DecodingError):
         location: str | None = None,
         offset: int | None = None,
     ) -> None:
-        super().__init__(self._message(), location=location, offset=offset)
+        super().__init__(
+            message="Unexpected binary structure.",
+            location=location,
+            offset=offset,
+        )
 
-    def _message(self) -> str:
-        return "Unexpected binary structure."
 
-
-class SafetyLimitError(BinaryStructureError):
-    """Raised when a decoded value exceeds a safety limit."""
+class SafetyLimitError(DecodingError):
+    """Raised when decoded value exceeds a safety limit."""
 
     def __init__(
         self,
@@ -203,13 +230,14 @@ class SafetyLimitError(BinaryStructureError):
         location: str | None = None,
         offset: int | None = None,
     ) -> None:
+        super().__init__(
+            message=f"Safety limit exceeded: {count:,} {subject} (max: {maximum:,}).",
+            location=location,
+            offset=offset,
+        )
         self.subject = subject
         self.count = count
         self.maximum = maximum
-        super().__init__(location=location, offset=offset)
-
-    def _message(self) -> str:
-        return f"Safety limit exceeded: {self.count:,} {self.subject} (max: {self.maximum:,})."
 
 
 class EncodingError(ScFileException):
@@ -246,4 +274,4 @@ class MergeInterrupted(RegionError):
     """Raised when region merge is interrupted by user."""
 
     def __init__(self) -> None:
-        super().__init__("Merge interrupted.")
+        super().__init__(message="Merge interrupted.")

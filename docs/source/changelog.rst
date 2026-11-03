@@ -19,7 +19,7 @@ v6.2.1 (2026-09-17)
 🐛 Fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``GameRoot.resolve_map_cache()``: now resolves the game map cache from ``map_cache/6.0``.
+* ``GameRoot.resolve_map_cache()``: now resolves the game map cache from ``map_cache/7.0``.
 
 
 
