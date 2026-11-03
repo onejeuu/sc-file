@@ -162,7 +162,7 @@ def dump(region: Region, chunk: Chunk, output: Path) -> Dump:
     output.mkdir(parents=True, exist_ok=True)
 
     if any(output.iterdir()):
-        raise FileExistsError(f"Dump requires an empty output directory: {output}")
+        raise FileExistsError(f"The dump output directory must be empty: {output}")
 
     artifacts: list[Artifact] = []
 

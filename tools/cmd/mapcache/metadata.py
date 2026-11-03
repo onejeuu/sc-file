@@ -1,23 +1,14 @@
+import gzip
 import json
-import re
 from dataclasses import dataclass, field
-from hashlib import sha256
 from pathlib import Path
-from typing import Any
 
-from .mdat.models import Note
+from tools.paths import ROOT
+
 from .mdat.terrain import State
-from .reports import Diagnostic
 
 
-JSON_COMMENTS = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n]*|/\*[\s\S]*?\*/')
-
-
-@dataclass(frozen=True)
-class Source:
-    path: Path
-    size: int
-    sha256: str
+ASSETS = ROOT / "assets" / "mapcache"
 
 
 @dataclass(frozen=True)
@@ -28,6 +19,7 @@ class BlockDefinition:
     type: str
     icon: str
     color: tuple[float, float, float, float]
+    name: str | None = None
 
 
 @dataclass(frozen=True)
@@ -43,6 +35,7 @@ class ObjectDefinition:
     invisible_for_players: bool
     collision: str | None
     category: str | None
+    hash64: int = 0
 
 
 @dataclass
@@ -50,133 +43,65 @@ class Catalog:
     root: Path
     blocks: dict[int, BlockDefinition] = field(default_factory=dict)
     objects: tuple[ObjectDefinition, ...] = ()
-    sources: list[Source] = field(default_factory=list)
-    notes: list[Diagnostic] = field(default_factory=list)
+    by_hash: dict[int, ObjectDefinition] = field(default_factory=dict)
+    by_id: dict[str, ObjectDefinition] = field(default_factory=dict)
+    biomes: dict[int, dict] = field(default_factory=dict)
+    voxels: dict[str, dict] = field(default_factory=dict)
     registry_complete: bool = True
+    notes: list = field(default_factory=list)
 
     def block(self, state: State) -> BlockDefinition | None:
-        return self.blocks.get(state.value)
+        return self.blocks.get(state.value) or self.blocks.get(state.block_id)
 
-    def object(self, network_id: int | None) -> ObjectDefinition | None:
-        return (
-            self.objects[network_id]
-            if self.registry_complete and network_id is not None and 0 <= network_id < len(self.objects)
-            else None
+    def object(self, object_id: int | None) -> ObjectDefinition | None:
+        if object_id is None:
+            return None
+        return self.by_hash.get(object_id) or (self.objects[object_id] if 0 <= object_id < len(self.objects) else None)
+
+
+def load() -> Catalog:
+    result = Catalog(ASSETS)
+    blocks_path = ASSETS / "blocks.json"
+    with gzip.open(ASSETS / "mapcache.json.gz", "rt", encoding="utf-8") as stream:
+        data = json.load(stream)
+    result.biomes = {row["id"]: row for row in data["biomes"]}
+    result.voxels = data["voxels"]
+    names = json.loads(blocks_path.read_text(encoding="utf-8"))
+    for row in data["states"]:
+        value = int(row["state"], 16)
+        result.blocks[value] = BlockDefinition(
+            ASSETS / "mapcache.json.gz",
+            row["block"],
+            row["meta"],
+            row["type"] or "",
+            row["icon"] or "",
+            tuple(row["color"]),
+            names.get(str(row["block"])),
         )
-
-
-def load(root: Path) -> Catalog:
-    result = Catalog(root.resolve())
-    assets = result.root / "configs" / "assets"
-
-    def document(path: Path) -> Any:
-        raw = path.read_bytes()
-        result.sources.append(Source(path, len(raw), sha256(raw).hexdigest()))
-        return json.loads(JSON_COMMENTS.sub(lambda match: match[1] or "", raw.decode("utf-8-sig")))
-
-    blocks_path = assets / "pda" / "map_blocks.json"
-    if blocks_path.exists():
-        for row in document(blocks_path):
-            value = BlockDefinition(
-                blocks_path,
-                row["id"],
-                row["meta"],
-                row["type"],
-                row["iconName"],
-                (row["red"], row["green"], row["blue"], row["alpha"]),
-            )
-
-            key = value.block_id | value.metadata << 12
-            if key in result.blocks:
-                result.notes.append(Diagnostic(blocks_path, None, Note("file", 0, f"Duplicate block state {key}")))
-
-            result.blocks[key] = value
-
-    else:
-        result.notes.append(Diagnostic(blocks_path, None, Note("file", 0, "Block metadata file is unavailable")))
-
-    definitions: dict[str, tuple[Path, dict[str, Any], bool]] = {}
-    for namespace in sorted(assets.iterdir()):
-        for path in sorted((namespace / "items").rglob("*.json")):
-            try:
-                data = document(path)
-
-            except (OSError, UnicodeError, json.JSONDecodeError) as error:
-                result.registry_complete = False
-                result.notes.append(Diagnostic(path, None, Note("file", 0, str(error))))
-                continue
-
-            for row in data if isinstance(data, list) else (data,):
-                if not isinstance(row, dict) or row.get("type") != "game_object":
-                    continue
-
-                name = row.get("object_id")
-
-                if not isinstance(name, str):
-                    result.registry_complete = False
-                    result.notes.append(
-                        Diagnostic(path, None, Note("file", 0, "Object definition has no string object_id"))
-                    )
-                    continue
-
-                if name in definitions:
-                    result.registry_complete = False
-                    result.notes.append(Diagnostic(path, None, Note("file", 0, f"Duplicate object_id {name}")))
-
-                definitions[name] = path, row, False
-
-    mines = assets / "stalker" / "mine_presets.json"
-    if mines.exists():
-        for name in document(mines):
-            key = "mine_" + name
-            if key in definitions:
-                result.registry_complete = False
-                result.notes.append(Diagnostic(mines, None, Note("file", 0, f"Generated ID duplicates {key}")))
-            definitions[key] = mines, {"behaviour": "mining_point"}, True
-
-    else:
-        result.registry_complete = False
-        result.notes.append(Diagnostic(mines, None, Note("file", 0, "Generated mine definitions are unavailable")))
-
-    def inherited(name: str, ancestors: tuple[str, ...] = ()) -> dict[str, Any]:
-        path, row, _ = definitions[name]
-        if name in ancestors:
-            result.registry_complete = False
-            result.notes.append(Diagnostic(path, None, Note("file", 0, f"Inheritance cycle at {name}")))
-            return {}
-
-        parent = row.get("extends_gameobject")
-        values = inherited(parent, ancestors + (name,)) if isinstance(parent, str) and parent in definitions else {}
-
-        if isinstance(parent, str) and parent not in definitions:
-            result.registry_complete = False
-            result.notes.append(Diagnostic(path, None, Note("file", 0, f"Parent definition {parent} is unavailable")))
-
-        values.update(row)
-
-        return {
-            key: value for key, value in values.items() if not (isinstance(value, str) and value.lower() == "<default>")
-        }
-
+    for state, name in names.items():
+        value = int(state)
+        result.blocks.setdefault(
+            value,
+            BlockDefinition(blocks_path, value & 0xFFF, value >> 12, "", "", (0, 0, 0, 0), name),
+        )
     rows = []
-    for index, name in enumerate(sorted(definitions, key=lambda value: value.encode("utf-16-be"))):
-        path, _, generated = definitions[name]
-        values = inherited(name)
-        rows.append(
-            ObjectDefinition(
-                path,
-                name,
-                index,
-                generated,
-                values.get("model"),
-                values.get("material_lib"),
-                values.get("aabb"),
-                values.get("behaviour"),
-                values.get("invisible_for_players", False),
-                values.get("collision"),
-                values.get("category"),
-            )
+    for row in data["objects"]:
+        value = ObjectDefinition(
+            ASSETS / "mapcache.json.gz",
+            row["id"],
+            row["index"],
+            False,
+            row["model"],
+            row["material"],
+            row["aabb"],
+            row["behaviour"],
+            row["invisible"],
+            row["collision"],
+            row["category"],
+            int(row["hash"], 16),
         )
-
-    result.objects = tuple(rows)
+        rows.append(value)
+        result.by_hash[value.hash64] = value
+        result.by_id[value.object_id] = value
+    result.objects = tuple(sorted(rows, key=lambda row: row.network_id_candidate))
     return result

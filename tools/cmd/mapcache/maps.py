@@ -45,7 +45,7 @@ class Surface:
         window = np.s_[z : z + 16, x : x + 16]
         if self.status[window].any():
             self.status[window] = Status.OVERLAP
-            chunk.notes.append(Note("file", chunk.allocation.offset, "Multiple entries cover this map cell"))
+            chunk.notes.append(Note("file", chunk.allocation.offset, "More than one entry covers this map cell"))
             return
 
         terrain = Terrain.from_chunk(chunk)
@@ -147,7 +147,9 @@ def _render_map(
     rendered = False
 
     if not positions:
-        notes.extend(Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")) for path in inputs)
+        notes.extend(
+            Diagnostic(path, None, Note("file", 0, "Filename does not contain region coordinates")) for path in inputs
+        )
     else:
         x0 = min(x for x, _ in positions) * 512
         z0 = min(z for _, z in positions) * 512
@@ -157,7 +159,7 @@ def _render_map(
         size = (width, height)
 
         if width * height > max_pixels:
-            notes.append(Diagnostic(folder, None, Note("file", 0, f"Extent {width}x{height} exceeds --max-pixels")))
+            notes.append(Diagnostic(folder, None, Note("file", 0, f"Map size {width}x{height} exceeds --max-pixels")))
         else:
             surface = Surface.create(origin, width, height)
             for path in inputs:
@@ -169,7 +171,9 @@ def _render_map(
                 sources.append(region_info(region))
                 notes.extend(Diagnostic(path, None, note) for note in region.notes)
                 if region.coordinates is None:
-                    notes.append(Diagnostic(path, None, Note("file", 0, "Filename has no region coordinates")))
+                    notes.append(
+                        Diagnostic(path, None, Note("file", 0, "Filename does not contain region coordinates"))
+                    )
                     continue
                 for entry in region.entries:
                     if not entry.present:

@@ -53,7 +53,7 @@ def records(view: RecordView) -> Table:
 
 
 def objects(view: ObjectsView) -> Table:
-    table = Table("Item", "Type ID", "Definition candidate", "UUID", "Position", "Unparsed bytes")
+    table = Table("Item", "Type ID", "Definition (?)", "UUID", "Position", "Unparsed bytes")
     for row in view.items:
         placement = row.instance.placement
         table.add_row(
@@ -78,7 +78,7 @@ def carpenter(value: RecordDetails) -> Table:
 
 
 def faces(value: Carpenter) -> Table:
-    table = Table("Side", "Cover", "Icon", "Tint", "Exp", "Overlay", "UV", "CTM", "Packed")
+    table = Table("Side", "Cover", "Icon", "Tint", "Exponent", "Overlay", "UV", "CTM", "Packed")
     for index in (0, 1, 3):
         table.columns[index].no_wrap = True
     for face in value.faces:

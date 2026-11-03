@@ -119,7 +119,7 @@ def collect(
                         Diagnostic(
                             region.path,
                             entry.index,
-                            Note("objects", item.raw.offset, f"Placement is unavailable for item {item.index}"),
+                            Note("objects", item.raw.offset, f"No placement data for item {item.index}"),
                         )
                     )
                     continue
