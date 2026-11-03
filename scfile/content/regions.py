@@ -26,7 +26,7 @@ class ChunkSection:
 
     y: int
     blocks: memoryview
-    metadata: memoryview
+    metadata: memoryview | None = None
     additions: memoryview | None = None
 
 

@@ -35,10 +35,10 @@ def chunk(
         section = S.ChunkSection(
             y=y,
             blocks=block_data,
-            metadata=raw[metadata_offset : metadata_offset + NIBBLE_SIZE],
+            metadata=(raw[metadata_offset : metadata_offset + NIBBLE_SIZE] if extended else None),
         )
 
-        if header.add_mask & (1 << y):
+        if extended and header.add_mask & (1 << y):
             addition_offset = lighting_end + addition_index * NIBBLE_SIZE
             section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
             addition_index += 1
