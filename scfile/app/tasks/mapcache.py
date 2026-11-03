@@ -9,6 +9,7 @@ from scfile import exceptions
 from scfile.app.enums import TaskKind
 from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
 from scfile.convert import mapcache
+from scfile.app.mapcache import options_for_path
 from scfile.options import Options
 
 from .base import Task, TaskContext
@@ -27,13 +28,24 @@ class MapCacheTask(Task):
     options: Options
     workers: int | None = None
 
-    def _merge(self, region: MapCacheRegion, context: TaskContext) -> TaskItem | TaskItemFailure | None:
+    def _merge(
+        self,
+        region: MapCacheRegion,
+        context: TaskContext,
+        options: Options | None = None,
+    ) -> TaskItem | TaskItemFailure | None:
         key, paths = region
         output = self.output or self.source.with_name(f"{self.source.name}_mca")
         source = f"({key.x}, {key.z})"
 
         try:
-            filename, chunks = mapcache.merge(key, paths, output, self.options, context.cancelled.is_set)
+            filename, chunks = mapcache.merge(
+                key,
+                paths,
+                output,
+                options or self.options,
+                context.cancelled.is_set,
+            )
             return TaskItem(
                 output=output / filename,
                 detail=f"Merged {chunks} chunks",
@@ -56,6 +68,7 @@ class MapCacheTask(Task):
         context: TaskContext,
     ) -> Iterator[TaskEvent]:
         output = (self.output or self.source.with_name(f"{self.source.name}_mca")).resolve()
+        options = options_for_path(self.options, self.source)
 
         result = mapcache.scan(self.source, context.cancelled.is_set)
         mapping = mapcache.group(result.paths)
@@ -75,7 +88,7 @@ class MapCacheTask(Task):
 
         output.mkdir(parents=True, exist_ok=True)
 
-        operation = partial(self._merge, context=context)
+        operation = partial(self._merge, context=context, options=options)
         for result in parallel(mapping.items(), operation, context, self.workers):
             if result is not None:
                 yield result

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
@@ -10,14 +11,18 @@ from scfile.app.gui.settings import Settings
 from scfile.app.gui.styles import MAX_FORM_WIDTH, Styles
 from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.card import CalloutWidget, CardWidget
+from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.disabled import DisabledCursor
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.mapcache import MapCacheScanner
+from scfile.app.mapcache import supported_version_from_path, version_from_path
 from scfile.app.tasks.mapcache import MapCacheTask
-from scfile.options import Options
+from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
+from scfile.options import MdatVersion, Options
+
 
 class MapCacheTab(QWidget):
     def __init__(self, tasks: TaskManager, settings: Settings):
@@ -27,6 +32,7 @@ class MapCacheTab(QWidget):
         self.scanner = MapCacheScanner(self)
         self.touched: set[PathField] = set()
         self.world: McWorld | None = None
+        self.version_touched = False
         self.running = False
         self._build_ui()
 
@@ -60,6 +66,14 @@ class MapCacheTab(QWidget):
         )
         self.source.changed.connect(self._edit_source)
 
+        self.version_label = QLabel(strings.get("label.mapcache.version"))
+        self.version_label.setStyleSheet(Styles.LABEL)
+        self.version = ComboBox()
+        for version in reversed(SUPPORTED_VERSIONS):
+            self.version.addItem(f"v{version}", version)
+        self.version.setCurrentIndex(0)
+        self.version.activated.connect(self._version_changed)
+
         self.output = PathField(
             f"{strings.get('label.mapcache.output')} (.mca)",
             placeholder=".minecraft/saves/{world}",
@@ -70,6 +84,7 @@ class MapCacheTab(QWidget):
 
         if source := self._game_cache():
             self.source.value = source.as_posix()
+        self.source.text_changed.connect(self._source_changed)
 
         self.biomes = OptionWidget(
             text=strings.get("option.mapcache.biomes"),
@@ -84,6 +99,11 @@ class MapCacheTab(QWidget):
 
         source_card = CardWidget(strings.get("label.form.source"))
         source_card.content.addWidget(self.source)
+        version_row = QHBoxLayout()
+        version_row.setContentsMargins(0, 0, 0, 0)
+        version_row.addWidget(self.version_label)
+        version_row.addWidget(self.version, 1)
+        source_card.content.addLayout(version_row)
         source_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(source_card)
 
@@ -173,6 +193,7 @@ class MapCacheTab(QWidget):
     def _source_changed(self, _: str) -> None:
         value = self.source.value.strip()
         if not value:
+            self._update_version()
             self._refresh()
             return
 
@@ -183,11 +204,36 @@ class MapCacheTab(QWidget):
             resolved = game.resolve_map_cache(source) if game else source.resolve()
             if resolved != source:
                 self.source.value = resolved.as_posix()
+                source = resolved
+        self._update_version()
         if self.output not in self.touched:
             if output := self._suggested_output():
                 self.output.value = output.as_posix()
                 self.world = None
         self._refresh()
+
+    def _version_changed(self, _: int) -> None:
+        self.version_touched = True
+        self._sync()
+
+    def _update_version(self) -> None:
+        if self.version_touched:
+            return
+
+        value = self.source.value.strip()
+        path = Path(value)
+        detected = supported_version_from_path(path)
+        if detected is None:
+            index = 0
+        else:
+            index = self.version.findData(detected)
+
+        if index >= 0 and index != self.version.currentIndex():
+            self.version.setCurrentIndex(index)
+
+    def _selected_version(self) -> MdatVersion:
+        value = self.version.currentData()
+        return cast(MdatVersion, value) if value in SUPPORTED_VERSIONS else max(SUPPORTED_VERSIONS)
 
     def _edit_source(self, value: str) -> None:
         self.touched.add(self.source)
@@ -230,7 +276,7 @@ class MapCacheTab(QWidget):
 
         overwrite = "warning.mapcache.overwrite.world" if valid else "warning.mapcache.overwrite.folder"
 
-        return [
+        warnings = [
             message
             for condition, message in (
                 (not valid, strings.get("warning.mapcache.invalid.mcworld")),
@@ -238,6 +284,11 @@ class MapCacheTab(QWidget):
             )
             if condition
         ]
+        source_value = self.source.value.strip()
+        detected = version_from_path(Path(source_value)) if source_value else None
+        if detected is not None and supported_version_from_path(Path(source_value)) is None:
+            warnings.append(strings.get("warning.mapcache.unsupported.version").format(version=detected))
+        return warnings
 
     def _submit_error(self) -> str | None:
         source_value = self.source.value.strip()
@@ -280,7 +331,11 @@ class MapCacheTab(QWidget):
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
-            Options(biomes=self.biomes.checked, backup_regions=self.backup.checked),
+            Options(
+                biomes=self.biomes.checked,
+                backup_regions=self.backup.checked,
+                mdat_version=self._selected_version(),
+            ),
             workers=self.settings.workers,
         )
         self.running = self.tasks.start(task)

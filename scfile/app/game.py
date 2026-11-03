@@ -7,7 +7,8 @@ from typing import Literal
 
 
 ASSETS: Path = Path("modassets/assets")
-MAP_CACHE: Path = Path("map_cache/7.0")
+MAP_CACHE: Path = Path("map_cache")
+MAP_CACHE_VERSION = "7.0"
 LOCALIZED: Path = Path("_localized")
 PATCHASSETS: Path = Path("patchassets/assets")
 
@@ -61,7 +62,7 @@ class GameRoot:
 
     @property
     def map_cache(self) -> Path:
-        return self.root / MAP_CACHE
+        return self.root / MAP_CACHE / MAP_CACHE_VERSION
 
     @property
     def regions(self) -> tuple[GameRegion, ...]:
@@ -104,7 +105,10 @@ class GameRoot:
 
     def resolve_map_cache(self, path: Path) -> Path:
         path = path.resolve()
-        return path if self.map_cache in path.parents or path == self.map_cache else self.map_cache
+        cache_root = (self.root / MAP_CACHE).resolve()
+        if path == self.root.resolve():
+            return cache_root
+        return path if path == cache_root or cache_root in path.parents else self.map_cache
 
 
 @dataclass(frozen=True, slots=True)
