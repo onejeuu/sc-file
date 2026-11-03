@@ -1,5 +1,3 @@
-"""Chunk terrain and section data."""
-
 from scfile.content import regions as S
 
 from .records import records

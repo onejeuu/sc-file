@@ -1,15 +1,13 @@
-"""MDAT region decoder."""
-
 import struct
 from typing import override
 
-import zstandard as zstd
+from zstandard import ZstdDecompressor, ZstdError
 
 from scfile.content import RegionContent
 from scfile.content import regions as S
 from scfile.core import Decoder
 from scfile.enums import ByteOrder, F, FileFormat
-from scfile.exceptions import BinaryStructureError, DecodingError, MdatVersionError
+from scfile.exceptions import BinaryStructureError, MdatVersionError
 from scfile.io.mdat import MdatReader
 
 from . import payload
@@ -34,148 +32,60 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
             raise MdatVersionError(version, location=self.location)
 
         self.data.version = version
+        self._ctx["zstd"] = ZstdDecompressor()
+
         match version:
-            case 5:
-                self._parse_v5()
-            case 6:
-                self._parse_v6()
-            case 7:
-                self._parse_v7()
-
-    def _parse_v5(self) -> None:
-        table = self.io.read_exact(CHUNK_COUNT * 24)
-        table_end = self.io.tell()
-        file_size = self.io.size()
-        decompressor = zstd.ZstdDecompressor()
-
-        for index, (sector, count, _) in enumerate(struct.iter_unpack(">ii16s", table)):
-            if not sector:
-                continue
-
-            start = sector * SECTOR_SIZE
-            end = min(start + count * SECTOR_SIZE, file_size)
-            if count <= 0 or start < table_end or end <= start:
-                raise BinaryStructureError(location=self.location, offset=start)
-
-            self.io.seek(start)
-            self.data.chunks.append(self._parse_chunk(index, end, decompressor))
-
-    def _parse_v6(self) -> None:
-        table = self.io.read_exact(CHUNK_COUNT * 24)
-        table_end = self.io.tell()
-        file_size = self.io.size()
-        decompressor = zstd.ZstdDecompressor()
-
-        for index, (sector, count, _) in enumerate(struct.iter_unpack(">ii16s", table)):
-            if not sector:
-                continue
-
-            start = sector * SECTOR_SIZE
-            end = min(start + count * SECTOR_SIZE, file_size)
-            if count <= 0 or start < table_end or end <= start:
-                raise BinaryStructureError(location=self.location, offset=start)
-
-            self.io.seek(start)
-            self.data.chunks.append(self._parse_chunk(index, end, decompressor))
-
-    def _parse_v7(self) -> None:
-        table = self.io.read_exact(CHUNK_COUNT * 16)
-        table_end = self.io.tell()
-        file_size = self.io.size()
-        decompressor = zstd.ZstdDecompressor()
-
-        for index, (sector, count, _) in enumerate(struct.iter_unpack(">ii8s", table)):
-            if not sector:
-                continue
-
-            start = sector * SECTOR_SIZE
-            end = min(start + count * SECTOR_SIZE, file_size)
-            if count <= 0 or start < table_end or end <= start:
-                raise BinaryStructureError(location=self.location, offset=start)
-
-            self.io.seek(start)
-            self.data.chunks.append(self._parse_chunk(index, end, decompressor))
-
-    def _parse_chunk(
-        self,
-        index: int,
-        end: int,
-        decompressor: zstd.ZstdDecompressor,
-    ) -> S.RegionChunk:
-        start = self.io.tell()
-
-        match self.data.version:
             case 5 | 6:
-                if start + 20 > end:
-                    raise BinaryStructureError(location=self.location, offset=start)
-
-                raw = self.io.read_exact(20)
-                header = S.ChunkHeader(*struct.unpack(">5i", raw))
+                entry_format = ">ii16s"
 
             case 7:
-                if start + 28 > end:
-                    raise BinaryStructureError(location=self.location, offset=start)
+                entry_format = ">ii8s"
 
-                raw = self.io.read_exact(28)
-                length, key, sections, additions, terrain, size = struct.unpack(">i8s4i", raw)
-                header = S.ChunkHeader(length, sections, additions, terrain, size, key)
+        table = self.io.read_exact(CHUNK_COUNT * struct.calcsize(entry_format))
 
-            case _:
-                raise DecodingError(
-                    f"Unsupported MDAT version: {self.data.version}.",
-                    location=self.location,
-                    offset=start,
-                )
+        for index, (sector, _, _) in enumerate(struct.iter_unpack(entry_format, table)):
+            if not sector:
+                continue
 
-        offset = self.io.tell()
-        size = header.compressed_size
-        if size < 0 or offset + size > end:
-            raise BinaryStructureError(location=self.location, offset=offset)
+            self.io.seek(sector * SECTOR_SIZE)
 
-        compressed = self.io.read_exact(size)
-        data = b""
-        try:
-            if compressed:
-                data = decompressor.decompress(compressed)
+            match version:
+                case 5 | 6:
+                    header = S.ChunkHeader(*struct.unpack(">5i", self.io.read_exact(20)))
 
-        except zstd.ZstdError as error:
-            raise BinaryStructureError(location=self.location, offset=offset) from error
+                case 7:
+                    length, key, sections, additions, terrain, size = struct.unpack(">i8s4i", self.io.read_exact(28))
+                    header = S.ChunkHeader(length, sections, additions, terrain, size, key)
 
-        if header.section_mask & ~0xFFFF or header.add_mask & ~0xFFFF or header.add_mask & ~header.section_mask:
-            raise BinaryStructureError(location=self.location, offset=start)
+            self.data.chunks.append(self._parse_chunk(index, header))
 
-        required_size = (
-            header.section_mask.bit_count() * (payload.SECTION_SIZE + 4 * payload.NIBBLE_SIZE)
-            + header.add_mask.bit_count() * payload.NIBBLE_SIZE
-            + payload.BIOME_SIZE
-        )
-        if len(data) < required_size:
-            raise BinaryStructureError(location=self.location, offset=start)
-
+    def _parse_chunk(self, index: int, header: S.ChunkHeader) -> S.RegionChunk:
+        data = self._parse_compressed(header.compressed_size)
         chunk = payload.chunk(index, header, data, extended=self.options.extended_chunk)
 
         if self.data.version >= 6:
-            offset = self.io.tell()
-            if offset + 4 > end:
-                raise BinaryStructureError(location=self.location, offset=offset)
-
-            size = self.io.value(F.I32)
-            offset = self.io.tell()
-            if size < 0 or offset + size > end:
-                raise BinaryStructureError(location=self.location, offset=offset)
-
-            if not self.options.extended_chunk:
-                self.io.skip(size)
-                return chunk
-
-            compressed_objects = self.io.read_exact(size)
-            if compressed_objects:
-                try:
-                    object_data = decompressor.decompress(compressed_objects)
-
-                except zstd.ZstdError as error:
-                    raise BinaryStructureError(location=self.location, offset=offset) from error
-
-                chunk.objects = objects(object_data, self.data.version)
+            self._parse_chunk_objects(chunk)
 
         return chunk
+
+    def _parse_chunk_objects(self, chunk: S.RegionChunk) -> None:
+        size = self.io.value(F.I32)
+
+        if not self.options.extended_chunk:
+            self.io.skip(size)
+            return
+
+        if size:
+            data = self._parse_compressed(size)
+            chunk.objects = objects(data, self.data.version)
+
+    def _parse_compressed(self, size: int) -> bytes:
+        offset = self.io.tell()
+        compressed = self.io.read_exact(size)
+        zstd = self._ctx["zstd"]
+
+        try:
+            return zstd.decompress(compressed)
+
+        except ZstdError as error:
+            raise BinaryStructureError(location=self.location, offset=offset) from error

@@ -1,5 +1,3 @@
-"""Carpenters records stored after MDAT terrain data."""
-
 import struct
 
 from scfile.content.regions import ChunkRecord, ChunkRecords

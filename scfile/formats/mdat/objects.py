@@ -1,5 +1,3 @@
-"""Object entries stored alongside MDAT terrain."""
-
 from uuid import UUID
 
 from scfile.content import regions as S
