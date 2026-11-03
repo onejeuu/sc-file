@@ -1,28 +1,14 @@
 import struct
 
-from scfile.content.regions import ChunkRecord, ChunkRecords
+from scfile.content import regions as S
 from scfile.enums import F
-from scfile.exceptions import BinaryStructureError, DecodingError
+from scfile.exceptions import DecodingError
 from scfile.io.mdat import MdatReader
 
 
-def _record(reader: MdatReader, raw: memoryview) -> ChunkRecord:
+def _record(reader: MdatReader, raw: memoryview) -> S.ChunkRecord:
     start = reader.tell()
     kind, x, y, z, flags = struct.unpack(">biiiB", reader.read_exact(14))
-
-    if kind not in (0, 1):
-        raise DecodingError(
-            f"Unknown record type {kind}; boundary unavailable",
-            location=reader.location,
-            offset=start,
-        )
-
-    if flags & 0x80:
-        raise DecodingError(
-            "Unknown record flag bit; boundary unavailable",
-            location=reader.location,
-            offset=start,
-        )
 
     cover_count = 1
     if flags & 8:
@@ -58,7 +44,7 @@ def _record(reader: MdatReader, raw: memoryview) -> ChunkRecord:
     if kind == 1:
         extra_data = reader.value(F.I32)
 
-    return ChunkRecord(
+    return S.ChunkRecord(
         type=kind,
         position=(x, y, z),
         flags=flags,
@@ -75,25 +61,23 @@ def _record(reader: MdatReader, raw: memoryview) -> ChunkRecord:
     )
 
 
-def records(raw: memoryview) -> ChunkRecords:
-    result = ChunkRecords()
-    decoded: list[ChunkRecord] = []
+def records(raw: memoryview) -> S.ChunkRecords:
+    container = S.ChunkRecords()
+    entries: list[S.ChunkRecord] = []
 
     with MdatReader(raw.tobytes()) as reader:
         try:
             count = reader.value(F.I32)
-            result.count = count
-            if count < 0:
-                raise BinaryStructureError(location=reader.location, offset=0)
+            container.count = count
 
             for _ in range(count):
-                decoded.append(_record(reader, raw))
+                entries.append(_record(reader, raw))
 
         except DecodingError as error:
-            result.error = str(error)
+            container.error = str(error)
 
-        if result.error is None and reader.tell() != len(raw):
-            result.error = "Bytes remain after declared records"
+        if container.error is None and reader.tell() != len(raw):
+            container.error = "Bytes remain after declared records"
 
-    result.records = tuple(decoded)
-    return result
+    container.records = tuple(entries)
+    return container

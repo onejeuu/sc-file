@@ -5,6 +5,7 @@ from .records import records
 
 SECTION_SIZE = 16 * 16 * 16
 NIBBLE_SIZE = SECTION_SIZE // 2
+
 BIOME_SIZE = 16 * 16
 
 
