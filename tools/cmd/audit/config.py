@@ -22,6 +22,7 @@ class Settings:
     exclude: tuple[str, ...]
     workers: int
     animation: bool
+    extended_chunk: bool
     stats: bool
 
 
@@ -40,6 +41,7 @@ def resolve(
     selected_relations: tuple[str, ...],
     workers: int | None,
     animation: bool | None,
+    extended_chunk: bool | None,
     stats: bool | None,
 ) -> Settings:
     values = read()
@@ -62,5 +64,6 @@ def resolve(
         exclude=tuple(path.casefold().replace("\\", "/").lstrip("/") for path in values.get("exclude", ())),
         workers=workers if workers is not None else values.get("workers", os.cpu_count() or 4),
         animation=animation if animation is not None else values.get("animation", True),
+        extended_chunk=extended_chunk if extended_chunk is not None else values.get("extended_chunk", False),
         stats=stats if stats is not None else values.get("stats", False),
     )

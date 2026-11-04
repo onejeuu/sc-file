@@ -47,6 +47,12 @@ from .audit import Audit
     default=None,
     help="Write statistics.",
 )
+@click.option(
+    "--extended-chunk",
+    is_flag=True,
+    default=None,
+    help="Parse auxiliary world chunk data.",
+)
 def audit(
     path: Path | None,
     formats: tuple[str, ...],
@@ -54,8 +60,9 @@ def audit(
     workers: int | None,
     animation: bool | None,
     stats: bool | None,
+    extended_chunk: bool | None,
 ) -> None:
-    settings = config.resolve(path, formats, relations, workers, animation, stats)
+    settings = config.resolve(path, formats, relations, workers, animation, extended_chunk, stats)
 
     try:
         code = Audit(settings, Console()).run()
