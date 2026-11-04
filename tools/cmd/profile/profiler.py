@@ -6,7 +6,7 @@ from time import perf_counter
 
 from scfile.content import BaseContent
 from scfile.core import Decoder, Encoder
-from scfile.io import StructReader, StructWriter
+from scfile.io import IOStream, StructReader, StructWriter
 from scfile.options import Options
 
 
@@ -14,7 +14,7 @@ def decode[
     ContentType: BaseContent,
     ReaderType: StructReader,
 ](
-    source: Path,
+    source: IOStream,
     decoder: type[Decoder[ContentType, ReaderType]],
     options: Options,
 ) -> None:
@@ -27,7 +27,7 @@ def convert[
     ReaderType: StructReader,
     WriterType: StructWriter,
 ](
-    source: Path,
+    source: IOStream,
     decoder: type[Decoder[ContentType, ReaderType]],
     encoder: type[Encoder[ContentType, WriterType]],
     options: Options,

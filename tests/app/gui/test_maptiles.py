@@ -1,4 +1,5 @@
 from pathlib import Path
+from tests.fixtures import ASSETS
 from shutil import copyfile
 
 from PySide6.QtCore import Qt
@@ -11,7 +12,7 @@ from scfile.app.gui.tasks import TaskManager
 from scfile.app.tasks.maptiles import MapTilesImage
 
 
-SOURCE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
+SOURCE = ASSETS / "formats/textures/source/texture_rgba.ol"
 
 
 def test_restore_output(qapp: QApplication, tmp_path: Path) -> None:

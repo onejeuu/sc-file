@@ -1,4 +1,5 @@
 from pathlib import Path
+from tests.fixtures import ASSETS
 
 import pytest
 
@@ -48,7 +49,7 @@ def test_merge_cancel(tmp_path: Path) -> None:
 
 
 def test_merge_backup(tmp_path: Path) -> None:
-    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    source = ASSETS / "formats/region/source/r.0.0.mdat"
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
@@ -61,7 +62,7 @@ def test_merge_backup(tmp_path: Path) -> None:
 
 
 def test_merge_without_backup(tmp_path: Path) -> None:
-    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    source = ASSETS / "formats/region/source/r.0.0.mdat"
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
@@ -72,7 +73,7 @@ def test_merge_without_backup(tmp_path: Path) -> None:
 
 
 def test_merge_keeps_first_backup(tmp_path: Path) -> None:
-    source = Path(__file__).parents[1] / "assets/formats/region/source/r.0.0.mdat"
+    source = ASSETS / "formats/region/source/r.0.0.mdat"
     target = tmp_path / "r.0.0.mca"
     backup = target.with_suffix(".mca.bck")
     target.write_bytes(b"later")

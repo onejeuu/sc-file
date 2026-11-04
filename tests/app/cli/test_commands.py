@@ -1,6 +1,7 @@
 import json
 from collections.abc import Callable
 from pathlib import Path
+from tests.fixtures import ASSETS
 from shutil import copyfile
 from typing import Any
 
@@ -18,7 +19,7 @@ from scfile.convert.regions import Region
 from scfile.enums import FileFormat, OnConflict
 
 
-MAP_TILE = Path(__file__).parents[2] / "assets/formats/textures/source/texture_rgba.ol"
+MAP_TILE = ASSETS / "formats/textures/source/texture_rgba.ol"
 
 
 def test_convert(
@@ -323,7 +324,7 @@ def test_maptiles_failure(
 
 @pytest.mark.parametrize("verbose", (False, True))
 def test_convert_nonstandalone(verbose: bool, tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/models/source/library.mcal"
+    source = ASSETS / "formats/models/source/library.mcal"
     output = tmp_path / "output"
     args = ["convert", str(source), "-O", str(output), "-W", "1"]
     if verbose:

@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from pathlib import Path
+from tests.fixtures import ASSETS
 from typing import ClassVar
 
 from scfile import exceptions
@@ -81,7 +82,7 @@ def test_unknown_event() -> None:
 
 
 def test_convert(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     events: list[TaskEvent] = []
     task = ConvertTask((source,), (), Options(), output=tmp_path, workers=1)
 
@@ -96,7 +97,7 @@ def test_convert(tmp_path: Path) -> None:
 
 
 def test_convert_nonstandalone(tmp_path: Path) -> None:
-    root = Path(__file__).parents[2] / "assets/formats"
+    root = ASSETS / "formats"
     sources = (root / "models/source/library.mcal",)
     options = Options()
     options.targets = {}
@@ -151,7 +152,7 @@ def test_convert_errors(tmp_path: Path, monkeypatch) -> None:
 
 
 def test_relative_layout(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     root = tmp_path / "assets"
     nested = root / "documents"
     nested.mkdir(parents=True)
@@ -165,7 +166,7 @@ def test_relative_layout(tmp_path: Path) -> None:
 
 
 def test_rooted_layout(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     root = tmp_path / "assets"
     nested = root / "documents"
     nested.mkdir(parents=True)
@@ -179,7 +180,7 @@ def test_rooted_layout(tmp_path: Path) -> None:
 
 
 def test_dump_replace(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
     left.mkdir()
@@ -207,7 +208,7 @@ def test_dump_replace(tmp_path: Path) -> None:
 
 
 def test_dump_rename(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
     left.mkdir()
@@ -232,7 +233,7 @@ def test_dump_rename(tmp_path: Path) -> None:
 
 
 def test_dump_skip(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
     left.mkdir()
@@ -257,7 +258,7 @@ def test_dump_skip(tmp_path: Path) -> None:
 
 
 def test_relative_replace(tmp_path: Path) -> None:
-    source = Path(__file__).parents[2] / "assets/formats/document/source/document.nbt"
+    source = ASSETS / "formats/document/source/document.nbt"
     left = tmp_path / "left"
     right = tmp_path / "right"
     nested = Path("documents") / source.name

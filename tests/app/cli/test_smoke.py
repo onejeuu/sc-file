@@ -1,4 +1,5 @@
 from pathlib import Path
+from tests.fixtures import ASSETS
 from shutil import copy2
 
 import click
@@ -11,7 +12,6 @@ from scfile.enums import FileFormat
 from scfile.formats import registry
 
 
-ASSETS = Path(__file__).parents[2] / "assets"
 FORMATS = ASSETS / "formats"
 MODEL_SOURCE = FORMATS / "models" / "source" / "model_v15.mcsb"
 ANIMATION_SOURCE = FORMATS / "models" / "source" / "animation.mcvd"

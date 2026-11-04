@@ -1,3 +1,4 @@
+import gzip
 from collections.abc import Callable
 from functools import partial
 from pathlib import Path
@@ -16,7 +17,7 @@ from tools.paths import ROOT
 from . import profiler
 
 
-MODEL = ROOT / "assets" / "profile" / "model.mcsb"
+MODEL = ROOT / "assets" / "profile" / "model.mcsb.gz"
 REPORTS = ROOT / "reports" / "profile"
 PROFILES = tuple(
     sorted(
@@ -110,14 +111,20 @@ def profile(
         reports = ROOT / reports
     reports = reports.resolve()
 
-    options = Options(skeleton=animation, animation=animation)
-    source = source or MODEL
-    if not source.is_file():
-        raise click.UsageError(f"Reference file not found: '{source}'.")
+    source_path = MODEL if source is None else source
+    if not source_path.is_file():
+        raise click.UsageError(f"Reference file not found: '{source_path}'.")
 
-    decoder = registry.match(source)
+    format_path = source_path.with_suffix("") if source is None else source_path
+    options = Options(skeleton=animation, animation=animation)
+    decoder = registry.match(format_path)
     if decoder is None:
-        raise click.UsageError(f"Unsupported source format: '{files.format(source)}'.")
+        raise click.UsageError(f"Unsupported source format: '{files.format(format_path)}'.")
+
+    if source is None:
+        decoder_source = gzip.decompress(source_path.read_bytes())
+    else:
+        decoder_source = source_path
 
     source_format = str(decoder.format)
     available = {
@@ -140,11 +147,11 @@ def profile(
     if selected_targets:
         for value in selected_targets:
             name = f"{source_format} to {value}"
-            operation = partial(profiler.convert, source, decoder, available[value], options)
+            operation = partial(profiler.convert, decoder_source, decoder, available[value], options)
             cases.append((name, operation, reports / f"{source_format}-{value}.prof"))
     else:
         name = f"{source_format} decode"
-        operation = partial(profiler.decode, source, decoder, options)
+        operation = partial(profiler.decode, decoder_source, decoder, options)
         cases.append((name, operation, reports / f"{source_format}-decode.prof"))
 
     clear(reports)
@@ -156,7 +163,7 @@ def profile(
         rows.append((name, elapsed, calls, report))
 
     console = Console()
-    console.print(f"[cyan]{source}[/] ({decimal(source.stat().st_size)})")
+    console.print(f"[cyan]{source_path}[/] ({decimal(source_path.stat().st_size)})")
     console.print(table(rows, count))
     console.print(f"\nProfiles written to '{reports}'.")
 

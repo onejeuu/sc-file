@@ -1,4 +1,5 @@
 from pathlib import Path
+from tests.fixtures import ASSETS
 
 import pytest
 
@@ -107,7 +108,7 @@ def test_manual_interrupt(tmp_path: Path) -> None:
 
 
 def test_manual_mipmaps(tmp_path: Path) -> None:
-    source = Path(__file__).parents[1] / "assets/formats/textures/source/texture_dxt1.ol"
+    source = ASSETS / "formats/textures/source/texture_dxt1.ol"
     output = tmp_path / "texture.dds"
 
     with pytest.raises(exceptions.ConversionError):

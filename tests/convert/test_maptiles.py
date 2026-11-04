@@ -1,4 +1,5 @@
 from pathlib import Path
+from tests.fixtures import ASSETS
 from shutil import copyfile
 
 import pytest
@@ -10,7 +11,7 @@ from scfile.enums import OnConflict
 from scfile.options import Options
 
 
-SOURCE = Path(__file__).parents[1] / "assets/formats/textures/source/texture_rgba.ol"
+SOURCE = ASSETS / "formats/textures/source/texture_rgba.ol"
 
 
 def _tile(folder: Path, x: int, z: int) -> Path:

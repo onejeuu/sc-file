@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from pathlib import Path
+from tests.fixtures import ASSETS
 
 import numpy as np
 import pytest
@@ -14,7 +15,6 @@ from scfile.options import Options
 type Operation = Callable[..., types.ResultPath]
 
 
-ASSETS = Path(__file__).parents[1] / "assets"
 SOURCE = ASSETS / "formats" / "models" / "source"
 EXPECTED = ASSETS / "convert" / "animate"
 

@@ -1,7 +1,8 @@
 from pathlib import Path
+from tests.fixtures import ASSETS as ROOT_ASSETS
 
 
-ASSETS = Path(__file__).parents[1] / "assets" / "formats"
+ASSETS = ROOT_ASSETS / "formats"
 
 
 def export(
