@@ -6,6 +6,36 @@ from scfile.exceptions import DecodingError
 from scfile.io.mdat import MdatReader
 
 
+def objects(
+    data: bytes,
+    version: int,
+) -> S.ChunkObjects:
+    raw = memoryview(data)
+    container = S.ChunkObjects()
+    decoded: list[S.ChunkObject] = []
+
+    with MdatReader(data) as reader:
+        try:
+            count = reader.varuint()
+            container.count = count
+            for index in range(count):
+                size = reader.varuint()
+                offset = reader.tell()
+                end = offset + size
+
+                decoded.append(_object(reader, raw[offset:end], index, offset, version))
+                reader.seek(end)
+
+        except DecodingError as error:
+            container.error = str(error)
+
+        if container.error is None and reader.tell() != len(raw):
+            container.error = "Bytes remain after declared objects"
+
+    container.objects = tuple(decoded)
+    return container
+
+
 def _header(reader: MdatReader, version: int) -> S.ObjectHeader:
     match version:
         case 6:
@@ -31,7 +61,7 @@ def _header(reader: MdatReader, version: int) -> S.ObjectHeader:
     return S.ObjectHeader(type_id, flags, flags2, group)
 
 
-def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, end: int, version: int) -> S.ChunkObject:
+def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, version: int) -> S.ChunkObject:
     obj = S.ChunkObject(index, offset, raw)
 
     try:
@@ -73,30 +103,3 @@ def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, end: i
         obj.error = str(error)
 
     return obj
-
-
-def objects(data: bytes, version: int) -> S.ChunkObjects:
-    raw = memoryview(data)
-    container = S.ChunkObjects()
-    decoded: list[S.ChunkObject] = []
-
-    with MdatReader(data) as reader:
-        try:
-            count = reader.varuint()
-            container.count = count
-            for index in range(count):
-                size = reader.varuint()
-                offset = reader.tell()
-                end = offset + size
-
-                decoded.append(_object(reader, raw[offset:end], index, offset, end, version))
-                reader.seek(end)
-
-        except DecodingError as error:
-            container.error = str(error)
-
-        if container.error is None and reader.tell() != len(raw):
-            container.error = "Bytes remain after declared objects"
-
-    container.objects = tuple(decoded)
-    return container

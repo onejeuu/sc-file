@@ -1,8 +1,7 @@
 """Content representation containers."""
 
 from dataclasses import dataclass, field
-from typing import Any, ClassVar
-from warnings import warn
+from typing import ClassVar
 
 from scfile.enums import FileKind
 
@@ -15,28 +14,6 @@ type DocumentPrimitive = int | float | bytes | str
 type DocumentValue = None | DocumentPrimitive | list[DocumentValue] | dict[str, DocumentValue]
 
 type ArchiveEntry = tuple[str, bytes]
-
-
-# TODO: kill aliases
-def _deprecated(name: str, replacement: str) -> None:
-    warn(f"{name} is deprecated; use {replacement} instead.", DeprecationWarning, stacklevel=3)
-
-
-# TODO: kill aliases
-def _alias(name: str, target: str) -> property:
-    parent, _, attribute = target.rpartition(".")
-
-    def get(content: Any) -> Any:
-        cls = type(content).__name__
-        _deprecated(f"{cls}.{name}", f"{cls}.{target}")
-        return getattr(getattr(content, parent) if parent else content, attribute)
-
-    def set(content: Any, value: Any) -> None:
-        cls = type(content).__name__
-        _deprecated(f"{cls}.{name}", f"{cls}.{target}")
-        setattr(getattr(content, parent) if parent else content, attribute, value)
-
-    return property(get, set)
 
 
 class BaseContent:
@@ -71,10 +48,6 @@ class TextureContent(BaseContent):
     height: int = 0
     meta: TextureMeta = field(default_factory=TextureMeta)
     texture: Texture = field(default_factory=DefaultTexture)
-
-    mipmap_count = _alias("mipmap_count", "meta.mipmap_count")
-    format = _alias("format", "meta.format")
-    path_hash = _alias("path_hash", "meta.path_hash")
 
     @property
     def is_cubemap(self) -> bool:
@@ -138,6 +111,3 @@ class RegionContent(BaseContent):
 
     version: int = 0
     chunks: list[RegionChunk] = field(default_factory=list)
-
-    rx = _alias("rx", "x")
-    rz = _alias("rz", "z")
