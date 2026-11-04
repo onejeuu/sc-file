@@ -208,7 +208,7 @@ class _Collector:
 
             type_id = item.type_id
             self.object_types[type_id] += 1
-            definition = self.catalog.object(item.prefix) if self.catalog is not None else None
+            definition = self.catalog.object(type_id) if self.catalog is not None else None
             instance = objects.instance(item, definition.behaviour if definition else None)
             notes.extend(instance.notes)
             self.result.totals.instances_read += instance.appearance is not None and instance.tail.size == 0
