@@ -8,6 +8,11 @@
   ],
   "excluded": [
     {
+      "animation": "highpoly/animations/wpn_fp_char.mcvd",
+      "model": "weapons/models/weapons/character.mcsb",
+      "tag": "legacy"
+    },
+    {
       "animation": "highpoly/animations/wpn_fp_grenade.mcvd",
       "model": "weapons/models/weapons/operations/stimshot/stimshot.mcsb",
       "tag": "broken"
@@ -274,9 +279,6 @@
     "highpoly/animations/wpn_fp_chain_whip.mcvd": [
       "weapons/models/meleeweapons/chain_whip/chain_whip.mcsb"
     ],
-    "highpoly/animations/wpn_fp_char.mcvd": [
-      "weapons/models/weapons/character.mcsb"
-    ],
     "highpoly/animations/wpn_fp_chetki_bird.mcvd": [
       "weapons/models/weapons/bolt/chetki/base.mcsb"
     ],
@@ -378,6 +380,9 @@
     "highpoly/animations/wpn_fp_elbrus.mcvd": [
       "weapons/models/weapons/detektor_model/elbrus.mcsb",
       "weapons/models/weapons/detektor_model/motif_eol/elbrus_eol.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_elbrus_autumn26.mcvd": [
+      "weapons/models/weapons/detektor_model/elbrus.mcsb"
     ],
     "highpoly/animations/wpn_fp_eshka.mcvd": [
       "weapons/models/weapons/eshka/eshka.mcsb",
@@ -603,9 +608,7 @@
     "highpoly/animations/wpn_fp_hooker.mcvd": [
       "weapons/models/meleeweapons/zseva2020/hooker_hands.mcsb"
     ],
-    "highpoly/animations/wpn_fp_hp.mcvd": [
-      "weapons/models/weapons/hp/hp.mcsb"
-    ],
+    "highpoly/animations/wpn_fp_hp.mcvd": ["weapons/models/weapons/hp/hp.mcsb"],
     "highpoly/animations/wpn_fp_hp_9x39.mcvd": [
       "weapons/models/weapons/hp/hp.mcsb"
     ],
@@ -773,9 +776,7 @@
     "highpoly/animations/wpn_fp_m249.mcvd": [
       "weapons/models/weapons/m249/m249.mcsb"
     ],
-    "highpoly/animations/wpn_fp_m4.mcvd": [
-      "weapons/models/weapons/m4/m4.mcsb"
-    ],
+    "highpoly/animations/wpn_fp_m4.mcvd": ["weapons/models/weapons/m4/m4.mcsb"],
     "highpoly/animations/wpn_fp_m40a5.mcvd": [
       "weapons/models/weapons/m40/m40_anim.mcsb"
     ],
@@ -1287,9 +1288,7 @@
     "highpoly/animations/wpn_fp_toz84.mcvd": [
       "weapons/models/weapons/toz84/toz84.mcsb"
     ],
-    "highpoly/animations/wpn_fp_tt.mcvd": [
-      "weapons/models/weapons/tt/tt.mcsb"
-    ],
+    "highpoly/animations/wpn_fp_tt.mcvd": ["weapons/models/weapons/tt/tt.mcsb"],
     "highpoly/animations/wpn_fp_tubus.mcvd": [
       "weapons/models/weapons/ability_items/tubus/tubus.mcsb"
     ],

@@ -1,17 +1,15 @@
 msgid ""
 msgstr ""
-"Language: ru\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\nContent-Type: text/plain; charset=utf-8\nContent-Transfer-Encoding: 8bit\n"
 
 msgid "📚 Formats"
 msgstr "📚 Форматы"
 
 msgid "Format specifications are based on **reverse-engineering** and may contain inaccuracies."
-msgstr "Спецификации форматов основаны на **обратной инженирии** и могут содержать неточности."
+msgstr "Описания форматов основаны на реверс-инжиниринге и могут содержать неточности."
 
 msgid "Binary templates for `010 Editor`_ are available in the `templates`_ directory."
-msgstr "Бинарные шаблоны для `010 Editor`_ доступны в каталоге `templates`_."
+msgstr "Бинарные шаблоны для `010 Editor`_ находятся в каталоге `templates`_."
 
 msgid "Template"
 msgstr "Шаблон"
@@ -29,7 +27,7 @@ msgid "Contents"
 msgstr "Содержимое"
 
 msgid "Support"
-msgstr "Поддержка"
+msgstr "Поддерживаемые версии"
 
 msgid "Export"
 msgstr "Экспорт"
@@ -68,28 +66,28 @@ msgid "🧊 Model Formats"
 msgstr "🧊 Модели"
 
 msgid "Model scene."
-msgstr "Модельная сцена."
+msgstr "Сцена модели."
 
 msgid "Geometry, Skeleton, Animation clips, Blend shapes."
-msgstr "Геометрия, Скелет, Анимации, Blend shapes."
+msgstr "Геометрия, скелет, клипы анимации и морфы."
 
 msgid "Versions ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
 msgstr "Версии ``7.0``, ``8.0``, ``9.0``, ``10.0``, ``11.0``, ``12.0``, ``15.0``."
 
 msgid "Same as `.mcsa <mcsa_>`_. Has rsa signature before content."
-msgstr "Такое же как `.mcsa <mcsa_>`_. Содержит rsa сигнатуру перед контентом."
+msgstr "Та же структура, что у `.mcsa <mcsa_>`_. Перед данными расположена RSA-подпись."
 
 msgid "Colliders and physics."
 msgstr "Коллайдеры и физика."
 
 msgid ":ref:`Animation sets <mcvd-animation>` use the same suffix."
-msgstr ":ref:`Animation set <mcvd-animation>` использует такой же суффикс."
+msgstr ":ref:`Наборы анимаций <mcvd-animation>` используют тот же суффикс."
 
 msgid "Animated particle model."
-msgstr "Анимированная модель для эффектов."
+msgstr "Модель для анимированных эффектов."
 
 msgid "Frame based geometry."
-msgstr "Фреймы геометрии."
+msgstr "Геометрия, заданная для отдельных кадров."
 
 msgid "Version ``5``."
 msgstr "Версия ``5``."
@@ -107,58 +105,58 @@ msgid "🌀 Animation Formats"
 msgstr "🌀 Анимации"
 
 msgid "Standalone animation."
-msgstr "Отдельные анимации."
+msgstr "Отдельная анимация."
 
 msgid "Skeletal and facial animation clips."
-msgstr "Скелетные и лицевые клипы анимации."
+msgstr "Клипы скелетной анимации и мимики."
 
 msgid "Usually located in ``assets/highpoly``."
 msgstr "Обычно находятся в ``assets/highpoly``."
 
 msgid "Shared animation by models with matching skeletons."
-msgstr "Общие анимации для моделей с совместимыми скелетами."
+msgstr "Анимации, общие для моделей с одинаковым скелетом."
 
 msgid "Skeletal animation clips."
-msgstr "Клипы скелетных анимаций."
+msgstr "Клипы скелетной анимации."
 
 msgid "Animation data and one or more compatible :ref:`.mcsb <mcsb>` model scenes."
-msgstr "Анимации и одна или несколько совместимых моделей :ref:`.mcsb <mcsb>`."
+msgstr "Данные анимации и одна или несколько совместимых сцен моделей :ref:`.mcsb <mcsb>`."
 
 msgid "File :ref:`.glb <model-export>` with the assembled scene."
-msgstr "Файл :ref:`.glb <model-export>` с собранной сценой."
+msgstr "Собранная сцена в файле :ref:`.glb <model-export>`."
 
 msgid "Relation pairs can be found in `Audit Mappings`_."
-msgstr "Связи можно найти в `Audit Mappings`_."
+msgstr "Пары соответствий см. в `Audit Mappings`_."
 
 msgid "🧱 Texture Formats"
 msgstr "🧱 Текстуры"
 
 msgid "`Mipmapped <MipMap_>`_ texel data."
-msgstr "Данные текселей с `мипмапами <MipMap_>`_."
+msgstr "Данные текстур с mip-уровнями."
 
 msgid "2D textures or `cubemaps <CubeMap_>`_. Mipmaps compressed with `lz4`_."
-msgstr "2D текстуры или `кубические карты <CubeMap_>`_. Мипмапы сжаты через `lz4`_."
+msgstr "2D-текстуры или `кубические карты <CubeMap_>`_. Mip-уровни сжаты с помощью `lz4`_."
 
 msgid "Suffix Conventions"
-msgstr "Конвенции суффиксов"
+msgstr "Суффиксы текстур"
 
 msgid "Raw surface color"
-msgstr "Цвет поверхности"
+msgstr "Основной цвет поверхности"
 
 msgid "Intensity of highlights"
-msgstr "Интенсивность подсветки"
+msgstr "Интенсивность бликов"
 
 msgid "Simulates bumps and dents"
-msgstr "Имитирует неровности и вмятины"
+msgstr "Передаёт рельеф поверхности"
 
 msgid "Creates independent glow"
-msgstr "Создает независимое свечение"
+msgstr "Добавляет собственное свечение"
 
 msgid "FourCC Formats"
 msgstr "Форматы FourCC"
 
 msgid "Encoded"
-msgstr "Зашифр."
+msgstr "Код в файле"
 
 msgid "Game Format"
 msgstr "Формат игры"
@@ -170,34 +168,38 @@ msgid "Texture integrity verification."
 msgstr "Проверка целостности текстур."
 
 msgid "Texture paths, headers and mipmap images hashes."
-msgstr "Пути к текстурам, их заголовки и хеши mipmap изображений."
+msgstr "Пути к текстурам, заголовки и хеши изображений mip-уровней."
 
 msgid "🖼️ Image Formats"
 msgstr "🖼️ Изображения"
 
 msgid "GUI and composed images."
-msgstr "GUI и составные изображения."
+msgstr "Изображения интерфейса и составные изображения."
 
 msgid "``PNG`` image data with an ``‰MIC`` signature."
-msgstr "Данные ``PNG`` изображения с ``‰MIC`` сигнатурой."
+msgstr "Данные изображения ``PNG`` с сигнатурой ``‰MIC``."
 
 msgid "🗃️ Archive Formats"
 msgstr "🗃️ Архивы"
 
 msgid "Container for ``.dds`` blocks textures."
-msgstr "Контейнер для ``.dds`` текстур блоков."
+msgstr "Контейнер текстур блоков в формате ``.dds``."
 
 msgid "⛰️ Region Formats"
 msgstr "⛰️ Регионы"
 
 msgid "Region container for 32×32 terrain chunks."
-msgstr "Контейнер регионов для 32×32 чанков мира."
+msgstr "Контейнер региона для 32×32 чанков ландшафта."
 
 msgid "Metadata table, Chunk payload and Objects payload. Payloads are `zstd`_ compressed."
-msgstr "Таблица метаданных, данные чанков и данные объектов. Данные сжаты через `zstd`_."
+msgstr "Таблица метаданных, данные чанков и данные объектов. Данные чанков и объектов сжаты с помощью `zstd`_."
 
-msgid "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes."
-msgstr "Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), с блоками (приблизительными) и биомами."
+msgid ""
+"Minecraft Java Edition ``1.12.2`` or newer (Anvil_ ``1343``). Block mapping is "
+"approximate. Biomes are mapped one-to-one."
+msgstr ""
+"Minecraft Java Edition версии ``1.12.2`` или новее (формат Anvil_ ``1343``). "
+"Сопоставление блоков приблизительное. Биомы переносятся один к одному."
 
 msgid ":doc:`Usage guide → <usage/mapcache>`"
 msgstr ":doc:`Руководство по использованию → <usage/mapcache>`"
@@ -206,7 +208,7 @@ msgid "📄 NBT Files"
 msgstr "📄 NBT"
 
 msgid "None, gzip_, zstd_."
-msgstr "Отсутствует, gzip_, zstd_."
+msgstr "Без сжатия, gzip_ или zstd_."
 
 msgid "Path"
 msgstr "Путь"
@@ -218,34 +220,34 @@ msgid "Quest item descriptions"
 msgstr "Описания некоторых квестовых предметов"
 
 msgid "UI read state cache"
-msgstr "Кэш состояния UI"
+msgstr "Кэш статуса прочтения в интерфейсе"
 
 msgid "General settings and UI states"
-msgstr "Общие настройки и состояния UI"
+msgstr "Общие настройки и состояние интерфейса"
 
 msgid "Incoming friend requests"
-msgstr "Входящие запросы на дружбу"
+msgstr "Входящие заявки в друзья"
 
 msgid "Recent interactions (last 200 players)"
 msgstr "Последние взаимодействия (последние 200 игроков)"
 
 msgid "Notifications history (last 100 popups)"
-msgstr "История уведомлений (последние 100 окон)"
+msgstr "История уведомлений (последние 100 всплывающих окон)"
 
 msgid "Donate shop view history"
-msgstr "История просмотра магазина"
+msgstr "История просмотренных предложений магазина доната"
 
 msgid "Profile customization UI state"
-msgstr "Состояние UI кастомизации профиля"
+msgstr "Состояние интерфейса настройки профиля"
 
 msgid "📝 Text Formats"
-msgstr "📝 Текстовые"
+msgstr "📝 Текстовые форматы"
 
 msgid "Localization strings"
 msgstr "Строки локализации"
 
 msgid "Configurations"
-msgstr "Конфигурации"
+msgstr "Файлы конфигурации"
 
 msgid "Formatted text"
 msgstr "Форматированный текст"
@@ -260,70 +262,70 @@ msgid "🛠️ Config Files"
 msgstr "🛠️ Конфиги"
 
 msgid "Selected display ID"
-msgstr "ID монитора"
+msgstr "ID выбранного монитора"
 
 msgid "Keyboard control mappings"
 msgstr "Назначения клавиш управления"
 
 msgid "Game settings (graphics, audio, gameplay)"
-msgstr "Настройки игры (графика, звук, геймплей)"
+msgstr "Настройки игры (графика, звук, игровой процесс)"
 
 msgid "Quest visibility toggles"
-msgstr "Переключатели видимости квестов"
+msgstr "Настройки отображения заданий"
 
 msgid "Custom map markers"
-msgstr "Пользовательские метки на карте"
+msgstr "Пользовательские метки карты"
 
 msgid "🕹️ Launcher Formats"
 msgstr "🕹️ Лаунчер"
 
 msgid "Launcher file integrity verification."
-msgstr "Проверка целостности файлов лаунчером."
+msgstr "Проверка целостности файлов лаунчера."
 
 msgid "Game asset paths and SHA-1 hashes."
-msgstr "Путы к игровым ассетам и их SHA-1 хеши."
+msgstr "Пути к игровым ресурсам и их хеши SHA-1."
 
 msgid "Game content delivery."
-msgstr "Скачивание игрового контента."
+msgstr "Загрузка игрового контента."
 
 msgid "Modified ``.torrent`` (`Torrent File`_)."
-msgstr "Модифицированный ``.torrent`` (`Torrent File`_)."
+msgstr "Модифицированный файл ``.torrent`` (`Torrent File`_)."
 
 msgid "🔒 Encrypted Formats"
 msgstr "🔒 Зашифрованные"
 
 msgid "Used AES_. Decryption requires a key recovered from the protected game client."
-msgstr "Использован AES_. Расшифровка требует ключи из защищенного клиента игры."
+msgstr "Используется AES_. Для расшифровки нужен ключ, извлечённый из защищённого клиента игры."
 
 msgid "Manifest of ``.xeon`` bundles."
-msgstr "Манифест ``.xeon`` бандлов."
+msgstr "Манифест пакетов ``.xeon``."
 
 msgid "Relative paths to asset bundles."
-msgstr "Относительные пути к бандлам ассетов."
+msgstr "Относительные пути к пакетам ресурсов."
 
 msgid "Bundle with sensitive client data."
-msgstr "Бандл с чувствительными данными клиента."
+msgstr "Пакет с конфиденциальными данными клиента."
 
 msgid "Copy of the assets folder structure."
-msgstr "Копия структуры папки ассетов."
+msgstr "Копия структуры каталога ресурсов."
 
 msgid "Settlement progression screens."
-msgstr "Сцена прогресса безопасной зоны."
+msgstr "Экраны развития поселения."
 
 msgid "World slice chunks."
-msgstr "Несколько чанков мира"
+msgstr "Чанки среза мира."
 
 msgid "Protection of high resolution texture array."
-msgstr "Защита высококачественных текстур."
+msgstr "Защита массива текстур высокого разрешения."
 
 msgid ":ref:`.texarr <texarr>` data."
 msgstr "Данные :ref:`.texarr <texarr>`."
 
 msgid "Adaptive audio events."
-msgstr "Адаптивные аудио события."
+msgstr "События адаптивного звука."
 
 msgid "Primarily voice acting and OST."
-msgstr "В основном озвучка и OST."
+msgstr "В основном озвучка и оригинальный саундтрек."
 
 msgid "Recovery of obfuscated symbol names for debugging."
 msgstr "Восстановление обфусцированных имён символов для отладки."
@@ -331,309 +333,447 @@ msgstr "Восстановление обфусцированных имён с�
 msgid "Symbol name mappings."
 msgstr "Сопоставления имён символов."
 
+msgid "File"
+msgstr "Файл"
+
+msgid "Local item display data."
+msgstr "Названия предметов для отображения в интерфейсе."
+
+msgid "UI preferences and view history."
+msgstr "Настройки интерфейса и история просмотров."
+
+msgid "Character-specific UI and presentation state."
+msgstr "Настройки интерфейса и отображения персонажа."
+
+msgid "Character-specific state data separated by feature domains."
+msgstr "Данные персонажа, сгруппированные по функциям."
+
+msgid "Recent player interactions"
+msgstr "Недавние взаимодействия с игроками"
+
+msgid "Notification history"
+msgstr "История уведомлений"
+
+msgid "Donate shop offer view history"
+msgstr "История просмотров предложений магазина"
+
+msgid "Profile customization catalog view state"
+msgstr "Состояние каталога персонализации профиля"
+
+msgid "Notes about players"
+msgstr "Заметки об игроках"
+
+msgid "Survey form state"
+msgstr "Состояние формы опроса"
+
 # ============================================================================
 # No translation required.
 # ============================================================================
 
+
 msgid "``.mcsa`` Scene Assets (Legacy)"
 msgstr ""
+""
 
 msgid "``.mcsb`` Scene Bundle"
 msgstr ""
+""
 
 msgid "``.mcvd`` Trace Model"
 msgstr ""
+""
 
 msgid "``.efkmodel`` Effekseer Model"
 msgstr ""
+""
 
 msgid "``.mcvd`` Animation Set"
 msgstr ""
+""
 
 msgid "``.mcal`` Animation Library"
 msgstr ""
+""
 
 msgid "``.ol`` Object Layer"
 msgstr ""
+""
 
 msgid "``.sign`` Texture Signatures"
 msgstr ""
+""
 
 msgid "``.mic`` Media Image Container"
 msgstr ""
+""
 
 msgid "``.texarr`` Texture Array"
 msgstr ""
+""
 
 msgid "``.mdat`` World Region Cache"
 msgstr ""
+""
 
 msgid "``.xeon`` Encrypted Bundle"
 msgstr ""
+""
 
 msgid "``.mcws`` World Slice"
 msgstr ""
+""
 
 msgid "``.ta`` Texture Array"
 msgstr ""
+""
 
 msgid "``.bank`` Audio Bank"
 msgstr ""
+""
 
 msgid "``.map`` Hash Mappings"
 msgstr ""
+""
 
 msgid "``.torrent.bin`` Torrent Binary"
 msgstr ""
+""
 
 msgid "``.lang``"
 msgstr ""
+""
 
 msgid "``.properties``"
 msgstr ""
+""
 
 msgid "``.md``"
 msgstr ""
+""
 
 msgid "``.srt``"
 msgstr ""
+""
 
 msgid "``.smm``"
 msgstr ""
+""
 
 msgid "``.obj``"
 msgstr ""
+""
 
 msgid "``.glb``"
 msgstr ""
+""
 
 msgid "``.fbx``"
 msgstr ""
+""
 
 msgid "``.dds``."
 msgstr ""
+""
 
 msgid "``.png`` (`Portable Network Graphics <PNG_>`_)."
 msgstr ""
+""
 
 msgid "``.zip`` (ZIP_)."
 msgstr ""
+""
 
 msgid "``.json`` (`JavaScript Object Notation <JSON_>`_)."
 msgstr ""
+""
 
 msgid "`Wavefront OBJ <OBJ_>`_"
 msgstr ""
+""
 
 msgid "`glTF Binary <GLTF_>`_"
 msgstr ""
+""
 
 msgid "`Autodesk FBX <FBX_>`_"
 msgstr ""
+""
 
 msgid "`Java Properties <Propetries_>`_"
 msgstr ""
+""
 
 msgid "Markdown_"
 msgstr ""
+""
 
 msgid "SubRip_"
 msgstr ""
+""
 
 msgid "`FMOD Studio <FMOD_>`_."
 msgstr ""
+""
 
 msgid "UV2"
 msgstr ""
+""
 
 msgid "Tangents"
 msgstr ""
+""
 
 msgid "Armature"
 msgstr ""
+""
 
 msgid "Bone Clips"
 msgstr ""
+""
 
 msgid "Morph Clips"
 msgstr ""
+""
 
 msgid "``_diff``"
 msgstr ""
+""
 
 msgid "``_spek``"
 msgstr ""
+""
 
 msgid "``_nrm``"
 msgstr ""
+""
 
 msgid "``_emi``"
 msgstr ""
+""
 
 msgid "``Diffuse``"
 msgstr ""
+""
 
 msgid "``Specular``"
 msgstr ""
+""
 
 msgid "``Normal``"
 msgstr ""
+""
 
 msgid "``Emission``"
 msgstr ""
+""
 
 msgid "``#?3V``"
 msgstr ""
+""
 
 msgid "``DXT1``"
 msgstr ""
+""
 
 msgid "``BC1``"
 msgstr ""
+""
 
 msgid "``#?3T``"
 msgstr ""
+""
 
 msgid "``DXT3``"
 msgstr ""
+""
 
 msgid "``BC2``"
 msgstr ""
+""
 
 msgid "``#?3R``"
 msgstr ""
+""
 
 msgid "``DXT5``"
 msgstr ""
+""
 
 msgid "``BC3``"
 msgstr ""
+""
 
 msgid "``#?)8?``"
 msgstr ""
+""
 
 msgid "``DXN_X``"
 msgstr ""
+""
 
 msgid "``ATI1``"
 msgstr ""
+""
 
 msgid "``BC4``"
 msgstr ""
+""
 
 msgid "``#?)8?>``"
 msgstr ""
+""
 
 msgid "``DXN_XY``"
 msgstr ""
+""
 
 msgid "``ATI2``"
 msgstr ""
+""
 
 msgid "``BC5``"
 msgstr ""
+""
 
 msgid "``5 %&_``"
 msgstr ""
+""
 
 msgid "``RGBA8``"
 msgstr ""
+""
 
 msgid "``R8G8B8A8``"
 msgstr ""
+""
 
 msgid "``None``"
 msgstr ""
+""
 
 msgid "``% 5&_``"
 msgstr ""
+""
 
 msgid "``BGRA8``"
 msgstr ""
+""
 
 msgid "``B8G8R8A8``"
 msgstr ""
+""
 
 msgid "``5 %&TU!``"
 msgstr ""
+""
 
 msgid "``RGBA32F``"
 msgstr ""
+""
 
 msgid "``R32G32B32A32``"
 msgstr ""
+""
 
 msgid "``stalker/itemnames.dat``"
 msgstr ""
+""
 
 msgid "``config/prefs``"
 msgstr ""
+""
 
 msgid "``config/<Name>/common``"
 msgstr ""
+""
 
 msgid "``config/<Name>/sd0``"
 msgstr ""
+""
 
 msgid "``config/<Name>/sd1``"
 msgstr ""
+""
 
 msgid "``config/<Name>/sd2``"
 msgstr ""
+""
 
 msgid "``config/<Name>/sd3``"
 msgstr ""
+""
 
 msgid "``config/<Name>/sd4``"
 msgstr ""
+""
 
 msgid "gzip_"
 msgstr ""
+""
 
 msgid "zstd_"
 msgstr ""
+""
 
 msgid "``seenArticleLinks[], seenExperiences[], hasSeen*``"
 msgstr ""
+""
 
 msgid "``trashedItems[], caseLastOpenCount[], complaintsData{...}, seenFrontlineIntros``"
 msgstr ""
+""
 
 msgid "``requests[]``"
 msgstr ""
+""
 
 msgid "``interacts[{allianceId, type, username}]``"
 msgstr ""
+""
 
 msgid "``notifications[{isRead, receivedMoment, notification{...}}]``"
 msgstr ""
+""
 
 msgid "``observedOffers[]``"
 msgstr ""
+""
 
 msgid "``lastSeenBackgroundsVersion, lastSeenPatternsVersion, lastSeenStickersVersion, lastSeenTagsVersion``"
 msgstr ""
+""
 
 msgid "``display``"
 msgstr ""
+""
 
 msgid "``keybindings``"
 msgstr ""
+""
 
 msgid "``options.json``"
 msgstr ""
+""
 
 msgid "``quests.json``"
 msgstr ""
+""
 
 msgid "``waypoints.cfg``"
 msgstr ""
+""
 
 msgid "➖"
 msgstr ""
+""
 
 msgid "✅"
 msgstr ""
+""
 
 msgid "❌"
 msgstr ""
+""
+
+msgid "MDAT major versions ``v5``, ``v6``, and ``v7``."
+msgstr "Основные версии MDAT: ``v5``, ``v6`` и ``v7``."

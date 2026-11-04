@@ -203,8 +203,6 @@ def apply_fp_animation(animation: ModelScene, *models: ModelScene) -> ModelScene
         raise AnimationError("No models provided.")
 
     target_ids = {bone.name: bone.id for bone in animation.skeleton.bones}
-    if len(target_ids) != len(animation.skeleton.bones):
-        raise AnimationError("Animation skeleton contains duplicate bone names.")
 
     meshes = list(animation.meshes)
 
@@ -244,9 +242,6 @@ def extend_fp_skeleton(animation: ModelScene, *models: ModelScene) -> ModelScene
     target_bones = list(animation.skeleton.bones)
     target_ids = {bone.name: bone.id for bone in target_bones}
     original_count = len(target_bones)
-
-    if len(target_ids) != original_count:
-        raise AnimationError("Animation skeleton contains duplicate bone names.")
 
     for model in models:
         source_bones = model.skeleton.bones

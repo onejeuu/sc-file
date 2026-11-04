@@ -252,8 +252,7 @@ def test_fp_errors() -> None:
     with pytest.raises(AnimationError):
         T.apply_fp_animation(_fp_scene())
 
-    with pytest.raises(AnimationError):
-        T.apply_fp_animation(_fp_scene(duplicate_bones=True), _skinned_model())
+    T.apply_fp_animation(_fp_scene(duplicate_bones=True), _skinned_model())
 
     with pytest.raises(AnimationError):
         T.apply_fp_animation(_fp_scene(), _skinned_model(bone_id=1))

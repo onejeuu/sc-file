@@ -262,7 +262,8 @@ Export
 :Templates: MDAT.bt_, MDAT.CHUNK.bt_, MDAT.OBJECTS.bt_
 :Purpose: Region container for 32×32 terrain chunks.
 :Contents: Metadata table, Chunk payload and Objects payload. Payloads are `zstd`_ compressed.
-:Export: Minecraft Java ``1.12.2+`` (Anvil_ ``1343``), with approximate block mapping and biomes.
+:Support: MDAT major versions ``v5``, ``v6``, and ``v7``.
+:Export: Minecraft Java Edition ``1.12.2`` or newer (Anvil_ ``1343``). Block and biome mappings are approximate.
 
 | :doc:`Usage guide → <usage/mapcache>`
 
