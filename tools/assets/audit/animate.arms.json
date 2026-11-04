@@ -176,6 +176,9 @@
     "highpoly/animations/wpn_fp_asm_val.mcvd": [
       "weapons/models/weapons/asm_val/asm_val.mcsb"
     ],
+    "highpoly/animations/wpn_fp_atam.mcvd": [
+      "weapons/models/meleeweapons/atam/atam.mcsb"
+    ],
     "highpoly/animations/wpn_fp_aug9.mcvd": [
       "weapons/models/weapons/aug/aug9mm.mcsb"
     ],
@@ -246,6 +249,9 @@
     "highpoly/animations/wpn_fp_bolt_battery_small.mcvd": [
       "weapons/models/weapons/battery/battery.mcsb"
     ],
+    "highpoly/animations/wpn_fp_bolt_bell.mcvd": [
+      "weapons/models/weapons/bolt/bell/bell.mcsb"
+    ],
     "highpoly/animations/wpn_fp_bolt_new_year_2025.mcvd": [
       "weapons/models/weapons/bolt/icicle/icicle.mcsb"
     ],
@@ -256,7 +262,8 @@
       "weapons/models/meleeweapons/britva/britva.mcsb"
     ],
     "highpoly/animations/wpn_fp_buryat.mcvd": [
-      "weapons/models/weapons/detektor_model/buryat.mcsb"
+      "weapons/models/weapons/detektor_model/buryat.mcsb",
+      "weapons/models/weapons/detektor_model/motif_buryat_avra/buryat_avra.mcsb"
     ],
     "highpoly/animations/wpn_fp_chain.mcvd": [
       "weapons/models/weapons/bolt/chain/chain.mcsb"
@@ -266,6 +273,18 @@
     ],
     "highpoly/animations/wpn_fp_chain_whip.mcvd": [
       "weapons/models/meleeweapons/chain_whip/chain_whip.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_char.mcvd": [
+      "weapons/models/weapons/character.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_chetki_bird.mcvd": [
+      "weapons/models/weapons/bolt/chetki/base.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_chetki_iznanka.mcvd": [
+      "weapons/models/weapons/bolt/chetki/inside.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_chetki_special.mcvd": [
+      "weapons/models/weapons/bolt/chetki/custom.mcsb"
     ],
     "highpoly/animations/wpn_fp_cheytac200.mcvd": [
       "weapons/models/weapons/cheytac200/cheytac200.mcsb",
@@ -338,6 +357,9 @@
       "weapons/models/meleeweapons/spike/spike.mcsb",
       "weapons/models/meleeweapons/twitch/twitch.mcsb"
     ],
+    "highpoly/animations/wpn_fp_downrange_autumn26.mcvd": [
+      "weapons/models/meleeweapons/downrange/style_autumn26/downrange_autumn26.mcsb"
+    ],
     "highpoly/animations/wpn_fp_dp.mcvd": [
       "weapons/models/weapons/dp27/dp_27.mcsb"
     ],
@@ -354,7 +376,8 @@
       "weapons/models/attachments/launcher/eglm/eglm.mcsb"
     ],
     "highpoly/animations/wpn_fp_elbrus.mcvd": [
-      "weapons/models/weapons/detektor_model/elbrus.mcsb"
+      "weapons/models/weapons/detektor_model/elbrus.mcsb",
+      "weapons/models/weapons/detektor_model/motif_eol/elbrus_eol.mcsb"
     ],
     "highpoly/animations/wpn_fp_eshka.mcvd": [
       "weapons/models/weapons/eshka/eshka.mcsb",
@@ -407,6 +430,9 @@
     "highpoly/animations/wpn_fp_flaregun.mcvd": [
       "weapons/models/weapons/flaregun/flareguns.mcsb"
     ],
+    "highpoly/animations/wpn_fp_fmg9.mcvd": [
+      "weapons/models/weapons/fmg9/fmg9.mcsb"
+    ],
     "highpoly/animations/wpn_fp_fn2000.mcvd": [
       "weapons/models/weapons/f2000/f2000.mcsb",
       "weapons/models/weapons/f2000/f2000t.mcsb"
@@ -457,6 +483,9 @@
     ],
     "highpoly/animations/wpn_fp_glock.mcvd": [
       "weapons/models/weapons/glock/glock.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_glock_autumn26.mcvd": [
+      "weapons/models/weapons/glock/style_autumn26/glock18_autumn26.mcsb"
     ],
     "highpoly/animations/wpn_fp_glock_summer26.mcvd": [
       "weapons/models/weapons/glock/style_summer26/glock18_summer26.mcsb"
@@ -808,6 +837,9 @@
     "highpoly/animations/wpn_fp_mk47.mcvd": [
       "weapons/models/weapons/mk47/mk47.mcsb"
     ],
+    "highpoly/animations/wpn_fp_mk47_autumn26.mcvd": [
+      "weapons/models/weapons/mk47/style_autumn26/mk47_autumn26.mcsb"
+    ],
     "highpoly/animations/wpn_fp_mk47_spring25.mcvd": [
       "weapons/models/weapons/mk47/style_spring25/mk47_spring25.mcsb"
     ],
@@ -978,6 +1010,9 @@
     "highpoly/animations/wpn_fp_qbu191.mcvd": [
       "weapons/models/weapons/qbu191/qbu191.mcsb"
     ],
+    "highpoly/animations/wpn_fp_qbu191_autumn26.mcvd": [
+      "weapons/models/weapons/qbu191/style_autumn26/qbu191_autumn26.mcsb"
+    ],
     "highpoly/animations/wpn_fp_qbz191.mcvd": [
       "weapons/models/weapons/qbz191/qbz191.mcsb"
     ],
@@ -1039,8 +1074,13 @@
       "weapons/models/weapons/rpl20/style_spring24/rpl20_spring24.mcsb"
     ],
     "highpoly/animations/wpn_fp_rsh12.mcvd": [
-      "weapons/models/weapons/rsh12/rsh12.mcsb",
-      "weapons/models/weapons/rsh12/rsh12_hw23_3d_1/rsh12_hw23.mcsb"
+      "weapons/models/weapons/rsh12/rsh12.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_rsh12_autumn26.mcvd": [
+      "weapons/models/weapons/rsh12/style_autumn26/rsh12_autumn26.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_rsh12_halloween23.mcvd": [
+      "weapons/models/weapons/rsh12/style_halloween23/rsh12_hw23.mcsb"
     ],
     "highpoly/animations/wpn_fp_rsh12_summer25.mcvd": [
       "weapons/models/weapons/rsh12/style_summer25/rsh12_summer25.mcsb"
@@ -1272,6 +1312,12 @@
     "highpoly/animations/wpn_fp_vityaz_sn.mcvd": [
       "weapons/models/weapons/pp19/pp19.mcsb",
       "weapons/models/weapons/vityaz_sn/vityaz_sn.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_vozduhan.mcvd": [
+      "weapons/models/weapons/vozduhan/vozduhan.mcsb"
+    ],
+    "highpoly/animations/wpn_fp_vozduhan_autumn26.mcvd": [
+      "weapons/models/weapons/vozduhan/style_autumn26/vozduhan_autumn26.mcsb"
     ],
     "highpoly/animations/wpn_fp_vsk.mcvd": [
       "weapons/models/weapons/vsk/vsk94.mcsb"
