@@ -1,6 +1,44 @@
 📋 Changelog
 ==================================================
 
+.. _v6.3.0:
+
+v6.3.0 (2026-11-04)
+----------------------------------------
+
+✨ Added
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``MdatDecoder``: support for MDAT version ``7.0``.
+* ``RegionContent`` and ``RegionChunk``: decoded MDAT record and object data for extended chunk parsing.
+* **Development**: ``tools mapcache`` commands for inspecting, searching, comparing, and reporting.
+
+📝 Changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``Options.mdat_version``: selects the MDAT major version used by decoders and map cache conversion.
+* ``BinaryStructureError.hint``: now describes both corrupted and incompatible data.
+* ``SafetyLimitError``: now inherits directly from ``DecodingError``.
+* **GUI:** Map Cache version follows the ``map_cache/<version>`` source path and warns about unsupported versions.
+* **Templates**: updated ``MDAT.bt``, ``MDAT.CHUNK.bt``, and ``MDAT.OBJECTS.bt``.
+* **Development:** updated audit resource mappings and added extended chunk parsing to the audit tool.
+* **Resources:** compressed test and tool assets to reduce repository size.
+* **Dependencies:** bumped to current releases.
+
+🐛 Fixed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``apply_fp_animation()`` and ``extend_fp_skeleton()``: no longer reject valid animation files with duplicate bone names.
+* ``ComboBox``: preserves display titles for entries without detail text.
+
+🗑️ Removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Deprecated ``TextureContent.mipmap_count``, ``TextureContent.format``, and ``TextureContent.path_hash`` aliases.
+* Deprecated ``RegionContent.rx`` and ``RegionContent.rz`` aliases.
+
+
+
 .. _v6.2.1:
 
 v6.2.1 (2026-09-17)
@@ -9,17 +47,17 @@ v6.2.1 (2026-09-17)
 ✨ Added
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``MDAT.OBJECTS.bt``: new template for decompressed map cache object payloads.
+* **Templates**: ``MDAT.OBJECTS.bt``: new template for decompressed map cache object payloads.
 
 📝 Changed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``MDAT.bt`` and ``MDAT.CHUNK.bt``: updated for the v6.0 map cache payload structure.
+* **Templates**: ``MDAT.bt`` and ``MDAT.CHUNK.bt``: updated for the v6.0 map cache payload structure.
 
 🐛 Fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``GameRoot.resolve_map_cache()``: now resolves the game map cache from ``map_cache/7.0``.
+* ``GameRoot.resolve_map_cache()``: now resolves the game map cache from ``map_cache/6.0``.
 
 
 

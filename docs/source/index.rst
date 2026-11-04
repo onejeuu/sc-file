@@ -163,6 +163,7 @@ Install or update the package:
 - ``🐛`` **Found a bug?** `Open an issue <Issues_>`_
 - ``💻`` **Download executable:** `Latest release <Releases_>`_
 - ``🔧`` **Compile from source:** :doc:`Build guide <compile>`
+- ``❤️`` **Support development:** CloudTips_ · NOWPayments_
 
 
 ----------------------------------------

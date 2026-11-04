@@ -152,4 +152,4 @@ Questions and usage advice belong in `Telegram <TG_>`_.
 ❤️ Support
 ----------------------------------------
 
-If this tool has been useful, you can support its development by donation: NOWPayments_, CloudTips_.
+If this tool has been useful, you can support its development by donation: CloudTips_ · NOWPayments_.

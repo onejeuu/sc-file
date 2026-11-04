@@ -195,5 +195,5 @@ msgstr "Вопросы и советы по использованию зада�
 msgid "❤️ Support"
 msgstr "❤️ Поддержка"
 
-msgid "If this tool has been useful, you can support its development by donation: NOWPayments_, CloudTips_."
-msgstr "Если этот инструмент был полезен, вы можете поддержать его разработку пожертвованием: NOWPayments_, CloudTips_."
+msgid "If this tool has been useful, you can support its development by donation: CloudTips_ · NOWPayments_."
+msgstr "Если этот инструмент был полезен, вы можете поддержать его разработку пожертвованием: CloudTips_ · NOWPayments_."

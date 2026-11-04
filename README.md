@@ -11,6 +11,8 @@
 [releases]: https://github.com/onejeuu/sc-file/releases
 [docs]: https://sc-file.readthedocs.io/en/latest
 [contact]: https://onejeuu.t.me
+[donate]: https://pay.cloudtips.ru/p/ecbf3144
+[donate-nowpayments]: https://nowpayments.io/donation/scfile
 
 <!-- Documentation -->
 
@@ -135,6 +137,7 @@ print([bone.name for bone in model.scene.skeleton.bones])
 - `🐛` **Found a bug?** [Open an issue][issues]
 - `💻` **Download executable:** [Latest release][releases]
 - `🔧` **Compile from source:** [Build guide][docs-compile]
+- `❤️` **Support development:** [CloudTips][donate] · [NOWPayments][donate-nowpayments]
 
 ## 🤝 Acknowledgments
 

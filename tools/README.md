@@ -9,6 +9,7 @@ uv run -m tools --help
 uv run -m tools audit --help
 uv run -m tools info --help
 uv run -m tools profile --help
+uv run -m tools mapcache --help
 ```
 
 ## Audit
@@ -76,3 +77,20 @@ Each operation writes a separate `.prof` file to `reports/profile`.
 
 Timing runs are measured without `cProfile`.
 Profile data is collected in a separate run.
+
+## Map Cache
+
+Reads MDAT region files. Set `--mdat-version` to choose the format version.
+Without it, the tool uses the newest supported version.
+
+```bash
+uv run -m tools mapcache --help
+uv run -m tools mapcache region "C:/assets/reg.0.0.mdat"
+uv run -m tools mapcache chunk "C:/assets/reg.0.0.mdat" --index 0
+uv run -m tools mapcache census "C:/assets/map_cache" -o reports/mapcache
+uv run -m tools mapcache find "C:/assets/map_cache" --block-id 123
+```
+
+Commands: `region`, `chunk`, `block`, `records`, `objects`, `dump`, `census`,
+`compare`, `map`, and `find`. Commands that support JSON output accept
+`--json`.

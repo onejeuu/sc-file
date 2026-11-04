@@ -137,6 +137,9 @@ msgstr "``💻`` **Скачать исполняемый файл:** `После
 msgid "``🔧`` **Compile from source:** :doc:`Build guide <compile>`"
 msgstr "``🔧`` **Скомпилировать из исходников:** :doc:`Руководство по сборке <compile>`"
 
+msgid "``❤️`` **Support development:** CloudTips_ · NOWPayments_"
+msgstr "``❤️`` **Поддержать разработку:** CloudTips_ · NOWPayments_"
+
 msgid "🤝 Acknowledgments"
 msgstr "🤝 Благодарности"
 
