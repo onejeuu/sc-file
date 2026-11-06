@@ -22,22 +22,22 @@ class ChunkHeader:
 
 @dataclass
 class ChunkSection:
-    """Vertical section of a world chunk."""
+    """Full voxel planes for a vertical section."""
 
     y: int
     blocks: memoryview
-    metadata: memoryview | None = None
+    metadata: memoryview
     additions: memoryview | None = None
 
 
 @dataclass
 class RegionChunk:
-    """World chunk data used by conversion and optional extended parsing."""
+    """Terrain data with optional records and objects."""
 
     index: int
     sections: tuple[ChunkSection, ...]
     biomes: memoryview
-    lighting: memoryview | None = None
+    lighting: memoryview
     records: "ChunkRecords | None" = None
     objects: "ChunkObjects | None" = None
 

@@ -11,6 +11,7 @@ from scfile.options import Options
 
 from .base import Handler
 from .encoder import Encoder
+from .resources import Resources
 
 
 class Decoder[
@@ -35,6 +36,7 @@ class Decoder[
         self,
         stream: IOStream,
         options: Optional[Options] = None,
+        resources: Resources | None = None,
     ):
         """
         Initialize decoder.
@@ -42,6 +44,7 @@ class Decoder[
         Args:
             stream: Source file path, source bytes, or binary stream.
             options (optional): Options used by this decoder.
+            resources (optional): Resources shared by handlers in the same operation.
 
         Note:
             Parsing is deferred until :meth:`decode` is called.
@@ -54,6 +57,7 @@ class Decoder[
                 order=self.order,
             ),
             options=options if options is not None else Options(),
+            resources=resources,
         )
 
     @property
@@ -73,6 +77,7 @@ class Decoder[
 
         try:
             self._verify_filesize()
+            self._resolve_resources()
             self._prelude()
             self._verify_signature()
             self._parse()
@@ -98,6 +103,8 @@ class Decoder[
             options (optional): Options for the target encoder. Defaults to decoder options.
             output (optional): Output file path or binary stream. Defaults to in-memory buffer.
 
+        The target encoder receives the same :class:`Resources` instance as this decoder.
+
         Returns:
             Open target encoder with decoded content.
         """
@@ -105,7 +112,7 @@ class Decoder[
         options = options or self.options
         data = self.decode()
 
-        return encoder(data=data, options=options, output=output)
+        return encoder(data=data, options=options, output=output, resources=self.resources)
 
     def convert[WriterType: StructWriter](
         self,

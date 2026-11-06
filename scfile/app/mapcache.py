@@ -1,12 +1,74 @@
+import json
 import re
 from dataclasses import replace
 from pathlib import Path
 
+from scfile.exceptions import BlockMappingError
+from scfile.formats.mca.mappings import BUILTIN_MAPPINGS
 from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
-from scfile.options import MdatVersion, Options
+from scfile.options import BlockMapping, MdatVersion, Options
 
 
 _VERSION_PATH = re.compile(r"^(?P<major>\d+)\.\d+$")
+
+
+def load_block_mappings(specs: tuple[str, ...]) -> tuple[BlockMapping, ...] | None:
+    """Resolve ordered built-in names, JSON files, and inline JSON objects."""
+
+    if not specs:
+        return None
+
+    return tuple(_load_block_mapping(spec) for spec in specs)
+
+
+def _load_block_mapping(spec: str) -> BlockMapping:
+    name = spec.casefold()
+    if name in BUILTIN_MAPPINGS:
+        return BUILTIN_MAPPINGS[name]
+
+    inline = spec.lstrip().startswith("{")
+    if inline:
+        source = "inline JSON"
+        text = spec
+    else:
+        path = Path(spec).expanduser()
+        source = str(path)
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+        except OSError as error:
+            raise BlockMappingError(f"Cannot read block mapping '{source}': {error}.") from error
+
+    try:
+        data = json.loads(text)
+
+    except json.JSONDecodeError as error:
+        raise BlockMappingError(
+            f"Invalid JSON in block mapping '{source}' at line {error.lineno}, column {error.colno}."
+        ) from error
+
+    if not isinstance(data, dict):
+        raise BlockMappingError(f"Block mapping '{source}' must contain a JSON object.")
+
+    mapping: dict[int, int] = {}
+    for key, value in data.items():
+        try:
+            source_id = int(key, 10)
+        except (TypeError, ValueError) as error:
+            raise BlockMappingError(f"Block mapping '{source}' has a non-decimal source ID: {key!r}.") from error
+
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise BlockMappingError(f"Block mapping '{source}' target for source ID {source_id} must be an integer.")
+
+        if not 0 <= source_id <= 4095:
+            raise BlockMappingError(f"Block mapping '{source}' source ID {source_id} is outside 0..4095.")
+        if not 0 <= value <= 4095:
+            raise BlockMappingError(
+                f"Block mapping '{source}' target ID {value} for source ID {source_id} is outside 0..4095."
+            )
+
+        mapping[source_id] = value
+
+    return mapping
 
 
 def version_from_path(path: Path) -> int | None:

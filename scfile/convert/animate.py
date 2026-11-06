@@ -9,7 +9,7 @@ from scfile import formats, types
 from scfile.content import ModelContent
 from scfile.content.models import AnimationClip
 from scfile.content.models import transforms as T
-from scfile.core import ModelDecoder
+from scfile.core import ModelDecoder, Resources
 from scfile.io.models import ModelReader
 from scfile.options import Options
 
@@ -23,6 +23,7 @@ def arms(
     hands: types.SourceLike | None = None,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path: ...
 
 
@@ -34,6 +35,7 @@ def arms(
     hands: types.SourceLike,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path: ...
 
 
@@ -43,6 +45,7 @@ def arms(
     hands: types.SourceLike | None = None,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path:
     """
     Apply first person animation to weapon and hands models.
@@ -53,6 +56,7 @@ def arms(
         hands: Hands model source.
         output (optional): Output file or directory.
         options (optional): Animation and conversion options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Returns:
         Output path.
@@ -60,25 +64,26 @@ def arms(
 
     encoder = formats.GlbEncoder
     options = _options(options)
+    resources = resources or Resources()
 
     src = paths.source(animation)
     out = paths.destination(src, output, encoder.suffix())
 
-    with formats.McvdDecoder(src, options) as mcvd:
+    with formats.McvdDecoder(src, options, resources) as mcvd:
         anims = mcvd.decode()
 
     sources = tuple(filter(None, (weapon, hands)))
     models: list[ModelContent] = []
 
     for source in sources:
-        with formats.McsbDecoder(paths.source(source), options) as mcsb:
+        with formats.McsbDecoder(paths.source(source), options, resources) as mcsb:
             models.append(mcsb.decode())
 
     scene = T.apply_fp_models(anims.scene, *(model.scene for model in models))
     content = replace(anims, scene=scene)
 
     with paths.stage(out) as tmp:
-        with encoder(content, options, output=tmp) as glb:
+        with encoder(content, options, output=tmp, resources=resources) as glb:
             glb.encode()
 
     return out
@@ -89,6 +94,7 @@ def body(
     model: types.SourceLike,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path:
     """
     Apply skeletal animation to a model.
@@ -98,6 +104,7 @@ def body(
         model: Origin model source.
         output (optional): Output file or directory.
         options (optional): Animation and conversion options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Returns:
         Output path.
@@ -110,6 +117,7 @@ def body(
         model=model,
         output=output,
         options=options,
+        resources=resources,
     )
 
 
@@ -118,6 +126,7 @@ def face(
     model: types.SourceLike,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path:
     """
     Apply facial animation to a head model.
@@ -127,6 +136,7 @@ def face(
         model: Head model source.
         output (optional): Output file or directory.
         options (optional): Animation and conversion options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Returns:
         Output path.
@@ -139,6 +149,7 @@ def face(
         model=model,
         output=output,
         options=options,
+        resources=resources,
     )
 
 
@@ -155,15 +166,17 @@ def _apply_external_animation(
     model: types.SourceLike,
     output: types.OutputLike = None,
     options: Options | None = None,
+    resources: Resources | None = None,
 ) -> Path:
     encoder = formats.GlbEncoder
     options = _options(options)
+    resources = resources or Resources()
 
     src = paths.source(animation)
     mdl = paths.source(model)
     out = paths.destination(src, output, encoder.suffix())
 
-    with decoder(src, options) as dec:
+    with decoder(src, options, resources) as dec:
         anims = dec.decode()
 
     if decoder is formats.McalDecoder and not options.preserve_clips:
@@ -171,14 +184,14 @@ def _apply_external_animation(
         scene = replace(anims.scene, animation=replace(library, clips=_filter_clips(library.clips)))
         anims = replace(anims, scene=scene)
 
-    with formats.McsbDecoder(mdl, options) as mcsb:
+    with formats.McsbDecoder(mdl, options, resources) as mcsb:
         target = mcsb.decode()
 
     scene = transform(anims.scene, target.scene)
     content = replace(target, scene=scene)
 
     with paths.stage(out) as tmp:
-        with encoder(content, options, output=tmp) as glb:
+        with encoder(content, options, output=tmp, resources=resources) as glb:
             glb.encode()
 
     return out

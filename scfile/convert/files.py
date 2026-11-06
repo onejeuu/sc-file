@@ -5,7 +5,7 @@ from typing import Optional
 
 from scfile import exceptions, types
 from scfile.content import BaseContent, TextureContent
-from scfile.core import Decoder, Encoder
+from scfile.core import Decoder, Encoder, Resources
 from scfile.formats import registry
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
@@ -34,6 +34,7 @@ def manual[
     source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ) -> types.ResultPath:
     """
     Convert one file with selected handlers.
@@ -44,12 +45,14 @@ def manual[
         source: Source file path.
         output (optional): Output file or directory.
         options (optional): Conversion options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Returns:
         Output path on success, or ``None`` on skip.
     """
 
     options = options or Options()
+    resources = resources or Resources()
 
     src = paths.source(source)
     out = paths.output(src, output, encoder.suffix(), options)
@@ -57,7 +60,7 @@ def manual[
     if out is None:
         return
 
-    with decoder(src, options) as dec:
+    with decoder(src, options, resources) as dec:
         content = dec.decode()
 
     if isinstance(content, TextureContent) and not content.texture.mipmap_count:
@@ -67,7 +70,7 @@ def manual[
         )
 
     with paths.stage(out) as tmp:
-        with encoder(content, options, output=tmp) as enc:
+        with encoder(content, options, output=tmp, resources=resources) as enc:
             enc.encode()
 
     return out
@@ -77,6 +80,7 @@ def auto(
     source: types.SourceLike,
     output: types.OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ) -> types.ResultPath:
     """
     Convert one file with handlers resolved based on name and options.
@@ -85,6 +89,7 @@ def auto(
         source: Source file path.
         output (optional): Output file or directory.
         options (optional): Conversion options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Returns:
         Output path on success, or ``None`` on skip.
@@ -109,4 +114,11 @@ def auto(
             location=str(src),
         )
 
-    return manual(conversion.decoder, conversion.encoder, src, output, options)
+    return manual(
+        conversion.decoder,
+        conversion.encoder,
+        src,
+        output,
+        options,
+        resources,
+    )

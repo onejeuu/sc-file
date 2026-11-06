@@ -8,8 +8,10 @@ from typing import ClassVar
 from scfile import exceptions
 from scfile.app.enums import TaskKind
 from scfile.app.events import TaskError, TaskEvent, TaskItem, TaskItemFailure, TaskStarted
-from scfile.convert import mapcache
 from scfile.app.mapcache import options_for_path
+from scfile.convert import mapcache
+from scfile.core import Resources
+from scfile.formats.mca import mappings
 from scfile.options import Options
 
 from .base import Task, TaskContext
@@ -33,6 +35,7 @@ class MapCacheTask(Task):
         region: MapCacheRegion,
         context: TaskContext,
         options: Options | None = None,
+        resources: Resources | None = None,
     ) -> TaskItem | TaskItemFailure | None:
         key, paths = region
         output = self.output or self.source.with_name(f"{self.source.name}_mca")
@@ -45,6 +48,7 @@ class MapCacheTask(Task):
                 output,
                 options or self.options,
                 context.cancelled.is_set,
+                resources,
             )
             return TaskItem(
                 output=output / filename,
@@ -86,9 +90,15 @@ class MapCacheTask(Task):
             yield TaskError(exceptions.RegionError("No valid regions found.", location=str(self.source)))
             return
 
+        resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.block_mappings)})
         output.mkdir(parents=True, exist_ok=True)
 
-        operation = partial(self._merge, context=context, options=options)
+        operation = partial(
+            self._merge,
+            context=context,
+            options=options,
+            resources=resources,
+        )
         for result in parallel(mapping.items(), operation, context, self.workers):
             if result is not None:
                 yield result

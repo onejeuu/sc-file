@@ -1,7 +1,8 @@
 """Shared options."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Literal, Mapping
+from typing import Literal
 
 from scfile import content as C
 from scfile.content.models import Feature, Features
@@ -27,6 +28,12 @@ type TargetConfig = Mapping[type[C.BaseContent], FileFormat]
 type MdatVersion = Literal[5, 6, 7]
 """Supported MDAT format major versions."""
 
+type BlockMapping = Mapping[int, int]
+"""A partial mapping from source block IDs to target block IDs."""
+
+type BlockMappings = tuple[BlockMapping, ...] | BlockMapping | None
+"""One mapping or ordered mapping layers. Normalized to a tuple by Options."""
+
 
 @dataclass
 class Options:
@@ -48,7 +55,10 @@ class Options:
     """Keep original world region."""
 
     extended_chunk: bool = False
-    """Expose auxiliary world chunk data."""
+    """Expose records and objects from world chunks."""
+
+    block_mappings: BlockMappings = None
+    """Ordered block mapping layers. Empty means the built-in resource-pack mapping."""
 
     mdat_version: MdatVersion | None = None
     """Major version of the MDAT source format."""
@@ -80,6 +90,13 @@ class Options:
 
         defaults.update(self.targets)
         self.targets = defaults
+
+        if self.block_mappings is None:
+            self.block_mappings = ()
+        elif isinstance(self.block_mappings, Mapping):
+            self.block_mappings = (self.block_mappings,)
+        else:
+            self.block_mappings = tuple(self.block_mappings)
 
     @property
     def skeleton_enabled(self) -> bool:

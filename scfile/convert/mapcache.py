@@ -8,6 +8,7 @@ from typing import NamedTuple
 
 from scfile import exceptions, formats
 from scfile.content import RegionContent
+from scfile.core import Resources
 from scfile.options import Options
 
 from . import paths
@@ -84,6 +85,7 @@ def merge(
     output: Path,
     options: Options,
     cancelled: CancelCheck = None,
+    resources: Resources | None = None,
 ) -> MergeResult:
     """
     Merge ``.mdat`` map cache into an ``.mca`` region file.
@@ -94,11 +96,13 @@ def merge(
         output: Output directory.
         options (optional): Conversion options.
         cancelled (optional): Cancel check function.
+        resources (optional): Shared read-only resources of this operation.
 
     Returns:
         Output filename and the number of merged chunks.
     """
 
+    resources = resources or Resources()
     decoder = formats.MdatDecoder
     encoder = formats.McaEncoder
     region = RegionContent()
@@ -109,7 +113,7 @@ def merge(
             raise exceptions.MergeInterrupted()
 
         try:
-            with decoder(source, options) as mdat:
+            with decoder(source, options, resources) as mdat:
                 data = mdat.decode()
 
         except exceptions.ScFileException:
@@ -125,7 +129,7 @@ def merge(
     target = output / filename
 
     with paths.stage(target) as temporary:
-        with encoder(region, options) as mca:
+        with encoder(region, options, resources=resources) as mca:
             mca.encode()
             mca.save(temporary, close=False)
 

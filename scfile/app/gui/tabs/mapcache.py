@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import cast
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QMessageBox, QVBoxLayout, QWidget
 
 from scfile.app.events import TaskItem, TaskItemFailure, TaskStarted, TaskSummary
 from scfile.app.game import GameRoot, McWorld
@@ -13,13 +13,15 @@ from scfile.app.gui.tasks import TaskManager
 from scfile.app.gui.widgets.card import CalloutWidget, CardWidget
 from scfile.app.gui.widgets.combo import ComboBox
 from scfile.app.gui.widgets.disabled import DisabledCursor
+from scfile.app.gui.widgets.mappings import MappingLayersWidget
 from scfile.app.gui.widgets.option import OptionWidget
 from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.warnings import WarningsWidget
 from scfile.app.gui.workers.mapcache import MapCacheScanner
-from scfile.app.mapcache import supported_version_from_path, version_from_path
+from scfile.app.mapcache import load_block_mappings, supported_version_from_path, version_from_path
 from scfile.app.tasks.mapcache import MapCacheTask
+from scfile.exceptions import BlockMappingError
 from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
 from scfile.options import MdatVersion, Options
 
@@ -96,6 +98,7 @@ class MapCacheTab(QWidget):
             hint=strings.get("option.mapcache.backup.hint"),
             checked=True,
         )
+        self.mappings = MappingLayersWidget()
 
         source_card = CardWidget(strings.get("label.form.source"))
         source_card.content.addWidget(self.source)
@@ -117,6 +120,12 @@ class MapCacheTab(QWidget):
         result_card.content.addLayout(options)
         result_card.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(result_card)
+
+        mapping_card = CardWidget(strings.get("label.mapcache.blocks"))
+        mapping_card.content.addWidget(self.mappings)
+        mapping_card.setMaximumWidth(MAX_FORM_WIDTH)
+        layout.addWidget(mapping_card)
+
         info = self._info()
         info.setMaximumWidth(MAX_FORM_WIDTH)
         layout.addWidget(info)
@@ -328,6 +337,12 @@ class MapCacheTab(QWidget):
             self.tasks.cancel()
             return
 
+        try:
+            block_mappings = load_block_mappings(self.mappings.values())
+        except BlockMappingError as error:
+            QMessageBox.warning(self, strings.get("title.mapcache"), str(error))
+            return
+
         task = MapCacheTask(
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
@@ -335,6 +350,7 @@ class MapCacheTab(QWidget):
                 biomes=self.biomes.checked,
                 backup_regions=self.backup.checked,
                 mdat_version=self._selected_version(),
+                block_mappings=block_mappings,
             ),
             workers=self.settings.workers,
         )

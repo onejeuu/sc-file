@@ -5,7 +5,7 @@ from functools import wraps
 from typing import Any, Optional, cast
 
 from scfile.content import BaseContent
-from scfile.core import Decoder, Encoder
+from scfile.core import Decoder, Encoder, Resources
 from scfile.io import StructReader, StructWriter
 from scfile.options import Options
 from scfile.types import OutputLike, ResultPath, SourceLike
@@ -13,7 +13,7 @@ from scfile.types import OutputLike, ResultPath, SourceLike
 from .files import manual
 
 
-type Converter = Callable[[SourceLike, OutputLike, Optional[Options]], ResultPath]
+type Converter = Callable[..., ResultPath]
 
 
 def converter[
@@ -32,6 +32,7 @@ def converter[
             source: SourceLike,
             output: OutputLike = None,
             options: Optional[Options] = None,
+            resources: Resources | None = None,
         ) -> ResultPath:
             return manual(
                 decoder=decoder,
@@ -39,6 +40,7 @@ def converter[
                 source=source,
                 output=output,
                 options=options,
+                resources=resources,
             )
 
         return cast(Converter, wrapper)

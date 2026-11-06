@@ -12,6 +12,7 @@ from scfile.options import Options
 from scfile.types import SourceLike
 
 from .base import Handler
+from .resources import Resources
 
 
 type ContentTransform[ContentType] = Callable[[ContentType], ContentType]
@@ -41,6 +42,7 @@ class Encoder[
         data: ContentType,
         options: Optional[Options] = None,
         output: Optional[OutputStream] = None,
+        resources: Resources | None = None,
     ):
         """
         Initialize encoder.
@@ -49,6 +51,7 @@ class Encoder[
             data: Content to encode.
             options (optional): Options used by this encoder.
             output (optional): Output file path or binary stream. Defaults to in-memory buffer.
+            resources (optional): Resources shared by handlers in the same operation.
 
         Note:
             Serialization is deferred until :meth:`encode` or :meth:`to_bytes` is called.
@@ -61,6 +64,7 @@ class Encoder[
                 order=self.order,
             ),
             options=options if options is not None else Options(),
+            resources=resources,
         )
 
     def encode(
@@ -82,6 +86,7 @@ class Encoder[
         self._state = HandlerState.RUNNING
 
         try:
+            self._resolve_resources()
             self._prelude()
             self._transform(transforms=transforms)
             self._add_signature()

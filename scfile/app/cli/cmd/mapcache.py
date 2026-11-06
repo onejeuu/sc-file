@@ -7,9 +7,10 @@ from scfile.app.cli import params
 from scfile.app.cli.console import warn
 from scfile.app.enums import CliCommand
 from scfile.app.feedback import TaskFeedback
-from scfile.app.mapcache import supported_version_from_path, version_from_path
+from scfile.app.mapcache import load_block_mappings, supported_version_from_path, version_from_path
 from scfile.app.tasks import execute
 from scfile.app.tasks.mapcache import MapCacheTask
+from scfile.exceptions import BlockMappingError
 from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
 from scfile.options import MdatVersion, Options
 
@@ -51,6 +52,13 @@ from scfile.options import MdatVersion, Options
     help="MDAT major version (default: latest).",
 )
 @click.option(
+    "--blocks",
+    "blocks",
+    multiple=True,
+    metavar="MAPPING",
+    help="Block mapping layer: vanilla, resourcepack, a JSON file, or an inline JSON object. May be repeated.",
+)
+@click.option(
     "-v",
     "--verbose",
     is_flag=True,
@@ -63,6 +71,7 @@ def mapcache(
     biomes: bool,
     backup: bool,
     version: str | None,
+    blocks: tuple[str, ...],
     verbose: bool,
 ) -> None:
     """Merge map cache regions."""
@@ -72,10 +81,16 @@ def mapcache(
         selected = f"v{version}" if version is not None else "the latest supported version"
         warn(f"Unsupported MDAT version in path: {detected}. Using {selected}.")
 
+    try:
+        block_mappings = load_block_mappings(blocks)
+    except BlockMappingError as error:
+        raise click.BadParameter(str(error), param_hint="--blocks") from error
+
     options = Options(
         biomes=biomes,
         backup_regions=backup,
         mdat_version=cast(MdatVersion, int(version)) if version is not None else supported_version_from_path(source),
+        block_mappings=block_mappings,
     )
     feedback = TaskFeedback(verbose)
     summary = execute(MapCacheTask(source, output, options, workers), feedback)

@@ -6,7 +6,7 @@ from scfile.content import RegionContent
 from scfile.core import Encoder
 from scfile.enums import ByteOrder, FileFormat
 
-from . import payload
+from . import mappings, payload
 
 
 TIMESTAMPS: bytes = struct.pack(">I", 0) * 1024
@@ -20,7 +20,15 @@ class McaEncoder(Encoder[RegionContent]):
     content_type = RegionContent
 
     @override
+    def _requirements(self):
+        return {
+            mappings.RESOURCE_KEY: lambda: mappings.build(self.options.block_mappings),
+        }
+
+    @override
     def _serialize(self):
+        mapping, byte_mapping = self.resources[mappings.RESOURCE_KEY]
+
         # Create region header
         location_table = bytearray(4096)
         parts = [location_table, TIMESTAMPS]
@@ -37,7 +45,14 @@ class McaEncoder(Encoder[RegionContent]):
 
             # Encode chunk
             compressed = zlib.compress(
-                payload.chunk(chunk_x, chunk_z, chunk, export_biomes=self.options.biomes),
+                payload.chunk(
+                    chunk_x,
+                    chunk_z,
+                    chunk,
+                    export_biomes=self.options.biomes,
+                    mapping=mapping,
+                    byte_mapping=byte_mapping,
+                ),
                 level=COMPRESSION_LEVEL,
             )
             record = struct.pack(">I", marker_size + len(compressed)) + marker + compressed

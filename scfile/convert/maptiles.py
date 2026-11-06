@@ -10,6 +10,7 @@ from typing import Any, NamedTuple
 from PIL import Image
 
 from scfile import exceptions, formats, types
+from scfile.core import Resources
 from scfile.options import Options
 
 from . import paths
@@ -60,6 +61,7 @@ def measure(
     tiles: Mapping[Region, Path],
     options: Options | None = None,
     cancelled: CancelCheck = None,
+    resources: Resources | None = None,
 ) -> Size:
     """Measure the output image without decoding tile pixels."""
 
@@ -67,8 +69,9 @@ def measure(
         raise exceptions.ConversionError("No map tiles found.")
 
     options = options or Options()
+    resources = resources or Resources()
     bounds = Bounds.parse(tiles)
-    return bounds.size(_tile_size(tiles, options, cancelled))
+    return bounds.size(_tile_size(tiles, options, cancelled, resources))
 
 
 def assemble(
@@ -79,6 +82,7 @@ def assemble(
     cancelled: CancelCheck = None,
     progress: Progress = None,
     encoding: Callable[[], None] | None = None,
+    resources: Resources | None = None,
 ) -> AssembleResult:
     """Assemble map tiles from one folder into an image."""
 
@@ -87,7 +91,16 @@ def assemble(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.", location=str(source))
 
-    return render(tiles, output_path, options, save, cancelled, progress, encoding)
+    return render(
+        tiles,
+        output_path,
+        options,
+        save,
+        cancelled,
+        progress,
+        encoding,
+        resources,
+    )
 
 
 def render(
@@ -98,11 +111,13 @@ def render(
     cancelled: CancelCheck = None,
     progress: Progress = None,
     encoding: Callable[[], None] | None = None,
+    resources: Resources | None = None,
 ) -> AssembleResult:
     """Assemble normalized map tiles into an image."""
 
     output_path = Path(output)
     options = options or Options()
+    resources = resources or Resources()
     save = DEFAULT_SAVE if save is None else save
 
     if not tiles:
@@ -113,7 +128,7 @@ def render(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     decoder_options = replace(options, max_mipmaps=1)
     bounds = Bounds.parse(tiles)
-    tile_size = _tile_size(tiles, options, cancelled)
+    tile_size = _tile_size(tiles, options, cancelled, resources)
     canvas_size = bounds.size(tile_size)
     canvas = Image.new("RGB", canvas_size)
 
@@ -122,7 +137,7 @@ def render(
             if cancelled and cancelled():
                 raise exceptions.MergeInterrupted()
 
-            with _decode(path, decoder_options) as image:
+            with _decode(path, decoder_options, resources) as image:
                 _paste(canvas, bounds, key, image, tile_size)
 
             if progress:
@@ -148,13 +163,14 @@ def _tile_size(
     tiles: Mapping[Region, Path],
     options: Options,
     cancelled: CancelCheck,
+    resources: Resources,
 ) -> Size:
     metadata_options = replace(options, max_mipmaps=0)
     sizes: dict[Path, Size] = {}
     for path in tiles.values():
         if cancelled and cancelled():
             raise exceptions.MergeInterrupted()
-        sizes[path] = _size(path, metadata_options)
+        sizes[path] = _size(path, metadata_options, resources)
 
     tile_size = min(sizes.values(), key=lambda size: size.width * size.height)
     for path, size in sizes.items():
@@ -167,8 +183,8 @@ def _tile_size(
     return tile_size
 
 
-def _size(path: Path, options: Options) -> Size:
-    with formats.OlDecoder(path, options) as decoder:
+def _size(path: Path, options: Options, resources: Resources) -> Size:
+    with formats.OlDecoder(path, options, resources) as decoder:
         content = decoder.decode()
 
     size = Size(width=content.width, height=content.height)
@@ -178,8 +194,12 @@ def _size(path: Path, options: Options) -> Size:
 
 
 @contextmanager
-def _decode(path: Path, options: Options) -> Generator[Image.Image, None, None]:
-    with formats.OlDecoder(path, options) as ol:
+def _decode(
+    path: Path,
+    options: Options,
+    resources: Resources,
+) -> Generator[Image.Image, None, None]:
+    with formats.OlDecoder(path, options, resources) as ol:
         dds = ol.convert(formats.DdsEncoder)
 
     with Image.open(BytesIO(dds), formats=("DDS",)) as decoded:

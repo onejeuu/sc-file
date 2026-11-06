@@ -3,6 +3,7 @@
 from typing import Optional
 
 from scfile import formats
+from scfile.core import Resources
 from scfile.options import Options
 from scfile.types import OutputLike, SourceLike
 
@@ -14,6 +15,7 @@ def mcsb_to_obj(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.obj`` format.
@@ -22,6 +24,7 @@ def mcsb_to_obj(
         source: Path to source ``.mcsb`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsb_to_obj("model.mcsb", "model.obj")``
@@ -34,6 +37,7 @@ def mcsb_to_glb(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.glb`` format.
@@ -42,6 +46,7 @@ def mcsb_to_glb(
         source: Path to source ``.mcsb`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsb_to_glb("model.mcsb", "model.glb")``
@@ -54,6 +59,7 @@ def mcsb_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsb`` to ``.fbx`` format.
@@ -62,6 +68,7 @@ def mcsb_to_fbx(
         source: Path to source ``.mcsb`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsb_to_fbx("model.mcsb", "model.fbx")``
@@ -74,6 +81,7 @@ def mcsa_to_obj(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.obj`` format.
@@ -82,6 +90,7 @@ def mcsa_to_obj(
         source: Path to source ``.mcsa`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsa_to_obj("model.mcsa", "model.obj")``
@@ -94,6 +103,7 @@ def mcsa_to_glb(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.glb`` format.
@@ -102,6 +112,7 @@ def mcsa_to_glb(
         source: Path to source ``.mcsa`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsa_to_glb("model.mcsa", "model.glb")``
@@ -114,6 +125,7 @@ def mcsa_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcsa`` to ``.fbx`` format.
@@ -122,6 +134,7 @@ def mcsa_to_fbx(
         source: Path to source ``.mcsa`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcsa_to_fbx("model.mcsa", "model.fbx")``
@@ -134,6 +147,7 @@ def mcvd_to_obj(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.obj`` format.
@@ -142,6 +156,7 @@ def mcvd_to_obj(
         source: Path to source ``.mcvd`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcvd_to_obj("model.mcvd", "model.obj")``
@@ -154,6 +169,7 @@ def mcvd_to_glb(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.glb`` format.
@@ -162,6 +178,7 @@ def mcvd_to_glb(
         source: Path to source ``.mcvd`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcvd_to_glb("model.mcvd", "model.glb")``
@@ -174,6 +191,7 @@ def mcvd_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.mcvd`` to ``.fbx`` format.
@@ -182,6 +200,7 @@ def mcvd_to_fbx(
         source: Path to source ``.mcvd`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mcvd_to_fbx("model.mcvd", "model.fbx")``
@@ -194,6 +213,7 @@ def efkmodel_to_obj(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.obj`` format.
@@ -202,6 +222,7 @@ def efkmodel_to_obj(
         source: Path to source ``.efkmodel`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``efkmodel_to_obj("model.efkmodel", "model.obj")``
@@ -214,6 +235,7 @@ def efkmodel_to_glb(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.glb`` format.
@@ -222,6 +244,7 @@ def efkmodel_to_glb(
         source: Path to source ``.efkmodel`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``efkmodel_to_glb("model.efkmodel", "model.glb")``
@@ -234,6 +257,7 @@ def efkmodel_to_fbx(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts model from ``.efkmodel`` to ``.fbx`` format.
@@ -242,6 +266,7 @@ def efkmodel_to_fbx(
         source: Path to source ``.efkmodel`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``efkmodel_to_fbx("model.efkmodel", "model.fbx")``
@@ -254,6 +279,7 @@ def ol_to_dds(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts texture from ``.ol`` to ``.dds`` format.
@@ -262,6 +288,7 @@ def ol_to_dds(
         source: Path to source ``.ol`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``ol_to_dds("texture.ol", "texture.dds")``
@@ -274,6 +301,7 @@ def mic_to_png(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts image from ``.mic`` to ``.png`` format.
@@ -282,6 +310,7 @@ def mic_to_png(
         source: Path to source ``.mic`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mic_to_png("image.mic", "image.png")``
@@ -294,6 +323,7 @@ def texarr_to_zip(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts texture array from ``.texarr`` to ``.zip`` format.
@@ -302,6 +332,7 @@ def texarr_to_zip(
         source: Path to source ``.texarr`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``texarr_to_zip("blocks.texarr", "blocks.zip")``
@@ -314,6 +345,7 @@ def nbt_to_json(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts data from ``NBT`` to ``.json`` format.
@@ -322,6 +354,7 @@ def nbt_to_json(
         source: Path to source ``NBT`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``nbt_to_json("itemnames.dat", "itemnames.json")``
@@ -334,6 +367,7 @@ def mdat_to_mca(
     source: SourceLike,
     output: OutputLike = None,
     options: Optional[Options] = None,
+    resources: Resources | None = None,
 ):
     """
     Converts world region from ``.mdat`` to ``.mca`` format.
@@ -342,6 +376,7 @@ def mdat_to_mca(
         source: Path to source ``.mdat`` file.
         output (optional): Path to file or directory. Defaults to same location as source.
         options (optional): Shared handlers options.
+        resources (optional): Resources shared by handlers in this operation.
 
     Example:
         - ``mdat_to_mca("reg.0.0.mdat", "r.0.0.mca")``

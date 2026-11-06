@@ -1,7 +1,7 @@
 """Handler lifecycle abstraction."""
 
 from abc import ABC
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from types import MappingProxyType
 from typing import Any, ClassVar, Self
 
@@ -9,6 +9,8 @@ from scfile import exceptions
 from scfile.enums import ByteOrder, FileFormat, HandlerState
 from scfile.io.base import StructIO
 from scfile.options import Options
+
+from .resources import Resources
 
 
 type HandlerContext = dict[str, Any]
@@ -33,10 +35,14 @@ class Handler[IOType: StructIO[Any]](ABC):
     options: Options
     """Options applied by this handler."""
 
+    _resources: Resources
+    """Resources shared by handlers in the same operation."""
+
     def __init__(
         self,
         io: IOType,
         options: Options,
+        resources: Resources | None = None,
     ):
         """
         Initialize handler.
@@ -44,10 +50,12 @@ class Handler[IOType: StructIO[Any]](ABC):
         Args:
             io: Structured binary I/O owned by the handler.
             options: Options shared by the handler.
+            resources: Resources shared by handlers in the same operation.
         """
 
         self.io = io
         self.options = options
+        self._resources = resources or Resources()
         self._ctx: HandlerContext = {}
         self._state = HandlerState.INITIAL
 
@@ -74,6 +82,25 @@ class Handler[IOType: StructIO[Any]](ABC):
         """Current operation lifecycle state."""
 
         return self._state
+
+    @property
+    def resources(self) -> Resources:
+        """Resources shared by handlers in the same operation."""
+
+        return self._resources
+
+    def _requirements(self) -> Mapping[str, Callable[[], Any]]:
+        """Describe resources required for processing and how to create them."""
+
+        return {}
+
+    def _resolve_resources(self) -> None:
+        """Reuse supplied resources and prepare only missing requirements."""
+
+        missing = {key: factory() for key, factory in self._requirements().items() if key not in self._resources}
+
+        if missing:
+            self._resources = Resources({**self._resources, **missing})
 
     @property
     def context(self) -> Mapping[str, Any]:

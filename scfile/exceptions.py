@@ -246,6 +246,12 @@ class EncodingError(ScFileException):
     ...
 
 
+class BlockMappingError(EncodingError):
+    """Raised when a block mapping cannot be compiled or loaded."""
+
+    ...
+
+
 class ConversionError(ScFileException):
     """Raised when requested format conversion is unavailable."""
 

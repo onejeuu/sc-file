@@ -34,24 +34,24 @@ def chunk(
         section = S.ChunkSection(
             y=y,
             blocks=block_data,
-            metadata=(raw[metadata_offset : metadata_offset + NIBBLE_SIZE] if extended else None),
+            metadata=raw[metadata_offset : metadata_offset + NIBBLE_SIZE],
         )
 
-        if extended and header.add_mask & (1 << y):
+        if header.add_mask & (1 << y):
             addition_offset = lighting_end + addition_index * NIBBLE_SIZE
             section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
             addition_index += 1
 
         sections.append(section)
 
-    chunk = S.RegionChunk(
+    result = S.RegionChunk(
         index=index,
         sections=tuple(sections),
         biomes=raw[additions_end:biomes_end],
+        lighting=raw[metadata_end:lighting_end],
     )
 
     if extended:
-        chunk.lighting = raw[metadata_end:lighting_end]
-        chunk.records = records(raw[biomes_end:])
+        result.records = records(raw[biomes_end:])
 
-    return chunk
+    return result
