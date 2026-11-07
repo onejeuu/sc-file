@@ -209,7 +209,14 @@ class ModelRenderer:
         view: str,
         transform: Transform | None,
     ) -> list[RenderFace]:
-        model = spec if "elements" in spec else self.store.model(spec["name"])
+        if "elements" in spec:
+            model = spec
+        else:
+            model = self.store.model(spec["name"])
+            model = {
+                **model,
+                **{key: spec[key] for key in ("origin", "x", "y", "z", "texture_size") if key in spec},
+            }
         camera = self.CAMERAS[view]
         faces = []
         for element in model.get("elements", ()):
@@ -288,7 +295,7 @@ class ModelRenderer:
         texture_size: tuple[int, int],
         rotation: int | None,
     ) -> tuple[Image.Image, list[Point2] | None]:
-        if isinstance(uv, list):
+        if isinstance(uv, list) and uv and isinstance(uv[0], (list, tuple)):
             points = [
                 (float(u) * texture.width / texture_size[0], float(v) * texture.height / texture_size[1]) for u, v in uv
             ]
