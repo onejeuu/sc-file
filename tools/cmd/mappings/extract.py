@@ -158,8 +158,10 @@ def extract_minecraft(source: Path) -> None:
     output = REPORTS / "minecraft"
     textures = output / "textures"
     textures.mkdir(parents=True, exist_ok=True)
+    for preview in textures.glob("*.png"):
+        preview.unlink()
 
-    prefix = "assets/minecraft/textures/blocks/"
+    texture_root = "assets/minecraft/textures/"
     outputs = []
     placeholders = {}
     unmatched = []
@@ -167,15 +169,19 @@ def extract_minecraft(source: Path) -> None:
     written = {}
 
     with zipfile.ZipFile(source) as jar:
-        names = {name[len(prefix) : -4] for name in jar.namelist() if name.startswith(prefix) and name.endswith(".png")}
+        names = {
+            name[len(texture_root) : -4]
+            for name in jar.namelist()
+            if name.startswith(texture_root) and name.endswith(".png")
+        }
         if not names:
-            raise ValueError("Minecraft JAR has no assets/minecraft/textures/blocks/*.png textures.")
+            raise ValueError("Minecraft JAR has no assets/minecraft/textures/*.png textures.")
 
         for record in catalog:
-            texture = next((name for name in record["texture_candidates"] if name in names), None)
+            texture = record["texture"]
             block_id = record["id"]
-            if texture is None:
-                unmatched.append(f"{block_id}:{record['meta']}")
+            if texture not in names:
+                unmatched.append(f"{block_id}:{record['meta']}:{texture}")
                 placeholders.setdefault(
                     block_id,
                     {
@@ -184,7 +190,7 @@ def extract_minecraft(source: Path) -> None:
                         "name": record["name"],
                         "display": record["display"],
                         "texture": None,
-                        "textureName": None,
+                        "textureName": texture,
                     },
                 )
                 continue
@@ -194,12 +200,12 @@ def extract_minecraft(source: Path) -> None:
             seen.add((block_id, texture))
 
             if texture not in written:
-                raw = jar.read(prefix + texture + ".png")
+                raw = jar.read(f"{texture_root}{texture}.png")
                 with Image.open(io.BytesIO(raw)) as image:
                     image = image.convert("RGBA")
                     if image.height > image.width:
                         image = image.crop((0, 0, image.width, image.width))
-                    tint = preview_tint(texture)
+                    tint = preview_tint(texture.rsplit("/", 1)[-1])
                     if tint is not None:
                         image = ImageChops.multiply(image, Image.new("RGBA", image.size, (*tint, 255)))
                     relative = f"textures/{hashlib.sha1(texture.encode()).hexdigest()[:16]}.png"
@@ -230,6 +236,7 @@ def extract_minecraft(source: Path) -> None:
             "blocks": len({record["id"] for record in outputs}),
             "blocks_without_preview": sorted(record["id"] for record in outputs if record["texture"] is None),
             "unmatched_materials": len(unmatched),
+            "unmatched_textures": unmatched,
         },
     )
     if not written:

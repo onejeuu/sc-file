@@ -23,7 +23,7 @@ REPORTS = ROOT / "reports" / "mappings"
 GROUPS = ROOT / "assets" / "mappings" / "groups.json.gz"
 TEMPLATE = ROOT / "assets" / "mappings" / "viewer.html.gz"
 STATE = REPORTS / ".state.json"
-VERSIONS = {"stalcraft": 1, "minecraft": 1}
+VERSIONS = {"stalcraft": 1, "minecraft": 2}
 
 
 def save_state(state: dict) -> None:
