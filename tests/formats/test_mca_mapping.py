@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from scfile.content import RegionContent
-from scfile.content.regions import ChunkSection
+from scfile.content.regions import ChunkSection, ChunkTileMaterials, RegionChunk
 from scfile.core import Resources
 from scfile.enums import ByteOrder
 from scfile.exceptions import BlockMappingError
@@ -36,13 +36,13 @@ def test_vanilla_mapping_contains_the_complete_studio_mapping():
     mapping = mappings.BUILTIN["vanilla"]
 
     assert len(mapping) == 401
-    assert mapping["12"] == "13"
+    assert mapping["12"] == "13:0"
     assert mapping["43"] == "43"
-    assert mapping["4006"] == "70"
+    assert mapping["4006"] == "148:0"
 
     compiled = mappings.compile((mapping,))
     assert compiled.ids[43] == 43
-    assert compiled.ids[4006] == 70
+    assert compiled.ids[4006] == 148
 
 
 def test_options_normalizes_one_mapping_to_tuple():
@@ -275,3 +275,40 @@ def test_high_source_metadata_override_does_not_disable_low_byte_path():
     assert mapping._low_metadata_mask is None
     section = ChunkSection(0, memoryview(bytes([5]) * 4096), memoryview(b"\xab" * 2048))
     assert payload._mapped_blocks(section, mapping, byte_mapping) == (bytes([73]) * 4096, b"", b"\xab" * 2048)
+
+
+def test_tile_primary_material_is_projected_before_existing_mapping():
+    import struct
+
+    section = ChunkSection(
+        4,
+        memoryview(bytes([0xC2]) * 4096),
+        memoryview(bytes([0xAA]) * 2048),
+    )
+    materials = ChunkTileMaterials(
+        memoryview(struct.pack(">3i", -1, 67, 16)),
+        memoryview(struct.pack(">H", 0xD123)),
+    )
+    mapping, byte_mapping = mappings.build({"291": "35:7"})
+
+    tile_data = payload._tile_materials_by_section(materials)
+    assert tile_data is not None
+    tile_y, indices, states = tile_data
+    assert tile_y.tolist() == [4]
+    assert indices.tolist() == [3 * 256 + 15]
+    assert states.tolist() == [0xD123]
+
+    blocks, add, data = payload._mapped_blocks(
+        section,
+        mapping,
+        byte_mapping,
+        tile_indices=indices,
+        tile_states=states,
+    )
+
+    index = 3 * 256 + 15
+    assert blocks[index] == 35
+    assert add == b""
+    assert data[index // 2] == 0x7A
+    assert bytes(section.blocks) == bytes([0xC2]) * 4096
+    assert bytes(section.metadata) == bytes([0xAA]) * 2048

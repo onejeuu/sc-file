@@ -47,13 +47,9 @@ def test_mdat_content_and_mca(version: int, extended: bool) -> None:
         assert chunk.index == 0
         assert bytes(chunk.sections[0].blocks) == bytes([42]) * 4096
         assert len(chunk.biomes) == 256
-        if extended:
-            assert chunk.sections[0].metadata is not None
-            assert len(chunk.sections[0].metadata) == 2048
-        if not extended:
-            assert chunk.sections[0].metadata is None
+        assert len(chunk.sections[0].metadata) == 2048
         assert (chunk.records is None) is (not extended)
-        assert (chunk.lighting is None) is (not extended)
+        assert len(chunk.lighting) == 2048 * 3
         assert (chunk.objects is None) is (not extended or version == 5)
         if chunk.records is not None:
             assert chunk.records.count == 0

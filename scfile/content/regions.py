@@ -32,7 +32,7 @@ class ChunkSection:
 
 @dataclass
 class RegionChunk:
-    """Terrain data with optional records and objects."""
+    """Terrain data with compact tile materials and optional records and objects."""
 
     index: int
     sections: tuple[ChunkSection, ...]
@@ -40,6 +40,7 @@ class RegionChunk:
     lighting: memoryview
     records: "ChunkRecords | None" = None
     objects: "ChunkObjects | None" = None
+    materials: "ChunkTileMaterials | None" = None
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,14 @@ class ChunkRecord:
     data: int
     data_ext: int | None
     raw: memoryview
+
+
+@dataclass(frozen=True)
+class ChunkTileMaterials:
+    """Compact tile projection: big-endian XYZ int32 triplets and uint16 states."""
+
+    positions: memoryview
+    states: memoryview
 
 
 @dataclass

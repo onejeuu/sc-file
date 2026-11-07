@@ -44,14 +44,20 @@ def chunk(
 
         sections.append(section)
 
-    result = S.RegionChunk(
+    container = S.RegionChunk(
         index=index,
         sections=tuple(sections),
         biomes=raw[additions_end:biomes_end],
         lighting=raw[metadata_end:lighting_end],
     )
 
-    if extended:
-        result.records = records(raw[biomes_end:])
+    record_data = raw[biomes_end:]
+    if record_data or extended:
+        decoded_records, materials = records(record_data, include_records=extended)
+        if decoded_records.error is None:
+            container.materials = materials
 
-    return result
+        if extended:
+            container.records = decoded_records
+
+    return container

@@ -33,7 +33,7 @@ docs/_build/
 docs/locale/pot
 
 # Local tools
-/tools/configs/audit.toml
+/tools/configs/*/config.toml
 /tools/reports/
 
 # Private files

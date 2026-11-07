@@ -10,6 +10,7 @@ uv run -m tools audit --help
 uv run -m tools info --help
 uv run -m tools profile --help
 uv run -m tools mapcache --help
+uv run -m tools mappings --help
 ```
 
 ## Audit
@@ -22,8 +23,8 @@ uv run -m tools audit "C:/assets" -F mcsb -F ol
 uv run -m tools audit -R arms
 ```
 
-Persistent settings can be stored in `configs/audit.toml`.
-You can copy `configs/audit.example.toml` as a starting point.
+Persistent settings can be stored in `configs/audit/config.toml`.
+You can copy `configs/audit/config.example.toml` as a starting point.
 
 ```toml
 path = "C:/EXBO/runtime/stalcraft/modassets/assets"
@@ -45,6 +46,32 @@ Found errors and warnings are written to separate JSONL reports.
 With statistics enabled, CSV files are written.
 Report files are replaced on each run.
 Animation relations are read from generated metadata snapshots in `assets/audit`.
+
+## Mappings
+
+Builds the local STALCRAFT → Minecraft Java 1.12.2 Mapping Editor. The command
+prepares only changed or incomplete resource indexes, then rebuilds the viewer.
+
+```bash
+uv run -m tools mappings
+uv run -m tools mappings --run
+uv run -m tools mappings --force
+uv run -m tools mappings --force --run
+```
+
+Copy `configs/mappings/config.example.toml` to `configs/mappings/config.toml`
+and set the paths to `blockMap.texarr` and the Minecraft 1.12.2 client JAR.
+Relative paths are resolved from the repository root.
+
+The prepared indexes, previews, reports, state, and viewer are written to
+`reports/mappings`. Static catalogs, texture groups, and the HTML template are
+stored in `assets/mappings`. The Minecraft catalog contains ordered texture
+candidates; preparation selects candidates present in the configured JAR. The
+base mapping is taken from `scfile.formats.mca.mappings.DEFAULT`. Incremental preparation state is stored in
+`reports/mappings/.state.json`; each source has its own preparation version and a
+BLAKE2b-256 hash for each source/catalog file.
+
+`--force` prepares both sources again. `--run` opens the viewer after building.
 
 ## Info
 
@@ -85,6 +112,7 @@ Without it, the tool uses the newest supported version.
 
 ```bash
 uv run -m tools mapcache --help
+uv run -m tools mappings --help
 uv run -m tools mapcache region "C:/assets/reg.0.0.mdat"
 uv run -m tools mapcache chunk "C:/assets/reg.0.0.mdat" --index 0
 uv run -m tools mapcache census "C:/assets/map_cache" -o reports/mapcache

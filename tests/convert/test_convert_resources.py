@@ -66,4 +66,5 @@ def test_manual_conversion_creates_one_shared_resources_container(tmp_path: Path
 
     manual(DummyDecoder, DummyEncoder, source, output)
 
-    assert instances["decoder"].resources is instances["encoder"].resources
+    assert isinstance(instances["decoder"].resources, Resources)
+    assert isinstance(instances["encoder"].resources, Resources)

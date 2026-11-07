@@ -141,7 +141,7 @@ def test_aspect(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         first: maptiles.Size(2, 2),
         second: maptiles.Size(4, 2),
     }
-    monkeypatch.setattr(maptiles, "_size", lambda path, options: sizes[path])
+    monkeypatch.setattr(maptiles, "_size", lambda path, options, resources: sizes[path])
 
     with pytest.raises(exceptions.ConversionError):
         maptiles.assemble(tmp_path, tmp_path / "map.jpg")

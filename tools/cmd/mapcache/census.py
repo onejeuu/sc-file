@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from scfile.formats.mca.mapping import BLOCKS_MAPPING
+from scfile.formats.mca import mappings
 
 from . import scan
 from .mdat import objects, records
@@ -14,6 +14,9 @@ from .mdat.objects import Instance
 from .mdat.terrain import State, Terrain
 from .metadata import BlockDefinition, Catalog, ObjectDefinition
 from .reports import Diagnostic, Writer, chunk_info, region_info, write
+
+
+BLOCKS_MAPPING = mappings.compile().ids[:256]
 
 
 @dataclass

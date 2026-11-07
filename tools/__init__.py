@@ -1,6 +1,6 @@
 """Development tools package."""
 
-from .cmd import audit, info, mapcache, profile, tools
+from .cmd import audit, info, mapcache, mappings, profile, tools
 
 
 __all__ = (
@@ -8,5 +8,6 @@ __all__ = (
     "audit",
     "info",
     "mapcache",
+    "mappings",
     "profile",
 )

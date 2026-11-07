@@ -10,7 +10,7 @@ from scfile import formats
 from tools.paths import ROOT
 
 
-CONFIG = ROOT / "configs" / "audit.toml"
+CONFIG = ROOT / "configs" / "audit" / "config.toml"
 FORMATS = tuple(sorted(str(format) for format in formats.registry.decoders))
 
 
