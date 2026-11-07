@@ -48,6 +48,13 @@ def test_mcsa(
     assert actual == expected
 
 
+def test_mcsb_unsigned() -> None:
+    source = SOURCE / "model_v15.mcsa"
+    actual = export(McsbDecoder, ObjEncoder, source, OPTIONS)
+    expected = (ROOT / "obj" / f"{source.name}.obj").read_bytes()
+    assert actual == expected
+
+
 def test_mcvd() -> None:
     source = SOURCE / "animation.mcvd"
     actual = export(McvdDecoder, GlbEncoder, source, OPTIONS)
