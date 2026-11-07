@@ -3,7 +3,11 @@ import pytest
 from scfile.content import ModelContent
 from scfile.content.models import Feature
 from scfile.enums import FileFormat
-from scfile.options import DEFAULT_TARGETS, Options
+from scfile.options import BlockMapping, DEFAULT_TARGETS, Options
+
+
+def test_block_mapping_alias_is_raw_string_dict() -> None:
+    assert BlockMapping.__value__ == dict[str, str]
 
 
 def test_animation() -> None:

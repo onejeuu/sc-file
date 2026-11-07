@@ -1,10 +1,11 @@
 import struct
 
 import numpy as np
-from numpy.typing import NDArray
 
 from scfile.content.regions import ChunkSection, RegionChunk
 from scfile.io.nbt import Tag
+
+from .mappings import PRESERVE_METADATA, CompiledBlockMapping
 
 
 VERSION = Tag.INT.header(b"DataVersion") + struct.pack(">i", 1343)
@@ -39,44 +40,58 @@ def _array(
 
 def _mapped_blocks(
     section: ChunkSection,
-    mapping: NDArray[np.uint16],
+    mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
-) -> tuple[bytes, bytes]:
+) -> tuple[bytes, bytes, bytes]:
     additions = section.additions
+    blocks = bytes(section.blocks)
 
-    if additions is None and byte_mapping is not None:
-        return bytes(section.blocks).translate(byte_mapping), b""
+    if (
+        additions is None
+        and byte_mapping is not None
+        and (mapping._low_metadata_mask is None or b"\x01" not in blocks.translate(mapping._low_metadata_mask))
+    ):
+        return blocks.translate(byte_mapping), b"", bytes(section.metadata)
 
-    source_ids = np.frombuffer(section.blocks, dtype=np.uint8).astype(np.uint16)
+    source_ids = np.frombuffer(blocks, dtype=np.uint8).astype(np.uint16)
 
     if additions is not None:
         packed = np.frombuffer(additions, dtype=np.uint8)
         source_ids[::2] |= (packed & 0x0F).astype(np.uint16) << 8
         source_ids[1::2] |= (packed >> 4).astype(np.uint16) << 8
 
-    target_ids = mapping[source_ids]
+    target_ids = mapping.ids[source_ids]
     blocks = target_ids.astype(np.uint8).tobytes()
 
     target_high = (target_ids >> 8).astype(np.uint8)
     packed_high = target_high[::2] | (target_high[1::2] << 4)
     add = _array(ADD, packed_high.tobytes()) if np.any(packed_high) else b""
 
-    return blocks, add
+    data = bytes(section.metadata)
+    if mapping._has_metadata_overrides:
+        target_meta = mapping.metadata[source_ids]
+        if np.any(target_meta != PRESERVE_METADATA):
+            packed_data = np.frombuffer(data, dtype=np.uint8)
+            low = np.where(target_meta[::2] == PRESERVE_METADATA, packed_data & 0x0F, target_meta[::2])
+            high = np.where(target_meta[1::2] == PRESERVE_METADATA, packed_data >> 4, target_meta[1::2])
+            data = (low | (high << 4)).astype(np.uint8).tobytes()
+
+    return blocks, add, data
 
 
 def _section(
     section: ChunkSection,
-    mapping: NDArray[np.uint16],
+    mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
 ) -> bytes:
-    blocks, add = _mapped_blocks(section, mapping, byte_mapping)
+    blocks, add, data = _mapped_blocks(section, mapping, byte_mapping)
 
     return b"".join(
         (
             Y,
             Y_VALUES[section.y],
             _array(BLOCKS, blocks),
-            _array(DATA, bytes(section.metadata)),
+            _array(DATA, data),
             _array(BLOCK_LIGHT, EMPTY_NIBBLES),
             add,
             _array(SKY_LIGHT, FULL_NIBBLES),
@@ -91,7 +106,7 @@ def chunk(
     source: RegionChunk,
     *,
     export_biomes: bool,
-    mapping: NDArray[np.uint16],
+    mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
 ) -> bytes:
     sections = [_section(section, mapping, byte_mapping) for section in source.sections]

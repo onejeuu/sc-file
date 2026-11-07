@@ -25,14 +25,14 @@ def test_mapcache_task_prepares_once_and_shares_with_regions(tmp_path, monkeypat
         "scfile.app.tasks.mapcache.parallel", lambda items, operation, context, workers: map(operation, items)
     )
 
-    original = mca_mapping.compile_table
+    original = mca_mapping.build
     compiled = []
 
     def track(mappings=None):
         compiled.append(mappings)
         return original(mappings)
 
-    monkeypatch.setattr(mca_mapping, "compile_table", track)
+    monkeypatch.setattr(mca_mapping, "build", track)
     received = []
 
     def merge(key, sources, output, options, cancelled=None, resources=None):
@@ -40,7 +40,7 @@ def test_mapcache_task_prepares_once_and_shares_with_regions(tmp_path, monkeypat
         return (f"r.{key.x}.{key.z}.mca", len(sources))
 
     monkeypatch.setattr(mapcache, "merge", merge)
-    task = MapCacheTask(source=source, output=tmp_path / "out", options=Options(block_mappings={5: 73}))
+    task = MapCacheTask(source=source, output=tmp_path / "out", options=Options(block_mappings={"5": "73"}))
     list(task.run(TaskContext()))
 
     assert len(compiled) == 1
@@ -48,7 +48,7 @@ def test_mapcache_task_prepares_once_and_shares_with_regions(tmp_path, monkeypat
     assert received[0] is received[1]
     assert isinstance(received[0], Resources)
     mapping, byte_mapping = received[0][mca_mapping.RESOURCE_KEY]
-    assert mapping[5] == 73
+    assert mapping.ids[5] == 73
     assert byte_mapping is not None
 
 

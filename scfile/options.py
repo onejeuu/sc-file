@@ -28,8 +28,8 @@ type TargetConfig = Mapping[type[C.BaseContent], FileFormat]
 type MdatVersion = Literal[5, 6, 7]
 """Supported MDAT format major versions."""
 
-type BlockMapping = Mapping[int, int]
-"""A partial mapping from source block IDs to target block IDs."""
+type BlockMapping = dict[str, str]
+"""Source block ID strings mapped to target ID strings."""
 
 type BlockMappings = tuple[BlockMapping, ...] | BlockMapping | None
 """One mapping or ordered mapping layers. Normalized to a tuple by Options."""

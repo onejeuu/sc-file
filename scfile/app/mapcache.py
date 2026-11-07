@@ -4,7 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from scfile.exceptions import BlockMappingError
-from scfile.formats.mca.mappings import BUILTIN_MAPPINGS
+from scfile.formats.mca import mappings
 from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
 from scfile.options import BlockMapping, MdatVersion, Options
 
@@ -23,8 +23,8 @@ def load_block_mappings(specs: tuple[str, ...]) -> tuple[BlockMapping, ...] | No
 
 def _load_block_mapping(spec: str) -> BlockMapping:
     name = spec.casefold()
-    if name in BUILTIN_MAPPINGS:
-        return BUILTIN_MAPPINGS[name]
+    if name in mappings.BUILTIN:
+        return mappings.BUILTIN[name]
 
     inline = spec.lstrip().startswith("{")
     if inline:
@@ -49,26 +49,13 @@ def _load_block_mapping(spec: str) -> BlockMapping:
     if not isinstance(data, dict):
         raise BlockMappingError(f"Block mapping '{source}' must contain a JSON object.")
 
-    mapping: dict[int, int] = {}
-    for key, value in data.items():
-        try:
-            source_id = int(key, 10)
-        except (TypeError, ValueError) as error:
-            raise BlockMappingError(f"Block mapping '{source}' has a non-decimal source ID: {key!r}.") from error
+    try:
+        mappings.compile(data)
 
-        if isinstance(value, bool) or not isinstance(value, int):
-            raise BlockMappingError(f"Block mapping '{source}' target for source ID {source_id} must be an integer.")
+    except BlockMappingError as error:
+        raise BlockMappingError(f"Block mapping '{source}': {error}") from error
 
-        if not 0 <= source_id <= 4095:
-            raise BlockMappingError(f"Block mapping '{source}' source ID {source_id} is outside 0..4095.")
-        if not 0 <= value <= 4095:
-            raise BlockMappingError(
-                f"Block mapping '{source}' target ID {value} for source ID {source_id} is outside 0..4095."
-            )
-
-        mapping[source_id] = value
-
-    return mapping
+    return data
 
 
 def version_from_path(path: Path) -> int | None:
