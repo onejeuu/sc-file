@@ -32,8 +32,8 @@ def read() -> tuple[Path, Path]:
         path = Path(value).expanduser()
         paths.append((ROOT.parent / path).resolve() if not path.is_absolute() else path.resolve())
 
-    for label, path in zip(("STALCRAFT TEXARR", "Minecraft 1.12.2 JAR"), paths):
+    for label, path in (("Stalcraft", paths[0]), ("Minecraft", paths[1])):
         if not path.is_file():
-            raise click.ClickException(f"{label} not found: '{path}'.")
+            raise click.ClickException(f"{label} source file not found: '{path}'.")
 
     return paths[0], paths[1]

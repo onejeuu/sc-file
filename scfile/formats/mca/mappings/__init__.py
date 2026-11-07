@@ -15,7 +15,7 @@ from .vanilla import BLOCKS as VANILLA
 
 RESOURCE_KEY: Final = "mca.mapping"
 
-DEFAULT: Final = "resourcepack"
+DEFAULT: Final = "vanilla"
 BUILTIN: Final[Mapping[str, BlockMapping]] = MappingProxyType(
     {
         "vanilla": VANILLA,

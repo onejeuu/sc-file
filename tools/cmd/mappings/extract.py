@@ -1,3 +1,4 @@
+import gzip
 import hashlib
 import io
 import json
@@ -7,6 +8,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from PIL import Image, ImageChops, UnidentifiedImageError
+from rich import print
 
 from scfile import formats
 from tools.paths import ROOT
@@ -14,8 +16,8 @@ from tools.paths import ROOT
 
 ASSETS = ROOT / "assets" / "mappings"
 REPORTS = ROOT / "reports" / "mappings"
-STALCRAFT_CATALOG = ASSETS / "stalcraft" / "blocks.json"
-MINECRAFT_CATALOG = ASSETS / "minecraft" / "blocks.json"
+STALCRAFT_CATALOG = ASSETS / "stalcraft.json.gz"
+MINECRAFT_CATALOG = ASSETS / "minecraft.json.gz"
 
 GRASS_TINT = (0x91, 0xBD, 0x59)
 FOLIAGE_TINT = (0x77, 0xAB, 0x2F)
@@ -38,8 +40,9 @@ def aliases(name: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys((key, *("/".join(parts[index:]) for index in range(1, len(parts))), parts[-1])))
 
 
-def prepare_stalcraft(source: Path) -> None:
-    catalog = json.loads(STALCRAFT_CATALOG.read_text(encoding="utf-8"))
+def extract_stalcraft(source: Path) -> None:
+    with gzip.open(STALCRAFT_CATALOG, "rt", encoding="utf-8") as file:
+        catalog = json.load(file)
     output = REPORTS / "stalcraft"
     textures = output / "textures"
     textures.mkdir(parents=True, exist_ok=True)
@@ -117,8 +120,11 @@ def prepare_stalcraft(source: Path) -> None:
         },
     )
     if not decoded:
-        raise ValueError("No STALCRAFT textures were decoded from the configured TEXARR.")
-    print(f"stalcraft: {len(index)} blocks, {decoded} previews, {len(missing)} missing DDS.")
+        raise ValueError("No Stalcraft textures were decoded from the configured TEXARR.")
+    print(
+        f"[bold cyan]Stalcraft[/] {len(index)} blocks, "
+        f"{decoded} previews, {len(missing)} missing DDS."
+    )
 
 
 def preview_tint(name: str) -> tuple[int, int, int] | None:
@@ -146,8 +152,9 @@ def preview_tint(name: str) -> tuple[int, int, int] | None:
     return None
 
 
-def prepare_minecraft(source: Path) -> None:
-    catalog = json.loads(MINECRAFT_CATALOG.read_text(encoding="utf-8"))
+def extract_minecraft(source: Path) -> None:
+    with gzip.open(MINECRAFT_CATALOG, "rt", encoding="utf-8") as file:
+        catalog = json.load(file)
     output = REPORTS / "minecraft"
     textures = output / "textures"
     textures.mkdir(parents=True, exist_ok=True)
@@ -229,6 +236,6 @@ def prepare_minecraft(source: Path) -> None:
         raise ValueError("No Minecraft catalog textures were found in the configured JAR.")
 
     print(
-        f"minecraft: {len(outputs)} materials, {len({record['id'] for record in outputs})} IDs, "
-        f"{len(written)} textures."
+        f"[bold magenta]Minecraft[/] {len(outputs)} materials, "
+        f"{len({record['id'] for record in outputs})} IDs, {len(written)} textures."
     )

@@ -1,3 +1,4 @@
+import gzip
 import hashlib
 import json
 import struct
@@ -8,17 +9,19 @@ from functools import partial
 from pathlib import Path
 
 import click
+from rich import print
+from rich.markup import escape
 
 from scfile.formats.mca import mappings as block_mappings
 from tools.cmd import tools
 from tools.paths import ROOT
 
-from . import config, prepare
+from . import config, extract
 
 
 REPORTS = ROOT / "reports" / "mappings"
-GROUPS = ROOT / "assets" / "mappings" / "groups.json"
-TEMPLATE = ROOT / "assets" / "mappings" / "viewer.html"
+GROUPS = ROOT / "assets" / "mappings" / "groups.json.gz"
+TEMPLATE = ROOT / "assets" / "mappings" / "viewer.html.gz"
 STATE = REPORTS / ".state.json"
 VERSIONS = {"stalcraft": 1, "minecraft": 1}
 
@@ -74,11 +77,12 @@ def outputs_exist(directory: Path, texture_field: str) -> bool:
     return any(paths) and all(not path or (directory / path).is_file() for path in paths)
 
 
-def prepare_asset(
+def ensure_asset(
     name: str,
+    label: str,
     source: Path,
     catalog: Path,
-    prepare_source: Callable[[Path], None],
+    extract_source: Callable[[Path], None],
     texture_field: str,
     state: dict,
     force: bool,
@@ -86,18 +90,18 @@ def prepare_asset(
     current = signature(VERSIONS[name], (source, catalog))
     directory = REPORTS / name
     if not force and state.get(name) == current and outputs_exist(directory, texture_field):
-        click.echo(f"{name}: up to date")
+        print(f"{label} up to date.")
         return
 
-    click.echo(f"{name}: scan")
-    prepare_source(source)
+    print(f"{label} extracting textures.")
+    extract_source(source)
     state[name] = current
     save_state(state)
 
 
 def clean_groups(source: object) -> dict:
     if not isinstance(source, dict) or not isinstance(source.get("groups"), list):
-        raise ValueError("groups.json must contain a groups array.")
+        raise ValueError("groups.json.gz must contain a groups array.")
 
     used_sync_ids = set()
     groups = []
@@ -136,10 +140,12 @@ def clean_groups(source: object) -> dict:
 def build_viewer() -> Path:
     stalcraft = json.loads((REPORTS / "stalcraft/index.json").read_text(encoding="utf-8"))
     minecraft = json.loads((REPORTS / "minecraft/index.json").read_text(encoding="utf-8"))
-    groups = clean_groups(json.loads(GROUPS.read_text(encoding="utf-8")))
+    with gzip.open(GROUPS, "rt", encoding="utf-8") as file:
+        groups = clean_groups(json.load(file))
     base = dict(block_mappings.BUILTIN[block_mappings.DEFAULT])
 
-    template = TEMPLATE.read_text(encoding="utf-8")
+    with gzip.open(TEMPLATE, "rt", encoding="utf-8") as file:
+        template = file.read()
     if template.count("/*__DATA__*/") != 1:
         raise ValueError("Invalid Mapping Editor template: expected one data placeholder.")
 
@@ -156,7 +162,7 @@ def build_viewer() -> Path:
     ).replace("</", r"<\/")
     viewer = REPORTS / "viewer.html"
     viewer.write_text(template.replace("/*__DATA__*/", "BOOT = " + payload + ";"), encoding="utf-8")
-    click.echo(f"viewer: {viewer}")
+    print(f"Viewer: [cyan]{escape(str(viewer))}[/]")
     return viewer
 
 
@@ -168,21 +174,23 @@ def mappings(force: bool, open_browser: bool) -> None:
         stalcraft_source, minecraft_source = config.read()
         state = read_state()
 
-        prepare_asset(
+        ensure_asset(
             "stalcraft",
+            "[bold cyan]Stalcraft[/]",
             stalcraft_source,
-            prepare.STALCRAFT_CATALOG,
-            prepare.prepare_stalcraft,
+            extract.STALCRAFT_CATALOG,
+            extract.extract_stalcraft,
             "primary",
             state,
             force,
         )
 
-        prepare_asset(
+        ensure_asset(
             "minecraft",
+            "[bold magenta]Minecraft[/]",
             minecraft_source,
-            prepare.MINECRAFT_CATALOG,
-            prepare.prepare_minecraft,
+            extract.MINECRAFT_CATALOG,
+            extract.extract_minecraft,
             "texture",
             state,
             force,
@@ -191,7 +199,10 @@ def mappings(force: bool, open_browser: bool) -> None:
         viewer = build_viewer()
 
         if open_browser and not webbrowser.open(viewer.resolve().as_uri()):
-            click.echo(f"Could not open browser automatically: {viewer}", err=True)
+            print(
+                f"[red]Could not open browser:[/] "
+                f"[cyan]{escape(str(viewer))}[/]"
+            )
 
     except (OSError, ValueError, KeyError, struct.error, zipfile.BadZipFile) as error:
         raise click.ClickException(str(error)) from None
