@@ -6,12 +6,15 @@ import re
 import zipfile
 from collections import defaultdict
 from pathlib import Path
+from typing import TypedDict
 
-from PIL import Image, ImageChops, UnidentifiedImageError
+from PIL import Image, UnidentifiedImageError
 from rich import print
 
 from scfile import formats
 from tools.paths import ROOT
+
+from .preview import ModelRenderer, load_texture, render_preview
 
 
 ASSETS = ROOT / "assets" / "mappings"
@@ -19,9 +22,12 @@ REPORTS = ROOT / "reports" / "mappings"
 STALCRAFT_CATALOG = ASSETS / "stalcraft.json.gz"
 MINECRAFT_CATALOG = ASSETS / "minecraft.json.gz"
 
-GRASS_TINT = (0x91, 0xBD, 0x59)
-FOLIAGE_TINT = (0x77, 0xAB, 0x2F)
-WATER_TINT = (0x3F, 0x76, 0xE4)
+
+class MinecraftStats(TypedDict):
+    written: dict[tuple, str]
+    preview_written: dict[str, str | None]
+    unmatched: list[str]
+    fallbacks: list[dict]
 
 
 def save_json(path: Path, value: object) -> None:
@@ -40,9 +46,16 @@ def aliases(name: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys((key, *("/".join(parts[index:]) for index in range(1, len(parts))), parts[-1])))
 
 
+def read_catalog(path: Path) -> list[dict]:
+    with gzip.open(path, "rt", encoding="utf-8") as file:
+        value = json.load(file)
+    if not isinstance(value, list):
+        raise ValueError(f"Mapping catalog must contain an array: {path}")
+    return value
+
+
 def extract_stalcraft(source: Path) -> None:
-    with gzip.open(STALCRAFT_CATALOG, "rt", encoding="utf-8") as file:
-        catalog = json.load(file)
+    catalog = read_catalog(STALCRAFT_CATALOG)
     output = REPORTS / "stalcraft"
     textures = output / "textures"
     textures.mkdir(parents=True, exist_ok=True)
@@ -58,17 +71,21 @@ def extract_stalcraft(source: Path) -> None:
             for alias in aliases(name):
                 if alias in wanted:
                     entries.setdefault(alias, entry)
+
             basename_hits[key.rsplit("/", 1)[-1]].append(entry)
 
     def resolve(name: str) -> tuple[str, bytes] | None:
         key = path_key(name)
         hit = entries.get(key)
+
         if hit is not None:
             return hit
+
         for alias in aliases(name):
             hit = entries.get(alias)
             if hit is not None:
                 return hit
+
         matches = basename_hits.get(key.rsplit("/", 1)[-1], [])
         return matches[0] if len(matches) == 1 else None
 
@@ -83,6 +100,7 @@ def extract_stalcraft(source: Path) -> None:
         for view in block["views"]:
             hit = resolve(view["dds"])
             preview = None
+
             if hit is None:
                 missing.add(view["dds"])
             else:
@@ -97,6 +115,7 @@ def extract_stalcraft(source: Path) -> None:
                             image.convert("RGBA").save(output / preview, optimize=True)
                         written[key] = preview
                         decoded += 1
+
                     except (UnidentifiedImageError, OSError, ValueError) as error:
                         preview = None
                         decode_errors.append({"dds": name, "error": str(error)})
@@ -119,54 +138,25 @@ def extract_stalcraft(source: Path) -> None:
             ],
         },
     )
+
     if not decoded:
         raise ValueError("No Stalcraft textures were decoded from the configured TEXARR.")
-    print(
-        f"[bold cyan]Stalcraft[/] {len(index)} blocks, "
-        f"{decoded} previews, {len(missing)} missing DDS."
-    )
 
-
-def preview_tint(name: str) -> tuple[int, int, int] | None:
-    if name in {
-        "grass_top",
-        "grass_side_overlay",
-        "tallgrass",
-        "fern",
-        "double_plant_grass_top",
-        "double_plant_grass_bottom",
-        "double_plant_fern_top",
-        "double_plant_fern_bottom",
-    }:
-        return GRASS_TINT
-    if name.startswith("leaves_"):
-        if name == "leaves_spruce":
-            return (0x61, 0x99, 0x61)
-        if name == "leaves_birch":
-            return (0x80, 0xA7, 0x55)
-        return FOLIAGE_TINT
-    if name in {"vine", "waterlily"}:
-        return FOLIAGE_TINT
-    if name in {"water_still", "water_flow"}:
-        return WATER_TINT
-    return None
+    print(f"[bold yellow]Stalcraft[/] {len(index)} blocks, {decoded} previews, {len(missing)} missing DDS.")
 
 
 def extract_minecraft(source: Path) -> None:
-    with gzip.open(MINECRAFT_CATALOG, "rt", encoding="utf-8") as file:
-        catalog = json.load(file)
+    catalog = read_catalog(MINECRAFT_CATALOG)
+
     output = REPORTS / "minecraft"
     textures = output / "textures"
-    textures.mkdir(parents=True, exist_ok=True)
-    for preview in textures.glob("*.png"):
-        preview.unlink()
+    previews = output / "previews"
+    for directory in (textures, previews):
+        directory.mkdir(parents=True, exist_ok=True)
+        for path in directory.glob("*.png"):
+            path.unlink()
 
     texture_root = "assets/minecraft/textures/"
-    outputs = []
-    placeholders = {}
-    unmatched = []
-    seen = set()
-    written = {}
 
     with zipfile.ZipFile(source) as jar:
         names = {
@@ -174,59 +164,14 @@ def extract_minecraft(source: Path) -> None:
             for name in jar.namelist()
             if name.startswith(texture_root) and name.endswith(".png")
         }
+
         if not names:
             raise ValueError("Minecraft JAR has no assets/minecraft/textures/*.png textures.")
 
-        for record in catalog:
-            texture = record["texture"]
-            block_id = record["id"]
-            if texture not in names:
-                unmatched.append(f"{block_id}:{record['meta']}:{texture}")
-                placeholders.setdefault(
-                    block_id,
-                    {
-                        "id": block_id,
-                        "meta": record["meta"],
-                        "name": record["name"],
-                        "display": record["display"],
-                        "texture": None,
-                        "textureName": texture,
-                    },
-                )
-                continue
+        renderer = ModelRenderer(jar)
+        outputs, stats = build_minecraft_outputs(catalog, jar, renderer, names, output)
 
-            if (block_id, texture) in seen:
-                continue
-            seen.add((block_id, texture))
-
-            if texture not in written:
-                raw = jar.read(f"{texture_root}{texture}.png")
-                with Image.open(io.BytesIO(raw)) as image:
-                    image = image.convert("RGBA")
-                    if image.height > image.width:
-                        image = image.crop((0, 0, image.width, image.width))
-                    tint = preview_tint(texture.rsplit("/", 1)[-1])
-                    if tint is not None:
-                        image = ImageChops.multiply(image, Image.new("RGBA", image.size, (*tint, 255)))
-                    relative = f"textures/{hashlib.sha1(texture.encode()).hexdigest()[:16]}.png"
-                    image.save(output / relative, optimize=True)
-                written[texture] = relative
-
-            outputs.append(
-                {
-                    "id": block_id,
-                    "meta": record["meta"],
-                    "name": record["name"],
-                    "display": record["display"],
-                    "texture": written[texture],
-                    "textureName": texture,
-                }
-            )
-
-    available_ids = {record["id"] for record in outputs}
-    outputs.extend(record for block_id, record in placeholders.items() if block_id not in available_ids)
     outputs.sort(key=lambda record: (record["id"], record["meta"]))
-
     save_json(output / "index.json", outputs)
     save_json(
         output / "report.json",
@@ -234,15 +179,122 @@ def extract_minecraft(source: Path) -> None:
             "textures_in_jar": len(names),
             "materials": len(outputs),
             "blocks": len({record["id"] for record in outputs}),
-            "blocks_without_preview": sorted(record["id"] for record in outputs if record["texture"] is None),
-            "unmatched_materials": len(unmatched),
-            "unmatched_textures": unmatched,
+            "blocks_without_preview": sorted(record["id"] for record in outputs if not record["texture"]),
+            "blocks_without_catalog_preview": sorted(
+                record["id"] for record in outputs if not record["catalogPreview"]
+            ),
+            "unmatched_textures": stats["unmatched"],
+            "catalog_previews": len(stats["preview_written"]),
+            "preview_fallbacks": stats["fallbacks"],
         },
     )
-    if not written:
+
+    if not stats["written"] and not stats["preview_written"]:
         raise ValueError("No Minecraft catalog textures were found in the configured JAR.")
 
     print(
-        f"[bold magenta]Minecraft[/] {len(outputs)} materials, "
-        f"{len({record['id'] for record in outputs})} IDs, {len(written)} textures."
+        f"[bold green]Minecraft[/] {len(outputs)} materials, "
+        f"{len({record['id'] for record in outputs})} IDs, {len(stats['written'])} textures, "
+        f"{len(stats['preview_written'])} catalog previews."
     )
+
+
+def build_minecraft_outputs(
+    catalog: list[dict],
+    jar: zipfile.ZipFile,
+    renderer: ModelRenderer,
+    names: set[str],
+    output: Path,
+) -> tuple[list[dict], MinecraftStats]:
+    outputs = []
+    unmatched = []
+    fallbacks = []
+    written = {}
+    preview_written = {}
+    seen = set()
+
+    for record in catalog:
+        texture_name = record["texture"]
+        block_id = record["id"]
+        crop = tuple(record["textureCrop"]) if record.get("textureCrop") else None
+        tint = record.get("tint")
+        from_preview = record.get("mappingTextureFromPreview", False)
+
+        key = (block_id, texture_name, crop, tint, from_preview)
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        if texture_name not in names:
+            unmatched.append(f"{block_id}:{record['meta']}:{texture_name}")
+
+        flat_preview = write_flat_texture(jar, output, texture_name, crop, tint, written) if not from_preview else None
+        catalog_preview = write_catalog_preview(
+            jar, renderer, output, record.get("preview"), tint, flat_preview, preview_written, fallbacks, record
+        )
+        if from_preview:
+            flat_preview = catalog_preview
+
+        outputs.append(
+            {
+                "id": block_id,
+                "meta": record["meta"],
+                "name": record["name"],
+                "display": record["display"],
+                "texture": flat_preview,
+                "textureName": texture_name,
+                "catalogPreview": catalog_preview,
+            }
+        )
+
+    return outputs, {
+        "written": written,
+        "preview_written": preview_written,
+        "unmatched": unmatched,
+        "fallbacks": fallbacks,
+    }
+
+
+def write_flat_texture(
+    jar: zipfile.ZipFile, output: Path, name: str, crop, tint, written: dict[tuple, str]
+) -> str | None:
+    key = (name, crop, tint)
+    if key in written:
+        return written[key]
+
+    image = load_texture(jar, name, crop, tint)
+    if image is None:
+        return None
+
+    relative = f"textures/{hashlib.sha1(repr(key).encode()).hexdigest()[:16]}.png"
+    image.save(output / relative, optimize=True)
+    written[key] = relative
+    return relative
+
+
+def write_catalog_preview(
+    jar: zipfile.ZipFile,
+    renderer: ModelRenderer,
+    output: Path,
+    spec,
+    tint,
+    fallback: str | None,
+    written: dict[str, str | None],
+    fallbacks: list[dict],
+    record: dict,
+) -> str | None:
+    if not spec:
+        return fallback
+    key = json.dumps([spec, tint], sort_keys=True, separators=(",", ":"))
+    if key in written:
+        return written[key]
+    image = render_preview(jar, renderer, spec, tint)
+    if image is None:
+        fallbacks.append({"id": record["id"], "meta": record["meta"], "preview": spec})
+        written[key] = fallback
+        return fallback
+    relative = f"previews/{hashlib.sha1(key.encode()).hexdigest()[:16]}.png"
+    image.save(output / relative, optimize=True)
+    written[key] = relative
+    return relative

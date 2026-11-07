@@ -9,13 +9,18 @@ from tools.paths import ROOT
 CONFIG = ROOT / "configs" / "mappings" / "config.toml"
 
 
-def read() -> tuple[Path, Path]:
+def read(
+    stalcraft_texarr: Path | None = None,
+    minecraft_jar: Path | None = None,
+) -> tuple[Path, Path]:
     try:
         with CONFIG.open("rb") as file:
             values = tomllib.load(file).get("paths", {})
 
     except FileNotFoundError:
-        raise click.UsageError(f"Copy 'config.example.toml' to '{CONFIG}'.") from None
+        if stalcraft_texarr is None or minecraft_jar is None:
+            raise click.UsageError(f"Copy 'config.example.toml' to '{CONFIG}'.") from None
+        values = {}
 
     except tomllib.TOMLDecodeError as error:
         raise click.ClickException(f"Invalid configuration '{CONFIG}': {error}") from None
@@ -24,9 +29,10 @@ def read() -> tuple[Path, Path]:
         raise click.ClickException(f"'[paths]' must be a table in '{CONFIG}'.")
 
     paths = []
-    for key in ("stalcraft_texarr", "minecraft_jar"):
-        value = values.get(key)
-        if not isinstance(value, str) or not value.strip():
+    overrides = (stalcraft_texarr, minecraft_jar)
+    for key, override in zip(("stalcraft_texarr", "minecraft_jar"), overrides):
+        value = override if override is not None else values.get(key)
+        if not isinstance(value, (str, Path)) or not str(value).strip():
             raise click.UsageError(f"Set '[paths].{key}' in '{CONFIG}'.")
 
         path = Path(value).expanduser()

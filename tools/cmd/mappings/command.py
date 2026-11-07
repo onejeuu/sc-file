@@ -23,7 +23,7 @@ REPORTS = ROOT / "reports" / "mappings"
 GROUPS = ROOT / "assets" / "mappings" / "groups.json.gz"
 TEMPLATE = ROOT / "assets" / "mappings" / "viewer.html.gz"
 STATE = REPORTS / ".state.json"
-VERSIONS = {"stalcraft": 1, "minecraft": 2}
+VERSIONS = {"stalcraft": 1, "minecraft": 3}
 
 
 def save_state(state: dict) -> None:
@@ -68,12 +68,14 @@ def outputs_exist(directory: Path, texture_field: str) -> bool:
     if not isinstance(records, list):
         return False
 
-    if texture_field == "primary":
-        paths = (view.get("primary") for record in records for view in record.get("views", ()))
-    else:
-        paths = (record.get(texture_field) for record in records)
+    if texture_field == "texture" and any(not record.get("catalogPreview") for record in records):
+        return False
 
-    paths = list(paths)
+    if texture_field == "primary":
+        paths = [view.get("primary") for record in records for view in record.get("views", ())]
+    else:
+        paths = [record.get(texture_field) for record in records]
+        paths.extend(record.get("catalogPreview") for record in records)
     return any(paths) and all(not path or (directory / path).is_file() for path in paths)
 
 
@@ -167,16 +169,31 @@ def build_viewer() -> Path:
 
 
 @tools.command()
+@click.option(
+    "--stalcraft-texarr",
+    type=click.Path(path_type=Path, dir_okay=False),
+    help="Path to the STALCRAFT TEXARR file. Overrides the config.",
+)
+@click.option(
+    "--minecraft-jar",
+    type=click.Path(path_type=Path, dir_okay=False),
+    help="Path to the Minecraft client JAR. Overrides the config.",
+)
 @click.option("--force", is_flag=True, help="Rebuild both resource indexes.")
 @click.option("--run", "open_browser", is_flag=True, help="Open Mapping Editor after building.")
-def mappings(force: bool, open_browser: bool) -> None:
+def mappings(
+    stalcraft_texarr: Path | None,
+    minecraft_jar: Path | None,
+    force: bool,
+    open_browser: bool,
+) -> None:
     try:
-        stalcraft_source, minecraft_source = config.read()
+        stalcraft_source, minecraft_source = config.read(stalcraft_texarr, minecraft_jar)
         state = read_state()
 
         ensure_asset(
             "stalcraft",
-            "[bold cyan]Stalcraft[/]",
+            "[bold yellow]Stalcraft[/]",
             stalcraft_source,
             extract.STALCRAFT_CATALOG,
             extract.extract_stalcraft,
@@ -187,7 +204,7 @@ def mappings(force: bool, open_browser: bool) -> None:
 
         ensure_asset(
             "minecraft",
-            "[bold magenta]Minecraft[/]",
+            "[bold green]Minecraft[/]",
             minecraft_source,
             extract.MINECRAFT_CATALOG,
             extract.extract_minecraft,
@@ -199,10 +216,7 @@ def mappings(force: bool, open_browser: bool) -> None:
         viewer = build_viewer()
 
         if open_browser and not webbrowser.open(viewer.resolve().as_uri()):
-            print(
-                f"[red]Could not open browser:[/] "
-                f"[cyan]{escape(str(viewer))}[/]"
-            )
+            print(f"[red]Could not open browser:[/] [cyan]{escape(str(viewer))}[/]")
 
     except (OSError, ValueError, KeyError, struct.error, zipfile.BadZipFile) as error:
         raise click.ClickException(str(error)) from None
