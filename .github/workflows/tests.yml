@@ -11,6 +11,7 @@ on:
       - "pyproject.toml"
       - "requirements*.txt"
       - "scfile/**"
+      - "tools/**"
       - "tests/**"
       - ".github/workflows/*.yml"
 
@@ -19,6 +20,7 @@ on:
       - "pyproject.toml"
       - "requirements*.txt"
       - "scfile/**"
+      - "tools/**"
       - "tests/**"
       - ".github/workflows/*.yml"
 
@@ -39,7 +41,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes libegl1
 
       - name: Run Tests
-        run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
+        run: uv run --group dev --extra gui pytest --cov=scfile --cov=tools --cov-report=term-missing
         env:
           QT_QPA_PLATFORM: offscreen
 
@@ -58,6 +60,6 @@ jobs:
           enable-cache: true
 
       - name: Run Tests
-        run: uv run --group dev --extra gui pytest --cov=scfile --cov-report=term-missing
+        run: uv run --group dev --extra gui pytest --cov=scfile --cov=tools --cov-report=term-missing
         env:
           QT_QPA_PLATFORM: offscreen

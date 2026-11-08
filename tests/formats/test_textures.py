@@ -4,7 +4,7 @@ from struct import unpack_from
 import pytest
 
 from scfile.content.textures import CubemapTexture, DefaultTexture
-from scfile.formats import DdsEncoder, OlDecoder
+from scfile.formats import DdsEncoder, MicDecoder, OlDecoder, PngEncoder
 from scfile.options import Options
 
 from .conftest import ASSETS, export
@@ -12,6 +12,7 @@ from .conftest import ASSETS, export
 
 ROOT = ASSETS / "textures"
 SOURCES = tuple(sorted((ROOT / "source").glob("*.ol")))
+IMAGE_ROOT = ASSETS / "image"
 
 
 @pytest.mark.parametrize("source", SOURCES)
@@ -20,6 +21,12 @@ def test_ol(
 ) -> None:
     actual = export(OlDecoder, DdsEncoder, source)
     assert actual == (ROOT / "dds" / f"{source.stem}.dds").read_bytes()
+
+
+def test_mic_to_png() -> None:
+    source = IMAGE_ROOT / "source" / "screen.mic"
+
+    assert export(MicDecoder, PngEncoder, source) == (IMAGE_ROOT / "png" / "screen.png").read_bytes()
 
 
 @pytest.mark.parametrize(

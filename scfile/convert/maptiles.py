@@ -30,7 +30,7 @@ type Progress = Callable[[Path], None] | None
 
 
 class AssembleResult(NamedTuple):
-    output: Path
+    output: types.ResultPath
     tiles: int
 
 
@@ -123,6 +123,11 @@ def render(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.")
 
+    selected = paths.select(output_path, options)
+    if not selected:
+        return AssembleResult(None, 0)
+
+    output_path = selected
     tiles = dict(sorted(tiles.items()))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

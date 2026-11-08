@@ -1,9 +1,10 @@
-import time
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import ClassVar
 
-from PySide6.QtCore import Signal
+import time
+
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QApplication
 
 from scfile.app import updates
@@ -34,16 +35,25 @@ class WaitingTask(Task):
     def run(self, context: TaskContext) -> Iterator[TaskEvent]:
         yield TaskStarted(self.kind, 1)
         while not context.stopped:
-            time.sleep(0.01)
+            pass
 
 
-def _wait(qapp: QApplication, predicate: Callable[[], bool]) -> None:
-    limit = time.monotonic() + 2
-    while not predicate() and time.monotonic() < limit:
+def _wait_signal(qapp: QApplication, signal) -> None:
+    received = []
+    signal.connect(lambda *args: received.append(args))
+    deadline = time.monotonic() + 2
+    while not received and time.monotonic() < deadline:
         qapp.processEvents()
-        time.sleep(0.01)
+        QThread.msleep(10)
+    assert received
 
-    assert predicate()
+
+def _wait_idle(qapp: QApplication, predicate) -> None:
+    deadline = time.monotonic() + 2
+    while predicate() and time.monotonic() < deadline:
+        qapp.processEvents()
+        QThread.msleep(10)
+    assert not predicate()
 
 
 def test_manager(qapp: QApplication, tmp_path: Path) -> None:
@@ -55,8 +65,8 @@ def test_manager(qapp: QApplication, tmp_path: Path) -> None:
     assert manager.busy
     assert not manager.start(SampleTask(tmp_path))
 
-    _wait(qapp, lambda: bool(summaries))
-    _wait(qapp, lambda: not manager.busy)
+    _wait_signal(qapp, manager.completed)
+    _wait_signal(qapp, manager.busy_changed)
 
     assert summaries[0].outcome is TaskOutcome.COMPLETED
     manager.deleteLater()
@@ -70,8 +80,8 @@ def test_cancel(qapp: QApplication) -> None:
 
     assert manager.start(WaitingTask())
     manager.cancel()
-    _wait(qapp, lambda: bool(summaries))
-    _wait(qapp, lambda: not manager.busy)
+    _wait_signal(qapp, manager.completed)
+    _wait_signal(qapp, manager.busy_changed)
 
     assert summaries[0].outcome is TaskOutcome.CANCELLED
     manager.deleteLater()
@@ -87,8 +97,8 @@ def test_updates(qapp: QApplication, monkeypatch) -> None:
     checker.status.connect(lambda *values: received.append(UpdateCheck(*values)))
 
     assert checker.start()
-    _wait(qapp, lambda: bool(received))
-    _wait(qapp, lambda: not checker.busy)
+    _wait_signal(qapp, checker.status)
+    _wait_idle(qapp, lambda: checker.busy)
 
     assert not checker.start()
     assert received == [result, result]
@@ -110,5 +120,6 @@ def test_job(qapp: QApplication) -> None:
     thread = threads.job(qapp, worker)
     thread.start()
 
-    _wait(qapp, lambda: bool(completed))
-    _wait(qapp, thread.isFinished)
+    _wait_signal(qapp, worker.completed)
+    _wait_signal(qapp, thread.finished)
+    assert completed == [True]

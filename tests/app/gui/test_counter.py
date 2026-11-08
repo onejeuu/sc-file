@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 
+from PySide6.QtCore import QThread
 from PySide6.QtWidgets import QApplication
 
 from scfile.app.gui.workers.counter import FileCounter
@@ -13,11 +14,10 @@ def test_counter(qapp: QApplication, tmp_path: Path) -> None:
 
     counter = FileCounter()
     counter.refresh((str(tmp_path),), (".mic",))
-
-    limit = time.monotonic() + 2
-    while counter.busy and time.monotonic() < limit:
+    deadline = time.monotonic() + 2
+    while counter.busy and time.monotonic() < deadline:
         qapp.processEvents()
-        time.sleep(0.01)
+        QThread.msleep(10)
 
     assert not counter.busy
     assert counter.count == 2

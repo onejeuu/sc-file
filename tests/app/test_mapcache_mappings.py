@@ -49,7 +49,9 @@ def test_load_fixed_metadata_from_json_and_inline(tmp_path):
     assert mapping.ids[85] == 5 and mapping.metadata[85] == 0
 
 
-@pytest.mark.parametrize("target", ['"35:"', '"35:16"', '"35:-1"', '"35:01"', '"035:2"', '"35:2:3"', '[35,13]', '35', 'true'])
+@pytest.mark.parametrize(
+    "target", ['"35:"', '"35:16"', '"35:-1"', '"35:01"', '"035:2"', '"35:2:3"', "[35,13]", "35", "true"]
+)
 def test_invalid_fixed_metadata_json(target):
     with pytest.raises(BlockMappingError):
         load_block_mappings((f'{{"21": {target}}}',))

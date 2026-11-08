@@ -31,7 +31,9 @@ def read() -> dict[str, Any]:
         with CONFIG.open("rb") as file:
             return tomllib.load(file)
 
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError, tomllib.TOMLDecodeError) as error:
+        if not isinstance(error, FileNotFoundError):
+            raise click.UsageError(f"Cannot read audit config '{CONFIG}': {error}") from None
         return {}
 
 
@@ -57,12 +59,16 @@ def resolve(
             chosen_formats = selected_formats
             chosen_relations = selected_relations
 
+    configured_workers = workers if workers is not None else values.get("workers", os.cpu_count() or 4)
+    if isinstance(configured_workers, bool) or not isinstance(configured_workers, int) or configured_workers < 0:
+        raise click.UsageError("workers must be a non-negative integer")
+
     return Settings(
         root=Path(source).resolve(),
         formats=chosen_formats,
         relations=chosen_relations,
         exclude=tuple(path.casefold().replace("\\", "/").lstrip("/") for path in values.get("exclude", ())),
-        workers=workers if workers is not None else values.get("workers", os.cpu_count() or 4),
+        workers=configured_workers,
         animation=animation if animation is not None else values.get("animation", True),
         extended_chunk=extended_chunk if extended_chunk is not None else values.get("extended_chunk", False),
         stats=stats if stats is not None else values.get("stats", False),

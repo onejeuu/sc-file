@@ -32,6 +32,8 @@ def test_convert_form(qapp: QApplication) -> None:
 
     form.deleteLater()
     qapp.processEvents()
+
+
 def test_default_output(qapp: QApplication, tmp_path: Path) -> None:
     default = tmp_path / "default"
     settings = Settings(export_path=default)

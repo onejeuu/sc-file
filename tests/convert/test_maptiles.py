@@ -107,16 +107,30 @@ def test_formats(tmp_path: Path, name: str, save: maptiles.SaveOptions, expected
         assert image.format == expected
 
 
-@pytest.mark.parametrize("conflict", (OnConflict.SKIP, OnConflict.RENAME))
-def test_replace(tmp_path: Path, conflict: OnConflict) -> None:
+def test_skip_preserves_existing_output(tmp_path: Path) -> None:
     _tile(tmp_path, 0, 0)
     output = tmp_path / "map.jpg"
     output.write_bytes(b"previous")
 
-    result = maptiles.assemble(tmp_path, output, Options(on_conflict=conflict))
+    result = maptiles.assemble(tmp_path, output, Options(on_conflict=OnConflict.SKIP))
 
-    assert result.output == output
-    assert output.read_bytes() != b"previous"
+    assert result.output is None
+    assert result.tiles == 0
+    assert output.read_bytes() == b"previous"
+
+
+def test_rename_writes_a_new_output(tmp_path: Path) -> None:
+    _tile(tmp_path, 0, 0)
+    output = tmp_path / "map.jpg"
+    output.write_bytes(b"previous")
+
+    result = maptiles.assemble(tmp_path, output, Options(on_conflict=OnConflict.RENAME))
+
+    assert result.output == tmp_path / "map (1).jpg"
+    assert result.output is not None
+    assert result.tiles == 1
+    assert output.read_bytes() == b"previous"
+    assert result.output.read_bytes() != b"previous"
 
 
 def test_tile_size(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

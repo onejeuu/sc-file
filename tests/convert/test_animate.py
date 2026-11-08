@@ -26,7 +26,7 @@ EXPECTED = ASSETS / "convert" / "animate"
         (animate.body, "library.mcal", "model_v15.mcsb"),
     ],
 )
-def test_replaces(
+def test_skip_preserves_existing_output(
     operation: Operation,
     animation: str,
     model: str,
@@ -37,8 +37,33 @@ def test_replaces(
 
     result = operation(SOURCE / animation, SOURCE / model, output=output, options=Options(on_conflict=OnConflict.SKIP))
 
-    assert result == output
-    assert output.read_bytes() != b"existing"
+    assert result is None
+    assert output.read_bytes() == b"existing"
+
+
+@pytest.mark.parametrize(
+    ("operation", "animation", "model"),
+    [
+        (animate.arms, "animation.mcvd", "model_v15.mcsb"),
+        (animate.body, "library.mcal", "model_v15.mcsb"),
+    ],
+)
+def test_rename_writes_a_new_output(
+    operation: Operation,
+    animation: str,
+    model: str,
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "animation.glb"
+    output.write_bytes(b"existing")
+
+    result = operation(
+        SOURCE / animation, SOURCE / model, output=output, options=Options(on_conflict=OnConflict.RENAME)
+    )
+
+    assert result == tmp_path / "animation (1).glb"
+    assert output.read_bytes() == b"existing"
+    assert result.read_bytes() != b"existing"
 
 
 @pytest.mark.parametrize(
@@ -122,4 +147,11 @@ def test_clips() -> None:
 
     result = animate._filter_clips(clips)
 
-    assert [clip.name for clip in result] == ["idle", "pose", "idle_turn_l", "idle_look_l", "idle_landing", "short_landing"]
+    assert [clip.name for clip in result] == [
+        "idle",
+        "pose",
+        "idle_turn_l",
+        "idle_look_l",
+        "idle_landing",
+        "short_landing",
+    ]

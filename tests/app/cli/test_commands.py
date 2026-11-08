@@ -1,9 +1,9 @@
-import json
 from collections.abc import Callable
 from pathlib import Path
-from tests.fixtures import ASSETS
 from shutil import copyfile
 from typing import Any
+
+from tests.fixtures import ASSETS
 
 import pytest
 from click.testing import CliRunner
@@ -22,7 +22,7 @@ from scfile.enums import FileFormat, OnConflict
 MAP_TILE = ASSETS / "formats/textures/source/texture_rgba.ol"
 
 
-def test_convert(
+def test_convert_options(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -91,7 +91,7 @@ def test_convert_failure(
 def test_convert_features(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     source = tmp_path / "source"
     source.mkdir()
@@ -105,7 +105,7 @@ def test_convert_features(
     assert len(warnings) == 1
 
 
-def test_arms(
+def test_arms_options(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -129,7 +129,7 @@ def test_arms(
     assert task.output == tmp_path / "animation.glb"
 
 
-def test_animate(
+def test_face_and_body_options(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -187,7 +187,7 @@ def test_mapcache(
     assert not task.options.backup_regions
 
 
-def test_maptiles_game(
+def test_maptiles_game_region(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
 ) -> None:
@@ -247,7 +247,7 @@ def test_mapcache_failure(
         ("map.jpeg", ("--jpeg-quality", "95"), {"format": "JPEG", "quality": 95}),
     ),
 )
-def test_maptiles(
+def test_maptiles_options(
     tmp_path: Path,
     command_runner: Callable[[Any, TaskKind, bool], list[Any]],
     name: str,

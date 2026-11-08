@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from scfile.content import RegionContent
-from scfile.content.regions import ChunkSection, ChunkTileMaterials, RegionChunk
+from scfile.content.regions import ChunkSection, ChunkTileMaterials
 from scfile.core import Resources
 from scfile.enums import ByteOrder
 from scfile.exceptions import BlockMappingError
@@ -77,21 +77,17 @@ def test_empty_mapping_is_a_real_air_only_layer():
 
 def test_empty_layer_sequence_selects_default_mapping():
     mapping = mappings.compile(())
+    default = mappings.BUILTIN[mappings.DEFAULT]
 
-    assert mapping.ids[7] == int(mappings.BUILTIN["resourcepack"]["7"])
-    assert mapping.ids[7] != int(mappings.BUILTIN["vanilla"]["7"])
+    assert mapping.ids[7] == int(default["7"].split(":", 1)[0])
 
 
-def test_default_mapping_preserves_matching_terrain_ids():
+def test_default_mapping_applies_builtin_targets():
     mapping = mappings.compile()
+    default = mappings.BUILTIN[mappings.DEFAULT]
 
-    assert mapping.ids[1] == 1
-    assert mapping.ids[2] == 2
-    assert mapping.ids[3] == 3
-    assert mapping.ids[9] == 9
-    assert mapping.ids[11] == 11
-    assert mapping.ids[12] == 12
-    assert mapping.ids[13] == 13
+    for source in ("1", "2", "3", "9", "11", "12", "13"):
+        assert mapping.ids[int(source)] == int(default[source].split(":", 1)[0])
     assert mapping.ids[4025] == 0
 
 

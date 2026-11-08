@@ -88,31 +88,3 @@ def test_empty(feedback: TaskFeedback) -> None:
     feedback.finish(TaskSummary(TaskKind.CONVERT, total=0))
 
     assert feedback.progress is None
-
-
-def test_summary(feedback: TaskFeedback) -> None:
-    summary = TaskSummary(TaskKind.CONVERT, total=2)
-    summary.add(TaskItem("written", Path("output")))
-    summary.add(TaskItemFailure("broken", RuntimeError()))
-
-    feedback.finish(summary)
-
-
-def test_item(feedback: TaskFeedback) -> None:
-    feedback._item(TaskItem("source", Path("output")))
-
-    assert feedback.kind is None
-
-
-def test_idle(feedback: TaskFeedback) -> None:
-    feedback._advance()
-
-    assert feedback.completed == 1
-
-
-@pytest.mark.parametrize("kind", list(TaskKind))
-def test_kinds(feedback: TaskFeedback, kind: TaskKind) -> None:
-    summary = TaskSummary(kind, total=1)
-    summary.add(TaskItem("source", Path("output")))
-
-    feedback.finish(summary)

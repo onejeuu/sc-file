@@ -2,7 +2,6 @@
 
 from dataclasses import replace
 from hashlib import blake2b
-from pathlib import Path
 from typing import overload
 
 from scfile import formats, types
@@ -24,7 +23,7 @@ def arms(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path: ...
+) -> types.ResultPath: ...
 
 
 @overload
@@ -36,7 +35,7 @@ def arms(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path: ...
+) -> types.ResultPath: ...
 
 
 def arms(
@@ -46,7 +45,7 @@ def arms(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path:
+) -> types.ResultPath:
     """
     Apply first person animation to weapon and hands models.
 
@@ -59,7 +58,7 @@ def arms(
         resources (optional): Resources shared by handlers in this operation.
 
     Returns:
-        Output path.
+        Output path on success, or ``None`` when output is skipped.
     """
 
     encoder = formats.GlbEncoder
@@ -67,7 +66,9 @@ def arms(
     resources = resources or Resources()
 
     src = paths.source(animation)
-    out = paths.destination(src, output, encoder.suffix())
+    out = paths.output(src, output, encoder.suffix(), options)
+    if not out:
+        return
 
     with formats.McvdDecoder(src, options, resources) as mcvd:
         anims = mcvd.decode()
@@ -95,7 +96,7 @@ def body(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path:
+) -> types.ResultPath:
     """
     Apply skeletal animation to a model.
 
@@ -107,7 +108,7 @@ def body(
         resources (optional): Resources shared by handlers in this operation.
 
     Returns:
-        Output path.
+        Output path on success, or ``None`` when output is skipped.
     """
 
     return _apply_external_animation(
@@ -127,7 +128,7 @@ def face(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path:
+) -> types.ResultPath:
     """
     Apply facial animation to a head model.
 
@@ -139,7 +140,7 @@ def face(
         resources (optional): Resources shared by handlers in this operation.
 
     Returns:
-        Output path.
+        Output path on success, or ``None`` when output is skipped.
     """
 
     return _apply_external_animation(
@@ -167,14 +168,16 @@ def _apply_external_animation(
     output: types.OutputLike = None,
     options: Options | None = None,
     resources: Resources | None = None,
-) -> Path:
+) -> types.ResultPath:
     encoder = formats.GlbEncoder
     options = _options(options)
     resources = resources or Resources()
 
     src = paths.source(animation)
     mdl = paths.source(model)
-    out = paths.destination(src, output, encoder.suffix())
+    out = paths.output(src, output, encoder.suffix(), options)
+    if not out:
+        return
 
     with decoder(src, options, resources) as dec:
         anims = dec.decode()

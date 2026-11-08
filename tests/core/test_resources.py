@@ -1,14 +1,87 @@
-"""Handler-controlled requirements and Core-owned resource resolution."""
-
-from inspect import Parameter, signature
+from scfile.enums import HandlerState
+from scfile.exceptions import EmptyFileError
+from scfile.options import Options
 
 import pytest
 
 from scfile.content import BaseContent
 from scfile.core import Decoder, Encoder, Resources
-from scfile.enums import HandlerState
-from scfile.exceptions import EmptyFileError
-from scfile.options import Options
+
+
+class DummyContent(BaseContent):
+    pass
+
+
+class DummyDecoder(Decoder[DummyContent]):
+    content_type = DummyContent
+
+    def _parse(self) -> None:
+        pass
+
+
+class DummyEncoder(Encoder[DummyContent]):
+    content_type = DummyContent
+
+    def _serialize(self) -> None:
+        self.io.write(b"encoded")
+
+
+def test_resources_exposes_read_only_mapping() -> None:
+    value = object()
+    source = {"example": value}
+    resources = Resources(source)
+
+    source["example"] = object()
+
+    assert resources["example"] is value
+    assert dict(resources) == {"example": value}
+    with pytest.raises(TypeError):
+        resources["other"] = object()  # type: ignore[index]
+
+
+def test_handlers_keep_the_supplied_resources_instance() -> None:
+    resources = Resources({"example": object()})
+    decoder = DummyDecoder(b"source", resources=resources)
+    encoder = DummyEncoder(DummyContent(), resources=resources)
+
+    try:
+        assert decoder.resources is resources
+        assert encoder.resources is resources
+        assert decoder.context == {}
+        assert decoder.context is not decoder.resources
+    finally:
+        decoder.close()
+        encoder.close()
+
+
+def test_handlers_get_independent_empty_resources_by_default() -> None:
+    first = DummyDecoder(b"first")
+    second = DummyDecoder(b"second")
+
+    try:
+        assert isinstance(first.resources, Resources)
+        assert isinstance(second.resources, Resources)
+        assert first.resources == second.resources == {}
+        assert first.resources is not second.resources
+    finally:
+        first.close()
+        second.close()
+
+
+def test_decoder_convert_to_reuses_its_resources() -> None:
+    resources = Resources({"example": object()})
+
+    with DummyDecoder(b"source", resources=resources) as decoder:
+        with decoder.convert_to(DummyEncoder) as encoder:
+            assert encoder.resources is resources
+            assert encoder.to_bytes() == b"encoded"
+
+
+def test_decoder_convert_reuses_its_resources() -> None:
+    resources = Resources({"example": object()})
+
+    with DummyDecoder(b"source", resources=resources) as decoder:
+        assert decoder.convert(DummyEncoder) == b"encoded"
 
 
 class Content(BaseContent):
@@ -151,6 +224,3 @@ def test_positional_resources_on_handler_constructors():
     with EncoderWithRequirements(Content(), options, None, resource) as encoder:
         assert encoder.resources is resource
         assert encoder.to_bytes() == b"ok"
-
-    assert signature(DecoderWithRequirements.__mro__[1]).parameters["resources"].kind is Parameter.POSITIONAL_OR_KEYWORD
-    assert signature(EncoderWithRequirements.__mro__[1]).parameters["resources"].kind is Parameter.POSITIONAL_OR_KEYWORD

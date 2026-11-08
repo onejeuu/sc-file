@@ -140,7 +140,9 @@ def test_convert_total(tmp_path: Path) -> None:
 def test_convert_errors(tmp_path: Path, monkeypatch) -> None:
     entry = files.FileEntry(str(tmp_path), str(tmp_path / "source"))
     task = ConvertTask((), (), Options())
-    monkeypatch.setattr("scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(exceptions.ConversionError("bad")))
+    monkeypatch.setattr(
+        "scfile.app.tasks.convert.convert.auto", lambda *args: (_ for _ in ()).throw(exceptions.ConversionError("bad"))
+    )
     failure = task._convert((entry, tmp_path / "output"))
     assert isinstance(failure, TaskItemFailure)
     assert failure.traceback is None
