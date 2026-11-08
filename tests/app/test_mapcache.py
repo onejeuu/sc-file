@@ -35,10 +35,6 @@ def test_mapcache_task_shares_resources(tmp_path: Path, monkeypatch: pytest.Monk
     regions = {Region(0, 0): [first], Region(1, 0): [second]}
     monkeypatch.setattr(mapcache, "scan", lambda *args: SimpleNamespace(paths=[first, second], errors=[]))
     monkeypatch.setattr(mapcache, "group", lambda paths: regions)
-    monkeypatch.setattr(
-        "scfile.app.tasks.mapcache.parallel", lambda items, operation, context, workers: map(operation, items)
-    )
-
     original = mca_mapping.build
     compiled = []
 

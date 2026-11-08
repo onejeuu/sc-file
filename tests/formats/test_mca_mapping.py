@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from scfile.content import RegionContent
-from scfile.content.regions import ChunkSection, ChunkTileMaterials
+from scfile.content.regions import ChunkSection
 from scfile.core import Resources
 from scfile.enums import ByteOrder
 from scfile.exceptions import BlockMappingError
@@ -196,7 +196,7 @@ def test_later_plain_layer_removes_fixed_metadata():
     mapping = mappings.compile(({"21": "35:13"}, {"21": "5"}))
     assert mapping.ids[21] == 5
     assert mapping.metadata[21] == 16
-    assert mapping._low_metadata_mask is None
+    assert mapping._low_mask is None
 
 
 def test_later_fixed_layer_replaces_prior_fixed_metadata():
@@ -258,7 +258,7 @@ def test_byte_path_is_retained_when_fixed_metadata_source_is_absent():
     mapping, byte_mapping = mappings.build({"5": "73", "21": "35:13"})
 
     assert byte_mapping is not None
-    assert mapping._low_metadata_mask is not None
+    assert mapping._low_mask is not None
     blocks, add, data = payload._mapped_blocks(section, mapping, byte_mapping)
     assert blocks == bytes([73]) * 4096
     assert add == b""
@@ -268,7 +268,7 @@ def test_byte_path_is_retained_when_fixed_metadata_source_is_absent():
 def test_high_source_metadata_override_does_not_disable_low_byte_path():
     mapping, byte_mapping = mappings.build({"5": "73", "261": "683:12"})
     assert byte_mapping is not None
-    assert mapping._low_metadata_mask is None
+    assert mapping._low_mask is None
     section = ChunkSection(0, memoryview(bytes([5]) * 4096), memoryview(b"\xab" * 2048))
     assert payload._mapped_blocks(section, mapping, byte_mapping) == (bytes([73]) * 4096, b"", b"\xab" * 2048)
 
@@ -281,10 +281,8 @@ def test_tile_primary_material_is_projected_before_existing_mapping():
         memoryview(bytes([0xC2]) * 4096),
         memoryview(bytes([0xAA]) * 2048),
     )
-    materials = ChunkTileMaterials(
-        memoryview(struct.pack(">3i", -1, 67, 16)),
-        memoryview(struct.pack(">H", 0xD123)),
-    )
+    position = (4 << 12) | (3 * 256 + 15)
+    materials = memoryview(struct.pack(">I", (position << 16) | 0xD123))
     mapping, byte_mapping = mappings.build({"291": "35:7"})
 
     tile_data = payload._tile_materials_by_section(materials)
@@ -308,3 +306,7 @@ def test_tile_primary_material_is_projected_before_existing_mapping():
     assert data[index // 2] == 0x7A
     assert bytes(section.blocks) == bytes([0xC2]) * 4096
     assert bytes(section.metadata) == bytes([0xAA]) * 2048
+
+
+
+

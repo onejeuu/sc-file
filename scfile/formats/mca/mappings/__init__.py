@@ -34,8 +34,10 @@ PRESERVE_METADATA = 16
 class CompiledBlockMapping:
     ids: NDArray[np.uint16]
     metadata: NDArray[np.uint8]
-    _low_metadata_mask: bytes | None
-    _has_metadata_overrides: bool
+    _low_mask: bytes | None
+    _low_lut: NDArray[np.uint8] | None
+    _metadata_overrides: bool
+    _high_targets: bool
 
 
 def build(mappings: BlockMappings = None) -> tuple[CompiledBlockMapping, bytes | None]:
@@ -75,7 +77,15 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
     has_overrides = bool(np.any(metadata != PRESERVE_METADATA))
     low_overrides = metadata[:256] != PRESERVE_METADATA
     low_mask = low_overrides.astype(np.uint8).tobytes() if np.any(low_overrides) else None
-    return CompiledBlockMapping(ids, metadata, low_mask, has_overrides)
+
+    low_lut = None
+    if low_mask is not None:
+        low_lut = np.broadcast_to(np.arange(16, dtype=np.uint8), (256, 16)).copy()
+        low_lut[low_overrides] = metadata[:256][low_overrides, None]
+        low_lut.flags.writeable = False
+
+    has_high_targets = bool(np.any(ids > 0xFF))
+    return CompiledBlockMapping(ids, metadata, low_mask, low_lut, has_overrides, has_high_targets)
 
 
 _DECIMAL = re.compile(r"(?:0|[1-9][0-9]*)\Z")

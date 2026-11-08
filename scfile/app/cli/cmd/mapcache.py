@@ -30,13 +30,6 @@ from scfile.options import MdatVersion, Options
     type=params.OutputDir,
 )
 @click.option(
-    "-W",
-    "--workers",
-    type=int,
-    default=None,
-    help="Number of worker threads (default: CPU count)",
-)
-@click.option(
     "--biomes/--no-biomes",
     default=True,
     help="Export biome data.",
@@ -69,7 +62,6 @@ from scfile.options import MdatVersion, Options
 def mapcache(
     source: types.SourcePath,
     output: types.OutputPath,
-    workers: int | None,
     biomes: bool,
     backup: bool,
     version: str | None,
@@ -95,7 +87,7 @@ def mapcache(
         block_mappings=block_mappings,
     )
     feedback = TaskFeedback(verbose)
-    summary = execute(MapCacheTask(source, output, options, workers), feedback)
+    summary = execute(MapCacheTask(source, output, options), feedback)
     feedback.finish(summary)
 
     if summary.work.failed:

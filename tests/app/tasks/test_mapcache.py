@@ -11,7 +11,7 @@ from scfile.options import Options
 def test_missing(tmp_path: Path) -> None:
     events = []
 
-    summary = execute(MapCacheTask(tmp_path / "missing", None, Options(), workers=1), events.append)
+    summary = execute(MapCacheTask(tmp_path / "missing", None, Options()), events.append)
 
     error = events[1]
     assert isinstance(error, TaskError)
@@ -23,7 +23,7 @@ def test_missing(tmp_path: Path) -> None:
 def test_empty(tmp_path: Path) -> None:
     events = []
 
-    execute(MapCacheTask(tmp_path, None, Options(), workers=1), events.append)
+    execute(MapCacheTask(tmp_path, None, Options()), events.append)
 
     assert isinstance(events[1], TaskError)
     assert isinstance(events[1].error, exceptions.RegionError)
@@ -33,7 +33,7 @@ def test_invalid(tmp_path: Path) -> None:
     (tmp_path / "invalid.mdat").write_bytes(b"data")
     events = []
 
-    execute(MapCacheTask(tmp_path, None, Options(), workers=1), events.append)
+    execute(MapCacheTask(tmp_path, None, Options()), events.append)
 
     assert isinstance(events[1], TaskError)
     assert isinstance(events[1].error, exceptions.RegionError)
@@ -48,7 +48,7 @@ def test_merge_error(tmp_path: Path, monkeypatch) -> None:
     )
     events = []
 
-    summary = execute(MapCacheTask(tmp_path, None, Options(), workers=1), events.append)
+    summary = execute(MapCacheTask(tmp_path, None, Options()), events.append)
 
     assert isinstance(events[1], TaskItemFailure)
     assert isinstance(events[1].error, OSError)
@@ -106,3 +106,4 @@ def test_scan_error(tmp_path: Path, monkeypatch) -> None:
 
     assert isinstance(events[1], TaskError)
     assert events[1].source == str(tmp_path)
+

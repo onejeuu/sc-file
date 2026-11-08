@@ -53,7 +53,7 @@ def chunk(
 
     record_data = raw[biomes_end:]
     if record_data or extended:
-        decoded_records, materials = records(record_data, include_records=extended)
+        decoded_records, materials = records(record_data, include=extended)
         if decoded_records.error is None:
             container.materials = materials
 
@@ -61,3 +61,4 @@ def chunk(
             container.records = decoded_records
 
     return container
+

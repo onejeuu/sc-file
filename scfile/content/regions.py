@@ -6,6 +6,7 @@ from uuid import UUID
 
 type Vector3 = tuple[float, float, float]
 type Matrix3 = tuple[Vector3, Vector3, Vector3]
+type ChunkTileMaterials = memoryview
 
 
 @dataclass
@@ -60,14 +61,6 @@ class ChunkRecord:
     data: int
     data_ext: int | None
     raw: memoryview
-
-
-@dataclass(frozen=True)
-class ChunkTileMaterials:
-    """Compact tile projection: big-endian XYZ int32 triplets and uint16 states."""
-
-    positions: memoryview
-    states: memoryview
 
 
 @dataclass

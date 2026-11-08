@@ -1,7 +1,6 @@
 import traceback
 from collections.abc import Iterator
 from dataclasses import dataclass
-from functools import partial
 from pathlib import Path
 from typing import ClassVar
 
@@ -15,7 +14,6 @@ from scfile.formats.mca import mappings
 from scfile.options import Options
 
 from .base import Task, TaskContext
-from .parallel import parallel
 
 
 type MapCacheRegion = tuple[mapcache.Region, list[Path]]
@@ -28,7 +26,6 @@ class MapCacheTask(Task):
     source: Path
     output: Path | None
     options: Options
-    workers: int | None = None
 
     def _merge(
         self,
@@ -93,12 +90,10 @@ class MapCacheTask(Task):
         resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.block_mappings)})
         output.mkdir(parents=True, exist_ok=True)
 
-        operation = partial(
-            self._merge,
-            context=context,
-            options=options,
-            resources=resources,
-        )
-        for result in parallel(mapping.items(), operation, context, self.workers):
+        for region in mapping.items():
+            if context.stopped:
+                break
+
+            result = self._merge(region, context, options, resources)
             if result is not None:
                 yield result

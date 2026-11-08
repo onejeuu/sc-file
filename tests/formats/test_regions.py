@@ -198,15 +198,13 @@ def test_tile_materials_are_projected_without_records() -> None:
 
     assert result.records is None
     assert result.materials is not None
-    assert len(result.materials.positions) == 12
-    assert len(result.materials.states) == 2
+    assert len(result.materials) == 4
     assert bytes(result.sections[0].blocks) == bytes([0xC2]) * SECTION_SIZE
     assert bytes(result.sections[0].metadata) == bytes([0xAA]) * NIBBLE_SIZE
 
-    position = np.frombuffer(result.materials.positions, dtype=">i4")
-    state = np.frombuffer(result.materials.states, dtype=">u2")
-    assert tuple(position) == (-1, 67, 16)
-    assert state[0] == 0xD123
+    entry = np.frombuffer(result.materials, dtype=">u4")[0]
+    assert entry >> 16 == (4 << 12) | (3 * 256 + 15)
+    assert entry & 0xFFFF == 0xD123
 
 
 def test_tile_materials_keep_primary_state() -> None:
@@ -214,7 +212,7 @@ def test_tile_materials_keep_primary_state() -> None:
     result = _chunk_with_records(record_data, add_mask=0)
 
     assert result.materials is not None
-    assert np.frombuffer(result.materials.states, dtype=">u2")[0] == 0
+    assert np.frombuffer(result.materials, dtype=">u4")[0] & 0xFFFF == 0
 
 
 def test_extended_records_keep_compact_materials() -> None:

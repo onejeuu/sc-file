@@ -175,14 +175,13 @@ def test_mapcache(
     tasks = command_runner(mapcache_module, TaskKind.MAPCACHE, False)
     result = CliRunner().invoke(
         scfile,
-        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-backup", "-W", "2", "--verbose"],
+        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-backup", "--verbose"],
     )
 
     assert result.exit_code == 0
     task = tasks[0]
     assert task.source == source
     assert task.output == output
-    assert task.workers == 2
     assert not task.options.biomes
     assert not task.options.backup_regions
 
@@ -334,3 +333,6 @@ def test_convert_nonstandalone(verbose: bool, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert not list(output.glob("**/*"))
+
+
+

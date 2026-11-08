@@ -50,33 +50,22 @@ def _write_nibbles(plane: np.ndarray, indices: np.ndarray, values: np.ndarray) -
         plane[offsets] = (plane[offsets] & 0x0F) | (values[high] << 4)
 
 
-def _projected_planes(
-    section: ChunkSection,
-    indices: np.ndarray | None,
-    states: np.ndarray | None,
-) -> tuple[bytes, memoryview | bytes | None, bytes]:
-    if indices is None or states is None or not len(indices):
-        return (
-            bytes(section.blocks),
-            section.additions,
-            bytes(section.metadata),
-        )
+def _mapped_low_metadata(
+    source_blocks: bytes,
+    metadata: np.ndarray,
+    mapping: CompiledBlockMapping,
+) -> bytes:
+    mask = mapping._low_mask
+    if mask is None or b"\x01" not in source_blocks.translate(mask):
+        return metadata.tobytes()
 
-    blocks = np.frombuffer(section.blocks, dtype=np.uint8).copy()
-    metadata = np.frombuffer(section.metadata, dtype=np.uint8).copy()
-    additions = None if section.additions is None else np.frombuffer(section.additions, dtype=np.uint8).copy()
+    source_ids = np.frombuffer(source_blocks, dtype=np.uint8)
+    lut = mapping._low_lut
+    assert lut is not None
 
-    block_ids = states & 0x0FFF
-    metadata_values = ((states >> 12) & 0x0F).astype(np.uint8)
-    blocks[indices] = (block_ids & 0xFF).astype(np.uint8)
-    _write_nibbles(metadata, indices, metadata_values)
-
-    if additions is not None or np.any(block_ids > 0xFF):
-        if additions is None:
-            additions = np.zeros(NIBBLE_SIZE, dtype=np.uint8)
-        _write_nibbles(additions, indices, ((block_ids >> 8) & 0x0F).astype(np.uint8))
-
-    return blocks.tobytes(), None if additions is None else additions.tobytes(), metadata.tobytes()
+    low = lut[source_ids[::2], metadata & 0x0F]
+    high = lut[source_ids[1::2], metadata >> 4]
+    return (low | (high << 4)).tobytes()
 
 
 def _mapped_blocks(
@@ -87,36 +76,69 @@ def _mapped_blocks(
     tile_indices: np.ndarray | None = None,
     tile_states: np.ndarray | None = None,
 ) -> tuple[bytes, bytes, bytes]:
-    blocks, additions, metadata = _projected_planes(section, tile_indices, tile_states)
+    has_tiles = tile_indices is not None and tile_states is not None and len(tile_indices) > 0
+    if has_tiles:
+        assert tile_indices is not None and tile_states is not None
+        indices = tile_indices
+        states = tile_states
 
-    if (
-        additions is None
-        and byte_mapping is not None
-        and (mapping._low_metadata_mask is None or b"\x01" not in blocks.translate(mapping._low_metadata_mask))
-    ):
-        return blocks.translate(byte_mapping), b"", metadata
+    if section.additions is None and byte_mapping is not None:
+        if not has_tiles:
+            source_blocks = bytes(section.blocks)
+            blocks = source_blocks.translate(byte_mapping)
+            metadata = np.frombuffer(section.metadata, dtype=np.uint8)
+            data = _mapped_low_metadata(source_blocks, metadata, mapping)
+            return blocks, b"", data
 
-    source_ids = np.frombuffer(blocks, dtype=np.uint8).astype(np.uint16)
+        tile_ids = np.asarray(states & 0x0FFF, dtype=np.uint16) if has_tiles else None
+        if tile_ids is not None and not np.any(tile_ids > 0xFF):
+            source_ids = np.frombuffer(section.blocks, dtype=np.uint8).copy()
+            source_ids[indices] = tile_ids.astype(np.uint8)
+            source_blocks = source_ids.tobytes()
+            blocks = source_blocks.translate(byte_mapping)
 
-    if additions is not None:
-        packed = np.frombuffer(additions, dtype=np.uint8)
+            metadata = np.frombuffer(section.metadata, dtype=np.uint8).copy()
+            tile_metadata = np.asarray((states >> 12) & 0x0F, dtype=np.uint8)
+            _write_nibbles(metadata, indices, tile_metadata)
+            data = _mapped_low_metadata(source_blocks, metadata, mapping)
+            return blocks, b"", data
+
+    source_ids = np.frombuffer(section.blocks, dtype=np.uint8).astype(np.uint16)
+    if section.additions is not None:
+        packed = np.frombuffer(section.additions, dtype=np.uint8)
         source_ids[::2] |= (packed & 0x0F).astype(np.uint16) << 8
         source_ids[1::2] |= (packed >> 4).astype(np.uint16) << 8
+
+    metadata = np.frombuffer(section.metadata, dtype=np.uint8)
+    if has_tiles:
+        source_ids[indices] = states & 0x0FFF
+        metadata = metadata.copy()
+        tile_metadata = np.asarray((states >> 12) & 0x0F, dtype=np.uint8)
+        _write_nibbles(metadata, indices, tile_metadata)
 
     target_ids = mapping.ids[source_ids]
     blocks = target_ids.astype(np.uint8).tobytes()
 
-    target_high = (target_ids >> 8).astype(np.uint8)
-    packed_high = target_high[::2] | (target_high[1::2] << 4)
-    add = _array(ADD, packed_high.tobytes()) if np.any(packed_high) else b""
+    add = b""
+    if mapping._high_targets and np.any(target_ids > 0xFF):
+        target_high = (target_ids >> 8).astype(np.uint8)
+        packed_high = target_high[::2] | (target_high[1::2] << 4)
+        add = _array(ADD, packed_high.tobytes())
 
-    data = metadata
-    if mapping._has_metadata_overrides:
-        target_meta = mapping.metadata[source_ids]
-        if np.any(target_meta != PRESERVE_METADATA):
-            packed_data = np.frombuffer(data, dtype=np.uint8)
-            low = np.where(target_meta[::2] == PRESERVE_METADATA, packed_data & 0x0F, target_meta[::2])
-            high = np.where(target_meta[1::2] == PRESERVE_METADATA, packed_data >> 4, target_meta[1::2])
+    data = metadata.tobytes()
+    if mapping._metadata_overrides:
+        target_metadata = mapping.metadata[source_ids]
+        if np.any(target_metadata != PRESERVE_METADATA):
+            low = np.where(
+                target_metadata[::2] == PRESERVE_METADATA,
+                metadata & 0x0F,
+                target_metadata[::2],
+            )
+            high = np.where(
+                target_metadata[1::2] == PRESERVE_METADATA,
+                metadata >> 4,
+                target_metadata[1::2],
+            )
             data = (low | (high << 4)).astype(np.uint8).tobytes()
 
     return blocks, add, data
@@ -158,21 +180,15 @@ def _tile_materials_by_section(
     if materials is None:
         return None
 
-    positions = np.frombuffer(materials.positions, dtype=">i4").reshape(-1, 3)
-    states = np.frombuffer(materials.states, dtype=">u2")
-    if not len(positions):
+    entries = np.frombuffer(materials, dtype=">u4")
+    if not len(entries):
         return None
 
-    x, y, z = positions.T
-    selected = (y >= 0) & (y < 256)
-    if not np.any(selected):
-        return None
-
-    x = (x[selected] & 15).astype(np.intp, copy=False)
-    y = y[selected]
-    z = (z[selected] & 15).astype(np.intp, copy=False)
-    indices = ((y & 15) << 8) | (z << 4) | x
-    return (y >> 4), indices.astype(np.intp, copy=False), states[selected]
+    positions = (entries >> 16).astype(np.uint16)
+    section_y = positions >> 12
+    indices = positions & 0x0FFF
+    states = (entries & 0xFFFF).astype(np.uint16)
+    return section_y, indices.astype(np.intp, copy=False), states
 
 
 def chunk(
