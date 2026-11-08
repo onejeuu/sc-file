@@ -5,8 +5,8 @@ import struct
 import webbrowser
 import zipfile
 from collections.abc import Callable
-from functools import partial
 from pathlib import Path
+from typing import BinaryIO
 
 import click
 from rich import print
@@ -23,7 +23,7 @@ REPORTS = ROOT / "reports" / "mappings"
 GROUPS = ROOT / "assets" / "mappings" / "groups.json.gz"
 TEMPLATE = ROOT / "assets" / "mappings" / "viewer.html.gz"
 STATE = REPORTS / ".state.json"
-VERSIONS = {"stalcraft": 1, "minecraft": 3}
+VERSIONS = {"stalcraft": 1, "minecraft": 4}
 
 
 def save_state(state: dict) -> None:
@@ -42,8 +42,24 @@ def read_state() -> dict:
 
 
 def file_hash(path: Path) -> str:
+    if path.is_dir():
+        digest = hashlib.blake2b(digest_size=32)
+        for child in sorted(path.rglob("*")):
+            if child.is_file():
+                digest.update(child.relative_to(path).as_posix().encode())
+                with child.open("rb") as file:
+                    digest.update(file_digest(file))
+        return digest.hexdigest()
+
     with path.open("rb") as file:
-        return hashlib.file_digest(file, partial(hashlib.blake2b, digest_size=32)).hexdigest()
+        return file_digest(file).hex()
+
+
+def file_digest(file: BinaryIO) -> bytes:
+    digest = hashlib.blake2b(digest_size=32)
+    while chunk := file.read(1024 * 1024):
+        digest.update(chunk)
+    return digest.digest()
 
 
 def signature(version: int, paths: tuple[Path, ...]) -> dict:
@@ -88,8 +104,9 @@ def ensure_asset(
     texture_field: str,
     state: dict,
     force: bool,
+    extra_sources: tuple[Path, ...] = (),
 ) -> None:
-    current = signature(VERSIONS[name], (source, catalog))
+    current = signature(VERSIONS[name], (source, catalog, *extra_sources))
     directory = REPORTS / name
     if not force and state.get(name) == current and outputs_exist(directory, texture_field):
         print(f"{label} up to date.")
@@ -179,16 +196,24 @@ def build_viewer() -> Path:
     type=click.Path(path_type=Path, dir_okay=False),
     help="Path to the Minecraft client JAR. Overrides the config.",
 )
+@click.option(
+    "--minecraft-resourcepack",
+    type=click.Path(path_type=Path, file_okay=True, dir_okay=True),
+    help="Path to a Minecraft resource pack ZIP or directory. Overrides the config.",
+)
 @click.option("--force", is_flag=True, help="Rebuild both resource indexes.")
 @click.option("--run", "open_browser", is_flag=True, help="Open Mapping Editor after building.")
 def mappings(
     stalcraft_texarr: Path | None,
     minecraft_jar: Path | None,
+    minecraft_resourcepack: Path | None,
     force: bool,
     open_browser: bool,
 ) -> None:
     try:
-        stalcraft_source, minecraft_source = config.read(stalcraft_texarr, minecraft_jar)
+        stalcraft_source, minecraft_source, resourcepack_source = config.read(
+            stalcraft_texarr, minecraft_jar, minecraft_resourcepack
+        )
         state = read_state()
 
         ensure_asset(
@@ -207,10 +232,11 @@ def mappings(
             "[bold green]Minecraft[/]",
             minecraft_source,
             extract.MINECRAFT_CATALOG,
-            extract.extract_minecraft,
+            lambda source: extract.extract_minecraft(source, resourcepack_source),
             "texture",
             state,
             force,
+            (resourcepack_source,) if resourcepack_source is not None else (),
         )
 
         viewer = build_viewer()

@@ -1,3 +1,4 @@
 [paths]
 stalcraft_texarr = "C:/path/to/blockMap.texarr"
 minecraft_jar = "C:/path/to/1.12.2.jar"
+minecraft_resourcepack = ""

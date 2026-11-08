@@ -14,7 +14,7 @@ from rich import print
 from scfile import formats
 from tools.paths import ROOT
 
-from .preview import ModelRenderer, load_texture, render_preview
+from .preview import ModelRenderer, ResourcePack, load_texture, render_preview
 
 
 ASSETS = ROOT / "assets" / "mappings"
@@ -145,7 +145,7 @@ def extract_stalcraft(source: Path) -> None:
     print(f"[bold yellow]Stalcraft[/] {len(index)} blocks, {decoded} previews, {len(missing)} missing DDS.")
 
 
-def extract_minecraft(source: Path) -> None:
+def extract_minecraft(source: Path, resourcepack: Path | None = None) -> None:
     catalog = read_catalog(MINECRAFT_CATALOG)
 
     output = REPORTS / "minecraft"
@@ -159,17 +159,24 @@ def extract_minecraft(source: Path) -> None:
     texture_root = "assets/minecraft/textures/"
 
     with zipfile.ZipFile(source) as jar:
-        names = {
-            name[len(texture_root) : -4]
-            for name in jar.namelist()
-            if name.startswith(texture_root) and name.endswith(".png")
-        }
+        pack = ResourcePack(resourcepack) if resourcepack is not None else None
+        try:
+            names = {
+                name[len(texture_root) : -4]
+                for name in jar.namelist()
+                if name.startswith(texture_root) and name.endswith(".png")
+            }
+            if pack is not None:
+                names.update(pack.names(texture_root))
 
-        if not names:
-            raise ValueError("Minecraft JAR has no assets/minecraft/textures/*.png textures.")
+            if not names:
+                raise ValueError("Minecraft JAR has no assets/minecraft/textures/*.png textures.")
 
-        renderer = ModelRenderer(jar)
-        outputs, stats = build_minecraft_outputs(catalog, jar, renderer, names, output)
+            renderer = ModelRenderer(jar, pack)
+            outputs, stats = build_minecraft_outputs(catalog, jar, pack, renderer, names, output)
+        finally:
+            if pack is not None:
+                pack.close()
 
     outputs.sort(key=lambda record: (record["id"], record["meta"]))
     save_json(output / "index.json", outputs)
@@ -202,6 +209,7 @@ def extract_minecraft(source: Path) -> None:
 def build_minecraft_outputs(
     catalog: list[dict],
     jar: zipfile.ZipFile,
+    resourcepack: ResourcePack | None,
     renderer: ModelRenderer,
     names: set[str],
     output: Path,
@@ -229,7 +237,13 @@ def build_minecraft_outputs(
         if texture_name not in names:
             unmatched.append(f"{block_id}:{record['meta']}:{texture_name}")
 
-        flat_preview = write_flat_texture(jar, output, texture_name, crop, tint, written) if not from_preview else None
+        flat_preview = (
+            write_flat_texture(resourcepack or jar, output, texture_name, crop, tint, written)
+            if not from_preview
+            else None
+        )
+        if flat_preview is None and resourcepack is not None and not from_preview:
+            flat_preview = write_flat_texture(jar, output, texture_name, crop, tint, written)
         catalog_preview = write_catalog_preview(
             jar, renderer, output, record.get("preview"), tint, flat_preview, preview_written, fallbacks, record
         )
@@ -257,13 +271,13 @@ def build_minecraft_outputs(
 
 
 def write_flat_texture(
-    jar: zipfile.ZipFile, output: Path, name: str, crop, tint, written: dict[tuple, str]
+    source: zipfile.ZipFile | ResourcePack, output: Path, name: str, crop, tint, written: dict[tuple, str]
 ) -> str | None:
     key = (name, crop, tint)
     if key in written:
         return written[key]
 
-    image = load_texture(jar, name, crop, tint)
+    image = load_texture(source, name, crop, tint)
     if image is None:
         return None
 

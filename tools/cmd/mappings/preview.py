@@ -1,9 +1,11 @@
 import io
 import json
 import math
+import os
 import zipfile
 from dataclasses import dataclass
-from typing import Any, TypeAlias
+from pathlib import Path
+from typing import Any, TypeAlias, cast
 
 from PIL import Image, ImageChops, ImageDraw, UnidentifiedImageError
 
@@ -12,8 +14,55 @@ Point3 = tuple[float, float, float]
 Point2 = tuple[float, float]
 Model: TypeAlias = dict[str, Any]
 Transform: TypeAlias = dict[str, Any]
-UV: TypeAlias = tuple[float, float, float, float] | list[tuple[float, float]]
+UV: TypeAlias = tuple[float, float, float, float] | list[float | int] | list[tuple[float, float]]
 FaceGeometry: TypeAlias = tuple[Point3, list[Point3], tuple[float, float, float, float]]
+
+
+class ResourcePack:
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.archive: zipfile.ZipFile | None = None
+        self.root: Path | None = None
+
+        if path.is_dir():
+            self.root = path
+        elif path.is_file():
+            self.archive = zipfile.ZipFile(path)
+        else:
+            raise FileNotFoundError(path)
+
+    def read(self, name: str) -> bytes:
+        if self.archive is not None:
+            return self.archive.read(name)
+        assert self.root is not None
+        return (self.root / name).read_bytes()
+
+    def names(self, prefix: str) -> set[str]:
+        if self.archive is not None:
+            return {
+                name[len(prefix) : -4]
+                for name in self.archive.namelist()
+                if name.startswith(prefix) and name.endswith(".png")
+            }
+
+        assert self.root is not None
+        root = self.root / prefix
+        names = set()
+        for directory, _, files in os.walk(root, onerror=lambda _: None):
+            for filename in files:
+                if filename.lower().endswith(".png"):
+                    relative = (Path(directory) / filename).relative_to(self.root).as_posix()
+                    names.add(relative[len(prefix) : -4])
+
+        return names
+
+    def close(self) -> None:
+        if self.archive is not None:
+            self.archive.close()
+
+
+def read_texture(source: zipfile.ZipFile | ResourcePack, name: str) -> bytes:
+    return source.read(f"assets/minecraft/textures/{name}.png")
 
 
 def tint_image(image: Image.Image, tint: str | None) -> Image.Image:
@@ -24,13 +73,13 @@ def tint_image(image: Image.Image, tint: str | None) -> Image.Image:
 
 
 def load_texture(
-    jar: zipfile.ZipFile,
+    source: zipfile.ZipFile | ResourcePack,
     name: str,
     crop: tuple[int, int, int, int] | list[int] | None = None,
     tint: str | None = None,
 ) -> Image.Image | None:
     try:
-        image = Image.open(io.BytesIO(jar.read(f"assets/minecraft/textures/{name}.png"))).convert("RGBA")
+        image = Image.open(io.BytesIO(read_texture(source, name))).convert("RGBA")
 
     except (KeyError, OSError, UnidentifiedImageError):
         return None
@@ -46,8 +95,9 @@ def load_texture(
 
 
 class ModelStore:
-    def __init__(self, jar: zipfile.ZipFile) -> None:
+    def __init__(self, jar: zipfile.ZipFile, texture_source: ResourcePack | None = None) -> None:
         self.jar = jar
+        self.texture_source = texture_source or jar
         self.files = set(jar.namelist())
         self.models: dict[str, Model] = {}
         self.textures: dict[str, Image.Image] = {}
@@ -87,9 +137,18 @@ class ModelStore:
 
     def texture(self, name: str) -> Image.Image | None:
         if name not in self.textures:
-            image = load_texture(self.jar, name)
+            try:
+                image = load_texture(self.texture_source, name)
+
+            except (KeyError, OSError, UnidentifiedImageError):
+                image = None
+
+            if image is None and self.texture_source is not self.jar:
+                image = load_texture(self.jar, name)
+
             if image is None:
                 return None
+
             self.textures[name] = image
         return self.textures[name].copy()
 
@@ -106,8 +165,8 @@ class ModelRenderer:
     DIRECTIONS = ("down", "up", "north", "south", "west", "east")
     CAMERAS = {"iso": (1 / math.sqrt(3),) * 3, "front": (0.0, 0.0, -1.0)}
 
-    def __init__(self, jar: zipfile.ZipFile) -> None:
-        self.store = ModelStore(jar)
+    def __init__(self, jar: zipfile.ZipFile, texture_source: ResourcePack | None = None) -> None:
+        self.store = ModelStore(jar, texture_source)
 
     def rotate(self, point: Point3, axis: str, angle: float) -> Point3:
         x, y, z = point
@@ -297,13 +356,23 @@ class ModelRenderer:
     ) -> tuple[Image.Image, list[Point2] | None]:
         if isinstance(uv, list) and uv and isinstance(uv[0], (list, tuple)):
             points = [
-                (float(u) * texture.width / texture_size[0], float(v) * texture.height / texture_size[1]) for u, v in uv
+                (float(u) * texture.width / texture_size[0], float(v) * texture.height / texture_size[1])
+                for u, v in cast(list[tuple[float, float]], uv)
             ]
             left, top = math.floor(min(x for x, _ in points)), math.floor(min(y for _, y in points))
             right, bottom = math.ceil(max(x for x, _ in points)), math.ceil(max(y for _, y in points))
             return texture.crop((left, top, right, bottom)), [(x - left, y - top) for x, y in points]
 
-        u1, v1, u2, v2 = uv
+        if isinstance(uv, list):
+            if len(uv) != 4 or any(isinstance(value, (list, tuple)) for value in uv):
+                raise ValueError(f"Invalid UV coordinates: {uv!r}")
+
+            numeric_uv = cast(list[float | int], uv)
+            u1, v1, u2, v2 = (float(value) for value in numeric_uv)
+
+        else:
+            u1, v1, u2, v2 = uv
+
         crop = texture.crop(
             (
                 round(min(u1, u2) * texture.width / 16),

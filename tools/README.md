@@ -107,7 +107,7 @@ uv run -m tools mappings --force --run
 ```
 
 The configured source paths can be overridden for one run with
-`--stalcraft-texarr` and `--minecraft-jar`.
+`--stalcraft-texarr`, `--minecraft-jar`, and `--minecraft-resourcepack`.
 
 Copy `configs/mappings/config.example.toml` to `configs/mappings/config.toml`
 and set the paths to `blockMap.texarr` and the Minecraft 1.12.2 client JAR.
