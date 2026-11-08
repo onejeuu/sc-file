@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 from scfile.app.gui import strings
 from scfile.app.gui.styles import Styles
 from scfile.app.gui.widgets.combo import ComboBox
+from scfile.formats.mca import mappings
 
 
 class MappingLayersWidget(QWidget):
@@ -34,9 +35,10 @@ class MappingLayersWidget(QWidget):
         base_row.addWidget(base_label)
 
         self.base = ComboBox()
-        self.base.add_named_item("resourcepack", strings.get("option.mapcache.mapping.resourcepack"))
         self.base.add_named_item("vanilla", strings.get("option.mapcache.mapping.vanilla"))
-        self.base.setCurrentIndex(0)
+        self.base.add_named_item("resourcepack", strings.get("option.mapcache.mapping.resourcepack"))
+        self.base.add_named_item("identity", strings.get("option.mapcache.mapping.identity"))
+        self.base.setCurrentIndex(self.base.findData(mappings.DEFAULT))
         base_row.addWidget(self.base, 1)
         layout.addLayout(base_row)
 

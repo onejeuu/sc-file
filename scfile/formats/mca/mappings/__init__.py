@@ -16,10 +16,12 @@ from .vanilla import BLOCKS as VANILLA
 RESOURCE_KEY: Final = "mca.mapping"
 
 DEFAULT: Final = "vanilla"
+IDENTITY: Final[BlockMapping] = {str(block_id): str(block_id) for block_id in range(256)}
 BUILTIN: Final[Mapping[str, BlockMapping]] = MappingProxyType(
     {
         "vanilla": VANILLA,
         "resourcepack": RESOURCEPACK,
+        "identity": IDENTITY,
     }
 )
 

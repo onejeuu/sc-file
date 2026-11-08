@@ -11,6 +11,7 @@ from scfile.app.mapcache import load_block_mappings, supported_version_from_path
 from scfile.app.tasks import execute
 from scfile.app.tasks.mapcache import MapCacheTask
 from scfile.exceptions import BlockMappingError
+from scfile.formats.mca import mappings
 from scfile.formats.mdat.versions import SUPPORTED_VERSIONS
 from scfile.options import MdatVersion, Options
 
@@ -56,7 +57,8 @@ from scfile.options import MdatVersion, Options
     "blocks",
     multiple=True,
     metavar="MAPPING",
-    help="Block mapping layer: vanilla, resourcepack, a JSON file, or an inline JSON object. May be repeated.",
+    default=(mappings.DEFAULT,),
+    help="Block mapping layer: vanilla, resourcepack, identity, a JSON file, or an inline JSON object. May be repeated.",
 )
 @click.option(
     "-v",

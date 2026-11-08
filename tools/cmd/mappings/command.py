@@ -161,7 +161,7 @@ def build_viewer() -> Path:
     minecraft = json.loads((REPORTS / "minecraft/index.json").read_text(encoding="utf-8"))
     with gzip.open(GROUPS, "rt", encoding="utf-8") as file:
         groups = clean_groups(json.load(file))
-    base = dict(block_mappings.BUILTIN[block_mappings.DEFAULT])
+    base = dict(block_mappings.BUILTIN["identity"])
 
     with gzip.open(TEMPLATE, "rt", encoding="utf-8") as file:
         template = file.read()
