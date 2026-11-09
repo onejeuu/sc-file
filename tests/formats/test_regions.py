@@ -52,7 +52,7 @@ def _region(version: MdatVersion) -> bytes:
     ),
 )
 def test_mdat_content_and_mca(version: MdatVersion, extended: bool, has_objects: bool) -> None:
-    with MdatDecoder(_region(version), options=Options(mdat_version=version, extended_chunk=extended)) as decoder:
+    with MdatDecoder(_region(version), options=Options(mdat_version=version, mdat_objects=extended)) as decoder:
         data = decoder.decode()
         assert isinstance(data, RegionContent)
         assert data is decoder.data
@@ -102,7 +102,7 @@ def test_mdat_golden_output() -> None:
     assert _mca_chunks(actual) == _mca_chunks(expected)
 
 
-def test_block_planes_are_available_without_extended_chunk() -> None:
+def test_block_planes_are_available_without_mdat_objects() -> None:
     section_mask = 0b11
     add_mask = 0b10
     blocks = bytes([0x11]) * SECTION_SIZE + bytes([0x22]) * SECTION_SIZE
@@ -113,7 +113,7 @@ def test_block_planes_are_available_without_extended_chunk() -> None:
     raw = blocks + metadata + lighting + additions + biomes
     header = ChunkHeader(0, section_mask, add_mask, len(raw), 0)
 
-    result = chunk(0, header, raw, extended=False)
+    result = chunk(0, header, raw, objects=False)
 
     assert len(result.sections) == 2
     assert result.sections[0].blocks[0] == 0x11
@@ -140,7 +140,7 @@ def test_records_remain_extended_data() -> None:
     raw = blocks + metadata + lighting + biomes + records
     header = ChunkHeader(0, section_mask, add_mask, len(raw), 0)
 
-    result = chunk(0, header, raw, extended=True)
+    result = chunk(0, header, raw, objects=True)
 
     assert result.records is not None
     assert result.records.count == 0
@@ -181,6 +181,7 @@ def _chunk_with_records(
     *,
     add_mask: int = 1 << 4,
     extended: bool = False,
+    include_materials: bool = True,
 ) -> RegionChunk:
     blocks = bytes([0xC2]) * SECTION_SIZE
     metadata = bytes([0xAA]) * NIBBLE_SIZE
@@ -189,10 +190,10 @@ def _chunk_with_records(
     biomes = bytes(BIOME_SIZE)
     raw = blocks + metadata + lighting + additions + biomes + record_data
     header = ChunkHeader(0, 1 << 4, add_mask, len(raw), 0)
-    return chunk(0, header, raw, extended=extended)
+    return chunk(0, header, raw, objects=extended, materials=include_materials)
 
 
-def test_tile_materials_are_projected_without_records() -> None:
+def test_mdat_materials_are_projected_without_records() -> None:
     record_data = struct.pack(">i", 1) + _tile_record(kind=1)
     result = _chunk_with_records(record_data, extended=False)
 
@@ -207,7 +208,14 @@ def test_tile_materials_are_projected_without_records() -> None:
     assert entry & 0xFFFF == 0xD123
 
 
-def test_tile_materials_keep_primary_state() -> None:
+def test_mdat_materials_can_be_skipped() -> None:
+    record_data = struct.pack(">i", 1) + _tile_record(kind=1)
+    result = _chunk_with_records(record_data, include_materials=False)
+
+    assert result.materials is None
+
+
+def test_mdat_materials_keep_primary_state() -> None:
     record_data = struct.pack(">i", 1) + _tile_record(flags=0, main=0)
     result = _chunk_with_records(record_data, add_mask=0)
 
@@ -231,6 +239,8 @@ def test_malformed_records_do_not_project_materials() -> None:
     raw = terrain + struct.pack(">i", 1) + _tile_record()[:-1]
     header = ChunkHeader(0, 1, 0, len(raw), 0)
 
-    result = chunk(0, header, raw, extended=False)
+    result = chunk(0, header, raw, objects=False)
 
     assert result.materials is None
+
+

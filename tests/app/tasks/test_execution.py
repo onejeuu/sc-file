@@ -100,7 +100,7 @@ def test_convert_nonstandalone(tmp_path: Path) -> None:
     root = ASSETS / "formats"
     sources = (root / "models/source/library.mcal",)
     options = Options()
-    options.targets = {}
+    options.output_formats = {}
     events: list[TaskEvent] = []
     task = ConvertTask(sources, (), options, output=tmp_path, workers=2)
 
@@ -284,3 +284,4 @@ def test_relative_replace(tmp_path: Path) -> None:
     assert summary.files.written == 2
     assert clean.exists()
     assert len(list(clean.parent.glob("document~*.json"))) == 1
+

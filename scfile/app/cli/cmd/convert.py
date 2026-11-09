@@ -97,7 +97,7 @@ def convert(
     options = Options(
         skeleton=skeleton,
         animation=animation,
-        targets={ModelContent: model_format} if model_format else {},
+        output_formats={ModelContent: model_format} if model_format else {},
         on_conflict=on_conflict,
     )
 
@@ -127,3 +127,4 @@ def convert(
 
     if summary.work.failed:
         raise click.exceptions.Exit(1)
+

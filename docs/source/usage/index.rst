@@ -330,6 +330,16 @@ mapcache
     scfile mapcache "C:/map_cache/7.0" --no-biomes
 
 
+``--tiles / --no-tiles``
+  Apply tile material records to terrain. Enabled by default. Use ``--no-tiles``
+  to export the base terrain without material overlays.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapcache "C:/map_cache/7.0" --no-tiles
+
+
 ``--backup / --no-backup``
   Keep the first original ``.mca`` region as ``.mca.bck`` before replacement.
   Enabled by default. Existing backups are kept unchanged.

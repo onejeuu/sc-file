@@ -87,7 +87,7 @@ class MapCacheTask(Task):
             yield TaskError(exceptions.RegionError("No valid regions found.", location=str(self.source)))
             return
 
-        resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.block_mappings)})
+        resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.mca_mappings)})
         output.mkdir(parents=True, exist_ok=True)
 
         for region in mapping.items():
@@ -97,3 +97,4 @@ class MapCacheTask(Task):
             result = self._merge(region, context, options, resources)
             if result is not None:
                 yield result
+

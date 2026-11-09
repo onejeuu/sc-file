@@ -9,7 +9,7 @@ from scfile.content.models import Feature, Features
 from scfile.enums import FileFormat, OnConflict
 
 
-DEFAULT_TARGETS: dict[type[C.BaseContent], FileFormat] = {
+DEFAULT_OUTPUT_FORMATS: dict[type[C.BaseContent], FileFormat] = {
     C.ModelContent: FileFormat.OBJ,
     C.TextureContent: FileFormat.DDS,
     C.ImageContent: FileFormat.PNG,
@@ -17,13 +17,13 @@ DEFAULT_TARGETS: dict[type[C.BaseContent], FileFormat] = {
     C.DocumentContent: FileFormat.JSON,
     C.RegionContent: FileFormat.MCA,
 }
-"""Default conversion targets by content type."""
+"""Default output formats by content type."""
 
 SKELETON_TARGET = FileFormat.GLB
 """Default model target when skeleton processing is enabled."""
 
-type TargetConfig = Mapping[type[C.BaseContent], FileFormat]
-"""Requested conversion targets by content type."""
+type OutputFormatConfig = Mapping[type[C.BaseContent], FileFormat]
+"""Requested output formats by content type."""
 
 type MdatVersion = Literal[5, 6, 7]
 """Supported MDAT format major versions."""
@@ -39,31 +39,7 @@ type BlockMappings = tuple[BlockMapping, ...] | BlockMapping | None
 class Options:
     """Options for library handlers and conversion operations."""
 
-    skeleton: bool = False
-    """Handle skeleton bones from models."""
-
-    animation: bool = False
-    """Handle built-in animation clips from models."""
-
-    preserve_clips: bool = False
-    """Keep all clips from animation library."""
-
-    biomes: bool = True
-    """Export biome data for world regions."""
-
-    backup_regions: bool = True
-    """Keep original world region."""
-
-    extended_chunk: bool = False
-    """Expose records and objects from world chunks."""
-
-    block_mappings: BlockMappings = None
-    """Ordered block mapping layers. Empty means the built-in resource-pack mapping."""
-
-    mdat_version: MdatVersion | None = None
-    """Major version of the MDAT source format."""
-
-    targets: TargetConfig = field(default_factory=dict)
+    output_formats: OutputFormatConfig = field(default_factory=dict)
     """Normalized output format for every content type."""
 
     on_conflict: OnConflict = OnConflict.REPLACE
@@ -75,28 +51,55 @@ class Options:
     - `"skip"` Keep the existing file
     """
 
-    max_mipmaps: int | None = None
-    """Maximum texture mipmaps to decode. Use zero to parse metadata only."""
+    skeleton: bool = False
+    """Handle skeleton bones from models."""
+
+    animation: bool = False
+    """Handle built-in animation clips from models."""
+
+    ol_max_mipmaps: int | None = None
+    """Maximum texture mipmaps to decode. Use zero to parse header metadata only."""
+
+    mcal_filtering: bool = True
+    """Filter technical and duplicate clips from MCAL animations."""
+
+    mdat_version: MdatVersion | None = None
+    """Major version of the MDAT source format."""
+
+    mdat_biomes: bool = True
+    """Export biome data from MDAT chunks."""
+
+    mdat_materials: bool = True
+    """Apply material records from MDAT chunks to world terrain."""
+
+    mdat_objects: bool = False
+    """Parse objects from MDAT chunks."""
+
+    mca_mappings: BlockMappings = None
+    """Ordered block mapping layers for MCA terrain."""
+
+    mca_backup: bool = True
+    """Keep the original MCA region before replacement."""
 
     def __post_init__(self) -> None:
-        self.on_conflict = OnConflict(self.on_conflict)
-
-        if self.max_mipmaps is not None:
-            self.max_mipmaps = max(0, self.max_mipmaps)
-
-        defaults = dict(DEFAULT_TARGETS)
+        defaults = dict(DEFAULT_OUTPUT_FORMATS)
         if self.skeleton_enabled:
             defaults[C.ModelContent] = SKELETON_TARGET
 
-        defaults.update(self.targets)
-        self.targets = defaults
+        defaults.update(self.output_formats)
+        self.output_formats = defaults
 
-        if self.block_mappings is None:
-            self.block_mappings = ()
-        elif isinstance(self.block_mappings, Mapping):
-            self.block_mappings = (self.block_mappings,)
+        self.on_conflict = OnConflict(self.on_conflict)
+
+        if self.ol_max_mipmaps is not None:
+            self.ol_max_mipmaps = max(0, self.ol_max_mipmaps)
+
+        if self.mca_mappings is None:
+            self.mca_mappings = ()
+        elif isinstance(self.mca_mappings, Mapping):
+            self.mca_mappings = (self.mca_mappings,)
         else:
-            self.block_mappings = tuple(self.block_mappings)
+            self.mca_mappings = tuple(self.mca_mappings)
 
     @property
     def skeleton_enabled(self) -> bool:

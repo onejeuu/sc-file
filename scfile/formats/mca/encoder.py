@@ -22,7 +22,7 @@ class McaEncoder(Encoder[RegionContent]):
     @override
     def _requirements(self):
         return {
-            mappings.RESOURCE_KEY: lambda: mappings.build(self.options.block_mappings),
+            mappings.RESOURCE_KEY: lambda: mappings.build(self.options.mca_mappings),
         }
 
     @override
@@ -49,7 +49,8 @@ class McaEncoder(Encoder[RegionContent]):
                     chunk_x,
                     chunk_z,
                     chunk,
-                    export_biomes=self.options.biomes,
+                    biomes=self.options.mdat_biomes,
+                    materials=self.options.mdat_materials,
                     mapping=mapping,
                     byte_mapping=byte_mapping,
                 ),

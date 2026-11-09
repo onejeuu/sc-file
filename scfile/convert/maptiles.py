@@ -131,7 +131,7 @@ def render(
     tiles = dict(sorted(tiles.items()))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    decoder_options = replace(options, max_mipmaps=1)
+    decoder_options = replace(options, ol_max_mipmaps=1)
     bounds = Bounds.parse(tiles)
     tile_size = _tile_size(tiles, options, cancelled, resources)
     canvas_size = bounds.size(tile_size)
@@ -170,7 +170,7 @@ def _tile_size(
     cancelled: CancelCheck,
     resources: Resources,
 ) -> Size:
-    metadata_options = replace(options, max_mipmaps=0)
+    metadata_options = replace(options, ol_max_mipmaps=0)
     sizes: dict[Path, Size] = {}
     for path in tiles.values():
         if cancelled and cancelled():
@@ -226,3 +226,4 @@ def _paste(
 
     with image.resize(tile_size, Image.Resampling.LANCZOS) as resized:
         canvas.paste(resized, bounds.offset(key, tile_size))
+

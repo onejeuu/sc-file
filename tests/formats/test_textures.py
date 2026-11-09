@@ -37,7 +37,7 @@ def test_mic_to_png() -> None:
     ),
 )
 def test_mipmap_limit(source: Path, texture_type: type[DefaultTexture | CubemapTexture]) -> None:
-    options = Options(max_mipmaps=1)
+    options = Options(ol_max_mipmaps=1)
 
     with OlDecoder(source, options) as decoder:
         content = decoder.decode()
@@ -55,7 +55,7 @@ def test_mipmap_limit(source: Path, texture_type: type[DefaultTexture | CubemapT
 def test_texture_metadata() -> None:
     source = ROOT / "source/texture_dxt1.ol"
 
-    with OlDecoder(source, Options(max_mipmaps=0)) as decoder:
+    with OlDecoder(source, Options(ol_max_mipmaps=0)) as decoder:
         content = decoder.decode()
         assert decoder.io.tell() < decoder.io.size()
 
@@ -63,3 +63,4 @@ def test_texture_metadata() -> None:
     assert content.height > 0
     assert content.meta.mipmap_count > 0
     assert content.texture.mipmap_count == 0
+

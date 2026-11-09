@@ -196,17 +196,18 @@ def chunk(
     cz: int,
     source: RegionChunk,
     *,
-    export_biomes: bool,
+    biomes: bool,
+    materials: bool = True,
     mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
 ) -> bytes:
-    materials = _tile_materials_by_section(source.materials)
+    material_data = _tile_materials_by_section(source.materials) if materials else None
     sections = []
     for section in source.sections:
         tile_indices = None
         tile_states = None
-        if materials is not None:
-            tile_y, all_indices, all_states = materials
+        if material_data is not None:
+            tile_y, all_indices, all_states = material_data
             selected = tile_y == section.y
             if np.any(selected):
                 tile_indices = all_indices[selected]
@@ -222,8 +223,8 @@ def chunk(
             )
         )
 
-    biomes = bytes(source.biomes)
-    biomes = _array(BIOMES, biomes) * bool(export_biomes and any(biomes))
+    biome_data = bytes(source.biomes)
+    biome_data = _array(BIOMES, biome_data) * bool(biomes and any(biome_data))
 
     return b"".join(
         (
@@ -234,7 +235,7 @@ def chunk(
             struct.pack(">i", cx),
             ZPOS,
             struct.pack(">i", cz),
-            biomes,
+            biome_data,
             SECTIONS,
             bytes((Tag.COMPOUND,)),
             struct.pack(">i", len(sections)),

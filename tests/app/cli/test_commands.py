@@ -59,7 +59,7 @@ def test_convert_options(
     assert task.layout is OutputLayout.ROOTED
     assert task.workers == 3
     assert task.filters == (FileFormat.MIC.suffix,)
-    assert task.options.targets[ModelContent] is FileFormat.GLB
+    assert task.options.output_formats[ModelContent] is FileFormat.GLB
     assert task.options.skeleton
     assert task.options.animation
     assert task.options.on_conflict is OnConflict.RENAME
@@ -147,7 +147,7 @@ def test_face_and_body_options(
     assert body.exit_code == 0
     assert tasks[0].operation is animate_module.convert.animate.face
     assert tasks[1].operation is animate_module.convert.animate.body
-    assert tasks[1].options.preserve_clips
+    assert not tasks[1].options.mcal_filtering
 
 
 def test_animate_failure(
@@ -175,15 +175,16 @@ def test_mapcache(
     tasks = command_runner(mapcache_module, TaskKind.MAPCACHE, False)
     result = CliRunner().invoke(
         scfile,
-        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-backup", "--verbose"],
+        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-tiles", "--no-backup", "--verbose"],
     )
 
     assert result.exit_code == 0
     task = tasks[0]
     assert task.source == source
     assert task.output == output
-    assert not task.options.biomes
-    assert not task.options.backup_regions
+    assert not task.options.mdat_biomes
+    assert not task.options.mdat_materials
+    assert not task.options.mca_backup
 
 
 def test_maptiles_game_region(
@@ -333,6 +334,5 @@ def test_convert_nonstandalone(verbose: bool, tmp_path: Path) -> None:
 
     assert result.exit_code == 0
     assert not list(output.glob("**/*"))
-
 
 

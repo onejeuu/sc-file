@@ -76,7 +76,7 @@ def _outputs(
             continue
 
         source = Path(item.path)
-        suffix = options.targets[decoder.content_type].suffix
+        suffix = options.output_formats[decoder.content_type].suffix
         directory = _directory(item, output, layout)
         candidate = convert.paths.destination(source, directory, suffix)
         key = _normalize(candidate)
@@ -173,3 +173,4 @@ class ConvertTask(Task):
 
         if not context.stopped and self.options.on_conflict is OnConflict.REPLACE:
             yield from _cleanup(collisions.values(), published)
+

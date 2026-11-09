@@ -50,7 +50,7 @@ def test_mapcache_task_shares_resources(tmp_path: Path, monkeypatch: pytest.Monk
         return (f"r.{key.x}.{key.z}.mca", len(sources))
 
     monkeypatch.setattr(mapcache, "merge", merge)
-    task = MapCacheTask(source=source, output=tmp_path / "out", options=Options(block_mappings={"5": "73"}))
+    task = MapCacheTask(source=source, output=tmp_path / "out", options=Options(mca_mappings={"5": "73"}))
     list(task.run(TaskContext()))
 
     assert len(compiled) == 1
@@ -73,3 +73,4 @@ def test_scan_finds_mdat_files(tmp_path: Path) -> None:
 
     assert result.paths == [region]
     assert not result.errors
+

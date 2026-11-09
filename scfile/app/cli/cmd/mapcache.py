@@ -35,6 +35,12 @@ from scfile.options import MdatVersion, Options
     help="Export biome data.",
 )
 @click.option(
+    "--tiles/--no-tiles",
+    "mdat_materials",
+    default=True,
+    help="Apply tile material records to terrain.",
+)
+@click.option(
     "--backup/--no-backup",
     default=True,
     help="Keep the original region before its first replacement.",
@@ -63,6 +69,7 @@ def mapcache(
     source: types.SourcePath,
     output: types.OutputPath,
     biomes: bool,
+    mdat_materials: bool,
     backup: bool,
     version: str | None,
     blocks: tuple[str, ...],
@@ -76,15 +83,16 @@ def mapcache(
         warn(f"Unsupported MDAT version in path: {detected}. Using {selected}.")
 
     try:
-        block_mappings = load_block_mappings(blocks)
+        mca_mappings = load_block_mappings(blocks)
     except BlockMappingError as error:
         raise click.BadParameter(str(error), param_hint="--blocks") from error
 
     options = Options(
-        biomes=biomes,
-        backup_regions=backup,
+        mdat_biomes=biomes,
+        mdat_materials=mdat_materials,
+        mca_backup=backup,
         mdat_version=cast(MdatVersion, int(version)) if version is not None else supported_version_from_path(source),
-        block_mappings=block_mappings,
+        mca_mappings=mca_mappings,
     )
     feedback = TaskFeedback(verbose)
     summary = execute(MapCacheTask(source, output, options), feedback)
@@ -92,3 +100,5 @@ def mapcache(
 
     if summary.work.failed:
         raise click.exceptions.Exit(1)
+
+

@@ -47,16 +47,16 @@ def test_vanilla_mapping_contains_the_complete_studio_mapping():
 
 def test_options_normalizes_one_mapping_to_tuple():
     mapping = {"42": "73"}
-    options = Options(block_mappings=mapping)
+    options = Options(mca_mappings=mapping)
 
-    assert options.block_mappings == (mapping,)
-    assert isinstance(options.block_mappings, tuple)
+    assert options.mca_mappings == (mapping,)
+    assert isinstance(options.mca_mappings, tuple)
 
 
 def test_options_normalizes_none_to_empty_tuple():
     options = Options()
 
-    assert options.block_mappings == ()
+    assert options.mca_mappings == ()
 
 
 def test_mapping_layers_are_applied_in_order():
@@ -173,7 +173,7 @@ def test_standalone_mca_encoder_compiles_only_on_encode(monkeypatch):
         return original(mappings)
 
     monkeypatch.setattr(mappings, "build", track)
-    with McaEncoder(RegionContent(), Options(block_mappings={"5": "73"})) as encoder:
+    with McaEncoder(RegionContent(), Options(mca_mappings={"5": "73"})) as encoder:
         assert not compiled
         encoder.to_bytes()
     assert len(compiled) == 1
@@ -306,7 +306,4 @@ def test_tile_primary_material_is_projected_before_existing_mapping():
     assert data[index // 2] == 0x7A
     assert bytes(section.blocks) == bytes([0xC2]) * 4096
     assert bytes(section.metadata) == bytes([0xAA]) * 2048
-
-
-
 

@@ -133,7 +133,7 @@ def merge(
             mca.encode()
             mca.save(temporary, close=False)
 
-        if options.backup_regions and target.exists():
+        if options.mca_backup and target.exists():
             backup_path = target.with_suffix(f"{MCA_SUFFIX}{BACKUP_SUFFIX}")
             if not backup_path.exists():
                 target.rename(backup_path)

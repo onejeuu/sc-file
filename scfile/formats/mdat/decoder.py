@@ -61,7 +61,13 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
 
     def _parse_chunk(self, index: int, header: S.ChunkHeader) -> S.RegionChunk:
         data = self._parse_compressed(header.compressed_size)
-        chunk = payload.chunk(index, header, data, extended=self.options.extended_chunk)
+        chunk = payload.chunk(
+            index,
+            header,
+            data,
+            objects=self.options.mdat_objects,
+            materials=self.options.mdat_materials,
+        )
 
         if self.data.version >= 6:
             self._parse_chunk_objects(chunk)
@@ -71,7 +77,7 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
     def _parse_chunk_objects(self, chunk: S.RegionChunk) -> None:
         size = self.io.value(F.I32)
 
-        if not self.options.extended_chunk:
+        if not self.options.mdat_objects:
             self.io.skip(size)
             return
 

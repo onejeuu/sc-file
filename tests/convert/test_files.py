@@ -114,7 +114,7 @@ def test_manual_mipmaps(tmp_path: Path) -> None:
     output = tmp_path / "texture.dds"
 
     with pytest.raises(exceptions.ConversionError):
-        manual(OlDecoder, DdsEncoder, source, output, Options(max_mipmaps=0))
+        manual(OlDecoder, DdsEncoder, source, output, Options(ol_max_mipmaps=0))
 
     assert not output.exists()
 
@@ -132,7 +132,7 @@ def test_auto(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     catalog = Registry((PngDecoder,), (PngEncoder,), {})
     monkeypatch.setattr(files, "registry", catalog)
 
-    result = files.auto(source, output, Options(targets={BytesDecoder.content_type: FileFormat.PNG}))
+    result = files.auto(source, output, Options(output_formats={BytesDecoder.content_type: FileFormat.PNG}))
 
     assert result == output
     assert output.read_bytes() == b"HXGNdata"
@@ -156,12 +156,12 @@ def test_auto_target(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(files, "registry", catalog)
 
     with pytest.raises(exceptions.ConversionError):
-        files.auto(source, options=Options(targets={BytesDecoder.content_type: FileFormat.PNG}))
+        files.auto(source, options=Options(output_formats={BytesDecoder.content_type: FileFormat.PNG}))
 
 
 def test_auto_nonstandalone(tmp_path: Path) -> None:
     options = Options()
-    options.targets = {}
+    options.output_formats = {}
 
     assert files.auto(tmp_path / "library.mcal", tmp_path / "output", options) is None
     assert not (tmp_path / "output").exists()
@@ -228,3 +228,5 @@ def test_manual_conversion_creates_one_shared_resources_container(tmp_path: Path
 
     assert isinstance(instances["decoder"].resources, Resources)
     assert isinstance(instances["encoder"].resources, Resources)
+
+

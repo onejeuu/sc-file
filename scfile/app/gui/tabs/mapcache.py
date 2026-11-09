@@ -93,6 +93,11 @@ class MapCacheTab(QWidget):
             hint=strings.get("option.mapcache.biomes.hint"),
             checked=True,
         )
+        self.mdat_materials = OptionWidget(
+            text=strings.get("option.mapcache.tile_materials"),
+            hint=strings.get("option.mapcache.tile_materials.hint"),
+            checked=True,
+        )
         self.backup = OptionWidget(
             text=strings.get("option.mapcache.backup"),
             hint=strings.get("option.mapcache.backup.hint"),
@@ -116,6 +121,7 @@ class MapCacheTab(QWidget):
         options.setContentsMargins(0, 0, 0, 0)
         options.setSpacing(14)
         options.addWidget(self.biomes)
+        options.addWidget(self.mdat_materials)
         options.addWidget(self.backup)
         result_card.content.addLayout(options)
         result_card.setMaximumWidth(MAX_FORM_WIDTH)
@@ -340,7 +346,7 @@ class MapCacheTab(QWidget):
             return
 
         try:
-            block_mappings = load_block_mappings(self.mappings.values())
+            mca_mappings = load_block_mappings(self.mappings.values())
         except BlockMappingError as error:
             QMessageBox.warning(self, strings.get("title.mapcache"), str(error))
             return
@@ -349,10 +355,11 @@ class MapCacheTab(QWidget):
             Path(self.source.value.strip()),
             Path(self.output.value.strip()),
             Options(
-                biomes=self.biomes.checked,
-                backup_regions=self.backup.checked,
+                mdat_biomes=self.biomes.checked,
+                mdat_materials=self.mdat_materials.checked,
+                mca_backup=self.backup.checked,
                 mdat_version=self._selected_version(),
-                block_mappings=block_mappings,
+                mca_mappings=mca_mappings,
             ),
         )
         self.running = self.tasks.start(task)
@@ -380,3 +387,4 @@ class MapCacheTab(QWidget):
 
     def stop(self) -> None:
         self.scanner.stop()
+

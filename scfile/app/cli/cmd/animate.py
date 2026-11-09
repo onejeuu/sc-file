@@ -121,4 +121,5 @@ def body(
 ) -> None:
     """Apply skeletal animation to a model."""
 
-    _execute(convert.animate.body, animation, (model,), output, Options(preserve_clips=raw))
+    _execute(convert.animate.body, animation, (model,), output, Options(mcal_filtering=not raw))
+

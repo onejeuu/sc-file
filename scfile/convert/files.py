@@ -106,7 +106,7 @@ def auto(
     if not decoder.standalone:
         return
 
-    target = options.targets[decoder.content_type]
+    target = options.output_formats[decoder.content_type]
     conversion = registry.conversions.get((decoder.format, target))
     if conversion is None:
         raise exceptions.ConversionError(
@@ -122,3 +122,4 @@ def auto(
         options,
         resources,
     )
+

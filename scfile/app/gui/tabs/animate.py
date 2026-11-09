@@ -240,11 +240,11 @@ class BodyForm(AnimationForm):
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
         )
-        self.preserve_clips = OptionWidget(
+        self.mcal_filtering = OptionWidget(
             strings.get("option.animate.body.preserve"),
             strings.get("option.animate.body.preserve.hint"),
         )
-        self.options.addWidget(self.preserve_clips)
+        self.options.addWidget(self.mcal_filtering)
         self.options_widget.show()
 
     def create_task(self, output: Path) -> AnimateTask:
@@ -253,7 +253,7 @@ class BodyForm(AnimationForm):
             source=self.source_path,
             models=(self.model_path,),
             output=output,
-            options=Options(preserve_clips=self.preserve_clips.checked),
+            options=Options(mcal_filtering=self.mcal_filtering.checked),
         )
 
 
@@ -456,3 +456,4 @@ class AnimateTab(QWidget):
     def _start_export(self) -> None:
         self.tasks.start(self.form.create_task(Path(self.output.value.strip())))
         self._sync()
+

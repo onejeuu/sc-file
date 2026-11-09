@@ -14,7 +14,8 @@ def chunk(
     header: S.ChunkHeader,
     data: bytes,
     *,
-    extended: bool,
+    objects: bool,
+    materials: bool = True,
 ) -> S.RegionChunk:
     raw = memoryview(data)
     section_ids = [y for y in range(16) if header.section_mask & (1 << y)]
@@ -52,13 +53,12 @@ def chunk(
     )
 
     record_data = raw[biomes_end:]
-    if record_data or extended:
-        decoded_records, materials = records(record_data, include=extended)
-        if decoded_records.error is None:
-            container.materials = materials
+    if (record_data and materials) or objects:
+        decoded_records, tile_materials = records(record_data, include=objects)
+        if materials and decoded_records.error is None:
+            container.materials = tile_materials
 
-        if extended:
+        if objects:
             container.records = decoded_records
 
     return container
-

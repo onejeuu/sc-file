@@ -77,8 +77,8 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
         self.data.meta.path_hash = self.io.prefixed()
 
         mipmaps = self.data.meta.mipmap_count
-        if self.options.max_mipmaps is not None:
-            mipmaps = min(mipmaps, self.options.max_mipmaps)
+        if self.options.ol_max_mipmaps is not None:
+            mipmaps = min(mipmaps, self.options.ol_max_mipmaps)
 
         match self.data.texture:
             case DefaultTexture() as texture:
@@ -114,3 +114,4 @@ class OlDecoder(Decoder[TextureContent, OlReader]):
                 location=self.location,
                 offset=position,
             ) from None
+

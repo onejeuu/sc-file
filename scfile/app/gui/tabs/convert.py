@@ -41,7 +41,7 @@ from scfile.content.models import Feature
 from scfile.core import ModelEncoder
 from scfile.enums import FileFormat
 from scfile.formats import registry
-from scfile.options import DEFAULT_TARGETS, Options
+from scfile.options import DEFAULT_OUTPUT_FORMATS, Options
 
 
 class FormatCard(QWidget):
@@ -208,7 +208,7 @@ class ConvertForm(QWidget):
         return Options(
             skeleton=self.skeleton.isEnabled() and self.skeleton.isChecked(),
             animation=self.animation.isEnabled() and self.animation.isChecked(),
-            targets={ModelContent: self.selected_format},
+            output_formats={ModelContent: self.selected_format},
             on_conflict=self.conflict.value,
         )
 
@@ -329,7 +329,7 @@ class ConvertForm(QWidget):
                 self.features_cursor.set(card.checkbox.isChecked())
                 card.checkbox.toggled.connect(self.features_cursor.set)
             else:
-                target = QLabel(DEFAULT_TARGETS[group.content_type].suffix)
+                target = QLabel(DEFAULT_OUTPUT_FORMATS[group.content_type].suffix)
                 target.setObjectName("formatCardTarget")
                 target.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
                 card.add_target(target)
@@ -654,3 +654,4 @@ class ConvertTab(QWidget):
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop()
         super().closeEvent(event)
+

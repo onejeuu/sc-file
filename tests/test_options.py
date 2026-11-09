@@ -3,7 +3,7 @@ import pytest
 from scfile.content import ModelContent
 from scfile.content.models import Feature
 from scfile.enums import FileFormat
-from scfile.options import BlockMapping, DEFAULT_TARGETS, Options
+from scfile.options import BlockMapping, DEFAULT_OUTPUT_FORMATS, Options
 
 
 def test_block_mapping_alias_is_raw_string_dict() -> None:
@@ -11,21 +11,23 @@ def test_block_mapping_alias_is_raw_string_dict() -> None:
 
 
 def test_animation() -> None:
-    assert not Options().preserve_clips
+    assert Options().mcal_filtering
     assert Options(animation=True).skeleton_enabled
     assert Options(animation=True).model_features == (Feature.SKELETON, Feature.ANIMATION)
 
 
 def test_targets() -> None:
-    assert Options().targets == DEFAULT_TARGETS
-    assert Options(skeleton=True).targets[ModelContent] is FileFormat.GLB
-    assert Options(targets={ModelContent: FileFormat.FBX}).targets[ModelContent] is FileFormat.FBX
+    assert Options().output_formats == DEFAULT_OUTPUT_FORMATS
+    assert Options(skeleton=True).output_formats[ModelContent] is FileFormat.GLB
+    assert Options(output_formats={ModelContent: FileFormat.FBX}).output_formats[ModelContent] is FileFormat.FBX
 
 
 @pytest.mark.parametrize(
     ("value", "expected"),
     ((-1, 0), (0, 0), (1, 1), (3, 3)),
 )
-def test_max_mipmaps(value: int, expected: int) -> None:
-    assert Options().max_mipmaps is None
-    assert Options(max_mipmaps=value).max_mipmaps == expected
+def test_ol_max_mipmaps(value: int, expected: int) -> None:
+    assert Options().ol_max_mipmaps is None
+    assert Options(ol_max_mipmaps=value).ol_max_mipmaps == expected
+
+

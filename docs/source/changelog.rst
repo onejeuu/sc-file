@@ -112,7 +112,7 @@ v6.1.0 (2026-08-30)
 * **GUI:** added 2D Map tab.
 * **GUI:** added docs url to footer.
 * ``Options.backup_regions`` and ``scfile mapcache --backup/--no-backup``: control backups before region replacement.
-* ``Options.max_mipmaps``: limits decoded texture mipmaps. Use ``0`` to read metadata without image.
+* ``Options.ol_max_mipmaps``: limits decoded texture mipmaps. Use ``0`` to read metadata without image.
 * **API**: added Pillow dependency.
 
 📝 Changed
@@ -957,3 +957,4 @@ v1.3.2 (2023-10-18)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * First stable release.
+

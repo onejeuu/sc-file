@@ -284,7 +284,7 @@ class GlbEncoder(ModelEncoder):
                 )
 
             static = [_constant_channel(values) for _, _, values in bone_tracks]
-            compact = not self.options.preserve_clips and any(static) and not all(static)
+            compact = self.options.mcal_filtering and any(static) and not all(static)
             if compact:
                 times.append(times[0][:1])
 
@@ -462,3 +462,4 @@ class GlbEncoder(ModelEncoder):
 
 def _constant_channel(values: np.ndarray) -> bool:
     return len(values) < 2 or np.array_equal(values[1:], values[:-1])
+

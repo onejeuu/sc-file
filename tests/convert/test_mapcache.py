@@ -66,7 +66,7 @@ def test_merge_without_backup(tmp_path: Path) -> None:
     target = tmp_path / "r.0.0.mca"
     target.write_bytes(b"previous")
 
-    merge(Region(0, 0), [source], tmp_path, Options(backup_regions=False, mdat_version=5))
+    merge(Region(0, 0), [source], tmp_path, Options(mca_backup=False, mdat_version=5))
 
     assert target.exists()
     assert not target.with_suffix(".mca.bck").exists()
