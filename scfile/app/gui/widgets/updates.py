@@ -2,8 +2,8 @@ import time
 from typing import override
 
 from PySide6.QtCore import QEvent, QObject, QSize, Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QMouseEvent, QPainter, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtGui import QFontMetrics, QMouseEvent, QPainter, QPixmap
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from scfile import __version__ as SEMVER
 from scfile.app import files, updates
@@ -141,7 +141,7 @@ class UpdatePopup(QWidget):
         layout.addWidget(image)
 
         label = QLabel(text)
-        label.setStyleSheet(f"color: {color};")
+        label.setStyleSheet(f"color: {color}; font-size: 12px;")
         layout.addWidget(label, 1)
         self.main_layout.addWidget(row)
         return label
@@ -209,19 +209,30 @@ class VersionWidget(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setStyleSheet(Styles.VERSION_BADGE)
-        self.setToolTip(strings.get("update.check"))
+        self.setFixedWidth(52)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        full_version = f"v{SEMVER.removeprefix('v')}"
+        self.setToolTip(f"{full_version} · {strings.get('update.check')}")
 
-        self.main_layout = QHBoxLayout(self)
-        self.main_layout.setContentsMargins(3, 0, 3, 0)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
         self.main_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         v = Version.parse(SEMVER)
-        tag = v.tag if v else SEMVER
+        base = f"v{v.major}.{v.minor}.{v.patch}" if v else SEMVER
+        self.setFixedSize(52, 36 if v and v.suffix else 22)
 
-        self.text_label = QLabel(tag)
+        self.text_label = QLabel(base)
         self.text_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.main_layout.addWidget(self.text_label)
+        self.main_layout.addWidget(self.text_label, 0, Qt.AlignmentFlag.AlignHCenter)
+
+        self.suffix_label = QLabel()
+        self.suffix_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        if v and v.suffix:
+            suffix = QFontMetrics(self.suffix_label.font()).elidedText(v.suffix, Qt.TextElideMode.ElideRight, 52)
+            self.suffix_label.setText(f"({suffix})")
+            self.main_layout.addWidget(self.suffix_label, 0, Qt.AlignmentFlag.AlignHCenter)
 
         self.popup: UpdatePopup | None = None
         self.checker = UpdateChecker(parent=self)

@@ -17,7 +17,6 @@ from scfile.app.gui.widgets.path import PathField
 from scfile.app.gui.widgets.progress import ProgressButton
 from scfile.app.gui.widgets.tiles import MapTilesEncodingWidget
 from scfile.app.gui.widgets.warnings import WarningsWidget
-from scfile.app.localization import system_language
 from scfile.app.tasks.maptiles import MapTilesImage, MapTilesTask
 from scfile.convert import maptiles
 from scfile.convert.regions import Size
@@ -100,7 +99,7 @@ class MapTilesTab(QWidget):
         selectors = QHBoxLayout()
         selectors.setContentsMargins(0, 0, 0, 0)
         selectors.setSpacing(10)
-        for label, select in ((self.region_label, self.region), (self.map_label, self.map)):
+        for label, select in ((self.map_label, self.map), (self.region_label, self.region)):
             field = QWidget()
             field_layout = QVBoxLayout(field)
             field_layout.setContentsMargins(0, 0, 0, 0)
@@ -241,10 +240,15 @@ class MapTilesTab(QWidget):
 
         regions = self.game.regions
         current = self.region.currentData()
-        preferred = GameRegion(system_language().lower())
+        preferred = GameRegion(strings.LANG.lower())
         selected = current if current in regions else preferred
         if selected not in regions:
             selected = regions[0] if regions else None
+
+        # Keep the default localization first in the dropdown.
+        regions = tuple(region for region in regions if region == preferred) + tuple(
+            region for region in regions if region != preferred
+        )
 
         self.region.clear()
         for region in regions:
@@ -298,7 +302,7 @@ class MapTilesTab(QWidget):
 
     def _region(self) -> GameRegion:
         value = self.region.currentData()
-        return GameRegion(value) if isinstance(value, str) else GameRegion(system_language().lower())
+        return GameRegion(value) if isinstance(value, str) else GameRegion(strings.LANG.lower())
 
     def _fixed_map(self) -> str | None:
         value = self.source.value.strip()

@@ -149,7 +149,7 @@ class Styles:
             background: {Colors.SURFACE_RAISED};
             color: {Colors.TEXT};
             border: 1px solid {Colors.BORDER_STRONG};
-            border-radius: 6px;
+            border-radius: 9px;
             padding: 4px 0px;
         }}
         QMenu::item {{
@@ -262,7 +262,7 @@ class Styles:
             background: {Colors.CONTROL};
             color: {Colors.TEXT};
             border: 1px solid {Colors.BORDER};
-            border-radius: 6px;
+            border-radius: 9px;
             padding: 0px 10px;
             min-height: 30px;
             outline: none;
@@ -457,29 +457,31 @@ class Styles:
         QWidget#versionBadge {{
             background-color: {Colors.CONTROL};
             border: none;
-            border-radius: 11px;
+            border-radius: 6px;
         }}
         QWidget#versionBadge QLabel {{
             background: transparent;
             border: none;
             color: {Colors.TEXT_SECONDARY};
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }}
+        QWidget#versionBadge QLabel + QLabel {{ font-size: 9px; font-weight: 500; color: {Colors.TEXT_MUTED}; }}
     """
     VERSION_BADGE_HOVER = f"""
         QWidget#versionBadge {{
             background-color: {Colors.ACCENT.alpha(0.12)};
             border: none;
-            border-radius: 11px;
+            border-radius: 6px;
         }}
         QWidget#versionBadge QLabel {{
             background: transparent;
             border: none;
             color: {Colors.ACCENT};
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }}
+        QWidget#versionBadge QLabel + QLabel {{ color: {Colors.ACCENT}; }}
     """
 
     TOGGLE_STATES = f"""

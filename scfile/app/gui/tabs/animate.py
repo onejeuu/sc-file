@@ -322,7 +322,7 @@ class AnimateTab(QWidget):
         header.setSpacing(24)
         title = QLabel(strings.get("title.animate"))
         title.setStyleSheet(Styles.TITLE)
-        header.addWidget(title, 0, Qt.AlignmentFlag.AlignVCenter)
+        header.addWidget(title, 0, Qt.AlignmentFlag.AlignTop)
         self._build_modes()
         header.addWidget(self.tabs, 1)
         layout.addLayout(header)

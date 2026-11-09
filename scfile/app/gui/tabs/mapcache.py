@@ -145,7 +145,9 @@ class MapCacheTab(QWidget):
 
     def _info(self) -> QWidget:
         info = CalloutWidget(strings.get("label.mapcache.format"))
+        info.layout().setSpacing(4)
         layout = info.content
+        layout.setSpacing(4)
         format_label = QLabel(strings.get("mapcache.format"))
         format_label.setStyleSheet(Styles.LABEL)
         layout.addWidget(format_label)
