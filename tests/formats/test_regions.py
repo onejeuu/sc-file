@@ -1,246 +1,445 @@
+"""Public MDAT-to-MCA region conversion contracts."""
+
 import struct
 import zlib
+from collections.abc import Sequence
+from dataclasses import dataclass
 
-import numpy as np
 import pytest
-import zstandard as zstd
+import zstandard
 
-from scfile.content.regions import ChunkHeader, RegionChunk
-from scfile.content import RegionContent
-from scfile.formats.mca import McaEncoder
-from scfile.formats.mdat import MdatDecoder
-from scfile.formats.mdat.payload import BIOME_SIZE, NIBBLE_SIZE, SECTION_SIZE, chunk
-from scfile.options import MdatVersion, Options
-
-from .conftest import ASSETS, export
+from scfile import Options, formats
 
 
-def _region(version: MdatVersion) -> bytes:
-    key_size = 8 if version == 7 else 16
-    entry_size = 8 + key_size
-    table_size = 1024 * entry_size
-    sector = (table_size + 4095) // 4096
+_BLOCK_MAPPING = {
+    "2401": "1",
+    "2405": "1",
+    "2414": "1",
+    "2486": "1",
+    "2488": "1",
+    "2498": "1",
+    "2499": "1!",
+    "35": "35",
+    "42": "42",
+    "73": "42",
+    "87": "4",
+    "101": "101",
+    "112": "112",
+    "129": "42",
+    "153": "101",
+    "159": "159",
+    "3113": "0",
+    "3808": "83",
+    "3826": "37",
+    "4018": "0",
+    "4025": "0",
+}
 
-    terrain = bytes([42]) * 4096 + bytes(2048 * 4 + 256) + struct.pack(">i", 0)
-    compressed = zstd.ZstdCompressor().compress(terrain)
 
-    if version == 7:
-        header = struct.pack(">i8s4i", 0, b"ABCDEFGH", 1, 0, len(terrain), len(compressed))
-    else:
-        header = struct.pack(">5i", 0, 1, 0, len(terrain), len(compressed))
+@dataclass(frozen=True, slots=True)
+class _Tile:
+    position: tuple[int, int, int]
+    source_id: int
+    primary_cover: int
+    faces: tuple[int, int, int, int, int, int] | None = None
+    record_type: int = 0
+    geometry: int = 0
 
-    blob = header + compressed
-    if version >= 6:
-        objects = zstd.ZstdCompressor().compress(b"\x00")
-        blob += struct.pack(">i", len(objects)) + objects
 
-    count = (len(blob) + 4095) // 4096
-    table = struct.pack(f">ii{key_size}s", sector, count, b"Z" * key_size)
-    table += bytes(table_size - len(table))
-    return table + bytes(sector * 4096 - table_size) + blob + bytes(count * 4096 - len(blob))
+def _tile_record(tile: _Tile) -> bytes:
+    x, y, z = tile.position
+    flags = 8 if tile.faces is not None else 0
+    covers = (*tile.faces, tile.primary_cover) if tile.faces is not None else (tile.primary_cover,)
+    data = struct.pack(">biiiB", tile.record_type, x, y, z, flags)
+    data += struct.pack(f">{len(covers)}H", *covers)
+    data += struct.pack(">I", tile.geometry & 0xFFFFFFFF)
+    if tile.record_type == 1:
+        data += struct.pack(">I", tile.geometry >> 32)
+    return data
+
+
+def _mdat_region(tiles: Sequence[_Tile]) -> bytes:
+    """Build one minimal MDAT v5 chunk without touching the filesystem."""
+
+    blocks = bytearray(16 * 16 * 16)
+    additions = bytearray(2048)
+    for tile in tiles:
+        x, y, z = tile.position
+        index = y * 256 + z * 16 + x
+        blocks[index] = tile.source_id & 0xFF
+        high = tile.source_id >> 8
+        if index & 1:
+            additions[index >> 1] |= high << 4
+        else:
+            additions[index >> 1] |= high
+
+    # One block plane, metadata, three lighting planes, additions, biomes, records.
+    terrain = bytes(blocks) + bytes(2048 * 4) + bytes(additions) + bytes(256)
+    records = struct.pack(">i", len(tiles)) + b"".join(_tile_record(tile) for tile in tiles)
+    payload = terrain + records
+    compressed = zstandard.ZstdCompressor(level=1).compress(payload)
+
+    # MDAT v5 has a 1024-entry table of 24-byte entries: six sectors.
+    table = bytearray(6 * 4096)
+    struct.pack_into(">ii16s", table, 0, 6, 0, bytes(16))
+    header = struct.pack(">5i", len(payload), 1, 1, 0, len(compressed))
+    return bytes(table) + header + compressed
+
+
+def _convert(
+    tiles: Sequence[_Tile],
+    *,
+    mdat_objects: bool = False,
+    mdat_materials: bool = True,
+) -> dict:
+    source = _mdat_region(tiles)
+    options = Options(
+        mdat_version=5,
+        mdat_objects=mdat_objects,
+        mdat_materials=mdat_materials,
+        mca_mappings=_BLOCK_MAPPING,
+    )
+
+    with formats.MdatDecoder(source, options=options) as decoder:
+        mca = decoder.convert(formats.McaEncoder)
+
+    location = int.from_bytes(mca[:4], "big")
+    sector = location >> 8
+    assert sector >= 2
+    offset = sector * 4096
+    length = struct.unpack_from(">I", mca, offset)[0]
+    assert mca[offset + 4] == 2
+    nbt_bytes = zlib.decompress(mca[offset + 5 : offset + 4 + length])
+
+    with formats.NbtDecoder(nbt_bytes) as decoder:
+        document = decoder.decode().value
+
+    assert isinstance(document, dict)
+    level = document["Level"]
+    assert isinstance(level, dict)
+    sections = level["Sections"]
+    assert isinstance(sections, list) and len(sections) == 1
+    section = sections[0]
+    assert isinstance(section, dict)
+    return section
+
+
+def _state(section: dict, position: tuple[int, int, int]) -> tuple[int, int]:
+    x, y, z = position
+    index = y * 256 + z * 16 + x
+    blocks = section["Blocks"]
+    metadata = section["Data"]
+    block_id = blocks[index]
+    packed = metadata[index >> 1]
+    block_metadata = (packed >> (4 if index & 1 else 0)) & 0x0F
+    return block_id, block_metadata
+
+
+def _cover(block_id: int, metadata: int = 0) -> int:
+    return (metadata << 12) | block_id
+
+
+def test_mdat_to_mca_uses_exposed_grid_area_to_resolve_face_tie() -> None:
+    position = (1, 0, 1)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2498,
+                _cover(4018),
+                faces=(0, _cover(159, 5), 0, _cover(153), 0, 0),
+                record_type=1,
+                geometry=0x0011002200440088,
+            ),
+        )
+    )
+
+    assert _state(section, position) == (159, 5)
 
 
 @pytest.mark.parametrize(
-    ("version", "extended", "has_objects"),
+    ("geometry", "faces", "expected"),
     (
-        (5, False, False),
-        (5, True, False),
-        (6, False, False),
-        (6, True, True),
-        (7, False, False),
-        (7, True, True),
+        (1, (_cover(35), 0, 0, 0, _cover(159), 0), (159, 0)),
+        (3, (_cover(35), 0, _cover(159), 0, 0, 0), (35, 0)),
+        (5, (_cover(35), 0, _cover(159), 0, 0, 0), (159, 0)),
     ),
 )
-def test_mdat_content_and_mca(version: MdatVersion, extended: bool, has_objects: bool) -> None:
-    with MdatDecoder(_region(version), options=Options(mdat_version=version, mdat_objects=extended)) as decoder:
-        data = decoder.decode()
-        assert isinstance(data, RegionContent)
-        assert data is decoder.data
-        assert len(data.chunks) == 1
+def test_mdat_to_mca_uses_box_face_area_for_each_half_block_axis(
+    geometry: int,
+    faces: tuple[int, int, int, int, int, int],
+    expected: tuple[int, int],
+) -> None:
+    position = (geometry, 0, 2)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2405,
+                _cover(4018),
+                faces=faces,
+                geometry=geometry,
+            ),
+        )
+    )
 
-        chunk = data.chunks[0]
-        assert chunk.index == 0
-        assert bytes(chunk.sections[0].blocks) == bytes([42]) * 4096
-        assert len(chunk.biomes) == 256
-        assert len(chunk.sections[0].metadata) == 2048
-        assert (chunk.records is None) is (not extended)
-        assert len(chunk.lighting) == 2048 * 3
-        assert (chunk.objects is not None) is has_objects
-        if chunk.records is not None:
-            assert chunk.records.count == 0
-        if has_objects:
-            assert chunk.objects is not None
-            assert chunk.objects.count == 0
-
-        with McaEncoder(data) as encoder:
-            assert len(encoder.to_bytes()) >= 8192
+    assert _state(section, position) == expected
 
 
-def _mca_chunks(data: bytes) -> dict[int, bytes]:
-    chunks: dict[int, bytes] = {}
+def test_mdat_to_mca_prefers_visible_primary_cover_over_side_covers() -> None:
+    position = (4, 0, 2)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(42),
+                faces=(0, _cover(159), 0, _cover(101), 0, 0),
+            ),
+        )
+    )
 
-    for index in range(1024):
-        location = int.from_bytes(data[index * 4 : index * 4 + 4], "big")
-        sector, count = location >> 8, location & 0xFF
-        if not sector:
-            continue
-
-        start = sector * 4096
-        size = struct.unpack(">I", data[start : start + 4])[0]
-        assert count > 0
-        assert data[start + 4] == 2
-        chunks[index] = zlib.decompress(data[start + 5 : start + 4 + size])
-
-    return chunks
+    assert _state(section, position) == (42, 0)
 
 
-def test_mdat_golden_output() -> None:
-    root = ASSETS / "region"
-    actual = export(MdatDecoder, McaEncoder, root / "source" / "r.0.0.mdat", Options(mdat_version=5))
-    expected = (root / "mca" / "r.0.0.mca").read_bytes()
+def test_mdat_to_mca_uses_unique_face_majority_and_preserves_metadata() -> None:
+    position = (4, 0, 3)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(0, _cover(101), _cover(35, 11), _cover(35, 11), 0, 0),
+            ),
+        )
+    )
 
-    assert _mca_chunks(actual) == _mca_chunks(expected)
-
-
-def test_block_planes_are_available_without_mdat_objects() -> None:
-    section_mask = 0b11
-    add_mask = 0b10
-    blocks = bytes([0x11]) * SECTION_SIZE + bytes([0x22]) * SECTION_SIZE
-    metadata = bytes([0x33]) * NIBBLE_SIZE + bytes([0x44]) * NIBBLE_SIZE
-    lighting = bytes([0x55]) * (NIBBLE_SIZE * 3 * 2)
-    additions = bytes([0x66]) * NIBBLE_SIZE
-    biomes = bytes([0x77]) * BIOME_SIZE
-    raw = blocks + metadata + lighting + additions + biomes
-    header = ChunkHeader(0, section_mask, add_mask, len(raw), 0)
-
-    result = chunk(0, header, raw, objects=False)
-
-    assert len(result.sections) == 2
-    assert result.sections[0].blocks[0] == 0x11
-    assert result.sections[1].blocks[0] == 0x22
-    assert result.sections[0].metadata[0] == 0x33
-    assert result.sections[1].metadata[0] == 0x44
-    assert result.sections[0].additions is None
-    assert result.sections[1].additions is not None
-    assert result.sections[1].additions[0] == 0x66
-    assert len(result.lighting) == len(lighting)
-    assert result.lighting[0] == 0x55
-    assert result.biomes[0] == 0x77
-    assert result.records is None
+    assert _state(section, position) == (35, 11)
 
 
-def test_records_remain_extended_data() -> None:
-    section_mask = 0b1
-    add_mask = 0
-    blocks = bytes(SECTION_SIZE)
-    metadata = bytes(NIBBLE_SIZE)
-    lighting = bytes(NIBBLE_SIZE * 3)
-    biomes = bytes(BIOME_SIZE)
-    records = bytes(4)  # zero records
-    raw = blocks + metadata + lighting + biomes + records
-    header = ChunkHeader(0, section_mask, add_mask, len(raw), 0)
+def test_mdat_to_mca_leaves_equal_area_face_tie_as_air() -> None:
+    position = (5, 0, 4)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2405,
+                _cover(4018),
+                faces=(_cover(35), 0, _cover(159), 0, 0, 0),
+                geometry=0,
+            ),
+        )
+    )
 
-    result = chunk(0, header, raw, objects=True)
-
-    assert result.records is not None
-    assert result.records.count == 0
-
-
-def _tile_record(
-    *,
-    kind: int = 0,
-    x: int = -1,
-    y: int = 67,
-    z: int = 16,
-    flags: int = 0x7F,
-    main: int = 0xD123,
-) -> bytes:
-    covers = (1, 2, 3, 4, 5, 6, main) if flags & 8 else (main,)
-    raw = bytearray(struct.pack(">biiiB", kind, x, y, z, flags))
-    raw.extend(struct.pack(f">{len(covers)}H", *covers))
-    if flags & 2:
-        raw.extend(struct.pack(">7h", *range(7)))
-    if flags & 4:
-        raw.extend(struct.pack(">h", 2))
-    if flags & 1:
-        raw.extend(struct.pack(">7b", *range(7)))
-    if flags & 0x10:
-        raw.extend(struct.pack(">h", 3))
-    if flags & 0x20:
-        raw.extend(struct.pack(">b", 4))
-    if flags & 0x40:
-        raw.extend(struct.pack(">6b", *range(6)))
-    raw.extend(struct.pack(">i", 5))
-    if kind == 1:
-        raw.extend(struct.pack(">i", 6))
-    return bytes(raw)
+    assert _state(section, position) == (0, 0)
 
 
-def _chunk_with_records(
-    record_data: bytes,
-    *,
-    add_mask: int = 1 << 4,
-    extended: bool = False,
-    include_materials: bool = True,
-) -> RegionChunk:
-    blocks = bytes([0xC2]) * SECTION_SIZE
-    metadata = bytes([0xAA]) * NIBBLE_SIZE
-    lighting = bytes(NIBBLE_SIZE * 3)
-    additions = bytes([0x99]) * NIBBLE_SIZE if add_mask else b""
-    biomes = bytes(BIOME_SIZE)
-    raw = blocks + metadata + lighting + additions + biomes + record_data
-    header = ChunkHeader(0, 1 << 4, add_mask, len(raw), 0)
-    return chunk(0, header, raw, objects=extended, materials=include_materials)
+def test_mdat_to_mca_leaves_unknown_box_geometry_tie_as_air() -> None:
+    position = (6, 0, 4)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2405,
+                _cover(4018),
+                faces=(_cover(35), 0, _cover(159), 0, 0, 0),
+                geometry=7,
+            ),
+        )
+    )
+
+    assert _state(section, position) == (0, 0)
 
 
-def test_mdat_materials_are_projected_without_records() -> None:
-    record_data = struct.pack(">i", 1) + _tile_record(kind=1)
-    result = _chunk_with_records(record_data, extended=False)
+@pytest.mark.parametrize("source_id", (2486, 2401, 2405))
+def test_mdat_to_mca_keeps_north_mines_invisible_walls_as_air(source_id: int) -> None:
+    position = (3, 0, 5)
+    section = _convert((_Tile(position, source_id, _cover(4018)),))
 
-    assert result.records is None
-    assert result.materials is not None
-    assert len(result.materials) == 4
-    assert bytes(result.sections[0].blocks) == bytes([0xC2]) * SECTION_SIZE
-    assert bytes(result.sections[0].metadata) == bytes([0xAA]) * NIBBLE_SIZE
-
-    entry = np.frombuffer(result.materials, dtype=">u4")[0]
-    assert entry >> 16 == (4 << 12) | (3 * 256 + 15)
-    assert entry & 0xFFFF == 0xD123
+    assert _state(section, position) == (0, 0)
 
 
-def test_mdat_materials_can_be_skipped() -> None:
-    record_data = struct.pack(">i", 1) + _tile_record(kind=1)
-    result = _chunk_with_records(record_data, include_materials=False)
+@pytest.mark.parametrize(
+    ("source_id", "primary_cover", "faces", "record_type", "geometry", "expected"),
+    (
+        (2486, _cover(4018), (0, _cover(101), _cover(129), _cover(129), 0, 0), 0, 0, (42, 0)),
+        (2414, _cover(4018), (0, 0, _cover(35, 11), 0, _cover(35, 11), 0), 0, 0, (35, 11)),
+        (2498, _cover(4018), (_cover(35, 12), _cover(35, 12), 0, 0, 0, 0), 1, 1, (35, 12)),
+        (2486, _cover(4025), (0, 0, 0, 0, _cover(87), 0), 0, 3, (4, 0)),
+        (
+            2498,
+            _cover(4018),
+            (0, _cover(159, 5), 0, _cover(153), 0, 0),
+            1,
+            0x0011002200440088,
+            (159, 5),
+        ),
+        (2488, _cover(4018), (0, _cover(73), 0, 0, 0, 0), 0, 0, (42, 0)),
+        (2414, _cover(4018), (0, 0, _cover(35, 11), 0, _cover(35, 11), 0), 0, 10, (35, 11)),
+        (2405, _cover(3113), (0, 0, 0, 0, _cover(112), 0), 0, 2, (112, 0)),
+    ),
+)
+def test_mdat_to_mca_restores_known_north_mines_blocks(
+    source_id: int,
+    primary_cover: int,
+    faces: tuple[int, int, int, int, int, int],
+    record_type: int,
+    geometry: int,
+    expected: tuple[int, int],
+) -> None:
+    position = (2, 0, 2)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                source_id,
+                primary_cover,
+                faces=faces,
+                record_type=record_type,
+                geometry=geometry,
+            ),
+        )
+    )
 
-    assert result.materials is None
+    assert _state(section, position) == expected
 
 
-def test_mdat_materials_keep_primary_state() -> None:
-    record_data = struct.pack(">i", 1) + _tile_record(flags=0, main=0)
-    result = _chunk_with_records(record_data, add_mask=0)
+def test_mdat_to_mca_allows_collapsible_upper_cover_when_target_is_full_cube() -> None:
+    position = (3, 0, 3)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(0, _cover(42), 0, 0, 0, 0),
+                geometry=0x0035B083,
+            ),
+        )
+    )
 
-    assert result.materials is not None
-    assert np.frombuffer(result.materials, dtype=">u4")[0] & 0xFFFF == 0
-
-
-def test_extended_records_keep_compact_materials() -> None:
-    record_data = struct.pack(">i", 1) + _tile_record(kind=1)
-    result = _chunk_with_records(record_data, extended=True)
-
-    assert result.records is not None
-    assert result.records.count == 1
-    assert len(result.records.records) == 1
-    assert result.records.records[0].covers[-1] & 0xFFFF == 0xD123
-    assert result.materials is not None
+    assert _state(section, position) == (42, 0)
 
 
-def test_malformed_records_do_not_project_materials() -> None:
-    terrain = bytes(SECTION_SIZE + NIBBLE_SIZE * 4 + BIOME_SIZE)
-    raw = terrain + struct.pack(">i", 1) + _tile_record()[:-1]
-    header = ChunkHeader(0, 1, 0, len(raw), 0)
+@pytest.mark.parametrize(
+    ("cover", "geometry", "expected"),
+    ((3808, 0x0035B083, 83), (3826, 0x00294D6B, 37)),
+)
+@pytest.mark.parametrize("mdat_objects", (False, True))
+def test_mdat_to_mca_maps_collapsible_upper_cover_without_target_id_exceptions(
+    cover: int,
+    geometry: int,
+    expected: int,
+    mdat_objects: bool,
+) -> None:
+    position = (3, 0, 3)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(0, _cover(cover), 0, 0, 0, 0),
+                geometry=geometry,
+            ),
+        ),
+        mdat_objects=mdat_objects,
+    )
 
-    result = chunk(0, header, raw, objects=False)
-
-    assert result.materials is None
+    assert _state(section, position) == (expected, 0)
 
 
+def test_mdat_to_mca_uses_other_faces_when_collapsible_upper_cover_is_a_plant() -> None:
+    position = (11, 0, 8)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(_cover(35), _cover(3826), _cover(35), 0, 0, 0),
+                geometry=0x0035B083,
+            ),
+        )
+    )
+
+    assert _state(section, position) == (35, 0)
+
+
+def test_mdat_to_mca_does_not_filter_plant_cover_for_probuilder() -> None:
+    position = (12, 0, 8)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2498,
+                _cover(4018),
+                faces=(0, _cover(3826), 0, 0, 0, 0),
+                record_type=1,
+                geometry=0x0011002200440088,
+            ),
+        )
+    )
+
+    assert _state(section, position) == (37, 0)
+
+def test_mdat_to_mca_respects_lock_except_for_explicit_air_primary() -> None:
+    visible_position = (7, 0, 6)
+    air_position = (8, 0, 6)
+    section = _convert(
+        (
+            _Tile(
+                visible_position,
+                2499,
+                _cover(42),
+                faces=(0, _cover(159), 0, _cover(101), 0, 0),
+            ),
+            _Tile(
+                air_position,
+                2499,
+                _cover(4018),
+                faces=(0, _cover(159), 0, _cover(101), 0, 0),
+            ),
+        )
+    )
+
+    assert _state(section, visible_position) == (1, 0)
+    assert _state(section, air_position) == (0, 0)
+
+
+def test_mdat_to_mca_can_disable_material_record_application() -> None:
+    position = (9, 0, 7)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(0, _cover(42), _cover(35), _cover(35), 0, 0),
+            ),
+        ),
+        mdat_materials=False,
+    )
+
+    assert _state(section, position) == (1, 0)
+
+
+@pytest.mark.parametrize("mdat_objects", (False, True))
+def test_mdat_to_mca_applies_same_tile_result_with_both_record_decode_modes(
+    mdat_objects: bool,
+) -> None:
+    position = (10, 0, 8)
+    section = _convert(
+        (
+            _Tile(
+                position,
+                2486,
+                _cover(4018),
+                faces=(0, _cover(42), _cover(35), _cover(35), 0, 0),
+            ),
+        ),
+        mdat_objects=mdat_objects,
+    )
+
+    assert _state(section, position) == (35, 0)

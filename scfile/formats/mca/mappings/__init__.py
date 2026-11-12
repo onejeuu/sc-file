@@ -38,6 +38,8 @@ class CompiledBlockMapping:
     _low_lut: NDArray[np.uint8] | None
     _metadata_overrides: bool
     _high_targets: bool
+    _state_lut: NDArray[np.uint16]
+    _tile_locked: NDArray[np.bool_]
 
 
 def build(mappings: BlockMappings = None) -> tuple[CompiledBlockMapping, bytes | None]:
@@ -57,6 +59,7 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
 
     ids = np.zeros(BLOCK_ID_COUNT, dtype=np.uint16)
     metadata = np.full(BLOCK_ID_COUNT, PRESERVE_METADATA, dtype=np.uint8)
+    tile_locked = np.zeros(BLOCK_ID_COUNT, dtype=np.bool_)
 
     for layer_index, layer in enumerate(layers):
         for source, target in layer.items():
@@ -64,15 +67,21 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
             if not isinstance(target, str):
                 raise BlockMappingError(f"Mapping layer {layer_index + 1}: target must be a string.")
 
+            tile_lock = target.endswith("!")
+            if tile_lock:
+                target = target[:-1]
+
             target_id_text, separator, metadata_text = target.partition(":")
             target_id = _block_id(target_id_text, "target", layer_index)
             target_meta = _metadata(metadata_text, layer_index) if separator else PRESERVE_METADATA
 
             ids[source_id] = target_id
             metadata[source_id] = target_meta
+            tile_locked[source_id] = tile_lock
 
     ids.flags.writeable = False
     metadata.flags.writeable = False
+    tile_locked.flags.writeable = False
 
     has_overrides = bool(np.any(metadata != PRESERVE_METADATA))
     low_overrides = metadata[:256] != PRESERVE_METADATA
@@ -85,7 +94,26 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
         low_lut.flags.writeable = False
 
     has_high_targets = bool(np.any(ids > 0xFF))
-    return CompiledBlockMapping(ids, metadata, low_mask, low_lut, has_overrides, has_high_targets)
+
+    source_metadata = np.arange(16, dtype=np.uint16)[:, None]
+    mapped_metadata = np.where(
+        metadata[None, :] == PRESERVE_METADATA,
+        source_metadata,
+        metadata[None, :],
+    ).astype(np.uint16)
+    state_lut = ((mapped_metadata << 12) | ids[None, :]).astype(np.uint16).reshape(-1)
+    state_lut.flags.writeable = False
+
+    return CompiledBlockMapping(
+        ids,
+        metadata,
+        low_mask,
+        low_lut,
+        has_overrides,
+        has_high_targets,
+        state_lut,
+        tile_locked,
+    )
 
 
 _DECIMAL = re.compile(r"(?:0|[1-9][0-9]*)\Z")

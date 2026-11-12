@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from scfile.content import RegionContent
-from scfile.content.regions import ChunkSection
+from scfile.content.regions import ChunkSection, ChunkTileMaterials, RegionChunk
 from scfile.core import Resources
 from scfile.enums import ByteOrder
 from scfile.exceptions import BlockMappingError
@@ -282,22 +282,20 @@ def test_tile_primary_material_is_projected_before_existing_mapping():
         memoryview(bytes([0xAA]) * 2048),
     )
     position = (4 << 12) | (3 * 256 + 15)
-    materials = memoryview(struct.pack(">I", (position << 16) | 0xD123))
-    mapping, byte_mapping = mappings.build({"291": "35:7"})
+    empty = memoryview(b"")
+    materials = ChunkTileMaterials(
+        memoryview(struct.pack(">I", (position << 16) | 0xD123)), empty, empty, empty, empty,
+    )
+    source = RegionChunk(0, (section,), empty, empty, materials=materials)
+    mapping, byte_mapping = mappings.build({"194": "1", "291": "35:7"})
 
-    tile_data = payload._tile_materials_by_section(materials)
-    assert tile_data is not None
-    tile_y, indices, states = tile_data
-    assert tile_y.tolist() == [4]
-    assert indices.tolist() == [3 * 256 + 15]
-    assert states.tolist() == [0xD123]
+    tiles = payload._tile_materials_by_section(source, mapping)
 
     blocks, add, data = payload._mapped_blocks(
         section,
         mapping,
         byte_mapping,
-        tile_indices=indices,
-        tile_states=states,
+        tiles[4],
     )
 
     index = 3 * 256 + 15

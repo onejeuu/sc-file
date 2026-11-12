@@ -6,7 +6,6 @@ from uuid import UUID
 
 type Vector3 = tuple[float, float, float]
 type Matrix3 = tuple[Vector3, Vector3, Vector3]
-type ChunkTileMaterials = memoryview
 
 
 @dataclass
@@ -124,3 +123,14 @@ class ChunkObjects:
     count: int | None = None
     objects: tuple[ChunkObject, ...] = ()
     error: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ChunkTileMaterials:
+    """Packed Carpenter states and references."""
+
+    entries: memoryview
+    face_map: memoryview
+    shape_data: memoryview
+    record_types: memoryview
+    record_data: memoryview

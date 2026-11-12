@@ -1,4 +1,5 @@
 import struct
+from array import array
 
 from scfile.content import regions as S
 from scfile.enums import F
@@ -9,10 +10,10 @@ from scfile.io.mdat import MdatReader
 _HEADER = struct.Struct(">biiiB")
 _U16 = struct.Struct(">H")
 _U32 = struct.Struct(">I")
+_ZERO_U32 = b"\x00\x00\x00\x00"
 
 
 def _record_sizes() -> tuple[tuple[int, int], ...]:
-    """Precompute encoded record sizes for every possible flags byte."""
     sizes = []
     for flags in range(256):
         size = (
@@ -36,7 +37,6 @@ _RECORD_SIZES = _record_sizes()
 def _pack_position(x: int, y: int, z: int) -> int | None:
     if not 0 <= y < 256:
         return None
-
     return (y << 8) | ((z & 15) << 4) | (x & 15)
 
 
@@ -79,12 +79,28 @@ def _record(
     return record, (x, y, z, main_cover)
 
 
+def _append_shape_data(
+    shape_data: bytearray,
+    record_type: int,
+    data: int,
+    data_ext: int | None = None,
+) -> None:
+    if record_type == 1 and data_ext is not None:
+        shape_data.extend(_U32.pack(data_ext & 0xFFFFFFFF))
+    else:
+        shape_data.extend(_ZERO_U32)
+    shape_data.extend(_U32.pack(data & 0xFFFFFFFF))
+
+
 def _fast_materials(
     raw: memoryview,
     count: int,
     container: S.ChunkRecords,
 ) -> S.ChunkTileMaterials | None:
     entries = bytearray(count * _U32.size)
+    face_map = array("Q")
+    shape_data = bytearray()
+    record_types = bytearray()
     offset = 4
     written = 0
     size = len(raw)
@@ -92,16 +108,30 @@ def _fast_materials(
     try:
         for _ in range(count):
             kind, x, y, z, flags = _HEADER.unpack_from(raw, offset)
-            record_size = _RECORD_SIZES[flags][kind == 1]
-            end = offset + record_size
+            end = offset + _RECORD_SIZES[flags][kind == 1]
             if end > size:
                 raise struct.error
 
-            cover_offset = offset + _HEADER.size + (12 if flags & 8 else 0)
-            main_cover = _U16.unpack_from(raw, cover_offset)[0]
-            position = _pack_position(x, y, z)
-            if position is not None:
-                _U32.pack_into(entries, written * _U32.size, (position << 16) | main_cover)
+            if 0 <= y < 256:
+                position = (y << 8) | ((z & 15) << 4) | (x & 15)
+                main_offset = offset + _HEADER.size + (12 if flags & 8 else 0)
+                _U32.pack_into(
+                    entries,
+                    written * _U32.size,
+                    (position << 16) | _U16.unpack_from(raw, main_offset)[0],
+                )
+
+                if flags & 8:
+                    face_offset = offset + _HEADER.size
+                    face_map.append((written << 32) | face_offset)
+                    if kind == 1:
+                        shape_data.extend(raw[end - 4 : end])
+                        shape_data.extend(raw[end - 8 : end - 4])
+                    else:
+                        shape_data.extend(_ZERO_U32)
+                        shape_data.extend(raw[end - 4 : end])
+                    record_types.append(kind & 0xFF)
+
                 written += 1
 
             offset = end
@@ -117,7 +147,13 @@ def _fast_materials(
     if not written:
         return None
 
-    return memoryview(entries)[: written * _U32.size]
+    return S.ChunkTileMaterials(
+        entries=memoryview(entries)[: written * _U32.size],
+        face_map=memoryview(face_map),
+        shape_data=memoryview(shape_data),
+        record_types=memoryview(record_types),
+        record_data=raw,
+    )
 
 
 def _full_records(
@@ -127,18 +163,34 @@ def _full_records(
 ) -> S.ChunkTileMaterials | None:
     records: list[S.ChunkRecord] = []
     packed = bytearray(count * _U32.size)
+    face_map = array("Q")
+    shape_data = bytearray()
+    record_types = bytearray()
     written = 0
 
     with MdatReader(raw.tobytes()) as reader:
         reader.seek(4)
         try:
             for _ in range(count):
+                record_offset = reader.tell()
                 record, (x, y, z, main_cover) = _record(reader, raw)
                 records.append(record)
 
                 position = _pack_position(x, y, z)
                 if position is not None:
                     _U32.pack_into(packed, written * _U32.size, (position << 16) | main_cover)
+
+                    if len(record.covers) == 7:
+                        face_offset = record_offset + _HEADER.size
+                        face_map.append((written << 32) | face_offset)
+                        _append_shape_data(
+                            shape_data,
+                            record.type,
+                            record.data,
+                            record.data_ext,
+                        )
+                        record_types.append(record.type & 0xFF)
+
                     written += 1
 
         except DecodingError as error:
@@ -151,7 +203,13 @@ def _full_records(
     if container.error is not None or not written:
         return None
 
-    return memoryview(packed)[: written * _U32.size]
+    return S.ChunkTileMaterials(
+        entries=memoryview(packed)[: written * _U32.size],
+        face_map=memoryview(face_map),
+        shape_data=memoryview(shape_data),
+        record_types=memoryview(record_types),
+        record_data=raw,
+    )
 
 
 def records(
@@ -163,6 +221,7 @@ def records(
 
     try:
         count = struct.unpack_from(">i", raw)[0]
+
     except struct.error:
         container.error = str(BinaryStructureError(offset=0))
         return container, None
@@ -172,7 +231,6 @@ def records(
         container.error = "Negative records count"
         return container, None
 
-    # The smallest record is its 14-byte header, one cover, and a 4-byte data field.
     if count > max(0, (len(raw) - 4) // 20):
         container.error = "Record count exceeds available data"
         return container, None
@@ -183,4 +241,3 @@ def records(
         materials = _fast_materials(raw, count, container)
 
     return container, materials
-
