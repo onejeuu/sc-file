@@ -130,7 +130,7 @@ def record_view(
 
 
 def object_details(item: ObjectItem, catalog: Catalog | None = None) -> ObjectView:
-    definition = catalog.object(item.type_id) if catalog is not None else None
+    definition = catalog.object(item.network_id) if catalog is not None else None
     return ObjectView(item, definition, objects.instance(item, definition.behaviour if definition else None))
 
 
@@ -206,3 +206,5 @@ def dump(region: Region, chunk: Chunk, output: Path) -> Dump:
     result = Dump(region_info(region), overview(region, chunk), artifacts)
     write(output / "chunk.json", result)
     return result
+
+

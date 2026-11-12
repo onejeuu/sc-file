@@ -1,6 +1,8 @@
 import struct
 from array import array
 
+import numpy as np
+
 from scfile.content import regions as S
 from scfile.enums import F
 from scfile.exceptions import BinaryStructureError, DecodingError
@@ -32,6 +34,12 @@ def _record_sizes() -> tuple[tuple[int, int], ...]:
 
 
 _RECORD_SIZES = _record_sizes()
+_RECORD_SIZE_0_PY = tuple(size[0] for size in _RECORD_SIZES)
+_RECORD_SIZE_1_PY = tuple(size[1] for size in _RECORD_SIZES)
+_RECORD_SIZE_0 = np.array([size[0] for size in _RECORD_SIZES], dtype=np.uint32)
+_RECORD_SIZE_1 = np.array([size[1] for size in _RECORD_SIZES], dtype=np.uint32)
+_Y_OFFSETS = np.arange(5, 9, dtype=np.uint32)
+_FOUR_OFFSETS = np.arange(4, dtype=np.uint32)
 
 
 def _pack_position(x: int, y: int, z: int) -> int | None:
@@ -97,43 +105,23 @@ def _fast_materials(
     count: int,
     container: S.ChunkRecords,
 ) -> S.ChunkTileMaterials | None:
-    entries = bytearray(count * _U32.size)
-    face_map = array("Q")
-    shape_data = bytearray()
-    record_types = bytearray()
+    records = array("Q")
     offset = 4
-    written = 0
     size = len(raw)
 
     try:
         for _ in range(count):
-            kind, x, y, z, flags = _HEADER.unpack_from(raw, offset)
-            end = offset + _RECORD_SIZES[flags][kind == 1]
+            if offset + _HEADER.size > size:
+                raise struct.error
+
+            kind = raw[offset]
+            flags = raw[offset + 13]
+            end = offset + (_RECORD_SIZE_1_PY[flags] if kind == 1 else _RECORD_SIZE_0_PY[flags])
+
             if end > size:
                 raise struct.error
 
-            if 0 <= y < 256:
-                position = (y << 8) | ((z & 15) << 4) | (x & 15)
-                main_offset = offset + _HEADER.size + (12 if flags & 8 else 0)
-                _U32.pack_into(
-                    entries,
-                    written * _U32.size,
-                    (position << 16) | _U16.unpack_from(raw, main_offset)[0],
-                )
-
-                if flags & 8:
-                    face_offset = offset + _HEADER.size
-                    face_map.append((written << 32) | face_offset)
-                    if kind == 1:
-                        shape_data.extend(raw[end - 4 : end])
-                        shape_data.extend(raw[end - 8 : end - 4])
-                    else:
-                        shape_data.extend(_ZERO_U32)
-                        shape_data.extend(raw[end - 4 : end])
-                    record_types.append(kind & 0xFF)
-
-                written += 1
-
+            records.append((offset << 16) | (flags << 8) | kind)
             offset = end
 
     except struct.error:
@@ -144,15 +132,56 @@ def _fast_materials(
         container.error = "Bytes remain after declared records"
         return None
 
-    if not written:
+    records = np.frombuffer(records, dtype=np.uint64)
+    offsets = (records >> 16).astype(np.uint32)
+    headers = records & 0xFFFF
+    kinds = (headers & 0xFF).astype(np.uint8)
+    flags_array = (headers >> 8).astype(np.uint8)
+    raw_array = np.frombuffer(raw, dtype=np.uint8)
+    y_bytes = raw_array[offsets[:, None] + _Y_OFFSETS]
+
+    valid = np.all(y_bytes[:, :3] == 0, axis=1)
+    if not np.any(valid):
         return None
 
+    positions = (
+        (y_bytes[:, 3].astype(np.uint32) << 8)
+        | ((raw_array[offsets + 12].astype(np.uint32) & 15) << 4)
+        | (raw_array[offsets + 4].astype(np.uint32) & 15)
+    )
+    main_offsets = offsets + np.where(flags_array & 8, 26, 14)
+    main_covers = (raw_array[main_offsets].astype(np.uint16) << 8) | raw_array[main_offsets + 1].astype(np.uint16)
+    entries = ((positions[valid] << 16) | main_covers[valid]).astype(">u4")
+
+    face_records = np.flatnonzero(valid & ((flags_array & 8) != 0))
+    face_map = np.empty(len(face_records), dtype=np.uint64)
+    shape_data = np.empty((len(face_records), 8), dtype=np.uint8)
+    record_types = kinds[face_records]
+
+    if len(face_records):
+        written_indices = np.cumsum(valid, dtype=np.uint32)[face_records] - 1
+        face_offsets = offsets[face_records] + _HEADER.size
+        face_map[:] = (written_indices.astype(np.uint64) << 32) | face_offsets
+        ends = offsets[face_records] + np.where(
+            record_types == 1,
+            _RECORD_SIZE_1[flags_array[face_records]],
+            _RECORD_SIZE_0[flags_array[face_records]],
+        )
+        kind_one = record_types == 1
+
+        if np.any(kind_one):
+            shape_data[kind_one, :4] = raw_array[ends[kind_one, None] - 4 + _FOUR_OFFSETS]
+            shape_data[kind_one, 4:] = raw_array[ends[kind_one, None] - 8 + _FOUR_OFFSETS]
+
+        if np.any(~kind_one):
+            shape_data[~kind_one, :4] = 0
+            shape_data[~kind_one, 4:] = raw_array[ends[~kind_one, None] - 4 + _FOUR_OFFSETS]
+
     return S.ChunkTileMaterials(
-        entries=memoryview(entries)[: written * _U32.size],
+        entries=memoryview(entries.tobytes()),
         face_map=memoryview(face_map),
-        shape_data=memoryview(shape_data),
-        record_types=memoryview(record_types),
-        record_data=raw,
+        shape_data=memoryview(shape_data.tobytes()),
+        record_types=memoryview(record_types.tobytes()),
     )
 
 
@@ -208,7 +237,6 @@ def _full_records(
         face_map=memoryview(face_map),
         shape_data=memoryview(shape_data),
         record_types=memoryview(record_types),
-        record_data=raw,
     )
 
 
@@ -217,7 +245,7 @@ def records(
     *,
     include: bool = True,
 ) -> tuple[S.ChunkRecords, S.ChunkTileMaterials | None]:
-    container = S.ChunkRecords()
+    container = S.ChunkRecords(raw=raw)
 
     try:
         count = struct.unpack_from(">i", raw)[0]

@@ -108,6 +108,10 @@ class Options:
         return self.skeleton or self.animation
 
     @property
+    def mdat_materials_only(self) -> bool:
+        return self.mdat_materials and not self.mdat_objects
+
+    @property
     def model_features(self) -> Features:
         """Features requested for model processing."""
 

@@ -74,7 +74,7 @@ class RecordFlagCount:
 
 @dataclass
 class ObjectCount:
-    type_id: int
+    network_id: int
     count: int
     definition: ObjectDefinition | None
     example: Location
@@ -206,12 +206,12 @@ class _Collector:
 
         for item in items.items:
             self.object_sizes[item.raw.size] += 1
-            if item.type_id is None:
+            if item.network_id is None:
                 continue
 
-            type_id = item.type_id
-            self.object_types[type_id] += 1
-            definition = self.catalog.object(type_id) if self.catalog is not None else None
+            network_id = item.network_id
+            self.object_types[network_id] += 1
+            definition = self.catalog.object(network_id) if self.catalog is not None else None
             instance = objects.instance(item, definition.behaviour if definition else None)
             notes.extend(instance.notes)
             self.result.totals.instances_read += instance.appearance is not None and instance.tail.size == 0
@@ -220,10 +220,10 @@ class _Collector:
             if instance.header is not None:
                 self.object_flags[instance.header.flags] += 1
 
-            if type_id not in self.definitions:
-                self.definitions[type_id] = ObjectCount(type_id, 0, definition, location, item.index, instance)
+            if network_id not in self.definitions:
+                self.definitions[network_id] = ObjectCount(network_id, 0, definition, location, item.index, instance)
 
-            self.definitions[type_id].count += 1
+            self.definitions[network_id].count += 1
 
     def finish(self) -> Census:
         result = self.result
@@ -280,3 +280,5 @@ def run(
     collector.finish()
     write(output / "census.json", result)
     return result
+
+

@@ -39,15 +39,22 @@ def objects(
 def _header(reader: MdatReader, version: int) -> S.ObjectHeader:
     match version:
         case 6:
-            type_id = reader.value(F.U16)
+            network_id = reader.value(F.U16)
         case _:
-            type_id = reader.value(F.U64)
+            network_id = reader.value(F.U64)
 
     flags, flags2 = reader.unpack(f"{F.U32}{F.U8}")
 
     group = None
     if flags & 0x80:
         group = UUID(bytes=reader.read_exact(16))
+        reader.skip(16)
+        children = reader.value(F.I32)
+        if children < 0:
+            raise DecodingError("Negative children count")
+        reader.skip(children * 16)
+        reader.java_utf()
+        reader.skip(1 + 1 + 4)
 
     if flags & 0x8000:
         reader.skip(reader.value(F.U16))
@@ -55,14 +62,16 @@ def _header(reader: MdatReader, version: int) -> S.ObjectHeader:
         reader.skip(4)
     if flags & 0x2000:
         reader.skip(4)
+    if flags & 0x400:
+        reader.skip(4)
     if version == 6:
         reader.skip(4)
 
-    return S.ObjectHeader(type_id, flags, flags2, group)
+    return S.ObjectHeader(network_id, flags, flags2, group)
 
 
 def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, version: int) -> S.ChunkObject:
-    obj = S.ChunkObject(index, offset, raw)
+    obj = S.ChunkObject(index, offset, raw=raw)
 
     try:
         header = _header(reader, version)
@@ -103,3 +112,5 @@ def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, versio
         obj.error = str(error)
 
     return obj
+
+

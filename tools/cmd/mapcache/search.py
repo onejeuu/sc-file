@@ -85,8 +85,10 @@ def find(
             notes.extend(Diagnostic(region.path, chunk.entry.index, note) for note in items.notes)
 
             for item in items.items:
-                if query.object_type is not None and item.type_id != query.object_type:
+                if query.object_type is not None and item.network_id != query.object_type:
                     continue
                 if query.text is not None and query.text not in item.raw.data.tobytes():
                     continue
                 yield Hit(location, "object", object_details(item, catalog))
+
+

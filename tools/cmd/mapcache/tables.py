@@ -58,7 +58,7 @@ def objects(view: ObjectsView) -> Table:
         placement = row.instance.placement
         table.add_row(
             str(row.item.index),
-            str(row.item.type_id),
+            str(row.item.network_id),
             row.definition.object_id if row.definition else "",
             str(placement.uuid) if placement is not None else "",
             str(placement.position) if placement is not None else "",
@@ -143,3 +143,5 @@ def notes(values: list[Diagnostic]) -> Table:
             Text(str(item.path)), str(item.index), item.note.buffer, str(item.note.offset), Text(item.note.message)
         )
     return table
+
+

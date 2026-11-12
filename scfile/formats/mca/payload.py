@@ -85,8 +85,8 @@ def _mapped_low_metadata(
 
     metadata_lut = mapping._metadata_lut
     if metadata_lut is not None:
-        source_ids = np.frombuffer(source_blocks, dtype=np.uint8)
-        return metadata_lut[source_ids[::2], source_ids[1::2], metadata].tobytes()
+        pairs = np.frombuffer(source_blocks, dtype=">u2")
+        return metadata_lut.reshape(65536, 256)[pairs, metadata].tobytes()
 
     source_ids = np.frombuffer(source_blocks, dtype=np.uint8)
     low = lut[source_ids[::2], metadata & 0x0F]
@@ -161,6 +161,7 @@ def _fallback_tile_states(
     candidates: np.ndarray,
     mapping: CompiledBlockMapping,
     materials: ChunkTileMaterials,
+    raw: memoryview,
 ) -> None:
     face_map = np.frombuffer(materials.face_map, dtype=np.uint64)
     if not len(face_map):
@@ -173,8 +174,8 @@ def _fallback_tile_states(
 
     candidate_rows = face_entries[face_rows]
     offsets = (face_map[face_rows] & 0xFFFFFFFF).astype(np.intp)
-    raw = np.frombuffer(materials.record_data, dtype=np.uint8)
-    packed = raw[offsets[:, None] + FACE_BYTE_OFFSETS]
+    raw_records = np.frombuffer(raw, dtype=np.uint8)
+    packed = raw_records[offsets[:, None] + FACE_BYTE_OFFSETS]
     source_faces = (packed[:, 0::2].astype(np.uint16) << 8) | packed[:, 1::2].astype(np.uint16)
     states = mapping._state_lut[source_faces]
     visible = (states & 0x0FFF) != 0
@@ -330,27 +331,32 @@ def _tile_materials_by_section(
 
     section_y = (entries >> 28).astype(np.uint8)
     indices = ((entries >> 16) & 0x0FFF).astype(np.uint16)
+    order = np.argsort(section_y, kind="stable")
+    sorted_y = section_y[order]
     source_ids = np.zeros(len(entries), dtype=np.uint16)
     section_by_y = {section.y: section for section in source.sections}
-    section_rows = {}
-    for y in np.unique(section_y):
+    section_ranges = {}
+    for y in np.unique(sorted_y):
         section = section_by_y.get(int(y))
         if section is None:
             continue
-        rows = np.flatnonzero(section_y == y)
-        section_rows[int(y)] = rows
+        start = np.searchsorted(sorted_y, y, side="left")
+        stop = np.searchsorted(sorted_y, y, side="right")
+        rows = order[start:stop]
+        section_ranges[int(y)] = (start, stop)
         source_ids[rows] = _tile_source_ids(section, indices[rows])
 
     states = mapping._state_lut[entries & 0xFFFF]
     source_non_air = mapping.ids[source_ids] != 0
     locked = mapping._tile_locked[source_ids]
     candidates = ((states & 0x0FFF) == 0) & source_non_air & ~locked
-    if np.any(candidates):
-        _fallback_tile_states(states, source_ids, candidates, mapping, materials)
+    if np.any(candidates) and source.records is not None:
+        _fallback_tile_states(states, source_ids, candidates, mapping, materials, source.records.raw)
 
     apply = source_non_air & (~locked | ((states & 0x0FFF) == 0))
     result = {}
-    for y, rows in section_rows.items():
+    for y, (start, stop) in section_ranges.items():
+        rows = order[start:stop]
         rows = rows[apply[rows]]
         if len(rows):
             result[y] = _TileStates(indices[rows], states[rows])
@@ -366,6 +372,7 @@ def chunk(
     materials: bool = True,
     mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
+    section_cache: dict[bytes, tuple[bytes, bytes, bytes]] | None = None,
 ) -> bytes:
     tiles = _tile_materials_by_section(source, mapping) if materials else {}
     simple_indices = [
@@ -373,14 +380,29 @@ def chunk(
         for index, section in enumerate(source.sections)
         if byte_mapping is not None and section.additions is None and section.y not in tiles
     ]
-
     mapped: list[tuple[bytes, bytes, bytes] | None] = [None] * len(source.sections)
-    if byte_mapping is not None and len(simple_indices) > 1:
-        for index, value in zip(
-            simple_indices,
-            _mapped_low_sections([source.sections[index] for index in simple_indices], mapping, byte_mapping),
-        ):
-            mapped[index] = value
+    missing: list[int] = []
+    missing_keys: list[bytes] = []
+    if byte_mapping is not None:
+        for index in simple_indices:
+            section = source.sections[index]
+            key = bytes(section.blocks) + bytes(section.metadata)
+            value = section_cache.get(key) if section_cache is not None else None
+            if value is None:
+                missing.append(index)
+                missing_keys.append(key)
+            else:
+                mapped[index] = value
+
+        if missing:
+            for index, key, value in zip(
+                missing,
+                missing_keys,
+                _mapped_low_sections([source.sections[index] for index in missing], mapping, byte_mapping),
+            ):
+                mapped[index] = value
+                if section_cache is not None:
+                    section_cache[key] = value
 
     sections = [
         _section(

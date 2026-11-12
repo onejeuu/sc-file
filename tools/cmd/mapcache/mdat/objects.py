@@ -81,13 +81,13 @@ class ObjectItem:
     version: int
 
     @property
-    def type_id(self) -> int | None:
+    def network_id(self) -> int | None:
         size = 8 if self.version >= 7 else 2
         return int.from_bytes(self.raw.data[:size], "big") if len(self.raw.data) >= size else None
 
     @property
     def prefix(self) -> int | None:
-        return self.type_id if self.version == 6 else None
+        return self.network_id if self.version == 6 else None
 
 
 @dataclass
@@ -183,26 +183,39 @@ def curve(reader: Reader) -> Curve:
 def _header(reader: Reader, version: int) -> S.ObjectHeader:
     match version:
         case 6:
-            type_id = reader.number(">H")
+            network_id = reader.number(">H")
         case 7:
-            type_id = reader.number(">Q")
+            network_id = reader.number(">Q")
         case _:
             raise EOFError(f"Unsupported object version: {version}")
 
     flags, flags2 = reader.unpack(">IB")
-    if flags & ~0x3FBFF or flags2 & ~7:
+    if flags & ~0x3FFFF or flags2 & ~7:
         raise EOFError("Unknown instance flag bits; optional field ordering is unavailable")
 
     group = reader.uuid() if flags & 0x80 else None
+    if flags & 0x80:
+        reader.uuid()
+        children = reader.number(">i")
+        if children < 0:
+            raise EOFError("Negative children count")
+        for _ in range(children):
+            reader.uuid()
+        reader.utf()
+        reader.number(">b")
+        reader.number(">b")
+        reader.number(">i")
     if flags & 0x8000:
         reader.utf()
     if flags & 0x4000:
         reader.number(">i")
     if flags & 0x2000:
         reader.number(">i")
+    if flags & 0x400:
+        reader.number(">i")
     if version == 6:
         reader.number(">i")
-    return S.ObjectHeader(type_id, flags, flags2, group)
+    return S.ObjectHeader(network_id, flags, flags2, group)
 
 
 def _placement(reader: Reader, item: ObjectItem) -> Placement:
@@ -296,3 +309,5 @@ def instance(item: ObjectItem, behaviour: str | None = None) -> Instance:
         return stop(str(error))
 
     return result
+
+

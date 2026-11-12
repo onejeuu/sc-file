@@ -37,6 +37,7 @@ class McaEncoder(Encoder[RegionContent]):
         marker_size = len(marker)
 
         current_sector = 2
+        section_cache: dict[bytes, tuple[bytes, bytes, bytes]] = {}
 
         for chunk in self.data.chunks:
             # Resolve world coordinates
@@ -53,6 +54,7 @@ class McaEncoder(Encoder[RegionContent]):
                     materials=self.options.mdat_materials,
                     mapping=mapping,
                     byte_mapping=byte_mapping,
+                    section_cache=section_cache,
                 ),
                 level=COMPRESSION_LEVEL,
             )

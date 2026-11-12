@@ -1,6 +1,6 @@
 """World region structures."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
 
 
@@ -10,7 +10,7 @@ type Matrix3 = tuple[Vector3, Vector3, Vector3]
 
 @dataclass
 class ChunkHeader:
-    """Fields at the start of a compressed chunk."""
+    """Metadata used to locate terrain data."""
 
     stream_length: int
     section_mask: int
@@ -22,7 +22,7 @@ class ChunkHeader:
 
 @dataclass
 class ChunkSection:
-    """Full voxel planes for a vertical section."""
+    """Vertical voxel layer of a chunk."""
 
     y: int
     blocks: memoryview
@@ -32,7 +32,7 @@ class ChunkSection:
 
 @dataclass
 class RegionChunk:
-    """Terrain data with compact tile materials and optional records and objects."""
+    """Decoded terrain with attached entities."""
 
     index: int
     sections: tuple[ChunkSection, ...]
@@ -45,7 +45,7 @@ class RegionChunk:
 
 @dataclass(frozen=True)
 class ChunkRecord:
-    """Carpenters wire fields and their original bytes."""
+    """Tile entity at a terrain position."""
 
     type: int
     position: tuple[int, int, int]
@@ -64,18 +64,19 @@ class ChunkRecord:
 
 @dataclass
 class ChunkRecords:
-    """Records decoded from a chunk, with an optional parsing error."""
+    """Decoded tile entities with parse status."""
 
     count: int | None = None
     records: tuple[ChunkRecord, ...] = ()
     error: str | None = None
+    raw: memoryview = field(kw_only=True)
 
 
 @dataclass(frozen=True)
 class ObjectHeader:
-    """Object header fields decoded from MDAT 6 and 7."""
+    """Object definition identity and instance flags."""
 
-    type_id: int
+    network_id: int
     flags: int
     flags2: int
     group: UUID | None
@@ -83,7 +84,7 @@ class ObjectHeader:
 
 @dataclass(frozen=True)
 class ObjectPlacement:
-    """Object transform; matrix contains three column vectors."""
+    """Object position and orientation in world space."""
 
     uuid: UUID
     matrix: Matrix3
@@ -92,7 +93,7 @@ class ObjectPlacement:
 
 @dataclass(frozen=True)
 class ObjectSettings:
-    """Known instance settings read before behaviour data."""
+    """Object rendering state."""
 
     active: bool
     activation: int
@@ -105,20 +106,20 @@ class ObjectSettings:
 
 @dataclass
 class ChunkObject:
-    """Known prefix of an object. raw retains the entire object entry."""
+    """Object instance with parsed state and source data."""
 
     index: int
     offset: int
-    raw: memoryview
     header: ObjectHeader | None = None
     placement: ObjectPlacement | None = None
     settings: ObjectSettings | None = None
     error: str | None = None
+    raw: memoryview = field(kw_only=True)
 
 
 @dataclass
 class ChunkObjects:
-    """Objects parsed from a length-prefixed container."""
+    """Object instances with parse status."""
 
     count: int | None = None
     objects: tuple[ChunkObject, ...] = ()
@@ -127,10 +128,9 @@ class ChunkObjects:
 
 @dataclass(frozen=True, slots=True)
 class ChunkTileMaterials:
-    """Packed Carpenter states and references."""
+    """Packed material data for block faces."""
 
     entries: memoryview
     face_map: memoryview
     shape_data: memoryview
     record_types: memoryview
-    record_data: memoryview

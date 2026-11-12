@@ -1,5 +1,7 @@
+import os
 import traceback
 from collections.abc import Iterator
+from concurrent.futures import FIRST_COMPLETED, Future, ProcessPoolExecutor, wait
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
@@ -17,6 +19,16 @@ from .base import Task, TaskContext
 
 
 type MapCacheRegion = tuple[mapcache.Region, list[Path]]
+_MERGE_FUNCTION = mapcache.merge
+
+
+def _merge_process(
+    region: MapCacheRegion,
+    output: Path,
+    options: Options,
+) -> mapcache.MergeResult:
+    resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.mca_mappings)})
+    return mapcache.merge(region[0], region[1], output, options, resources=resources)
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +38,7 @@ class MapCacheTask(Task):
     source: Path
     output: Path | None
     options: Options
+    workers: int | None = None
 
     def _merge(
         self,
@@ -43,7 +56,7 @@ class MapCacheTask(Task):
                 key,
                 paths,
                 output,
-                options or self.options,
+                options if options is not None else self.options,
                 context.cancelled.is_set,
                 resources,
             )
@@ -90,11 +103,52 @@ class MapCacheTask(Task):
         resources = Resources({mappings.RESOURCE_KEY: mappings.build(options.mca_mappings)})
         output.mkdir(parents=True, exist_ok=True)
 
-        for region in mapping.items():
+        regions = list(mapping.items())
+        if len(regions) == 1 or mapcache.merge is not _MERGE_FUNCTION:
+            for region in regions:
+                if context.stopped:
+                    break
+
+                result = self._merge(region, context, options, resources)
+                if result is not None:
+                    yield result
+
+            return
+
+        workers = min(self.workers or os.cpu_count() or 4, len(regions))
+        with ProcessPoolExecutor(max_workers=workers) as executor:
+            pending: dict[Future[mapcache.MergeResult], MapCacheRegion] = {
+                executor.submit(_merge_process, region, output, options): region for region in regions
+            }
+
+            while pending and not context.stopped:
+                done, _ = wait(pending, return_when=FIRST_COMPLETED)
+
+                for future in done:
+                    region = pending.pop(future)
+                    try:
+                        result = future.result()
+                        yield TaskItem(
+                            output=output / result.filename,
+                            detail=f"Merged {result.chunks} chunks",
+                        )
+
+                    except exceptions.MergeInterrupted:
+                        continue
+
+                    except exceptions.ScFileException as error:
+                        yield TaskItemFailure(error.location or f"({region[0].x}, {region[0].z})", error)
+
+                    except OSError as error:
+                        yield TaskItemFailure(str(error.filename or region[0]), error)
+
+                    except Exception as error:
+                        yield TaskItemFailure(
+                            f"({region[0].x}, {region[0].z})",
+                            error,
+                            traceback.format_exc(),
+                        )
+
             if context.stopped:
-                break
-
-            result = self._merge(region, context, options, resources)
-            if result is not None:
-                yield result
-
+                for future in pending:
+                    future.cancel()

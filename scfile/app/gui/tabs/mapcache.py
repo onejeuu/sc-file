@@ -361,6 +361,7 @@ class MapCacheTab(QWidget):
                 mdat_version=self._selected_version(),
                 mca_mappings=mca_mappings,
             ),
+            workers=self.settings.workers,
         )
         self.running = self.tasks.start(task)
         if self.running:

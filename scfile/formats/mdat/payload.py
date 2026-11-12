@@ -52,13 +52,14 @@ def chunk(
         lighting=raw[metadata_end:lighting_end],
     )
 
-    record_data = raw[biomes_end:]
-    if (record_data and materials) or objects:
-        decoded_records, tile_materials = records(record_data, include=objects)
+    raw_records = raw[biomes_end:]
+    if raw_records:
+        container.records = S.ChunkRecords(raw=raw_records)
+
+    if (raw_records and materials) or objects:
+        decoded_records, tile_materials = records(raw_records, include=objects)
+        container.records = decoded_records
         if materials and decoded_records.error is None:
             container.materials = tile_materials
-
-        if objects:
-            container.records = decoded_records
 
     return container

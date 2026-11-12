@@ -284,7 +284,7 @@ def test_tile_primary_material_is_projected_before_existing_mapping():
     position = (4 << 12) | (3 * 256 + 15)
     empty = memoryview(b"")
     materials = ChunkTileMaterials(
-        memoryview(struct.pack(">I", (position << 16) | 0xD123)), empty, empty, empty, empty,
+        memoryview(struct.pack(">I", (position << 16) | 0xD123)), empty, empty, empty,
     )
     source = RegionChunk(0, (section,), empty, empty, materials=materials)
     mapping, byte_mapping = mappings.build({"194": "1", "291": "35:7"})
