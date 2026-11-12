@@ -6,7 +6,7 @@ import numpy as np
 from scfile.content.regions import ChunkSection, ChunkTileMaterials, RegionChunk
 from scfile.io.nbt import Tag
 
-from .mappings import PRESERVE_METADATA, CompiledBlockMapping
+from .mappings import CompiledBlockMapping
 
 
 VERSION = Tag.INT.header(b"DataVersion") + struct.pack(">i", 1343)
@@ -251,18 +251,15 @@ def _mapped_blocks(
         source_ids[1::2] |= (packed >> 4).astype(np.uint16) << 8
 
     metadata = np.frombuffer(section.metadata, dtype=np.uint8)
-    target_ids = mapping.ids[source_ids]
-
-    target_metadata = metadata.copy()
-    if mapping._metadata_overrides:
-        overrides = mapping.metadata[source_ids]
-        indices = np.flatnonzero(overrides != PRESERVE_METADATA)
-        _write_nibbles(target_metadata, indices, overrides[indices])
+    source_states = np.empty(source_ids.shape, dtype=np.uint16)
+    source_states[::2] = source_ids[::2] | ((metadata & 0x0F).astype(np.uint16) << 12)
+    source_states[1::2] = source_ids[1::2] | ((metadata >> 4).astype(np.uint16) << 12)
+    target_states = mapping._state_lut[source_states]
 
     if tiles is not None:
-        target_ids[tiles.indices] = tiles.states & 0x0FFF
-        _write_nibbles(target_metadata, tiles.indices, (tiles.states >> 12).astype(np.uint8))
+        target_states[tiles.indices] = tiles.states
 
+    target_ids = target_states & 0x0FFF
     blocks = target_ids.astype(np.uint8).tobytes()
     add = b""
     if mapping._high_targets and np.any(target_ids > 0xFF):
@@ -270,7 +267,30 @@ def _mapped_blocks(
         packed_high = target_high[::2] | (target_high[1::2] << 4)
         add = _array(ADD, packed_high.tobytes())
 
-    return blocks, add, target_metadata.tobytes()
+    target_metadata = target_states >> 12
+    data = (target_metadata[::2] | (target_metadata[1::2] << 4)).astype(np.uint8).tobytes()
+    return blocks, add, data
+
+
+def _mapped_low_sections(
+    sections: list[ChunkSection],
+    mapping: CompiledBlockMapping,
+    byte_mapping: bytes,
+) -> list[tuple[bytes, bytes, bytes]]:
+    blocks = b"".join(bytes(section.blocks) for section in sections)
+    metadata = np.frombuffer(b"".join(bytes(section.metadata) for section in sections), dtype=np.uint8)
+    mapped_blocks = blocks.translate(byte_mapping)
+    mapped_metadata = _mapped_low_metadata(blocks, metadata, mapping)
+    section_size = len(sections[0].blocks)
+    metadata_size = len(sections[0].metadata)
+    return [
+        (
+            mapped_blocks[index * section_size : (index + 1) * section_size],
+            b"",
+            mapped_metadata[index * metadata_size : (index + 1) * metadata_size],
+        )
+        for index in range(len(sections))
+    ]
 
 
 def _section(
@@ -278,8 +298,9 @@ def _section(
     mapping: CompiledBlockMapping,
     byte_mapping: bytes | None,
     tiles: _TileStates | None = None,
+    mapped: tuple[bytes, bytes, bytes] | None = None,
 ) -> bytes:
-    blocks, add, data = _mapped_blocks(section, mapping, byte_mapping, tiles)
+    blocks, add, data = mapped or _mapped_blocks(section, mapping, byte_mapping, tiles)
 
     return b"".join(
         (
@@ -347,7 +368,30 @@ def chunk(
     byte_mapping: bytes | None,
 ) -> bytes:
     tiles = _tile_materials_by_section(source, mapping) if materials else {}
-    sections = [_section(section, mapping, byte_mapping, tiles.get(section.y)) for section in source.sections]
+    simple_indices = [
+        index
+        for index, section in enumerate(source.sections)
+        if byte_mapping is not None and section.additions is None and section.y not in tiles
+    ]
+
+    mapped: list[tuple[bytes, bytes, bytes] | None] = [None] * len(source.sections)
+    if byte_mapping is not None and len(simple_indices) > 1:
+        for index, value in zip(
+            simple_indices,
+            _mapped_low_sections([source.sections[index] for index in simple_indices], mapping, byte_mapping),
+        ):
+            mapped[index] = value
+
+    sections = [
+        _section(
+            section,
+            mapping,
+            byte_mapping,
+            tiles.get(section.y),
+            mapped[index],
+        )
+        for index, section in enumerate(source.sections)
+    ]
 
     biome_data = bytes(source.biomes)
     biome_data = _array(BIOMES, biome_data) * bool(biomes and any(biome_data))
