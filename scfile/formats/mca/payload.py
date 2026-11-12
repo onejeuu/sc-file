@@ -83,6 +83,11 @@ def _mapped_low_metadata(
     if mask is None or lut is None or b"\x01" not in source_blocks.translate(mask):
         return metadata.tobytes()
 
+    metadata_lut = mapping._metadata_lut
+    if metadata_lut is not None:
+        source_ids = np.frombuffer(source_blocks, dtype=np.uint8)
+        return metadata_lut[source_ids[::2], source_ids[1::2], metadata].tobytes()
+
     source_ids = np.frombuffer(source_blocks, dtype=np.uint8)
     low = lut[source_ids[::2], metadata & 0x0F]
     high = lut[source_ids[1::2], metadata >> 4]
@@ -305,12 +310,15 @@ def _tile_materials_by_section(
     section_y = (entries >> 28).astype(np.uint8)
     indices = ((entries >> 16) & 0x0FFF).astype(np.uint16)
     source_ids = np.zeros(len(entries), dtype=np.uint16)
+    section_by_y = {section.y: section for section in source.sections}
     section_rows = {}
-    for section in source.sections:
-        rows = np.flatnonzero(section_y == section.y)
-        if len(rows):
-            section_rows[section.y] = rows
-            source_ids[rows] = _tile_source_ids(section, indices[rows])
+    for y in np.unique(section_y):
+        section = section_by_y.get(int(y))
+        if section is None:
+            continue
+        rows = np.flatnonzero(section_y == y)
+        section_rows[int(y)] = rows
+        source_ids[rows] = _tile_source_ids(section, indices[rows])
 
     states = mapping._state_lut[entries & 0xFFFF]
     source_non_air = mapping.ids[source_ids] != 0

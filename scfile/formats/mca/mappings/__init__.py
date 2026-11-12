@@ -40,6 +40,7 @@ class CompiledBlockMapping:
     _high_targets: bool
     _state_lut: NDArray[np.uint16]
     _tile_locked: NDArray[np.bool_]
+    _metadata_lut: NDArray[np.uint8] | None
 
 
 def build(mappings: BlockMappings = None) -> tuple[CompiledBlockMapping, bytes | None]:
@@ -88,10 +89,16 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
     low_mask = low_overrides.astype(np.uint8).tobytes() if np.any(low_overrides) else None
 
     low_lut = None
+    metadata_lut = None
     if low_mask is not None:
         low_lut = np.broadcast_to(np.arange(16, dtype=np.uint8), (256, 16)).copy()
         low_lut[low_overrides] = metadata[:256][low_overrides, None]
         low_lut.flags.writeable = False
+        nibbles = np.arange(256, dtype=np.uint8)
+        low_values = low_lut[:, nibbles & 0x0F]
+        high_values = low_lut[:, nibbles >> 4]
+        metadata_lut = (low_values[:, None, :] | (high_values[None, :, :] << 4)).astype(np.uint8)
+        metadata_lut.flags.writeable = False
 
     has_high_targets = bool(np.any(ids > 0xFF))
 
@@ -113,6 +120,7 @@ def compile(mappings: BlockMappings = None) -> CompiledBlockMapping:
         has_high_targets,
         state_lut,
         tile_locked,
+        metadata_lut,
     )
 
 

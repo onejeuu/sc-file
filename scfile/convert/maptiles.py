@@ -68,8 +68,8 @@ def measure(
     if not tiles:
         raise exceptions.ConversionError("No map tiles found.")
 
-    options = options or Options()
-    resources = resources or Resources()
+    options = options if options is not None else Options()
+    resources = resources if resources is not None else Resources()
     bounds = Bounds.parse(tiles)
     return bounds.size(_tile_size(tiles, options, cancelled, resources))
 
@@ -116,8 +116,8 @@ def render(
     """Assemble normalized map tiles into an image."""
 
     output_path = Path(output)
-    options = options or Options()
-    resources = resources or Resources()
+    options = options if options is not None else Options()
+    resources = resources if resources is not None else Resources()
     save = DEFAULT_SAVE if save is None else save
 
     if not tiles:

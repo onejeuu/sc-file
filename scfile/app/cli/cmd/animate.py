@@ -26,7 +26,7 @@ def _execute(
 ) -> None:
     output_path = convert.paths.destination(source, output, FileFormat.GLB.suffix)
     feedback = TaskFeedback()
-    summary = execute(AnimateTask(operation, source, models, output_path, options or Options()), feedback)
+    summary = execute(AnimateTask(operation, source, models, output_path, options if options is not None else Options()), feedback)
     feedback.finish(summary)
 
     if summary.work.failed:
@@ -122,4 +122,5 @@ def body(
     """Apply skeletal animation to a model."""
 
     _execute(convert.animate.body, animation, (model,), output, Options(mcal_filtering=not raw))
+
 

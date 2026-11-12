@@ -51,8 +51,8 @@ def manual[
         Output path on success, or ``None`` on skip.
     """
 
-    options = options or Options()
-    resources = resources or Resources()
+    options = options if options is not None else Options()
+    resources = resources if resources is not None else Resources()
 
     src = paths.source(source)
     out = paths.output(src, output, encoder.suffix(), options)
@@ -95,7 +95,7 @@ def auto(
         Output path on success, or ``None`` on skip.
     """
 
-    options = options or Options()
+    options = options if options is not None else Options()
 
     src = Path(source)
     decoder = registry.match(src)
@@ -122,4 +122,6 @@ def auto(
         options,
         resources,
     )
+
+
 

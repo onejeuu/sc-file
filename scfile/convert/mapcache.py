@@ -102,7 +102,7 @@ def merge(
         Output filename and the number of merged chunks.
     """
 
-    resources = resources or Resources()
+    resources = resources if resources is not None else Resources()
     decoder = formats.MdatDecoder
     encoder = formats.McaEncoder
     region = RegionContent()
@@ -139,3 +139,4 @@ def merge(
                 target.rename(backup_path)
 
     return MergeResult(filename, len(region.chunks))
+

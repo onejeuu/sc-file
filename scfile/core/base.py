@@ -55,7 +55,7 @@ class Handler[IOType: StructIO[Any]](ABC):
 
         self.io = io
         self.options = options
-        self._resources = resources or Resources()
+        self._resources = resources if resources is not None else Resources()
         self._ctx: HandlerContext = {}
         self._state = HandlerState.INITIAL
 

@@ -63,7 +63,7 @@ def arms(
 
     encoder = formats.GlbEncoder
     options = _options(options)
-    resources = resources or Resources()
+    resources = resources if resources is not None else Resources()
 
     src = paths.source(animation)
     out = paths.output(src, output, encoder.suffix(), options)
@@ -157,7 +157,7 @@ def face(
 def _options(
     options: Options | None,
 ) -> Options:
-    return replace(options or Options(), skeleton=True, animation=True)
+    return replace(options if options is not None else Options(), skeleton=True, animation=True)
 
 
 def _apply_external_animation(
@@ -171,7 +171,7 @@ def _apply_external_animation(
 ) -> types.ResultPath:
     encoder = formats.GlbEncoder
     options = _options(options)
-    resources = resources or Resources()
+    resources = resources if resources is not None else Resources()
 
     src = paths.source(animation)
     mdl = paths.source(model)
@@ -226,4 +226,6 @@ def _filter_clips(clips: list[AnimationClip]) -> list[AnimationClip]:
         filtered.setdefault(key.digest(), clip)
 
     return list(filtered.values())
+
+
 
