@@ -20,7 +20,7 @@
 
 .. Repository Files
 .. _Alpha Mode: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
-.. _Block Mapping: https://github.com/onejeuu/sc-file/blob/master/scfile/formats/mca/mapping.py
+.. _Block Mapping: https://github.com/onejeuu/sc-file/tree/master/scfile/formats/mca/mappings
 .. _Audit Mappings: https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit
 .. _Arms Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.arms.json
 .. _Face Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.face.json

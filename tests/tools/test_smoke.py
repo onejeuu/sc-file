@@ -15,7 +15,6 @@ from tools.cmd import tools
     ],
 )
 def test_audit_smoke_runs_empty_tree(runner, tmp_path: Path, flags: tuple[str, ...], monkeypatch) -> None:
-    """The audit CLI must reach its runner on a valid, empty input tree."""
     import importlib
 
     audit = importlib.import_module("tools.cmd.audit.audit")
@@ -33,11 +32,19 @@ def test_audit_smoke_runs_empty_tree(runner, tmp_path: Path, flags: tuple[str, .
         (("info",), "Missing argument"),
         (("mapcache", "region"), "Missing argument"),
         (("mapcache", "chunk", "dummy"), "does not exist"),
-        (("mappings", "--stalcraft-texarr", "missing.texarr"), "source file not found"),
+        (
+            (
+                "mappings",
+                "--stalcraft-texarr",
+                "missing.texarr",
+                "--minecraft-jar",
+                "missing.jar",
+            ),
+            "source file not found",
+        ),
     ],
 )
 def test_tool_commands_reach_validation(runner, args: tuple[str, ...], message: str) -> None:
-    """Every tool command must execute its callback, not only render help."""
     result = runner.invoke(tools, list(args))
 
     assert result.exit_code != 0

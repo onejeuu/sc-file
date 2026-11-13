@@ -13,10 +13,10 @@ Encoder
    :undoc-members:
    :inherited-members:
 
-Mapping
--------
+Mappings
+--------
 
-.. automodule:: scfile.formats.mca.mapping
+.. automodule:: scfile.formats.mca.mappings
    :members:
    :show-inheritance:
    :undoc-members:

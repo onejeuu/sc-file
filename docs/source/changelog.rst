@@ -1,6 +1,48 @@
 📋 Changelog
 ==================================================
 
+.. _v6.4.0:
+
+v6.4.0 (2026-11-13)
+----------------------------------------
+
+✨ Added
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``MdatDecoder``: parsing for tile material records.
+* ``Options.mdat_materials`` and ``scfile mapcache --tiles/--no-tiles``: control tile material record export.
+* ``Options.mca_mappings``: stores ordered block mapping layers.
+* ``scfile.formats.mca.mappings``: support for built-in ``vanilla``, ``resourcepack``, and ``identity`` block mappings with ordered custom layers.
+* ``scfile mapcache --blocks``: selects mapping layers from built-in names, JSON files, or inline JSON objects.
+* **Development:** ``tools mappings`` builds STALCRAFT and Minecraft mapping catalogs with texture previews.
+* **Templates:** ``templates/legacy/MDAT-v2.bt`` parses legacy MDAT v2.x region caches.
+
+📝 Changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``McaEncoder``: applies block mappings and tile material records, preserves block metadata, and writes mapped block IDs above 255.
+* ``MapCacheTask``: merges multiple regions in parallel with ``ProcessPoolExecutor`` workers.
+* ``scfile mapcache --workers``: controls the number of region worker processes.
+* ``convert.animate`` and ``convert.maptiles``: honor ``Options.on_conflict`` when publishing output.
+* **GUI:** ``MapTilesTab`` puts the interface language first in the localization list.
+* **GUI:** ``VersionWidget``: displays the base version and prerelease suffix separately.
+* **Development:** ``tools audit --extended-chunk`` renamed to ``tools audit --mdat-extended``.
+
+♻️ Refactored
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``Options.targets``: renamed to ``Options.output_formats``.
+* ``Options.preserve_clips``: renamed to ``Options.mcal_extended``.
+* ``Options.biomes``: renamed to ``Options.mdat_biomes``.
+* ``Options.backup_regions``: renamed to ``Options.mca_backup``.
+* ``Options.extended_chunk``: renamed to ``Options.mdat_extended``.
+* ``Options.max_mipmaps``: renamed to ``Options.ol_max_mipmaps``.
+* ``ChunkHeader.add_mask``: renamed to ``ChunkHeader.addition_mask``.
+* ``ObjectHeader.type_id``: renamed to ``ObjectHeader.network_id``.
+* ``scfile.formats.mca.mapping``: replaced by ``scfile.formats.mca.mappings``.
+
+
+
 .. _v6.3.0:
 
 v6.3.0 (2026-11-04)
@@ -956,4 +998,3 @@ v1.3.2 (2023-10-18)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * First stable release.
-

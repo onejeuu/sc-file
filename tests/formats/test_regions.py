@@ -61,8 +61,6 @@ def _tile_record(tile: _Tile) -> bytes:
 
 
 def _mdat_region(tiles: Sequence[_Tile]) -> bytes:
-    """Build one minimal MDAT v5 chunk without touching the filesystem."""
-
     blocks = bytearray(16 * 16 * 16)
     additions = bytearray(2048)
     for tile in tiles:

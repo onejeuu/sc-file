@@ -312,7 +312,7 @@ mapcache
 
 
 ``-W, --workers``
-  | Number of worker threads. Default: CPU count.
+  | Number of worker processes. Default: CPU count.
   | Set to ``0`` for sequential execution.
 
   .. code-block:: bash
@@ -338,6 +338,16 @@ mapcache
     :caption: Example
 
     scfile mapcache "C:/map_cache/7.0" --no-tiles
+
+
+``--blocks MAPPING``
+  Block mapping layer. Accepts ``vanilla``, ``resourcepack``, ``identity``,
+  a JSON file, or an inline JSON object. May be repeated.
+
+  .. code-block:: bash
+    :caption: Example
+
+    scfile mapcache "C:/map_cache/7.0" --blocks vanilla --blocks custom.json
 
 
 ``--backup / --no-backup``

@@ -175,13 +175,25 @@ def test_mapcache(
     tasks = command_runner(mapcache_module, TaskKind.MAPCACHE, False)
     result = CliRunner().invoke(
         scfile,
-        ["mapcache", str(source), "-O", str(output), "--no-biomes", "--no-tiles", "--no-backup", "--verbose"],
+        [
+            "mapcache",
+            str(source),
+            "-O",
+            str(output),
+            "-W",
+            "3",
+            "--no-biomes",
+            "--no-tiles",
+            "--no-backup",
+            "--verbose",
+        ],
     )
 
     assert result.exit_code == 0
     task = tasks[0]
     assert task.source == source
     assert task.output == output
+    assert task.workers == 3
     assert not task.options.mdat_biomes
     assert not task.options.mdat_materials
     assert not task.options.mca_backup
