@@ -42,7 +42,7 @@ def build(
     selected: tuple[str, ...],
     configured_excludes: tuple[str, ...],
     animation: bool,
-    extended_chunk: bool,
+    mdat_extended: bool,
     statistics: bool,
     console: Console,
 ) -> Plan:
@@ -85,7 +85,7 @@ def build(
                 status.update(f"Searching... {found} files")
                 updated = now
 
-    options = Options(skeleton=animation, animation=animation, extended_chunk=extended_chunk)
+    options = Options(skeleton=animation, animation=animation, mdat_extended=mdat_extended)
     suites = []
     for format, paths in sorted(grouped.items()):
         paths.sort()

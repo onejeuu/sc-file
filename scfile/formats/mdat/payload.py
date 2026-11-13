@@ -10,20 +10,21 @@ BIOME_SIZE = 16 * 16
 
 
 def chunk(
-    index: int,
-    header: S.ChunkHeader,
-    data: bytes,
     *,
-    objects: bool,
+    index: int,
+    data: bytes,
+    section_mask: int,
+    addition_mask: int,
     materials: bool = True,
+    extended: bool = False,
 ) -> S.RegionChunk:
     raw = memoryview(data)
-    section_ids = [y for y in range(16) if header.section_mask & (1 << y)]
+    section_ids = [y for y in range(16) if section_mask & (1 << y)]
 
     block_end = len(section_ids) * SECTION_SIZE
     metadata_end = block_end + len(section_ids) * NIBBLE_SIZE
     lighting_end = metadata_end + len(section_ids) * NIBBLE_SIZE * 3
-    additions_end = lighting_end + header.add_mask.bit_count() * NIBBLE_SIZE
+    additions_end = lighting_end + addition_mask.bit_count() * NIBBLE_SIZE
     biomes_end = additions_end + BIOME_SIZE
 
     sections: list[S.ChunkSection] = []
@@ -38,7 +39,7 @@ def chunk(
             metadata=raw[metadata_offset : metadata_offset + NIBBLE_SIZE],
         )
 
-        if header.add_mask & (1 << y):
+        if addition_mask & (1 << y):
             addition_offset = lighting_end + addition_index * NIBBLE_SIZE
             section.additions = raw[addition_offset : addition_offset + NIBBLE_SIZE]
             addition_index += 1
@@ -52,12 +53,12 @@ def chunk(
         lighting=raw[metadata_end:lighting_end],
     )
 
-    raw_records = raw[biomes_end:]
-    if raw_records:
-        container.records = S.ChunkRecords(raw=raw_records)
+    rawrecords = raw[biomes_end:]
+    if rawrecords:
+        container.records = S.ChunkRecords(raw=rawrecords)
 
-    if (raw_records and materials) or objects:
-        decoded_records, tile_materials = records(raw_records, include=objects)
+    if extended or (rawrecords and materials):
+        decoded_records, tile_materials = records(rawrecords, extended=extended)
         container.records = decoded_records
         if materials and decoded_records.error is None:
             container.materials = tile_materials

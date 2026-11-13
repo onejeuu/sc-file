@@ -14,7 +14,7 @@ class ChunkHeader:
 
     stream_length: int
     section_mask: int
-    add_mask: int
+    addition_mask: int
     terrain_size: int
     compressed_size: int
     chunk_key: bytes = b""

@@ -1,0 +1,112 @@
+//------------------------------------------------
+// File: MDAT-v2.bt
+// Authors: onejeuu, DeTTK
+// Version: 1.0
+// Purpose: Parse world region cache container (v2.x).
+// Category: STALCRAFT
+// File Mask: *.mdat
+//------------------------------------------------
+
+BigEndian();
+
+// File Content
+// Metadata
+
+local uint CHUNK_COUNT = 32 * 32;  // 1024 chunks
+local uint SECTOR_SIZE = 4 * 1024; // 4 KiB
+
+typedef struct {
+    int sectorOffset <name="Sector Offset">;
+    int sectorCount <name="Sector Count">;
+    int uuid[4] <name="UUID Words", format=hex, fgcolor=cLtBlue>;
+} Metadata;
+
+Metadata metadata[CHUNK_COUNT] <name="Metadata">;
+
+
+// Chunks
+
+local int64 _end;
+
+typedef struct {
+    byte type <name="Type">;
+    int x <name="X">;
+    int y <name="Y">;
+    int z <name="Z">;
+    ubyte flags <name="Flags", format=hex>;
+
+    if ((type == 0 || type == 1) && !(flags & 0x80)) {
+        short covers[(flags & 0x08) ? 7 : 1] <name="Covers">;
+        if (flags & 0x02) {
+            short colors[7] <name="Colors">;
+        }
+        if (flags & 0x04) {
+            short colorExponent <name="Color Exponent">;
+        }
+        if (flags & 0x01) {
+            byte overlay[7] <name="Overlay">;
+        }
+        if (flags & 0x10) {
+            short rotation <name="Rotation">;
+        }
+        if (flags & 0x20) {
+            byte packedCovers <name="Packed Covers">;
+        }
+        if (flags & 0x40) {
+            byte ctmData[6] <name="CTM Data">;
+        }
+        int data <name="Data">;
+        if (type == 1) {
+            int dataExt <name="Data Ext">;
+        }
+    }
+} Record;
+
+typedef struct {
+    int streamLength <name="Stream Length", fgcolor=cLtRed>;
+    int sectionMask <name="Section Mask", format=binary, bgcolor=cPurple>;
+    int addMask <name="Add Mask", format=binary, bgcolor=cPurple>;
+    int recordCount <name="Record Count", fgcolor=cLtGreen>;
+
+    // Carpenters records (uncompressed)
+    local int _supported = 1;
+    local int _i;
+    for (_i = 0; _i < recordCount; _i++) {
+        Record record <name="Record">;
+        if ((record.type != 0 && record.type != 1) || (record.flags & 0x80)) {
+            _supported = 0;
+            break;
+        }
+    }
+
+    if (_supported) {
+        // Chunk payload (zstd)
+        int dataSize <name="Compressed Size", fgcolor=cGreen>;
+        if (dataSize > 0) {
+            ubyte chunk[dataSize] <name="Chunk", comment="zstd", bgcolor=cDkGreen>;
+        }
+
+        // Padding
+        local int64 _padding = _end - FTell();
+        if (_padding > 0) {
+            char padding[_padding] <bgcolor=cGray, hidden=true>;
+        }
+    } else {
+        local int64 _remaining = _end - FTell();
+        if (_remaining > 0) {
+            ubyte unparsed[_remaining] <name="Unparsed", bgcolor=cGray, optimize=false>;
+        }
+    }
+} Chunk;
+
+void parseChunk(Metadata &entry) {
+    if (entry.sectorOffset > 0) {
+        FSeek((int64)entry.sectorOffset * SECTOR_SIZE);
+        _end = FTell() + (int64)entry.sectorCount * SECTOR_SIZE;
+        Chunk chunk <name="Chunk">;
+    }
+}
+
+local uint _counter;
+for (_counter = 0; _counter < CHUNK_COUNT; _counter++)
+    parseChunk(metadata[_counter]);

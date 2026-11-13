@@ -48,10 +48,10 @@ from .audit import Audit
     help="Write statistics.",
 )
 @click.option(
-    "--extended-chunk",
+    "--mdat-extended",
     is_flag=True,
     default=None,
-    help="Parse auxiliary world chunk data.",
+    help="Parse full MDAT chunk data.",
 )
 def audit(
     path: Path | None,
@@ -59,10 +59,10 @@ def audit(
     relations: tuple[str, ...],
     workers: int | None,
     animation: bool | None,
+    mdat_extended: bool | None,
     stats: bool | None,
-    extended_chunk: bool | None,
 ) -> None:
-    settings = config.resolve(path, formats, relations, workers, animation, extended_chunk, stats)
+    settings = config.resolve(path, formats, relations, workers, animation, mdat_extended, stats)
 
     try:
         code = Audit(settings, Console()).run()

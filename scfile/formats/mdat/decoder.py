@@ -51,36 +51,41 @@ class MdatDecoder(Decoder[RegionContent, MdatReader]):
 
             match version:
                 case 5 | 6:
-                    header = S.ChunkHeader(*struct.unpack(">5i", self.io.read_exact(20)))
+                    chunk = self._parse_chunk_v5_6(index)
 
                 case 7:
-                    length, key, sections, additions, terrain, size = struct.unpack(">i8s4i", self.io.read_exact(28))
-                    header = S.ChunkHeader(length, sections, additions, terrain, size, key)
+                    chunk = self._parse_chunk_v7(index)
 
-            self.data.chunks.append(self._parse_chunk(index, header))
+            self.data.chunks.append(chunk)
+
+    def _parse_chunk_v5_6(self, index: int) -> S.RegionChunk:
+        length, sections, additions, terrain, size = struct.unpack(">5i", self.io.read_exact(20))
+        header = S.ChunkHeader(length, sections, additions, terrain, size)
+        return self._parse_chunk(index, header)
+
+    def _parse_chunk_v7(self, index: int) -> S.RegionChunk:
+        length, key, sections, additions, terrain, size = struct.unpack(">i8s4i", self.io.read_exact(28))
+        header = S.ChunkHeader(length, sections, additions, terrain, size, key)
+        return self._parse_chunk(index, header)
 
     def _parse_chunk(self, index: int, header: S.ChunkHeader) -> S.RegionChunk:
         data = self._parse_compressed(header.compressed_size)
         chunk = payload.chunk(
-            index,
-            header,
-            data,
-            objects=self.options.mdat_objects,
+            index=index,
+            data=data,
+            section_mask=header.section_mask,
+            addition_mask=header.addition_mask,
             materials=self.options.mdat_materials,
+            extended=self.options.mdat_extended,
         )
 
-        if self.data.version >= 6:
+        if self.data.version >= 6 and self.options.mdat_extended:
             self._parse_chunk_objects(chunk)
 
         return chunk
 
     def _parse_chunk_objects(self, chunk: S.RegionChunk) -> None:
         size = self.io.value(F.I32)
-
-        if not self.options.mdat_objects:
-            self.io.skip(size)
-            return
-
         if size:
             data = self._parse_compressed(size)
             chunk.objects = objects(data, self.data.version)

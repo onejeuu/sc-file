@@ -58,7 +58,7 @@ class Audit:
             settings.formats,
             settings.exclude,
             settings.animation,
-            settings.extended_chunk,
+            settings.mdat_extended,
             settings.stats,
             self.console,
         )

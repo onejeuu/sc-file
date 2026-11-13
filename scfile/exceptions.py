@@ -5,6 +5,19 @@ from typing import ClassVar
 from scfile.enums import HandlerState
 
 
+def _restore(
+    cls: type["ScFileException"],
+    message: str,
+    location: str | None,
+    offset: int | None,
+) -> "ScFileException":
+    error = cls.__new__(cls)
+    Exception.__init__(error, message)
+    error.location = location
+    error.offset = offset
+    return error
+
+
 class ScFileException(Exception):
     """Base exception for scfile library."""
 
@@ -27,6 +40,9 @@ class ScFileException(Exception):
         if self.offset is None:
             return message
         return f"{message} (offset 0x{self.offset:02X})."
+
+    def __reduce__(self):
+        return (_restore, (type(self), super().__str__(), self.location, self.offset))
 
 
 class HandlerStateError(ScFileException):

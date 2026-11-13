@@ -117,7 +117,7 @@ def terrain_info(terrain: Terrain) -> TerrainInfo:
 
     return TerrainInfo(
         tuple(section.y for section in terrain.sections),
-        tuple(y for y in range(16) if terrain.header.add_mask & (1 << y)),
+        tuple(y for y in range(16) if terrain.header.addition_mask & (1 << y)),
         tuple(PlaneInfo(name, Range.of(raw)) for name, raw in planes),
         terrain.notes,
     )

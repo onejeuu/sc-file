@@ -137,7 +137,7 @@ def test_tile_size(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _tile(tmp_path, 0, 0)
     _tile(tmp_path, 1, 0)
     sizes = [maptiles.Size(2, 2), maptiles.Size(4, 4)]
-    images = [Image.new("RGB", tuple(size)) for size in sizes]
+    images = [Image.new("RGB", (size.width, size.height)) for size in sizes]
     monkeypatch.setattr(maptiles, "_size", lambda *args: sizes.pop(0))
     monkeypatch.setattr(maptiles, "_decode", lambda *args: images.pop(0))
 

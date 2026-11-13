@@ -143,7 +143,7 @@ class Region:
                 length, key, sections, additions, terrain, compressed = struct.unpack(">i8s4i", chunk.header_raw.data)
                 chunk.header = header = Header(length, sections, additions, terrain, compressed, key)
 
-        if header.section_mask & ~0xFFFF or header.add_mask & ~0xFFFF:
+        if header.section_mask & ~0xFFFF or header.addition_mask & ~0xFFFF:
             chunk.notes.append(Note("file", start + 4, "Mask has bits outside 16 sections"))
 
         expected_sizes = (header.layout_size,)
@@ -154,7 +154,7 @@ class Region:
         if header.terrain_size not in expected_sizes:
             chunk.notes.append(Note("file", start, "Terrain size differs from mask layout"))
 
-        if header.add_mask & ~header.section_mask & 0xFFFF:
+        if header.addition_mask & ~header.section_mask & 0xFFFF:
             chunk.notes.append(Note("file", start, "Addition planes exist for absent sections"))
 
         if header.compressed_size < 0:

@@ -64,7 +64,7 @@ class Entry:
 class Header(S.ChunkHeader):
     @property
     def layout_size(self) -> int:
-        return (self.section_mask & 0xFFFF).bit_count() * 12288 + (self.add_mask & 0xFFFF).bit_count() * 2048 + 256
+        return (self.section_mask & 0xFFFF).bit_count() * 12288 + (self.addition_mask & 0xFFFF).bit_count() * 2048 + 256
 
 
 @dataclass

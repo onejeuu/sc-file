@@ -100,6 +100,61 @@ def _append_shape_data(
     shape_data.extend(_U32.pack(data & 0xFFFFFFFF))
 
 
+def _full_records(
+    raw: memoryview,
+    count: int,
+    container: S.ChunkRecords,
+) -> S.ChunkTileMaterials | None:
+    records: list[S.ChunkRecord] = []
+    packed = bytearray(count * _U32.size)
+    face_map = array("Q")
+    shape_data = bytearray()
+    record_types = bytearray()
+    written = 0
+
+    with MdatReader(raw.tobytes()) as reader:
+        reader.seek(4)
+        try:
+            for _ in range(count):
+                record_offset = reader.tell()
+                record, (x, y, z, main_cover) = _record(reader, raw)
+                records.append(record)
+
+                position = _pack_position(x, y, z)
+                if position is not None:
+                    _U32.pack_into(packed, written * _U32.size, (position << 16) | main_cover)
+
+                    if len(record.covers) == 7:
+                        face_offset = record_offset + _HEADER.size
+                        face_map.append((written << 32) | face_offset)
+                        _append_shape_data(
+                            shape_data,
+                            record.type,
+                            record.data,
+                            record.data_ext,
+                        )
+                        record_types.append(record.type & 0xFF)
+
+                    written += 1
+
+        except DecodingError as error:
+            container.error = str(error)
+
+        if container.error is None and reader.tell() != len(raw):
+            container.error = "Bytes remain after declared records"
+
+    container.records = tuple(records)
+    if container.error is not None or not written:
+        return None
+
+    return S.ChunkTileMaterials(
+        entries=memoryview(packed)[: written * _U32.size],
+        face_map=memoryview(face_map),
+        shape_data=memoryview(shape_data),
+        record_types=memoryview(record_types),
+    )
+
+
 def _fast_materials(
     raw: memoryview,
     count: int,
@@ -185,65 +240,10 @@ def _fast_materials(
     )
 
 
-def _full_records(
-    raw: memoryview,
-    count: int,
-    container: S.ChunkRecords,
-) -> S.ChunkTileMaterials | None:
-    records: list[S.ChunkRecord] = []
-    packed = bytearray(count * _U32.size)
-    face_map = array("Q")
-    shape_data = bytearray()
-    record_types = bytearray()
-    written = 0
-
-    with MdatReader(raw.tobytes()) as reader:
-        reader.seek(4)
-        try:
-            for _ in range(count):
-                record_offset = reader.tell()
-                record, (x, y, z, main_cover) = _record(reader, raw)
-                records.append(record)
-
-                position = _pack_position(x, y, z)
-                if position is not None:
-                    _U32.pack_into(packed, written * _U32.size, (position << 16) | main_cover)
-
-                    if len(record.covers) == 7:
-                        face_offset = record_offset + _HEADER.size
-                        face_map.append((written << 32) | face_offset)
-                        _append_shape_data(
-                            shape_data,
-                            record.type,
-                            record.data,
-                            record.data_ext,
-                        )
-                        record_types.append(record.type & 0xFF)
-
-                    written += 1
-
-        except DecodingError as error:
-            container.error = str(error)
-
-        if container.error is None and reader.tell() != len(raw):
-            container.error = "Bytes remain after declared records"
-
-    container.records = tuple(records)
-    if container.error is not None or not written:
-        return None
-
-    return S.ChunkTileMaterials(
-        entries=memoryview(packed)[: written * _U32.size],
-        face_map=memoryview(face_map),
-        shape_data=memoryview(shape_data),
-        record_types=memoryview(record_types),
-    )
-
-
 def records(
     raw: memoryview,
     *,
-    include: bool = True,
+    extended: bool = True,
 ) -> tuple[S.ChunkRecords, S.ChunkTileMaterials | None]:
     container = S.ChunkRecords(raw=raw)
 
@@ -263,7 +263,7 @@ def records(
         container.error = "Record count exceeds available data"
         return container, None
 
-    if include:
+    if extended:
         materials = _full_records(raw, count, container)
     else:
         materials = _fast_materials(raw, count, container)

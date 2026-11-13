@@ -112,5 +112,3 @@ def _object(reader: MdatReader, raw: memoryview, index: int, offset: int, versio
         obj.error = str(error)
 
     return obj
-
-

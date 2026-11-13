@@ -261,7 +261,6 @@ Core and Content
 * ``scfile.core.options``: moved to ``scfile.options``.
 * ``scfile.consts`` and ``scfile.enums``: redistributed to more specific modules.
 * ``Options.model_formats``: replaced by ``Options.targets``, a mapping of content types to output formats.
-* ``Options.full_chunk``: renamed to ``Options.extended_chunk``.
 * ``Options.on_conflict`` and ``scfile convert --on-conflict``: ``overwrite`` renamed to ``replace``.
 
 Conversion

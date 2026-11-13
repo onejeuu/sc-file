@@ -28,7 +28,7 @@ def region(rows: list[ChunkInfo]) -> Table:
             str(row.entry.sector),
             str(row.entry.sectors),
             f"{header.section_mask & 65535:04x}" if header else "",
-            f"{header.add_mask & 65535:04x}" if header else "",
+            f"{header.addition_mask & 65535:04x}" if header else "",
             str(header.compressed_size) if header else "",
             str(row.objects.compressed.size) if row.objects else "",
         )
@@ -143,5 +143,3 @@ def notes(values: list[Diagnostic]) -> Table:
             Text(str(item.path)), str(item.index), item.note.buffer, str(item.note.offset), Text(item.note.message)
         )
     return table
-
-

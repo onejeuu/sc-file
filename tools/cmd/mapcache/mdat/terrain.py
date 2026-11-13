@@ -81,7 +81,7 @@ class Terrain:
         self.header = header
         self.raw = memoryview(data)
         ys = tuple(y for y in range(16) if header.section_mask & (1 << y))
-        adds = tuple(y for y in range(16) if header.add_mask & (1 << y))
+        adds = tuple(y for y in range(16) if header.addition_mask & (1 << y))
         count = len(ys)
         self.blocks = view(self.raw, 0, count * 4096)
         self.metadata = view(self.raw, self.blocks.end, count * 2048)

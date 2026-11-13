@@ -3,14 +3,12 @@
 import os
 from collections import defaultdict
 from collections.abc import Iterable
-from dataclasses import replace
 from pathlib import Path
 from typing import NamedTuple
 
 from scfile import exceptions, formats
 from scfile.content import RegionContent
 from scfile.core import Resources
-from scfile.formats.mdat.records import records
 from scfile.options import Options
 
 from . import paths
@@ -109,16 +107,13 @@ def merge(
     encoder = formats.McaEncoder
     region = RegionContent()
     seen: set[int] = set()
-    decode_options = (
-        replace(options, mdat_materials=False) if options.mdat_materials_only else options
-    )
 
     for source in sources:
         if cancelled and cancelled():
             raise exceptions.MergeInterrupted()
 
         try:
-            with decoder(source, decode_options, resources) as mdat:
+            with decoder(source, options, resources) as mdat:
                 data = mdat.decode()
 
         except exceptions.ScFileException:
@@ -126,8 +121,6 @@ def merge(
 
         for chunk in data.chunks:
             if chunk.index not in seen:
-                if options.mdat_materials_only and chunk.records is not None:
-                    chunk.records, chunk.materials = records(chunk.records.raw, include=False)
                 region.chunks.append(chunk)
                 seen.add(chunk.index)
 

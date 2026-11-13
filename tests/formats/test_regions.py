@@ -4,11 +4,13 @@ import struct
 import zlib
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import cast
 
 import pytest
 import zstandard
 
 from scfile import Options, formats
+from scfile.options import MdatVersion
 
 
 _BLOCK_MAPPING = {
@@ -86,16 +88,56 @@ def _mdat_region(tiles: Sequence[_Tile]) -> bytes:
     return bytes(table) + header + compressed
 
 
+def _extended_mdat_region(version: int) -> bytes:
+    key_size = 8 if version == 7 else 16
+    table_size = 1024 * (8 + key_size)
+    sector = (table_size + 4095) // 4096
+    terrain = bytes(4096 + 2048 * 4 + 256)
+    record = struct.pack(">biiiBHi", 0, 0, 0, 0, 0, 1, 2)
+    terrain += struct.pack(">i", 1) + record
+    compressed = zstandard.ZstdCompressor().compress(terrain)
+    if version == 7:
+        header = struct.pack(">i8s4i", 0, b"ABCDEFGH", 1, 0, len(terrain), len(compressed))
+    else:
+        header = struct.pack(">5i", 0, 1, 0, len(terrain), len(compressed))
+    blob = header + compressed
+    if version >= 6:
+        objects = zstandard.ZstdCompressor().compress(b"\x00")
+        blob += struct.pack(">i", len(objects)) + objects
+    count = (len(blob) + 4095) // 4096
+    table = struct.pack(f">ii{key_size}s", sector, count, b"Z" * key_size)
+    table += bytes(table_size - len(table))
+    return table + bytes(sector * 4096 - table_size) + blob + bytes(count * 4096 - len(blob))
+
+
+@pytest.mark.parametrize("version", (5, 6, 7))
+def test_mdat_extended_restores_full_chunk_data(version: int) -> None:
+    source = _extended_mdat_region(version)
+    mdat_version = cast(MdatVersion, version)
+    with formats.MdatDecoder(source, Options(mdat_version=mdat_version)) as decoder:
+        chunk = decoder.decode().chunks[0]
+        assert chunk.records is not None
+        assert chunk.records.records == ()
+        assert chunk.objects is None
+
+    with formats.MdatDecoder(source, Options(mdat_version=mdat_version, mdat_extended=True)) as decoder:
+        chunk = decoder.decode().chunks[0]
+        assert chunk.records is not None
+        assert len(chunk.records.records) == 1
+        assert chunk.records.records[0].data == 2
+        assert (chunk.objects is None) is (version == 5)
+        if chunk.objects is not None:
+            assert chunk.objects.count == 0
+
+
 def _convert(
     tiles: Sequence[_Tile],
     *,
-    mdat_objects: bool = False,
     mdat_materials: bool = True,
 ) -> dict:
     source = _mdat_region(tiles)
     options = Options(
         mdat_version=5,
-        mdat_objects=mdat_objects,
         mdat_materials=mdat_materials,
         mca_mappings=_BLOCK_MAPPING,
     )
@@ -326,12 +368,10 @@ def test_mdat_to_mca_allows_collapsible_upper_cover_when_target_is_full_cube() -
     ("cover", "geometry", "expected"),
     ((3808, 0x0035B083, 83), (3826, 0x00294D6B, 37)),
 )
-@pytest.mark.parametrize("mdat_objects", (False, True))
 def test_mdat_to_mca_maps_collapsible_upper_cover_without_target_id_exceptions(
     cover: int,
     geometry: int,
     expected: int,
-    mdat_objects: bool,
 ) -> None:
     position = (3, 0, 3)
     section = _convert(
@@ -344,7 +384,6 @@ def test_mdat_to_mca_maps_collapsible_upper_cover_without_target_id_exceptions(
                 geometry=geometry,
             ),
         ),
-        mdat_objects=mdat_objects,
     )
 
     assert _state(section, position) == (expected, 0)
@@ -425,10 +464,7 @@ def test_mdat_to_mca_can_disable_material_record_application() -> None:
     assert _state(section, position) == (1, 0)
 
 
-@pytest.mark.parametrize("mdat_objects", (False, True))
-def test_mdat_to_mca_applies_same_tile_result_with_both_record_decode_modes(
-    mdat_objects: bool,
-) -> None:
+def test_mdat_to_mca_applies_tile_materials() -> None:
     position = (10, 0, 8)
     section = _convert(
         (
@@ -439,7 +475,6 @@ def test_mdat_to_mca_applies_same_tile_result_with_both_record_decode_modes(
                 faces=(0, _cover(42), _cover(35), _cover(35), 0, 0),
             ),
         ),
-        mdat_objects=mdat_objects,
     )
 
     assert _state(section, position) == (35, 0)

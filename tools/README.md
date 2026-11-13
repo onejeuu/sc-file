@@ -31,7 +31,7 @@ formats = ["mcsb", "ol"]
 relations = ["arms"]
 workers = 4
 animation = true
-extended_chunk = false
+mdat_extended = false
 stats = true
 exclude = ["path/to/file.mcsb"]
 ```
@@ -39,7 +39,7 @@ exclude = ["path/to/file.mcsb"]
 Command-line arguments override the config.
 Without command-line selectors, configured formats and relations are checked.
 `animation` controls model skeleton and clip parsing for standalone files.
-`extended_chunk` enables auxiliary world chunk data parsing.
+`mdat_extended` enables full MDAT chunk records and object parsing.
 Command-line format and relation selectors replace the configured selection.
 Found errors and warnings are written to separate JSONL reports.
 With statistics enabled, CSV files are written.

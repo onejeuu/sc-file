@@ -62,6 +62,7 @@ def test_rename_writes_a_new_output(
     )
 
     assert result == tmp_path / "animation (1).glb"
+    assert result is not None
     assert output.read_bytes() == b"existing"
     assert result.read_bytes() != b"existing"
 

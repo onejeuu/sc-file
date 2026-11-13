@@ -22,7 +22,7 @@ class Settings:
     exclude: tuple[str, ...]
     workers: int
     animation: bool
-    extended_chunk: bool
+    mdat_extended: bool
     stats: bool
 
 
@@ -43,8 +43,8 @@ def resolve(
     selected_relations: tuple[str, ...],
     workers: int | None,
     animation: bool | None,
-    extended_chunk: bool | None,
-    stats: bool | None,
+    mdat_extended: bool | None = None,
+    stats: bool | None = None,
 ) -> Settings:
     values = read()
     source = path or values.get("path")
@@ -70,6 +70,6 @@ def resolve(
         exclude=tuple(path.casefold().replace("\\", "/").lstrip("/") for path in values.get("exclude", ())),
         workers=configured_workers,
         animation=animation if animation is not None else values.get("animation", True),
-        extended_chunk=extended_chunk if extended_chunk is not None else values.get("extended_chunk", False),
+        mdat_extended=mdat_extended if mdat_extended is not None else values.get("mdat_extended", False),
         stats=stats if stats is not None else values.get("stats", False),
     )

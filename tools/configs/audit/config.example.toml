@@ -3,5 +3,5 @@ workers = 4
 
 relations = ["arms", "face", "body"]
 animation = true
-extended_chunk = false
+mdat_extended = false
 stats = true

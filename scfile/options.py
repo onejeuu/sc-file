@@ -72,8 +72,8 @@ class Options:
     mdat_materials: bool = True
     """Apply material records from MDAT chunks to world terrain."""
 
-    mdat_objects: bool = False
-    """Parse objects from MDAT chunks."""
+    mdat_extended: bool = False
+    """Parse full MDAT chunk records and object payloads."""
 
     mca_mappings: BlockMappings = None
     """Ordered block mapping layers for MCA terrain."""
@@ -106,10 +106,6 @@ class Options:
         """Return whether skeleton data is needed."""
 
         return self.skeleton or self.animation
-
-    @property
-    def mdat_materials_only(self) -> bool:
-        return self.mdat_materials and not self.mdat_objects
 
     @property
     def model_features(self) -> Features:
