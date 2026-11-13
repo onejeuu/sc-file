@@ -182,7 +182,7 @@ def _apply_external_animation(
     with decoder(src, options, resources) as dec:
         anims = dec.decode()
 
-    if decoder is formats.McalDecoder and options.mcal_filtering:
+    if decoder is formats.McalDecoder and not options.mcal_extended:
         library = anims.scene.animation
         scene = replace(anims.scene, animation=replace(library, clips=_filter_clips(library.clips)))
         anims = replace(anims, scene=scene)
@@ -226,6 +226,3 @@ def _filter_clips(clips: list[AnimationClip]) -> list[AnimationClip]:
         filtered.setdefault(key.digest(), clip)
 
     return list(filtered.values())
-
-
-

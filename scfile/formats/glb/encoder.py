@@ -284,7 +284,7 @@ class GlbEncoder(ModelEncoder):
                 )
 
             static = [_constant_channel(values) for _, _, values in bone_tracks]
-            compact = self.options.mcal_filtering and any(static) and not all(static)
+            compact = not self.options.mcal_extended and any(static) and not all(static)
             if compact:
                 times.append(times[0][:1])
 

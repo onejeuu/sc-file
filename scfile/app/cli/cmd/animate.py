@@ -111,7 +111,7 @@ def face(
 @click.option(
     "--raw",
     is_flag=True,
-    help="Keep technical animation clips.",
+    help="Keep all technical and duplicate animation clips.",
 )
 def body(
     animation: types.SourcePath,
@@ -121,6 +121,6 @@ def body(
 ) -> None:
     """Apply skeletal animation to a model."""
 
-    _execute(convert.animate.body, animation, (model,), output, Options(mcal_filtering=not raw))
+    _execute(convert.animate.body, animation, (model,), output, Options(mcal_extended=raw))
 
 

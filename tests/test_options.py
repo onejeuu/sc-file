@@ -11,7 +11,7 @@ def test_block_mapping_alias_is_raw_string_dict() -> None:
 
 
 def test_animation() -> None:
-    assert Options().mcal_filtering
+    assert not Options().mcal_extended
     assert Options(animation=True).skeleton_enabled
     assert Options(animation=True).model_features == (Feature.SKELETON, Feature.ANIMATION)
 

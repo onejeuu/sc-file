@@ -240,11 +240,11 @@ class BodyForm(AnimationForm):
             suffix=".mcsb",
             error="tooltip.animate.invalid.mcsb",
         )
-        self.mcal_filtering = OptionWidget(
-            strings.get("option.animate.body.preserve"),
-            strings.get("option.animate.body.preserve.hint"),
+        self.mcal_extended = OptionWidget(
+            strings.get("option.animate.body.extended"),
+            strings.get("option.animate.body.extended.hint"),
         )
-        self.options.addWidget(self.mcal_filtering)
+        self.options.addWidget(self.mcal_extended)
         self.options_widget.show()
 
     def create_task(self, output: Path) -> AnimateTask:
@@ -253,7 +253,7 @@ class BodyForm(AnimationForm):
             source=self.source_path,
             models=(self.model_path,),
             output=output,
-            options=Options(mcal_filtering=self.mcal_filtering.checked),
+            options=Options(mcal_extended=self.mcal_extended.checked),
         )
 
 

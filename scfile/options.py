@@ -60,8 +60,8 @@ class Options:
     ol_max_mipmaps: int | None = None
     """Maximum texture mipmaps to decode. Use zero to parse header metadata only."""
 
-    mcal_filtering: bool = True
-    """Filter technical and duplicate clips from MCAL animations."""
+    mcal_extended: bool = False
+    """Keep technical and duplicate clips from MCAL animations."""
 
     mdat_version: MdatVersion | None = None
     """Major version of the MDAT source format."""

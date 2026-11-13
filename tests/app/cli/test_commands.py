@@ -147,7 +147,7 @@ def test_face_and_body_options(
     assert body.exit_code == 0
     assert tasks[0].operation is animate_module.convert.animate.face
     assert tasks[1].operation is animate_module.convert.animate.body
-    assert not tasks[1].options.mcal_filtering
+    assert tasks[1].options.mcal_extended
 
 
 def test_animate_failure(
