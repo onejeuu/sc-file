@@ -20,7 +20,7 @@
 
 .. Repository Files
 .. _Alpha Mode: https://github.com/onejeuu/sc-file/blob/master/assets/images/alphapvp.png
-.. _Block Mapping: https://github.com/onejeuu/sc-file/tree/master/scfile/formats/mca/mappings
+.. _Block Mappings: https://github.com/onejeuu/sc-file/tree/master/scfile/formats/mca/mappings
 .. _Audit Mappings: https://github.com/onejeuu/sc-file/tree/master/tools/assets/audit
 .. _Arms Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.arms.json
 .. _Face Mappings: https://github.com/onejeuu/sc-file/blob/master/tools/assets/audit/animate.face.json
@@ -85,14 +85,14 @@
 
 .. Map Cache
 .. _Coordinate Calculator: https://mclist.io/tools/minecraft-coordinate-calculator
-.. _Map Cache Resource Packs: https://www.mediafire.com/folder/ra6iiu7oc7gtx
+.. _MapCache ResourcePack: https://www.mediafire.com/folder/ra6iiu7oc7gtx
+.. _TexturePack Version Converter: https://www.convertmcpack.net
 
 .. Mods
 .. _Fabric: https://fabricmc.net/use/installer/
 .. _Fabric API: https://modrinth.com/mod/fabric-api
 .. _Voxy: https://modrinth.com/mod/voxy
 .. _C2ME: https://modrinth.com/mod/c2me-fabric
-.. _Axiom: https://modrinth.com/mod/axiom
 
 .. Contacts
 .. _TG: https://onejeuu.t.me

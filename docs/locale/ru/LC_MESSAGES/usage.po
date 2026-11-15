@@ -34,9 +34,6 @@ msgstr ""
 "Поддерживаемые файлы будут преобразованы в стандартные форматы и "
 "сохранены рядом с исходным файлом."
 
-msgid "This is equivalent to passing dropped paths to ``scfile.exe``."
-msgstr "Это равнозначно передаче перетащенных путей в ``scfile.exe``."
-
 msgid "🖱️ **Open With**"
 msgstr "🖱️ **Открыть с помощью**"
 
@@ -53,9 +50,8 @@ msgid ""
 "To set up: right-click a file → **Open With** → choose ``scfile.exe`` and"
 " check **Always use this app**."
 msgstr ""
-"Чтобы настроить: щелкните правой кнопкой мыши на файл → **Открыть с "
-"помощью** → выберите ``scfile.exe`` и отметьте **Всегда использовать это "
-"приложение**."
+"Чтобы настроить: щелкните правой кнопкой мыши на файл → **Открыть с помощью** → выберите ``scfile.exe`` и"
+" отметьте **Всегда использовать это приложение**."
 
 msgid "📟 **Command Line**"
 msgstr "📟 **Командная строка**"
@@ -94,7 +90,9 @@ msgstr "Доступные команды: ``convert``, ``animate``, ``mapcache`
 msgid ""
 "When paths are supplied without a command, the CLI selects one from their"
 " names and formats."
-msgstr "Когда пути предоставлены без команды, CLI выбирает одну из них по имени и формату."
+msgstr ""
+"Когда пути предоставлены без команды, CLI выбирает одну из них по имени и"
+" формату."
 
 msgid "Show the program version and exit."
 msgstr "Показать версию программы и выйти."
@@ -115,7 +113,9 @@ msgstr ":doc:`Руководство по использованию → <conver
 msgid ""
 "One or more files or directories. Accepts absolute and relative paths. "
 "Only supported files are processed."
-msgstr "Один или несколько файлов или каталогов. Принимает абсолютно и относительные пути. Только поддерживаемые файлы обрабатываются."
+msgstr ""
+"Один или несколько файлов или каталогов. Принимает абсолютно и относительные пути. "
+"Только поддерживаемые файлы обрабатываются."
 
 msgid ""
 "Output directory for converted files. If not specified, output files are "
@@ -164,9 +164,7 @@ msgid "``skip``: Keep existing file."
 msgstr "``skip``: Оставить существующий файл."
 
 msgid "``rename``: Add numeric suffix: ``model (1).obj``, ``model (2).obj``."
-msgstr ""
-"``rename``: Добавить числовой суффикс: ``model (1).obj``, ``model "
-"(2).obj``."
+msgstr "``rename``: Добавить числовой суффикс: ``model (1).obj``, ``model (2).obj``."
 
 msgid "Output layout inside ``--output``. Defaults to ``rooted``."
 msgstr "Структура внутри ``--output``. По умолчанию: ``rooted``."
@@ -195,8 +193,10 @@ msgid ""
 "GLB file or directory. Without it, the GLB is saved next to the animation"
 " source."
 msgstr ""
-"Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и экспортирует ``.glb`` файл. "
-"Каждая подкоманда принимает ``-O, --output`` для GLB файла или директории. Без него GLB сохраняется рядом с исходным файлом анимации."
+"Применяет внешние данные анимации к одному или нескольким ``.mcsb`` моделям и"
+" экспортирует ``.glb`` файл. Каждая подкоманда принимает ``-O, --output`` для"
+" GLB файла или директории. Без него GLB сохраняется рядом с исходным файлом"
+" анимации."
 
 msgid ":doc:`Usage guide → <animate>`"
 msgstr ":doc:`Руководство по использованию → <animate>`"
@@ -204,7 +204,9 @@ msgstr ":doc:`Руководство по использованию → <animat
 msgid ""
 "Apply a first-person ``.mcvd`` animation to a weapon ``.mcsb`` model. Add"
 " an optional hands model."
-msgstr "Применить ``.mcvd`` анимацию от первого лица к ``.mcsb`` оружию. Опционально добавьте модель рук."
+msgstr ""
+"Применить ``.mcvd`` анимацию от первого лица к ``.mcsb`` оружию. Опционально добавьте"
+" модель рук."
 
 msgid "Apply a facial ``.mcvd`` animation to a head ``.mcsb`` model."
 msgstr "Применить ``.mcvd`` лицевую анимацию к ``.mcsb`` голове."
@@ -343,224 +345,312 @@ msgstr ""
 "Формат и практические рабочие процессы еще не полностью изучены. "
 "Сообщайте о проблемах или идеях для улучшения в `Issues`_."
 
-msgid "⛰️ Map cache"
-msgstr "⛰️ Кэш карты"
+msgid ":ref:`mapcache <cli-mapcache>` merges ``.mdat`` cache files into Minecraft ``.mca`` region files."
+msgstr ":ref:`mapcache <cli-mapcache>` объединяет файлы кэша ``.mdat`` в файлы регионов Minecraft ``.mca``."
 
-msgid ":ref:`mapcache <cli-mapcache>` merges ``.mdat`` region fragments into ``.mca`` files."
-msgstr ":ref:`mapcache <cli-mapcache>` объединяет фрагменты регионов ``.mdat`` в файлы ``.mca``."
+msgid "Cache files are named ``reg.<x>.<z>.mdat`` and are stored under ``stalcraft/map_cache/<version>``."
+msgstr "Файлы кэша называются ``reg.<x>.<z>.mdat`` и хранятся в ``stalcraft/map_cache/<version>``."
 
-msgid "Regions located in ``stalcraft/map_cache/7.0``."
-msgstr "Регионы находятся в ``stalcraft/map_cache/7.0``."
+msgid "Output files are named ``r.<x>.<z>.mca``."
+msgstr "Выходные файлы называются ``r.<x>.<z>.mca``."
 
-msgid "Export groups fragments by coordinates ``x`` and ``z`` in filenames."
-msgstr "Экспорт группирует фрагменты по координатам ``x`` и ``z`` в именах файлов."
+msgid "Supported versions"
+msgstr "Поддерживаемые версии"
 
-msgid "Map cache region files named ``reg.<x>.<z>.mdat``."
-msgstr "Файлы кэша карты названы ``reg.<x>.<z>.mdat``."
+msgid "``5``, ``6``, ``7``."
+msgstr "``5``, ``6``, ``7``."
 
-msgid "Minecraft Anvil region files named ``r.<x>.<z>.mca``."
-msgstr "Файлы Minecraft Anvil названы ``r.<x>.<z>.mca``."
+msgid "Format"
+msgstr "Формат"
 
-msgid "What is exported"
-msgstr "Что экспортируется"
+msgid "Minecraft Java ``1.12.2`` (Anvil ``1343``)."
+msgstr "Minecraft Java ``1.12.2`` (Anvil ``1343``)."
 
-msgid "**Format:** Minecraft Java ``1.12.2+`` (Anvil_ ``1343``)."
-msgstr "**Формат:** Minecraft Java ``1.12.2+`` (Anvil_ ``1343``)."
+msgid "Exported"
+msgstr "Экспортируется"
 
-msgid "**Exported:** Terrain block arrays and biomes."
-msgstr "**Экспортируется:** Массивы блоков и биомы."
+msgid "Terrain block IDs, metadata, and optional biomes."
+msgstr "Блоки ландшафта, их метаданные и биомы (опционально)."
 
-msgid "**Not exported:** Models, block states, lighting, entities."
-msgstr "**Не экспортируется:** Модели, состояния блоков, освещение, сущности."
+msgid "NOT Exported"
+msgstr "НЕ экспортируется"
 
-msgid ""
-"Block IDs differ from Minecraft. By default, the `Block Mapping`_ "
-"replaces selected IDs with approximate Minecraft blocks."
-msgstr ""
-"Идентификаторы блоков различаются от Minecraft. По умолчанию, `Block Mapping`_ "
-"заменяет выбранные идентификаторы на приближённые блоки Minecraft."
+msgid "Custom 3D models, entities, original block geometry, or game lighting."
+msgstr "3D модели, сущности, нестандартная геометрия и освещение."
 
-msgid "Prepare a world"
-msgstr "Подготовка мира"
+msgid "Block mappings define how Stalcraft block IDs are represented in Minecraft."
+msgstr "Сопоставления блоков определяют, как блоки Stalcraft представлены в Minecraft."
 
 msgid ""
-"Create new local world for export. "
-"For map preview, use a superflat world without structures or blocks. "
-"Leave the world after creating it."
+"Stalcraft contains custom shapes, ProBuilder geometry, and materials without Minecraft equivalents. "
+"Recognizable shapes such as fences and ladders are matched where possible. "
+"Other blocks are represented by blocks with a similar material appearance. "
+"This avoids dependencies on specific mod loaders and mod sets."
 msgstr ""
-"Создайте новый локальный мир для экспорта. "
-"Для просмотра карты подойдёт плоский мир без структур и блоков. "
-"Выйдите из мира после его создания."
+"В Stalcraft есть кастомные формы, геометрия ProBuilder и материалы, которым нет аналогов в Minecraft. "
+"Узнаваемые формы, например заборы и лестницы, по возможности заменяются подходящими блоками. "
+"Остальные блоки получают похожий внешний вид по основному материалу. "
+"Это позволяет избежать зависимости от конкретных загрузчиков и наборов модов."
 
-msgid "Location of the ``region`` directory:"
-msgstr "Расположение папки ``region``:"
+msgid "Builtin mappings"
+msgstr "Встроенные сопоставления"
 
-msgid "You can clear existing ``.mca`` files from this directory."
-msgstr "При необходимости очистите эту папку от существующих файлов ``.mca``."
+msgid "Uses blocks to visually or semantically similar Minecraft blocks."
+msgstr "Использует блоки Minecraft со схожим внешним видом или назначением."
+
+msgid "Uses blocks froms `MapCache ResourcePack`_."
+msgstr "Использует блоки из `MapCache ResourcePack`_."
+
+msgid "Preserves original block IDs. Useful for debugging and custom mappings."
+msgstr "Сохраняет исходные айди блоков. Полезно для отладки и кастомных сопоставлений."
 
 msgid ""
-"By default, existing region file is backed up as ``.mca.bck`` before replacement (existing backups are kept). "
-"Use ``--no-backup`` to replace without backups."
+"Builtin mappings can be viewed in the `Block Mappings`_ source directory. "
+"Unmapped IDs are exported as air (``0``)."
 msgstr ""
-"По умолчанию перед заменой существующий файл региона сохраняется как ``.mca.bck`` (бэкапы не перезаписываются). "
-"Используйте ``--no-backup``, чтобы заменять регионы без создания бэкапов."
+"Встроенные сопоставления находятся в каталоге исходников `Block Mappings`_. "
+"Несопоставленные идентификаторы превращаются в воздух (``0``)."
+
+msgid "Custom mappings let you define your own block replacements in JSON."
+msgstr "Пользовательские сопоставления позволяют задать свои замены блоков в формате JSON."
+
+msgid "``\"35\": \"35\"``"
+msgstr "``\"35\": \"35\"``"
+
+msgid "Uses Minecraft block ``35`` and keeps original metadata."
+msgstr "Использует блок Minecraft ``35`` и сохраняет его исходные метаданные."
+
+msgid "``\"3500\": \"1:5\"``"
+msgstr "``\"3500\": \"1:5\"``"
+
+msgid "Uses Minecraft block ``1`` with metadata ``5``."
+msgstr "Использует блок Minecraft ``1`` с метаданными ``5``."
+
+msgid "``\"2403\": \"85:0!\"``"
+msgstr "``\"2403\": \"85:0!\"``"
+
+msgid "Uses Minecraft block ``85`` with metadata ``0``."
+msgstr "Использует блок Minecraft ``85`` с метаданными ``0``."
+
+msgid "Symbol ``!`` prevents non air tile material overrides."
+msgstr "Символ ``!`` запрещает заменять блок материалами тайлов, если они не соответствуют воздуху."
+
+msgid "``\"1529\": \"0\"``"
+msgstr "``\"1529\": \"0\"``"
+
+msgid "Replaces block with air."
+msgstr "Заменяет блок воздухом."
+
+msgid ""
+"Source and target IDs can range from ``0`` to ``4095``. "
+"Target metadata ranges from ``0`` to ``15``. "
+"Mapping keys are only block IDs without metadata."
+msgstr ""
+"Исходные и целевые идентификаторы могут быть от ``0`` до ``4095``. "
+"Целевые метаданные от ``0`` до ``15``. "
+"Ключи сопоставления содержат только идентификаторы блоков без метаданных."
+
+msgid "Mapping Editor"
+msgstr "Редактор сопоставлений"
+
+msgid "Custom mappings can also be created and edited visually using Mapping Editor."
+msgstr "Пользовательские сопоставления также можно создавать и визуально редактировать с помощью редактора сопоставлений."
+
+msgid "Download source repository, install `astral-sh/uv <UV_>`_, and configure required paths in the config file or command line options."
+msgstr "Скачайте репозиторий с исходным кодом, установите `astral-sh/uv <UV_>`_ и укажите необходимые пути в файле конфигурации или параметрах командной строки."
+
+msgid ""
+"Each ``--blocks`` adds a mapping layer. "
+"It accepts a builtin mapping, a JSON file, or inline string. "
+"Multiple layers can be combined, including several JSON files."
+msgstr ""
+"Каждый параметр ``--blocks`` добавляет слой сопоставления. "
+"В нём можно указать встроенное сопоставление, JSON-файл или JSON-строку. "
+"Слои можно комбинировать, в том числе подключать несколько JSON-файлов."
+
+msgid ":ref:`Full command options → <cli-mapcache>`"
+msgstr ":ref:`Все параметры команды → <cli-mapcache>`"
+
+msgid ""
+"ProBuilder material IDs are stored separately from block IDs. "
+"Tile material IDs use the same mappings and can override block mappings."
+msgstr ""
+"Идентификаторы материалов ProBuilder хранятся отдельно от идентификаторов блоков. "
+"Идентификаторы материалов тайлов используют те же сопоставления и могут переопределять сопоставление блоков."
+
+msgid "Enabled by default. Use ``--no-tiles`` to disable."
+msgstr "Материалы включены по умолчанию. Используйте ``--no-tiles``, чтобы отключить их."
+
+msgid "Prepare Minecraft world"
+msgstr "Подготовка мира Minecraft"
+
+msgid "Create a new Minecraft world."
+msgstr "Создайте новый мир Minecraft."
+
+msgid "Superflat world without structures and ``Void`` preset is recommended."
+msgstr "Рекомендуется плоский мир без структур и пресетом ``Void``."
+
+msgid "Region directory"
+msgstr "Папка регионов"
+
+msgid "Existing ``.mca`` files can be cleared before export."
+msgstr "Перед экспортом существующие файлы ``.mca`` можно удалить."
+
+msgid "Existing region files are backed up as ``.mca.bck`` by default. "
+msgstr "По умолчанию существующие файлы регионов сохраняются как ``.mca.bck``. "
+
+msgid "Используйте ``--no-backup``, чтобы отключить это."
+msgstr "Use ``--no-backup`` to disable."
+
+msgid "Convert cache files"
+msgstr "Конвертация файлов кэша"
 
 msgid "Always leave the world before replacing its regions."
-msgstr "Всегда выходите из мира перед заменой его регионов."
-
-msgid "Minecraft can overwrite changed files with its cached chunks."
-msgstr "Майнкрафт может перезаписать измененные файлы своими кэшированными чанками."
-
-msgid "Convert the cache"
-msgstr "Конвертация кэша"
-
-msgid "Choose one of the following methods."
-msgstr "Выберите один из способов."
-
-msgid "Graphical interface"
-msgstr "Графический интерфейс"
-
-msgid ""
-"In graphical interface, select map cache directory and target world. "
-"Paths resolver changes selected world directory to its ``region`` directory automatically (if enabled)."
-msgstr ""
-"В интерфейсе выберите каталог кэша и нужный мир. "
-"Исправление путей изменит выбранную папку мира на директорию ``region`` автоматически (если включено)."
-
-msgid "Command line"
-msgstr "Командная строка"
-
-msgid ":ref:`Other options → <cli-mapcache>`"
-msgstr ":ref:`Остальные параметры → <cli-mapcache>`"
-
-msgid "Find the exported regions"
-msgstr "Поиск экспортированных регионов"
+msgstr "Перед заменой регионов всегда выходите из мира."
 
 msgid "One ``r.<x>.<z>.mca`` file covers ``32 × 32`` chunks, or ``512 × 512`` blocks."
-msgstr "Один файл ``r.<x>.<z>.mca`` охватывает ``32 × 32`` чанка, или же ``512 × 512`` блоков."
+msgstr "Один файл ``r.<x>.<z>.mca`` содержит ``32 × 32`` чанка, то есть ``512 × 512`` блоков."
 
-msgid "For example ``r.4.2.mca`` coordinates"
-msgstr "Для примера координаты ``r.4.2.mca``"
+msgid "For example, ``r.4.2.mca`` coordinates"
+msgstr "Например, координаты для ``r.4.2.mca``"
 
 msgid "Use the `Coordinate Calculator`_ if necessary."
-msgstr "Используйте `Coordinate Calculator`_ при необходимости."
+msgstr "При необходимости используйте `Coordinate Calculator`_."
 
-msgid "Viewing setup"
-msgstr "Настройка игры"
+msgid "Minecraft setup"
+msgstr "Настройка Minecraft"
 
 msgid "Resourcepack"
 msgstr "Ресурспак"
 
-msgid ""
-"Download the `Map Cache Resource Packs`_. "
-"Original pack targets Minecraft ``1.6.4``. "
-"Updated variants are available for newer versions."
-msgstr ""
-"Скачайте `Map Cache Resource Packs`_. "
-"Оригинальный пак создан под Minecraft ``1.6.4``. "
-"Обновленные варианты доступны для более новых версий."
+msgid "Select ``resourcepack`` mapping and download `MapCache ResourcePack`_."
+msgstr "Выберите сопоставление ``resourcepack`` и скачайте `MapCache ResourcePack`_."
+
+msgid "For other versions, convert the pack with `TexturePack Version Converter`_ or another tool."
+msgstr "Для других версий конвертируйте ресурспак с помощью `TexturePack Version Converter`_ или другой программы."
 
 msgid "Mods"
 msgstr "Моды"
 
-msgid "The following Fabric setup is useful for viewing an exported world:"
-msgstr "Следующие Fabric моды полезны для просмотра экспортированного мира:"
+msgid ""
+"Use `Fabric`_ with `Fabric API`_, `Voxy`_ for distant rendering, and `C2ME`_ for chunk loading optimisation. "
+"Optional performance mods include Sodium, Lithium, and others."
+msgstr ""
+"Используйте `Fabric`_ и `Fabric API`_, `Voxy`_ для отрисовки удалённых участков и `C2ME`_ для ускорения загрузки чанков. "
+"При желании добавьте Sodium, Lithium и другие моды для оптимизации."
 
-msgid "Fabric_ and `Fabric API`_ mods loader."
-msgstr "Fabric_ и `Fabric API`_ загрузчик модов."
+msgid ""
+"Use the game installation when you want a complete map. "
+"Map assets are stored under ``assets/pda/<map>`` and may also be present in ``_localized`` or ``patchassets`` folders."
+msgstr ""
+"Используйте папку игры, если нужна карта целиком. "
+"Ассеты карты находятся в ``assets/pda/<map>`` и могут также быть в папках ``_localized`` или ``patchassets``."
 
-msgid "Voxy_ for distant terrain rendering."
-msgstr "Voxy_ для максимальной прогрузки чанков."
+msgid "By default ``--region`` uses system language."
+msgstr "Если ``--region`` не указан, используется язык системы."
 
-msgid "C2ME_ for chunk loading optimisation."
-msgstr "C2ME_ для оптимизации загрузки чанков."
+msgid ":ref:`Full command options → <cli-maptiles>`"
+msgstr ":ref:`Все параметры команды → <cli-maptiles>`"
 
-msgid "Axiom_ for map editing."
-msgstr "Axiom_ для редактирования карты."
+msgid "Folder of tiles"
+msgstr "Папка с тайлами"
 
-msgid "Optionally other optimisation mods (like Sodium, Lithium, etc)."
-msgstr "Опционально другие моды оптимизации (например, Sodium, Lithium и т.д.)."
+msgid "Use flat folder with all ``.ol`` tiles needed."
+msgstr "Укажите папку со всеми нужными тайлами ``.ol``."
+
+msgid "Tile folder"
+msgstr "Папка с тайлами"
+
+msgid "Output format"
+msgstr "Формат результата"
+
+msgid "**JPEG (default)**"
+msgstr "**JPEG (по умолчанию)**"
+
+msgid ""
+"``.jpg`` or ``.jpeg``. Lossy compression. Quality ranges from ``0`` to ``100`` "
+"(default ``92``). Higher values retain more detail but increase file size."
+msgstr ""
+"``.jpg`` или ``.jpeg``. Сжатие с потерями. Качество от ``0`` до ``100`` "
+"(по умолчанию ``92``). Чем выше качество, тем больше деталей сохраняется и тем больше файл."
+
+msgid "**PNG**"
+msgstr "**PNG**"
+
+msgid ""
+"``.png``. Lossless. Compression ranges from ``0`` to ``9`` (default ``6``). "
+"Higher compression takes longer and can reduce file size without changing image quality."
+msgstr ""
+"``.png``. Сжатие без потерь от ``0`` до ``9`` (по умолчанию ``6``). "
+"Более сильное сжатие занимает больше времени и уменьшает размер файла без изменения качества изображения."
+
+msgid "Tile handling"
+msgstr "Обработка тайлов"
+
+msgid ""
+"Tiles with the same proportions can have different pixel resolutions. "
+"Larger tiles are scaled down to the resolution of the smallest one. "
+"Tiles with different aspect ratios cannot be combined."
+msgstr ""
+"Тайлы с одинаковым соотношением сторон могут иметь разное разрешение. "
+"Крупные тайлы уменьшаются до разрешения самого маленького. "
+"Тайлы с разным соотношением сторон объединить нельзя."
+
+msgid "Files smaller than ``7 KB`` are skipped because they are generally obsolete map tiles."
+msgstr "Файлы меньше ``7 КБ`` пропускаются: обычно это устаревшие тайлы карты."
+
+msgid ""
+"The full map is assembled in memory before it is saved. "
+"Large exports can use more than ``1 GB`` of RAM."
+msgstr ""
+"Вся карта собирается в памяти перед сохранением. "
+"Для экспорта больших карт может потребоваться больше ``1 ГБ`` ОЗУ."
+
+msgid ""
+":ref:`maptiles <cli-maptiles>` combines map tiles into a single image. "
+"Tiles are placed by the coordinates in their filenames, ``r.<x>.<z>.ol``."
+msgstr ""
+":ref:`maptiles <cli-maptiles>` собирает тайлы карты в одно изображение. "
+"Тайлы располагаются по координатам в именах файлов ``r.<x>.<z>.ol``."
+
+msgid "⛰️ Map cache"
+msgstr "⛰️ Кэш карты"
+
+msgid "Block mappings"
+msgstr "Сопоставление блоков"
+
+msgid "``vanilla`` (default)"
+msgstr "``vanilla`` (по умолчанию)"
+
+msgid "``resourcepack``"
+msgstr "``resourcepack``"
+
+msgid "``identity``"
+msgstr "``identity``"
+
+msgid "Custom mappings"
+msgstr "Пользовательские сопоставления"
+
+msgid "custom.json"
+msgstr "custom.json"
+
+msgid "Mapping layers"
+msgstr "Слои сопоставлений"
+
+msgid "Tile materials"
+msgstr "Материалы тайлов"
+
+msgid "Find exported regions"
+msgstr "Поиск экспортированных регионов"
 
 msgid "🗺️ 2D Map"
 msgstr "🗺️ 2D карта"
 
-msgid ":ref:`maptiles <cli-maptiles>` assembles flat ``r.<x>.<z>.ol`` tiles into one image."
-msgstr ":ref:`maptiles <cli-maptiles>` собирает плоские тайлы ``r.<x>.<z>.ol`` в одно изображение."
+msgid "Sources"
+msgstr "Источники"
 
-msgid "The result is a 2D map at the scale of the source tiles."
-msgstr "В результате получается 2D карта в масштабе исходных тайлов."
-
-msgid "Source"
-msgstr "Исходник"
-
-msgid "Flat folder"
-msgstr "Папка с тайлами"
-
-msgid ""
-"Specify a folder with map tiles directly inside it. "
-"Use this mode when the tiles were copied from the game beforehand."
-msgstr ""
-"Укажите папку, где тайлы лежат непосредственно в ней. "
-"Этот вариант подходит для заранее скопированных файлов."
-
-msgid "Game folder"
+msgid "Game installation"
 msgstr "Папка игры"
-
-msgid ""
-"Specify the game assets to choose a region and map. "
-"Map tiles from all asset layers are combined in the order the game loads them."
-msgstr ""
-"Укажите папку ассетов игры, чтобы выбрать регион и карту. "
-"Тайлы карты из всех слоёв ассетов объединяются в порядке их загрузки игрой."
-
-msgid "Some single map tiles can be partially located in ``_localized/pda/map``."
-msgstr "Некоторые тайлы одной карты могут частично находиться в ``_localized/pda/map``."
-
-msgid "Image format"
-msgstr "Формат изображения"
-
-msgid ""
-"JPEG is default output format: "
-"its smaller file size and faster encoding matter most for baseline use, "
-"at the cost of lossy compression."
-msgstr ""
-"JPEG используется по умолчанию: "
-"его меньший размер файла и быстрое кодирование важнее для базового использования, "
-"но ценой сжатия с потерями."
-
-msgid "Default quality is ``92``."
-msgstr "Качество по умолчанию: ``92``."
-
-msgid ""
-"PNG is lossless alternative: "
-"every pixel is preserved, but files are much larger."
-msgstr ""
-"PNG это альтернатива без потерь: "
-"каждый пиксель сохраняется, но файлы получаются значительно больше."
-
-msgid "Default compression level is ``6``."
-msgstr "Сжатие по умолчанию: ``6``."
-
-msgid "Higher levels can take substantially longer."
-msgstr "Высокий уровень сжатия может занять значительно больше времени."
-
-msgid "Limits"
-msgstr "Ограничения"
-
-msgid "Files smaller than ``7 KB`` are ignored to exclude obsolete game tiles."
-msgstr "Файлы меньше ``7 КБ`` игнорируются, чтобы исключить пустые игровые тайлы."
-
-msgid "Tiles with the same aspect ratio may have different resolutions. Larger tiles are reduced to the smallest size. A different aspect ratio stops the export."
-msgstr "Тайлы с одинаковым соотношением сторон могут иметь разное разрешение. Крупные тайлы уменьшаются до наименьшего размера. При другом соотношении сторон экспорт завершается с ошибкой."
-
-msgid "The assembled RGB image is held in memory before writing. Large maps need substantial free RAM, often over ``1 GB`` with temporary images and encoding."
-msgstr "Собранное RGB изображение хранится в памяти до записи. Для больших карт нужно много свободной ОЗУ, часто больше ``1 ГБ``, с учётом временных изображений и кодирования."
-
-msgid ":ref:`Other options → <cli-maptiles>`"
-msgstr ":ref:`Остальные параметры → <cli-maptiles>`"
-
-msgid ":doc:`Usage guide → <maptiles>`"
-msgstr ":doc:`Руководство по использованию → <maptiles>`"
 
 msgid "🔄 Converter"
 msgstr "🔄 Конвертер"
@@ -585,9 +675,6 @@ msgstr "Тип"
 
 msgid "Sources"
 msgstr "Исходники"
-
-msgid "Result"
-msgstr "Результат"
 
 msgid "🧊 Model"
 msgstr "🧊 Модель"
@@ -630,9 +717,6 @@ msgstr "Скелет создан под игровой движок, поэто
 
 msgid "Embedded animations are quite rare. They are usually found in animated decorations (e.g. doors) or mobs (e.g. mutants). Almost all animations related to the player or NPCs require several linked files. Use :doc:`Animation <animate>` for these tasks."
 msgstr "Встроенные анимации встречаются довольно редко. Обычно это относится к анимированному декору (например двери) или мобам (мутантам). Практически все анимации связанные игроком или npc требуют несколько связанных файлов. Для таких задач используйте раздел :doc:`Анимации <animate>`."
-
-msgid "Save path"
-msgstr "Путь сохранения"
 
 msgid "Without a save path, each exported file is saved next to its source file."
 msgstr "Без указания пути сохранения, каждый экспортированный файл сохраняется рядом с исходным файлом."
@@ -716,9 +800,6 @@ msgstr ""
 msgid "``.mcsa``, ``.mcsb``, ``.mcvd``, ``.efkmodel``"
 msgstr ""
 
-msgid "``.obj``, ``.glb``, ``.fbx``"
-msgstr ""
-
 msgid "``.ol``"
 msgstr ""
 
@@ -741,9 +822,6 @@ msgid "``.mdat``"
 msgstr ""
 
 msgid "``.mca``"
-msgstr ""
-
-msgid "``.map`` (launcher), ``itemnames.dat``, ``common``, ``prefs``,"
 msgstr ""
 
 msgid "``.json``"
@@ -795,9 +873,6 @@ msgid "``-v, --verbose``"
 msgstr ""
 
 msgid "``relative``"
-msgstr ""
-
-msgid "``rooted``"
 msgstr ""
 
 msgid "animate"

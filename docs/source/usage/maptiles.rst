@@ -3,75 +3,83 @@
 
 .. include:: ../_links.rst
 
+:ref:`maptiles <cli-maptiles>` combines map tiles into a single image.
+Tiles are placed by the coordinates in their filenames, ``r.<x>.<z>.ol``.
 
-| :ref:`maptiles <cli-maptiles>` assembles flat ``r.<x>.<z>.ol`` tiles into one image.
-| The result is a 2D map at the scale of the source tiles.
 
-
-----------------------------------------
-Source
+Sources
 ----------------------------------------
 
-Flat folder
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Game installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Specify a folder with map tiles directly inside it.
-Use this mode when the tiles were copied from the game beforehand.
+Use the game installation when you want a complete map.
+Map assets are stored under ``assets/pda/<map>``
+and may also be present in ``_localized`` or ``patchassets`` folders.
 
-Game folder
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By default ``--region`` uses system language.
 
-Specify the game assets to choose a region and map.
-Map tiles from all asset layers are combined in the order the game loads them.
+.. code-block:: console
+   :caption: Game installation
 
-.. important::
-    Some single map tiles can be partially located in ``_localized/pda/map``.
+   scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" "global_map" "D:/maps/global.jpg" --region "ru"
 
-
-----------------------------------------
-Image format
-----------------------------------------
-
-JPEG
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-JPEG is default output format:
-its smaller file size and faster encoding matter most for baseline use,
-at the cost of lossy compression.
-
-Default quality is ``92``.
-
-PNG
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-PNG is lossless alternative:
-every pixel is preserved, but files are much larger.
-
-| Default compression level is ``6``.
-| Higher levels can take substantially longer.
+:ref:`Full command options → <cli-maptiles>`
 
 
-----------------------------------------
-Limits
+Folder of tiles
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use flat folder with all ``.ol`` tiles needed.
+
+.. code-block:: text
+   :caption: Tile folder
+
+   tiles/
+   ├── r.0.0.ol
+   ├── r.0.1.ol
+   └── r.1.0.ol
+
+.. code-block:: console
+   :caption: Folder of tiles
+
+   scfile maptiles "D:/tiles" "D:/maps/area.png"
+
+:ref:`Full command options → <cli-maptiles>`
+
+
+Output format
 ----------------------------------------
 
-Files smaller than ``7 KB`` are ignored to exclude obsolete game tiles.
+**JPEG (default)**
 
-Tiles with the same aspect ratio may have different resolutions.
-Larger tiles are reduced to the smallest size.
-A different aspect ratio stops the export.
+``.jpg`` or ``.jpeg``. Lossy compression. Quality ranges from ``0`` to ``100``
+(default ``92``). Higher values retain more detail but increase file size.
 
-The assembled RGB image is held in memory before writing.
-Large maps need substantial free RAM, often over ``1 GB`` with temporary images and encoding.
+**PNG**
 
-
-----------------------------------------
-Command line
-----------------------------------------
+``.png``. Lossless. Compression ranges from ``0`` to ``9`` (default ``6``).
+Higher compression takes longer and can reduce file size without changing
+image quality.
 
 .. code-block:: console
 
-   scfile maptiles "D:/tiles" "D:/exports/zone.jpg" --jpeg-quality 95
-   scfile maptiles "C:/Steam/steamapps/common/STALCRAFT" map "D:/exports/zone.png" --region ru --png-compression 9
+   scfile maptiles "D:/tiles" "D:/maps/area.jpg" --jpeg-quality "95"
+   scfile maptiles "D:/tiles" "D:/maps/area.png" --png-compression "9"
 
-:ref:`Other options → <cli-maptiles>`
+:ref:`Full command options → <cli-maptiles>`
+
+
+Tile handling
+----------------------------------------
+
+Tiles with the same proportions can have different pixel resolutions.
+Larger tiles are scaled down to the resolution of the smallest one.
+Tiles with different aspect ratios cannot be combined.
+
+Files smaller than ``7 KB`` are skipped because they are generally obsolete map tiles.
+
+.. note::
+
+   The full map is assembled in memory before it is saved.
+   Large exports can use more than ``1 GB`` of RAM.
