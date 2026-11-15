@@ -2,7 +2,6 @@
 
 import os
 import stat
-import time
 from collections.abc import Collection, Generator
 from contextlib import contextmanager
 from pathlib import Path
@@ -103,19 +102,9 @@ def stage(
     try:
         os.close(fd)
         yield tmp
-        for attempt in range(3):
-            try:
-                if output.exists() and attempt == 0:
-                    output.chmod(output.stat().st_mode | stat.S_IWRITE)
-                tmp.replace(output)
-                break
-            except PermissionError as error:
-                if attempt == 2:
-                    error.add_note(
-                        f"Could not replace '{output}'. Close programs using the file and check its permissions."
-                    )
-                    raise
-                time.sleep(0.1)
+        if output.exists():
+            output.chmod(output.stat().st_mode | stat.S_IWRITE)
+        tmp.replace(output)
 
     except BaseException as error:
         try:
